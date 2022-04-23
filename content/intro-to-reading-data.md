@@ -193,7 +193,7 @@ At this point you should be able to put a valid address into the form field and 
 
 ### 4. Handle invalid addresses
 
-We’re just about done. The only remaining issue is that setting an invalid address doesn’t show any error message or change the balance shown. If you open the developer console, you’ll see `Error: Invalid public key input`. When using the `PublicKey` constructor, you need to pass in a valid address or you’ll get this error.
+We’re just about done. The only remaining issue is that using an invalid address doesn’t show any error message or change the balance shown. If you open the developer console, you’ll see `Error: Invalid public key input`. When using the `PublicKey` constructor, you need to pass in a valid address or you’ll get this error.
 
 To fix this, let’s wrap everything in a `try-catch` block and alert the user if their input is invalid.
 
