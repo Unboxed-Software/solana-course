@@ -19,9 +19,9 @@
 - **SOL** is the name of Solana’s native token.
 - **Lamports** are fractional SOL and are named after [Leslie Lamport](https://en.wikipedia.org/wiki/Leslie_Lamport).
 - **Public keys**, often referred to as addresses, point to accounts on the Solana network. While you must have a specific secret key to perform certain functions within accounts, anyone can read account data with a public key.
-- **JSON RPC API**: all interactions with the Solana network happens through the [**JSON RPC API**](https://docs.solana.com/developing/clients/jsonrpc-api). This is effectively an HTTP POST with a JSON body that represents the method you want to call.
+- **JSON RPC API**: all interactions with the Solana network happens through the [JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api). This is effectively an HTTP POST with a JSON body that represents the method you want to call.
 - **@solana/web3.js** is an abstraction on top of the JSON RPC API. It can be installed with `npm` and allows you to call Solana methods as JavaScript functions. For example, you can use it to query the SOL balance of any account:
-    
+
     ```tsx
     async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
         const connection = new Connection(clusterApiUrl('devnet'));
@@ -57,7 +57,7 @@ All client interaction with the Solana network happens through Solana’s [JSON 
 Per the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification)
 
 > *JSON-RPC is a stateless, light-weight remote procedure call (RPC) protocol. Primarily this specification defines several data structures and the rules around their processing. It is transport agnostic in that the concepts can be used within the same process, over sockets, over http, or in many various message passing environments. It uses [JSON](http://www.json.org/) ([RFC 4627](http://www.ietf.org/rfc/rfc4627.txt)) as data format.*
-> 
+>
 
 In practice, this specification simply involves sending a JSON object representing a method you want to call. You can do this with sockets, http, and more.
 
@@ -138,7 +138,7 @@ The balance returned is in fractional SOL called lamports. A single lamport repr
 
 # Demo
 
-Let’s create a simple website that lets users check the balance at a particular address. 
+Let’s create a simple website that lets users check the balance at a particular address.
 
 It’ll look something like this:
 
