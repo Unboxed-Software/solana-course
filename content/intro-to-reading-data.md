@@ -189,7 +189,7 @@ const Home: NextPage = () => {
 
 Notice that we are taking the balance returned by Solana and dividing it by `LAMPORTS_PER_SOL`. Lamports are fractional SOL (0.000000001 SOL). Most of the time when dealing with SOL, the system will use lamports instead of SOL. In this case, the balance returned by the network is in lamports. Before setting it to our state, we convert it to SOL using the `LAMPORTS_PER_SOL` constant.
 
-At this point, you should be able to put a valid address into the form field, click “Check SOL Balance,” and see both the Address and Balance populate below.
+At this point you should be able to put a valid address into the form field and click “Check SOL Balance” to see both the Address and Balance populate below.
 
 ### 4. Handle invalid addresses
 
