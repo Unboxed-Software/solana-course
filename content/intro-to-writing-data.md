@@ -1,4 +1,4 @@
-# Writing to the blockchain
+# Writing Data To The Solana Network
 
 # Lesson Objectives
 
