@@ -4,7 +4,9 @@
 
 *By the end of this lesson, you will be able to:*
 
+- Explain the contents of a transaction
 - Explain transaction instructions
+- Explain the basics of Solana's runtime optimizations
 - Explain Borsh
 - Use Borsh to serialize custom instruction data
 
