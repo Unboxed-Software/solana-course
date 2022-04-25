@@ -49,11 +49,11 @@ Solana’s Wallet-Adapter comprises multiple modular packages. The core function
 
 There are also packages that provide components for common UI frameworks. In this lesson and throughout this course, we’ll be using components from `@solana/wallet-adapter-react-ui`.
 
-Finally, there are packages that are adapters for specific wallets, including Phantom. You can use `@solana/wallet-adapter-wallets` to include all of the supported wallets, or you can choose specific wallet packages (e.g. `@solana/wallet-adapter-phantom`).
+Finally, there are packages that are adapters for specific wallets, including Phantom. You can use `@solana/wallet-adapter-wallets` to include all of the supported wallets, or you can choose a specific wallet package like `@solana/wallet-adapter-phantom`.
 
 ### Install Wallet-Adapter Libraries
 
-When adding wallet support to an existing react app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`, the package(s) for the wallet(s) you want to support, and `@solana/wallet-adapter-react-ui` if you plan to use the provided react components.
+When adding wallet support to an existing react app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`, the package(s) for the wallet(s) you want to support, and `@solana/wallet-adapter-react-ui` if you plan to use the provided react components, e.g.
 
 ```
 npm install @solana/wallet-adapter-base \
