@@ -385,7 +385,7 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
 }
 ```
 
-Next, let’s add the instruction to the transaction we created at the start of the function Then, call upon `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on the Solana Explorer.
+Next, let’s add the instruction to the transaction we created at the start of the function. Then, call upon `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on the Solana Explorer.
 
 ```tsx
 async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
