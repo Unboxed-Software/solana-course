@@ -240,9 +240,9 @@ import { FC, ReactNode } from 'react';
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
-	return (
+    return (
 
-	)
+    )
 }
 
 export default WalletContextProvider
@@ -257,15 +257,15 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
-	return (
-		<ConnectionProvider endpoint={''}>
-	    <WalletProvider wallets={[]}>
-	      <WalletModalProvider>
-	        { children }
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-	)
+    return (
+        <ConnectionProvider endpoint={''}>
+            <WalletProvider wallets={[]}>
+                <WalletModalProvider>
+                    { children }
+                </WalletModalProvider>
+            </WalletProvider>
+        </ConnectionProvider>
+    )
 }
 
 export default WalletContextProvider
@@ -287,18 +287,18 @@ import * as web3 from '@solana/web3.js'
 import * as walletAdapterWallets from '@solana/wallet-adapter-wallets';
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const endpoint = web3.clusterApiUrl('devnet')
-	const wallets = [new walletAdapterWallets.PhantomWalletAdapter()]
+    const endpoint = web3.clusterApiUrl('devnet')
+    const wallets = [new walletAdapterWallets.PhantomWalletAdapter()]
 
-	return (
-		<ConnectionProvider endpoint={endpoint}>
-	    <WalletProvider wallets={wallets}>
-	      <WalletModalProvider>
-	        { children }
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-	)
+    return (
+        <ConnectionProvider endpoint={endpoint}>
+            <WalletProvider wallets={wallets}>
+                <WalletModalProvider>
+                    { children }
+                </WalletModalProvider>
+            </WalletProvider>
+        </ConnectionProvider>
+    )
 }
 
 export default WalletContextProvider
