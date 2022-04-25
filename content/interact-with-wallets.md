@@ -6,7 +6,7 @@
 
 - Explain Wallets
 - Install Phantom extension
-- Set Phantom wallet to devnet
+- Set Phantom wallet to [Devnet](https://api.devnet.solana.com/)
 - Use wallet-adapter to have users sign transactions
 
 # TL;DR
@@ -225,9 +225,9 @@ Once you have a wallet, click the settings gear on the bottom left in the Phanto
 
 ### 2. Download the starter code
 
-Download the starter code for this project [here](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo. 
+Download the starter code for this project [here](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo.
 
-You can see its current state with the command `npm run dev` in the console. 
+You can see its current state with the command `npm run dev` in the console.
 
 ### 3. Wrap the app in context providers
 
@@ -275,7 +275,7 @@ The last thing we need is the actual endpoint for `ConnectionProvider` and the a
 
 For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it.
 
-For the array of wallets you’ll need to import the `@solana/wallet-adapter-wallets` library. 
+For the array of wallets you’ll need to import the `@solana/wallet-adapter-wallets` library.
 
 After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the url for Devnet. Then create a constant `wallets` and set it to an array that contains a newly constructed `PhantomWalletAdapter`. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
 
@@ -377,7 +377,7 @@ At this point, you should be able to run the app and interact with the Connect b
 
 ### 5. Create button to ping program
 
-Now that our app can connect to the Phantom wallet, let’s make the “Ping” button actually do something. 
+Now that our app can connect to the Phantom wallet, let’s make the “Ping” button actually do something.
 
 Start by opening the `PingButton.tsx` file. We’re going to replace the `console.log` inside of `onClick` with the code that creates a transaction and submits it to the Phantom extension for the end user’s approval.
 
@@ -390,7 +390,7 @@ import { FC, useState } from 'react'
 import styles from '../styles/PingButton.module.css'
 
 export const PingButton: FC = () => {
-	
+
 	const onClick = () => {
 		console.log('Ping!')
 	}
@@ -418,7 +418,7 @@ export const PingButton: FC = () => {
     const onClick = () => {
 			console.log('Ping!')
     }
-    
+
 	return (
 		<div className={styles.buttonContainer} onClick={onClick}>
 			<button className={styles.button}>Ping!</button>
@@ -427,13 +427,13 @@ export const PingButton: FC = () => {
 }
 ```
 
-With that, we can fill in the body of `onClick`. 
+With that, we can fill in the body of `onClick`.
 
 First, check that both `connection` and `publicKey` exist (if either does not then the user’s wallet isn’t connected yet).
 
-Next, construct two instances of `PublicKey`, one for the program id `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and one for the data account `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`. 
+Next, construct two instances of `PublicKey`, one for the program id `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and one for the data account `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
-Next, construct a `Transaction`, then a new `TransactionInstruction` that includes the data account as a writable key. 
+Next, construct a `Transaction`, then a new `TransactionInstruction` that includes the data account as a writable key.
 
 Next, add the instruction to the transaction.
 
@@ -457,7 +457,7 @@ const onClick = () => {
         ],
         programId
     });
-	
+
     transaction.add(instruction)
     sendTransaction(transaction, connection).then(sig => {
         console.log(sig)
@@ -465,7 +465,7 @@ const onClick = () => {
 }
 ```
 
-And that’s it! If you refresh the page, connect your wallet, and click the ping button, Phantom should present you with a popup for confirming the transaction. 
+And that’s it! If you refresh the page, connect your wallet, and click the ping button, Phantom should present you with a popup for confirming the transaction.
 
 ### 5. Add some polish around the edges
 
