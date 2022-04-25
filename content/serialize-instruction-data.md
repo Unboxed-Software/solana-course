@@ -391,4 +391,19 @@ If you need a bit more time with this project to feel comfortable, have a look a
 
 # Challenge
 
-*Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently*
+Now it’s your turn to build something independently. Create an application that lets students of this course introduce themselves! The Solana program that supports this is at `6wNDDbfhqyY8Nm8H2dzAPywjt2D7VKfBzKuSjE3pcgVr`.
+
+![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
+
+1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/starter).
+2. Create the instruction buffer layout in `StudentIntro.ts`. The program expects instruction data to contain:
+   1. `variant` as an unsigned, 8-bit integer representing the instruction to run (should be 0).
+   2. `name` as a string representing the student's name.
+   3. `message` as a string representing the message the student is sharing about their Solana journey.
+3. Create a method in  `StudentIntro.ts` that will use the buffer layout to serialize a `StudentIntro` object.
+4. In the `Form` component, implement the `handleTransactionSubmit` function so that it serializes a `StudentIntro`, builds the appropriate transaction instructions and transaction, and submits the transaction to the user's wallet.
+5. You should be able to submit now and have the information stored on chain! Be sure to log the transaction id and look at it in Solana Explorer to verify that it worked. 
+
+If you get really stumped, feel free to check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
+
+Feel free to get creative with these challenges and take them even further. The instructions aren't here to hold you back!
