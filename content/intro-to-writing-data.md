@@ -25,9 +25,9 @@
         toPubkey: recipient,
         lamports: LAMPORTS_PER_SOL * amount
     })
-    
+
     transaction.add(sendSolInstruction)
-    
+
     const signature = sendAndConfirmTransaction(
         connection,
         transaction,
@@ -142,11 +142,11 @@ Per the definition above, the the object passed to the `TransactionInstruction` 
 - the public key for the program being called
 - an optional `Buffer` containing data to pass to the program.
 
-We’ll be ignoring the data field for now and will revisit it in a future lesson.
+We’ll be ignoring the `data` field for now and will revisit it in a future lesson.
 
 The `programId` field is fairly self explanatory: it’s the public key associated with the program. You’ll need to know this in advance of calling the program in the same way that you’d need to know the public key of someone to whom you want to send SOL.
 
-The `keys` array requires a bit more explanation. Each object in this array represents an account that will be read from or written to during a transaction's execution. This means you need to know the behavior of the program you are calling and ensure that you provide all of the necessary accounts in the array. 
+The `keys` array requires a bit more explanation. Each object in this array represents an account that will be read from or written to during a transaction's execution. This means you need to know the behavior of the program you are calling and ensure that you provide all of the necessary accounts in the array.
 
 Each object in the `keys` array must include the following:
 - `pubkey` - the public key of the account
@@ -292,9 +292,9 @@ main().then(() => {
 })
 ```
 
-Most of this code is just boilerplate to run the file properly. The lines inside of the `main()` function generate a new keypair and log the secret key to the console. 
+Most of this code is just boilerplate to run the file properly. The lines inside of the `main()` function generate a new keypair and log the secret key to the console.
 
-Run `npm start` after saving this file and you should see an array of numbers printed to the console. This array represents the secret key for your new keypair. **Do not** use this keypair for Mainnet operations. **Only use this keypair for testing.** 
+Run `npm start` after saving this file and you should see an array of numbers printed to the console. This array represents the secret key for your new keypair. **Do not** use this keypair for Mainnet operations. **Only use this keypair for testing.**
 
 Copy the secret key array from the console log and paste it into the `.env` file as an environment variable called, `PRIVATE_KEY`. This way we can reuse this keypair in future development instead of generating a new keypair every time we run something. It should look something like this but with different numbers:
 
@@ -422,7 +422,7 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
 Now run the code with `npm start` and see if it works. You may end up with the following error in the console:
 
 > Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
-> 
+>
 
 If you get this error, it’s because your keypair is brand new and doesn’t have any SOL to cover the transaction fees. Let’s fix this by adding the following line in `main()` before the call to `pingProgram()`:
 
