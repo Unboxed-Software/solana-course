@@ -256,4 +256,19 @@ If you need more time with this project to feel comfortable with these concepts,
 
 # Challenge
 
-S*hort, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently*
+Now it’s your turn to build something independently. Last lesson, you worked on the Student Intros app to serialize instruction data and send a new intro to the network. Now, it's time to fetch and deserialize the program's account data. Remember, the Solana program that supports this is at `6wNDDbfhqyY8Nm8H2dzAPywjt2D7VKfBzKuSjE3pcgVr`.
+
+![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
+
+1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
+2. Create the account buffer layout in `StudentIntro.ts`. The account data contains:
+   1. `initialized` as an unsigned, 8-bit integer representing the instruction to run (should be 1).
+   2. `name` as a string representing the student's name.
+   3. `message` as a string representing the message the student shared about their Solana journey.
+3. Create a static method in  `StudentIntro.ts` that will use the buffer layout to deserialize an account data buffer into a `StudentIntro` object.
+4. In the `StudentIntroList` component's `useEffect`, get the program's accounts and deserialize their data into a list of `StudentIntro` objects.
+5. Instead of mock data, you should now be seeing student introductions from the network!
+
+If you get really stumped, feel free to check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data).
+
+As always, get creative with these challenges and take them beyond the instructions if you want!
