@@ -120,9 +120,9 @@ const Home: NextPage = (props) => {
     return (
         <ConnectionProvider endpoint={endpoint}>
             <WalletProvider wallets={[wallet]}>
-								<WalletModalProvider>
+                <WalletModalProvider>
                     <WalletMultiButton />
-										<p>Put the rest of your app here</p>
+                    <p>Put the rest of your app here</p>
                 </WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>
