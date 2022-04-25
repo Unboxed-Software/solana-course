@@ -100,7 +100,7 @@ At this point you can connect with `wallet.connect()`, which will effectively in
 
 ![Screenshot of wallet connection prompt](../assets/wallet-connect-prompt.png)
 
-You could do this in a `useEffect` hook but you’ll usually want to provide more sophisticated functionality. For example, you may want users to be able to choose from a list of supported wallets. Or you may want to let them disconnect after they’ve already connected.
+While you could do this in a `useEffect` hook, you’ll usually want to provide more sophisticated functionality. For example, you may want users to be able to choose from a list of supported wallets, or disconnect after they’ve already connected.
 
 ### `@solana/wallet-adapter-react-ui`
 
