@@ -429,7 +429,6 @@ async function main() {
 Now run the code with `npm start` and see if it works. You may end up with the following error in the console:
 
 > Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
->
 
 If you get this error, it’s because your keypair is brand new and doesn’t have any SOL to cover the transaction fees. Let’s fix this by adding the following line in `main()` before the call to `pingProgram()`:
 
