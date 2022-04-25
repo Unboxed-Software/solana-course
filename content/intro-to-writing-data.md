@@ -450,7 +450,7 @@ Now run the code again. It may take a moment or two, but now the code should wor
 
 Copy this confirmation signature. Open a browser and go to [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (the query parameter at the end of the URL will ensure that you’ll explore transactions on Devnet instead of Mainnet). Paste the signature into the search bar at the top of Solana’s Devnet explorer and hit enter. You should see all the details about the transaction. If you scroll all the way to the bottom, then you will see `Program Logs`, which show how many times the program has been pinged including your ping.
 
-[Screenshot of Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
+![Screenshot of Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
 
 If you want to make it easier to look at Solana Explorer for transactions in the future, simply change your `console.log` in `pingProgram()` to the following:
 
