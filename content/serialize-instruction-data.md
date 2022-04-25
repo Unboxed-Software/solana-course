@@ -178,13 +178,15 @@ web3.sendAndConfirmTransaction(connection, transaction, [player]).then((txid) =>
 
 Let’s practice this together by building a Movie Review app that lets users submit a movie review and have it stored on Solana’s network. We’ll build this app a little bit at a time over the next few lessons, adding new functionality each lesson.
 
-![Screenshot of movie review frontend](./assets/../../assets/movie-reviews-frontend.png)
+![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
 
 The public key for the Solana program we’ll use for this application is `4X5hVHsHeGHjLEB9hrUqQ57sEPcYPPfW54fndmQrsgCF`.
 
 ### 1. Download the starter code
 
-Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/starter). The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson. Additionally, there is a `Card` component for displaying movie reviews and a `Form` component for submitting a new review.  Lastly, there is a `Movie.ts` file that contains a class definition for a `Movie` object.
+Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/starter). 
+
+The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson. Additionally, there is a `Card` component for displaying movie reviews and a `Form` component for submitting a new review.  Lastly, there is a `Movie.ts` file that contains a class definition for a `Movie` object.
 
 Note that for now, the movies displayed on the page when you run `npm run dev` are mocks. In this lesson, we’ll focus on adding a new review but we won’t actually be able to see that review displayed. Next lesson, we’ll focus on deserializing custom data from on-chain accounts.
 
@@ -197,7 +199,7 @@ Remember that to properly interact with a Solana program, you need to know how i
 3. `rating` as an unsigned, 8-bit integer representing the rating out of 5 that you are giving to the movie you are reviewing.
 4. `description` as a string representing the written portion of the review you are leaving for the movie.
 
-Let’s configure a `borsh` layout in the `Movie` class. Start by importing `@project-serum/borsh`. Next, create a `borshSchema` property and set it to the appropriate `borsh` struct containing the properties listed above.
+Let’s configure a `borsh` layout in the `Movie` class. Start by importing `@project-serum/borsh`. Next, create a `borshInstructionSchema` property and set it to the appropriate `borsh` struct containing the properties listed above.
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -209,11 +211,11 @@ export class Movie {
 
 	...
 
-	borshSchema = borsh.struct([
+	borshInstructionSchema = borsh.struct([
 		borsh.u8('variant'),
-    borsh.str('title'),
-	  borsh.u8('rating'),
-    borsh.str('description'),
+    	borsh.str('title'),
+		borsh.u8('rating'),
+    	borsh.str('description'),
 	])
 }
 ```
@@ -234,17 +236,17 @@ export class Movie {
 
 	...
 
-	borshSchema = borsh.struct([
+	borshInstructionSchema = borsh.struct([
 		borsh.u8('variant'),
-    borsh.str('title'),
-	  borsh.u8('rating'),
-    borsh.str('description'),
+      	borsh.str('title'),
+	  	borsh.u8('rating'),
+    	borsh.str('description'),
 	])
 
 	serialize(): Buffer {
 		const buffer = Buffer.alloc(1000)
-    this.borshSchema.encode({ ...this, variant: 0 }, buffer)
-    return buffer.slice(0, this.borshSchema.getSpan(buffer))
+    	this.borshInstructionSchema.encode({ ...this, variant: 0 }, buffer)
+    	return buffer.slice(0, this.borshInstructionSchema.getSpan(buffer))
 	}
 }
 ```
@@ -281,18 +283,18 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 const MOVIE_REVIEW_PROGRAM_ID = '4X5hVHsHeGHjLEB9hrUqQ57sEPcYPPfW54fndmQrsgCF'
 
 export const Form: FC = () => {
-  const [title, setTitle] = useState('')
-  const [rating, setRating] = useState(0)
-  const [message, setMessage] = useState('')
+  	const [title, setTitle] = useState('')
+  	const [rating, setRating] = useState(0)
+  	const [message, setMessage] = useState('')
 
-  const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  	const { connection } = useConnection();
+  	const { publicKey, sendTransaction } = useWallet();
 
-  const handleSubmit = (event: any) => {
-    event.preventDefault()
-    const movie = new Movie(title, rating, description)
-    handleTransactionSubmit(movie)
-  }
+  	const handleSubmit = (event: any) => {
+		event.preventDefault()
+    	const movie = new Movie(title, rating, description)
+    	handleTransactionSubmit(movie)
+  	}
 
 	...
 }
@@ -351,26 +353,26 @@ const handleTransactionSubmit = async (movie: Movie) => {
 	)
 
 	const instruction = new web3.TransactionInstruction({
-	  keys: [
-	    {
-	      pubkey: publicKey,
-        isSigner: true,
-        isWritable: false,
-      },
-      {
-	      pubkey: pda,
-        isSigner: false,
-        isWritable: true
-      },
-      {
-        pubkey: web3.SystemProgram.programId,
-        isSigner: false,
-        isWritable: false
-      }
-    ],
-    data: buffer,
+		keys: [
+	    	{
+	    	  	pubkey: publicKey,
+        		isSigner: true,
+        		isWritable: false,
+      		},
+      		{
+	    	 	pubkey: pda,
+        		isSigner: false,
+        		isWritable: true
+      		},
+      		{
+        		pubkey: web3.SystemProgram.programId,
+        		isSigner: false,
+        		isWritable: false
+      		}
+    	],
+    	data: buffer,
 		programId: new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-  })
+  	})
 
 	transaction.add(instruction)
 
