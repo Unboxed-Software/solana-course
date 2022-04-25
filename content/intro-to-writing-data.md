@@ -442,7 +442,7 @@ This will deposit 1 SOL into your account which you can use for testing. This wo
 
 ### 6. Check the Solana Explorer
 
-Now run the code again. It may take a moment or two, but now the code should work and you should see a long string like the following printed to the console:
+Now run the code again. It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
 
 ```
 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
