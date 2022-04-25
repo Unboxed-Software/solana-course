@@ -186,7 +186,7 @@ The public key for the Solana program we’ll use for this application is `4X5hV
 
 Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/starter). 
 
-The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson. Additionally, there is a `Card` component for displaying movie reviews and a `Form` component for submitting a new review.  Lastly, there is a `Movie.ts` file that contains a class definition for a `Movie` object.
+The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson, a `Card` component for displaying a movie review, a `MovieList` component that displays reviews in a list, a `Form` component for submitting a new review, and a `Movie.ts` file that contains a class definition for a `Movie` object.
 
 Note that for now, the movies displayed on the page when you run `npm run dev` are mocks. In this lesson, we’ll focus on adding a new review but we won’t actually be able to see that review displayed. Next lesson, we’ll focus on deserializing custom data from on-chain accounts.
 
@@ -213,9 +213,9 @@ export class Movie {
 
 	borshInstructionSchema = borsh.struct([
 		borsh.u8('variant'),
-    	borsh.str('title'),
+		borsh.str('title'),
 		borsh.u8('rating'),
-    	borsh.str('description'),
+		borsh.str('description'),
 	])
 }
 ```
@@ -238,15 +238,15 @@ export class Movie {
 
 	borshInstructionSchema = borsh.struct([
 		borsh.u8('variant'),
-      	borsh.str('title'),
-	  	borsh.u8('rating'),
-    	borsh.str('description'),
+		borsh.str('title'),
+		borsh.u8('rating'),
+		borsh.str('description'),
 	])
 
 	serialize(): Buffer {
 		const buffer = Buffer.alloc(1000)
-    	this.borshInstructionSchema.encode({ ...this, variant: 0 }, buffer)
-    	return buffer.slice(0, this.borshInstructionSchema.getSpan(buffer))
+		this.borshInstructionSchema.encode({ ...this, variant: 0 }, buffer)
+		return buffer.slice(0, this.borshInstructionSchema.getSpan(buffer))
 	}
 }
 ```
@@ -328,7 +328,7 @@ The next step is to get all of the accounts that the transaction will read from 
 
 ```tsx
 const [pda] = await web3.PublicKey.findProgramAddress(
-	[publicKey.toBuffer(), new TextEncoder().encode(movie.title)],
+	[publicKey.toBuffer(), Buffer.from(movie.title)],
 	new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
 )
 ```
