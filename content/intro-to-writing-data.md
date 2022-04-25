@@ -416,7 +416,14 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
     console.log(sig)
 }
 ```
-
+Finally, let's invoke `pingProgram()` within `main()` using `connection` and `payer`:
+```tsx
+async function main() {
+    const payer = initializeKeypair()
+    const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
+    await pingProgram(connection, payer)
+}
+```
 ### 5. Airdrop
 
 Now run the code with `npm start` and see if it works. You may end up with the following error in the console:
