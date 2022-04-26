@@ -45,7 +45,7 @@ Every instruction contains:
 
 Identifying the program by its public key ensures that the instruction is carried out by the correct program.
 
-Including an array of every account that we be read from or written to allows the network to perform a number of optimizations that allow for high transaction load and quicker execution.
+Including an array of every account that will be read from or written to allows the network to perform a number of optimizations that allow for high transaction load and quicker execution.
 
 Including the byte buffer lets you pass external data to a program.
 
