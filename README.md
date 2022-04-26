@@ -19,6 +19,15 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    4. [Serialize custom instruction data](./content/serialize-instruction-data.md)
    5. [Deserialize custom account data](./content/deserialize-custom-data.md)
 
+### Module 2 - Client interaction with the Solana Program Library
+Coming soon
+
+### Module 3 - Basic Solana Program Development
+Coming soon
+
+### Module 4 - Advanced Solana Program Development
+Coming soon
+
 ## Contribute To The Course
 
 We plan for this course to be perpetually open-source and would love for anyone and everyone to contribute! 
