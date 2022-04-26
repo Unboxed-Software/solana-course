@@ -35,7 +35,7 @@ Every transaction contains:
 
 `@solana/web3.js` simplifies this process for you so that all you really need to focus on is adding instructions and signatures. The library builds the array of accounts based on that information and handles the logic for including a recent blockhash.
 
-### Instructions
+## Instructions
 
 Every instruction contains:
 
