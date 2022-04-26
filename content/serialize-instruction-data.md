@@ -80,7 +80,6 @@ Exactly *how* this data would be structured would depend on how the program was 
 In addition to knowing what information to include in an instruction data buffer, you also need to serialize it properly. The most common serializer used in Solana is [Borsh](https://borsh.io). Per the website:
 
 > Borsh stands for Binary Object Representation Serializer for Hashing. It is meant to be used in security-critical projects as it prioritizes consistency, safety, speed; and comes with a strict specification.
->
 
 Borsh maintains a [JS library](https://github.com/near/borsh-js) that handles serializing common types into a buffer. There are also other packages built on top of borsh that try to make this process even easier. We’ll be using the `@project-serum/borsh` library which can be installed using `npm`.
 
