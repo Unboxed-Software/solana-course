@@ -22,7 +22,7 @@
 
 ## Transactions
 
-Transactions are how we send information to the blockchain to be processed. So far, we’ve learned how to create very basic transactions with limited functionality. But transactions, and the programs they are sent to, can be designed to be far more flexible and handle far more complexity than we’ve dealt with up to now.
+Transactions are how we send information to the blockchain in order to be processed. So far, we’ve learned how to create very basic transactions with limited functionality. But transactions, and the programs they are sent to, can be designed to be far more flexible and handle far more complexity than we’ve dealt with up to now.
 
 ### Transaction Contents
 
