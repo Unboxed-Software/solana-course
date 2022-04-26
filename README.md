@@ -10,7 +10,7 @@ The first two modules will primarily focus on client-side Solana development whe
 
 ## Get Started
 
-While you can absolutely just jump into the lessons below, we suggest you start by reading our ![Course Guide](./content/getting-started.md) first for a primer on how lessons are organized and how you can get the most out of them.
+While you can absolutely just jump into the lessons below, we suggest you start by reading our [Course Guide](./content/getting-started.md) first for a primer on how lessons are organized and how you can get the most out of them.
 
 ### Module 1 - Client interaction with the Solana Network
    1. [Read data from the network](./content/intro-to-reading-data.md)
