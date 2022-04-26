@@ -89,7 +89,7 @@ Building off of the previous game inventory example, let’s look at a hypotheti
 2. `playerId` as an unsigned, 16-bit integer that represents the player ID of the player who is to be equipped with the given item.
 3. `itemId` as an unsigned, 256-bit integer that represents the item ID of the item that will be equipped to the given player.
 
-All of this will be passed as a byte buffer that will be read in order, so ensuring that your buffer layout is ordered properly is crucial. You would create the buffer layout schema or template for the above as follows:
+All of this will be passed as a byte buffer that will be read in order, so ensuring proper buffer layout order is crucial. You would create the buffer layout schema or template for the above as follows:
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
