@@ -219,7 +219,7 @@ mkdir -p solana-ping-client/src && \
 	git init && touch .gitignore && \
 	npm init -y && \
 	npm install --save-dev typescript && \
-    npm install --save-dev ts-node && \
+  npm install --save-dev ts-node && \
 	npx tsc --init && \
 	npm install @solana/web3.js && \
 	npm install dotenv && \
