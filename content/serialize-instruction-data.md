@@ -43,7 +43,7 @@ Every instruction contains:
 - An array listing every account that will be read from or written to during execution
 - A byte buffer of instruction data
 
-Including the program ID ensures that the instruction is carried out by the correct program.
+Identifying the program by its public key ensures that the instruction is carried out by the correct program.
 
 Including an array of every account that we be read from or written to allows the network to perform a number of optimizations that allow for high transaction load and quicker execution.
 
