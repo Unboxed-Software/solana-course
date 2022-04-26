@@ -391,7 +391,7 @@ If you need a bit more time with this project to feel comfortable, have a look a
 
 # Challenge
 
-Now it’s your turn to build something independently. Create an application that lets students of this course introduce themselves! The Solana program that supports this is at `6wNDDbfhqyY8Nm8H2dzAPywjt2D7VKfBzKuSjE3pcgVr`.
+Now it’s your turn to build something independently. Create an application that lets students of this course introduce themselves! The Solana program that supports this is at `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
 
 ![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
 
