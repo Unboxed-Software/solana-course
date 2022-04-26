@@ -368,7 +368,7 @@ At this point, you should be able to run the app and interact with the multi-but
 
 Now that our app can connect to the Phantom wallet, let’s make the “Ping!” button actually do something.
 
-Start by opening the `PingButton.tsx` file. We’re going to replace the `console.log` inside of `onClick` with the code that creates a transaction and submits it to the Phantom extension for the end user’s approval.
+Start by opening the `PingButton.tsx` file. We’re going to replace the `console.log` inside of `onClick` with code that will create a transaction and submit it to the Phantom extension for the end user’s approval.
 
 First, we need a connection, the wallet’s public key, and Wallet-Adapter’s `sendTransaction` function. To get this, we need to import `useConnection` and `useWallet` from `@solana/wallet-adapter-react`. While we’re here, let’s also import `@solana/web3.js` since we’ll need it to create our transaction.
 
