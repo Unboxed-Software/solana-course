@@ -273,9 +273,7 @@ export default WalletContextProvider
 
 The last things we need are an actual endpoint for `ConnectionProvider` and the supported wallets for `WalletProvider`.
 
-For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it.
-
-For the array of wallets you’ll need to import the `@solana/wallet-adapter-wallets` library.
+For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it. For the array of wallets you’ll also need to import the `@solana/wallet-adapter-wallets` library.
 
 After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the url for Devnet. Then create a constant `wallets` and set it to an array that contains a newly constructed `PhantomWalletAdapter`. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
 
