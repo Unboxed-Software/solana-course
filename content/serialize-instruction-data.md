@@ -250,7 +250,7 @@ export class Movie {
 }
 ```
 
-The method shown above first creates a large enough buffer for our object, then encodes `{ ...this, variant: 0 }` into the buffer. Because the `Movie` class definition contains 3 of the 4 properties required by the buffer layout and uses the same naming, we could use it directly with the spread operator and just add the `variant` property. Finally, the method returns a new buffer that leaves off the unused portion of the original.
+The method shown above first creates a large enough buffer for our object, then encodes `{ ...this, variant: 0 }` into the buffer. Because the `Movie` class definition contains 3 of the 4 properties required by the buffer layout and uses the same naming, we can use it directly with the spread operator and just add the `variant` property. Finally, the method returns a new buffer that leaves off the unused portion of the original.
 
 ### 4. Send transaction when user submits form
 
