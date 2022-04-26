@@ -152,7 +152,7 @@ Once you’ve got the starter code, take a look around. Run the app with `npm ru
 
 Structurally, the app is composed of `index.tsx` and `AddressForm.tsx`. When a user submits the form, the `addressSubmittedHandler` in `index.tsx` gets called. That’s where we’ll be adding the logic to update the rest of the UI.
 
-### 2. Install Dependencies
+### 2. Install dependencies
 
 Use `npm install @solana/web3.js` to install our dependency on Solana’s Web3 library.
 
