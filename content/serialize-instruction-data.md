@@ -40,7 +40,7 @@ Every transaction contains:
 Every instruction contains:
 
 - The program ID (public key) of the intended program
-- An array that includes every account that will be read from or written to during execution
+- An array listing every account that will be read from or written to during execution
 - A byte buffer of instruction data
 
 Including the program ID ensures that the instruction is carried out by the correct program.
