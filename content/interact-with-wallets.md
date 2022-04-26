@@ -277,12 +277,15 @@ For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solan
 
 After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the url for Devnet. Then create a constant `wallets` and set it to an array that contains a newly constructed `PhantomWalletAdapter`. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
 
+To complete this component, add `require('@solana/wallet-adapter-react-ui/styles.css');` below your imports to ensure proper styling and behavior of the Wallet Adapter library components.
+
 ```tsx
 import { FC, ReactNode } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import * as web3 from '@solana/web3.js'
 import * as walletAdapterWallets from '@solana/wallet-adapter-wallets';
+require('@solana/wallet-adapter-react-ui/styles.css');
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const endpoint = web3.clusterApiUrl('devnet')
@@ -300,18 +303,6 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 }
 
 export default WalletContextProvider
-```
-
-Lastly, add `require('@solana/wallet-adapter-react-ui/styles.css');` below your imports to ensure proper styling and behavior of the Wallet Adapter library components.
-
-```tsx
-import { FC, ReactNode } from 'react';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import * as web3 from '@solana/web3.js'
-import * as walletAdapterWallets from '@solana/wallet-adapter-wallets';
-require('@solana/wallet-adapter-react-ui/styles.css');
-...
 ```
 
 ### 4. Add Connect Button
