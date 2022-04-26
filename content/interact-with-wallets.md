@@ -271,7 +271,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export default WalletContextProvider
 ```
 
-The last thing we need is the actual endpoint for `ConnectionProvider` and the actual array of supported wallets for `WalletProvider`.
+The last things we need are an actual endpoint for `ConnectionProvider` and the supported wallets for `WalletProvider`.
 
 For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it.
 
