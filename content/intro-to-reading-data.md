@@ -222,7 +222,7 @@ We did it! We have a functioning site that reads SOL balances from the Solana ne
 
 Since this is the first challenge, we’ll keep it simple. Go ahead and add on to the frontend we’ve already created by including a line item after “Balance”. Have the line item display whether or not the account is an executable account or not. Hint: there’s a `getAccountInfo` method.
 
-Your standard wallet address will *not* be executable, so if you want an address that *will* be executable for testing, use `4X5hVHsHeGHjLEB9hrUqQ57sEPcYPPfW54fndmQrsgCF`.
+Your standard wallet address will *not* be executable, so if you want an address that *will* be executable for testing, use `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
 ![Screenshot of final challenge solution](../assets/intro-frontend-challenge.png)
 

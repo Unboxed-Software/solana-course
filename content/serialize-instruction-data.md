@@ -180,7 +180,7 @@ Let’s practice this together by building a Movie Review app that lets users su
 
 ![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
 
-The public key for the Solana program we’ll use for this application is `4X5hVHsHeGHjLEB9hrUqQ57sEPcYPPfW54fndmQrsgCF`.
+The public key for the Solana program we’ll use for this application is `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
 ### 1. Download the starter code
 
@@ -280,7 +280,7 @@ import { Box, Button, FormControl, FormLabel, Input, NumberDecrementStepper, Num
 import * as web3 from '@solana/web3.js'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 
-const MOVIE_REVIEW_PROGRAM_ID = '4X5hVHsHeGHjLEB9hrUqQ57sEPcYPPfW54fndmQrsgCF'
+const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN'
 
 export const Form: FC = () => {
   	const [title, setTitle] = useState('')
