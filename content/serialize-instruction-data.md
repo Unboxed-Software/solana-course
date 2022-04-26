@@ -353,25 +353,25 @@ const handleTransactionSubmit = async (movie: Movie) => {
 
 	const instruction = new web3.TransactionInstruction({
 		keys: [
-	    	{
-	    	  	pubkey: publicKey,
-        		isSigner: true,
-        		isWritable: false,
-      		},
-      		{
-	    	 	pubkey: pda,
-        		isSigner: false,
-        		isWritable: true
-      		},
-      		{
-        		pubkey: web3.SystemProgram.programId,
-        		isSigner: false,
-        		isWritable: false
-      		}
-    	],
-    	data: buffer,
+			{
+				pubkey: publicKey,
+				isSigner: true,
+				isWritable: false,
+			},
+			{
+				pubkey: pda,
+				isSigner: false,
+				isWritable: true
+			},
+			{
+				pubkey: web3.SystemProgram.programId,
+				isSigner: false,
+				isWritable: false
+			}
+		],
+		data: buffer,
 		programId: new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-  	})
+	})
 
 	transaction.add(instruction)
 
