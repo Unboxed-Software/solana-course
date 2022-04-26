@@ -456,7 +456,7 @@ const onClick = () => {
 
 And that’s it! If you refresh the page, connect your wallet, and click the ping button, Phantom should present you with a popup for confirming the transaction.
 
-### 5. Add some polish around the edges
+### 6. Add some polish around the edges
 
 There’s a lot you could do to make the user experience here even better. For example, you could change the UI to only show you the Ping button when a wallet is connected and display some other prompt otherwise. You could link to the transaction on Solana Explorer after a user confirms a transaction so they can easily go look at the transaction details. The more you experiment with it, the more comfortable you’ll get, so get creative!
 
