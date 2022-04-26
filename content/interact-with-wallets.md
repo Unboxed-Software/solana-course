@@ -81,8 +81,8 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import web3 from '@solana/web3.js';
 
 export const Home: NextPage = (props) => {
-		const endpoint = web3.clusterApiUrl('devnet');
-		const wallet = new PhantomWalletAdapter();
+    const endpoint = web3.clusterApiUrl('devnet');
+    const wallet = new PhantomWalletAdapter();
 
     return (
         <ConnectionProvider endpoint={endpoint}>
@@ -114,8 +114,8 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import web3 from '@solana/web3.js';
 
 const Home: NextPage = (props) => {
-		const endpoint = web3.clusterApiUrl('devnet');
-		const wallet = new PhantomWalletAdapter();
+    const endpoint = web3.clusterApiUrl('devnet');
+    const wallet = new PhantomWalletAdapter();
 
     return (
         <ConnectionProvider endpoint={endpoint}>
