@@ -47,7 +47,7 @@ Identifying the program by its public key ensures that the instruction is carrie
 
 Including an array of every account that will be read from or written to allows the network to perform a number of optimizations which allow for high transaction load and quicker execution.
 
-Including the byte buffer lets you pass external data to a program.
+The byte buffer lets you pass external data to a program.
 
 You can include multiple instructions in a single transaction. The Solana runtime will process these instructions in order and atomically. In other words, if every instruction succeeds then the transaction as a whole will be successful, but if a single instruction fails then the entire transaction will fail immediately with no side-effects.
 
