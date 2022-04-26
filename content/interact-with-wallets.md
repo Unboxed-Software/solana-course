@@ -152,7 +152,7 @@ You can also use more granular components if you need more specific functionalit
 
 ### Access Account Info
 
-Once your site is connected to a wallet, `useConnection` will retrieve a `Connection` object and  `useWallet` will get the `WalletContextState`. `WalletContextState` has a property `publicKey` that is `null` when not connected to a wallet and has the public key of the user’s account when a wallet is connected. With a public key and a connection, you can fetch account info and more.
+Once your site is connected to a wallet, `useConnection` will retrieve a `Connection` object and `useWallet` will get the `WalletContextState`. `WalletContextState` has a property `publicKey` that is `null` when not connected to a wallet and has the public key of the user’s account when a wallet is connected. With a public key and a connection, you can fetch account info and more.
 
 ```tsx
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
