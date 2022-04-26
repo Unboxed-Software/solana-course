@@ -282,18 +282,18 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN'
 
 export const Form: FC = () => {
-  	const [title, setTitle] = useState('')
-  	const [rating, setRating] = useState(0)
-  	const [message, setMessage] = useState('')
+	const [title, setTitle] = useState('')
+	const [rating, setRating] = useState(0)
+	const [message, setMessage] = useState('')
 
-  	const { connection } = useConnection();
-  	const { publicKey, sendTransaction } = useWallet();
+	const { connection } = useConnection();
+	const { publicKey, sendTransaction } = useWallet();
 
-  	const handleSubmit = (event: any) => {
+	const handleSubmit = (event: any) => {
 		event.preventDefault()
-    	const movie = new Movie(title, rating, description)
-    	handleTransactionSubmit(movie)
-  	}
+		const movie = new Movie(title, rating, description)
+		handleTransactionSubmit(movie)
+	}
 
 	...
 }
