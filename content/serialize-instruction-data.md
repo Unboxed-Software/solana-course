@@ -148,7 +148,7 @@ const instruction = new web3.TransactionInstruction({
 	keys: [
 		{
       pubkey: player.publicKey,
-		  isSigner: true,
+      isSigner: true,
       isWritable: false,
     },
     {
@@ -157,7 +157,7 @@ const instruction = new web3.TransactionInstruction({
       isWritable: true,
     },
     {
-	    pubkey: web3.SystemProgram.programId,
+      pubkey: web3.SystemProgram.programId,
       isSigner: false,
       isWritable: false,
     }
