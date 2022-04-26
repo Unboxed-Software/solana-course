@@ -74,15 +74,15 @@ npm install @solana/wallet-adapter-base \
 For these to work properly, any use of `useWallet` and `useConnection` should be wrapped in `WalletProvider` and `ConnectionProvider`. One of the best ways to ensure this is to wrap your entire app in `ConnectionProvider` and `WalletProvider`:
 
 ```tsx
-import { NextPage } from 'next';
-import { FC, ReactNode } from "react";
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
-import web3 from '@solana/web3.js';
+import { NextPage } from 'next'
+import { FC, ReactNode } from "react"
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
+import web3 from '@solana/web3.js'
 
 export const Home: NextPage = (props) => {
-    const endpoint = web3.clusterApiUrl('devnet');
-    const wallet = new PhantomWalletAdapter();
+    const endpoint = web3.clusterApiUrl('devnet')
+    const wallet = new PhantomWalletAdapter()
 
     return (
         <ConnectionProvider endpoint={endpoint}>
@@ -90,7 +90,7 @@ export const Home: NextPage = (props) => {
                 <p>Put the rest of your app here</p>
             </WalletProvider>
         </ConnectionProvider>
-    );
+    )
 }
 ```
 
@@ -107,15 +107,15 @@ While you could do this in a `useEffect` hook, you’ll usually want to provide 
 You can create custom components for this, or you can leverage components provided by `@solana/wallet-adapter-react-ui`. The simplest way to provide extensive options is to use `WalletModalProvider` and `WalletMultiButton`:
 
 ```tsx
-import { NextPage } from 'next';
-import { FC, ReactNode } from "react";
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
-import web3 from '@solana/web3.js';
+import { NextPage } from 'next'
+import { FC, ReactNode } from "react"
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
+import web3 from '@solana/web3.js'
 
 const Home: NextPage = (props) => {
-    const endpoint = web3.clusterApiUrl('devnet');
-    const wallet = new PhantomWalletAdapter();
+    const endpoint = web3.clusterApiUrl('devnet')
+    const wallet = new PhantomWalletAdapter()
 
     return (
         <ConnectionProvider endpoint={endpoint}>
@@ -126,10 +126,10 @@ const Home: NextPage = (props) => {
                 </WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>
-    );
+    )
 }
 
-export default Home;
+export default Home
 ```
 
 The `WalletModalProvider` adds functionality for presenting a modal screen for users to select which wallet they’d like to use. The `WalletMultiButton` changes behavior to match the connection status:
