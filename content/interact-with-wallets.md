@@ -366,7 +366,7 @@ At this point, you should be able to run the app and interact with the multi-but
 
 ### 5. Create button to ping program
 
-Now that our app can connect to the Phantom wallet, let’s make the “Ping” button actually do something.
+Now that our app can connect to the Phantom wallet, let’s make the “Ping!” button actually do something.
 
 Start by opening the `PingButton.tsx` file. We’re going to replace the `console.log` inside of `onClick` with the code that creates a transaction and submits it to the Phantom extension for the end user’s approval.
 
