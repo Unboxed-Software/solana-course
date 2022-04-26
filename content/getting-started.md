@@ -7,9 +7,9 @@ Glad you asked. Each lesson starts by listing the lesson objectives. These are s
 In addition to listing objectives, each lesson provides a brief TL;DR so that you can glance through, get a sense of what the lesson covers, and decide if the lesson is for you or not.
 
 If you decide to continue your journey, you'll then encounter three sections:
-- **Overview** - the overiew contains explanatory text, examples, and code snippets. You are *not* expected to code along with any of the examples shown here. The goal is to simply read through and get initial exposure to the lesson topics.
+- **Overview** - the overview contains explanatory text, examples, and code snippets. You are *not* expected to code along with any of the examples shown here. The goal is to simply read through and get initial exposure to the lesson topics.
 - **Demo** - the demo is a tutorial-style project. You *absolutely should* code along with this section. This is your second exposure to the content as well as your first opportunity to dive in and *do the thing*.
-- **Challenge** - the challenge contains a similar project to the demo only instead of walking you through it, the lesson leaves just a few simple prompts that you should then take and implement independently. 
+- **Challenge** - the challenge contains a similar project to the demo only instead of walking you through it, the lesson leaves just a few simple prompts that you should then take and implement independently.
 
 This structure leans into a pedagogical technique call IWY loops. IWY stands for "I do, We do, You do." Each step along the way increases your exposure to the topic *and* reduces the amount of handholding you're given.
 
