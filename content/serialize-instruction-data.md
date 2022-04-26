@@ -13,7 +13,7 @@
 # TL;DR
 
 - Transactions are made up of an array of instructions, a single transaction can have any number of instructions in it, each targeting its own program. When a transaction is submitted, the Solana runtime will process its instructions in order and atomically, meaning that if any of the instructions fail for any reason, the entire transaction will fail to be processed.
-- Every *instruction* is made up of 3 components: the program_id of the intended program, an array of all account’s involved, and a byte buffer of instruction data.
+- Every *instruction* is made up of 3 components: the intended program's ID, an array of all account’s involved, and a byte buffer of instruction data.
 - Every *transaction* contains: an array of all accounts it intends to read from or write to, one or more instructions, a recent blockhash, and one or more signatures.
 - In order to pass instruction data from a client, it must be serialized into a byte buffer. To facilitate this process of serialization, we will be using [Borsh](https://borsh.io/).
 - Transactions can fail to be processed by the blockchain for any number of reasons, we’ll discuss some of the most common ones here.
@@ -39,11 +39,11 @@ Every transaction contains:
 
 Every instruction contains:
 
-- The program id (public key) of the intended program
+- The program ID (public key) of the intended program
 - An array that includes every account that will be read from or written to during execution
 - A byte buffer of instruction data
 
-Including the program id ensures that the instruction is carried out by the correct program.
+Including the program ID ensures that the instruction is carried out by the correct program.
 
 Including an array of every account that we be read from or written to allows the network to perform a number of optimizations that allow for high transaction load and quicker execution.
 
@@ -402,7 +402,7 @@ Now it’s your turn to build something independently. Create an application tha
    3. `message` as a string representing the message the student is sharing about their Solana journey.
 3. Create a method in  `StudentIntro.ts` that will use the buffer layout to serialize a `StudentIntro` object.
 4. In the `Form` component, implement the `handleTransactionSubmit` function so that it serializes a `StudentIntro`, builds the appropriate transaction instructions and transaction, and submits the transaction to the user's wallet.
-5. You should be able to submit now and have the information stored on chain! Be sure to log the transaction id and look at it in Solana Explorer to verify that it worked.
+5. You should be able to submit now and have the information stored on chain! Be sure to log the transaction ID and look at it in Solana Explorer to verify that it worked.
 
 If you get really stumped, feel free to check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 
