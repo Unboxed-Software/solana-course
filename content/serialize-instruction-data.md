@@ -179,7 +179,7 @@ Let’s practice this together by building a Movie Review app that lets users su
 
 ![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
 
-The public key for the Solana program we’ll use for this application is `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
+The public key of the Solana program we’ll use for this application is `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
 ### 1. Download the starter code
 
