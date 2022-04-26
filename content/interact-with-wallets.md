@@ -321,23 +321,23 @@ import Head from 'next/head'
 
 const Home: NextPage = (props) => {
 
-  return (
-    <div className={styles.App}>
-      <Head>
-        <title>Wallet-Adapter Example</title>
-        <meta
-          name="description"
-          content="Wallet-Adapter Example"
-        />
-      </Head>
-      <WalletContextProvider>
-        <AppBar />
-        <div className={styles.AppBody}>
-          <PingButton/>
+    return (
+        <div className={styles.App}>
+            <Head>
+                <title>Wallet-Adapter Example</title>
+                <meta
+                    name="description"
+                    content="Wallet-Adapter Example"
+                />
+            </Head>
+            <WalletContextProvider>
+                <AppBar />
+                <div className={styles.AppBody}>
+                    <PingButton/>
+                </div>
+            </WalletContextProvider >
         </div>
-      </WalletContextProvider >
-    </div>
-  );
+    );
 }
 
 export default Home;
