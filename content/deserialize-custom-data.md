@@ -256,7 +256,7 @@ If you need more time with this project to feel comfortable with these concepts,
 
 # Challenge
 
-Now it’s your turn to build something independently. Last lesson, you worked on the Student Intros app to serialize instruction data and send a new intro to the network. Now, it's time to fetch and deserialize the program's account data. Remember, the Solana program that supports this is at `6wNDDbfhqyY8Nm8H2dzAPywjt2D7VKfBzKuSjE3pcgVr`.
+Now it’s your turn to build something independently. Last lesson, you worked on the Student Intros app to serialize instruction data and send a new intro to the network. Now, it's time to fetch and deserialize the program's account data. Remember, the Solana program that supports this is at `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
 
 ![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
 
