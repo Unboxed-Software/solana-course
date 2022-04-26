@@ -362,7 +362,7 @@ export const AppBar: FC = () => {
 }
 ```
 
-At this point, you should be able to run the app and interact with the Connect button at the top right of the screen. If you have the Phantom extension and are signed in, you should be able to connect your Phantom wallet to the site using this new button.
+At this point, you should be able to run the app and interact with the multi-button at the top-right of the screen. It should now read, "Select Wallet." If you have the Phantom extension and are signed in, you should be able to connect your Phantom wallet to the site using this new button.
 
 ### 5. Create button to ping program
 
