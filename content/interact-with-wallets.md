@@ -248,7 +248,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export default WalletContextProvider
 ```
 
-To properly connect to the user’s wallet, we’ll need a `ConnectionProvider`, `WalletProvider` and `WalletModalProvider`. Start by importing these components from `@solana/wallet-adapter-react` and `@solana/wallet-adapter-react-ui`. Then add them to the component. Note that `ConnectionProvider` requires an `endpoint` parameter and `WalletProvider` requires an array of wallets. For now, just use an empty string and an empty array, respectively.
+To properly connect to the user’s wallet, we’ll need a `ConnectionProvider`, `WalletProvider` and `WalletModalProvider`. Start by importing these components from `@solana/wallet-adapter-react` and `@solana/wallet-adapter-react-ui`. Then add them to the `WalletContextProvider` component. Note that `ConnectionProvider` requires an `endpoint` parameter and `WalletProvider` requires an array of `wallets`. For now, just use an empty string and an empty array, respectively.
 
 ```tsx
 import { FC, ReactNode } from 'react';
