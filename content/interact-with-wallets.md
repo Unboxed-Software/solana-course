@@ -57,9 +57,9 @@ When adding wallet support to an existing react app, you start by installing the
 
 ```
 npm install @solana/wallet-adapter-base \
-         @solana/wallet-adapter-react \
-         @solana/wallet-adapter-phantom \
-         @solana/wallet-adapter-react-ui
+    @solana/wallet-adapter-react \
+    @solana/wallet-adapter-phantom \
+    @solana/wallet-adapter-react-ui
 ```
 
 ### Connect To Wallets
