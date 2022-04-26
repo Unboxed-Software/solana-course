@@ -29,14 +29,14 @@ The [Course Map](./course-map.md) lists the modules and lessons we plan to creat
 
 To start work, do the following:
 
-1. [Create an issue](/issues/new) and/or comment on an existing issue to state you've started working
+1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
 2. Create a PR during or when complete
 
 ### Editing Existing Content
 
 If you want to fix a typo or otherwise improve on existing content, follow the same process as with adding content:
 
-1. [Create an issue](/issues/new) and/or comment on an existing issue to state you've started working
+1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
 2. Create a PR during or when complete
 
 ### Committing
@@ -57,4 +57,4 @@ pull request!
 
 ### Providing General Feedback
 
-If you have feedback on content or suggestions for additional content, simply [create an issue](/issues/new) explaining your feedback/suggestions.
+If you have feedback on content or suggestions for additional content, simply [create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) explaining your feedback/suggestions.
