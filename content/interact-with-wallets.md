@@ -405,14 +405,14 @@ export const PingButton: FC = () => {
     const { publicKey, sendTransaction } = useWallet();
 
     const onClick = () => {
-			console.log('Ping!')
+        console.log('Ping!')
     }
 
-	return (
-		<div className={styles.buttonContainer} onClick={onClick}>
-			<button className={styles.button}>Ping!</button>
-		</div>
-	)
+    return (
+        <div className={styles.buttonContainer} onClick={onClick}>
+            <button className={styles.button}>Ping!</button>
+        </div>
+    )
 }
 ```
 
