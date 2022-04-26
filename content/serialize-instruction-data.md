@@ -71,7 +71,7 @@ This program would have been structured such that each of these is encapsulated 
 
 Each program, however, only has one entry point. You would instruct the program on which of these functions to run through the instruction data.
 
-You would also include in the instruction data any information the function needs in order to execute properly, e.g. an inventory item’s id, a player to transfer inventory to, etc.
+You would also include in the instruction data any information the function needs in order to execute properly, e.g. an inventory item’s ID, a player to transfer inventory to, etc.
 
 Exactly *how* this data would be structured would depend on how the program was written, but it’s common to have the first field in instruction data be a number that the program can map to a function, after which additional fields act as function arguments.
 
