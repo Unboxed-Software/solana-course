@@ -6,14 +6,14 @@
 
 - Explain Wallets
 - Install Phantom extension
-- Set Phantom wallet to devnet
+- Set Phantom wallet to [Devnet](https://api.devnet.solana.com/)
 - Use wallet-adapter to have users sign transactions
 
 # TL;DR
 
 - **Wallets** store your secret key and handle secure transaction signing
-- **Software wallets** use your computer for secure storage
 - **Hardware wallets** store your secret key on a separate device
+- **Software wallets** use your computer for secure storage
 - Software wallets are often **browser extensions** that facilitate connecting to websites
 - Solana’s **Wallet-Adapter library** simplifies the support of wallet browser extensions, allowing you to build websites that can request a user’s wallet address and propose transactions for them to sign
 
@@ -49,11 +49,11 @@ Solana’s Wallet-Adapter comprises multiple modular packages. The core function
 
 There are also packages that provide components for common UI frameworks. In this lesson and throughout this course, we’ll be using components from `@solana/wallet-adapter-react-ui`.
 
-Finally, there are packages that are adapters for specific wallets, including Phantom. You can use `@solana/wallet-adapter-wallets` to include all of the supported wallets, or you can choose specific wallet packages (e.g. `@solana/wallet-adapter-phantom`).
+Finally, there are packages that are adapters for specific wallets, including Phantom. You can use `@solana/wallet-adapter-wallets` to include all of the supported wallets, or you can choose a specific wallet package like `@solana/wallet-adapter-phantom`.
 
 ### Install Wallet-Adapter Libraries
 
-When adding wallet support to an existing react app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`, the package(s) for the wallet(s) you want to support, and `@solana/wallet-adapter-react-ui` if you plan to use the provided react components.
+When adding wallet support to an existing react app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`, the package(s) for the wallet(s) you want to support, and `@solana/wallet-adapter-react-ui` if you plan to use the provided react components, e.g.
 
 ```
 npm install @solana/wallet-adapter-base \
@@ -100,7 +100,7 @@ At this point you can connect with `wallet.connect()`, which will effectively in
 
 ![Screenshot of wallet connection prompt](../assets/wallet-connect-prompt.png)
 
-You could do this in a `useEffect` hook but you’ll usually want to provide more sophisticated functionality. For example, you may want users to be able to choose from a list of supported wallets. Or you may want to let them disconnect after they’ve already connected.
+While you could do this in a `useEffect` hook, you’ll usually want to provide more sophisticated functionality. For example, you may want users to be able to choose from a list of supported wallets, or disconnect after they’ve already connected.
 
 ### `@solana/wallet-adapter-react-ui`
 
@@ -120,9 +120,9 @@ const Home: NextPage = (props) => {
     return (
         <ConnectionProvider endpoint={endpoint}>
             <WalletProvider wallets={[wallet]}>
-								<WalletModalProvider>
+                <WalletModalProvider>
                     <WalletMultiButton />
-										<p>Put the rest of your app here</p>
+                    <p>Put the rest of your app here</p>
                 </WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>
@@ -221,13 +221,13 @@ Let’s take the Ping program from last lesson and build a frontend that lets us
 
 If you don’t already have it, download the [Phantom browser extension](https://phantom.app/download). At the time of writing, it supports Chrome, Brave, Firefox, and Edge browsers, so you’ll also need to have one of those browsers installed. Follow Phantom’s instructions for creating a new account and a new wallet.
 
-Once you have a wallet, click the settings gear on the bottom left in the Phantom UI. Scroll down and click on the line item “Change Network” and select “Devnet.” This ensures that Phantom will be connected to the same network we’ll be using in this demo.
+Once you have a wallet, click the settings gear on the bottom right in the Phantom UI. Scroll down and click on the line item “Change Network” and select “Devnet.” This ensures that Phantom will be connected to the same network we’ll be using in this demo.
 
 ### 2. Download the starter code
 
-Download the starter code for this project [here](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo. 
+Download the starter code for this project [here](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo.
 
-You can see its current state with the command `npm run dev` in the console. 
+You can see its current state with the command `npm run dev` in the console.
 
 ### 3. Wrap the app in context providers
 
@@ -240,15 +240,15 @@ import { FC, ReactNode } from 'react';
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
-	return (
+    return (
 
-	)
+    )
 }
 
 export default WalletContextProvider
 ```
 
-To properly connect to the user’s wallet, we’ll need a `ConnectionProvider`, `WalletProvider` and `WalletModalProvider`. Start by importing these components from `@solana/wallet-adapter-react` and `@solana/wallet-adapter-react-ui`. Then add them to the component. Note that `ConnectionProvider` requires an `endpoint` parameter and `WalletProvider` requires an array of wallets. For now, just use an empty string and an empty array, respectively.
+To properly connect to the user’s wallet, we’ll need a `ConnectionProvider`, `WalletProvider` and `WalletModalProvider`. Start by importing these components from `@solana/wallet-adapter-react` and `@solana/wallet-adapter-react-ui`. Then add them to the `WalletContextProvider` component. Note that `ConnectionProvider` requires an `endpoint` parameter and `WalletProvider` requires an array of `wallets`. For now, just use an empty string and an empty array, respectively.
 
 ```tsx
 import { FC, ReactNode } from 'react';
@@ -257,54 +257,27 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
-	return (
-		<ConnectionProvider endpoint={''}>
-	    <WalletProvider wallets={[]}>
-	      <WalletModalProvider>
-	        { children }
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-	)
+    return (
+        <ConnectionProvider endpoint={''}>
+            <WalletProvider wallets={[]}>
+                <WalletModalProvider>
+                    { children }
+                </WalletModalProvider>
+            </WalletProvider>
+        </ConnectionProvider>
+    )
 }
 
 export default WalletContextProvider
 ```
 
-The last thing we need is the actual endpoint for `ConnectionProvider` and the actual array of supported wallets for `WalletProvider`.
+The last things we need are an actual endpoint for `ConnectionProvider` and the supported wallets for `WalletProvider`.
 
-For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it.
-
-For the array of wallets you’ll need to import the `@solana/wallet-adapter-wallets` library. 
+For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it. For the array of wallets you’ll also need to import the `@solana/wallet-adapter-wallets` library.
 
 After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the url for Devnet. Then create a constant `wallets` and set it to an array that contains a newly constructed `PhantomWalletAdapter`. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
 
-```tsx
-import { FC, ReactNode } from 'react';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import * as web3 from '@solana/web3.js'
-import * as walletAdapterWallets from '@solana/wallet-adapter-wallets';
-
-const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const endpoint = web3.clusterApiUrl('devnet')
-	const wallets = [new walletAdapterWallets.PhantomWalletAdapter()]
-
-	return (
-		<ConnectionProvider endpoint={endpoint}>
-	    <WalletProvider wallets={wallets}>
-	      <WalletModalProvider>
-	        { children }
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-	)
-}
-
-export default WalletContextProvider
-```
-
-Lastly, add `require('@solana/wallet-adapter-react-ui/styles.css');` below your imports to ensure proper styling and behavior of the Wallet Adapter library components.
+To complete this component, add `require('@solana/wallet-adapter-react-ui/styles.css');` below your imports to ensure proper styling and behavior of the Wallet Adapter library components.
 
 ```tsx
 import { FC, ReactNode } from 'react';
@@ -313,42 +286,58 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import * as web3 from '@solana/web3.js'
 import * as walletAdapterWallets from '@solana/wallet-adapter-wallets';
 require('@solana/wallet-adapter-react-ui/styles.css');
-...
+
+const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
+    const endpoint = web3.clusterApiUrl('devnet')
+    const wallets = [new walletAdapterWallets.PhantomWalletAdapter()]
+
+    return (
+        <ConnectionProvider endpoint={endpoint}>
+            <WalletProvider wallets={wallets}>
+                <WalletModalProvider>
+                    { children }
+                </WalletModalProvider>
+            </WalletProvider>
+        </ConnectionProvider>
+    )
+}
+
+export default WalletContextProvider
 ```
 
-### 4. Add Connect Button
+### 4. Add Wallet Multi-Button
 
 Next let’s set up the Connect button. The current button is just a placeholder because rather than using a standard button or creating a custom component, we’ll be using Wallet-Adapter’s “multi-button.” This button interfaces with the providers we set up in `WalletContextProvider`  and let’s users choose a wallet, connect to a wallet, and disconnect from a wallet. If you ever need more custom functionality, you can create a custom component to handle this.
 
 Before we add the “multi-button,” we need to wrap the app in the `WalletContextProvider`. Do this by importing it in `index.tsx` and adding it after the closing `</Head>` tag:
 
 ```tsx
-
 import { NextPage } from 'next'
 import styles from '../styles/Home.module.css'
 import WalletContextProvider from '../components/WalletContextProvider'
 import { AppBar } from '../components/AppBar'
 import Head from 'next/head'
+import { PingButton } from '../components/PingButton'
 
 const Home: NextPage = (props) => {
 
-  return (
-    <div className={styles.App}>
-      <Head>
-        <title>Wallet-Adapter Example</title>
-        <meta
-          name="description"
-          content="Wallet-Adapter Example"
-        />
-      </Head>
-      <WalletContextProvider>
-        <AppBar />
-        <div className={styles.AppBody}>
-          <PingButton/>
+    return (
+        <div className={styles.App}>
+            <Head>
+                <title>Wallet-Adapter Example</title>
+                <meta
+                    name="description"
+                    content="Wallet-Adapter Example"
+                />
+            </Head>
+            <WalletContextProvider>
+                <AppBar />
+                <div className={styles.AppBody}>
+                    <PingButton/>
+                </div>
+            </WalletContextProvider >
         </div>
-      </WalletContextProvider >
-    </div>
-  );
+    );
 }
 
 export default Home;
@@ -373,13 +362,13 @@ export const AppBar: FC = () => {
 }
 ```
 
-At this point, you should be able to run the app and interact with the Connect button at the top right of the screen. If you have the Phantom extension and are signed in, you should be able to connect your Phantom wallet to the site using this new button.
+At this point, you should be able to run the app and interact with the multi-button at the top-right of the screen. It should now read, "Select Wallet." If you have the Phantom extension and are signed in, you should be able to connect your Phantom wallet to the site using this new button.
 
 ### 5. Create button to ping program
 
-Now that our app can connect to the Phantom wallet, let’s make the “Ping” button actually do something. 
+Now that our app can connect to the Phantom wallet, let’s make the “Ping!” button actually do something.
 
-Start by opening the `PingButton.tsx` file. We’re going to replace the `console.log` inside of `onClick` with the code that creates a transaction and submits it to the Phantom extension for the end user’s approval.
+Start by opening the `PingButton.tsx` file. We’re going to replace the `console.log` inside of `onClick` with code that will create a transaction and submit it to the Phantom extension for the end user’s approval.
 
 First, we need a connection, the wallet’s public key, and Wallet-Adapter’s `sendTransaction` function. To get this, we need to import `useConnection` and `useWallet` from `@solana/wallet-adapter-react`. While we’re here, let’s also import `@solana/web3.js` since we’ll need it to create our transaction.
 
@@ -390,7 +379,7 @@ import { FC, useState } from 'react'
 import styles from '../styles/PingButton.module.css'
 
 export const PingButton: FC = () => {
-	
+
 	const onClick = () => {
 		console.log('Ping!')
 	}
@@ -416,24 +405,24 @@ export const PingButton: FC = () => {
     const { publicKey, sendTransaction } = useWallet();
 
     const onClick = () => {
-			console.log('Ping!')
+        console.log('Ping!')
     }
-    
-	return (
-		<div className={styles.buttonContainer} onClick={onClick}>
-			<button className={styles.button}>Ping!</button>
-		</div>
-	)
+
+    return (
+        <div className={styles.buttonContainer} onClick={onClick}>
+            <button className={styles.button}>Ping!</button>
+        </div>
+    )
 }
 ```
 
-With that, we can fill in the body of `onClick`. 
+With that, we can fill in the body of `onClick`.
 
 First, check that both `connection` and `publicKey` exist (if either does not then the user’s wallet isn’t connected yet).
 
-Next, construct two instances of `PublicKey`, one for the program id `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and one for the data account `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`. 
+Next, construct two instances of `PublicKey`, one for the program id `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and one for the data account `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
-Next, construct a `Transaction`, then a new `TransactionInstruction` that includes the data account as a writable key. 
+Next, construct a `Transaction`, then a new `TransactionInstruction` that includes the data account as a writable key.
 
 Next, add the instruction to the transaction.
 
@@ -457,7 +446,7 @@ const onClick = () => {
         ],
         programId
     });
-	
+
     transaction.add(instruction)
     sendTransaction(transaction, connection).then(sig => {
         console.log(sig)
@@ -465,9 +454,9 @@ const onClick = () => {
 }
 ```
 
-And that’s it! If you refresh the page, connect your wallet, and click the ping button, Phantom should present you with a popup for confirming the transaction. 
+And that’s it! If you refresh the page, connect your wallet, and click the ping button, Phantom should present you with a popup for confirming the transaction.
 
-### 5. Add some polish around the edges
+### 6. Add some polish around the edges
 
 There’s a lot you could do to make the user experience here even better. For example, you could change the UI to only show you the Ping button when a wallet is connected and display some other prompt otherwise. You could link to the transaction on Solana Explorer after a user confirms a transaction so they can easily go look at the transaction details. The more you experiment with it, the more comfortable you’ll get, so get creative!
 
