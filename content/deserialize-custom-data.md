@@ -32,7 +32,7 @@ PDA stands for Program Derived Address. As the name suggests, it refers to an ad
 
 When you submit a transaction to a program and expect the program to then update state or store data in some way, that program is using one or more PDAs. This is important to understand when developing client-side for two reasons:
 
-1. When submitting a transaction to a program, the client needs to include all addresses for accounts that will be written to or read from. This means that unlike more traditional client-server architectures, the client needs to have implementation-specific knowledge about the Solana program. It needs to know which PDA is going to be used to store data so that it can include that address in the transaction.
+1. When submitting a transaction to a program, the client needs to include all addresses for accounts that will be written to or read from. This means that unlike more traditional client-server architectures, the client needs to have implementation-specific knowledge about the Solana program. The client needs to know which PDA is going to be used to store data so that it can include that address in the transaction.
 2. Similarly, when reading data from a program, the client needs to know which account(s) to read from.
 
 ### Finding PDAs
