@@ -127,7 +127,7 @@ const { playerId, name } = borshAccountSchema.decode(buffer)
 
 Let’s practice this together by continuing to work on the Movie Review app from the last lesson. No worries if you’re just jumping into this lesson - it should be possible to follow either way.
 
-As a refresher, this project uses a Solana program deployed to Devnet to let users review movies. Last lesson, we added functionality to the frontend skeleton that let users submit movie reviews. But the list of reviews is still showing mock data. Let’s fix that by working through fetching the program’s storage accounts and deserializing the data stored there.
+As a refresher, this project uses a Solana program deployed on Devnet which lets users review movies. Last lesson, we added functionality to the frontend skeleton letting users submit movie reviews but the list of reviews is still showing mock data. Let’s fix that by fetching the program’s storage accounts and deserializing the data stored there.
 
 ![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
 
