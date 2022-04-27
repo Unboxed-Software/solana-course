@@ -49,7 +49,7 @@ PDAs are a unique concept and are one of the hardest parts of Solana development
 
 ### Why Does This Matter?
 
-The derivation of PDAs are important because the seeds used to find a PDA are what we use to locate the data. For example, a simple program that only uses a single PDA to store global program state might use a simple seed phrase like “GLOBAL_STATE”. If the client wanted to read data from this PDA, it could derive the address using the program ID and this same seed.
+The derivation of PDAs is important because the seeds used to find a PDA are what we use to locate the data. For example, a simple program that only uses a single PDA to store global program state might use a simple seed phrase like “GLOBAL_STATE”. If the client wanted to read data from this PDA, it could derive the address using the program ID and this same seed.
 
 ```tsx
 const [pda, bump] = await findProgramAddress(Buffer.from("GLOBAL_STATE"), programId)
