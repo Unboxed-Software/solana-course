@@ -66,7 +66,7 @@ const [pda, bump] = await web3.PublicKey.findProgramAddress(
 )
 ```
 
-And, when there are multiple accounts per user, a program may use one or more additional seeds to create and identify accounts. For example, in a note-taking app there may be one account per note where each PDA is derived with the user’s public key and the note’s title.
+Also, when there are multiple accounts per user, a program may use one or more additional seeds to create and identify accounts. For example, in a note-taking app there may be one account per note where each PDA is derived with the user’s public key and the note’s title.
 
 ```tsx
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
