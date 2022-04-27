@@ -24,20 +24,20 @@ In the last lesson, we serialized custom instruction data that was subsequently 
 
 As the saying goes, everything in Solana is an account. Even programs. Programs are accounts that store code and are marked as executable. This code can be executed by the Solana runtime when instructed to do so.
 
-However, programs themselves are stateless. They cannot modify the data within their account. They can only persist state by storing data in other accounts that can be referenced at some other point in time. Understanding how these accounts are used and how to find them is crucial to client-side Solana development.
+Programs themselves, however, are stateless. They cannot modify the data within their account. They can only persist state by storing data in other accounts that can be referenced at some other point in time. Understanding how these accounts are used and how to find them is crucial to client-side Solana development.
 
 ### PDA
 
-PDA stands for Program Derived Address. As the name suggests, it refers to an address (public key) derived from a program and some seeds. In a previous lesson, we discussed public/private keys and how they are used on Solana. Unlike a keypair, a PDA *does not* have a corresponding private key. The purpose of a PDA is to create an address that a program can sign for in the same way a user may sign for a transaction with their wallet. 
+PDA stands for Program Derived Address. As the name suggests, it refers to an address (public key) derived from a program and some seeds. In a previous lesson, we discussed public/private keys and how they are used on Solana. Unlike a keypair, a PDA *does not* have a corresponding private key. The purpose of a PDA is to create an address that a program can sign for in the same way a user may sign for a transaction with their wallet.
 
 When you submit a transaction to a program and expect the program to then update state or store data in some way, that program is using one or more PDAs. This is important to understand when developing client-side for two reasons:
 
 1. When submitting a transaction to a program, the client needs to include all addresses for accounts that will be written to or read from. This means that unlike in more traditional client-server architectures, the client needs to have implementation-specific knowledge about the Solana program. It needs to know which PDA is going to be used to store data so that it can include that address in the transaction.
-2. Similarly, when reading data from a program, the client needs to know which account(s) to read from. 
+2. Similarly, when reading data from a program, the client needs to know which account(s) to read from.
 
 ### Finding PDAs
 
-PDAs are not technically created. Rather, they are *found* or *derived* based on one or more input seeds. 
+PDAs are not technically created. Rather, they are *found* or *derived* based on one or more input seeds.
 
 Regular Solana keypairs lie on the ed2559 Elliptic Curve. This cryptographic function ensures that every point along the curve has a corresponding point somewhere else on the curve and allows for public/private keys. PDAs are addresses that lie *off* the ed2559 Elliptic curve and therefore cannot be signed for by a private key (since there isn’t one). This ensures that the program is the only valid signer for that address.
 
@@ -133,7 +133,7 @@ As a refresher, this project uses a Solana program deployed to Devnet to let use
 
 ### 1. Download the starter code
 
-If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction-data). 
+If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction-data).
 
 The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson, a `Card` component for displaying a movie review, a `MovieList` component that displays reviews in a list, a `Form` component for submitting a new review, and a `Movie.ts` file that contains a class definition for a `Movie` object.
 
@@ -141,7 +141,7 @@ Note that when you run `npm run dev`, the reviews displayed on the page are mock
 
 ### 2. Create the buffer layout
 
-Remember that to properly interact with a Solana program, you need to know how its data is structured. 
+Remember that to properly interact with a Solana program, you need to know how its data is structured.
 
 The Movie Review program creates a separate account for each movie review and stores the following data in the account’s `data`:
 
@@ -237,7 +237,7 @@ export const MovieList: FC = () => {
 			setMovies(movies)
 		})
 	}, [])
-    
+
 	return (
 		<div>
 			{
@@ -248,7 +248,7 @@ export const MovieList: FC = () => {
 }
 ```
 
-At this point, you should be able to run the app and see the list of movie reviews retrieved from the program! 
+At this point, you should be able to run the app and see the list of movie reviews retrieved from the program!
 
 Depending on how many reviews have been submitted, this may take a long time to load or may lock up your browser entirely. But don’t worry — next lesson we’ll learn how to page and filter accounts so you can be more surgical with what you load.
 
