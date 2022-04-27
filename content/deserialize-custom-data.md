@@ -41,7 +41,7 @@ PDAs are not technically created. Rather, they are *found* or *derived* based on
 
 Regular Solana keypairs lie on the ed2559 Elliptic Curve. This cryptographic function ensures that every point along the curve has a corresponding point somewhere else on the curve, allowing for public/private keys. PDAs are addresses that lie *off* the ed2559 Elliptic curve and therefore cannot be signed for by a private key (since there isn’t one). This ensures that the program is the only valid signer for that address.
 
-To find a public key that does not lie on the ed2559 curve, the program id and seeds of the developer’s choice (like a string of text) are passed through the function [`findProgramAddress(seeds, programid)`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). This function combines the program id, seeds, and a bump seed into a buffer and passes it into a sha256 hash to see whether or not the resulting address is on the curve. If the address is on the curve (~50% chance it is), then the bump seed is decremented by 1 and the address is calculated again. The bump seed starts at 255 and progressively iterates down to `bump = 254`, `bump = 253`, etc. until an address is found with the given seeds and bump that does not lie on the ed2559 curve. The `findProgramAddress` function returns the resulting address and the bump used to kick it off the curve, this way the address can be generated anywhere as long as you have the bump and seeds.
+To find a public key that does not lie on the ed2559 curve, the program ID and seeds of the developer’s choice (like a string of text) are passed through the function [`findProgramAddress(seeds, programid)`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). This function combines the program ID, seeds, and a bump seed into a buffer and passes it into a sha256 hash to see whether or not the resulting address is on the curve. If the address is on the curve (~50% chance it is), then the bump seed is decremented by 1 and the address is calculated again. The bump seed starts at 255 and progressively iterates down to `bump = 254`, `bump = 253`, etc. until an address is found with the given seeds and bump that does not lie on the ed2559 curve. The `findProgramAddress` function returns the resulting address and the bump used to kick it off the curve, this way the address can be generated anywhere as long as you have the bump and seeds.
 
 ![Screenshot of ed2559 curve](../assets/ed2559-curve.png)
 
@@ -49,13 +49,13 @@ PDAs are a unique concept and are one of the hardest parts of Solana development
 
 ### Why Does This Matter?
 
-The derivation of PDAs are important because the seeds used to find a PDA are what we use to locate the data. For example, a simple program that only uses a single PDA to store global program state might use a simple seed phrase like “GLOBAL_STATE”. If the client wanted to read data from this PDA, it could derive the address using the program id and this same seed.
+The derivation of PDAs are important because the seeds used to find a PDA are what we use to locate the data. For example, a simple program that only uses a single PDA to store global program state might use a simple seed phrase like “GLOBAL_STATE”. If the client wanted to read data from this PDA, it could derive the address using the program ID and this same seed.
 
 ```tsx
 const [pda, bump] = await findProgramAddress(Buffer.from("GLOBAL_STATE"), programId)
 ```
 
-In more complex programs that store user-specific data, it’s common to use a user’s public key as the seed. This separates each user’s data into its own PDA and makes it possible for the client to locate each user’s data by finding the address using the program id and the user’s public key.
+In more complex programs that store user-specific data, it’s common to use a user’s public key as the seed. This separates each user’s data into its own PDA and makes it possible for the client to locate each user’s data by finding the address using the program ID and the user’s public key.
 
 ```tsx
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
