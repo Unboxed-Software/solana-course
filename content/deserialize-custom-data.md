@@ -55,7 +55,7 @@ The derivation of PDAs is important because the seeds used to find a PDA are wha
 const [pda, bump] = await findProgramAddress(Buffer.from("GLOBAL_STATE"), programId)
 ```
 
-In more complex programs that store user-specific data, it’s common to use a user’s public key as the seed. This separates each user’s data into its own PDA and makes it possible for the client to locate each user’s data by finding the address using the program ID and the user’s public key.
+In more complex programs that store user-specific data, it’s common to use a user’s public key as the seed. This separates each user’s data into its own PDA. The separation makes it possible for the client to locate each user’s data by finding the address using the program ID and the user’s public key.
 
 ```tsx
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
