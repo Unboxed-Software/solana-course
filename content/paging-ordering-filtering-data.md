@@ -303,7 +303,7 @@ static async prefetchAccounts(connection: web3.Connection, filters: AccountFilte
 }
 ```
 
-And just like that, you should be able to run the app and see the list of movie reviews order alphabetically.
+And just like that, you should be able to run the app and see the list of movie reviews ordered alphabetically.
 
 ### 4. Add search
 
