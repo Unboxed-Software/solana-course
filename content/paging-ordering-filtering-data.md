@@ -25,7 +25,7 @@ You may have noticed in the last lesson that while we could fetch and display a 
 
 Imagine the Movie Review app we worked on in past lessons having four million movie reviews. And imagine that the average review is 500 bytes. That would make the total download for all review accounts over 2Gb. Definitely not something you want to have your frontend download every time the page refreshes.
 
-Fortunately, the `getProgramAccounts` function that you use to get all of the accounts takes a configuration object as argument, and one of the configuration options is `dataSlice`. `dataSlice` lets you provide two things:
+Fortunately, the `getProgramAccounts` function that you use to get all of the accounts takes a configuration object as argument. One of the configuration options is `dataSlice` which lets you provide two things:
 
 - `offset` - the offset from the beginning of the data buffer to start the slice
 - `length` - the number of bytes to return, starting from the provided offset
