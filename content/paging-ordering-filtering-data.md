@@ -14,7 +14,7 @@
 # TL;DR
 
 - This lesson delves into some functionality of the RPC calls that we used in the deserializing account data lesson
-- You can fetch a large number of accounts without their data to save on compute time if you’d like to filter them, this returns an array of public keys
+- To save on compute time, you can fetch a large number of accounts without their data by filtering them to return just an array of public keys
 - Once you have a filtered list of public keys, you can order them and fetch the account data they belong to
 
 # Overview
