@@ -23,7 +23,7 @@ You may have noticed in the last lesson that while we could fetch and display a 
 
 ## Use `dataSlice` to only fetch data you need
 
-Imagine the Movie Review app we worked on in past lessons having four million movie reviews. And imagine that the average review is 500 bytes. That would make the total download for all review accounts over 2Gb. Definitely not something you want to have your frontend download every time the page refreshes.
+Imagine the Movie Review app we worked on in past lessons having four million movie reviews. And imagine that the average review is 500 bytes. That would make the total download for all review accounts over 2GB. Definitely not something you want to have your frontend download every time the page refreshes.
 
 Fortunately, the `getProgramAccounts` function that you use to get all of the accounts takes a configuration object as argument. One of the configuration options is `dataSlice` which lets you provide two things:
 
