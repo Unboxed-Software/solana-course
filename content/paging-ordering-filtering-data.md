@@ -427,7 +427,7 @@ That was a lot to digest, but you made it through. If you need to spend some mor
 
 # Challenge
 
-Now it’s your turn to try and do this on your own. Using the Student Intros app from last lesson, add paging, ordering alphabetically by name, and search by name.
+Now it’s your turn to try and do this on your own. Using the Student Intros app from last lesson, add paging, ordering alphabetically by name, and searching by name.
 
 ![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
 
