@@ -145,7 +145,7 @@ Remember that to properly interact with a Solana program, you need to know how i
 
 The Movie Review program creates a separate account for each movie review and stores the following data in the account’s `data`:
 
-1. `initialized` as a boolean representing whether or not the account has been initialized.
+1. `initialized` as an unsigned, 8-bit integer representing the instruction to run (should be 1).
 2. `rating` as an unsigned, 8-bit integer representing the rating out of 5 that the reviewer gave the movie.
 3. `title` as a string representing the title of the reviewed movie.
 4. `description` as a string representing the written portion of the review.
@@ -163,7 +163,7 @@ export class Movie {
 	...
 
 	static borshAccountSchema = borsh.struct([
-		borsh.bool('initialized'),
+		borsh.u8('initialized'),
 		borsh.u8('rating'),
 		borsh.str('title'),
 		borsh.str('description'),
