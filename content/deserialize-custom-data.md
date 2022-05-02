@@ -163,7 +163,7 @@ export class Movie {
 	...
 
 	static borshAccountSchema = borsh.struct([
-		borsh.bool('initialized'),
+		borsh.u8('initialized'),
 		borsh.u8('rating'),
 		borsh.str('title'),
 		borsh.str('description'),
