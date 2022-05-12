@@ -42,10 +42,10 @@ For example, the USDC Token `Mint` address is `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wE
 To create a mint using the `spl-token` library, you use the `createMint` function. The `createMint` function returns the `Publickey` of the new token `Mint`. This function requires the following arguments:
 
 - `connection` the connection to the cluster
-- `payer` payer for the transaction
-- `mintAuthority` the mint authority authorized to mint tokens from the token mint, the mint authority can be updated to null after minting tokens to set the max supply and ensure no tokens can be minted in the future
+- `payer` the payer for the transaction
+- `mintAuthority` the mint authority authorized to mint tokens from the token mint. The mint authority can be updated to null after minting tokens to set the max supply and ensure no tokens can be minted in the future
 - `freezeAuthority` the freeze authority can freeze the tokens in a Token Account, but is often set to null if freezing is not a desired attribute
-- `decimals` desired decimal precision of the token
+- `decimals` specifies the desired decimal precision of the token
 
 All together, that looks like this:
 
@@ -67,10 +67,10 @@ Below is what `createMint` does under the hood.
 The `createAccount` function requires the following arguments:
 
 - `fromPubkey` the account that will transfer lamports to the created account
-- `newAccountPubkey` public key of the created account
-- `space` amount of space in bytes to allocate to the created account, there is a `MINT_SIZE` constant provided by the Solana Program Library
-- `lamports` amount of lamports to transfer to the created account, when creating a new mint use the `getMinimumBalanceForRentExemptMint` function to calculate lamports needed
-- `programID` Public key of the program to assign as the owner of the created account, when creating a new mint this will be the Token Program address. `TOKEN_PROGRAM_ID` is a constant provided by the Solana Program Library
+- `newAccountPubkey` the public key of the created account
+- `space` the amount of space in bytes to allocate to the created account, there is a `MINT_SIZE` constant provided by the Solana Program Library
+- `lamports` the amount of lamports to transfer to the created account, when creating a new mint use the `getMinimumBalanceForRentExemptMint` function to calculate lamports needed
+- `programID` the public key of the program to assign as the owner of the created account, when creating a new mint this will be the Token Program address. `TOKEN_PROGRAM_ID` is a constant provided by the Solana Program Library
 
 The `createInitializeMintInstruction` function requires the following arguments:
 
