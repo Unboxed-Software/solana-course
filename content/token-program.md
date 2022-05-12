@@ -1,12 +1,5 @@
 # Token Program
 
-### List links for further reading here:
-
-- [https://spl.solana.com/token](https://spl.solana.com/token)
-- [https://spl.solana.com/associated-token-account](https://spl.solana.com/associated-token-account)
-- [https://pencilflip.medium.com/solanas-token-program-explained-de0ddce29714](https://pencilflip.medium.com/solanas-token-program-explained-de0ddce29714)
-- [https://medium.com/coinmonks/solana-programs-part-1-understanding-spl-token-mint-fabd13323219](https://medium.com/coinmonks/solana-programs-part-1-understanding-spl-token-mint-fabd13323219)
-
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
