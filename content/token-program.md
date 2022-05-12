@@ -25,7 +25,7 @@
 - The Token Program contains instructions for creating and interacting with SPL-Tokens
 - Token Mints are accounts which hold data about a specific Token, but do not hold Tokens
 - Token Accounts are used to hold Tokens of a specific Token Mint
-- Creating Token Mints and Token Accounts requires allocating rent in SOL. The rent for a Token Account can be refunded when the account is closed. However, Token Mints current cannot be closed
+- Creating Token Mints and Token Accounts requires allocating rent in SOL. The rent for a Token Account can be refunded when the account is closed. However, Token Mints currently cannot be closed
 
 # Overview
 
