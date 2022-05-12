@@ -56,7 +56,7 @@ const mint = await createMint(
     mintAuthority,
     freezeAuthority,
     decimal
-  );
+);
 ```
 
 Below is what `createMint` does under the hood.
@@ -86,14 +86,14 @@ All together, that looks like this:
 const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
 const transaction = new Transaction().add(
-        SystemProgram.createAccount({
-            fromPubkey: payer.publicKey,
-            newAccountPubkey: keypair.publicKey,
-            space: MINT_SIZE,
-            lamports,
-            programId,
-        }),
-        createInitializeMintInstruction(keypair.publicKey, decimals, mintAuthority, freezeAuthority, programId)
+    SystemProgram.createAccount({
+        fromPubkey: payer.publicKey,
+        newAccountPubkey: keypair.publicKey,
+        space: MINT_SIZE,
+        lamports,
+        programId,
+    }),
+    createInitializeMintInstruction(keypair.publicKey, decimals, mintAuthority, freezeAuthority, programId)
 )
 ```
 
@@ -118,10 +118,10 @@ All together, that looks like this:
 ```tsx
 const tokenAccount = await createAccount(
     connection,
-		payer,
-		mint,
-		owner,
-		keypair
+    payer,
+    mint,
+    owner,
+    keypair
 );
 ```
 
@@ -138,15 +138,15 @@ const space = getAccountLenForMint(mintState);
 const lamports = await connection.getMinimumBalanceForRentExemption(space);
 
 const transaction = new Transaction().add(
-        SystemProgram.createAccount({
-            fromPubkey: payer.publicKey,
-            newAccountPubkey: keypair.publicKey,
-            space,
-            lamports,
-            programId,
-        }),
-        createInitializeAccountInstruction(keypair.publicKey, mint, owner, programId)
-    );
+    SystemProgram.createAccount({
+        fromPubkey: payer.publicKey,
+        newAccountPubkey: keypair.publicKey,
+        space,
+        lamports,
+        programId,
+    }),
+    createInitializeAccountInstruction(keypair.publicKey, mint, owner, programId)
+);
 ```
 
 ### Associated Token Account
@@ -167,10 +167,10 @@ All together, that looks like this:
 ```tsx
 const associatedTokenAccount = await createAssociatedTokenAccount(
     connection,
-		payer,
-		mint,
-		owner,
-	);
+	payer,
+	mint,
+	owner,
+);
 ```
 
 Below is what `createAssociatedTokenAccount` does under the hood.
@@ -182,15 +182,15 @@ Below is what `createAssociatedTokenAccount` does under the hood.
 const associatedToken = await getAssociatedTokenAddress(mint, owner, false, programId, associatedTokenProgramId);
 
 const transaction = new Transaction().add(
-        createAssociatedTokenAccountInstruction(
-            payer.publicKey,
-            associatedToken,
-            owner,
-            mint,
-            programId,
-            associatedTokenProgramId
-        )
-    );
+    createAssociatedTokenAccountInstruction(
+        payer.publicKey,
+        associatedToken,
+        owner,
+        mint,
+        programId,
+        associatedTokenProgramId
+    )
+);
 ```
 
 ### Mint Tokens
@@ -218,7 +218,7 @@ const transactionSignature = await mintTo(
     destination,
     authority,
     amount
-  );
+);
 ```
 
 Below is what `createMintToInstruction` does under the hood.
@@ -227,8 +227,8 @@ Below is what `createMintToInstruction` does under the hood.
 
 ```tsx
 const transaction = new Transaction().add(
-        createMintToInstruction(mint, destination, authorityPublicKey, amount, multiSigners, programId)
-    );
+    createMintToInstruction(mint, destination, authorityPublicKey, amount, multiSigners, programId)
+);
 ```
 
 ### Transfer Tokens
@@ -256,7 +256,7 @@ const transactionSignature = await transfer(
     destination,
     owner,
     amount
-  );
+);
 ```
 
 Below is what `transfer` does under the hood.
@@ -265,8 +265,8 @@ Below is what `transfer` does under the hood.
 
 ```tsx
 const transaction = new Transaction().add(
-        createTransferInstruction(source, destination, ownerPublicKey, amount, multiSigners, programId)
-    );
+    createTransferInstruction(source, destination, ownerPublicKey, amount, multiSigners, programId)
+);
 ```
 
 ### Burn Tokens
@@ -294,7 +294,7 @@ const transactionSignature = await burn(
     mint,
     owner,
     amount
-  );
+);
 ```
 
 Below is what `burn` does under the hood.
@@ -303,8 +303,8 @@ Below is what `burn` does under the hood.
 
 ```tsx
 const transaction = new Transaction().add(
-        createBurnInstruction(account, mint, ownerPublicKey, amount, multiSigners, programId)
-    );
+    createBurnInstruction(account, mint, ownerPublicKey, amount, multiSigners, programId)
+);
 ```
 
 ### Rent
@@ -332,7 +332,7 @@ const transactionSignature = await closeAccount(
     account,
     destination,
     authority
-  );
+);
 ```
 
 Below is what `closeAccount` does under the hood.
@@ -341,8 +341,8 @@ Below is what `closeAccount` does under the hood.
 
 ```tsx
 const transaction = new Transaction().add(
-        createCloseAccountInstruction(account, destination, authorityPublicKey, multiSigners, programId)
-    );
+    createCloseAccountInstruction(account, destination, authorityPublicKey, multiSigners, programId)
+);
 ```
 
 # Demo
@@ -377,16 +377,16 @@ If you want to match our code exactly, replace the contents of `.tsconfig` with 
 
 ```json
 {
-  "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist"
-  },
-  "include": [ "./src/**/*" ]
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "dist"
+    },
+    "include": [ "./src/**/*" ]
 }
 ```
 
@@ -440,40 +440,38 @@ Now that we have a way of initializing our keypair, we need to establish a conne
 
 ```tsx
 async function main() {
-  const user = initializeKeypair();
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-  await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
+    const user = initializeKeypair();
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
 }
-
 ```
 
 **Create Mint**
 
-Import `createMint` from `@solana/spl-token`and then create a function to call `createMint`:
+Import `createMint` from `@solana/spl-token` and then create a function to call `createMint`:
 
 ```tsx
 import {createMint} from "@solana/spl-token";
 
 async function createNewMint(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  mintAuthority: web3.PublicKey,
-  freezeAuthority: web3.PublicKey,
-  decimal: number
-) {
-  const mint = await createMint(
-    connection,
-    payer,
-    mintAuthority,
-    freezeAuthority,
-    decimal
-  );
+    connection: web3.Connection,
+    payer: web3.Keypair,
+    mintAuthority: web3.PublicKey,
+    freezeAuthority: web3.PublicKey,
+    decimal: number
+    ) {const mint = await createMint(
+        connection,
+        payer,
+        mintAuthority,
+        freezeAuthority,
+        decimal
+    );
 
-  console.log(
-    `Token Mint: https://explorer.solana.com/address/${mint}?cluster=devnet`
-  );
+    console.log(
+        `Token Mint: https://explorer.solana.com/address/${mint}?cluster=devnet`
+    );
 
-  return mint;
+    return mint;
 }
 ```
 
@@ -481,17 +479,17 @@ Lets call the function in `main` and set the `user` as the payer, `mintAuthority
 
 ```tsx
 async function main() {
-  const user = initializeKeypair();
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-  await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
+    const user = initializeKeypair();
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
 
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  );
+    const mint = await createNewMint(
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
+        2
+    );
 }
 ```
 
@@ -509,23 +507,20 @@ Import `getOrCreateAssociatedTokenAccount` from `@solana/spl-token`and create a 
 import {getOrCreateAssociatedTokenAccount} from "@solana/spl-token";
 
 async function createTokenAccount(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  mint: web3.PublicKey,
-  owner: web3.PublicKey
-) {
-  const tokenAccount = await getOrCreateAssociatedTokenAccount(
-    connection,
-    payer,
-    mint,
-    owner
-  );
+    connection: web3.Connection,
+    payer: web3.Keypair,
+    mint: web3.PublicKey,
+    owner: web3.PublicKey
+    ) {const tokenAccount = await getOrCreateAssociatedTokenAccount(
+        connection,
+        payer,
+        mint,
+        owner
+    );
 
-  console.log(
-    `Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`
-  );
+    console.log(`Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`);
 
-  return tokenAccount;
+    return tokenAccount;
 }
 ```
 
@@ -533,24 +528,24 @@ Lets call the function in `main` using the `mint` we created in the previous ste
 
 ```tsx
 async function main() {
-  const user = initializeKeypair();
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-  await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
+    const user = initializeKeypair();
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
 
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  );
+    const mint = await createNewMint(
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
+        2
+    );
 
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  );
+    const tokenAccount = await createTokenAccount(
+        connection,
+        user,
+        mint,
+        user.publicKey
+    );
 }
 ```
 
@@ -564,25 +559,21 @@ Import `mintTo` from `@solana/spl-token`and then create a function to call `mint
 import {mintTo} from "@solana/spl-token";
 
 async function mintTokens(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  mint: web3.PublicKey,
-  destination: web3.PublicKey,
-  authority: web3.Keypair,
-  amount: number
-) {
-  const transactionSignature = await mintTo(
-    connection,
-    payer,
-    mint,
-    destination,
-    authority,
-    amount
-  );
-
-  console.log(
-    `Mint Token Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  );
+    connection: web3.Connection,
+    payer: web3.Keypair,
+    mint: web3.PublicKey,
+    destination: web3.PublicKey,
+    authority: web3.Keypair,
+    amount: number
+    ) {const transactionSignature = await mintTo(
+        connection,
+        payer,
+        mint,
+        destination,
+        authority,
+        amount
+    );
+    console.log(`Mint Token Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`);
 }
 ```
 
@@ -590,26 +581,26 @@ Lets call the function in `main` using the `mint` and `tokenAccount` created pre
 
 ```tsx
 async function main() {
-  const user = initializeKeypair();
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-  await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
+    const user = initializeKeypair();
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
 
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  );
+    const mint = await createNewMint(
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
+        2
+    );
 
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  );
+    const tokenAccount = await createTokenAccount(
+        connection,
+        user,
+        mint,
+        user.publicKey
+    );
 
-  await mintTokens(connection, user, mint, tokenAccount.address, user, 100);
+    await mintTokens(connection, user, mint, tokenAccount.address, user, 100);
 }
 ```
 
@@ -620,28 +611,25 @@ Next, lets transfer some of the tokens we just minted.
 Import `transfer` from `@solana/spl-token` and then create a function to call `transfer`:
 
 ```tsx
-import {tranfer} from "@solana/spl-token";
+import {transfer} from "@solana/spl-token";
 
 async function transferTokens(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  source: web3.PublicKey,
-  destination: web3.PublicKey,
-  owner: web3.Keypair,
-  amount: number
-) {
-  const transactionSignature = await transfer(
-    connection,
-    payer,
-    source,
-    destination,
-    owner,
-    amount
-  );
+    connection: web3.Connection,
+    payer: web3.Keypair,
+    source: web3.PublicKey,
+    destination: web3.PublicKey,
+    owner: web3.Keypair,
+    amount: number
+    ) {const transactionSignature = await transfer(
+        connection,
+        payer,
+        source,
+        destination,
+        owner,
+        amount
+    );
 
-  console.log(
-    `Transfer Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  );
+    console.log(`Transfer Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`);
 }
 ```
 
@@ -651,27 +639,27 @@ Lets first create a new `Keypair` for a receiver, create a token account for the
 async function main() {
 	...
 
-  const receiver = web3.Keypair.generate();
-  await connection.requestAirdrop(
-    receiver.publicKey,
-    web3.LAMPORTS_PER_SOL * 1
-  );
+    const receiver = web3.Keypair.generate();
+    await connection.requestAirdrop(
+        receiver.publicKey,
+        web3.LAMPORTS_PER_SOL * 1
+    );
 
-  const receiverTokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    receiver.publicKey
-  );
+    const receiverTokenAccount = await createTokenAccount(
+        connection,
+        user,
+        mint,
+        receiver.publicKey
+    );
 
-  await transferTokens(
-    connection,
-    user,
-    tokenAccount.address,
-    receiverTokenAccount.address,
-    user,
-    100
-  );
+    await transferTokens(
+        connection,
+        user,
+        tokenAccount.address,
+        receiverTokenAccount.address,
+        user,
+        100
+    );
 }
 ```
 
@@ -685,25 +673,22 @@ Import `burn` from `@solana/spl-token` and then create a function to call `burn`
 import {burn} from "@solana/spl-token";
 
 async function burnTokens(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  account: web3.PublicKey,
-  mint: web3.PublicKey,
-  owner: web3.Keypair,
-  amount: number
-) {
-  const transactionSignature = await burn(
-    connection,
-    payer,
-    account,
-    mint,
-    owner,
-    amount
-  );
+    connection: web3.Connection,
+    payer: web3.Keypair,
+    account: web3.PublicKey,
+    mint: web3.PublicKey,
+    owner: web3.Keypair,
+    amount: number
+    ) {const transactionSignature = await burn(
+        connection,
+        payer,
+        account,
+        mint,
+        owner,
+        amount
+    );
 
-  console.log(
-    `Burn Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  );
+    console.log(`Burn Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`);
 }
 ```
 
@@ -713,14 +698,14 @@ Lets call the function in `main` using the `mint`, `receiver`, and `receiverToke
 async function main() {
 	...
 
-  await burnTokens(
-    connection,
-    receiver,
-    receiverTokenAccount.address,
-    mint,
-    receiver,
-    100
-  );
+    await burnTokens(
+        connection,
+        receiver,
+        receiverTokenAccount.address,
+        mint,
+        receiver,
+        100
+    );
 }
 ```
 
@@ -728,29 +713,26 @@ async function main() {
 
 Token Accounts with a zero balance can be closed by the Token Account owner and have the rent of the Token Account returned to the owner.
 
- Import `closeAccount` from `@solana/spl-token` and then create a function to call `closeAccount`.
+Import `closeAccount` from `@solana/spl-token` and then create a function to call `closeAccount`.
 
 ```tsx
 import {closeAccount} from "@solana/spl-token";
 
 async function closeTokenAccount(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  account: web3.PublicKey,
-  destination: web3.PublicKey,
-  authority: web3.Keypair
-) {
-  const transactionSignature = await closeAccount(
-    connection,
-    payer,
-    account,
-    destination,
-    authority
-  );
+    connection: web3.Connection,
+    payer: web3.Keypair,
+    account: web3.PublicKey,
+    destination: web3.PublicKey,
+    authority: web3.Keypair
+    ) {const transactionSignature = await closeAccount(
+        connection,
+        payer,
+        account,
+        destination,
+        authority
+    );
 
-  console.log(
-    `Close Account Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  );
+    console.log(`Close Account Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`);
 }
 ```
 
@@ -760,13 +742,13 @@ Lets call the function in `main` using the `receiver`, and `receiverTokenAccount
 async function main() {
 	...
 
-  await closeTokenAccount(
-    connection,
-    receiver,
-    receiverTokenAccount.address,
-    receiver.publicKey,
-    receiver
-  );
+    await closeTokenAccount(
+        connection,
+        receiver,
+        receiverTokenAccount.address,
+        receiver.publicKey,
+        receiver
+    );
 }
 ```
 
@@ -776,65 +758,65 @@ Our `main` function should now look something like this:
 
 ```tsx
 async function main() {
-  const user = initializeKeypair();
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-  await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
+    const user = initializeKeypair();
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    await connection.requestAirdrop(user.publicKey, web3.LAMPORTS_PER_SOL * 2);
 
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  );
+    const mint = await createNewMint(
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
+        2
+    );
 
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  );
+    const tokenAccount = await createTokenAccount(
+        connection,
+        user,
+        mint,
+        user.publicKey
+    );
 
-  await mintTokens(connection, user, mint, tokenAccount.address, user, 100);
+    await mintTokens(connection, user, mint, tokenAccount.address, user, 100);
 
-  const receiver = web3.Keypair.generate();
-  await connection.requestAirdrop(
-    receiver.publicKey,
-    web3.LAMPORTS_PER_SOL * 1
-  );
+    const receiver = web3.Keypair.generate();
+    await connection.requestAirdrop(
+        receiver.publicKey,
+        web3.LAMPORTS_PER_SOL * 1
+    );
 
-  const receiverTokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    receiver.publicKey
-  );
+    const receiverTokenAccount = await createTokenAccount(
+        connection,
+        user,
+        mint,
+        receiver.publicKey
+    );
 
-  await transferTokens(
-    connection,
-    user,
-    tokenAccount.address,
-    receiverTokenAccount.address,
-    user,
-    100
-  );
+    await transferTokens(
+        connection,
+        user,
+        tokenAccount.address,
+        receiverTokenAccount.address,
+        user,
+        100
+    );
 
-  await burnTokens(
-    connection,
-    receiver,
-    receiverTokenAccount.address,
-    mint,
-    receiver,
-    100
-  );
+    await burnTokens(
+        connection,
+        receiver,
+        receiverTokenAccount.address,
+        mint,
+        receiver,
+        100
+    );
 
-  await closeTokenAccount(
-    connection,
-    receiver,
-    receiverTokenAccount.address,
-    receiver.publicKey,
-    receiver
-  );
+    await closeTokenAccount(
+        connection,
+        receiver,
+        receiverTokenAccount.address,
+        receiver.publicKey,
+        receiver
+    );
 }
 ```
 
@@ -862,8 +844,8 @@ When creating a new mint, the newly generated `Keypair` will also have to sign t
 
 ```tsx
 sendTransaction(transaction, connection, {
-      signers: [Keypair],
-    })
+    signers: [Keypair],
+})
 ```
 
 ![Screenshot of Token Program Challenge Frontend](../assets/token-program-frontend.png)
