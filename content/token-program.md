@@ -103,7 +103,7 @@ This may be helpful if you have a UI associated with creating a new mint and nee
 
 A Token Account holds Tokens of a specific `mint` and has a specified `owner` of the account. Only the `owner`  is authorized to decrease the Token Account balance while anyone can send Tokens to the Token Account to increase its balance.
 
-To create a token account using the `spl-token` library, you can use the `createAccount` function. The `createAccount` function returns the `Pubickey` of the new token account.
+To create a token account using the `spl-token` library, you can use the `createAccount` function. The `createAccount` function returns the `Publickey` of the new token account.
 
 This function requires the following arguments:
 
@@ -153,7 +153,7 @@ const transaction = new Transaction().add(
 
 An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner `publickey` and a token `mint`. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publickey` for a specific token `mint`.
 
-To create an associated token account using the `spl-token` library, you use the `createAssociatedTokenAccount` function. The `createAssociatedTokenAccount` function returns the `Pubickey` of the new associated token account.
+To create an associated token account using the `spl-token` library, you use the `createAssociatedTokenAccount` function. The `createAssociatedTokenAccount` function returns the `Publickey` of the new associated token account.
 
 This function requires the following arguments:
 
@@ -728,7 +728,7 @@ async function main() {
 
 Token Accounts with a zero balance can be closed by the Token Account owner and have the rent of the Token Account returned to the owner.
 
- Import `closeAccount` from `@solana/spl-token`and then create a function to call `closeAccount`.
+ Import `closeAccount` from `@solana/spl-token` and then create a function to call `closeAccount`.
 
 ```tsx
 import {closeAccount} from "@solana/spl-token";
