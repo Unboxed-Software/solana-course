@@ -93,7 +93,13 @@ const transaction = new Transaction().add(
         lamports,
         programId,
     }),
-    createInitializeMintInstruction(keypair.publicKey, decimals, mintAuthority, freezeAuthority, programId)
+    createInitializeMintInstruction(
+        keypair.publicKey,
+        decimals,
+        mintAuthority,
+        freezeAuthority,
+        programId
+    )
 )
 ```
 
@@ -145,7 +151,12 @@ const transaction = new Transaction().add(
         lamports,
         programId,
     }),
-    createInitializeAccountInstruction(keypair.publicKey, mint, owner, programId)
+    createInitializeAccountInstruction(
+        keypair.publicKey,
+        mint,
+        owner,
+        programId
+    )
 );
 ```
 
@@ -227,7 +238,14 @@ Below is what `createMintToInstruction` does under the hood.
 
 ```tsx
 const transaction = new Transaction().add(
-    createMintToInstruction(mint, destination, authorityPublicKey, amount, multiSigners, programId)
+    createMintToInstruction(
+        mint,
+        destination,
+        authorityPublicKey,
+        amount,
+        multiSigners,
+        programId
+    )
 );
 ```
 
@@ -303,7 +321,14 @@ Below is what `burn` does under the hood.
 
 ```tsx
 const transaction = new Transaction().add(
-    createBurnInstruction(account, mint, ownerPublicKey, amount, multiSigners, programId)
+    createBurnInstruction(
+        account,
+        mint,
+        ownerPublicKey,
+        amount,
+        multiSigners,
+        programId
+    )
 );
 ```
 
