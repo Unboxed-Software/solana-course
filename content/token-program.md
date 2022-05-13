@@ -20,7 +20,7 @@
 
 # Overview
 
-### Token Mint
+## Token Mint
 
 A Token `Mint` refers to an account which holds data about a specific Token.
 
@@ -94,7 +94,7 @@ const transaction = new Transaction().add(
 
 This may be helpful if you have a UI associated with creating a new mint and need to build the transaction manually in order to send the transaction to a wallet for approval.
 
-### Token Account
+## Token Account
 
 A Token Account holds Tokens of a specific `mint` and has a specified `owner` of the account. Only the `owner`  is authorized to decrease the Token Account balance while anyone can send Tokens to the Token Account to increase its balance.
 
@@ -193,7 +193,7 @@ const transaction = new Transaction().add(
 );
 ```
 
-### Mint Tokens
+## Mint Tokens
 
 New tokens are created through minting and minted to a token account. Minting increases the supply of the token `mint` and only the `mintAuthority` of a token `mint` is allowed to mint new tokens.
 
@@ -238,7 +238,7 @@ const transaction = new Transaction().add(
 );
 ```
 
-### Transfer Tokens
+## Transfer Tokens
 
 SPL-Token transfers require both the sender and receiver to have Token Accounts for the `Mint` of the Tokens being transferred. The Tokens are transferred from the sender’s Token Account to the receiver’s Token Account.
 
@@ -276,7 +276,7 @@ const transaction = new Transaction().add(
 );
 ```
 
-### Burn Tokens
+## Burn Tokens
 
 Tokens can be removed through burning and decrease the token supply of the associated `mint`.
 
@@ -321,11 +321,11 @@ const transaction = new Transaction().add(
 );
 ```
 
-### Rent
+## Rent
 
 All accounts created require a deposit of rent in SOL calculated based on amount of data stored. Rent is refunded to a specified wallet address when an account is closed and the account data no longer needs to be stored by the Solana network.
 
-### Close Token Account
+## Close Token Account
 
 To close token accounts using the `spl-token` library, you use the `closeAccount` function. The `closeAccount` function returns a `TransactionSignature` that can be viewed of Solana Explorer.
 
@@ -458,7 +458,7 @@ async function main() {
 }
 ```
 
-**Create Mint**
+### 3. Create Mint
 
 Import `createMint` from `@solana/spl-token` and then create a function to call `createMint`:
 
@@ -505,7 +505,7 @@ async function main() {
 }
 ```
 
-**Create Token Account**
+### 4. Create Token Account
 
 Lets create a new Token Account for the `mint` and set the `user` as the token account `owner`. The `createAccount` function creates a new Token Account with the option to specify the address of the Token Account. If no address is provided, `createAccount` will default to using the associated token account derived using the `mint` and owner.
 
@@ -561,7 +561,7 @@ async function main() {
 }
 ```
 
-**Mint Tokens**
+### 5. Mint Tokens
 
 Now that we have a token `mint` and a token account, lets mint tokens to the token account. Note that only the `mintAuthority` can mint new tokens to a token account. Recall that we set the `user` as the `mintAuthority` over the `mint` we created.
 
@@ -616,7 +616,7 @@ async function main() {
 }
 ```
 
-**Transfer Tokens**
+### 6. Transfer Tokens
 
 Next, lets transfer some of the tokens we just minted.
 
@@ -675,7 +675,7 @@ async function main() {
 }
 ```
 
-**Burn Tokens**
+### 7. Burn Tokens
 
 Tokens in a Token Account can be burned by the owner of a Token Account using the `burn` instruction.
 
@@ -721,7 +721,7 @@ async function main() {
 }
 ```
 
-**Close Tokens**
+### 8. Close Tokens
 
 Token Accounts with a zero balance can be closed by the Token Account owner and have the rent of the Token Account returned to the owner.
 
@@ -764,7 +764,7 @@ async function main() {
 }
 ```
 
-**Overview**
+### 9. Overview
 
 Our `main` function should now look something like this:
 
