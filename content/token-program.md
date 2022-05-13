@@ -367,7 +367,7 @@ We’re going to create a script that interacts with instructions on the Token P
 
 ### 1. Basic scaffolding
 
-Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the @solana/web3.js and @solana/spl-token package. If you want to use our exact scaffolding, you can use the following commands in the command line:
+Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the @solana/web3.js and @solana/spl-token packages. If you want to use our exact scaffolding, you can use the following commands in the command line:
 
 ```bash
 mkdir -p solana-token-client/src && \
@@ -383,7 +383,17 @@ mkdir -p solana-token-client/src && \
 	touch .env
 ```
 
-This will create a new directory for the project with a subdirectory `src`, create an `index.ts` file inside of `src`, initialize a git repository with a `.gitignore` file, create a new `npm` package, add a developer dependency on typescript, create a `.tsconfig` file, install the `@solana/web3.js` and `@solana/spl-token` dependencies, the `.dotenv` dependency, and create a `.env` file.
+This will:
+
+1. create a new directory for the project with a subdirectory `src`
+2. move the command line prompt inside the project directory
+3. create an `index.ts` file inside of `src`
+4. initialize the project directory as a git repository with a `.gitignore` file
+5. initialize a new `npm` package
+6. install a developer dependency on TypeScript
+7. create a `.tsconfig` file
+8. install the `@solana/web3.js`, `@solana/spl-token`, and `.dotenv` dependencies
+9. create a `.env` file
 
 If you want to match our code exactly, replace the contents of `.tsconfig` with the following:
 
@@ -410,19 +420,19 @@ dist/
 .env
 ```
 
-And finally, add the following to the `scripts` object in `package.json`:
+Add the following to the `scripts` object in `package.json`:
 
 ```json
 "start": "tsc && node dist/index.js"
 ```
 
-Add your Keypair an environment variable `PRIVATE_KEY` in `.env`. Refer to Module 1 Lesson 2 for how to generate a new Keypair. It should look something like this but with different numbers:
+Add your Keypair to the `.env` file as an environment variable called, `PRIVATE_KEY`. If you need to generate a new Keypair, please refer to Module 1 Lesson 2 for how to do so. It should look something like this but with different numbers:
 
 ```
 PRIVATE_KEY="[56,83,31,62,66,154,33,74,106,59,111,224,176,237,89,224,10,220,28,222,128,36,138,89,30,252,100,209,206,155,154,65,98,194,97,182,98,162,107,238,61,183,163,215,44,6,10,49,218,156,5,131,125,253,247,190,181,196,0,249,40,149,119,246]"
 ```
 
-In the `index.ts` file, let’s create a new function outside of `main` called `initializeKeypair`. Inside this new function, we’ll parse the environment variable `PRIVATE_KEY` as `number[]`, use it to initialize a `Uint8Array`, then initialize and return a `Keypair` using the `Uint8Array`.
+Finally, in the `index.ts` file, let’s create a new function outside of `main` called `initializeKeypair`. Inside this new function, we’ll parse the environment variable `PRIVATE_KEY` as `number[]`, use it to initialize a `Uint8Array`, then initialize and return a `Keypair` using the `Uint8Array`.
 
 ```tsx
 import web3 = require('@solana/web3.js')
