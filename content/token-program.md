@@ -12,8 +12,6 @@
 
 # TL;DR
 
-*This should be bullet points that quickly go through the lesson content. This should make it easier for students to just get the gist and move on if they already felt comfortable with that lesson instead of going through the whole thing.*
-
 - SPL-Tokens represent all non-native SOL tokens on the Solana network. Both fungible and non-fungible tokens (NFTs) on Solana are SPL-Tokens
 - The Token Program contains instructions for creating and interacting with SPL-Tokens
 - Token Mints are accounts which hold data about a specific Token, but do not hold Tokens
@@ -21,8 +19,6 @@
 - Creating Token Mints and Token Accounts requires allocating rent in SOL. The rent for a Token Account can be refunded when the account is closed. However, Token Mints currently cannot be closed
 
 # Overview
-
-*This is the primary explanatory text of the lesson. It should be explanation and examples of the topic that students read through but aren't coding alongside of.*
 
 ### Token Mint
 
@@ -364,8 +360,6 @@ const transaction = new Transaction().add(
 ```
 
 # Demo
-
-*The demo portion of the lesson is meant to be tutorial-style where the reader is coding along with it. The project here should take the content from the overview and apply it so it has context and isn't just standalone code snippets.*
 
 **Demo Code: [https://github.com/ZYJLiu/solana-token-client](https://github.com/ZYJLiu/solana-token-client)**
 
@@ -843,8 +837,6 @@ Run `npm start`.
 Copy and paste the URLS to Solana Explorer to see the sequence of transactions!
 
 # Challenge
-
-*Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently*
 
 **Challenge Code: [https://github.com/ZYJLiu/solana-token-frontend](https://github.com/ZYJLiu/solana-token-frontend)**
 
