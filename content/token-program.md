@@ -4,11 +4,11 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Create Token Mint
-- Create Token Accounts
-- Mint Tokens
-- Burn Tokens
-- Close Token Account
+- Create token mint
+- Create token accounts
+- Mint tokens
+- Burn tokens
+- Close token account
 
 # TL;DR
 
