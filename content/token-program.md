@@ -22,21 +22,21 @@
 
 ## Token Mint
 
-A Token `Mint` refers to an account which holds data about a specific Token.
+A "Token Mint" refers to an account which holds data about a specific token.
 
-For example, the USDC Token `Mint` address is `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`. The Token `Mint` specifies the current supply, `mintAuthority`,  `freezeAuthority`, and decimal precision of a Token.
+As an example, let's look at USD Coin on the Solana Explorer. The USDC's Token Mint address is `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`. With the explorer, we can see the particular details about USDC's Token Mint such as the current supply of tokens, the addresses of the mint and freeze authorities, and the decimal precision of the token:
 
 ![Screenshot of USDC Token Mint](../assets/token-program-usdc-mint.png)
 
-To create a mint using the `spl-token` library, you use the `createMint` function. The `createMint` function returns the `Publickey` of the new token `Mint`. This function requires the following arguments:
+Thanks to the [Solana Program Library](https://spl.solana.com/) (SPL), we can mint our own tokens and tailor them to our needs. To create a mint we'll be using the `createMint` function from `@solana/spl-token`. The `createMint` function returns the `publicKey` of the new token mint. This function requires the following arguments:
 
-- `connection` the connection to the cluster
-- `payer` the payer for the transaction
-- `mintAuthority` the mint authority authorized to mint tokens from the token mint. The mint authority can be updated to null after minting tokens to set the max supply and ensure no tokens can be minted in the future
-- `freezeAuthority` the freeze authority can freeze the tokens in a Token Account, but is often set to null if freezing is not a desired attribute
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `mintAuthority` the account which is authorized to do the actual minting of tokens from the token mint. The mint authority can be updated to null after the  tokens have been minted. This would set a maximum supply and ensure no tokens can be minted in the future. Conversely, minting authority could be granted to a program so tokens could be automatically minted at regular intervals or according to programmable conditions.
+- `freezeAuthority` an account authorized to freeze the tokens in a token account. If freezing is not a desired attribute, the parameter can be set to null
 - `decimals` specifies the desired decimal precision of the token
 
-All together, that looks like this:
+A `createMint` function looks like this:
 
 ```tsx
 const mint = await createMint(
@@ -48,26 +48,26 @@ const mint = await createMint(
 );
 ```
 
-Below is what `createMint` does under the hood.
+Below is what goes on under the hood of the  `createMint` function:
 
-1. Use `getMinimumBalanceForRentExemptMint` to calculate lamports needed for the new mint account to be rent exempt
-2. Create a transaction using `createAccount` and `createInitializeMintInstruction`. `createAccount` requires a newly generated `Keypair` to use for the new mint
+1. Use `getMinimumBalanceForRentExemptMint` to calculate the lamports needed for the new mint account to be rent exempt
+2. Create a transaction using `createAccount` and `createInitializeMintInstruction`
 
-The `createAccount` function requires the following arguments:
+Note that `createAccount` requires a newly generated `Keypair` for the new mint. The `createAccount` function requires the following arguments:
 
 - `fromPubkey` the account that will transfer lamports to the created account
 - `newAccountPubkey` the public key of the created account
-- `space` the amount of space in bytes to allocate to the created account, there is a `MINT_SIZE` constant provided by the Solana Program Library
-- `lamports` the amount of lamports to transfer to the created account, when creating a new mint use the `getMinimumBalanceForRentExemptMint` function to calculate lamports needed
-- `programID` the public key of the program to assign as the owner of the created account, when creating a new mint this will be the Token Program address. `TOKEN_PROGRAM_ID` is a constant provided by the Solana Program Library
+- `space` the amount of bytes to allocate to the created account, there is a `MINT_SIZE` constant provided by the Solana Program Library (SPL)
+- `lamports` the amount of lamports to transfer to the new mint account
+- `programID` the public key of the program to assign as the owner of the created account, when creating a new mint this will be the Token Program address. `TOKEN_PROGRAM_ID` is a constant provided by the SPL
 
 The `createInitializeMintInstruction` function requires the following arguments:
 
-- `mint` token mint account
-- `decimals` number of decimals in token account amounts
-- `mintAuthority` minting authority
-- `freezeAuthority` optional authority that can freeze token accounts
-- `programId` Token Program address
+- `mint` the token mint account
+- `decimals` the number of decimals in token account amounts
+- `mintAuthority` the minting authority
+- `freezeAuthority` the optional authority that can freeze token accounts
+- `programId` the Token Program address
 
 All together, that looks like this:
 
