@@ -96,17 +96,15 @@ This may be helpful if you have a UI associated with creating a new mint and nee
 
 ## Token Account
 
-A Token Account holds Tokens of a specific `mint` and has a specified `owner` of the account. Only the `owner`  is authorized to decrease the Token Account balance while anyone can send Tokens to the Token Account to increase its balance.
+A Token Account holds tokens of a specific "mint" and has a specified "owner" of the account. Only the owner is authorized to decrease the Token Account balance while anyone can send Tokens to the Token Account to increase its balance.
 
-To create a token account using the `spl-token` library, you can use the `createAccount` function. The `createAccount` function returns the `Publickey` of the new token account.
+Like creating a token mint, to create a token account using the `spl-token` library, you can use the `createAccount` function. The `createAccount` function returns the `publicKey` of the new token account. This function requires the following arguments:
 
-This function requires the following arguments:
-
-- `connection` the connection to the cluster
-- `payer` payer for the transaction
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
 - `mint` the token mint that the new token account is associated with
-- `owner` the owner of the new token account
-- `keypair` option parameter to specify an address for the new token account, defaulting to the associated token account for the `mint` and `owner` if no keypair is provided
+- `owner` the account of the owner of the new token account
+- `keypair` this is an optional parameter for specifying the new token account address. If no keypair is provided, the `createAccount` function defaults to a derivation from the associated `mint` and `owner` accounts.
 
 All together, that looks like this:
 
@@ -122,10 +120,10 @@ const tokenAccount = await createAccount(
 
 Below is what `createAccount` does under the hood.
 
-1. Use `getMint` retrieve the data associated with the `mint`
-2. Use `getAccountLenForMint` to calculates the space needed for the token account
-3. Use `getMinimumBalanceForRentExemption` to calculates the lamports needed for rent exemption
-4. Create a new transaction using `createAccount` and `createInitializeAccountInstruction`. Note that the `createAccount` below is from `@solana/web3.js` to create a generic new account and `createInitializeAccountInstruction` uses the new account to create the new token account
+1. Use `getMint` to retrieve the data associated with the `mint`
+2. Use `getAccountLenForMint` to calculate the space needed for the token account
+3. Use `getMinimumBalanceForRentExemption` to calculate the lamports needed for rent exemption
+4. Create a new transaction using `createAccount` and `createInitializeAccountInstruction`. Note that the `createAccount` below is from `@solana/web3.js` and used to create a generic new account. The `createInitializeAccountInstruction` uses this new account to create the new token account
 
 ```tsx
 const mintState = await getMint(connection, mint, confirmOptions?.commitment, programId);
