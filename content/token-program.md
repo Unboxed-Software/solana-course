@@ -193,20 +193,18 @@ const transaction = new Transaction().add(
 
 ## Mint Tokens
 
-New tokens are created through minting and minted to a token account. Minting increases the supply of the token `mint` and only the `mintAuthority` of a token `mint` is allowed to mint new tokens.
+New tokens are created by minting them, and they are minted to a token account. Minting increases the supply of the token mint and only the mint authority of a token mint is allowed to mint new tokens.
 
-To mint tokens using the `spl-token` library, you use the `mintTo` function. The `mintTo` function returns a `TransactionSignature` that can be viewed of Solana Explorer.
+To mint tokens using the `spl-token` library, you can use the `mintTo` function. The `mintTo` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `mintTo` function requires the following arguments:
 
-This function requires the following arguments:
-
-- `connection` the connection to the cluster
-- `payer` payer for the transaction
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
 - `mint` the token mint that the new token account is associated with
 - `destination` the token account that tokens will be minted to
-- `authority` the mint authority authorized to mint tokens from the `mint`
-- `amount` the amount of tokens to mint, remember to account for the decimals of the `mint`
+- `authority` the account authorized to mint tokens
+- `amount` the amount of tokens to mint - remember to account for the decimals of the `mint`!
 
-All together, that looks like this:
+Put together, using `mintTo` looks like this:
 
 ```tsx
 const transactionSignature = await mintTo(
@@ -219,7 +217,7 @@ const transactionSignature = await mintTo(
 );
 ```
 
-Below is what `createMintToInstruction` does under the hood.
+Below is what `mintTo` does under the hood:
 
 1. Creates a transaction using `createMintToInstruction`.
 
