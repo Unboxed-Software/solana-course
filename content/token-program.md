@@ -370,7 +370,7 @@ We’re going to create a script that interacts with instructions on the Token P
 
 ### 1. Basic scaffolding
 
-Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the @solana/web3.js and @solana/spl-token packages. If you want to use our exact scaffolding, you can use the following commands in the command line:
+Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the `@solana/web3.js` and `@solana/spl-token` packages. If you want to use our exact scaffolding, you can use the following commands in the command line:
 
 ```bash
 mkdir -p solana-token-client/src && \
