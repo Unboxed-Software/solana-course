@@ -674,10 +674,7 @@ async function main() {
 	...
 
     const receiver = web3.Keypair.generate();
-    await connection.requestAirdrop(
-        receiver.publicKey,
-        web3.LAMPORTS_PER_SOL * 1
-    );
+    await connection.requestAirdrop(receiver.publicKey, web3.LAMPORTS_PER_SOL * 1);
 
     const receiverTokenAccount = await createTokenAccount(
         connection,
