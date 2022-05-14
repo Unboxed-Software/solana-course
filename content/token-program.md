@@ -472,7 +472,7 @@ async function main() {
 }
 ```
 
-### 3. Create Mint
+### 3. Create Token Mint
 
 Import `createMint` from `@solana/spl-token` and then create a function to call `createMint`:
 
