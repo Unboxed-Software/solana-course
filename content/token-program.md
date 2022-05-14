@@ -149,16 +149,16 @@ const transaction = new Transaction().add(
 
 ### Associated Token Account
 
-An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner `publickey` and a token `mint`. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publickey` for a specific token `mint`.
+An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint.
 
-To create an associated token account using the `spl-token` library, you use the `createAssociatedTokenAccount` function. The `createAssociatedTokenAccount` function returns the `Publickey` of the new associated token account.
+As demonstrated above, to create an associated token account using the `spl-token` library, you can use the `createAssociatedTokenAccount` function. The `createAssociatedTokenAccount` function returns the `publicKey` of the new associated token account.
 
 This function requires the following arguments:
 
-- `connection` the connection to the cluster
-- `payer` payer for the transaction
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
 - `mint` the token mint that the new token account is associated with
-- `owner` the owner of the new token account
+- `owner` the acccount of the owner of the new token account
 
 All together, that looks like this:
 
@@ -173,7 +173,7 @@ const associatedTokenAccount = await createAssociatedTokenAccount(
 
 Below is what `createAssociatedTokenAccount` does under the hood.
 
-1. Use `getAssociatedTokenAddress` to derive the associated token account address for the `mint` and `owner`
+1. Use `getAssociatedTokenAddress` to derive the associated token account address from the `mint` and `owner`
 2. Create a transaction using `createAssociatedTokenAccountInstruction`
 
 ```tsx
