@@ -451,6 +451,7 @@ main().then(() => {
 }).catch((error) => {
     console.error(error);
 })
+
 function initializeKeypair(): web3.Keypair {
     const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[]
     const secretKey = Uint8Array.from(secret)
