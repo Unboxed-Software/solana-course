@@ -477,7 +477,7 @@ async function main() {
 Import `createMint` from `@solana/spl-token` and then create a function to call `createMint`:
 
 ```tsx
-import {createMint} from "@solana/spl-token";
+import { createMint } from "@solana/spl-token";
 
 async function createNewMint(
     connection: web3.Connection,
@@ -530,7 +530,7 @@ For our demo we’ll use the`getOrCreateAssociatedTokenAccount` function to crea
 Import `getOrCreateAssociatedTokenAccount` from `@solana/spl-token`and create a function to call `getOrCreateAssociatedTokenAccount`:
 
 ```tsx
-import {getOrCreateAssociatedTokenAccount} from "@solana/spl-token";
+import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 
 async function createTokenAccount(
     connection: web3.Connection,
@@ -582,7 +582,7 @@ Now that we have a token `mint` and a token account, lets mint tokens to the tok
 Import `mintTo` from `@solana/spl-token`and then create a function to call `mintTo`:
 
 ```tsx
-import {mintTo} from "@solana/spl-token";
+import { mintTo } from "@solana/spl-token";
 
 async function mintTokens(
     connection: web3.Connection,
@@ -637,7 +637,7 @@ Next, lets transfer some of the tokens we just minted.
 Import `transfer` from `@solana/spl-token` and then create a function to call `transfer`:
 
 ```tsx
-import {transfer} from "@solana/spl-token";
+import { transfer } from "@solana/spl-token";
 
 async function transferTokens(
     connection: web3.Connection,
@@ -696,7 +696,7 @@ Tokens in a Token Account can be burned by the owner of a Token Account using th
 Import `burn` from `@solana/spl-token` and then create a function to call `burn`:
 
 ```tsx
-import {burn} from "@solana/spl-token";
+import { burn } from "@solana/spl-token";
 
 async function burnTokens(
     connection: web3.Connection,
@@ -742,7 +742,7 @@ Token Accounts with a zero balance can be closed by the Token Account owner and 
 Import `closeAccount` from `@solana/spl-token` and then create a function to call `closeAccount`.
 
 ```tsx
-import {closeAccount} from "@solana/spl-token";
+import { closeAccount } from "@solana/spl-token";
 
 async function closeTokenAccount(
     connection: web3.Connection,
