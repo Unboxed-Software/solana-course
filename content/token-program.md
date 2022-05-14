@@ -96,7 +96,7 @@ This may be helpful if you have a UI associated with creating a new mint and nee
 
 ## Token Account
 
-A Token Account holds tokens of a specific "mint" and has a specified "owner" of the account. Only the owner is authorized to decrease the Token Account balance while anyone can send Tokens to the Token Account to increase its balance.
+A Token Account holds tokens of a specific "mint" and has a specified "owner" of the account. Only the owner is authorized to decrease the Token Account balance while anyone can send tokens to the Token Account to increase its balance.
 
 Like creating a token mint, to create a token account using the `spl-token` library, you can use the `createAccount` function. The `createAccount` function returns the `publicKey` of the new token account. This function requires the following arguments:
 
