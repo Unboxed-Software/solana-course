@@ -599,6 +599,7 @@ async function mintTokens(
         authority,
         amount
     );
+
     console.log(`Mint Token Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`);
 }
 ```
@@ -626,7 +627,14 @@ async function main() {
         user.publicKey
     );
 
-    await mintTokens(connection, user, mint, tokenAccount.address, user, 100);
+    await mintTokens(
+        connection,
+        user,
+        mint,
+        tokenAccount.address,
+        user,
+        100
+    );
 }
 ```
 
