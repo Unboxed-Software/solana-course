@@ -577,7 +577,7 @@ async function main() {
 
 ### 5. Mint Tokens
 
-Now that we have a token `mint` and a token account, lets mint tokens to the token account. Note that only the `mintAuthority` can mint new tokens to a token account. Recall that we set the `user` as the `mintAuthority` over the `mint` we created.
+Now that we have a token mint and a token account, lets mint tokens to the token account. Note that only the `mintAuthority` can mint new tokens to a token account. Recall that we set the `user` as the `mintAuthority` over the `mint` we created.
 
 Import `mintTo` from `@solana/spl-token`and then create a function to call `mintTo`:
 
