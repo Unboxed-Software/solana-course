@@ -118,7 +118,7 @@ const tokenAccount = await createAccount(
 );
 ```
 
-Below is what `createAccount` does under the hood.
+Below is what `createAccount` does under the hood:
 
 1. Use `getMint` to retrieve the data associated with the `mint`
 2. Use `getAccountLenForMint` to calculate the space needed for the token account
@@ -171,7 +171,7 @@ const associatedTokenAccount = await createAssociatedTokenAccount(
 );
 ```
 
-Below is what `createAssociatedTokenAccount` does under the hood.
+Below is what `createAssociatedTokenAccount` does under the hood:
 
 1. Use `getAssociatedTokenAddress` to derive the associated token account address from the `mint` and `owner`
 2. Create a transaction using `createAssociatedTokenAccountInstruction`
@@ -260,7 +260,7 @@ const transactionSignature = await transfer(
 );
 ```
 
-Below is what `transfer` does under the hood.
+Below is what `transfer` does under the hood:
 
 1. Creates a transaction using `createTransferInstruction`
 
@@ -281,15 +281,13 @@ const transaction = new Transaction().add(
 
 Tokens can be removed through burning and decrease the token supply of the associated `mint`.
 
-To burn tokens using the `spl-token` library, you use the `burn` function. The `burn` function returns a `TransactionSignature` that can be viewed of Solana Explorer.
+To burn tokens using the `spl-token` library, you use the `burn` function. The `burn` function returns a `TransactionSignature` that can be viewed of Solana Explorer. The `TransactionSignature` function requires the following arguments:
 
-This function requires the following arguments:
-
-- `connection` the connection to the cluster
-- `payer` payer for the transaction
+- `connection` the JSON-RPC  connection to the cluster
+- `payer` the account of the payer for the transaction
 - `account` the token account to burn tokens from
 - `mint` the token mint associated with the token account
-- `owner` the owner of the token account
+- `owner` the account of the owner of the token account
 - `amount` the amount of tokens to burn
 
 All together, that looks like this:
@@ -305,7 +303,7 @@ const transactionSignature = await burn(
 );
 ```
 
-Below is what `burn` does under the hood.
+Below is what `burn` does under the hood:
 
 1. Creates a transaction using `createBurnInstruction`
 
