@@ -330,7 +330,7 @@ To close token accounts using the `spl-token` library, you use the `closeAccount
 
 - `connection` the JSON-RPC connection to the cluster
 - `payer` the account of the payer for the transaction
-- `account` the token account to burn tokens from
+- `account` the token account to be closed
 - `destination` the address to refund the token account rent to
 - `authority` the account authorized to close the token account
 
