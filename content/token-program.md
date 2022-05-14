@@ -326,15 +326,13 @@ All accounts created require a deposit of rent in SOL. This rent is calculated b
 
 ## Close Token Account
 
-To close token accounts using the `spl-token` library, you use the `closeAccount` function. The `closeAccount` function returns a `TransactionSignature` that can be viewed of Solana Explorer.
+To close token accounts using the `spl-token` library, you use the `closeAccount` function. The `closeAccount` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `closeAccount` function requires the following arguments:
 
-This function requires the following arguments:
-
-- `connection` the connection to the cluster
-- `payer` payer for the transaction
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
 - `account` the token account to burn tokens from
 - `destination` the address to refund the token account rent to
-- `authority` the authority allowed to close the token account
+- `authority` the account authorized to close the token account
 
 All together, that looks like this:
 
@@ -348,13 +346,19 @@ const transactionSignature = await closeAccount(
 );
 ```
 
-Below is what `closeAccount` does under the hood.
+Below is what `closeAccount` does under the hood:
 
 1. Creates a transaction using `createCloseAccountInstruction`
 
 ```tsx
 const transaction = new Transaction().add(
-    createCloseAccountInstruction(account, destination, authorityPublicKey, multiSigners, programId)
+    createCloseAccountInstruction(
+        account,
+        destination,
+        authorityPublicKey,
+        multiSigners,
+        programId
+    )
 );
 ```
 
