@@ -740,7 +740,7 @@ async function main() {
 }
 ```
 
-### 8. Close Tokens
+### 8. Close Token Account
 
 Token Accounts with a zero balance can be closed by the Token Account owner and have the rent of the Token Account returned to the owner.
 
