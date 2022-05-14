@@ -39,7 +39,7 @@ Thanks to the [Solana Program Library](https://spl.solana.com/) (SPL), we can mi
 A `createMint` function looks like this:
 
 ```tsx
-const mint = await createMint(
+const tokenMint = await createMint(
     connection,
     payer,
     mintAuthority,
@@ -485,7 +485,7 @@ async function createNewMint(
     mintAuthority: web3.PublicKey,
     freezeAuthority: web3.PublicKey,
     decimal: number
-    ) {const mint = await createMint(
+    ) {const tokenMint = await createMint(
         connection,
         payer,
         mintAuthority,
@@ -494,10 +494,10 @@ async function createNewMint(
     );
 
     console.log(
-        `Token Mint: https://explorer.solana.com/address/${mint}?cluster=devnet`
+        `Token Mint: https://explorer.solana.com/address/${tokenMint}?cluster=devnet`
     );
 
-    return mint;
+    return tokenMint;
 }
 ```
 
