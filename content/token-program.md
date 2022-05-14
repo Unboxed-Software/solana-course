@@ -16,7 +16,7 @@
 - The **Token Program** contains instructions for creating and interacting with SPL-Tokens
 - **Token Mints** are accounts which hold data about a specific Token, but do not hold Tokens
 - **Token Accounts** are used to hold Tokens of a specific Token Mint
-- Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed. However, Token Mints currently cannot be closed
+- Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed, however, Token Mints currently cannot be closed
 
 # Overview
 
@@ -322,7 +322,7 @@ const transaction = new Transaction().add(
 
 ## Rent
 
-All accounts created require a deposit of rent in SOL calculated based on amount of data stored. Rent is refunded to a specified wallet address when an account is closed and the account data no longer needs to be stored by the Solana network.
+All accounts created require a deposit of rent in SOL. This rent is calculated based on the amount of data storage the account uses. Rent is refunded to a specified wallet address when an account is closed and the account data no longer needs to be stored by the Solana network.
 
 ## Close Token Account
 
