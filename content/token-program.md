@@ -8,7 +8,7 @@
 - Create token accounts
 - Mint tokens
 - Burn tokens
-- Close token account
+- Close token accounts
 
 # TL;DR
 
