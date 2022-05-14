@@ -462,7 +462,7 @@ function initializeKeypair(): web3.Keypair {
 
 ### 2. Token Program
 
-Now that we have a way of initializing our keypair, we need to establish a connection with Solana’s devnet. In `main`, let’s call `initializeKeypair`, create a connection to a Solana cluster, and then call`requestAirdrop` to fund the user with 2 devnet SOL:
+Now that we have a way of initializing our keypair, we need to establish a connection with Solana’s devnet. In `main`, after we call `initializeKeypair`, let's first create a connection to a Solana cluster, then call `requestAirdrop` to fund the user with 2 devnet SOL:
 
 ```tsx
 async function main() {
