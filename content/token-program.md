@@ -236,17 +236,15 @@ const transaction = new Transaction().add(
 
 ## Transfer Tokens
 
-SPL-Token transfers require both the sender and receiver to have Token Accounts for the `Mint` of the Tokens being transferred. The Tokens are transferred from the sender’s Token Account to the receiver’s Token Account.
+SPL-Token transfers require both the sender and receiver to have token accounts for the mint of the tokens being transferred. The tokens are transferred from the sender’s token account to the receiver’s token account.
 
-To transfer tokens using the `spl-token` library, you use the `transfer` function. The `transfer` function returns a `TransactionSignature` that can be viewed of Solana Explorer.
+To transfer tokens using the `spl-token` library, you use the `transfer` function. The `transfer` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `transfer` function requires the following arguments:
 
-This function requires the following arguments:
-
-- `connection` the connection to the cluster
-- `payer` payer for the transaction
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
 - `source` the token account sending tokens
 - `destination` the token account receiving tokens
-- `owner` the owner of the `source` token account
+- `owner` the account of the owner of the `source` token account
 - `amount` the amount of tokens to transfer
 
 All together, that looks like this:
@@ -268,7 +266,14 @@ Below is what `transfer` does under the hood.
 
 ```tsx
 const transaction = new Transaction().add(
-    createTransferInstruction(source, destination, ownerPublicKey, amount, multiSigners, programId)
+    createTransferInstruction(
+        source,
+        destination,
+        ownerPublicKey,
+        amount,
+        multiSigners,
+        programId
+    )
 );
 ```
 
