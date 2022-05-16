@@ -44,41 +44,60 @@ There are many accounts required to create a pool and they all must be initializ
 - token program
 - token swap program
 
-The token swap state account must be a *`SystemProgram`* account that is initialized beforehand and owned by the token swap program, this account will hold information about the swap pool itself. The swap program must be the owner of this account because it will need to mutate the data of this account. The swap pool authority is a PDA derived from the token swap program, it will be used to sign for transactions for the swap program. The swap authority PDA will also be marked the `authority` of some of the accounts involved in the swap pool. `TokenA` and `TokenB` accounts are the *token* accounts used for the actual swap pools. These accounts must contain some number of `TokenA`/`TokenB` respectively and the swap authority PDA must be marked as the `authority` over them so that the token swap program can sign for transactions and transfer tokens from the `TokenA` and `TokenB` accounts. The pool token mint account is the mint of the LP-tokens that represent an LP’s ownership in the pool, the swap authority must be marked as the `MintAuthority`. The pool token fee account is a *token* account that the fees for the token swaps are paid to, this account must be owned by a specific account defined in the swap program - that account has public key [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet). Lastly, the token program id and the token swap program id are also needed.
+The token swap state account must be a *`SystemProgram`* account that is initialized beforehand and owned by the token swap program, this account will hold information about the swap pool itself. The swap program must be the owner of this account because it will need to mutate the data of this account. The swap pool authority is a PDA derived from the token swap program, it will be used to sign for transactions for the swap program. The swap authority PDA will also be marked the `authority` of some of the accounts involved in the swap pool. `TokenA` and `TokenB` accounts are the *token* accounts used for the actual swap pools. These accounts must contain some number of `TokenA`/`TokenB` respectively and the swap authority PDA must be marked as the `authority` over them so that the token swap program can sign for transactions and transfer tokens from the `TokenA` and `TokenB` accounts. The pool token mint account is the mint of the LP-tokens that represent an LP’s ownership in the pool, the swap authority must be marked as the `MintAuthority`. The pool token fee account is a *token* account that the fees for the token swaps are paid to, this account must be owned by a specific account defined in the swap program - that account has public key [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet). The Pool token recipient account is the account the liquidity pool tokens representing an LP's deposited liquidity in the pool will be minted to. Lastly, the token program id and the token swap program id are also needed.
 
-Once you have all of these accounts created and initialized properly, you can issue an instruction targeting the token swap program and it will take care of the rest. Here’s an example of how you would create and initialize some of the accounts necessary:
+Once you have all of these accounts created and initialized properly, you can issue an instruction targeting the token swap program and it will take care of the rest. Here’s an example of a script that creates a token swap:
 
 ```tsx
 ...
 import * as Web3 from '@solana/web3.js'
 import { TokenSwap, TOKEN_SWAP_PROGRAM_ID } from "@solana/spl-token-swap"
 
-const tx = new Web3.Transaction()
+const FEE_OWNER = new Web3.PublicKey("HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN")
 
-// token swap state accoount
-let tokenSwapStateAccount = Web3.Keypair.generate()
-console.log("Swap State account: ", tokenSwapStateAccount.publicKey.toBase58())
-// ix to create system account at this pubkey
-const swapAcctIx = await Web3.SystemProgram.createAccount({
-	newAccountPubkey: tokenSwapStateAccount.publicKey, // new account pubkey
-	fromPubkey: wallet.publicKey, // payer
-	lamports: await TokenSwap.getMinBalanceRentForExemptTokenSwap(connection),
-	space: TokenSwapLayout.span,
-// Public key of the program to assign as the owner of the created account
-// notice the token swap program is used here
-	programId: TOKEN_SWAP_PROGRAM_ID
-})
-tx.add(swapAcctIx)
+async function createTokenSwap(
+) {
 
-// derive pda from Token swap program for swap authority
-// we use the swap state account as a seed, but can use whatever you want
-const [swapAuthority, bump] = await Web3.PublicKey.findProgramAddress(
-	[tokenSwapStateAccount.publicKey.toBuffer()],
-	TOKEN_SWAP_PROGRAM_ID,
-)
-console.log("Swap authority PDA: ", swapAuthority.toBase58())
+    const tx = new Web3.Transaction()
 
-// create pool token mint with swapAuthorithy as MintAuthority
+    // token swap state account
+    console.log('creating swap state account')
+    let tokenSwapStateAccount = Web3.Keypair.generate()
+    console.log("Swap State account: ", tokenSwapStateAccount.publicKey.toBase58())
+
+    const swapAcctIx = await Web3.SystemProgram.createAccount({
+        newAccountPubkey: tokenSwapStateAccount.publicKey,
+        fromPubkey: wallet.publicKey,
+        lamports: await TokenSwap.getMinBalanceRentForExemptTokenSwap(connection),
+        space: TokenSwapLayout.span,
+        programId: TOKEN_SWAP_PROGRAM_ID
+    })
+    tx.add(swapAcctIx)
+
+    // derive pda from Token swap program for swap authority
+    const [swapAuthority, bump] = await Web3.PublicKey.findProgramAddress(
+        [tokenSwapStateAccount.publicKey.toBuffer()],
+        TOKEN_SWAP_PROGRAM_ID,
+    )
+    console.log("Swap authority PDA: ", swapAuthority.toBase58())
+    
+    // create Associated Token Accounts owned by the swap auth PDA that will be used as pool accounts and airdrop tokens
+    const tokenAPoolATAIX = await createATA(kryptMint, swapAuthority, wallet.publicKey)
+    tx.add(tokenAPoolATAIX)
+    const tokenBPoolATAIX = await createATA(ScroogeCoinMint, swapAuthority, wallet.publicKey)
+    tx.add(tokenBPoolATAIX)
+    // airdrop tokens to these new ATA's
+    const tokenAPoolATA = await getATA(kryptMint, swapAuthority)
+    console.log("Krypt token account: ", tokenAPoolATA.toBase58())
+    const tokenBPoolATA = await getATA(ScroogeCoinMint, swapAuthority)
+    console.log("ScroogeCoing token account: ",tokenBPoolATA.toBase58())
+    // airdropping tokens
+    const airdropAIx = await airdropTokens(10000, wallet.publicKey, tokenAPoolATA, kryptMint, airdropPDA)
+    tx.add(airdropAIx)
+    const airdropBIx = await airdropTokens(10000, wallet.publicKey, tokenBPoolATA, ScroogeCoinMint, airdropPDA)
+    tx.add(airdropBIx)
+
+    // create pool token mint and pool token accounts
     console.log('creating pool mint')
     const poolTokenMint = await createMint(
         connection,
@@ -88,10 +107,74 @@ console.log("Swap authority PDA: ", swapAuthority.toBase58())
         2
     )
     console.log("Pool mint: ", poolTokenMint.toBase58())
+   
+    console.log('creating pool account')
+    const tokenAccountPool = Web3.Keypair.generate()
+    tx.add(
+      // create account
+      Web3.SystemProgram.createAccount({
+        fromPubkey: wallet.publicKey,
+        newAccountPubkey: tokenAccountPool.publicKey,
+        space: ACCOUNT_SIZE,
+        lamports: await getMinimumBalanceForRentExemptAccount(connection),
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      // init token account
+      createInitializeAccountInstruction(tokenAccountPool.publicKey, poolTokenMint, wallet.publicKey)
+    )
+    console.log("Token Account Pool: ", tokenAccountPool.publicKey.toBase58())
+
+    // create fee account, this is where all swap fees will be paid
+    // must be owned by the FEE_OWNER, requirement of token swap program
+    const feeAccountATAIX = await createATA(poolTokenMint, FEE_OWNER, wallet.publicKey)
+    tx.add(feeAccountATAIX)
+    const feeAccountAta = await getATA(poolTokenMint, FEE_OWNER)
+    console.log("Fee acount: ", feeAccountAta.toBase58())
+
+    // Pool fees
+    const poolConfig: PoolConfig = {
+      curveType: CurveType.ConstantProduct,
+      fees: {
+        tradeFeeNumerator: 0,
+        tradeFeeDenominator: 10000,
+        ownerTradeFeeNumerator: 5,
+        ownerTradeFeeDenominator: 10000,
+        ownerWithdrawFeeNumerator: 0,
+        ownerWithdrawFeeDenominator: 0,
+        hostFeeNumerator: 20,
+        hostFeeDenominator: 100
+      }
+    }
+
+    const createSwapIx = await createInitSwapInstruction(
+      tokenSwapStateAccount.publicKey,
+      swapAuthority,
+      tokenAPoolATA,
+      tokenBPoolATA,
+      poolTokenMint,
+      feeAccountAta,
+      tokenAccountPool.publicKey,
+      TOKEN_PROGRAM_ID,
+      TOKEN_SWAP_PROGRAM_ID,
+      bump,
+      poolConfig
+    )
+    
+    tx.add(createSwapIx)
+
+    console.log("sending tx");
+    let txid = await Web3.sendAndConfirmTransaction(connection, tx, [wallet, tokenSwapStateAccount, tokenAccountPool], {
+      skipPreflight: true,
+      preflightCommitment: "confirmed",
+    });
+    
+    console.log(`https://explorer.solana.com/tx/${txid}?cluster=devnet`);
+    
+}
 ...
 ```
 
-This is just a code snippet of how 3 of the accounts involved would be created and initialized, we will go over the rest in depth in the demo section.
+If you copy this script, it will not work because it uses some helper functions and constants defined elsewhere. To get a look at the full program, take a look at [this repo](https://github.com/ixmorrow/token-swap-demo).
 
 ### Interacting with Swap Pools
 
@@ -132,7 +215,7 @@ For this demo, a token pool of two brand new tokens has been created and is live
 
 We have also built an Airdrop program that lives at address `[CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3](https://explorer.solana.com/address/CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3?cluster=devnet)` so that students can mint as many tokens as they’d like to their wallets to interact with the pool.
 
-![Untitled](Token%20Swap%20d7d6ba89e6a44ce58b67f81e1871fb02/Untitled.png)
+![Screenshot of Token Swap Demo](../assets/token-swap-frontend.png)
 
 ### 1. Download the starter code
 
