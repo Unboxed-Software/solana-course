@@ -213,7 +213,7 @@ Demo code: [https://github.com/ixmorrow/token-swap-frontend](https://github.com/
 
 For this demo, a token pool of two brand new tokens has been created and is live on devnet. We will be walking through building out a frontend UI to interact with this swap pool! Since the pool is already made, we will not have to worry about initiating the pool and funding it with tokens. We will focus on building out the instructions for depositing liquidity to the pool, withdrawing your deposited liquidity, and actually swapping from one token to the other.
 
-We have also built an Airdrop program that lives at address `[CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3](https://explorer.solana.com/address/CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3?cluster=devnet)` so that students can mint as many tokens as they’d like to their wallets to interact with the pool.
+We have also built an Airdrop program that lives at address [CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3](https://explorer.solana.com/address/CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3?cluster=devnet) so that students can mint as many tokens as they’d like to their wallets to interact with the pool.
 
 ![Screenshot of Token Swap Demo](../assets/token-swap-frontend.png)
 
