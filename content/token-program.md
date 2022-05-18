@@ -20,7 +20,7 @@
 
 # Overview
 
-In the previous lesson we learned about the client interacts with the Solana Network. Now that we understand wallets and sending serialized transaction data, let’s talk about the tokens we hold in our wallets. In this module we’ll be learning how to interact with programs in the Solana Program Library (SPL). This lesson will go over the basics of how to interact the the Token Program. We we learn how to create token mints, create token accounts, mint tokens, transfer tokens, burn tokens, and close token accounts.
+In the previous lesson we learned about how the client interacts with the Solana Network. Now that we understand wallets and sending serialized transaction data, let’s talk about the tokens we hold in our wallets. In this module we’ll be learning how to interact with programs in the Solana Program Library (SPL). This lesson will go over the basics of how to interact with the Token Program. We'll learn how to create token mints, create token accounts, mint tokens, transfer tokens, burn tokens, and close token accounts.
 
 ## Token Mint
 
