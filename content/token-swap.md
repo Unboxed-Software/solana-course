@@ -184,7 +184,7 @@ Once a pool is created, users can immediately begin trading on it using the `sw
 
 Since Solana programs require all accounts to be declared in the instruction, users need to gather all account information from the pool state account: the token A and B accounts, pool token mint, and fee account.
 
-To allow any trading, the pool needs liquidity provided from the outside. Using the `deposit_single_token_type_exact_amount_in` or  `deposit_all_token_types`
+To allow any trading, the pool needs liquidity provided from the outside. Using the `deposit_single_token_type_exact_amount_in` or `deposit_all_token_types`
  instructions, anyone can provide liquidity for others to trade, and in exchange, depositor’s receive a pool token is representing fractional ownership of all A and B tokens in the pool.
 
 At any time, pool token holders may redeem their pool tokens in exchange for tokens A and B, returned at the current "fair" rate as determined by the curve. In the `withdraw_all_token_types` or `withdraw_single_token_type_exact_amount_out` instructions, pool tokens are burned, and tokens A and B are transferred into the user's accounts.
@@ -221,7 +221,7 @@ We have also built an Airdrop program that lives at address [CPEV4ibq2VUv7UnNpkz
 
 Before we get started, go ahead and download the [starter code](https://github.com/ixmorrow/token-swap-frontend/tree/starter).
 
-The project is a fairly simple Next.js application re-using a lot of what was previously built out for the demos in the first lesson. As you can see from the image above, there are a few different text inputs and `Buttons` - all of which will submit transactions to the blockchain on the users behalf.  Our focus in this demo will be creating the instructions that the last three buttons will submit, the airdrop buttons are already implemented should work out of the box.
+The project is a fairly simple Next.js application re-using a lot of what was previously built out for the demos in the first lesson. As you can see from the image above, there are a few different text inputs and `Buttons` - all of which will submit transactions to the blockchain on the users behalf. Our focus in this demo will be creating the instructions that the last three buttons will submit, the airdrop buttons are already implemented should work out of the box.
 
 ### 2. Create the Deposit Instruction
 
@@ -257,7 +257,7 @@ const handleTransactionSubmit = async (deposit: DepositAllSchema) => {
 ...
 ```
 
-Once we have the addresses of the accounts where the tokens are or will actually be stored,  we will want to check if there is an `Associated Token Account` created for the pool token by using the `getAccountInfo` RPC method from the first module. This function will return an `AccountInfo` struct if it exits or `null` if not, if it is `null` we create an instruction to create the account and add it to our transaction. Then, we can serialize the user’s input in to a buffer with a `serialize` function that has already been implemented similarly to how we serialized our instruction data in previous demos. Then, we will construct our array of `AccountInfo’s`.
+Once we have the addresses of the accounts where the tokens are or will actually be stored, we will want to check if there is an `Associated Token Account` created for the pool token by using the `getAccountInfo` RPC method from the first module. This function will return an `AccountInfo` struct if it exits or `null` if not, if it is `null` we create an instruction to create the account and add it to our transaction. Then, we can serialize the user’s input in to a buffer with a `serialize` function that has already been implemented similarly to how we serialized our instruction data in previous demos. Then, we will construct our array of `AccountInfo’s`.
 
 ```tsx
 ...
@@ -275,7 +275,7 @@ if (account == null) {
     transaction.add(createATAIX)
 }
 
-const buffer =  deposit.serialize()
+const buffer = deposit.serialize()
 
 const depositIX = new Web3.TransactionInstruction({
     keys: [
