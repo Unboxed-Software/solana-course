@@ -20,7 +20,7 @@
 
 ### Swap Pools
 
-Before we get into how to create and interact with swap pools on Solana, it’s important we understand the basics of what a swap pool even is. A swap pool is an aggregation of two different tokens, we’ll call them `TokenA` and `TokenB` for now, with the purpose of providing liquidity to facilitate swapping from A to B and vice versa. 
+Before we get into how to create and interact with swap pools on Solana, it’s important we understand the basics of what a swap pool even is. A swap pool is an aggregation of two different tokens, we’ll call them `TokenA` and `TokenB` for now, with the purpose of providing liquidity to facilitate swapping from A to B and vice versa.
 
 Users provide liquidity to these pools by depositing their own tokens into each pool, these users are called liquidity providers. Once a liquidity provider (or LP) deposits some tokens to the swap pool, they LP-tokens are minted that represent their fractional ownership in the pool. LP’s are incentivized to provide liquidity because most swap pools charge a transaction fee to facilitate the swap, these transactions fees are then paid out to the LP’s in proportion to the amount of liquidity they are providing in the pool. When an LP is ready to withdraw their deposited liquidity, their LP tokens are burned and tokens from the pool, proportional to the amount of LP tokens burned, are sent to their wallet.
 
@@ -30,7 +30,7 @@ Swap pools are completely decentralized and anybody can issue instructions to th
 
 ### Creating a Swap Pool
 
-Creating swap pools with the SPL token swap program really showcases the account, instruction, and authorization models on Solana, this lesson will combine and build on top of a lot of what we have learned so far in the course. 
+Creating swap pools with the SPL token swap program really showcases the account, instruction, and authorization models on Solana, this lesson will combine and build on top of a lot of what we have learned so far in the course.
 
 There are many accounts required to create a pool and they all must be initialized in a specific way in order for the swap program to process them successfully. The following accounts are needed:
 
@@ -80,7 +80,7 @@ async function createTokenSwap(
         TOKEN_SWAP_PROGRAM_ID,
     )
     console.log("Swap authority PDA: ", swapAuthority.toBase58())
-    
+
     // create Associated Token Accounts owned by the swap auth PDA that will be used as pool accounts and airdrop tokens
     const tokenAPoolATAIX = await createATA(kryptMint, swapAuthority, wallet.publicKey)
     tx.add(tokenAPoolATAIX)
@@ -107,20 +107,20 @@ async function createTokenSwap(
         2
     )
     console.log("Pool mint: ", poolTokenMint.toBase58())
-   
+
     console.log('creating pool account')
     const tokenAccountPool = Web3.Keypair.generate()
     tx.add(
-      // create account
-      Web3.SystemProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        newAccountPubkey: tokenAccountPool.publicKey,
-        space: ACCOUNT_SIZE,
-        lamports: await getMinimumBalanceForRentExemptAccount(connection),
-        programId: TOKEN_PROGRAM_ID,
-      }),
-      // init token account
-      createInitializeAccountInstruction(tokenAccountPool.publicKey, poolTokenMint, wallet.publicKey)
+        // create account
+        Web3.SystemProgram.createAccount({
+            fromPubkey: wallet.publicKey,
+            newAccountPubkey: tokenAccountPool.publicKey,
+            space: ACCOUNT_SIZE,
+            lamports: await getMinimumBalanceForRentExemptAccount(connection),
+            programId: TOKEN_PROGRAM_ID,
+        }),
+        // init token account
+        createInitializeAccountInstruction(tokenAccountPool.publicKey, poolTokenMint, wallet.publicKey)
     )
     console.log("Token Account Pool: ", tokenAccountPool.publicKey.toBase58())
 
@@ -133,43 +133,43 @@ async function createTokenSwap(
 
     // Pool fees
     const poolConfig: PoolConfig = {
-      curveType: CurveType.ConstantProduct,
-      fees: {
-        tradeFeeNumerator: 0,
-        tradeFeeDenominator: 10000,
-        ownerTradeFeeNumerator: 5,
-        ownerTradeFeeDenominator: 10000,
-        ownerWithdrawFeeNumerator: 0,
-        ownerWithdrawFeeDenominator: 0,
-        hostFeeNumerator: 20,
-        hostFeeDenominator: 100
-      }
+        curveType: CurveType.ConstantProduct,
+        fees: {
+            tradeFeeNumerator: 0,
+            tradeFeeDenominator: 10000,
+            ownerTradeFeeNumerator: 5,
+            ownerTradeFeeDenominator: 10000,
+            ownerWithdrawFeeNumerator: 0,
+            ownerWithdrawFeeDenominator: 0,
+            hostFeeNumerator: 20,
+            hostFeeDenominator: 100
+        }
     }
 
     const createSwapIx = await createInitSwapInstruction(
-      tokenSwapStateAccount.publicKey,
-      swapAuthority,
-      tokenAPoolATA,
-      tokenBPoolATA,
-      poolTokenMint,
-      feeAccountAta,
-      tokenAccountPool.publicKey,
-      TOKEN_PROGRAM_ID,
-      TOKEN_SWAP_PROGRAM_ID,
-      bump,
-      poolConfig
+        tokenSwapStateAccount.publicKey,
+        swapAuthority,
+        tokenAPoolATA,
+        tokenBPoolATA,
+        poolTokenMint,
+        feeAccountAta,
+        tokenAccountPool.publicKey,
+        TOKEN_PROGRAM_ID,
+        TOKEN_SWAP_PROGRAM_ID,
+        bump,
+        poolConfig
     )
-    
+
     tx.add(createSwapIx)
 
     console.log("sending tx");
     let txid = await Web3.sendAndConfirmTransaction(connection, tx, [wallet, tokenSwapStateAccount, tokenAccountPool], {
-      skipPreflight: true,
-      preflightCommitment: "confirmed",
+        skipPreflight: true,
+        preflightCommitment: "confirmed",
     });
-    
+
     console.log(`https://explorer.solana.com/tx/${txid}?cluster=devnet`);
-    
+
 }
 ...
 ```
@@ -246,18 +246,18 @@ The deposit instruction should be added inside the `/components/Deposit.tsx` fil
 ```tsx
 ...
 const handleTransactionSubmit = async (deposit: DepositAllSchema) => {
-        if (!publicKey) {
-            alert('Please connect your wallet!')
-            return
-        }
-			// these are the accounts that hold the tokens
-        const sourceA = await getATA(kryptMint, publicKey)
-        const sourceB = await getATA(ScroogeCoinMint, publicKey)
-				const token_account_pool = await getATA(pool_mint, publicKey)
+    if (!publicKey) {
+        alert('Please connect your wallet!')
+        return
+    }
+	// these are the accounts that hold the tokens
+    const sourceA = await getATA(kryptMint, publicKey)
+    const sourceB = await getATA(ScroogeCoinMint, publicKey)
+	const token_account_pool = await getATA(pool_mint, publicKey)
 ...
 ```
 
-Once we have the addresses of the accounts where the tokens are or will actually be stored,  we will want to check if there is an `Associated Token Account` created for the pool token by using the `getAccountInfo` RPC method from the first module. This function will return an `AccountInfo` struct if it exits or `null` if not, if it is `null` we create an instruction to create the account and add it to our transaction. Then, we can serialize the user’s input in to a buffer with a `serialize` function that has already been implemented similarly to how we serialized our instruction data in previous demos. Then, we will construct our array of `AccountInfo’s`. 
+Once we have the addresses of the accounts where the tokens are or will actually be stored,  we will want to check if there is an `Associated Token Account` created for the pool token by using the `getAccountInfo` RPC method from the first module. This function will return an `AccountInfo` struct if it exits or `null` if not, if it is `null` we create an instruction to create the account and add it to our transaction. Then, we can serialize the user’s input in to a buffer with a `serialize` function that has already been implemented similarly to how we serialized our instruction data in previous demos. Then, we will construct our array of `AccountInfo’s`.
 
 ```tsx
 ...
@@ -269,42 +269,42 @@ const token_account_pool = await getATA(pool_mint, publicKey)
 const transaction = new Web3.Transaction()
 
 let account = await connection.getAccountInfo(token_account_pool)
-  
+
 if (account == null) {
-   const createATAIX = await createATA(pool_mint, token_account_pool, publicKey)
-   transaction.add(createATAIX)
+    const createATAIX = await createATA(pool_mint, token_account_pool, publicKey)
+    transaction.add(createATAIX)
 }
 
 const buffer =  deposit.serialize()
-        
+
 const depositIX = new Web3.TransactionInstruction({
-        keys: [
-            { pubkey: token_swap_state_account, isSigner: false, isWritable: false },
-            { pubkey: swap_authority, isSigner: false, isWritable: false },
-            { pubkey: publicKey, isSigner: true, isWritable: false },
-            { pubkey: sourceA, isSigner: false, isWritable: true },
-            { pubkey: sourceB, isSigner: false, isWritable: true },
-            { pubkey: pool_krypt_account, isSigner: false, isWritable: true },
-            { pubkey: pool_scrooge_account, isSigner: false, isWritable: true },
-            { pubkey: pool_mint, isSigner: false, isWritable: true },
-            { pubkey: token_account_pool, isSigner: false, isWritable: true },
-            { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-          ],
-          data: buffer,
-          programId: TOKEN_SWAP_PROGRAM_ID,
-        })
+    keys: [
+        { pubkey: token_swap_state_account, isSigner: false, isWritable: false },
+        { pubkey: swap_authority, isSigner: false, isWritable: false },
+        { pubkey: publicKey, isSigner: true, isWritable: false },
+        { pubkey: sourceA, isSigner: false, isWritable: true },
+        { pubkey: sourceB, isSigner: false, isWritable: true },
+        { pubkey: pool_krypt_account, isSigner: false, isWritable: true },
+        { pubkey: pool_scrooge_account, isSigner: false, isWritable: true },
+        { pubkey: pool_mint, isSigner: false, isWritable: true },
+        { pubkey: token_account_pool, isSigner: false, isWritable: true },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    ],
+    data: buffer,
+    programId: TOKEN_SWAP_PROGRAM_ID,
+    })
 
 transaction.add(depositIX)
 
 try {
-     let txid = await sendTransaction(transaction, connection)
-     alert(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
-     console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+    let txid = await sendTransaction(transaction, connection)
+    alert(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+    console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
 } catch (e) {
-     console.log(JSON.stringify(e))
-     alert(JSON.stringify(e))
+    console.log(JSON.stringify(e))
+    alert(JSON.stringify(e))
 }
-    
+
 ...
 ```
 
@@ -316,7 +316,7 @@ As you can see, there is a lot of overlap between the first module’s demos, ju
 
 The withdrawal instruction is very similar to the deposit instruction, but there are some subtle differences. Like deposits, the token swap program accepts two variations of withdrawals. You can either withdraw liquidity from a single side of the swap pool, or you can withdraw your deposited liquidity from both sides at the same time. We’ll be targeting the [instruction to withdraw from both sides of the swap pool at once](https://github.com/solana-labs/solana-program-library/blob/master/token-swap/program/src/processor.rs#L602).
 
-This instruction will live in the `/components/Withdraw.tsx` file inside the `handleTransactionSubmit` function again. 
+This instruction will live in the `/components/Withdraw.tsx` file inside the `handleTransactionSubmit` function again.
 
 ```tsx
 const transaction = new Web3.Transaction()
@@ -328,24 +328,24 @@ const token_account_pool = await getATA(pool_mint, publicKey)
 const buffer = withdraw.serialize()
 
 const withdrawIX = new Web3.TransactionInstruction({
-            keys: [
-                {pubkey: token_swap_state_account, isSigner: false, isWritable: false},
-                {pubkey: swap_authority, isSigner: false, isWritable: false},
-                {pubkey: publicKey, isSigner: true, isWritable: false},
-                {pubkey: pool_mint, isSigner: false, isWritable: true},
-                {pubkey: token_account_pool, isSigner: false, isWritable: true},
-                {pubkey: pool_krypt_account, isSigner: false, isWritable: true},
-                {pubkey: pool_scrooge_account, isSigner: false, isWritable: true},
-                {pubkey: userA, isSigner: false, isWritable: true},
-                {pubkey: userB, isSigner: false, isWritable: true},
-                {pubkey: fee_account, isSigner: false, isWritable: true},
-                {pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
-              ],
-              data: buffer,
-              programId: TOKEN_SWAP_PROGRAM_ID,
-        })
+    keys: [
+        {pubkey: token_swap_state_account, isSigner: false, isWritable: false},
+        {pubkey: swap_authority, isSigner: false, isWritable: false},
+        {pubkey: publicKey, isSigner: true, isWritable: false},
+        {pubkey: pool_mint, isSigner: false, isWritable: true},
+        {pubkey: token_account_pool, isSigner: false, isWritable: true},
+        {pubkey: pool_krypt_account, isSigner: false, isWritable: true},
+        {pubkey: pool_scrooge_account, isSigner: false, isWritable: true},
+        {pubkey: userA, isSigner: false, isWritable: true},
+        {pubkey: userB, isSigner: false, isWritable: true},
+        {pubkey: fee_account, isSigner: false, isWritable: true},
+        {pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
+    ],
+    data: buffer,
+    programId: TOKEN_SWAP_PROGRAM_ID,
+})
 
- transaction.add(withdrawIX)
+transaction.add(withdrawIX)
 ```
 
 Notice the ordering of accounts is different for the withdraw transaction and there is an additional `fee_account` provided this time. There is a fee that must be paid by the user for withdrawing liquidity from the pools, this fee is determined by the swap program based on the Curve and paid to the `fee_account`.
@@ -372,45 +372,44 @@ From here, the user’s input will determine our path of execution because swapp
 
 ...
 // check which direction to swap
-        if (mint == 'option1') {
-            const withdrawIX = new Web3.TransactionInstruction({
-                keys: [
-                    {pubkey: token_swap_state_account, isSigner: false, isWritable: false},
-                    {pubkey: swap_authority, isSigner: false, isWritable: false},
-                    {pubkey: publicKey, isSigner: true, isWritable: false},
-                    {pubkey: userA, isSigner: false, isWritable: true},
-                    {pubkey: pool_krypt_account, isSigner: false, isWritable: true},
-                    {pubkey: pool_scrooge_account, isSigner: false, isWritable: true},
-                    {pubkey: userB, isSigner: false, isWritable: true},
-                    {pubkey: pool_mint, isSigner: false, isWritable: true},
-                    {pubkey: fee_account, isSigner: false, isWritable: true},
-                    {pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
-                  ],
-                  data: buffer,
-                  programId: TOKEN_SWAP_PROGRAM_ID,
-            })
-            transaction.add(withdrawIX)
-
-        }
-        else if (mint == 'option2'){
-            const withdrawIX = new Web3.TransactionInstruction({
-                keys: [
-                    {pubkey: token_swap_state_account, isSigner: false, isWritable: false},
-                    {pubkey: swap_authority, isSigner: false, isWritable: false},
-                    {pubkey: publicKey, isSigner: true, isWritable: false},
-                    {pubkey: userB, isSigner: false, isWritable: true},
-                    {pubkey: pool_scrooge_account, isSigner: false, isWritable: true},
-                    {pubkey: pool_krypt_account, isSigner: false, isWritable: true},
-                    {pubkey: userA, isSigner: false, isWritable: true},
-                    {pubkey: pool_mint, isSigner: false, isWritable: true},
-                    {pubkey: fee_account, isSigner: false, isWritable: true},
-                    {pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
-                  ],
-                  data: buffer,
-                  programId: TOKEN_SWAP_PROGRAM_ID,
-            })
-            transaction.add(withdrawIX)
-        }
+    if (mint == 'option1') {
+        const withdrawIX = new Web3.TransactionInstruction({
+            keys: [
+                {pubkey: token_swap_state_account, isSigner: false, isWritable: false},
+                {pubkey: swap_authority, isSigner: false, isWritable: false},
+                {pubkey: publicKey, isSigner: true, isWritable: false},
+                {pubkey: userA, isSigner: false, isWritable: true},
+                {pubkey: pool_krypt_account, isSigner: false, isWritable: true},
+                {pubkey: pool_scrooge_account, isSigner: false, isWritable: true},
+                {pubkey: userB, isSigner: false, isWritable: true},
+                {pubkey: pool_mint, isSigner: false, isWritable: true},
+                {pubkey: fee_account, isSigner: false, isWritable: true},
+                {pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
+            ],
+            data: buffer,
+            programId: TOKEN_SWAP_PROGRAM_ID,
+        })
+        transaction.add(withdrawIX)
+    }
+    else if (mint == 'option2') {
+        const withdrawIX = new Web3.TransactionInstruction({
+            keys: [
+                {pubkey: token_swap_state_account, isSigner: false, isWritable: false},
+                {pubkey: swap_authority, isSigner: false, isWritable: false},
+                {pubkey: publicKey, isSigner: true, isWritable: false},
+                {pubkey: userB, isSigner: false, isWritable: true},
+                {pubkey: pool_scrooge_account, isSigner: false, isWritable: true},
+                {pubkey: pool_krypt_account, isSigner: false, isWritable: true},
+                {pubkey: userA, isSigner: false, isWritable: true},
+                {pubkey: pool_mint, isSigner: false, isWritable: true},
+                {pubkey: fee_account, isSigner: false, isWritable: true},
+                {pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
+            ],
+            data: buffer,
+            programId: TOKEN_SWAP_PROGRAM_ID,
+        })
+        transaction.add(withdrawIX)
+    }
 ...
 ```
 
