@@ -18,7 +18,7 @@
 
 # Overview
 
-### Swap Pools
+## Swap Pools
 
 Before we get into how to create and interact with swap pools on Solana, it’s important we understand the basics of what a swap pool even is. A swap pool is an aggregation of two different tokens, we’ll call them `TokenA` and `TokenB` for now, with the purpose of providing liquidity to facilitate swapping from A to B and vice versa.
 
