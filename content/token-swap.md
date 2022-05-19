@@ -44,7 +44,19 @@ There are many accounts required to create a pool and they all must be initializ
 - token program
 - token swap program
 
-The token swap state account must be a *`SystemProgram`* account that is initialized beforehand and owned by the token swap program, this account will hold information about the swap pool itself. The swap program must be the owner of this account because it will need to mutate the data of this account. The swap pool authority is a PDA derived from the token swap program, it will be used to sign for transactions for the swap program. The swap authority PDA will also be marked the `authority` of some of the accounts involved in the swap pool. `TokenA` and `TokenB` accounts are the *token* accounts used for the actual swap pools. These accounts must contain some number of `TokenA`/`TokenB` respectively and the swap authority PDA must be marked as the `authority` over them so that the token swap program can sign for transactions and transfer tokens from the `TokenA` and `TokenB` accounts. The pool token mint account is the mint of the LP-tokens that represent an LP’s ownership in the pool, the swap authority must be marked as the `MintAuthority`. The pool token fee account is a *token* account that the fees for the token swaps are paid to, this account must be owned by a specific account defined in the swap program - that account has public key [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet). The Pool token recipient account is the account the liquidity pool tokens representing an LP's deposited liquidity in the pool will be minted to. Lastly, the token program id and the token swap program id are also needed.
+The token swap state account must be a *`SystemProgram`* account that is initialized beforehand and owned by the token swap program, this account will hold information about the swap pool itself. The token swap program must be the owner of this account because it will need to mutate the data of this account.
+
+The swap pool authority is a PDA derived from the token swap program, it will be used to sign for transactions for the swap program. The swap authority PDA will also be marked the `authority` of some of the accounts involved in the swap pool.
+
+`TokenA` and `TokenB` accounts are the *token* accounts used for the actual swap pools. These accounts must contain some number of `TokenA`/`TokenB` respectively and the swap authority PDA must be marked as the `authority` over them so that the token swap program can sign for transactions and transfer tokens from the `TokenA` and `TokenB` accounts.
+
+The pool token mint account is the mint of the LP-tokens that represent an LP’s ownership in the pool, the swap authority must be marked as the `MintAuthority`.
+
+The pool token fee account is a *token* account that the fees for the token swaps are paid to, this account must be owned by a specific account defined in the swap program - that account has public key [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet).
+
+The Pool token recipient account is the account the liquidity pool tokens representing an LP's deposited liquidity in the pool will be minted to.
+
+Lastly, the token program id and the token swap program id are also needed.
 
 Once you have all of these accounts created and initialized properly, you can issue an instruction targeting the token swap program and it will take care of the rest. Here’s an example of a script that creates a token swap:
 
