@@ -1,10 +1,5 @@
 # Token Swap
 
-### List links for further reading here:
-
-- [https://spl.solana.com/token-swap#overview](https://spl.solana.com/token-swap#overview)
-- [https://github.com/solana-labs/solana-program-library/tree/master/token-swap](https://github.com/solana-labs/solana-program-library/tree/master/token-swap)
-
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
