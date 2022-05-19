@@ -9,6 +9,11 @@
 
 *By the end of this lesson, you will be able to:*
 
+- Create a token swap pool
+- Deposit liquidity
+- Withdraw liquidity
+- Swap tokens
+
 # TL;DR
 
 - The token swap program is an SPL contract deployed to Mainnet and Devnet available for use by developers and protocols.
