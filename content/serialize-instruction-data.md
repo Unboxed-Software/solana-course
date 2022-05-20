@@ -13,8 +13,8 @@
 # TL;DR
 
 - Transactions are made up of an array of instructions, a single transaction can have any number of instructions in it, each targeting its own program. When a transaction is submitted, the Solana runtime will process its instructions in order and atomically, meaning that if any of the instructions fail for any reason, the entire transaction will fail to be processed.
-- Every *instruction* is made up of 3 components: the program_id of the intended program, an array of all account’s involved, and a byte buffer of instruction data.
-- Every *transaction* contains: an array of all accounts it intends to read from or write to, one of more instructions, a recent blockhash, and one or more signatures.
+- Every *instruction* is made up of 3 components: the intended program's ID, an array of all account’s involved, and a byte buffer of instruction data.
+- Every *transaction* contains: an array of all accounts it intends to read from or write to, one or more instructions, a recent blockhash, and one or more signatures.
 - In order to pass instruction data from a client, it must be serialized into a byte buffer. To facilitate this process of serialization, we will be using [Borsh](https://borsh.io/).
 - Transactions can fail to be processed by the blockchain for any number of reasons, we’ll discuss some of the most common ones here.
 
@@ -22,7 +22,7 @@
 
 ## Transactions
 
-Transactions are how we send information to the blockchain to be processed. So far, we’ve learned how to create very basic transactions with limited functionality. But transactions, and the programs they are sent to, can be designed to be far more flexible and handle far more complexity than we’ve dealt with up to now.
+Transactions are how we send information to the blockchain in order to be processed. So far, we’ve learned how to create very basic transactions with limited functionality. But transactions, and the programs they are sent to, can be designed to be far more flexible and handle far more complexity than we’ve dealt with up to now.
 
 ### Transaction Contents
 
@@ -35,19 +35,19 @@ Every transaction contains:
 
 `@solana/web3.js` simplifies this process for you so that all you really need to focus on is adding instructions and signatures. The library builds the array of accounts based on that information and handles the logic for including a recent blockhash.
 
-### Instructions
+## Instructions
 
 Every instruction contains:
 
-- The program id (public key) of the intended program
-- An array that includes every account that will be read from or written to during execution
+- The program ID (public key) of the intended program
+- An array listing every account that will be read from or written to during execution
 - A byte buffer of instruction data
 
-Including the program id ensures that the instruction is carried out by the correct program. 
+Identifying the program by its public key ensures that the instruction is carried out by the correct program.
 
-Including an array of every account that we be read from or written to allows the network to perform a number of optimizations that allow for high transaction load and quicker execution. 
+Including an array of every account that will be read from or written to allows the network to perform a number of optimizations which allow for high transaction load and quicker execution.
 
-Including the byte buffer lets you pass external data to a program.
+The byte buffer lets you pass external data to a program.
 
 You can include multiple instructions in a single transaction. The Solana runtime will process these instructions in order and atomically. In other words, if every instruction succeeds then the transaction as a whole will be successful, but if a single instruction fails then the entire transaction will fail immediately with no side-effects.
 
@@ -57,7 +57,7 @@ It is not just an array of the accounts’ public keys. Each object in the array
 
 ### Instruction Data
 
-The ability to add arbitrary data to an instruction ensures that programs can be dynamic and flexible enough for broad use cases in the same way that the body of an HTTP request lets you build dynamic and flexible REST APIs. 
+The ability to add arbitrary data to an instruction ensures that programs can be dynamic and flexible enough for broad use cases in the same way that the body of an HTTP request lets you build dynamic and flexible REST APIs.
 
 Just as the structure of the body of an HTTP request is dependent on the endpoint you intend to call, the structure of the byte buffer used as instruction data is entirely dependent on the recipient program. If you’re building a full-stack dApp on your own, then you’ll need to copy the same structure that you used when building the program over to the client-side code. If you’re working with another developer who is handling the program development, you can coordinate to ensure matching buffer layouts.
 
@@ -67,11 +67,11 @@ Let’s think about a concrete example. Imagine working on a Web3 game and being
 - Transfer inventory from one player to another
 - Equip a player with selected inventory items
 
-This program would have been structured such that each of these is encapsulated in its own function. 
+This program would have been structured such that each of these is encapsulated in its own function.
 
 Each program, however, only has one entry point. You would instruct the program on which of these functions to run through the instruction data.
 
-You would also include in the instruction data any information the function needs in order to execute properly, e.g. an inventory item’s id, a player to transfer inventory to, etc.
+You would also include in the instruction data any information the function needs in order to execute properly, e.g. an inventory item’s ID, a player to transfer inventory to, etc.
 
 Exactly *how* this data would be structured would depend on how the program was written, but it’s common to have the first field in instruction data be a number that the program can map to a function, after which additional fields act as function arguments.
 
@@ -80,7 +80,6 @@ Exactly *how* this data would be structured would depend on how the program was 
 In addition to knowing what information to include in an instruction data buffer, you also need to serialize it properly. The most common serializer used in Solana is [Borsh](https://borsh.io). Per the website:
 
 > Borsh stands for Binary Object Representation Serializer for Hashing. It is meant to be used in security-critical projects as it prioritizes consistency, safety, speed; and comes with a strict specification.
-> 
 
 Borsh maintains a [JS library](https://github.com/near/borsh-js) that handles serializing common types into a buffer. There are also other packages built on top of borsh that try to make this process even easier. We’ll be using the `@project-serum/borsh` library which can be installed using `npm`.
 
@@ -90,7 +89,7 @@ Building off of the previous game inventory example, let’s look at a hypotheti
 2. `playerId` as an unsigned, 16-bit integer that represents the player ID of the player who is to be equipped with the given item.
 3. `itemId` as an unsigned, 256-bit integer that represents the item ID of the item that will be equipped to the given player.
 
-All of this will be passed as a byte buffer that will be read in order, so ensuring that your buffer layout is ordered properly is crucial. You would create the buffer layout schema or template for the above as follows:
+All of this will be passed as a byte buffer that will be read in order, so ensuring proper buffer layout order is crucial. You would create the buffer layout schema or template for the above as follows:
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -148,20 +147,20 @@ const transaction = new web3.Transaction()
 const instruction = new web3.TransactionInstruction({
 	keys: [
 		{
-			pubkey: player.publicKey,
-			isSigner: true,
-			isWritable: false,
-    	},
-    	{
-			pubkey: playerInfoAccount,
-			isSigner: false,
-			isWritable: true,
-    	},
-    	{
-			pubkey: web3.SystemProgram.programId,
-			isSigner: false,
-			isWritable: false,
-    	}
+      pubkey: player.publicKey,
+      isSigner: true,
+      isWritable: false,
+    },
+    {
+      pubkey: playerInfoAccount,
+      isSigner: false,
+      isWritable: true,
+    },
+    {
+      pubkey: web3.SystemProgram.programId,
+      isSigner: false,
+      isWritable: false,
+    }
 	],
 	data: instructionBuffer,
 	programId: PROGRAM_ID
@@ -180,11 +179,11 @@ Let’s practice this together by building a Movie Review app that lets users su
 
 ![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
 
-The public key for the Solana program we’ll use for this application is `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
+The public key of the Solana program we’ll use for this application is `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
 ### 1. Download the starter code
 
-Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/starter). 
+Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/starter).
 
 The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson, a `Card` component for displaying a movie review, a `MovieList` component that displays reviews in a list, a `Form` component for submitting a new review, and a `Movie.ts` file that contains a class definition for a `Movie` object.
 
@@ -192,7 +191,7 @@ Note that for now, the movies displayed on the page when you run `npm run dev` a
 
 ### 2. Create the buffer layout
 
-Remember that to properly interact with a Solana program, you need to know how it expects data to be structured. Our Movie Review program is expecting instruction data to contain: 
+Remember that to properly interact with a Solana program, you need to know how it expects data to be structured. Our Movie Review program is expecting instruction data to contain:
 
 1. `variant` as an unsigned, 8-bit integer representing which instruction should be executed (in other words which function on the program should be called).
 2. `title` as a string representing the title of the movie that you are reviewing.
@@ -251,13 +250,13 @@ export class Movie {
 }
 ```
 
-The method shown above first creates a large enough buffer for our object, then encodes `{ ...this, variant: 0 }` into the buffer. Because the `Movie` class definition contains 3 of the 4 properties required by the buffer layout and uses the same naming, we could use it directly with the spread operator and just add the `variant` property. Finally, the method returns a new buffer that leaves off the unused portion of the original.
+The method shown above first creates a large enough buffer for our object, then encodes `{ ...this, variant: 0 }` into the buffer. Because the `Movie` class definition contains 3 of the 4 properties required by the buffer layout and uses the same naming, we can use it directly with the spread operator and just add the `variant` property. Finally, the method returns a new buffer that leaves off the unused portion of the original.
 
 ### 4. Send transaction when user submits form
 
-Now that we have the building blocks for the instruction data, we can create and send the transaction when a user submits the form. Open `Form.tsx` and locate the `handleTransactionSubmit` function. This gets called by `handleSubmit` each time a user submits the Movie Review form. 
+Now that we have the building blocks for the instruction data, we can create and send the transaction when a user submits the form. Open `Form.tsx` and locate the `handleTransactionSubmit` function. This gets called by `handleSubmit` each time a user submits the Movie Review form.
 
-Inside this function, we’ll be creating and sending the transaction that contains the data submitted through the form. 
+Inside this function, we’ll be creating and sending the transaction that contains the data submitted through the form.
 
 Start by importing `@solana/web3.js` and importing `useConnection` and `useWallet` from `@solana/wallet-adapter-react`.
 
@@ -283,18 +282,18 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN'
 
 export const Form: FC = () => {
-  	const [title, setTitle] = useState('')
-  	const [rating, setRating] = useState(0)
-  	const [message, setMessage] = useState('')
+	const [title, setTitle] = useState('')
+	const [rating, setRating] = useState(0)
+	const [message, setMessage] = useState('')
 
-  	const { connection } = useConnection();
-  	const { publicKey, sendTransaction } = useWallet();
+	const { connection } = useConnection();
+	const { publicKey, sendTransaction } = useWallet();
 
-  	const handleSubmit = (event: any) => {
+	const handleSubmit = (event: any) => {
 		event.preventDefault()
-    	const movie = new Movie(title, rating, description)
-    	handleTransactionSubmit(movie)
-  	}
+		const movie = new Movie(title, rating, description)
+		handleTransactionSubmit(movie)
+	}
 
 	...
 }
@@ -354,25 +353,25 @@ const handleTransactionSubmit = async (movie: Movie) => {
 
 	const instruction = new web3.TransactionInstruction({
 		keys: [
-	    	{
-	    	  	pubkey: publicKey,
-        		isSigner: true,
-        		isWritable: false,
-      		},
-      		{
-	    	 	pubkey: pda,
-        		isSigner: false,
-        		isWritable: true
-      		},
-      		{
-        		pubkey: web3.SystemProgram.programId,
-        		isSigner: false,
-        		isWritable: false
-      		}
-    	],
-    	data: buffer,
+			{
+				pubkey: publicKey,
+				isSigner: true,
+				isWritable: false,
+			},
+			{
+				pubkey: pda,
+				isSigner: false,
+				isWritable: true
+			},
+			{
+				pubkey: web3.SystemProgram.programId,
+				isSigner: false,
+				isWritable: false
+			}
+		],
+		data: buffer,
 		programId: new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-  	})
+	})
 
 	transaction.add(instruction)
 
@@ -385,7 +384,7 @@ const handleTransactionSubmit = async (movie: Movie) => {
 }
 ```
 
-And that’s it! You should be able to use the form on the site now to submit a movie review. While you won’t see the UI update to reflect the new review, you can look at the transaction’s program logs on Solana Explorer to see that it was successful.
+And that’s it! You should now be able to use the form on the site to submit a movie review. While you won’t see the UI update to reflect the new review, you can look at the transaction’s program logs on Solana Explorer to see that it was successful.
 
 If you need a bit more time with this project to feel comfortable, have a look at the complete [solution code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction-data).
 
@@ -400,10 +399,10 @@ Now it’s your turn to build something independently. Create an application tha
    1. `variant` as an unsigned, 8-bit integer representing the instruction to run (should be 0).
    2. `name` as a string representing the student's name.
    3. `message` as a string representing the message the student is sharing about their Solana journey.
-3. Create a method in  `StudentIntro.ts` that will use the buffer layout to serialize a `StudentIntro` object.
-4. In the `Form` component, implement the `handleTransactionSubmit` function so that it serializes a `StudentIntro`, builds the appropriate transaction instructions and transaction, and submits the transaction to the user's wallet.
-5. You should be able to submit now and have the information stored on chain! Be sure to log the transaction id and look at it in Solana Explorer to verify that it worked. 
+3. Create a method in `StudentIntro.ts` that will use the buffer layout to serialize a `StudentIntro` object.
+4. In the `Form` component, implement the `handleTransactionSubmit` function so that it serializes a `StudentIntro`, builds the appropriate transaction and transaction instructions, and submits the transaction to the user's wallet.
+5. You should now be able to submit introductions and have the information stored on chain! Be sure to log the transaction ID and look at it in Solana Explorer to verify that it worked.
 
-If you get really stumped, feel free to check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
+If you get really stumped, you can check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 
 Feel free to get creative with these challenges and take them even further. The instructions aren't here to hold you back!
