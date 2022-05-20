@@ -57,9 +57,9 @@ When adding wallet support to an existing react app, you start by installing the
 
 ```
 npm install @solana/wallet-adapter-base \
-         @solana/wallet-adapter-react \
-         @solana/wallet-adapter-phantom \
-         @solana/wallet-adapter-react-ui
+    @solana/wallet-adapter-react \
+    @solana/wallet-adapter-phantom \
+    @solana/wallet-adapter-react-ui
 ```
 
 ### Connect To Wallets
@@ -152,7 +152,7 @@ You can also use more granular components if you need more specific functionalit
 
 ### Access Account Info
 
-Once your site is connected to a wallet, `useConnection` will retrieve a `Connection` object and  `useWallet` will get the `WalletContextState`. `WalletContextState` has a property `publicKey` that is `null` when not connected to a wallet and has the public key of the user’s account when a wallet is connected. With a public key and a connection, you can fetch account info and more.
+Once your site is connected to a wallet, `useConnection` will retrieve a `Connection` object and `useWallet` will get the `WalletContextState`. `WalletContextState` has a property `publicKey` that is `null` when not connected to a wallet and has the public key of the user’s account when a wallet is connected. With a public key and a connection, you can fetch account info and more.
 
 ```tsx
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -305,9 +305,9 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export default WalletContextProvider
 ```
 
-### 4. Add Wallet Multi-Button
+### 4. Add wallet multi-button
 
-Next let’s set up the Connect button. The current button is just a placeholder because rather than using a standard button or creating a custom component, we’ll be using Wallet-Adapter’s “multi-button.” This button interfaces with the providers we set up in `WalletContextProvider`  and let’s users choose a wallet, connect to a wallet, and disconnect from a wallet. If you ever need more custom functionality, you can create a custom component to handle this.
+Next let’s set up the Connect button. The current button is just a placeholder because rather than using a standard button or creating a custom component, we’ll be using Wallet-Adapter’s “multi-button.” This button interfaces with the providers we set up in `WalletContextProvider` and let’s users choose a wallet, connect to a wallet, and disconnect from a wallet. If you ever need more custom functionality, you can create a custom component to handle this.
 
 Before we add the “multi-button,” we need to wrap the app in the `WalletContextProvider`. Do this by importing it in `index.tsx` and adding it after the closing `</Head>` tag:
 
