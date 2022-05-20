@@ -4,7 +4,7 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Page, Order, and Filter accounts
+- Page, order, and filter accounts
 - Prefetch accounts without data
 - Determine where in an account’s buffer layout specific data is stored
 - Prefetch accounts with a subset of data that can be used to order accounts
@@ -14,7 +14,7 @@
 # TL;DR
 
 - This lesson delves into some functionality of the RPC calls that we used in the deserializing account data lesson
-- You can fetch a large number of accounts without their data to save on compute time if you’d like to filter them, this returns an array of public keys
+- To save on compute time, you can fetch a large number of accounts without their data by filtering them to return just an array of public keys
 - Once you have a filtered list of public keys, you can order them and fetch the account data they belong to
 
 # Overview
@@ -23,14 +23,14 @@ You may have noticed in the last lesson that while we could fetch and display a 
 
 ## Use `dataSlice` to only fetch data you need
 
-Imagine the Movie Review app we worked on in past lessons having 4million movie reviews. And imagine that the average review is 500 bytes. That would make the total download for all review accounts over 2Gb. Definitely not something you want to have your frontend download every time the page refreshes.
+Imagine the Movie Review app we worked on in past lessons having four million movie reviews and that the average review is 500 bytes. That would make the total download for all review accounts over 2GB. Definitely not something you want to have your frontend download every time the page refreshes.
 
-Fortunately, the `getProgramAccounts` function that you use to get all of the accounts takes a configuration object as argument, and one of the configuration options is `dataSlice`. `dataSlice` lets you provide two things:
+Fortunately, the `getProgramAccounts` function that you use to get all of the accounts takes a configuration object as argument. One of the configuration options is `dataSlice` which lets you provide two things:
 
 - `offset` - the offset from the beginning of the data buffer to start the slice
 - `length` - the number of bytes to return, starting from the provided offset
 
-When you include a `dataSlice` in the configuration object, the function will only return the subset of the data buffer that you specified. 
+When you include a `dataSlice` in the configuration object, the function will only return the subset of the data buffer that you specified.
 
 ### Paging Accounts
 
@@ -70,7 +70,7 @@ For example, you might have an account that stores contact information like so:
 
 If you want to order all of the account keys alphabetically based on the user’s first name, you need to find out the offset where the name starts. The first field, `initialized`, takes the first byte, then `phoneNumber` takes another 8, so the `firstName` field starts at offset `1 + 8 = 9`.
 
-You then need to determine the length to make the data slice. Since the length is variable, we can’t know for sure, but you can choose a length that is large enough to cover most cases and short enough to not be too much of a burden to fetch. 15 bytes is plenty for most first names, but would result in a small enough download even with a million users. 
+You then need to determine the length to make the data slice. Since the length is variable, we can’t know for sure, but you can choose a length that is large enough to cover most cases and short enough to not be too much of a burden to fetch. 15 bytes is plenty for most first names, but would result in a small enough download even with a million users.
 
 Once you’ve fetched accounts with the given data slice, you can use the `sort` method to sort the array before mapping it to an array of public keys.
 
@@ -104,7 +104,7 @@ Limiting the data received per account is great, but what if you only want to re
     - `bytes` - a base-58 encoded string representing the data to match; limited to less than 129 bytes
 - `dataSize` - compares the program account data length with the provided data size
 
-These let you filter based on matching data and/or total data size. 
+These let you filter based on matching data and/or total data size.
 
 For example, you could search through a list of contacts by including a `memcmp` filter:
 
@@ -115,7 +115,7 @@ async function fetchMatchingContactAccounts(connection: web3.Connection, search:
 		{
 			dataSlice: { offset: 0, length: 0 },
 			filters: [
-				{ 
+				{
 					memcmp:
 						{
 							offset: 9,
@@ -165,9 +165,9 @@ import { Movie } from '../models/Movie'
 
 const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN'
 
-export class MovieCoordinator { 
+export class MovieCoordinator {
 	static accounts: web3.PublicKey[] = []
-	
+
 	static async prefetchAccounts(connection: web3.Connection) {
 
 	}
@@ -193,7 +193,7 @@ static async prefetchAccounts(connection: web3.Connection) {
 }
 ```
 
-Now, let’s fill in the `fetchPage` method. First, if the accounts haven’t been prefetched yet, we’ll need to do that. Then, we can get the account public keys that correspond to the requested page and call `connection.getMultipleAccountsInfo`. Finally, we deserialize the account data and return the corresponding `Movie` objects. 
+Now, let’s fill in the `fetchPage` method. First, if the accounts haven’t been prefetched yet, we’ll need to do that. Then, we can get the account public keys that correspond to the requested page and call `connection.getMultipleAccountsInfo`. Finally, we deserialize the account data and return the corresponding `Movie` objects.
 
 ```tsx
 static async fetchPage(connection: web3.Connection, page: number, perPage: number): Promise<Movie[]> {
@@ -234,8 +234,8 @@ const [page, setPage] = useState(1)
 
 useEffect(() => {
 	MovieCoordinator.fetchPage(
-		connection, 
-		page, 
+		connection,
+		page,
 		10
 	).then(setMovies)
 }, [page, search])
@@ -278,7 +278,7 @@ If you look at the reviews, you might notice they aren’t in any specific order
 
 Based on this, the offset we need to provide to the data slice to access `title` is 2. The length, however, is indeterminate, so we can just provide what seems to be a reasonable length. I’ll stick with 18 as that will cover the length of most titles without fetching too much data every time.
 
-Once we’ve modified the data slice in `getProgramAccounts`, we then need to actually sort the returned array. To do this, we need to compare the part of the data buffer that actually corresponds to `title`. The first 4 bytes of a dynamic field in Borsh are used to store the length of the field in bytes. So in any given buffer `data` that is sliced the way we discussed above, the string portion is `data.slice(4, 4 + data[0])`. 
+Once we’ve modified the data slice in `getProgramAccounts`, we then need to actually sort the returned array. To do this, we need to compare the part of the data buffer that actually corresponds to `title`. The first 4 bytes of a dynamic field in Borsh are used to store the length of the field in bytes. So in any given buffer `data` that is sliced the way we discussed above, the string portion is `data.slice(4, 4 + data[0])`.
 
 Now that we’ve thought through this, let’s modify the implementation of `prefetchAccounts` in `MovieCoordinator`:
 
@@ -303,7 +303,7 @@ static async prefetchAccounts(connection: web3.Connection, filters: AccountFilte
 }
 ```
 
-And just like that, you should be able to run the app and see the list of movie reviews order alphabetically.
+And just like that, you should be able to run the app and see the list of movie reviews ordered alphabetically.
 
 ### 4. Add search
 
@@ -322,10 +322,10 @@ static async prefetchAccounts(connection: web3.Connection, search: string) {
 		{
 			dataSlice: { offset: 2, length: 18 },
 			filters: search === '' ? [] : [
-				{ 
-					memcmp: 
-						{ 
-							offset: 6, 
+				{
+					memcmp:
+						{
+							offset: 6,
 							bytes: bs58.encode(Buffer.from(search))
 						}
 				}
@@ -389,8 +389,8 @@ const [search, setSearch] = useState('')
 
 useEffect(() => {
 	MovieCoordinator.fetchPage(
-		connection, 
-		page, 
+		connection,
+		page,
 		2,
 		search,
 		search !== ''
@@ -421,17 +421,17 @@ return (
 )
 ```
 
-And that’s it! The app now has ordered reviews, paging, and search. 
+And that’s it! The app now has ordered reviews, paging, and search.
 
 That was a lot to digest, but you made it through. If you need to spend some more time with the concepts, feel free to reread the sections that were most challenging for you and/or have a look at the [solution code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-paging-account-data).
 
 # Challenge
 
-Now it’s your turn to try and do this on your own. Using the Student Intros app from last lesson, add paging, ordering alphabetically by name, and search by name.
+Now it’s your turn to try and do this on your own. Using the Student Intros app from last lesson, add paging, ordering alphabetically by name, and searching by name.
 
 ![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
 
-1. You can build this from scratch or you can download the [starter code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data) 
+1. You can build this from scratch or you can download the [starter code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data)
 2. Add paging to the project by prefetching accounts without data, then only fetching the account data for each account when it’s needed.
 3. Order the accounts displayed in the app alphabetically by name.
 4. Add the ability to search through introductions by a student’s name.
