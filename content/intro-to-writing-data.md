@@ -277,7 +277,7 @@ Before you can do anything, you’ll need a keypair. Let’s jump into the `inde
 
 ```tsx
 import web3 = require('@solana/web3.js')
-import Dotenv from 'Dotenv'
+import Dotenv from 'dotenv'
 Dotenv.config()
 
 async function main() {
