@@ -148,20 +148,20 @@ const transaction = new web3.Transaction()
 const instruction = new web3.TransactionInstruction({
 	keys: [
 		{
-      pubkey: player.publicKey,
-		  isSigner: true,
-      isWritable: false,
-    },
-    {
-      pubkey: playerInfoAccount,
-      isSigner: false,
-      isWritable: true,
-    },
-    {
-	    pubkey: web3.SystemProgram.programId,
-      isSigner: false,
-      isWritable: false,
-    }
+			pubkey: player.publicKey,
+			isSigner: true,
+			isWritable: false,
+    	},
+    	{
+			pubkey: playerInfoAccount,
+			isSigner: false,
+			isWritable: true,
+    	},
+    	{
+			pubkey: web3.SystemProgram.programId,
+			isSigner: false,
+			isWritable: false,
+    	}
 	],
 	data: instructionBuffer,
 	programId: PROGRAM_ID
