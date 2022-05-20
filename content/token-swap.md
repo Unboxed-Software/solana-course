@@ -48,7 +48,7 @@ The token swap state account must be a *`SystemProgram`* account that is initial
 
 The swap pool authority is a PDA (Program Derived Address) derived from the token swap program, it will be used to sign for transactions for the swap program. The swap pool authority PDA will also be marked the `authority` of some of the accounts involved in the swap pool.
 
-`TokenA` and `TokenB` accounts are the *token* accounts used for the actual swap pools. These accounts must contain some number of `TokenA`/`TokenB` respectively and the swap authority PDA must be marked as the `authority` over them so that the token swap program can sign for transactions and transfer tokens from the `TokenA` and `TokenB` accounts.
+`TokenA` and `TokenB` accounts are the *token* accounts used for the actual swap pool. These accounts must contain some number of `TokenA`/`TokenB` respectively and the swap authority PDA must be marked as the `authority` over them so that the token swap program can sign for transactions and transfer tokens from the `TokenA` and `TokenB` accounts.
 
 The pool token mint account is the mint of the LP-tokens that represent an LP’s ownership in the pool, the swap authority must be marked as the `MintAuthority`.
 
