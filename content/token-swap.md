@@ -198,7 +198,7 @@ Since Solana programs require all accounts to be declared in the instruction, us
 
 To allow any trading, the pool needs liquidity provided from the outside. Using the `deposit_single_token_type_exact_amount_in` or `deposit_all_token_types` instructions, anyone can provide liquidity for others to trade. In exchange for providing this needed liquidity, depositors receive pool tokens representing their fractional ownership of all A and B tokens in the pool.
 
-At any time, pool token holders may redeem their pool tokens in exchange for tokens A and B, returned at the current "fair" rate as determined by the curve. In the `withdraw_all_token_types` or `withdraw_single_token_type_exact_amount_out` instructions, pool tokens are burned, and tokens A and B are transferred into the user's accounts.
+At any time, pool token holders may redeem their pool tokens in exchange for tokens A and B, returned at the current "fair" exchange rate as determined by the curve. In the `withdraw_all_token_types` or `withdraw_single_token_type_exact_amount_out` instructions, pool tokens are burned, and tokens A and B are transferred into the user's accounts.
 
 ### Curves
 
