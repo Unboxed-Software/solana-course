@@ -18,6 +18,16 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    3. [Interact with wallets](./content/interact-with-wallets.md)
    4. [Serialize custom instruction data](./content/serialize-instruction-data.md)
    5. [Deserialize custom account data](./content/deserialize-custom-data.md)
+   6. [Page, Order, and Filter custom account data](./content/paging-ordering-filtering-data.md)
+
+### Module 2 - Client interaction with the Solana Program Library
+Coming soon
+
+### Module 3 - Basic Solana Program Development
+Coming soon
+
+### Module 4 - Advanced Solana Program Development
+Coming soon
 
 ## Contribute To The Course
 
