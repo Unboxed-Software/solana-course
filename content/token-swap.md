@@ -20,7 +20,7 @@
 
 ## Swap Pools
 
-Before we get into how to create and interact with swap pools on Solana, it’s important we understand the basics of what a swap pool even is. A swap pool is an aggregation of two different tokens, we’ll call them `TokenA` and `TokenB` for now, with the purpose of providing liquidity to facilitate swapping from A to B and vice versa.
+Before we get into how to create and interact with swap pools on Solana, it’s important we understand the basics of what a swap pool even is. A swap pool is an aggregation of two different tokens, we’ll call them `TokenA` and `TokenB` for now, with the purpose of providing liquidity to facilitate exchanging A for B or B for A.
 
 Users provide liquidity to these pools by depositing their own tokens into each pool, these users are called liquidity providers. Once a liquidity provider (or LP) deposits some tokens to the swap pool, the LP-tokens are minted that represent their fractional ownership in the pool. LP’s are incentivized to provide liquidity because most swap pools charge a transaction fee to facilitate the swap, these transactions fees are then paid out to the LP’s in proportion to the amount of liquidity they are providing in the pool. When an LP is ready to withdraw their deposited liquidity, their LP tokens are burned and tokens from the pool, proportional to the amount of LP tokens burned, are sent to their wallet.
 
