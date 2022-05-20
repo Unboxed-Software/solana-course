@@ -11,10 +11,10 @@
 
 # TL;DR
 
-- The token swap program is an SPL contract deployed to Mainnet and Devnet available for use by developers and protocols.
-- The program accepts six different instructions, all of which we will explore in this lesson.
-- Developers are able to create and use liquidity pools to swap between any SPL token that they wish.
-- The program uses a mathematical formula called "curve" to calculate the price of all trades. Curves aim to mimic normal market dynamics: for example, as traders buy a lot of one token type, the value of the other token type goes up.
+- The **token swap program** is an SPL contract deployed to Mainnet and Devnet available for use by developers and protocols.
+- The program accepts six different **instructions**, all of which we will explore in this lesson.
+- Developers are able to create and use **liquidity pools** to swap between any SPL token that they wish.
+- The program uses a mathematical formula called "**curve**" to calculate the price of all trades. Curves aim to mimic normal market dynamics: for example, as traders buy a lot of one token type, the value of the other token type goes up.
 
 # Overview
 
