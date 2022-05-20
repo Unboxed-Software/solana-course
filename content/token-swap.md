@@ -30,7 +30,7 @@ Swap pools are completely decentralized. Anybody can issue instructions to the s
 
 ### Creating a Swap Pool
 
-Creating swap pools with the SPL token swap program really showcases the account, instruction, and authorization models on Solana, this lesson will combine and build on top of a lot of what we have learned so far in the course.
+Creating swap pools with the SPL token swap program really showcases the account, instruction, and authorization models on Solana. This lesson will combine and build on top of a lot of what we have learned so far in the course.
 
 There are many accounts required to create a pool and they all must be initialized in a specific way in order for the swap program to process them successfully. The following accounts are needed:
 
