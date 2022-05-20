@@ -46,7 +46,7 @@ There are many accounts required to create a pool. Each account must be initiali
 
 The token swap state account must be a *`SystemProgram`* account that is initialized beforehand and owned by the token swap program. The token swap state account will hold information about the swap pool itself. The token swap program must be the owner of this account because it will need to mutate the data of this account.
 
-The swap pool authority is a PDA (Program Derived Address) derived from the token swap program, it will be used to sign for transactions for the swap program. The swap authority PDA will also be marked the `authority` of some of the accounts involved in the swap pool.
+The swap pool authority is a PDA (Program Derived Address) derived from the token swap program, it will be used to sign for transactions for the swap program. The swap pool authority PDA will also be marked the `authority` of some of the accounts involved in the swap pool.
 
 `TokenA` and `TokenB` accounts are the *token* accounts used for the actual swap pools. These accounts must contain some number of `TokenA`/`TokenB` respectively and the swap authority PDA must be marked as the `authority` over them so that the token swap program can sign for transactions and transfer tokens from the `TokenA` and `TokenB` accounts.
 
