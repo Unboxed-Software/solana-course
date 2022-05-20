@@ -86,7 +86,7 @@ async function createTokenSwap(
     })
     tx.add(swapAcctIx)
 
-    // derive pda from Token swap program for swap authority
+    // derive PDA from token swap program for swap authority
     const [swapAuthority, bump] = await Web3.PublicKey.findProgramAddress(
         [tokenSwapStateAccount.publicKey.toBuffer()],
         TOKEN_SWAP_PROGRAM_ID,
