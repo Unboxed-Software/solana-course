@@ -190,7 +190,7 @@ If you copy this script, it will not work because it uses some helper functions 
 
 ### Interacting with Swap Pools
 
-The token swap program allows for a few different instructions for actually using a swap pool, among them are the swap instruction, deposit liquidity instruction, and withdraw liquidity.
+Once the instruction is issued to initiate a new swap pool, the token swap program has a few different instructions for using a swap pool. These include the actual swap instruction, along with depositing or withdrawing liquidity.
 
 Once a pool is created, users can immediately begin trading on it using the `swap` instruction. The swap instruction transfers funds from a user's source token account into the swap's source token account, and then transfers tokens from its destination token account into the user's destination token account.
 
