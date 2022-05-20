@@ -54,7 +54,7 @@ The pool token mint account is the mint of the LP-tokens that represent an LP’
 
 The pool token fee account is a *token* account that the fees for the token swaps are paid to, this account must be owned by a specific account defined in the swap program - that account has public key [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet).
 
-The Pool token recipient account is the account the liquidity pool tokens representing an LP's deposited liquidity in the pool will be minted to.
+The pool token recipient account is the account the liquidity pool tokens (representing an LP's deposited liquidity in the pool) will be minted to.
 
 Lastly, the token program id and the token swap program id are also needed.
 
