@@ -208,7 +208,7 @@ All transactions on the blockchain are publicly viewable on the [Solana Explorer
 
 We’re going to create a script to ping a simple program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores the count data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
-### 1. Basic Scaffolding
+### 1. Basic scaffolding
 
 Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate, but we’ll be using a simple TypeScript project with a dependency on the @solana/web3.js package. If you want to use our scaffolding, you can use the following commands in the command line:
 
@@ -219,7 +219,7 @@ mkdir -p solana-ping-client/src && \
 	git init && touch .gitignore && \
 	npm init -y && \
 	npm install --save-dev typescript && \
-    npm install --save-dev ts-node && \
+  npm install --save-dev ts-node && \
 	npx tsc --init && \
 	npm install @solana/web3.js && \
 	npm install dotenv && \
@@ -271,7 +271,7 @@ And finally, add the following to the `scripts` object in `package.json`:
 "start": "ts-node src/index.ts"
 ```
 
-### 2. Generate a New Keypair
+### 2. Generate a new keypair
 
 Before you can do anything, you’ll need a keypair. Let’s jump into the `index.ts` file and generate one:
 
@@ -302,7 +302,7 @@ Copy the secret key array from the console log and paste it into the `.env` file
 PRIVATE_KEY="[56,83,31,62,66,154,33,74,106,59,111,224,176,237,89,224,10,220,28,222,128,36,138,89,30,252,100,209,206,155,154,65,98,194,97,182,98,162,107,238,61,183,163,215,44,6,10,49,218,156,5,131,125,253,247,190,181,196,0,249,40,149,119,246]"
 ```
 
-### 3. Initialize Keypair From Secret
+### 3. Initialize Keypair from secret
 
 Now that we’ve successfully generated a keypair and copied it to the `.env` file, we can remove the code inside of the `main()` function.
 
@@ -321,7 +321,7 @@ function initializeKeypair(): web3.Keypair {
 }
 ```
 
-### 4. Ping Program
+### 4. Ping program
 
 Now that we have a way of initializing our keypair, we need to establish a connection with Solana’s Devnet. In `main()`, let’s invoke `initializeKeypair()` and create a connection:
 
@@ -440,7 +440,7 @@ await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL*1)
 
 This will deposit 1 SOL into your account which you can use for testing. This won’t work on Mainnet where it would actually have value. But it's incredibly convenient for testing locally and on Devnet.
 
-### 6. Check the Solana Explorer
+### 6. Check the Solana explorer
 
 Now run the code again. It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
 

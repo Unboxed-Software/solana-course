@@ -265,7 +265,7 @@ Now it’s your turn to build something independently. Last lesson, you worked o
    1. `initialized` as an unsigned, 8-bit integer representing the instruction to run (should be 1).
    2. `name` as a string representing the student's name.
    3. `message` as a string representing the message the student shared about their Solana journey.
-3. Create a static method in  `StudentIntro.ts` that will use the buffer layout to deserialize an account data buffer into a `StudentIntro` object.
+3. Create a static method in `StudentIntro.ts` that will use the buffer layout to deserialize an account data buffer into a `StudentIntro` object.
 4. In the `StudentIntroList` component's `useEffect`, get the program's accounts and deserialize their data into a list of `StudentIntro` objects.
 5. Instead of mock data, you should now be seeing student introductions from the network!
 
