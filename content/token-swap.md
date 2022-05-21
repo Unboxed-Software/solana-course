@@ -380,9 +380,11 @@ Notice the ordering of accounts is different for the withdraw transaction and th
 
 ### 4. Create the Swap Instruction
 
-Now, time to implement the actual purpose of this program - the [swap instruction](https://github.com/solana-labs/solana-program-library/blob/master/token-swap/program/src/processor.rs#L327)! Note that our UI has a dropdown to allow users to select which token they would like to swap *from*, so **we **will have to create our instruction differently based on what the user selects.
+Now it's time to implement the actual purpose of this program - the [swap instruction](https://github.com/solana-labs/solana-program-library/blob/master/token-swap/program/src/processor.rs#L327)!
 
-We’ll do this inside the same `handleTransactionSubmit` function in the `/components/Swap.tsx` file. Once again, we will have to derive the User’s `Associated Token Addresses` for each token mint, serialize our instruction data, and pass in the appropriate accounts.
+Note that our UI has a dropdown to allow users to select which token they would like to swap *from*, so we will have to create our instruction differently based on what the user selects.
+
+We’ll do this inside the `handleTransactionSubmit` function of the `/components/Swap.tsx` file. Once again, we will have to derive the User’s `Associated Token Addresses` for each token mint, serialize our instruction data, and pass in the appropriate accounts.
 
 ```tsx
 ...
@@ -394,7 +396,7 @@ const buffer = swap.serialize()
 ...
 ```
 
-From here, the user’s input will determine our path of execution because swapping from Token A to Token B will require a different array of AccountInfo’s versus swapping from Token B to Token A will. We’ll make this delineation using the `value` property of the dropdown options, when a user makes a selection we check what the `value` of that selection is.
+From here, the user’s input will determine our path of execution because swapping from Token A to Token B will require a different array of AccountInfo’s compared to swapping in the other direction from Token B to Token A. We’ll make this delineation using the `value` property of the dropdown options, when a user makes a selection we check what the `value` of that selection is.
 
 ```tsx
 
@@ -443,7 +445,7 @@ From here, the user’s input will determine our path of execution because swapp
 
 And that’s it! Once you have the swap instruction implemented, the UI should be fully functional and you can airdrop yourself tokens, deposit liquidity, withdraw your liquidity, and swap from token to token!
 
-Notice that the token accounts involved in each transaction were the `Associated Token Accounts` of the User’s wallet address, this was done on purpose because that’s the account the Airdrop program mint’s token to. The airdrop program is the only way anyone can receive these tokens, so we don’t have to worry about someone using a random token that does not follow the `Associated Token Account` principles.
+Notice that the token accounts involved in each transaction were the `Associated Token Accounts` of the User’s wallet address. This was done on purpose because that’s the account the Airdrop program mints tokens to. The airdrop program is the only way anyone can receive these tokens, so we don’t have to worry about someone using a random token that does not follow the `Associated Token Account` principles.
 
 Please take your time with this code and the concepts in this lesson, swap pools can get a lot more complicated than the one we have implemented today. Have a look at the [solution code here](https://github.com/ixmorrow/token-swap-frontend).
 
