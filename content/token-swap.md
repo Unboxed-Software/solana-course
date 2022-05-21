@@ -336,9 +336,9 @@ try {
 ...
 ```
 
-Notice that all the accounts, with the exception of the user’s `publickey` and their derived `Associated Token Account` , are constants that do not change for a given swap pool. Once we have our accounts added and the instruction created, we just have to add it to the transaction and send it.
+With the exception of the user’s `publickey` and their derived `Associated Token Account`, notice that all the accounts are constants which do not change for a given swap pool. Once we have our accounts added and the instruction created, we just have to add it to the transaction and send it.
 
-As you can see, there is a lot of overlap between the first module’s demos, just different instruction data and a different number of accounts! At this point, you should be able to airdrop yourself some tokens and then deposit them into the swap pool!
+As you can see, there is a lot of overlap between the first module’s demos - just different instruction data and a different number of accounts! At this point, you should be able to airdrop yourself some tokens and then deposit them into the swap pool!
 
 ### 3. Create the Withdrawal Instruction
 
