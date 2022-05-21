@@ -202,21 +202,32 @@ At any time, pool token holders may redeem their pool tokens in exchange for tok
 
 ### Curves
 
-Trading curves are at the core of how a swap pool/AMM operates, this is the function that the program uses to calculate how much of a destination token will be provided given an amount of source token. The curve essentially sets the market price of the tokens in the pool.
+Trading curves are at the core of how swap pools and AMMs (Automated Market Makers) operate. The trading curve is the function that the token swap program uses to calculate how much of a destination token will be provided given an amount of source token. The curve essentially sets the market price of the tokens in the pool.
 
-The pool we’ll be interacting with in this lesson employs a [Constant Product](https://spl.solana.com/token-swap#curves) Curve Function. The constant product curve is the well-known Uniswap and Balancer style curve that preserves an invariant on all swaps, expressed as the product of the quantity of token A and token B in the swap.
+The pool we’ll be interacting with in this lesson employs a [Constant Product](https://spl.solana.com/token-swap#curves) Curve Function. The constant product curve is the well-known Uniswap and Balancer style curve which preserves an invariant on all swaps. This invariant can be expressed as the product of the quantity of token A and token B in the swap pool.
 
 ```tsx
 A_total * B_total = invariant
 ```
 
-If a trader wishes to put in token A for some amount of token B, the calculation for token B becomes:
+If we have 100 token A and 5,000 token B, our invariant is 500,000.
+
+Now, if a trader wishes to put in a specific amount token A for some amount of token B, the calculation becomes a matter of resolving "B_out" where:
 
 ```tsx
 (A_total + A_in) * (B_total - B_out) = invariant
 ```
 
-Hence the name ‘Constant Product’, the product of amount of token a and token b must always equal a constant. More information can be found on the [Uniswap whitepaper](https://uniswap.org/whitepaper.pdf) and the [Balancer whitepaper](https://balancer.fi/whitepaper.pdf).
+Putting in the 10 token A along with our invariant of half a million, we would need to solve for "B_out" like so:
+
+```tsx
+(100 + 10) * (5,000 - B_out) = 500,000
+5,000 - B_out = 500,000 / 110
+5,000 - (500,000 / 110) = B_out
+B_out = 454.5454...
+```
+
+The product of the amount of token A and token B must always equal a constant, hence the name ‘Constant Product’. More information can be found on the [Uniswap whitepaper](https://uniswap.org/whitepaper.pdf) and the [Balancer whitepaper](https://balancer.fi/whitepaper.pdf).
 
 # Demo
 
