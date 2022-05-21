@@ -344,7 +344,7 @@ As you can see, there is a lot of overlap between the first module’s demos - j
 
 The withdrawal instruction is very similar to the deposit instruction, but there are some subtle differences. Like deposits, the token swap program accepts two variations of withdrawals. You can either withdraw liquidity from a single side of the swap pool, or you can withdraw your deposited liquidity from both sides at the same time. We’ll be targeting the [instruction to withdraw from both sides of the swap pool at once](https://github.com/solana-labs/solana-program-library/blob/master/token-swap/program/src/processor.rs#L602).
 
-This instruction will live in the `/components/Withdraw.tsx` file inside the `handleTransactionSubmit` function again.
+This instruction will live in the `/components/Withdraw.tsx` file, also inside of the `handleTransactionSubmit` function.
 
 ```tsx
 const transaction = new Web3.Transaction()
@@ -376,7 +376,7 @@ const withdrawIX = new Web3.TransactionInstruction({
 transaction.add(withdrawIX)
 ```
 
-Notice the ordering of accounts is different for the withdraw transaction and there is an additional `fee_account` provided this time. There is a fee that must be paid by the user for withdrawing liquidity from the pools, this fee is determined by the swap program based on the Curve and paid to the `fee_account`.
+Notice the ordering of accounts is different for the withdraw transaction and there is an additional `fee_account` provided this time. There is a fee that must be paid by the user for withdrawing liquidity from the pools, this fee is determined by the swap program based on the curve and paid to the `fee_account`.
 
 ### 4. Create the Swap Instruction
 
