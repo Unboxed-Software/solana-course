@@ -251,7 +251,9 @@ The project is a fairly simple Next.js application re-using a lot of what was pr
 
 ### 2. Create the Deposit Instruction
 
-The token swap program has two variations of deposit instructions, one allows users to only deposit tokens to one side of the swap pool at a time and the other allows for depositing to both sides of the swap pool at the same time. We will be using the latter to create a single instruction to provide liquidity to both sides of the swap pool at once. Note, that in order to deposit liquidity to both sides of the swap pool, a user’s wallet must have a sufficient amount of each token beforehand. This will not be a problem for us because we can just airdrop ourselves as many tokens as we’d like, but something to keep in mind.
+The token swap program has two variations of deposit instructions. One allows users to only deposit tokens to one side of the swap pool at a time. The other allows for depositing to both sides of the swap pool at the same time. We will be using the latter to create a single instruction to provide liquidity to both sides of the swap pool at once.
+
+Note, that in order to deposit liquidity to both sides of the swap pool, a user’s wallet must have a sufficient amount of each token beforehand. This will not be a problem for us because we can just airdrop ourselves as many tokens as we’d like, but it is something to keep in mind.
 
 One caveat with the way the [token swap program implements this instruction](https://github.com/solana-labs/solana-program-library/blob/master/token-swap/program/src/processor.rs#L496) is that it expects the following as input data
 
@@ -283,7 +285,7 @@ const handleTransactionSubmit = async (deposit: DepositAllSchema) => {
 ...
 ```
 
-Once we have the addresses of the accounts where the tokens are or will actually be stored, we will want to check if there is an `Associated Token Account` created for the pool token by using the `getAccountInfo` RPC method from the first module. This function will return an `AccountInfo` struct if it exits or `null` if not, if it is `null` we create an instruction to create the account and add it to our transaction. Then, we can serialize the user’s input in to a buffer with a `serialize` function that has already been implemented similarly to how we serialized our instruction data in previous demos. Then, we will construct our array of `AccountInfo’s`.
+Once we have the addresses of the accounts where the tokens are or will actually be stored, we will want to check if there is an `Associated Token Account` created for the pool token by using the `getAccountInfo` RPC method from the first module. This function will return an `AccountInfo` struct if it exits or `null` if not. If `null` is returned, we create an instruction to create the account and add it to our transaction. Then, we can serialize the user’s input into a buffer with a `serialize` function that has already been implemented similarly to how we serialized our instruction data in previous demos. Then, we will construct our array of `AccountInfo’s`.
 
 ```tsx
 ...
