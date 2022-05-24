@@ -397,104 +397,11 @@ We’re going to create a script that interacts with instructions on the Token P
 
 ### 1. Basic scaffolding
 
-Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the `@solana/web3.js` and `@solana/spl-token` packages. If you want to use our exact scaffolding, you can use the following commands in the command line:
+Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the `@solana/web3.js` and `@solana/spl-token` packages. 
 
-```bash
-mkdir -p solana-token-client/src && \
-	cd solana-token-client && \
-	touch src/index.ts && \
-	git init && touch .gitignore && \
-	npm init -y && \
-	npm install --save-dev typescript && \
-    npm install --save-dev ts-node && \
-	npx tsc --init && \
-	npm install @solana/web3.js && \
-	npm install @solana/spl-token && \
-	npm install dotenv && \
-	touch .env
-```
+You can use `npx create-solana-client [INSERT_NAME_HERE]` in the command line to clone the template we'll be starting from. Or you can manually clone the template [here](https://github.com/Unboxed-Software/solana-client-template).
 
-This will:
-
-1. create a new directory for the project with a subdirectory `src`
-2. move the command line prompt inside the project directory
-3. create an `index.ts` file inside of `src`
-4. initialize the project directory as a git repository with a `.gitignore` file
-5. initialize a new `npm` package
-6. install a developer dependency on TypeScript
-7. add a developer dependency on `ts-node`
-8. create a `.tsconfig` file
-9. install the `@solana/web3.js`, `@solana/spl-token`, and `.dotenv` dependencies
-10. create a `.env` file
-
-If you want to match our code exactly, replace the contents of `.tsconfig` with the following:
-
-```json
-{
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "outDir": "dist"
-    },
-    "include": [ "./src/**/*" ]
-}
-```
-
-Add the following to the `.gitignore`:
-
-```
-node_modules/
-dist/
-.env
-```
-
-Add the following to the `scripts` object in `package.json`:
-
-```json
-"start": "ts-node src/index.ts"
-```
-
-Add your Keypair to the `.env` file as an environment variable called, `PRIVATE_KEY`. If you need to generate a new Keypair, please refer to Module 1 Lesson 2 for how to do so. It should look something like this but with different numbers:
-
-Finally, copy the following into the `index.ts` file.
-
-```tsx
-import web3 = require('@solana/web3.js')
-import Dotenv from 'dotenv'
-Dotenv.config()
-
-async function main() {
-    const signer = initializeKeypair();
-    const connection = await new web3.Connection(web3.clusterApiUrl('devnet'))
-    await airdropSolIfNeeded(signer, connection)
-}
-
-main().then(() => {
-    console.log("Finished successfully")
-}).catch((error) => {
-    console.error(error);
-})
-
-function initializeKeypair(): web3.Keypair {
-    const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[]
-    const secretKey = Uint8Array.from(secret)
-    const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
-    return keypairFromSecretKey
-}
-
-async function airdropSolIfNeeded(signer: web3.Keypair, connection: web3.Connection) {
-    const balance = await connection.getBalance(signer.publicKey)
-    console.log('Current balance is', balance)
-    if (balance < web3.LAMPORTS_PER_SOL) {
-        console.log('Airdropping 1 SOL...')
-        await connection.requestAirdrop(signer.publicKey, web3.LAMPORTS_PER_SOL)
-    }
-}
-```
+You'll then need to add a dependency on `@solana/spl-token`. From the command line inside the newly created directory, use the command `npm install @solana/spl-token`.
 
 ### 2. Create Token Mint
 
@@ -538,14 +445,14 @@ With that function completed, call it from the body of `main`, setting `signer` 
 
 ```tsx
 async function main() {
-    const user = initializeKeypair();
-    const connection = await new web3.Connection(web3.clusterApiUrl('devnet'))
-    await airdropSolIfNeeded(user, connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+    const user = await initializeKeypair(connection)
+
     const mint = await createNewMint(
-        connection, 
-        user, 
-        user.publicKey, 
-        user.publicKey, 
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
         2
     )
 }
@@ -587,17 +494,17 @@ Add a call the `createTokenAccount` in `main`, passing in the mint we created in
 
 ```tsx
 async function main() {
-    const user = initializeKeypair()
-    const connection = await new web3.Connection(web3.clusterApiUrl('devnet'))
-    await airdropSolIfNeeded(user, connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+    const user = await initializeKeypair(connection)
+
     const mint = await createNewMint(
-        connection, 
-        user, 
-        user.publicKey, 
-        user.publicKey, 
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
         2
     )
-    
+
     const tokenAccount = await createTokenAccount(
         connection,
         user,
@@ -641,14 +548,14 @@ Lets call the function in `main` using the `mint` and `tokenAccount` created pre
 
 ```tsx
 async function main() {
-    const user = initializeKeypair()
-    const connection = await new web3.Connection(web3.clusterApiUrl('devnet'))
-    await airdropSolIfNeeded(user, connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+    const user = await initializeKeypair(connection)
+
     const mint = await createNewMint(
-        connection, 
-        user, 
-        user.publicKey, 
-        user.publicKey, 
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
         2
     )
 
@@ -659,14 +566,7 @@ async function main() {
         user.publicKey
     )
 
-    await mintTokens(
-        connection,
-        user,
-        mint,
-        tokenAccount.address,
-        user,
-        100
-    )
+    await mintTokens(connection, user, mint, tokenAccount.address, user, 100)
 }
 ```
 
@@ -706,14 +606,14 @@ Then, create a token account for the receiver. Finally, lets call our new `trans
 
 ```tsx
 async function main() {
-    const user = initializeKeypair()
-    const connection = await new web3.Connection(web3.clusterApiUrl('devnet'))
-    await airdropSolIfNeeded(user, connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+    const user = await initializeKeypair(connection)
+
     const mint = await createNewMint(
-        connection, 
-        user, 
-        user.publicKey, 
-        user.publicKey, 
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
         2
     )
 
@@ -724,14 +624,7 @@ async function main() {
         user.publicKey
     )
 
-    await mintTokens(
-        connection,
-        user,
-        mint,
-        tokenAccount.address,
-        user,
-        100
-    )
+    await mintTokens(connection, user, mint, tokenAccount.address, user, 100)
 
     const receiver = web3.Keypair.generate().publicKey
     const receiverTokenAccount = await createTokenAccount(
@@ -786,14 +679,14 @@ Now call this new function in `main` to burn 25 of the user's tokens.
 
 ```tsx
 async function main() {
-    const user = initializeKeypair()
-    const connection = await new web3.Connection(web3.clusterApiUrl('devnet'))
-    await airdropSolIfNeeded(user, connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+    const user = await initializeKeypair(connection)
+
     const mint = await createNewMint(
-        connection, 
-        user, 
-        user.publicKey, 
-        user.publicKey, 
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
         2
     )
 
@@ -804,14 +697,7 @@ async function main() {
         user.publicKey
     )
 
-    await mintTokens(
-        connection,
-        user,
-        mint,
-        tokenAccount.address,
-        user,
-        100
-    )
+    await mintTokens(connection, user, mint, tokenAccount.address, user, 100)
 
     const receiver = web3.Keypair.generate().publicKey
     const receiverTokenAccount = await createTokenAccount(
@@ -830,14 +716,7 @@ async function main() {
         50
     )
 
-    await burnTokens(
-        connection,
-        user,
-        tokenAccount.address,
-        mint,
-        user,
-        25
-    )
+    await burnTokens(connection, user, tokenAccount.address, mint, user, 25)
 }
 ```
 ### 8. Test it all out
