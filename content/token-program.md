@@ -20,7 +20,7 @@
 
 # Overview
 
-The Token Program is one of many programs made available by the Solana Program Library (SPL). It contains instructions for creating and interacting with SPL-Tokens. These tokens represent all non-native (e.g. not SOL) tokens on the Solana network.
+The Token Program is one of many programs made available by the Solana Program Library (SPL). It contains instructions for creating and interacting with SPL-Tokens. These tokens represent all non-native (i.e. not SOL) tokens on the Solana network.
 
 This lesson will focus on the basics of creating and managing a new SPL-Token using the Token Program:
 1. Creating a new Token Mint
@@ -138,7 +138,7 @@ The `createAccount` function returns the `publicKey` of the new token account. T
 - `owner` the account of the owner of the new token account
 - `keypair` this is an optional parameter for specifying the new token account address. If no keypair is provided, the `createAccount` function defaults to a derivation from the associated `mint` and `owner` accounts.
 
-Please note that this `createAccount` function is different from the `createAccount` function shown we used when manually creating the Token Mint transaction. Previously we used the `createAccount` function on `SystemProgram` that returns the instruction for creating all accounts. This `createAccount` function is a helper function in the `spl-token` library that actually submits the transaction to create a Token Account.
+Please note that this `createAccount` function is different from the `createAccount` function shown above when we looked under the hood of the `createMint` function. Previously we used the `createAccount` function on `SystemProgram` to return the instruction for creating all accounts. The `createAccount` function here is a helper function in the `spl-token` library that submits a transaction with two instructions. The first creates the account and the second initializes the account as a Token Account.
 
 Like with creating a Token Mint, if we needed to build the transaction for `createAccount` manually we could duplicate what the function is doing under the hood:
 1. Use `getMint` to retrieve the data associated with the `mint`
@@ -201,9 +201,9 @@ This function returns the `publicKey` of the new associated token account and re
 - `connection` the JSON-RPC connection to the cluster
 - `payer` the account of the payer for the transaction
 - `mint` the token mint that the new token account is associated with
-- `owner` the acccount of the owner of the new token account
+- `owner` the account of the owner of the new token account
 
-You can also use `getOrCreateAssociatedTokenAccount` to get the Token Account associated with a given address or create it if it doesn't exist. For example, if you were writing code to aidrop tokens to a given user, you'd likely use this function to ensure that the token account associated with the given user gets created if it doesn't already exist.
+You can also use `getOrCreateAssociatedTokenAccount` to get the Token Account associated with a given address or create it if it doesn't exist. For example, if you were writing code to airdrop tokens to a given user, you'd likely use this function to ensure that the token account associated with the given user gets created if it doesn't already exist.
 
 Under the hood, `createAssociatedTokenAccount` is doing two things:
 
@@ -483,7 +483,7 @@ async function createTokenAccount(
     )
 
     console.log(
-    `Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`
+        `Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`
     )
 
     return tokenAccount
@@ -570,7 +570,7 @@ async function main() {
 }
 ```
 
-### 6. Transfer Tokens
+### 5. Transfer Tokens
 
 Next, lets transfer some of the tokens we just minted using the `spl-token` library's `transfer` function.
 
@@ -645,7 +645,7 @@ async function main() {
 }
 ```
 
-### 7. Burn Tokens
+### 6. Burn Tokens
 
 Finally, let's remove some tokens from circulation by burning them.
 
@@ -719,9 +719,9 @@ async function main() {
     await burnTokens(connection, user, tokenAccount.address, mint, user, 25)
 }
 ```
-### 8. Test it all out
+### 7. Test it all out
 
-With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, transferred half of them, and burned 25 more. You're well on your way to being a token master.
+With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, transferred half of them, and burned 25 more. You're well on your way to being a token expert.
 
 If you need a bit more time with this project to feel comfortable, have a look at the complete [solution code](https://github.com/Unboxed-Software/solana-token-client)
 
@@ -735,7 +735,7 @@ Note that you will not be able to directly use the helper functions we went over
 
 1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
 2. Create a new Token Mint in the `CreateMint` component. 
-    If you need a refresher on how to send transactions to a wallet for approval, have a look at the  [Wallets lesson](./interact-with-wallets.md).
+    If you need a refresher on how to send transactions to a wallet for approval, have a look at the [Wallets lesson](./interact-with-wallets.md).
 
     When creating a new mint, the newly generated `Keypair` will also have to sign the transaction. When additional signers are required in addition to the connected wallet, use the following format:
 
