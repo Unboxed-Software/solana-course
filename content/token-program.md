@@ -441,7 +441,7 @@ async function createNewMint(
 }
 ```
 
-With that function completed, call it from the body of `main`, setting `signer` as the `payer`, `mintAuthority`, and `freezeAuthority`.
+With that function completed, call it from the body of `main`, setting `user` as the `payer`, `mintAuthority`, and `freezeAuthority`.
 
 ```tsx
 async function main() {
