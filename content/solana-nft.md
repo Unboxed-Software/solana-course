@@ -82,7 +82,7 @@ The metadata file will look something like the following:
     "image": "0.png",
     "attributes": [
         {"trait_type": "Layer-1", "value": "0"},
-        {"trait_type": "Layer-2", "value": "0"}, 
+        {"trait_type": "Layer-2", "value": "0"},
         {"trait_type": "Layer-3", "value": "0"},
         {"trait_type": "Layer-4", "value": "1"}
     ],
@@ -211,17 +211,17 @@ The `hash` can be used to prove to holders that no modified were made after mint
 Below are storage options for the collection. Note that `arweave` files are only stored for 7 days on devnet.
 
 ```tsx
- "storage": "arweave",
- "ipfsInfuraProjectId": null,
- "ipfsInfuraSecret": null,
- "nftStorageKey": null,
- "awsS3Bucket": null,
+"storage": "arweave",
+"ipfsInfuraProjectId": null,
+"ipfsInfuraSecret": null,
+"nftStorageKey": null,
+"awsS3Bucket": null,
 ```
 
 The `noRetainAuthority` field indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
 
 ```tsx
- "noRetainAuthority": false,
+"noRetainAuthority": false,
 ```
 
 The `noMutable` field indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the candy machine configurations can be updated. If set to true, candy machine configurations cannot be updated and cannot be reset to true.
@@ -312,23 +312,23 @@ Open the `config.json` located in our starter code folder:
 
 ```tsx
 {
-  "price": 1,
-  "number": 5,
-  "gatekeeper": null,
-  "solTreasuryAccount": "<YOUR WALLET ADDRESS>",
-  "splTokenAccount": null,
-  "splToken": null,
-  "goLiveDate": "25 Dec 2020 00:00:00 GMT",
-  "endSettings": null,
-  "whitelistMintSettings": null,
-  "hiddenSettings": null,
-  "storage": "arweave",
-  "ipfsInfuraProjectId": null,
-  "ipfsInfuraSecret": null,
-  "awsS3Bucket": null,
-  "nftStorageKey": null,
-  "noRetainAuthority": false,
-  "noMutable": false
+    "price": 1,
+    "number": 5,
+    "gatekeeper": null,
+    "solTreasuryAccount": "<YOUR WALLET ADDRESS>",
+    "splTokenAccount": null,
+    "splToken": null,
+    "goLiveDate": "25 Dec 2020 00:00:00 GMT",
+    "endSettings": null,
+    "whitelistMintSettings": null,
+    "hiddenSettings": null,
+    "storage": "arweave",
+    "ipfsInfuraProjectId": null,
+    "ipfsInfuraSecret": null,
+    "awsS3Bucket": null,
+    "nftStorageKey": null,
+    "noRetainAuthority": false,
+    "noMutable": false
 }
 ```
 
@@ -346,28 +346,28 @@ Open each `.json` file and update the `"address"` field with the wallet address 
 
 ```tsx
 {
-  "name": "1",
-  "symbol": "TEST",
-  "image": "0.png",
-  "properties": {
-    "files": [{ "uri": "0.png", "type": "image/png" }],
-    "category": "image",
-    "creators": [
-      {
-        "address": "<YOUR WALLET ADDRESS>",
-        "share": 100
-      }
-    ]
-  },
-  "description": "",
-  "seller_fee_basis_points": 500,
-  "attributes": [
-    { "trait_type": "background", "value": "blue" },
-    { "trait_type": "eyes", "value": "star-eyes" },
-    { "trait_type": "mouth", "value": "triangle-mouth" },
-    { "trait_type": "face", "value": "teal-face" }
-  ],
-  "collection": { "name": "NAME", "family": "FAMILY" }
+    "name": "1",
+    "symbol": "TEST",
+    "image": "0.png",
+    "properties": {
+        "files": [{ "uri": "0.png", "type": "image/png" }],
+        "category": "image",
+        "creators": [
+            {
+                "address": "<YOUR WALLET ADDRESS>",
+                "share": 100
+            }
+        ]
+    },
+    "description": "",
+    "seller_fee_basis_points": 500,
+    "attributes": [
+        { "trait_type": "background", "value": "blue" },
+        { "trait_type": "eyes", "value": "star-eyes" },
+        { "trait_type": "mouth", "value": "triangle-mouth" },
+        { "trait_type": "face", "value": "teal-face" }
+    ],
+    "collection": { "name": "NAME", "family": "FAMILY" }
 }
 ```
 
@@ -410,50 +410,50 @@ The `devnet-example.json` file will look something like this, but with different
 
 ```tsx
 {
-  "program": {
-    "uuid": "GSSEGg",
-    "candyMachine": "GSSEGgeCvndhjd3GGNs8VM65qHPAiBF8cF2EWTZ3bm8k",
-    "collection": "4cXtoUxF9C3nYxo31Hku6gFYDEcnidqSScbctfY17HZr"
-  },
-  "items": {
-    "0": {
-      "link": "https://arweave.net/nk7VSghTt9iP6cVYnVxo4SAN_t6RPxE6iESP-Z49s4s",
-      "imageLink": "https://arweave.net/8Y9i5mvF3u_3XHzSAfiDxt8pUubGB8HwXTTEnD4Kp7c?ext=png",
-      "name": "1",
-      "onChain": true,
-      "verifyRun": false
+    "program": {
+        "uuid": "GSSEGg",
+        "candyMachine": "GSSEGgeCvndhjd3GGNs8VM65qHPAiBF8cF2EWTZ3bm8k",
+        "collection": "4cXtoUxF9C3nYxo31Hku6gFYDEcnidqSScbctfY17HZr"
     },
-    "1": {
-      "link": "https://arweave.net/LEbsEUVr-oMCgVkZlvSEmOoBRR7QcoFG-won6tZD16g",
-      "imageLink": "https://arweave.net/T78LQZsteVWK83g49wy-Lt3cig3w8N1kAXyZiU5Pxdg?ext=png",
-      "name": "2",
-      "onChain": true,
-      "verifyRun": false
+    "items": {
+        "0": {
+            "link": "https://arweave.net/nk7VSghTt9iP6cVYnVxo4SAN_t6RPxE6iESP-Z49s4s",
+            "imageLink": "https://arweave.net/8Y9i5mvF3u_3XHzSAfiDxt8pUubGB8HwXTTEnD4Kp7c?ext=png",
+            "name": "1",
+            "onChain": true,
+            "verifyRun": false
+        },
+        "1": {
+            "link": "https://arweave.net/LEbsEUVr-oMCgVkZlvSEmOoBRR7QcoFG-won6tZD16g",
+            "imageLink": "https://arweave.net/T78LQZsteVWK83g49wy-Lt3cig3w8N1kAXyZiU5Pxdg?ext=png",
+            "name": "2",
+            "onChain": true,
+            "verifyRun": false
+        },
+        "2": {
+            "link": "https://arweave.net/0D-klGK9bceLNm0Bxo4ua59RlLq1i0cM1A31Smsgvwo",
+            "imageLink": "https://arweave.net/GbPL0RTX_IEJvbcAEwqGI2nyzsT6IXRHDgk_o_fdwJQ?ext=png",
+            "name": "3",
+            "onChain": true,
+            "verifyRun": false
+        },
+        "3": {
+            "link": "https://arweave.net/hz0lrDqCvtVnvToHjmSCDlSF7feCcu8KX_zJDq_BBRc",
+            "imageLink": "https://arweave.net/mhxIIf-U4xwA1yFouxZx1eUmpMOr-7gz9a377fwbO8w?ext=png",
+            "name": "4",
+            "onChain": true,
+            "verifyRun": false
+        },
+        "4": {
+            "link": "https://arweave.net/MQsmrTW6BIufImiDjHY3py3dM1w8DdowKGtJ307MQW4",
+            "imageLink": "https://arweave.net/otRFxnPyLW_fmbUvskf4DE63n8dUurHt5Qm--gWWOdA?ext=png",
+            "name": "5",
+            "onChain": true,
+            "verifyRun": false
+        }
     },
-    "2": {
-      "link": "https://arweave.net/0D-klGK9bceLNm0Bxo4ua59RlLq1i0cM1A31Smsgvwo",
-      "imageLink": "https://arweave.net/GbPL0RTX_IEJvbcAEwqGI2nyzsT6IXRHDgk_o_fdwJQ?ext=png",
-      "name": "3",
-      "onChain": true,
-      "verifyRun": false
-    },
-    "3": {
-      "link": "https://arweave.net/hz0lrDqCvtVnvToHjmSCDlSF7feCcu8KX_zJDq_BBRc",
-      "imageLink": "https://arweave.net/mhxIIf-U4xwA1yFouxZx1eUmpMOr-7gz9a377fwbO8w?ext=png",
-      "name": "4",
-      "onChain": true,
-      "verifyRun": false
-    },
-    "4": {
-      "link": "https://arweave.net/MQsmrTW6BIufImiDjHY3py3dM1w8DdowKGtJ307MQW4",
-      "imageLink": "https://arweave.net/otRFxnPyLW_fmbUvskf4DE63n8dUurHt5Qm--gWWOdA?ext=png",
-      "name": "5",
-      "onChain": true,
-      "verifyRun": false
-    }
-  },
-  "env": "devnet",
-  "cacheName": "example"
+    "env": "devnet",
+    "cacheName": "example"
 }
 ```
 
@@ -524,7 +524,7 @@ Open the `.config.json` file and update the `gatekeeper` field to enable captcha
 "gatekeeper": {
     "gatekeeperNetwork": "ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6",
     "expireOnUse": true
-  },
+},
 ```
 
 Update the Candy Machine by running the `update_candy_machine` command:
@@ -610,7 +610,7 @@ Open the `.config.json` file and reset `gatekeeper` field to null as gatekeeper 
 Update the `"goLiveDate"` to sometime in the future:
 
 ```tsx
-  "goLiveDate": "25 Dec 2022 00:00:00 GMT",
+"goLiveDate": "25 Dec 2022 00:00:00 GMT",
 ```
 
 Update `whitelistMintSettings`
