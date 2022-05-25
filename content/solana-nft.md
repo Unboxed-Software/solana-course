@@ -105,7 +105,7 @@ Below is the basic format of the configuration file:
     "price": 1.0,
     "number": 10,
     "gatekeeper": null,
-    "solTreasuryAccount": "<YOUR WALLET ADDRESS>",
+    "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>",
     "splTokenAccount": null,
     "splToken": null,
     "goLiveDate": "25 Dec 2021 00:00:00 GMT",
@@ -138,7 +138,7 @@ The `gatekeeper` enables captcha verification before minting from the Candy Mach
 
 ```json
 "gatekeeper": {
-    "gatekeeperNetwork" : "<PROVIDER NETWORK ADDRESS>",
+    "gatekeeperNetwork" : "<PROVIDER_NETWORK_ADDRESS>",
     "expireOnUse" : true
 }
 ```
@@ -146,14 +146,14 @@ The `gatekeeper` enables captcha verification before minting from the Candy Mach
 The `solTreasuryAccount` is the address SOL payments from the mint will be sent.
 
 ```json
- "solTreasuryAccount": "<YOUR WALLET ADDRESS>",
+ "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>",
 ```
 
 The Candy Machine can also be set to receive payment using an SPL token. The `splTokenAccount` is the token account you want the SPL token payments to be sent. The `splToken` is the token mint address of the SPL token accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
 
 ```json
-"splTokenAccount": "<TOKEN ACCOUNT ADDRESS>",
-"splToken": "<TOKEN MINT ADDRESS>",
+"splTokenAccount": "<TOKEN_ACCOUNT_ADDRESS>",
+"splToken": "<TOKEN_MINT_ADDRESS>",
 ```
 
 The `goLiveDate` is the date the mint goes live for public mint.
@@ -315,7 +315,7 @@ Open the `config.json` located in our starter code folder:
     "price": 1,
     "number": 5,
     "gatekeeper": null,
-    "solTreasuryAccount": "<YOUR WALLET ADDRESS>",
+    "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>",
     "splTokenAccount": null,
     "splToken": null,
     "goLiveDate": "25 Dec 2020 00:00:00 GMT",
@@ -335,7 +335,7 @@ Open the `config.json` located in our starter code folder:
 Update the `solTreasuryAccount` field with the wallet address we imported to Phantom. This will be the only setting we change for now.
 
 ```json
-"solTreasuryAccount": "<YOUR WALLET ADDRESS>",
+"solTreasuryAccount": "<YOUR_WALLET_ADDRESS>",
 ```
 
 ### 5. Prepare Assets
@@ -354,7 +354,7 @@ Open each `.json` file and update the `address` field with the wallet address we
         "category": "image",
         "creators": [
             {
-                "address": "<YOUR WALLET ADDRESS>",
+                "address": "<YOUR_WALLET_ADDRESS>",
                 "share": 100
             }
         ]
@@ -560,25 +560,25 @@ solana-keygen grind --starts-with WL:1
 Create a new token with 0 decimals using the address we just generated:
 
 ```sh
-spl-token create-token --decimals 0 <WHITELIST TOKEN ADDRESS>.json
+spl-token create-token --decimals 0 <WHITELIST_TOKEN_ADDRESS>.json
 ```
 
 Create a new token account:
 
 ```sh
-spl-token create-account <WHITELIST TOKEN ADDRESS>
+spl-token create-account <WHITELIST_TOKEN_ADDRESS>
 ```
 
 Mint whitelist tokens to the token account:
 
 ```sh
-spl-token mint <WHITELIST TOKEN ADDRESS> 3
+spl-token mint <WHITELIST_TOKEN_ADDRESS> 3
 ```
 
 Check the token balance:
 
 ```sh
-spl-token account-info <WHITELIST TOKEN ADDRESS>
+spl-token account-info <WHITELIST_TOKEN_ADDRESS>
 ```
 
 ![Gif of Whitelist Token](../assets/solana-nft-whitelist-token.gif)
@@ -586,7 +586,7 @@ spl-token account-info <WHITELIST TOKEN ADDRESS>
 If you would like to transfer whitelist tokens to another wallet address, use the following command:
 
 ```sh
-spl-token transfer <WHITELIST TOKEN ADDRESS> 1 <WALLET ADDRESS> --fund-recipient
+spl-token transfer <WHITELIST_TOKEN_ADDRESS> 1 <WALLET_ADDRESS> --fund-recipient
 ```
 
 ![Gif of Whitelist Token Transfer](../assets/solana-nft-whitelist-token-transfer.png)
@@ -623,7 +623,7 @@ Update `whitelistMintSettings`
 ```json
 "whitelistMintSettings": {
     "mode" : { "burnEveryTime": true },
-    "mint" : "<WHITELIST TOKEN ADDRESS>",
+    "mint" : "<WHITELIST_TOKEN_ADDRESS>",
     "presale" : true,
     "discountPrice" : 0.01
 },
