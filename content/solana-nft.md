@@ -510,7 +510,7 @@ While in the `candy-machine-ui` folder, run following command:
 yarn install && yarn start
 ```
 
-Navigate to `[localhost:3000](http://localhost:3000)` in the browser and click mint to mint an NFT from the Candy Machine!
+Navigate to [localhost:3000](http://localhost:3000) in the browser and click mint to mint an NFT from the Candy Machine!
 
 ![Gif of Metaplex Mint UI](../assets/solana-nft-metaplex-mint-ui.gif)
 
@@ -537,7 +537,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machin
     -c example
 ```
 
-Refresh`[localhost:3000](http://localhost:3000)` in the browser and click the mint button. It should now require a captcha verification before minting.
+Refresh [localhost:3000](http://localhost:3000) in the browser and click the mint button. It should now require a captcha verification before minting.
 
 ![Gif of Metaplex Gatekeeper](../assets/solana-nft-metaplex-gatekeeper.gif)
 
@@ -639,7 +639,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machin
     -c example
 ```
 
-Refresh`[localhost:3000](http://localhost:3000)` in the browser and mint from a wallet that holds the whitelist token:
+Refresh [localhost:3000](http://localhost:3000) in the browser and mint from a wallet that holds the whitelist token:
 
 ![Gif of Whitelist Mint](../assets/solana-nft-whitelist-mint.gif)
 
