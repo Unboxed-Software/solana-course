@@ -100,7 +100,7 @@ Candy Machine v2 is an NFT distribution program by Metaplex. A Candy Machine is 
 
 Below is the basic format of the configuration file:
 
-```tsx
+```json
 {
     "price": 1.0,
     "number": 10,
@@ -124,19 +124,19 @@ Below is the basic format of the configuration file:
 
 The `price` is the amount to charge for each NFT minted from the Candy Machine.
 
-```tsx
+```json
 "price": 1.0
 ```
 
 The `number` is the amount of NFTs in the Candy Machine and must match the number of asset pairings you’ve created for your collection.
 
-```tsx
+```json
 "number": 10
 ```
 
 The `gatekeeper` enables captcha verification before minting from the Candy Machine.
 
-```tsx
+```json
 "gatekeeper": {
     "gatekeeperNetwork" : "<PROVIDER NETWORK ADDRESS>",
     "expireOnUse" : true
@@ -145,33 +145,33 @@ The `gatekeeper` enables captcha verification before minting from the Candy Mach
 
 The `solTreasuryAccount` is the address SOL payments from the mint will be sent.
 
-```tsx
+```json
  "solTreasuryAccount": "<YOUR WALLET ADDRESS>",
 ```
 
 The Candy Machine can also be set to receive payment using an SPL token. The `splTokenAccount` is the token account you want the SPL token payments to be sent. The `splToken` is the token mint address of the SPL token accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
 
-```tsx
+```json
 "splTokenAccount": "<TOKEN ACCOUNT ADDRESS>",
 "splToken": "<TOKEN MINT ADDRESS>",
 ```
 
 The `goLiveDate` is the date the mint goes live for public mint.
 
-```tsx
+```json
 "goLiveDate": "25 Dec 2021 00:00:00 GMT",
 ```
 
 The `endSettings` is the settings you want minting to stop. It can either be a specified date or after a certain amount of NFTs are minted.
 
-```tsx
+```json
 "endSettings": {
     "endSettingType": { "date":true },
     "value":"25 Dec 2021 23:59:00 GMT"
 }
 ```
 
-```tsx
+```json
 "endSettings": {
     "endSettingType": { "amount":true },
     "value":10
@@ -187,7 +187,7 @@ The `whitelistMintSettings` allows you to configure whitelist settings.
 - `discountPrice` is an optional discounted price offered to whitelist token holders
 - `presale` settings determine if whitelist token holders can mint before the `goLiveDate`
 
-```tsx
+```json
 "whitelistMintSettings": {
     "mode" : { "burnEveryTime": true },
     "mint" : "7nE1GmnMmDKiycFkpHF7mKtxt356FQzVonZqBWsTWZNf",
@@ -200,7 +200,7 @@ The `hiddenSettings` can be used for hidden drop reveals. On initial mint all ho
 
 The `hash` can be used to prove to holders that no modified were made after minting by hashing the cache file output by the Candy Machine containing the mapping between mint number and metadata.
 
-```tsx
+```json
 "hiddenSettings": {
     "name":"My Hidden Collection ",
     "uri":"uri",
@@ -210,7 +210,7 @@ The `hash` can be used to prove to holders that no modified were made after mint
 
 Below are storage options for the collection. Note that `arweave` files are only stored for 7 days on devnet.
 
-```tsx
+```json
 "storage": "arweave",
 "ipfsInfuraProjectId": null,
 "ipfsInfuraSecret": null,
@@ -220,13 +220,13 @@ Below are storage options for the collection. Note that `arweave` files are only
 
 The `noRetainAuthority` field indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
 
-```tsx
+```json
 "noRetainAuthority": false,
 ```
 
 The `noMutable` field indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the candy machine configurations can be updated. If set to true, candy machine configurations cannot be updated and cannot be reset to true.
 
-```tsx
+```json
 "noMutable": false
 ```
 
@@ -240,13 +240,13 @@ Let’s practice this together by creating a Candy Machine and minting our colle
 
 Lets begin by downloading the starter code. The starter code includes an assets folder and the configuration file for our candy machine.
 
-```tsx
+```sh
 git clone <starter code>
 ```
 
 Lets navigate to the <starter code folder>
 
-```tsx
+```sh
 cd <starter code folder>
 ```
 
@@ -256,25 +256,25 @@ Next lets set up a new keypair to use for this lesson and connect to devnet usin
 
 Generate a new keypair that we will use for the project:
 
-```tsx
+```sh
 solana-keygen new --outfile ~/.config/solana/devnet.json
 ```
 
 Set the new keypair as the default keypair:
 
-```tsx
+```sh
 solana config set --keypair ~/.config/solana/devnet.json
 ```
 
 Set our connection to devnet using metaplex rpc:
 
-```tsx
+```sh
 solana config set --url https://metaplex.devnet.rpcpool.com/
 ```
 
 Airdrop devnet SOL to new test wallet:
 
-```tsx
+```sh
 solana airdrop 2
 ```
 
@@ -286,19 +286,19 @@ Copy the keypair from `.config/solana/devnet.json` and import to Phantom
 
 While in the start code folder clone the Metaplex repo:
 
-```tsx
+```sh
 git clone https://github.com/metaplex-foundation/metaplex.git
 ```
 
 Next, install Metaplex dependencies:
 
-```tsx
+```sh
 yarn install --cwd metaplex/js/
 ```
 
 Check that Candy Machine was installed:
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts --version
 ```
 
@@ -310,7 +310,7 @@ Now that we have installed Metaplex, lets configure our Candy Machine.
 
 Open the `config.json` located in our starter code folder:
 
-```tsx
+```json
 {
     "price": 1,
     "number": 5,
@@ -334,7 +334,7 @@ Open the `config.json` located in our starter code folder:
 
 Update the `"solTreasuryAccount"` field with the wallet address we imported to Phantom. This will be the only setting we change for now.
 
-```bash
+```json
 "solTreasuryAccount": "<YOUR WALLET ADDRESS>",
 ```
 
@@ -344,7 +344,7 @@ Next, lets prepare the assets for our Candy Machine. The starter code includes a
 
 Open each `.json` file and update the `"address"` field with the wallet address we imported to Phantom.
 
-```tsx
+```json
 {
     "name": "1",
     "symbol": "TEST",
@@ -379,7 +379,7 @@ This will check that:
 2. Each image has a corresponding `.json` metadata file with the correct index naming
 3. The `"creators"` field is consistent across all `.json` files
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_assets ./assets
 ```
 
@@ -391,7 +391,7 @@ The output should look something like this:
 
 Now that we’ve configured our Candy Machine and verified our assets are ready for upload, lets upload our assets and create our Candy Machine by running the `upload` command.
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts upload \
     -e devnet \
     -k ~/.config/solana/devnet.json \
@@ -408,7 +408,7 @@ There will now be a `.cache` folder with a `devnet-example.json` file which incl
 
 The `devnet-example.json` file will look something like this, but with different links and addresses:
 
-```tsx
+```json
 {
     "program": {
         "uuid": "GSSEGg",
@@ -461,7 +461,7 @@ Next, lets verify our upload by running the `verify_upload` command.
 
 This verifies that each entry in the `devnet-example.json` file has been successfully uploaded and matches the URI stored on-chain.
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_upload \
     -e devnet \
     -k ~/.config/solana/devnet.json \
@@ -474,7 +474,7 @@ The output should look something like this:
 
 Now lets mint an NFT from our Candy Machine by running the `mint_one_token` command:
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts mint_one_token \
     -e devnet \
     -k ~/.config/solana/devnet.json \
@@ -497,7 +497,7 @@ Navigate to the candy-machine-ui folder using the following path: `/metaplex/js/
 2. Rename this file to `.env`
 3. Open the `.env` file and update `REACT_APP_CANDY_MACHINE_ID` with the address of the Candy Machine from `devnet-example.json`
 
-```tsx
+```
 REACT_APP_CANDY_MACHINE_ID=<YOUR CANDY MACHINE PROGRAM ID>
 
 REACT_APP_SOLANA_NETWORK=devnet
@@ -506,7 +506,7 @@ REACT_APP_SOLANA_RPC_HOST=https://metaplex.devnet.rpcpool.com/
 
 While in the `candy-machine-ui` folder, run following command:
 
-```tsx
+```sh
 yarn install && yarn start
 ```
 
@@ -520,7 +520,7 @@ Now that we have our Candy Machine UI working, lets update our Candy Machine to 
 
 Open the `.config.json` file and update the `gatekeeper` field to enable captcha:
 
-```tsx
+```json
 "gatekeeper": {
     "gatekeeperNetwork": "ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6",
     "expireOnUse": true
@@ -529,7 +529,7 @@ Open the `.config.json` file and update the `gatekeeper` field to enable captcha
 
 Update the Candy Machine by running the `update_candy_machine` command:
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machine \
     -e devnet \
     -k ~/.config/solana/devnet.json \
@@ -547,37 +547,37 @@ Next, lets create a whitelist token.
 
 Set our connection to offical devnet rpc (metaplex restricts token creation):
 
-```tsx
+```sh
 solana config set --url https://api.devnet.solana.com
 ```
 
 Generate a new keypair for the whitelist token:
 
-```tsx
+```sh
 solana-keygen grind --starts-with WL:1
 ```
 
 Create a new token with 0 decimals using the address we just generated:
 
-```tsx
+```sh
 spl-token create-token --decimals 0 <WHITELIST TOKEN ADDRESS>.json
 ```
 
 Create a new token account:
 
-```tsx
+```sh
 spl-token create-account <WHITELIST TOKEN ADDRESS>
 ```
 
 Mint whitelist tokens to the token account:
 
-```tsx
+```sh
 spl-token mint <WHITELIST TOKEN ADDRESS> 3
 ```
 
 Check the token balance:
 
-```tsx
+```sh
 spl-token account-info <WHITELIST TOKEN ADDRESS>
 ```
 
@@ -585,7 +585,7 @@ spl-token account-info <WHITELIST TOKEN ADDRESS>
 
 If you would like to transfer whitelist tokens to another wallet address, use the following command:
 
-```tsx
+```sh
 spl-token transfer <WHITELIST TOKEN ADDRESS> 1 <WALLET ADDRESS> --fund-recipient
 ```
 
@@ -593,7 +593,7 @@ spl-token transfer <WHITELIST TOKEN ADDRESS> 1 <WALLET ADDRESS> --fund-recipient
 
 Set our connection to devnet back to metaplex rpc:
 
-```tsx
+```sh
 solana config set --url https://metaplex.devnet.rpcpool.com/
 ```
 
@@ -603,13 +603,13 @@ Next, lets update the our Candy Machine to enable whitelist settings.
 
 Open the `.config.json` file and reset `gatekeeper` field to null as gatekeeper will not work with whitelist presale enabled:
 
-```tsx
+```json
 "gatekeeper": null,
 ```
 
 Update the `"goLiveDate"` to sometime in the future:
 
-```tsx
+```json
 "goLiveDate": "25 Dec 2022 00:00:00 GMT",
 ```
 
@@ -620,7 +620,7 @@ Update `whitelistMintSettings`
 - `"presale" : true` setting allows whitelist token holders to mint before the `"goLiveDate"`
 - `"discountPrice"` specifies a discounted mint price for whitelist token holders
 
-```tsx
+```json
 "whitelistMintSettings": {
     "mode" : { "burnEveryTime": true },
     "mint" : "<WHITELIST TOKEN ADDRESS>",
@@ -631,7 +631,7 @@ Update `whitelistMintSettings`
 
 Update the Candy Machine by running the `update_candy_machine` command again:
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machine \
     -e devnet \
     -k ~/.config/solana/devnet.json \
@@ -651,7 +651,7 @@ Go ahead and mint out the Candy Machine from a wallet with the whitelist token u
 
 Now that our Candy Machine is fully minted, the rent used for the Candy Machine can be retrieved by running the `withdraw` command:
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts withdraw <candy_machine_id> \
     -e devnet \
     -k ~/.config/solana/devnet.json
@@ -663,7 +663,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts withdraw <candy_mac
 
 Finally, sign the NFTs to verify yourself as the creator of the collection by running the `sign_all` command:
 
-```tsx
+```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts sign_all \
     -e devnet \
     -k ~/.config/solana/devnet.json \
