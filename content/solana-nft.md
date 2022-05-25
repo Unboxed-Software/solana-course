@@ -29,9 +29,9 @@ We'll be approaching this from the client-side of the development process using 
 
 ## Metaplex
 
-Metaplex provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. One of the core programs by Metaplex is the Token Metadata program. The Token Metadata program standardizes the process of associating metadata to an NFT.
+Metaplex provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. One of the core programs by Metaplex is the Token Metadata Program. The Token Metadata Program standardizes the process of associating metadata to an NFT.
 
-Candy Machine v2 is a distribution tool offered by Metaplex used to create and mint an NFT collection. Candy Machine v2 leverages the Token Metadata program to upload the NFT assets for a collection and allows creators to customize the distribution configurations.
+Candy Machine v2 is a distribution tool offered by Metaplex used to create and mint an NFT collection. Candy Machine v2 leverages the Token Metadata Program to upload the NFT assets for a collection and allows creators to customize the distribution configurations.
 
 ## Non-Fungible Tokens (NFTs)
 
