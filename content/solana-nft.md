@@ -125,57 +125,57 @@ Below is the basic format of the configuration file:
 The `price` is the amount to charge for each NFT minted from the Candy Machine.
 
 ```json
-"price": 1.0
+    "price": 1.0
 ```
 
 The `number` is the amount of NFTs in the Candy Machine and must match the number of asset pairings you’ve created for your collection.
 
 ```json
-"number": 10
+    "number": 10
 ```
 
 The `gatekeeper` enables captcha verification before minting from the Candy Machine.
 
 ```json
-"gatekeeper": {
-    "gatekeeperNetwork" : "<PROVIDER_NETWORK_ADDRESS>",
-    "expireOnUse" : true
-}
+    "gatekeeper": {
+        "gatekeeperNetwork" : "<PROVIDER_NETWORK_ADDRESS>",
+        "expireOnUse" : true
+    }
 ```
 
 The `solTreasuryAccount` is the address SOL payments from the mint will be sent.
 
 ```json
- "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>",
+    "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>"
 ```
 
 The Candy Machine can also be set to receive payment using an SPL token. The `splTokenAccount` is the token account you want the SPL token payments to be sent. The `splToken` is the token mint address of the SPL token accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
 
 ```json
-"splTokenAccount": "<TOKEN_ACCOUNT_ADDRESS>",
-"splToken": "<TOKEN_MINT_ADDRESS>",
+    "splTokenAccount": "<TOKEN_ACCOUNT_ADDRESS>",
+    "splToken": "<TOKEN_MINT_ADDRESS>",
 ```
 
 The `goLiveDate` is the date the mint goes live for public mint.
 
 ```json
-"goLiveDate": "25 Dec 2021 00:00:00 GMT",
+    "goLiveDate": "25 Dec 2021 00:00:00 GMT"
 ```
 
 The `endSettings` is the settings you want minting to stop. It can either be a specified date or after a certain amount of NFTs are minted.
 
 ```json
-"endSettings": {
-    "endSettingType": { "date":true },
-    "value":"25 Dec 2021 23:59:00 GMT"
-}
+    "endSettings": {
+        "endSettingType": { "date":true },
+        "value":"25 Dec 2021 23:59:00 GMT"
+    }
 ```
 
 ```json
-"endSettings": {
-    "endSettingType": { "amount":true },
-    "value":10
-}
+    "endSettings": {
+        "endSettingType": { "amount":true },
+        "value":10
+    }
 ```
 
 The `whitelistMintSettings` allows you to configure whitelist settings.
@@ -188,12 +188,12 @@ The `whitelistMintSettings` allows you to configure whitelist settings.
 - `presale` settings determine if whitelist token holders can mint before the `goLiveDate`
 
 ```json
-"whitelistMintSettings": {
-    "mode" : { "burnEveryTime": true },
-    "mint" : "7nE1GmnMmDKiycFkpHF7mKtxt356FQzVonZqBWsTWZNf",
-    "presale" : true,
-    "discountPrice" : 0.5
-}
+    "whitelistMintSettings": {
+        "mode" : { "burnEveryTime": true },
+        "mint" : "7nE1GmnMmDKiycFkpHF7mKtxt356FQzVonZqBWsTWZNf",
+        "presale" : true,
+        "discountPrice" : 0.5
+    }
 ```
 
 The `hiddenSettings` can be used for hidden drop reveals. On initial mint all holders see the same image specified in `uri` field, which can then can be later revealed to the actual NFT image.
@@ -201,33 +201,33 @@ The `hiddenSettings` can be used for hidden drop reveals. On initial mint all ho
 The `hash` can be used to prove to holders that no modified were made after minting by hashing the cache file output by the Candy Machine containing the mapping between mint number and metadata.
 
 ```json
-"hiddenSettings": {
-    "name":"My Hidden Collection ",
-    "uri":"uri",
-    "hash":"44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
-}
+    "hiddenSettings": {
+        "name":"My Hidden Collection ",
+        "uri":"uri",
+        "hash":"44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
+    }
 ```
 
 Below are storage options for the collection. Note that `arweave` files are only stored for 7 days on devnet.
 
 ```json
-"storage": "arweave",
-"ipfsInfuraProjectId": null,
-"ipfsInfuraSecret": null,
-"nftStorageKey": null,
-"awsS3Bucket": null,
+    "storage": "arweave",
+    "ipfsInfuraProjectId": null,
+    "ipfsInfuraSecret": null,
+    "nftStorageKey": null,
+    "awsS3Bucket": null,
 ```
 
 The `noRetainAuthority` field indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
 
 ```json
-"noRetainAuthority": false,
+    "noRetainAuthority": false
 ```
 
 The `noMutable` field indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the candy machine configurations can be updated. If set to true, candy machine configurations cannot be updated and cannot be reset to true.
 
 ```json
-"noMutable": false
+    "noMutable": false
 ```
 
 # Demo
@@ -335,7 +335,7 @@ Open the `config.json` located in our starter code folder:
 Update the `solTreasuryAccount` field with the wallet address we imported to Phantom. This will be the only setting we change for now.
 
 ```json
-"solTreasuryAccount": "<YOUR_WALLET_ADDRESS>",
+    "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>"
 ```
 
 ### 5. Prepare Assets
@@ -521,10 +521,10 @@ Now that we have our Candy Machine UI working, lets update our Candy Machine to 
 Open the `.config.json` file and update the `gatekeeper` field to enable captcha:
 
 ```json
-"gatekeeper": {
-    "gatekeeperNetwork": "ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6",
-    "expireOnUse": true
-},
+    "gatekeeper": {
+        "gatekeeperNetwork": "ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6",
+        "expireOnUse": true
+    }
 ```
 
 Update the Candy Machine by running the `update_candy_machine` command:
@@ -604,13 +604,13 @@ Next, lets update the our Candy Machine to enable whitelist settings.
 Open the `.config.json` file and reset `gatekeeper` field to null as gatekeeper will not work with whitelist presale enabled:
 
 ```json
-"gatekeeper": null,
+    "gatekeeper": null
 ```
 
 Update the `goLiveDate` to sometime in the future:
 
 ```json
-"goLiveDate": "25 Dec 2022 00:00:00 GMT",
+    "goLiveDate": "25 Dec 2022 00:00:00 GMT"
 ```
 
 Update `whitelistMintSettings`
@@ -621,12 +621,12 @@ Update `whitelistMintSettings`
 - `discountPrice` specifies a discounted mint price for whitelist token holders
 
 ```json
-"whitelistMintSettings": {
-    "mode" : { "burnEveryTime": true },
-    "mint" : "<WHITELIST_TOKEN_ADDRESS>",
-    "presale" : true,
-    "discountPrice" : 0.01
-},
+    "whitelistMintSettings": {
+        "mode" : { "burnEveryTime": true },
+        "mint" : "<WHITELIST_TOKEN_ADDRESS>",
+        "presale" : true,
+        "discountPrice" : 0.01
+    }
 ```
 
 Update the Candy Machine by running the `update_candy_machine` command again:
