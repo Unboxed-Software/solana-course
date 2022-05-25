@@ -37,10 +37,10 @@ Candy Machine v2 is a distribution tool offered by Metaplex used to create and m
 
 NFTs on Solana are simply SPL tokens with the following properties:
 
-1. token with 0 decimals
-2. token mint with supply of 1
-3. token mint authority set to null
-4. metadata associated with token mint
+1. Token with 0 decimals
+2. Token mint with supply of 1
+3. Token mint authority set to null
+4. Metadata associated with token mint
 
 In other words, a Solana NFT is a token from a token mint where only 1 token was minted and cannot be divided into smaller units.
 
