@@ -10,9 +10,9 @@
 
 # TL;DR
 
-- **Non Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a max supply of 1
+- **Non-Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a max supply of 1
 - **Metaplex** is a collection of tools that simplify the creation and distribution of NFTs on the Solana blockchain
-- **CandyMachineV2** is a NFT distribution program by Metaplex used to mint NFTs from a collection
+- **Candy Machine v2** is a NFT distribution program by Metaplex used to mint NFTs from a collection
 
 # Overview
 
@@ -33,7 +33,7 @@ Metaplex provides a suite of tools that simplify the creation and distribution o
 
 Candy Machine v2 is a distribution tool offered by Metaplex used to create and mint an NFT collection. Candy Machine v2 leverages the Token Metadata program to upload the NFT assets for a collection and allows creators to customize the distribution configurations.
 
-## Non Fungible Tokens (NFTs)
+## Non-Fungible Tokens (NFTs)
 
 NFTs on Solana are simply SPL tokens with the following properties:
 
@@ -182,7 +182,7 @@ The `whitelistMintSettings` allows you to configure whitelist settings.
 
 - `mode` is where you specific if the whitelist token is burned upon minting.
   - The `burnEveryTime: true` setting will be burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
-  - The `neverBurn : true` setting allows whitelist token holders to mints as many times as they wish.
+  - The `neverBurn : true` setting allows whitelist token holders to mint as many times as they wish.
 - `mint` is the whitelist token mint address
 - `discountPrice` is an optional discounted price offered to whitelist token holders
 - `presale` settings determine if whitelist token holders can mint before the `goLiveDate`
@@ -208,7 +208,7 @@ The `hash` can be used to prove to holders that no modified were made after mint
     }
 ```
 
-Below are storage options for the collection. Note that `arweave` files are only stored for 7 days on devnet.
+Below are storage options for the collection. Note that `arweave` files are only stored for 7 days on Devnet.
 
 ```json
     "storage": "arweave",
@@ -252,7 +252,7 @@ cd <starter code folder>
 
 ### 2. Setup
 
-Next lets set up a new keypair to use for this lesson and connect to devnet using the endpoint provided by Metaplex.
+Next lets set up a new keypair to use for this lesson and connect to Devnet using the endpoint provided by Metaplex.
 
 Generate a new keypair that we will use for the project:
 
@@ -266,13 +266,13 @@ Set the new keypair as the default keypair:
 solana config set --keypair ~/.config/solana/devnet.json
 ```
 
-Set our connection to devnet using metaplex rpc:
+Set our connection to Devnet using Metaplex RPC:
 
 ```sh
 solana config set --url https://metaplex.devnet.rpcpool.com/
 ```
 
-Airdrop devnet SOL to new test wallet:
+Airdrop Devnet SOL to new test wallet:
 
 ```sh
 solana airdrop 2
@@ -545,7 +545,7 @@ Refresh [localhost:3000](http://localhost:3000) in the browser and click the min
 
 Next, lets create a whitelist token.
 
-Set our connection to offical devnet rpc (metaplex restricts token creation):
+Set our connection to offical Devnet RPC (Metaplex restricts token creation):
 
 ```sh
 solana config set --url https://api.devnet.solana.com
@@ -591,7 +591,7 @@ spl-token transfer <WHITELIST_TOKEN_ADDRESS> 1 <WALLET_ADDRESS> --fund-recipient
 
 ![Gif of Whitelist Token Transfer](../assets/solana-nft-whitelist-token-transfer.png)
 
-Set our connection to devnet back to metaplex rpc:
+Set our connection to Devnet back to Metaplex RPC:
 
 ```sh
 solana config set --url https://metaplex.devnet.rpcpool.com/
