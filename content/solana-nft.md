@@ -27,13 +27,13 @@ This lesson will focus on the basics of creating and distributing a new NFT coll
 
 We'll be approaching this from the client-side of the development process using the existing tools created by Metaplex.
 
-### Metaplex
+## Metaplex
 
 Metaplex provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. One of the core programs by Metaplex is the Token Metadata program. The Token Metadata program standardizes the process of associating metadata to an NFT.
 
 Candy Machine v2 is a distribution tool offered by Metaplex used to create and mint an NFT collection. Candy Machine v2 leverages the Token Metadata program to upload the NFT assets for a collection and allows creators to customize the distribution configurations.
 
-### Non Fungible Tokens (NFTs)
+## Non Fungible Tokens (NFTs)
 
 NFTs on Solana are simply SPL tokens with the following properties:
 
@@ -94,7 +94,7 @@ The metadata file will look something like the following:
 }
 ```
 
-### Candy Machine v2
+## Candy Machine v2
 
 Candy Machine v2 is an NFT distribution program by Metaplex. A Candy Machine is configured using a JSON file that can be reused across multiple drops. When a new Candy Machine is created, the configurations are stored in an account on-chain where the configuration fields can be updated using the Candy Machine CLI.
 
