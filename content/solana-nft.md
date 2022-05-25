@@ -62,14 +62,14 @@ Before creating a collection you must prepare the assets for your collection. Th
 
 The metadata should include the following attributes:
 
-- `"name"` the name of the NFT that will display on-chain
-- `"symbol"` the optional symbol of the NFT that will display on-chain
-- `"description"` the description of NFT
-- `"seller_fee_basis_points"` the fee collected on sale of the NFT split between the creators
-- `"image"` the file name of the corresponding image that the NFT will display
-- `"attributes"` the attributes of the NFT
-- `"properties"` the creators that share of seller fee basis points. If there multiple creators, the total “share” must add to 100
-- `"collection"` the “name” and “family” of the NFT collection
+- `name` the name of the NFT that will display on-chain
+- `symbol` the optional symbol of the NFT that will display on-chain
+- `description` the description of NFT
+- `seller_fee_basis_points` the fee collected on sale of the NFT split between the creators
+- `image` the file name of the corresponding image that the NFT will display
+- `attributes` the attributes of the NFT
+- `properties` the creators that share of seller fee basis points. If there multiple creators, the total “share” must add to 100
+- `collection` the “name” and “family” of the NFT collection
 
 The metadata file will look something like the following:
 
@@ -181,8 +181,8 @@ The `endSettings` is the settings you want minting to stop. It can either be a s
 The `whitelistMintSettings` allows you to configure whitelist settings.
 
 - `mode` is where you specific if the whitelist token is burned upon minting.
-  - The `"burnEveryTime": true` setting will be burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
-  - The `“neverBurn” : true` setting allows whitelist token holders to mints as many times as they wish.
+  - The `burnEveryTime: true` setting will be burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
+  - The `neverBurn : true` setting allows whitelist token holders to mints as many times as they wish.
 - `mint` is the whitelist token mint address
 - `discountPrice` is an optional discounted price offered to whitelist token holders
 - `presale` settings determine if whitelist token holders can mint before the `goLiveDate`
@@ -332,7 +332,7 @@ Open the `config.json` located in our starter code folder:
 }
 ```
 
-Update the `"solTreasuryAccount"` field with the wallet address we imported to Phantom. This will be the only setting we change for now.
+Update the `solTreasuryAccount` field with the wallet address we imported to Phantom. This will be the only setting we change for now.
 
 ```json
 "solTreasuryAccount": "<YOUR WALLET ADDRESS>",
@@ -342,7 +342,7 @@ Update the `"solTreasuryAccount"` field with the wallet address we imported to P
 
 Next, lets prepare the assets for our Candy Machine. The starter code includes an `assets` folder that has the images and metadata we will be using for our collection.
 
-Open each `.json` file and update the `"address"` field with the wallet address we imported to Phantom.
+Open each `.json` file and update the `address` field with the wallet address we imported to Phantom.
 
 ```json
 {
@@ -371,13 +371,13 @@ Open each `.json` file and update the `"address"` field with the wallet address 
 }
 ```
 
-Once you’ve updated the `"address"` field for each `.json` file, lets verify that the assets are ready for upload by running the `verify_assets` command.
+Once you’ve updated the `address` field for each `.json` file, lets verify that the assets are ready for upload by running the `verify_assets` command.
 
 This will check that:
 
 1. Files types are supported
 2. Each image has a corresponding `.json` metadata file with the correct index naming
-3. The `"creators"` field is consistent across all `.json` files
+3. The `creators` field is consistent across all `.json` files
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_assets ./assets
@@ -607,7 +607,7 @@ Open the `.config.json` file and reset `gatekeeper` field to null as gatekeeper 
 "gatekeeper": null,
 ```
 
-Update the `"goLiveDate"` to sometime in the future:
+Update the `goLiveDate` to sometime in the future:
 
 ```json
 "goLiveDate": "25 Dec 2022 00:00:00 GMT",
@@ -615,10 +615,10 @@ Update the `"goLiveDate"` to sometime in the future:
 
 Update `whitelistMintSettings`
 
-- `"burnEveryTime": true` will burn the whitelist token when minting and NFT
+- `burnEveryTime: true` will burn the whitelist token when minting and NFT
 - `mint` specifies the token mint of the whitelist token
-- `"presale" : true` setting allows whitelist token holders to mint before the `"goLiveDate"`
-- `"discountPrice"` specifies a discounted mint price for whitelist token holders
+- `presale : true` setting allows whitelist token holders to mint before the `goLiveDate`
+- `discountPrice` specifies a discounted mint price for whitelist token holders
 
 ```json
 "whitelistMintSettings": {
