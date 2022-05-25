@@ -181,8 +181,8 @@ The `endSettings` is the settings you want minting to stop. It can either be a s
 The `whitelistMintSettings` allows you to configure whitelist settings.
 
 - `mode` is where you specific if the whitelist token is burned upon minting.
-  - The `burnEveryTime: true` setting will be burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
-  - The `neverBurn : true` setting allows whitelist token holders to mint as many times as they wish.
+    - The `burnEveryTime: true` setting will be burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
+    - The `neverBurn : true` setting allows whitelist token holders to mint as many times as they wish.
 - `mint` is the whitelist token mint address
 - `discountPrice` is an optional discounted price offered to whitelist token holders
 - `presale` settings determine if whitelist token holders can mint before the `goLiveDate`
