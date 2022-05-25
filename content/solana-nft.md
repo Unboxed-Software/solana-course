@@ -238,7 +238,7 @@ Let’s practice this together by creating a Candy Machine and minting our colle
 
 **Demo Starter Code:** [https://github.com/ZYJLiu/metaplex-starter](https://github.com/ZYJLiu/metaplex-starter)
 
-Lets begin by downloading the starter code. The starter code includes an assets folder and the configuration file for our candy machine.
+Let's begin by downloading the starter code. The starter code includes an assets folder and the configuration file for our candy machine.
 
 ```sh
 git clone <starter code>
@@ -252,7 +252,7 @@ cd <starter code folder>
 
 ### 2. Setup
 
-Next lets set up a new keypair to use for this lesson and connect to Devnet using the endpoint provided by Metaplex.
+Next let's set up a new keypair to use for this lesson and connect to Devnet using the endpoint provided by Metaplex.
 
 Generate a new keypair that we will use for the project:
 
@@ -306,7 +306,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts --version
 
 ### 4. Candy Machine Configuration
 
-Now that we have installed Metaplex, lets configure our Candy Machine.
+Now that we have installed Metaplex, let's configure our Candy Machine.
 
 Open the `config.json` located in our starter code folder:
 
@@ -340,7 +340,7 @@ Update the `solTreasuryAccount` field with the wallet address we imported to Pha
 
 ### 5. Prepare Assets
 
-Next, lets prepare the assets for our Candy Machine. The starter code includes an `assets` folder that has the images and metadata we will be using for our collection.
+Next, let's prepare the assets for our Candy Machine. The starter code includes an `assets` folder that has the images and metadata we will be using for our collection.
 
 Open each `.json` file and update the `address` field with the wallet address we imported to Phantom.
 
@@ -371,7 +371,7 @@ Open each `.json` file and update the `address` field with the wallet address we
 }
 ```
 
-Once you’ve updated the `address` field for each `.json` file, lets verify that the assets are ready for upload by running the `verify_assets` command.
+Once you’ve updated the `address` field for each `.json` file, let's verify that the assets are ready for upload by running the `verify_assets` command.
 
 This will check that:
 
@@ -389,7 +389,7 @@ The output should look something like this:
 
 ### 6. Create Candy Machine
 
-Now that we’ve configured our Candy Machine and verified our assets are ready for upload, lets upload our assets and create our Candy Machine by running the `upload` command.
+Now that we’ve configured our Candy Machine and verified our assets are ready for upload, let's upload our assets and create our Candy Machine by running the `upload` command.
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts upload \
@@ -457,7 +457,7 @@ The `devnet-example.json` file will look something like this, but with different
 }
 ```
 
-Next, lets verify our upload by running the `verify_upload` command.
+Next, let's verify our upload by running the `verify_upload` command.
 
 This verifies that each entry in the `devnet-example.json` file has been successfully uploaded and matches the URI stored on-chain.
 
@@ -472,7 +472,7 @@ The output should look something like this:
 
 ![Gif of Metaplex Verify Upload](../assets/solana-nft-metaplex-verify-upload.gif)
 
-Now lets mint an NFT from our Candy Machine by running the `mint_one_token` command:
+Now let's mint an NFT from our Candy Machine by running the `mint_one_token` command:
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts mint_one_token \
@@ -489,7 +489,7 @@ You should now be able to see view the newly minted NFT in the Phantom wallet.
 
 ### 7. Candy Machine UI
 
-Now that we have our Candy Machine, lets set up a frontend to mint our NFTs using the Candy Machine UI.
+Now that we have our Candy Machine, let's set up a frontend to mint our NFTs using the Candy Machine UI.
 
 Navigate to the candy-machine-ui folder using the following path: `/metaplex/js/packages/candy-machine-ui`.
 
@@ -516,7 +516,7 @@ Navigate to [localhost:3000](http://localhost:3000) in the browser and click min
 
 ### 8. Enable Gatekeeper
 
-Now that we have our Candy Machine UI working, lets update our Candy Machine to enable gatekeeper.
+Now that we have our Candy Machine UI working, let's update our Candy Machine to enable gatekeeper.
 
 Open the `.config.json` file and update the `gatekeeper` field to enable captcha:
 
@@ -543,9 +543,9 @@ Refresh [localhost:3000](http://localhost:3000) in the browser and click the min
 
 ### 9. Create Whitelist Token
 
-Next, lets create a whitelist token.
+Next, let's create a whitelist token.
 
-Set our connection to offical Devnet RPC (Metaplex restricts token creation):
+Set our connection to official Devnet RPC (Metaplex restricts token creation):
 
 ```sh
 solana config set --url https://api.devnet.solana.com
@@ -599,7 +599,7 @@ solana config set --url https://metaplex.devnet.rpcpool.com/
 
 ### 10. Enable Whitelist
 
-Next, lets update the our Candy Machine to enable whitelist settings.
+Next, let's update the our Candy Machine to enable whitelist settings.
 
 Open the `.config.json` file and reset `gatekeeper` field to null as gatekeeper will not work with whitelist presale enabled:
 
@@ -674,7 +674,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts sign_all \
 
 # Challenge
 
-Now it’s your turn to build something independently. Create an new Candy Machine using your own images, metadata, and configuration.
+Now it’s your turn to build something independently. Create a new Candy Machine using your own images, metadata, and configuration.
 
 You can build this from scratch or you can download the starter code here.
 
