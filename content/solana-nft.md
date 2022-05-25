@@ -208,7 +208,7 @@ The `hash` can be used to prove to holders that no modified were made after mint
     }
 ```
 
-Below are storage options for the collection. Note that `arweave` files are only stored for 7 days on Devnet.
+Below are storage options for the collection. Note that Arweave files are only stored for 7 days on Devnet.
 
 ```json
     "storage": "arweave",
@@ -404,7 +404,7 @@ The output should look something like this:
 
 ![Gif of Metaplex Upload](../assets/solana-nft-metaplex-upload.gif)
 
-There will now be a `.cache` folder with a `devnet-example.json` file which includes the address of our Candy Machine and the uploaded arweave link for each NFT.
+There will now be a `.cache` folder with a `devnet-example.json` file which includes the address of our Candy Machine and the uploaded Arweave link for each NFT.
 
 The `devnet-example.json` file will look something like this, but with different links and addresses:
 
