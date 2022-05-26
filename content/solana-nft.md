@@ -124,17 +124,9 @@ Below is the basic format of the configuration file:
 
 The `price` is the amount to charge for each NFT minted from the Candy Machine.
 
-```json
-    "price": 1.0
-```
-
 The `number` is the amount of NFTs in the Candy Machine and must match the number of asset pairings you’ve created for your collection.
 
-```json
-    "number": 10
-```
-
-The `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine.
+The `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine. The currently supported gatekeeper provider network address can be found on the Metaplex documentation [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
 ```json
     "gatekeeper": {
@@ -145,22 +137,9 @@ The `gatekeeper` enables CAPTCHA verification before minting from the Candy Mach
 
 The `solTreasuryAccount` is the address that SOL payments from the mint will be sent to.
 
-```json
-    "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>"
-```
-
 The Candy Machine can also be set to receive payment using an SPL token. The `splTokenAccount` is the token account which you want the SPL token payments to be sent to. The `splToken` is the token mint address of the SPL token that is accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
 
-```json
-    "splTokenAccount": "<TOKEN_ACCOUNT_ADDRESS>",
-    "splToken": "<TOKEN_MINT_ADDRESS>",
-```
-
 The `goLiveDate` is the date the mint goes live for public mint.
-
-```json
-    "goLiveDate": "25 Dec 2021 00:00:00 GMT"
-```
 
 The `endSettings` are how you can define when the minting should stop. This can either be set to a specified date, or after a certain amount of NFTs are minted.
 
@@ -205,28 +184,12 @@ The `hiddenSettings` can be used for hide-and-reveal drops, where the image of a
         "hash":"44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
     }
 ```
+The `storage` field indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to mainnet use `arweave-sol`). You can review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
-Below are storage options for the collection. Note that Arweave files are only stored for seven days on Devnet. (When deploying to mainnet use `arweave-sol`) 
-
-```json
-    "storage": "arweave",
-    "ipfsInfuraProjectId": null,
-    "ipfsInfuraSecret": null,
-    "nftStorageKey": null,
-    "awsS3Bucket": null,
-```
 
 The `noRetainAuthority` field indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
 
-```json
-    "noRetainAuthority": false
-```
-
 The `noMutable` field indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the candy machine configurations can be updated. If set to true, candy machine configurations cannot be updated and cannot be reset to true.
-
-```json
-    "noMutable": false
-```
 
 # Demo
 
