@@ -510,7 +510,7 @@ While in the `candy-machine-ui` folder, run following command:
 yarn install && yarn start
 ```
 
-Navigate to [localhost:3000](http://localhost:3000) in the browser and click mint to mint an NFT from the Candy Machine!
+Navigate to [localhost:3000](http://localhost:3000) in the browser and click "MINT" to mint an NFT from the Candy Machine!
 
 ![Gif of Metaplex Mint UI](../assets/solana-nft-metaplex-mint-ui.gif)
 
