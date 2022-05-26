@@ -186,7 +186,6 @@ The `hiddenSettings` can be used for hide-and-reveal drops, where the image of a
 ```
 The `storage` field indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to mainnet use `arweave-sol`). You can review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
-
 The `noRetainAuthority` field indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
 
 The `noMutable` field indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the candy machine configurations can be updated. If set to true, candy machine configurations cannot be updated and cannot be reset to true.
@@ -477,7 +476,7 @@ Navigate to [localhost:3000](http://localhost:3000) in the browser and click "MI
 
 ### 8. Enable Gatekeeper
 
-Now that we have our Candy Machine UI working, let's update our Candy Machine to enable a gatekeeper.
+Now that we have our Candy Machine UI working, let's update our Candy Machine to include a gatekeeper.
 
 Open the `config.json` file and update the `gatekeeper` field to enable CAPTCHA:
 
