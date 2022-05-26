@@ -112,7 +112,7 @@ Below is the basic format of the configuration file:
     "endSettings": null,
     "whitelistMintSettings": null,
     "hiddenSettings": null,
-    "storage": "arweave-sol",
+    "storage": "arweave",
     "ipfsInfuraProjectId": null,
     "ipfsInfuraSecret": null,
     "nftStorageKey": null,
@@ -206,7 +206,7 @@ The `hiddenSettings` can be used for hide-and-reveal drops, where the image of a
     }
 ```
 
-Below are storage options for the collection. Note that Arweave files are only stored for seven days on Devnet.
+Below are storage options for the collection. Note that Arweave files are only stored for seven days on Devnet. (When deploying to mainnet use `arweave-sol`) 
 
 ```json
     "storage": "arweave",
