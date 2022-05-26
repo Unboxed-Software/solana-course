@@ -196,9 +196,7 @@ The `whitelistMintSettings` allows you to configure whitelist settings.
     }
 ```
 
-The `hiddenSettings` can be used for hidden drop reveals. On initial mint all holders see the same image specified in the `uri` field, which can then can be later revealed to the actual NFT image.
-
-The `hash` can be used to prove to holders that no modifications were made after minting by hashing the cache file output by the Candy Machine containing the mapping between mint number and metadata.
+The `hiddenSettings` can be used for hide-and-reveal drops, where the image of an NFT is revealed after the mint is complete. Using the `hiddenSettings` is outside the scope of this lesson, but you can read more about it [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
 ```json
     "hiddenSettings": {
