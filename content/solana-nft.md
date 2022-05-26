@@ -543,7 +543,7 @@ Refresh [localhost:3000](http://localhost:3000) in the browser and click the min
 
 Next, let's create a whitelist token.
 
-Metaplex restricts token creation, so let's set our connection to Devnet RPC:
+The Metaplex RPC restricts token creation, so let's set our connection to Devnet RPC:
 
 ```sh
 solana config set --url https://api.devnet.solana.com
