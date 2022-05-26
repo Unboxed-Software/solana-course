@@ -206,7 +206,7 @@ The `hiddenSettings` can be used for hide-and-reveal drops, where the image of a
     }
 ```
 
-Below are storage options for the collection. Note that Arweave files are only stored for seven days on Devnet. (When deploying to Mainnet use `arweave-sol`)
+Below are storage options for the collection. Note that Arweave files are only stored for seven days on Devnet. (When  deploying to mainnet use `arweave-sol`)
 
 ```json
     "storage": "arweave",
