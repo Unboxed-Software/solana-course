@@ -514,7 +514,7 @@ Navigate to [localhost:3000](http://localhost:3000) in the browser and click "MI
 
 ### 8. Enable Gatekeeper
 
-Now that we have our Candy Machine UI working, let's update our Candy Machine to enable a gatekeeper.
+Now that we have our Candy Machine UI working, let's update our Candy Machine to include a gatekeeper.
 
 Open the `config.json` file and update the `gatekeeper` field to enable CAPTCHA:
 
