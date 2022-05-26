@@ -206,7 +206,7 @@ The `hiddenSettings` can be used for hide-and-reveal drops, where the image of a
     }
 ```
 
-Below are storage options for the collection. Note that Arweave files are only stored for seven days on Devnet. (When deploying to mainnet use `arweave-sol`) 
+Below are storage options for the collection. Note that Arweave files are only stored for seven days on Devnet. (When deploying to mainnet use `arweave-sol`)
 
 ```json
     "storage": "arweave",
@@ -514,7 +514,7 @@ Navigate to [localhost:3000](http://localhost:3000) in the browser and click "MI
 
 ### 8. Enable Gatekeeper
 
-Now that we have our Candy Machine UI working, let's update our Candy Machine to enable a gatekeeper.
+Now that we have our Candy Machine UI working, let's update our Candy Machine to include a gatekeeper.
 
 Open the `config.json` file and update the `gatekeeper` field to enable CAPTCHA:
 
