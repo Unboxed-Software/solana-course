@@ -187,9 +187,9 @@ Below is the basic format of the configuration file:
 
  - `storage` indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to Mainnet use `arweave-sol`). You can the review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
- - `noRetainAuthority` indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
+ - `noRetainAuthority` indicates whether the Candy Machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
 
- - `noMutable` indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the candy machine configurations can be updated. If set to true, candy machine configurations cannot be updated and cannot be reset to true.
+ - `noMutable` indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the Candy Machine configurations can be updated. If set to true, Candy Machine configurations cannot be updated and cannot be reset to true.
 
 # Demo
 
@@ -199,7 +199,7 @@ Let’s practice this together by creating a Candy Machine and minting our colle
 
 **Demo Starter Code:** [https://github.com/ZYJLiu/metaplex-starter](https://github.com/ZYJLiu/metaplex-starter)
 
-Let's begin by downloading the starter code. The starter code includes an "assets" folder and the configuration file for our candy machine, "config.json".
+Let's begin by downloading the starter code. The starter code includes an "assets" folder and the configuration file for our Candy Machine, "config.json".
 
 ### 2. Setup
 
