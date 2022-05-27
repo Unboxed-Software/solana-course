@@ -185,7 +185,7 @@ Below is the basic format of the configuration file:
         }
     ```
 
- - `storage` indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to mainnet use `arweave-sol`). You can review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+ - `storage` indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to Mainnet use `arweave-sol`). You can review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
  - `noRetainAuthority` indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
 
