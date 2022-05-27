@@ -193,7 +193,7 @@ Below is the basic format of the configuration file:
 
 # Demo
 
-Let’s practice this together by creating a Candy Machine and minting our collection using the Candy Machine UI.
+Let’s put all of this into practice by creating a Candy Machine and minting our collection using the Candy Machine UI.
 
 ### 1. Download the starter code
 
