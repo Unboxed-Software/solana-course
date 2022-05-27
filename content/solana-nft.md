@@ -16,7 +16,7 @@
 
 # Overview
 
-Solana NFTs are also SPL tokens created using the Token Program. However, these tokens have an additional metadata account associated with each token mint allowing for more flexible use cases.
+Solana NFTs are SPL tokens created using the Token Program. These tokens, however, also have an additional metadata account associated with each token mint allowing for more flexible use cases.
 
 This lesson will focus on the basics of creating and distributing a new NFT collection using Candy Machine v2:
 
@@ -46,7 +46,7 @@ In other words, a Solana NFT is a token from a token mint where only 1 token was
 
 The Token Metadata Program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint.
 
-An NFT’s metadata has both an on-chain and off-chain component. The on-chain metadata account contains a URI attribute that points to an off-chain JSON file. The off-chain component stores additional data and a link to the image. Permanent data storage system such as Arweave are often used to store the off-chain component of NFT metadata.
+An NFT’s metadata has both an on-chain and off-chain component. The on-chain metadata account contains a URI attribute that points to an off-chain JSON file. The off-chain component stores additional data and a link to the image. Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.
 
 Below is an example of the on-chain metadata associated with an NFT:
 
