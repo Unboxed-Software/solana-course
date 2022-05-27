@@ -235,7 +235,7 @@ Copy the keypair from `.config/solana/devnet.json` and import it into Phantom
 
 ### 3. Download Metaplex
 
-While in the "metaplex-starter" folder clone the Metaplex repo:
+While in the `metaplex-starter` directory, clone the Metaplex repo:
 
 ```sh
 git clone https://github.com/metaplex-foundation/metaplex.git
