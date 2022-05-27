@@ -548,9 +548,9 @@ solana config set --url https://metaplex.devnet.rpcpool.com/
 
 ### 10. Enable Whitelist
 
-Next, let's update our Candy Machine to enable whitelist settings.
+Let's update our Candy Machine to enable whitelist settings.
 
-Open the `config.json` file and reset the `gatekeeper` field to `null`.
+First, open the `config.json` file and reset the `gatekeeper` field to `null`.
 
 ```json
     "gatekeeper": null
