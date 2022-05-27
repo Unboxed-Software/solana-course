@@ -291,7 +291,7 @@ Update the `solTreasuryAccount` field with the wallet address we imported to Pha
 
 ### 5. Prepare Assets
 
-Next, let's prepare the assets for our Candy Machine. The starter code includes an `assets` folder that has the images and the metadata files we' wi'll be using for our collection.
+Next, let's prepare the assets for our Candy Machine. The starter code includes an `assets` folder that has the images and the metadata files we'll be using for our collection.
 
 Open each `.json` file and update the `address` field with the wallet address we imported to Phantom.
 
