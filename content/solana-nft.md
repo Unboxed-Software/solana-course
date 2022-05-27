@@ -200,16 +200,6 @@ Let’s practice this together by creating a Candy Machine and minting our colle
 
 Let's begin by downloading the starter code. The starter code includes an "assets" folder and the configuration file for our candy machine, "config.json".
 
-```sh
-git clone <starter code>
-```
-
-Let's navigate to the <starter code folder>
-
-```sh
-cd <starter code folder>
-```
-
 ### 2. Setup
 
 Next let's set up a new keypair to use for this lesson and connect to Devnet using the endpoint provided by Metaplex.
