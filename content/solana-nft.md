@@ -126,7 +126,7 @@ Below is the basic format of the configuration file:
 
  - `number` is the amount of NFTs in the Candy Machine and must match the number of asset pairings you’ve created for your collection.
 
- - `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine. The currently supported gatekeeper provider network address can be found on the Metaplex documentation [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+ - `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine. The address of the currently supported provider network can be found on the Metaplex documentation [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
     ```json
         "gatekeeper": {
@@ -146,14 +146,14 @@ Below is the basic format of the configuration file:
     ```json
         "endSettings": {
             "endSettingType": { "date":true },
-            "value":"25 Dec 2021 23:59:00 GMT"
+            "value": "25 Dec 2021 23:59:00 GMT"
         }
     ```
 
     ```json
         "endSettings": {
             "endSettingType": { "amount":true },
-            "value":10
+            "value": 10
         }
     ```
 
@@ -179,9 +179,9 @@ Below is the basic format of the configuration file:
 
     ```json
         "hiddenSettings": {
-            "name":"My Hidden Collection ",
-            "uri":"uri",
-            "hash":"44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
+            "name": "My Hidden Collection ",
+            "uri": "uri",
+            "hash": "44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
         }
     ```
 
