@@ -126,7 +126,7 @@ Below is the basic format of the configuration file:
 
  - `number` is the amount of NFTs in the Candy Machine and must match the number of asset pairings you’ve created for your collection.
 
- - `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine. The address of the currently supported provider network can be found on the Metaplex documentation [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+ - `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine. The address of the currently supported provider network can be found on the Metaplex documentation [here](https://docs.metaplex.com/candy-machine-v2/configuration).  Note that a gatekeeper won't work with a whitelist presale enabled.
 
     ```json
         "gatekeeper": {
@@ -434,7 +434,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts mint_one_token \
 
 ![Gif of Metaplex Mint One](../assets/solana-nft-metaplex-mint-one.gif)
 
-You should now be able to see view the newly minted NFT in the Phantom wallet.
+You should now be able to see the newly minted NFT in the Phantom wallet.
 
 ![Screenshot of Metaplex NFT](../assets/solana-nft-metaplex-nft.png)
 
@@ -455,7 +455,7 @@ REACT_APP_SOLANA_NETWORK=devnet
 REACT_APP_SOLANA_RPC_HOST=https://metaplex.devnet.rpcpool.com/
 ```
 
-From within the `candy-machine-ui` folder, run following command:
+From within the `candy-machine-ui` folder, run the following command:
 
 ```sh
 yarn install && yarn start
@@ -550,7 +550,7 @@ solana config set --url https://metaplex.devnet.rpcpool.com/
 
 Next, let's update our Candy Machine to enable whitelist settings.
 
-Open the `config.json` file and reset `gatekeeper` field to null as the gatekeeper will not work with a whitelist presale enabled:
+Open the `config.json` file and reset the `gatekeeper` field to `null`.
 
 ```json
     "gatekeeper": null
