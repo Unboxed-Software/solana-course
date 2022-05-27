@@ -184,6 +184,7 @@ The `hiddenSettings` can be used for hide-and-reveal drops (where the image of a
         "hash":"44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
     }
 ```
+
 The `storage` field indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to mainnet use `arweave-sol`). You can review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
 The `noRetainAuthority` field indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
