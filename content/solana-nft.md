@@ -625,8 +625,6 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts sign_all \
 
 Now it’s your turn to build something independently. Create a new Candy Machine using your own images, metadata, and configuration.
 
-You can build this from scratch or you can download the starter code here.
-
 Recall that the sequence of steps are as follows:
 
 1. Configure Candy Machine
