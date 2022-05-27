@@ -259,7 +259,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts --version
 
 Now that we have installed Metaplex, let's configure our Candy Machine.
 
-Open the `config.json` located in our "metaplex-starter" folder:
+Open the `config.json` located in our `metaplex-starter` directory:
 
 ```json
 {
