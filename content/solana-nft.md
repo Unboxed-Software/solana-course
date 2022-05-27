@@ -205,7 +205,7 @@ Let's begin by downloading the starter code. The starter code includes an "asset
 
 Next let's set up a new keypair to use for this lesson and connect to Devnet using the endpoint provided by Metaplex.
 
-Generate a new keypair that we will use for the project:
+From within the `metaplex-starter` directory, generate a new keypair to use for the project:
 
 ```sh
 solana-keygen new --outfile ~/.config/solana/devnet.json
