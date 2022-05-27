@@ -68,7 +68,7 @@ The metadata should include the following attributes:
 - `seller_fee_basis_points` the fee collected upon sale of the NFT which is split between the creators
 - `image` the file name of the corresponding image that the NFT will display
 - `attributes` the attributes of the NFT
-- `properties` the creators that share of seller fee basis points. If there are multiple creators, the total “share” must add to 100
+- `properties` the creator's share of seller fee basis points. If there are multiple creators, the total “share” must add to 100
 - `collection` the “name” and “family” of the NFT collection
 
 The metadata file will look something like the following:
