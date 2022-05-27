@@ -162,8 +162,8 @@ Below is the basic format of the configuration file:
         - The `burnEveryTime: true` setting will burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
         - The `neverBurn: true` setting allows whitelist token holders to mint as many times as they wish.
     - `mint` is the whitelist token mint address
-    - `discountPrice` is an optional discounted price offered to whitelist token holders
     - `presale` settings determine if whitelist token holders can mint before the `goLiveDate`
+    - `discountPrice` is an optional discounted price offered to whitelist token holders
 
     ```json
         "whitelistMintSettings": {
