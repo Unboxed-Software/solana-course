@@ -122,74 +122,74 @@ Below is the basic format of the configuration file:
 }
 ```
 
-The `price` is the amount to charge for each NFT minted from the Candy Machine.
+ - `price` is the amount to charge for each NFT minted from the Candy Machine.
 
-The `number` is the amount of NFTs in the Candy Machine and must match the number of asset pairings you’ve created for your collection.
+ - `number` is the amount of NFTs in the Candy Machine and must match the number of asset pairings you’ve created for your collection.
 
-The `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine. The currently supported gatekeeper provider network address can be found on the Metaplex documentation [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+ - `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine. The currently supported gatekeeper provider network address can be found on the Metaplex documentation [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
-```json
-    "gatekeeper": {
-        "gatekeeperNetwork": "<PROVIDER_NETWORK_ADDRESS>",
-        "expireOnUse": true
-    }
-```
+    ```json
+        "gatekeeper": {
+            "gatekeeperNetwork": "<PROVIDER_NETWORK_ADDRESS>",
+            "expireOnUse": true
+        }
+    ```
 
-The `solTreasuryAccount` is the address that SOL payments from the mint will be sent to.
+ - `solTreasuryAccount` is the address that SOL payments from the mint will be sent to.
 
-The Candy Machine can also be set to receive payment using an SPL token. The `splTokenAccount` is the token account which you want the SPL token payments to be sent to. The `splToken` is the token mint address of the SPL token that is accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
+ - The Candy Machine can also be set to receive payment using an SPL token. The `splTokenAccount` is the token account which you want the SPL token payments to be sent to. The `splToken` is the token mint address of the SPL token that is accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
 
-The `goLiveDate` is the date the mint goes live for public mint.
+ - `goLiveDate` is the date the mint goes live for public mint.
 
-The `endSettings` are how you can define when the minting should stop. This can either be set to a specified date, or after a certain amount of NFTs are minted.
+ - `endSettings` are how you can define when the minting should stop. This can either be set to a specified date, or after a certain amount of NFTs are minted.
 
-```json
-    "endSettings": {
-        "endSettingType": { "date":true },
-        "value":"25 Dec 2021 23:59:00 GMT"
-    }
-```
+    ```json
+        "endSettings": {
+            "endSettingType": { "date":true },
+            "value":"25 Dec 2021 23:59:00 GMT"
+        }
+    ```
 
-```json
-    "endSettings": {
-        "endSettingType": { "amount":true },
-        "value":10
-    }
-```
+    ```json
+        "endSettings": {
+            "endSettingType": { "amount":true },
+            "value":10
+        }
+    ```
 
-The `whitelistMintSettings` allows you to configure whitelist settings.
+- `whitelistMintSettings` allows you to configure whitelist settings.
+    - `mode` is where you specify whether the whitelist token is burned upon minting.
+        - The `burnEveryTime: true` setting will burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
+        - The `neverBurn: true` setting allows whitelist token holders to mint as many times as they wish.
+    - `mint` is the whitelist token mint address
+    - `discountPrice` is an optional discounted price offered to whitelist token holders
+    - `presale` settings determine if whitelist token holders can mint before the `goLiveDate`
 
-- `mode` is where you specify whether the whitelist token is burned upon minting.
-    - The `burnEveryTime: true` setting will burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
-    - The `neverBurn: true` setting allows whitelist token holders to mint as many times as they wish.
-- `mint` is the whitelist token mint address
-- `discountPrice` is an optional discounted price offered to whitelist token holders
-- `presale` settings determine if whitelist token holders can mint before the `goLiveDate`
+    ```json
+        "whitelistMintSettings": {
+            "mode": { "burnEveryTime": true },
+            "mint": "7nE1GmnMmDKiycFkpHF7mKtxt356FQzVonZqBWsTWZNf",
+            "presale": true,
+            "discountPrice": 0.5
+        }
+    ```
 
-```json
-    "whitelistMintSettings": {
-        "mode": { "burnEveryTime": true },
-        "mint": "7nE1GmnMmDKiycFkpHF7mKtxt356FQzVonZqBWsTWZNf",
-        "presale": true,
-        "discountPrice": 0.5
-    }
-```
 
-The `hiddenSettings` can be used for hide-and-reveal drops (where the image of an NFT is revealed after the mint is complete). Using the `hiddenSettings` is outside the scope of this lesson, but you can read more about it [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+ - `hiddenSettings` can be used for hide-and-reveal drops (where the image of an NFT is revealed after the mint is complete). Using the `hiddenSettings` is outside the scope of this lesson, but you can read more about it [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
-```json
-    "hiddenSettings": {
-        "name":"My Hidden Collection ",
-        "uri":"uri",
-        "hash":"44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
-    }
-```
+    ```json
+        "hiddenSettings": {
+            "name":"My Hidden Collection ",
+            "uri":"uri",
+            "hash":"44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
+        }
+    ```
 
-The `storage` field indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to mainnet use `arweave-sol`). You can review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+ - `storage` indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to mainnet use `arweave-sol`). You can review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
-The `noRetainAuthority` field indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
+ - `noRetainAuthority` indicates whether the candy machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
 
-The `noMutable` field indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the candy machine configurations can be updated. If set to true, candy machine configurations cannot be updated and cannot be reset to true.
+ - `noMutable` indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the candy machine configurations can be updated. If set to true, candy machine configurations cannot be updated and cannot be reset to true.
 
 # Demo
 
