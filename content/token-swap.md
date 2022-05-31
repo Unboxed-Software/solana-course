@@ -317,7 +317,7 @@ const instruction = TokenSwap.depositAllTokenTypesInstruction(
 transaction.add(instruction)
 ```
 
-We can deposit tokens to only one side of the swap pool in a similar way using the `TokenSwap.depositSingleTokenTypeExactAmountInInstruction`. The main difference is that the last argument in the instruction is `minimumPoolTokenAmount`. When depositing only one side of the swap pool, the user specifies exact how many tokens to deposit. In turn, the token swap program calculates the amount of LP-tokens to mint the user for their deposit. An instruction depositing only Token A will look like this:
+We can deposit tokens to only one side of the swap pool in a similar way using the `TokenSwap.depositSingleTokenTypeExactAmountInInstruction`. The main difference is that the last argument in the instruction is `minimumPoolTokenAmount`. When depositing to only one side of the swap pool, the user specifies exactly how many tokens to deposit. In turn, the token swap program calculates the amount of LP-tokens to mint the user for their deposit. An instruction depositing only Token A will look like this:
 
 ```tsx
 const instruction = TokenSwap.depositSingleTokenTypeExactAmountInInstruction(
