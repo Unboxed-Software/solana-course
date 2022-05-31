@@ -486,7 +486,7 @@ const handleTransactionSubmit = async (deposit: DepositAllSchema) => {
 }
 ```
 
-Next, we need to check if the `tokenAccountPool` address we just derived has an been created. We'll use the `getAccountInfo` function from the `@solana/web3` library to get the account info associated with `tokenAccountPool`. This function will return an `AccountInfo` struct if the account exists or `null` otherwise. If `null` is returned, we'll need to create the account.
+Next, we need to check if the `tokenAccountPool` address we just derived has a been created. We'll use the `getAccountInfo` function from the `@solana/web3` library to get the account info associated with `tokenAccountPool`. This function will return an `AccountInfo` struct if the account exists or `null` otherwise. If `null` is returned, we'll need to create the account.
 
 Since the `handleTransactionSubmit` function is already going to be submitting a transaction, we'll simply add the instruction for creating an associated account to the same transaction rather than submit multiple.
 
