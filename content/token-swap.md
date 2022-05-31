@@ -520,7 +520,7 @@ const handleTransactionSubmit = async () => {
 }
 ```
 
-Finally, we can create the deposit instruction using the `spl-token-swap` libary's `TokenSwap.depositAllTokenTypesInstruction` helper function. We add the instruction and submit our transaction.
+Finally, we can create the deposit instruction using the `spl-token-swap` library's `TokenSwap.depositAllTokenTypesInstruction` helper function. We add the instruction and submit our transaction.
 
 ```tsx
 const handleTransactionSubmit = async () => {
