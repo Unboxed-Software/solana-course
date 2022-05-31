@@ -276,7 +276,7 @@ The token swap program has two variations of deposit instructions. One allows us
 
 In order to deposit liquidity to both sides of the swap pool, a user’s wallet must have a sufficient amount of each token. When depositing both tokens, instead of providing the amount of each token to deposit, the user specifies the amount of LP-tokens they would like to receive. The token swap program then calculates the amount of each token that a depositor will receive given the pool's Curve and current liquidity.
 
-We can deposit both tokens at the same time using the `TokenSwap.depositAllTokenTypesInstruction` helper function which requires the following arguements:
+We can deposit both tokens at the same time using the `TokenSwap.depositAllTokenTypesInstruction` helper function which requires the following arguments:
 1. `tokenSwap` - the token swap state account
 2. `authority` - the swap pool authority
 3. `userTransferAuthority` - the authority over the user token accounts
