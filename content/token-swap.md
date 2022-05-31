@@ -601,7 +601,7 @@ At this point, you should be able to airdrop yourself some tokens and then depos
 
 ### 3. Create the Withdrawal Instruction
 
-The withdrawal instruction is very similar to the deposit instruction, but there are some subtle differences. Like deposits, the token swap program accepts two variations of the withdrawl instruction. You can either withdraw liquidity from a single side of the swap pool, or you can withdraw your deposited liquidity from both sides at the same time.
+The withdrawal instruction is very similar to the deposit instruction, but there are some subtle differences. Like deposits, the token swap program accepts two variations of the withdrawal instruction. You can either withdraw liquidity from a single side of the swap pool, or you can withdraw your deposited liquidity from both sides at the same time.
 
 Of the two variations of withdraw instructions on the Token Swap Program, we'll be using the variation that removes liquidity from both sides of the swap pool at once: `TokenSwap.withdrawAllTokenTypesInstruction`.
 
