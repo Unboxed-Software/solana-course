@@ -720,7 +720,7 @@ Now it's time to implement the actual purpose of this program - the swap instruc
 
 Note that our UI has a dropdown to allow users to select which token they would like to swap *from*, so we will have to create our instruction differently based on what the user selects.
 
-We’ll do this inside the `handleTransactionSubmit` function of the `/components/Swap.tsx` file. Once again, we will have to derive the user’s `Associated Token Addresses` for each token mint (Krypt Coin, Scrooge Coin, and Pool Token) and create the `tokenAccountPool` if it has not already exist. Additionally, we'll fetch the data for both the Krypt Coin and Scrooge Coin to account for the decimal precision of the tokens.
+We’ll do this inside the `handleTransactionSubmit` function of the `/components/Swap.tsx` file. Once again, we will have to derive the user’s `Associated Token Addresses` for each token mint (Krypt Coin, Scrooge Coin, and Pool Token) and create the `tokenAccountPool` if it does not already exist. Additionally, we'll fetch the data for both the Krypt Coin and Scrooge Coin to account for the decimal precision of the tokens.
 
 ```tsx
 const handleTransactionSubmit = async () => {
