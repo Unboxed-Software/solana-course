@@ -22,13 +22,13 @@
 
 Before we get into how to create and interact with swap pools on Solana, it’s important we understand the basics of what a swap pool is. A swap pool is an aggregation of two different tokens with the purpose of providing liquidity to facilitate exchange between each token.
 
-Users provide liquidity to these pools by depositing their own tokens into each pool. These users are called liquidity providers. When a liquidity provider (or LP) deposits some tokens to the swap pool, LP-tokens are minted that represent the LP's fractional ownership in the pool. 
+Users provide liquidity to these pools by depositing their own tokens into each pool. These users are called liquidity providers. When a liquidity provider (or LP) deposits some tokens to the swap pool, LP-tokens are minted that represent the LP's fractional ownership in the pool.
 
 Most swap pools charge a transaction fee for facilitating each swap. These transactions fees are then paid out to the LP’s in proportion to the amount of liquidity they are providing in the pool. This provides incentive for LP's to provide liquidity to the pool.
 
 When an LP is ready to withdraw their deposited liquidity, their LP-tokens are burned and tokens from the pool (proportional to the amount of LP-tokens burned) are sent to their wallet.
 
-The purpose of swap pools is to facilitate decentralized trade between users. In traditional finance, users execute trades like this through a centralized exchange on a central limit [order book](https://www.investopedia.com/terms/o/order-book.asp). Generally, this requires a trusted third-party intermediary. 
+The purpose of swap pools is to facilitate decentralized trade between users. In traditional finance, users execute trades like this through a centralized exchange on a central limit [order book](https://www.investopedia.com/terms/o/order-book.asp). Generally, this requires a trusted third-party intermediary.
 
 Due to the decentralized nature of cryptocurrency, however, we now have a new way to facilitate trades. Many protocols decentralized exchanges have been built to take advantage of this. [Project Serum](https://www.projectserum.com/) is an example of such a decentralized central limit order book built on Solana.
 
@@ -48,7 +48,7 @@ As we talk through creating a swap pool, we'll assume we're creating a swap pool
 
 ### Token Swap State Account
 
-Before you can create a swap pool, you'll need to create a token swap state account. This account will be used to hold information about the swap pool itself. 
+Before you can create a swap pool, you'll need to create a token swap state account. This account will be used to hold information about the swap pool itself.
 
 To create the token swap state account, you use the `SystemProgram` instruction `createAccount`.
 
@@ -76,7 +76,7 @@ A few items to note from this example:
 
 ### Swap Pool Authority
 
-The swap pool authority is the account used to sign for transactions on behalf of the swap program. This account is a Program Derived Address (PDA) derived from the Token Swap Program and the token swap state account. 
+The swap pool authority is the account used to sign for transactions on behalf of the swap program. This account is a Program Derived Address (PDA) derived from the Token Swap Program and the token swap state account.
 
 PDAs can only be created by their owning program, so you don't need to create this account directly. You do, however, need to know its public key. You can discover it using the `@solana/web3` library's `PublicKey.findProgramAddress` function.
 
@@ -99,7 +99,7 @@ let tokenAAccountAddress = await token.getAssociatedTokenAddress(
     swapAuthority, // owner
     true // allow owner off curve
 )
-  
+
 const tokenAAccountInstruction = await token.createAssociatedTokenAccountInstruction(
     wallet.publicKey, // payer
     tokenAAccountAddress, // ata
@@ -162,7 +162,7 @@ let tokenFeeAccountAddress = await token.getAssociatedTokenAddress(
     feeOwner, // owner
     true // allow owner off curve
 )
-  
+
 const tokenFeeAccountInstruction = await token.createAssociatedTokenAccountInstruction(
     wallet.publicKey, // payer
     tokenFeeAccountAddress, // ata
@@ -179,7 +179,7 @@ With all of the prerequisite accounts created, you can create the swap pool init
 
 This function takes *a lot* of arguments. Let's talk through them.
 
-The first 7 arguments are the prerequisite token accounts we just discussed. 
+The first 7 arguments are the prerequisite token accounts we just discussed.
 
 After that comes the constant representing the Token Program ID followed by the constant representing the Token Swap Program ID.
 
@@ -274,13 +274,13 @@ transaction.add(swapInstruction)
 
 The token swap program has two variations of deposit instructions. One allows users to only deposit tokens to one side of the swap pool at a time. The other allows for users to deposit to both sides of the swap pool at the same time.
 
-In order to deposit liquidity to both sides of the swap pool, a user’s wallet must have a sufficient amount of each token. When depositing both tokens, instead of providing the amount of each token to deposit, the user specifies the amount of LP-tokens they would like to receive. The token swap program then calculates the amount of each token that a depositor will receive given the pool's Curve and current liquidity. 
+In order to deposit liquidity to both sides of the swap pool, a user’s wallet must have a sufficient amount of each token. When depositing both tokens, instead of providing the amount of each token to deposit, the user specifies the amount of LP-tokens they would like to receive. The token swap program then calculates the amount of each token that a depositor will receive given the pool's Curve and current liquidity.
 
 We can deposit both tokens at the same time using the `TokenSwap.depositAllTokenTypesInstruction` helper function which requires the following arguements:
 1. `tokenSwap` - the token swap state account
 2. `authority` - the swap pool authority
 3. `userTransferAuthority` - the authority over the user token accounts
-4. `sourceA` - user token A account to transfer tokens into the swap pool token A account 
+4. `sourceA` - user token A account to transfer tokens into the swap pool token A account
 5. `sourceB` - user token B account to transfer tokens into the swap pool token B account
 6. `intoA` - swap pool token account A to receive user's token A
 7. `intoB` - swap pool token account B to receive user's token B
@@ -290,7 +290,7 @@ We can deposit both tokens at the same time using the `TokenSwap.depositAllToken
 11. `tokenProgramId` - the address of the token program
 12. `poolTokenAmount` - amount of LP-token the depositor expects to receive
 13. `maximumTokenA` - maximum amount of token A allowed to deposit
-14. `maximumTokenB` - maximum amount of token A allowed to deposit. 
+14. `maximumTokenB` - maximum amount of token A allowed to deposit.
 
 The `maximumTokenA` and `maximumTokenB` arguments are used to prevent slippage. The higher the number, the more slippage can possibly occur without a transaction failure. For simplicity, we'll use a very large number for these arguments.
 
@@ -351,9 +351,9 @@ We can withdraw both tokens at the same time using the `TokenSwap.withdrawAllTok
 4. `poolMint` - the LP-token mint address
 5. `feeAccount` - the token account which receives the owner withdraw fees
 6. `sourcePoolAccount` - user LP-token account to burn pool tokens LP-token from
-7. `fromA` - swap pool token A account to withdraw from 
-8. `fromB` - swap pool token B account to withdraw from 
-9. `userAccountA` - user token A account to receive tokens withdrawn from swap pool token A account 
+7. `fromA` - swap pool token A account to withdraw from
+8. `fromB` - swap pool token B account to withdraw from
+9. `userAccountA` - user token A account to receive tokens withdrawn from swap pool token A account
 10. `userAccountB` - user token B account to receive tokens withdrawn from swap pool token B account
 11. `swapProgramId` - the address of the token swap program
 12. `tokenProgramId` - the address of the token program
@@ -451,7 +451,7 @@ For this demo, a token pool of two brand new tokens has been created and is live
 
 Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-token-swap-frontend/tree/starter).
 
-The project is a fairly simple Next.js application re-using a lot of what was previously built out for the demos in the first lesson. As you can see from the image above, there are a few different text inputs and buttons - all of which will submit transactions to the blockchain on the user's behalf. Our focus in this demo will be creating the instructions that the last three buttons will submit. 
+The project is a fairly simple Next.js application re-using a lot of what was previously built out for the demos in the first lesson. As you can see from the image above, there are a few different text inputs and buttons - all of which will submit transactions to the blockchain on the user's behalf. Our focus in this demo will be creating the instructions that the last three buttons will submit.
 
 The airdrop buttons are already implemented and should work out of the box. They utilize an airdrop program that's deployed on Devnet at address [CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3](https://explorer.solana.com/address/CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3?cluster=devnet). You can mint as many tokens as you'd like to your wallet to interact with the pool.
 
@@ -459,7 +459,7 @@ The airdrop buttons are already implemented and should work out of the box. They
 
 Of the two variations of deposit instructions on the Token Swap Program, we'll be using the variation that provides liquidity to both sides of the swap pool at once: `TokenSwap.depositAllTokenTypesInstruction`.
 
-The deposit instruction should be added inside the `/components/Deposit.tsx` file inside the `handleTransactionSubmit` function. This function is called when the user clicks the Deposit button. 
+The deposit instruction should be added inside the `/components/Deposit.tsx` file inside the `handleTransactionSubmit` function. This function is called when the user clicks the Deposit button.
 
 We’ll start by deriving three associated token account addresses:
 1. The associated token account corresponding to the user's wallet address and Krypt Coin
@@ -503,7 +503,7 @@ const handleTransactionSubmit = async () => {
     const tokenAccountPool = await token.getAssociatedTokenAddress(pool_mint, publicKey)
 
     const poolMintInfo = await token.getMint(connection, poolMint)
-    
+
     const transaction = new Web3.Transaction()
 
     let account = await connection.getAccountInfo(tokenAccountPool)
@@ -580,7 +580,7 @@ const handleTransactionSubmit = async () => {
     )
 
     transaction.add(instruction)
-    
+
     try {
         let txid = await sendTransaction(transaction, connection)
         alert(
@@ -602,13 +602,13 @@ At this point, you should be able to airdrop yourself some tokens and then depos
 
 ### 3. Create the Withdrawal Instruction
 
-The withdrawal instruction is very similar to the deposit instruction, but there are some subtle differences. Like deposits, the token swap program accepts two variations of the withdrawl instruction. You can either withdraw liquidity from a single side of the swap pool, or you can withdraw your deposited liquidity from both sides at the same time. 
+The withdrawal instruction is very similar to the deposit instruction, but there are some subtle differences. Like deposits, the token swap program accepts two variations of the withdrawl instruction. You can either withdraw liquidity from a single side of the swap pool, or you can withdraw your deposited liquidity from both sides at the same time.
 
 Of the two variations of withdraw instructions on the Token Swap Program, we'll be using the variation that removes liquidity from both sides of the swap pool at once: `TokenSwap.withdrawAllTokenTypesInstruction`.
 
 The withdraw instruction should be added inside the `/components/Withdraw.tsx` file inside the `handleTransactionSubmit` function. This function is called when the user clicks the Withdraw button.
 
-We’ll start by deriving the three associated token account addresses, fetching the pool token mint data, and checking the `tokenAccountPool` address the same way we did for the deposit instruction. 
+We’ll start by deriving the three associated token account addresses, fetching the pool token mint data, and checking the `tokenAccountPool` address the same way we did for the deposit instruction.
 
 ```tsx
 const handleTransactionSubmit = async () => {
@@ -622,7 +622,7 @@ const handleTransactionSubmit = async () => {
     const tokenAccountPool = await token.getAssociatedTokenAddress(pool_mint, publicKey)
 
     const poolMintInfo = await token.getMint(connection, poolMint)
-    
+
     const transaction = new Web3.Transaction()
 
     let account = await connection.getAccountInfo(tokenAccountPool)
@@ -639,7 +639,7 @@ const handleTransactionSubmit = async () => {
     }
 }
 ```
-Next, we create the withdraw instruction using the spl-token-swap libary's `TokenSwap.withdrawAllTokenTypesInstruction` helper function. When then add the instruction and submit the transaction. 
+Next, we create the withdraw instruction using the spl-token-swap libary's `TokenSwap.withdrawAllTokenTypesInstruction` helper function. When then add the instruction and submit the transaction.
 
 ```tsx
 const handleTransactionSubmit = async () => {
@@ -834,7 +834,7 @@ const handleTransactionSubmit = async () => {
         console.log(JSON.stringify(e))
         alert(JSON.stringify(e))
     }
-}      
+}
 ```
 
 And that’s it! Once you have the swap instruction implemented, the UI should be fully functional and you can airdrop yourself tokens, deposit liquidity, withdraw your liquidity, and swap from token to token!
