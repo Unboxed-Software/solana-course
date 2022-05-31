@@ -639,7 +639,7 @@ const handleTransactionSubmit = async () => {
 }
 ```
 
-Next, we create the withdraw instruction using the spl-token-swap libary's `TokenSwap.withdrawAllTokenTypesInstruction` helper function. When then add the instruction and submit the transaction.
+Next, we create the withdraw instruction using the spl-token-swap library's `TokenSwap.withdrawAllTokenTypesInstruction` helper function. When then add the instruction and submit the transaction.
 
 ```tsx
 const handleTransactionSubmit = async () => {
