@@ -337,7 +337,6 @@ const instruction = TokenSwap.depositSingleTokenTypeExactAmountInInstruction(
 transaction.add(instruction)
 ```
 
-
 ### Withdraw liquidity
 
 In exchange for providing liquidity, depositors receive LP-tokens representing their fractional ownership of all A and B tokens in the pool. At any time, liquidity providers may redeem their LP-token in exchange for tokens A and B at the current "fair" exchange rate as determined by the curve. When liquidity is withdrawn, tokens A and/or B are transferred into the user's token accounts and the user's LP-token are burned.
@@ -406,6 +405,7 @@ const instruction = TokenSwap.depositSingleTokenTypeExactAmountInInstruction(
 
 transaction.add(instruction)
 ```
+
 ## Curves
 
 Trading curves are at the core of how swap pools and AMMs (Automated Market Makers) operate. The trading curve is the function that the token swap program uses to calculate how much of a destination token will be provided given an amount of source token. The curve effectively sets the market price of the tokens in the pool.
@@ -469,7 +469,6 @@ We’ll start by deriving three associated token account addresses:
 There are a number of ways to do this, but we'll use the helper function `getAssociatedTokenAddress` from the `spl-token` library.
 
 We'll also need the data associated with the pool token mint to adjust the user input for the decimals of the pool token. To access a token mint's data, we'll use the helper function `getMint` from the `spl-token` library.
-
 
 ```tsx
 const handleTransactionSubmit = async (deposit: DepositAllSchema) => {
@@ -639,6 +638,7 @@ const handleTransactionSubmit = async () => {
     }
 }
 ```
+
 Next, we create the withdraw instruction using the spl-token-swap libary's `TokenSwap.withdrawAllTokenTypesInstruction` helper function. When then add the instruction and submit the transaction.
 
 ```tsx
