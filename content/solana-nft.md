@@ -158,11 +158,24 @@ Candy Machine v2 is an NFT distribution program created by Metaplex. A candy mac
         }
     ```
 
- - `storage` indicates the storage type to upload images and metadata. This field specifies the service provider that stores the off-chain component of our NFT data. For this lesson we will use Arweave. Arweave is a decentralized storage network that stores data permanently. Note that Arweave files are only stored for seven days on Devnet. If you would like to use Arweave to store your NFT data on mainnet, set the `storage` field to `arweave-sol` instead of `arweave`. You can the review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+ - `storage` indicates the storage type to upload images and metadata. This field specifies the service provider that stores the off-chain component of our NFT's data. For this lesson we will use Arweave. Arweave is a decentralized storage network that stores data permanently. Note that Arweave files are only stored for seven days on devnet. If you would like to use Arweave to store your NFT data on mainnet, set the `storage` field to `arweave-sol` instead of `arweave`. You can the review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
  - `noRetainAuthority` indicates whether the Candy Machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases. Setting `noRetainAuthority` to `true` would allow the minter of the NFT to change the metadata.
 
- - `noMutable` indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the Candy Machine configurations can be updated. If set to true, Candy Machine configurations cannot be updated and cannot be reset to false.
+ - `noMutable` indicates whether the NFTs' metadata is mutable or not after minting. If set to false, the metadata can later be updated. If set to true, the metadata cannot be updated later and the setting cannot be reset to false.
+
+ Once the assets for a collection and the candy machine configuration file are prepared, the next step is to create the candy machine. This is done using the `upload` command from the Candy Machine CLI. The `upload` command does two things:
+ 
+ 1. Uploads the asset files to the specified storage type and creates a `.cache` file
+ 2. Creates an on-chain account referred to as a Candy Machine that temporarily stores the links to the uploaded collection and correspond to the `.cache` file. The on-chain Candy Machine account is then used to distribute the collection once minting goes live.
+
+After running the `upload` command, it is best practice to also run the `verify_upload` command. This command will check that each entry in the `.cache` file matches the on-chain Candy Machine account. If any of the URI entries do not match the information stored on on-chain, you will need to re-run the upload command.
+
+Once the upload has been successfully verified, the Candy Machine is ready to mint tokens. The Candy Machine configuration settings will how tokens are minted. Minting is often done through a frontend UI and separated between whitelist and public minting.
+
+Note that the data stored on the Candy Machine account is only used to manange the distribution of the collection. Once a Candy Machine is fully minted, the data stored is no longer useful and the rent for the account can be fully recovered using the `withdraw` command. The `withdraw` command must be executed with the `keypair` that created the Candy Machine.
+
+The final step in creating an NFT collection is for the creator to sign the NFTs and verify themselves as the creator. It is important for a creator to sign the collection to prevent fraudulent collections. Since the creator field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.    
 
 # Demo
 
@@ -170,7 +183,7 @@ Let’s put all of this into practice by creating a Candy Machine and minting ou
 
 ### 1. Download the starter code
 
-Let's begin by downloading the starter [code](https://github.com/ZYJLiu/metaplex-starter). The starter code includes an `assets` folder and the configuration file for our Candy Machine, `config.json`. Additionally, it includes two helper scripts. We will use one to create a new keypair for this lesson. The other we will use to create a whitelist token.
+Let's begin by downloading the starter [code](https://github.com/ZYJLiu/metaplex-starter). The starter code includes an `assets` folder and the configuration file for our Candy Machine, `config.json`. Additionally, it includes two helper scripts. One creates a new keypair we will use for this lesson. The other creates the whitelist token we will later use to enable whitelist settings.
 
 ### 2. Setup
 While in the `metaplex-starter` folder, lets first install the dependencies for our starter code:
@@ -253,7 +266,7 @@ Update the `solTreasuryAccount` field with the wallet address we imported to Pha
 
 ### 5. Prepare Assets
 
-Next, let's prepare the assets for our Candy Machine. The starter code includes an `assets` folder that has the images and the metadata files we'll be using for our collection.
+Next, let's prepare the assets for our Candy Machine. The starter code includes an `assets` folder that holds the images and the metadata files we'll use for our collection.
 
 Open each `.json` file and update the `address` field with the wallet address we imported to Phantom.
 
@@ -317,7 +330,7 @@ The output should look something like this:
 
 ![Gif of Metaplex Upload](../assets/solana-nft-metaplex-upload.gif)
 
-There will now be a `.cache` folder with a `devnet-example.json` file that includes the address of our Candy Machine and the Arweave links for each NFT. When we run the upload command, the images and metadata files in our `assets` folder are uploaded to Arweave in preparation for minting. These Arweave links represent the off-chain component of each NFT's metadata.
+There will now be a `.cache` folder with a `devnet-example.json` file that includes the address of our Candy Machine and Arweave links corresponding to the metadata of each NFT in our Candy Machine. When we run the upload command, the images and metadata files in our `assets` folder are uploaded to Arweave in preparation for minting. These Arweave links represent the off-chain component of each NFT's metadata.
 
 The `devnet-example.json` file will look something like this, but with different links and addresses:
 
@@ -429,7 +442,7 @@ Navigate to [localhost:3000](http://localhost:3000) in the browser and click "MI
 
 ### 8. Enable Gatekeeper
 
-Now that we have our Candy Machine UI working, let's update our Candy Machine to include a gatekeeper.
+Now that we have our Candy Machine UI working, let's update our Candy Machine to enable the gatekeeper setting.
 
 Open the `config.json` file and update the `gatekeeper` field to enable CAPTCHA:
 
@@ -456,7 +469,7 @@ Refresh [localhost:3000](http://localhost:3000) in the browser and click the min
 
 ### 9. Enable Whitelist
 
-Let's update our Candy Machine to enable whitelist settings.
+Next, let's update our Candy Machine to enable whitelist settings.
 
 We'll start by creating our whitelist token using a helper script included in the starter code.
 
@@ -472,7 +485,7 @@ The whitelist tokens will be minted to the wallet address we've imported into Ph
 npm run whiteListToken
 ```
 
-Next, open the `config.json` file and reset the `gatekeeper` field to `null`.
+Next, open the `config.json` file and reset the `gatekeeper` field to `null`:
 
 ```json
     "gatekeeper": null
@@ -484,7 +497,7 @@ Update the `goLiveDate` to sometime in the future:
     "goLiveDate": "25 Dec 2022 00:00:00 GMT"
 ```
 
-Update `whitelistMintSettings` and set the `mint` field to the address of the token we just created 
+Update `whitelistMintSettings` and set the `mint` field to the address of the token we just created:
 
 ```json
     "whitelistMintSettings": {
@@ -515,7 +528,7 @@ Go ahead and mint out the Candy Machine from a wallet with the whitelist token u
 
 ### 10. Withdraw Rent
 
-Now that our Candy Machine is fully minted, the rent used for the Candy Machine can be retrieved by running the `withdraw` command. Note to replace `<candy_machine_id>` with the address of the Candy Machine before running the command:
+Now that our Candy Machine is fully minted, the rent used for the Candy Machine can be retrieved by running the `withdraw` command. Note to replace `<candy_machine_id>` with the address of the Candy Machine from `devnet-example.json` before running the command:
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts withdraw <candy_machine_id> \
