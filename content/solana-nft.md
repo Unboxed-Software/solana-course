@@ -100,10 +100,10 @@ Candy Machine v2 is an NFT distribution program created by Metaplex. A candy mac
  - `gatekeeper` enables CAPTCHA verification before minting from the Candy Machine. The address of the currently supported provider network can be found on the Metaplex documentation [here](https://docs.metaplex.com/candy-machine-v2/configuration).  Note that a gatekeeper won't work with a whitelist presale enabled.
 
     ```json
-        "gatekeeper": {
-            "gatekeeperNetwork": "<PROVIDER_NETWORK_ADDRESS>",
-            "expireOnUse": true
-        }
+    "gatekeeper": {
+        "gatekeeperNetwork": "<PROVIDER_NETWORK_ADDRESS>",
+        "expireOnUse": true
+    }
     ```
 
  - `solTreasuryAccount` is the address that SOL payments from the mint will be sent to.
@@ -117,17 +117,17 @@ Candy Machine v2 is an NFT distribution program created by Metaplex. A candy mac
  - `endSettings` are how you can define when the minting should stop. This can either be set to a specified date, or after a certain amount of NFTs are minted.
 
     ```json
-        "endSettings": {
-            "endSettingType": { "date":true },
-            "value": "25 Dec 2021 23:59:00 GMT"
-        }
+    "endSettings": {
+        "endSettingType": { "date":true },
+        "value": "25 Dec 2021 23:59:00 GMT"
+    }
     ```
 
     ```json
-        "endSettings": {
-            "endSettingType": { "amount":true },
-            "value": 10
-        }
+    "endSettings": {
+        "endSettingType": { "amount":true },
+        "value": 10
+    }
     ```
 
 - `whitelistMintSettings` allows you to configure whitelist settings. Specify the following properites to enable whitelist settings:
@@ -139,23 +139,23 @@ Candy Machine v2 is an NFT distribution program created by Metaplex. A candy mac
     - `discountPrice` is an optional discounted price offered to whitelist token holders
 
     ```json
-        "whitelistMintSettings": {
-            "mode": { "burnEveryTime": true },
-            "mint": "7nE1GmnMmDKiycFkpHF7mKtxt356FQzVonZqBWsTWZNf",
-            "presale": true,
-            "discountPrice": 0.5
-        }
+    "whitelistMintSettings": {
+        "mode": { "burnEveryTime": true },
+        "mint": "7nE1GmnMmDKiycFkpHF7mKtxt356FQzVonZqBWsTWZNf",
+        "presale": true,
+        "discountPrice": 0.5
+    }
     ```
 
 
  - `hiddenSettings` can be used for hide-and-reveal drops (where the image of an NFT is revealed after the mint is complete). Using the `hiddenSettings` is outside the scope of this lesson, but you can read more about it [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
     ```json
-        "hiddenSettings": {
-            "name": "My Hidden Collection ",
-            "uri": "uri",
-            "hash": "44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
-        }
+    "hiddenSettings": {
+        "name": "My Hidden Collection ",
+        "uri": "uri",
+        "hash": "44kiGWWsSgdqPMvmqYgTS78Mx2BKCWzd"
+    }
     ```
 
  - `storage` indicates the storage type to upload images and metadata. This field specifies the service provider that stores the off-chain component of our NFT's data. For this lesson we will use Arweave. Arweave is a decentralized storage network that stores data permanently. Note that Arweave files are only stored for seven days on devnet. If you would like to use Arweave to store your NFT data on mainnet, set the `storage` field to `arweave-sol` instead of `arweave`. You can the review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
