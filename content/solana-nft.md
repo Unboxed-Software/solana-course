@@ -108,8 +108,8 @@ Candy Machine v2 is an NFT distribution program created by Metaplex. A candy mac
 
  - `solTreasuryAccount` is the address that SOL payments from the mint will be sent to.
 
- - `splTokenAccount` is the token account which you want the payments to be sent to if a SPL token is used as payment instead of SOL. 
- 
+ - `splTokenAccount` is the token account which you want the payments to be sent to if a SPL token is used as payment instead of SOL.
+
  - `splToken` is the token mint address of the SPL token that is accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
 
  - `goLiveDate` is the date the mint goes live for public mint.
@@ -165,7 +165,7 @@ Candy Machine v2 is an NFT distribution program created by Metaplex. A candy mac
  - `noMutable` indicates whether the NFTs' metadata is mutable or not after minting. If set to false, the metadata can later be updated. If set to true, the metadata cannot be updated later and the setting cannot be reset to false.
 
  Once the assets for a collection and the candy machine configuration file are prepared, the next step is to create the candy machine. This is done using the `upload` command from the Candy Machine CLI. The `upload` command does two things:
- 
+
  1. Uploads the asset files to the specified storage type and creates a `.cache` file
  2. Creates an on-chain account referred to as a Candy Machine that temporarily stores the links to the uploaded collection and correspond to the `.cache` file. The on-chain Candy Machine account is then used to distribute the collection once minting goes live.
 
@@ -175,7 +175,7 @@ Once the upload has been successfully verified, the Candy Machine is ready to mi
 
 Note that the data stored on the Candy Machine account is only used to manange the distribution of the collection. Once a Candy Machine is fully minted, the data stored is no longer useful and the rent for the account can be fully recovered using the `withdraw` command. The `withdraw` command must be executed with the `keypair` that created the Candy Machine.
 
-The final step in creating an NFT collection is for the creator to sign the NFTs and verify themselves as the creator. It is important for a creator to sign the collection to prevent fraudulent collections. Since the creator field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.    
+The final step in creating an NFT collection is for the creator to sign the NFTs and verify themselves as the creator. It is important for a creator to sign the collection to prevent fraudulent collections. Since the creator field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.
 
 # Demo
 
@@ -196,7 +196,7 @@ Next let's set up a new keypair to use for this lesson and airdrop some devnet S
 ```sh
 npm start
 ```
-You should now have see a new `metaplex-starter.json` file. 
+You should now have see a new `metaplex-starter.json` file.
 Copy the keypair from the new file and import it into Phantom
 
 ![Gif of Phantom Import](../assets/solana-nft-phantom.gif)
@@ -473,8 +473,8 @@ Next, let's update our Candy Machine to enable whitelist settings.
 
 We'll start by creating our whitelist token using a helper script included in the starter code.
 
-The script will: 
-1. Create a new token mint 
+The script will:
+1. Create a new token mint
 2. Create a new token account
 3. Mint tokens to the token account
 4. Print the whitelist token address to the terminal
