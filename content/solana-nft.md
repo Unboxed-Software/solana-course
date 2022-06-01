@@ -31,7 +31,7 @@ We'll be approaching this from the client-side of the development process using 
 
 Metaplex provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. One of the core programs by Metaplex is the Token Metadata Program. The Token Metadata Program standardizes the process of associating metadata to an NFT.
 
-Candy Machine v2 is a distribution tool offered by Metaplex used to create and mint an NFT collection. Candy Machine v2 leverages the Token Metadata Program to upload the NFT assets for a collection and allows creators to customize the distribution configurations.
+Candy Machine v2 is a distribution tool offered by Metaplex that you can use to create and mint an NFT collection. Candy Machine v2 leverages the Token Metadata Program to upload the NFT assets for a collection and allows creators to customize the distribution configurations.
 
 ## Non-Fungible Tokens (NFTs)
 
@@ -42,19 +42,14 @@ NFTs on Solana are simply SPL tokens with the following properties:
 3. Token mint authority set to null
 4. Metadata associated with token mint
 
-In other words, a Solana NFT is a token from a token mint where only 1 token was minted and cannot be divided into smaller units.
+In other words, a Solana NFT is a non-divisible token from a token mint with a maximum supply of 1.
 
 The Token Metadata Program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint.
 
 An NFT’s metadata has both an on-chain and off-chain component. The on-chain metadata account contains a URI attribute that points to an off-chain JSON file. The off-chain component stores additional data and a link to the image. Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.
 
-Below is an example of the on-chain metadata associated with an NFT:
-
-![Screenshot of Metadata Onchain](../assets/solana-nft-metadata-onchain.png)
-
-Similarly, below is the corresponding off-chain metadata:
-
-![Screenshot of Metadata Offchain](../assets/solana-nft-metadata-offchain.png)
+Below is an example of the relationship between on-chain and off-chain metadata. The on-chain metadata contains a URI field that points to an off-chain `.json` file that stores the link to the image of the NFT and additional metadata.
+![Screenshot of Metadata](../assets/solana-nft-metaplex-metadata.png)
 
 ### Assets
 
@@ -68,12 +63,12 @@ The metadata should include the following attributes:
 - `seller_fee_basis_points` the fee collected upon sale of the NFT which is split between the creators
 - `image` the file name of the corresponding image that the NFT will display
 - `attributes` the attributes of the NFT
-- `properties` the creator's share of seller fee basis points. If there are multiple creators, the total “share” must add to 100
+- `properties` the list of creators, the creator's share of seller fee basis points, and the file of the image. If there are multiple creators, the total “share” must add to 100
 - `collection` the “name” and “family” of the NFT collection
 
 The metadata file will look something like the following:
 
-```tsx
+```json
 {
     "name": "Number #0001",
     "symbol": "NB",
@@ -96,31 +91,7 @@ The metadata file will look something like the following:
 
 ## Candy Machine v2
 
-Candy Machine v2 is an NFT distribution program by Metaplex. A Candy Machine is configured using a JSON file that can be reused across multiple drops. When a new Candy Machine is created, the configurations are stored in an account on-chain where the configuration fields can be updated using the Candy Machine CLI.
-
-Below is the basic format of the configuration file:
-
-```json
-{
-    "price": 1.0,
-    "number": 10,
-    "gatekeeper": null,
-    "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>",
-    "splTokenAccount": null,
-    "splToken": null,
-    "goLiveDate": "25 Dec 2021 00:00:00 GMT",
-    "endSettings": null,
-    "whitelistMintSettings": null,
-    "hiddenSettings": null,
-    "storage": "arweave",
-    "ipfsInfuraProjectId": null,
-    "ipfsInfuraSecret": null,
-    "nftStorageKey": null,
-    "awsS3Bucket": null,
-    "noRetainAuthority": false,
-    "noMutable": false
-}
-```
+Candy Machine v2 is an NFT distribution program created by Metaplex. A candy machine is configured using a JSON file that can be reused. In other words, a creator can use the same configuration file to create each multiple NFT collections. When a new candy machine is created, the configurations are stored in an account on-chain where the configuration fields can be updated using the Candy Machine CLI. You can read more about Candy Machine configurations [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
  - `price` is the amount to charge for each NFT minted from the Candy Machine.
 
@@ -137,7 +108,9 @@ Below is the basic format of the configuration file:
 
  - `solTreasuryAccount` is the address that SOL payments from the mint will be sent to.
 
- - The Candy Machine can also be set to receive payment using an SPL token. The `splTokenAccount` is the token account which you want the SPL token payments to be sent to. The `splToken` is the token mint address of the SPL token that is accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
+ - `splTokenAccount` is the token account which you want the payments to be sent to if a SPL token is used as payment instead of SOL. 
+ 
+ - `splToken` is the token mint address of the SPL token that is accepted as payment. Note that the address in the `splTokenAccount` field must be a token account for the token mint specified in the `splToken` field.
 
  - `goLiveDate` is the date the mint goes live for public mint.
 
@@ -157,7 +130,7 @@ Below is the basic format of the configuration file:
         }
     ```
 
-- `whitelistMintSettings` allows you to configure whitelist settings.
+- `whitelistMintSettings` allows you to configure whitelist settings. Specify the following properites to enable white list settings:
     - `mode` is where you specify whether the whitelist token is burned upon minting.
         - The `burnEveryTime: true` setting will burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
         - The `neverBurn: true` setting allows whitelist token holders to mint as many times as they wish.
@@ -185,11 +158,11 @@ Below is the basic format of the configuration file:
         }
     ```
 
- - `storage` indicates the storage type to upload images and metadata. Note that Arweave files are only stored for seven days on Devnet (When deploying to Mainnet use `arweave-sol`). You can the review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+ - `storage` indicates the storage type to upload images and metadata. This field specifies the service provider that stores the off-chain component of our NFT data. For this lesson we will use Arweave. Arweave is a decentralized storage network that stores data permanently. Note that Arweave files are only stored for seven days on Devnet. If you would like to use Arweave to store your NFT data on mainnet, set the `storage` field to `arweave-sol` instead of `arweave`. You can the review list of supported storage types [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
- - `noRetainAuthority` indicates whether the Candy Machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases.
+ - `noRetainAuthority` indicates whether the Candy Machine authority has the update authority for each mint or if it is transferred to the minter. This should be kept as `false` for the vast majority of cases. Setting `noRetainAuthority` to `true` would allow the minter of the NFT to change the metadata.
 
- - `noMutable` indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the Candy Machine configurations can be updated. If set to true, Candy Machine configurations cannot be updated and cannot be reset to true.
+ - `noMutable` indicates whether the NFTs' metadata is mutable or not after having been minted. If set to false, the Candy Machine configurations can be updated. If set to true, Candy Machine configurations cannot be updated and cannot be reset to false.
 
 # Demo
 
@@ -197,9 +170,7 @@ Let’s put all of this into practice by creating a Candy Machine and minting ou
 
 ### 1. Download the starter code
 
-**Demo Starter Code:** [https://github.com/ZYJLiu/metaplex-starter](https://github.com/ZYJLiu/metaplex-starter)
-
-Let's begin by downloading the starter code. The starter code includes an "assets" folder and the configuration file for our Candy Machine, "config.json".
+Let's begin by downloading the starter [code](https://github.com/ZYJLiu/metaplex-starter). The starter code includes an `assets` folder and the configuration file for our Candy Machine, `config.json`.
 
 ### 2. Setup
 
@@ -241,6 +212,13 @@ While in the `metaplex-starter` directory, clone the Metaplex repo:
 git clone https://github.com/metaplex-foundation/metaplex.git
 ```
 
+If you don't already ts-node installed globally go ahead and do that now:
+
+```sh
+npm install -g typescript
+npm install -g ts-node
+```
+
 Next, install Metaplex dependencies:
 
 ```sh
@@ -259,7 +237,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts --version
 
 Now that we have installed Metaplex, let's configure our Candy Machine.
 
-Open the `config.json` located in our `metaplex-starter` directory:
+Open the config.json located in our metaplex-starter directory. Copy and paste the starter configurations below into config.json:
 
 ```json
 {
@@ -355,7 +333,7 @@ The output should look something like this:
 
 ![Gif of Metaplex Upload](../assets/solana-nft-metaplex-upload.gif)
 
-There will now be a `.cache` folder with a `devnet-example.json` file that includes the address of our Candy Machine and the uploaded Arweave link for each NFT.
+There will now be a `.cache` folder with a `devnet-example.json` file that includes the address of our Candy Machine and the Arweave links for each NFT. When we run the upload command, the images and metadata files in our `assets` folder are uploaded to Arweave in preparation for minting. These Arweave links will be used as the off-chain component of each NFTs once minting goes live.
 
 The `devnet-example.json` file will look something like this, but with different links and addresses:
 
