@@ -12,7 +12,7 @@
 
 - **Non-Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a maximum supply of 1
 - **Metaplex** is a collection of tools that simplify the creation and distribution of NFTs on the Solana blockchain
-- **Candy Machine v2** is a NFT distribution program by Metaplex used to mint NFTs from a collection
+- **Candy Machine v2** is an NFT distribution program by Metaplex used to mint NFTs from a collection
 
 # Overview
 
