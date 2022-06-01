@@ -130,7 +130,7 @@ Candy Machine v2 is an NFT distribution program created by Metaplex. A candy mac
         }
     ```
 
-- `whitelistMintSettings` allows you to configure whitelist settings. Specify the following properites to enable white list settings:
+- `whitelistMintSettings` allows you to configure whitelist settings. Specify the following properites to enable whitelist settings:
     - `mode` is where you specify whether the whitelist token is burned upon minting.
         - The `burnEveryTime: true` setting will burn the whitelist token upon mint. Note that the whitelist token must have 0 decimals, otherwise only a partial token will be burned upon minting.
         - The `neverBurn: true` setting allows whitelist token holders to mint as many times as they wish.
@@ -170,37 +170,21 @@ Let’s put all of this into practice by creating a Candy Machine and minting ou
 
 ### 1. Download the starter code
 
-Let's begin by downloading the starter [code](https://github.com/ZYJLiu/metaplex-starter). The starter code includes an `assets` folder and the configuration file for our Candy Machine, `config.json`.
+Let's begin by downloading the starter [code](https://github.com/ZYJLiu/metaplex-starter). The starter code includes an `assets` folder and the configuration file for our Candy Machine, `config.json`. Additionally, it includes two helper scripts. We will use one to create a new keypair for this lesson. The other we will use to create a whitelist token.
 
 ### 2. Setup
-
-Next let's set up a new keypair to use for this lesson and connect to Devnet using the endpoint provided by Metaplex.
-
-From within the `metaplex-starter` directory, generate a new keypair to use for the project:
-
+While in the `metaplex-starter` folder, lets first install the dependencies for our starter code:
 ```sh
-solana-keygen new --outfile ~/.config/solana/devnet.json
+npm install
 ```
 
-Set the new keypair as the default keypair:
+Next let's set up a new keypair to use for this lesson and airdrop some devnet SOL using our helper script. Run the following command:
 
 ```sh
-solana config set --keypair ~/.config/solana/devnet.json
+npm start
 ```
-
-Set our connection to Devnet using Metaplex RPC:
-
-```sh
-solana config set --url https://metaplex.devnet.rpcpool.com/
-```
-
-Airdrop Devnet SOL to our new test wallet:
-
-```sh
-solana airdrop 2
-```
-
-Copy the keypair from `.config/solana/devnet.json` and import it into Phantom
+You should now have see a new `metaplex-starter.json` file. 
+Copy the keypair from the new file and import it into Phantom
 
 ![Gif of Phantom Import](../assets/solana-nft-phantom.gif)
 
@@ -237,7 +221,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts --version
 
 Now that we have installed Metaplex, let's configure our Candy Machine.
 
-Open the config.json located in our metaplex-starter directory. Copy and paste the starter configurations below into config.json:
+Open the `config.json` located in our metaplex-starter folder. Copy and paste the configurations below into `config.json`:
 
 ```json
 {
@@ -322,8 +306,8 @@ Now that we’ve configured our Candy Machine and verified that our assets are r
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts upload \
-    -e devnet \
-    -k ~/.config/solana/devnet.json \
+    -r, --rpc-url https://metaplex.devnet.rpcpool.com\
+    -k ~/metaplex-starter/metaplex-starter.json \
     -cp config.json \
     -c example \
     ./assets
@@ -333,7 +317,7 @@ The output should look something like this:
 
 ![Gif of Metaplex Upload](../assets/solana-nft-metaplex-upload.gif)
 
-There will now be a `.cache` folder with a `devnet-example.json` file that includes the address of our Candy Machine and the Arweave links for each NFT. When we run the upload command, the images and metadata files in our `assets` folder are uploaded to Arweave in preparation for minting. These Arweave links will be used as the off-chain component of each NFTs once minting goes live.
+There will now be a `.cache` folder with a `devnet-example.json` file that includes the address of our Candy Machine and the Arweave links for each NFT. When we run the upload command, the images and metadata files in our `assets` folder are uploaded to Arweave in preparation for minting. These Arweave links represent the off-chain component of each NFT's metadata.
 
 The `devnet-example.json` file will look something like this, but with different links and addresses:
 
@@ -392,8 +376,8 @@ This verifies that each entry in the `devnet-example.json` file has been success
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_upload \
-    -e devnet \
-    -k ~/.config/solana/devnet.json \
+    -r, --rpc-url https://metaplex.devnet.rpcpool.com\
+    -k ~/metaplex-starter/metaplex-starter.json \
     -c example
 ```
 
@@ -405,8 +389,8 @@ Now let's mint an NFT from our Candy Machine by running the `mint_one_token` com
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts mint_one_token \
-    -e devnet \
-    -k ~/.config/solana/devnet.json \
+    -r, --rpc-url https://metaplex.devnet.rpcpool.com\
+    -k ~/metaplex-starter/metaplex-starter.json \
     -c example
 ```
 
@@ -460,8 +444,8 @@ Update the Candy Machine by running the `update_candy_machine` command:
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machine \
-    -e devnet \
-    -k ~/.config/solana/devnet.json \
+    -r, --rpc-url https://metaplex.devnet.rpcpool.com\
+    -k ~/metaplex-starter/metaplex-starter.json \
     -cp config.json \
     -c example
 ```
@@ -470,65 +454,25 @@ Refresh [localhost:3000](http://localhost:3000) in the browser and click the min
 
 ![Gif of Metaplex Gatekeeper](../assets/solana-nft-metaplex-gatekeeper.gif)
 
-### 9. Create Whitelist Token
-
-Let's create a whitelist token. First, let's set our connection to Solana's Devnet:
-
-```sh
-solana config set --url https://api.devnet.solana.com
-```
-
-Generate a new keypair for the whitelist token:
-
-```sh
-solana-keygen grind --starts-with WL:1
-```
-
-Create a new token with 0 decimals using the address we just generated:
-
-```sh
-spl-token create-token --decimals 0 <WHITELIST_TOKEN_ADDRESS>.json
-```
-
-Create a new token account:
-
-```sh
-spl-token create-account <WHITELIST_TOKEN_ADDRESS>
-```
-
-Mint whitelist tokens to the token account:
-
-```sh
-spl-token mint <WHITELIST_TOKEN_ADDRESS> 3
-```
-
-Check the token balance:
-
-```sh
-spl-token account-info <WHITELIST_TOKEN_ADDRESS>
-```
-
-![Gif of Whitelist Token](../assets/solana-nft-whitelist-token.gif)
-
-If you would like to transfer whitelist tokens to another wallet address, use the following command:
-
-```sh
-spl-token transfer <WHITELIST_TOKEN_ADDRESS> 1 <WALLET_ADDRESS> --fund-recipient
-```
-
-![Gif of Whitelist Token Transfer](../assets/solana-nft-whitelist-token-transfer.png)
-
-Lastly, let's set our connection to Devnet back to Metaplex RPC:
-
-```sh
-solana config set --url https://metaplex.devnet.rpcpool.com/
-```
-
-### 10. Enable Whitelist
+### 9. Enable Whitelist
 
 Let's update our Candy Machine to enable whitelist settings.
 
-First, open the `config.json` file and reset the `gatekeeper` field to `null`.
+We'll start by creating our whitelist token using a helper script included in the starter code.
+
+The script will: 
+1. Create a new token mint 
+2. Create a new token account
+3. Mint tokens to the token account
+4. Print the whitelist token address to the terminal
+
+The whitelist tokens will be minted to the wallet address we've imported into Phantom. Go ahead and run the following command and copy the whitelist token address:
+
+```sh
+npm run whiteListToken
+```
+
+Next, open the `config.json` file and reset the `gatekeeper` field to `null`.
 
 ```json
     "gatekeeper": null
@@ -540,12 +484,7 @@ Update the `goLiveDate` to sometime in the future:
     "goLiveDate": "25 Dec 2022 00:00:00 GMT"
 ```
 
-Update `whitelistMintSettings`
-
-- `burnEveryTime: true` will burn the whitelist token when minting an NFT
-- `mint` specifies the token mint of the whitelist token
-- `presale: true` setting allows whitelist token holders to mint before the `goLiveDate`
-- `discountPrice` specifies a discounted mint price for whitelist token holders
+Update `whitelistMintSettings` and set the `mint` field to the address of the token we just created 
 
 ```json
     "whitelistMintSettings": {
@@ -560,8 +499,8 @@ Update the Candy Machine by running the `update_candy_machine` command again:
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machine \
-    -e devnet \
-    -k ~/.config/solana/devnet.json \
+    -r, --rpc-url https://metaplex.devnet.rpcpool.com\
+    -k ~/metaplex-starter/metaplex-starter.json \
     -cp config.json \
     -c example
 ```
@@ -574,26 +513,26 @@ Go ahead and mint out the Candy Machine from a wallet with the whitelist token u
 
 ![Screenshot of Sold Out UI](../assets/solana-nft-sold-out.png)
 
-### 11. Withdraw Rent
+### 10. Withdraw Rent
 
-Now that our Candy Machine is fully minted, the rent used for the Candy Machine can be retrieved by running the `withdraw` command:
+Now that our Candy Machine is fully minted, the rent used for the Candy Machine can be retrieved by running the `withdraw` command. Note to replace `<candy_machine_id>` with the address of the Candy Machine before running the command:
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts withdraw <candy_machine_id> \
-    -e devnet \
-    -k ~/.config/solana/devnet.json
+    -r, --rpc-url https://metaplex.devnet.rpcpool.com\
+    -k ~/metaplex-starter/metaplex-starter.json \
 ```
 
 ![Gif of Withdraw](../assets/solana-nft-metaplex-withdraw.gif)
 
-### 12. Signing NFTs
+### 11. Signing NFTs
 
 Finally, sign the NFTs to verify yourself as the creator of the collection by running the `sign_all` command:
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts sign_all \
-    -e devnet \
-    -k ~/.config/solana/devnet.json \
+    -r, --rpc-url https://metaplex.devnet.rpcpool.com\
+    -k ~/metaplex-starter/metaplex-starter.json \
     -c example
 ```
 
