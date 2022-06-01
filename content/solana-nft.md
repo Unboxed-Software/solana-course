@@ -173,7 +173,7 @@ After running the `upload` command, it is best practice to also run the `verify_
 
 Once the upload has been successfully verified, the Candy Machine is ready to mint tokens. The Candy Machine configuration settings will how tokens are minted. Minting is often done through a frontend UI and separated between whitelist and public minting.
 
-Note that the data stored on the Candy Machine account is only used to manange the distribution of the collection. Once a Candy Machine is fully minted, the data stored is no longer useful and the rent for the account can be fully recovered using the `withdraw` command. The `withdraw` command must be executed with the `keypair` that created the Candy Machine.
+Note that the data stored on the Candy Machine account is only used to manage the distribution of the collection. Once a Candy Machine is fully minted, the data stored is no longer useful and the rent for the account can be fully recovered using the `withdraw` command. The `withdraw` command must be executed with the `keypair` that created the Candy Machine.
 
 The final step in creating an NFT collection is for the creator to sign the NFTs and verify themselves as the creator. It is important for a creator to sign the collection to prevent fraudulent collections. Since the creator field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.
 
