@@ -16,7 +16,7 @@
 
 # Overview
 
-Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token Program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art. 
+Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token Program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art.
 
 While a deep dive on the use cases for NFTs would be fascinating, this lesson will focus on the creation and distribution of NFTs.
 
@@ -40,7 +40,7 @@ Below is an example of the relationship between on-chain and off-chain metadata.
 
 ## Metaplex
 
-The defacto standard tools for NFTs on Solana are provided by an organization called Metaplex. Metaplex is an organization that provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. 
+The defacto standard tools for NFTs on Solana are provided by an organization called Metaplex. Metaplex is an organization that provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain.
 
 One of the core programs provided by Metaplex is the Token Metadata Program. The Token Metadata Program standardizes the process of associating metadata to an NFT. When you create an NFT with Metaplex, the Token Metadata Program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint.
 
@@ -104,7 +104,7 @@ The metadata file will look like this:
 
 ### Configure a candy machine
 
-With the NFT metadata prepared, you can use Candy Machine v2 to configure and create your NFT's "candy machine." 
+With the NFT metadata prepared, you can use Candy Machine v2 to configure and create your NFT's "candy machine."
 
 Configuration happens through a simple JSON file. When you use Candy Machine v2 to create your candy machine, the JSON in this configuration file is stored in an account on-chain where the configuration fields can then be updated using the Candy Machine CLI. The properties in this configuration file are:
 
@@ -314,7 +314,7 @@ Let's walk through the values we have real quick:
 
 ### 5. Prepare Assets
 
-Now let's prepare the assets for our candy machine. The starter code includes an `assets` folder that holds the images and the metadata files we'll use for our collection. 
+Now let's prepare the assets for our candy machine. The starter code includes an `assets` folder that holds the images and the metadata files we'll use for our collection.
 
 Open the `0.json` file. Notice that all of the fields are already filled out except for the `address` field under `creators`. You'll need to set this to the address we imported to Phantom. Do this for the remaining `.json` files in the `assets` folder.
 
