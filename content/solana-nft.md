@@ -274,7 +274,7 @@ If this command logs a version number to the console, you should be good to go. 
 
 ![Gif of Metaplex Install](../assets/solana-nft-metaplex-install.gif)
 
-Note that this and all subsequent commands include paths to their source folders starting from our project's root directory. If at any point you change your command line's working directory, you'll need to adjust the path on the command.
+Note that this and all subsequent commands include paths to their source files starting from our project's root directory. If at any point you change your command line's working directory, you'll need to adjust the path on the command.
 
 ### 4. Candy Machine Configuration
 
