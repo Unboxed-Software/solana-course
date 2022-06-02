@@ -1,4 +1,4 @@
-# Solana NFTs
+# Creating Solana NFTs With Metaplex
 
 # Lesson Objectives
 
@@ -16,57 +16,70 @@
 
 # Overview
 
-Solana NFTs are SPL tokens created using the Token Program. These tokens, however, also have an additional metadata account associated with each token mint allowing for more flexible use cases.
+Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token Program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art. 
 
-This lesson will focus on the basics of creating and distributing a new NFT collection using Candy Machine v2:
+While a deep dive on the use cases for NFTs would be fascinating, this lesson will focus on the creation and distribution of NFTs.
 
-1. Configuring a Candy Machine
-2. Preparing NFT assets for a collection
-3. Creating a Candy Machine
-4. Minting NFTs from a Candy Machine
+In this lesson, we'll cover the basics of how NFTs are represented on Solana, as well as how to create, distribute, and update a new NFT collection.
 
-We'll be approaching this from the client-side of the development process using the existing tools created by Metaplex.
+## NFTs on Solana
 
-## Metaplex
+A Solana NFT is a non-divisible token with associated metadata that comes from a token mint with a maximum supply of 1. Let's break that down a bit. An NFT is a standard token from the Token Program. What makes it unique is that it:
 
-Metaplex provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. One of the core programs by Metaplex is the Token Metadata Program. The Token Metadata Program standardizes the process of associating metadata to an NFT.
+1. Has 0 decimals so that it cannot be divided into parts
+2. Comes from a token mint with supply of 1 so that only 1 of these tokens exists
+3. Comes from a token mint whose authority is set to null (to ensure that the supply never changes)
+4. Has an associated account that stores metadata
 
-Candy Machine v2 is a distribution tool offered by Metaplex that you can use to create and mint an NFT collection. Candy Machine v2 leverages the Token Metadata Program to upload the NFT assets for a collection and allows creators to customize the distribution configurations.
+While the first three points are standard features that can be achieved with the SPL Token Program, the associated metadata requires some additional functionality.
 
-## Non-Fungible Tokens (NFTs)
-
-NFTs on Solana are simply SPL tokens with the following properties:
-
-1. Token with 0 decimals
-2. Token mint with supply of 1
-3. Token mint authority set to null
-4. Metadata associated with token mint
-
-In other words, a Solana NFT is a non-divisible token from a token mint with a maximum supply of 1.
-
-The Token Metadata Program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint.
-
-An NFT’s metadata has both an on-chain and off-chain component. The on-chain metadata account contains a URI attribute that points to an off-chain JSON file. The off-chain component stores additional data and a link to the image. Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.
+Typically, an NFT’s metadata has both an on-chain and off-chain component. The on-chain metadata is stored in an account associated with the token mint and contains a URI attribute that points to an off-chain JSON file. The off-chain component stores additional data and a link to the image. Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.
 
 Below is an example of the relationship between on-chain and off-chain metadata. The on-chain metadata contains a URI field that points to an off-chain `.json` file that stores the link to the image of the NFT and additional metadata.
 ![Screenshot of Metadata](../assets/solana-nft-metaplex-metadata.png)
 
-### Assets
+## Metaplex
 
-Before creating a collection you must prepare the assets for your collection. The assets are the images and metadata associated with each NFT. An NFT is created using a pairing of an image and a file containing its metadata.
+The defacto standard tools for NFTs on Solana are provided by an organization called Metaplex. Metaplex is an organization that provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. 
 
-The metadata should include the following attributes:
+One of the core programs provided by Metaplex is the Token Metadata Program. The Token Metadata Program standardizes the process of associating metadata to an NFT. When you create an NFT with Metaplex, the Token Metadata Program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint.
 
-- `name` the name of the NFT that will display on-chain
-- `symbol` the optional symbol of the NFT that will display on-chain
-- `description` the description of the NFT
-- `seller_fee_basis_points` the fee collected upon sale of the NFT which is split between the creators
-- `image` the file name of the corresponding image that the NFT will display
-- `attributes` the attributes of the NFT
-- `properties` the list of creators, the creator's share of seller fee basis points, and the file of the image. If there are multiple creators, the total “share” must add to 100
-- `collection` the “name” and “family” of the NFT collection
+In addition to the Token Metadata PRogram, Metaplex provides Candy Machine v2. Candy Machine v2 leverages the Token Metadata Program to create tokens, manage their metadata, and customize their distribution.
 
-The metadata file will look something like the following:
+## Create an NFT with Metaplex
+
+Candy Machine v2 simplifies the process of creating an NFT so you can focus on what's important: the NFT metadata and assets. Creating the NFT involves:
+
+1. Preparing assets and metadata
+2. Configuring your candy machine
+3. Uploading your candy machine
+
+### Prepare assets and metadata
+
+Before creating a collection you need to prepare the assets and metadata for your collection. The metadata is simply a JSON file that includes the following attributes:
+
+- `name` - the name of the NFT that will display on-chain.
+- `symbol` - the optional symbol of the NFT that will display on-chain.
+- `description` - the description of the NFT.
+- `seller_fee_basis_points` - the fee collected upon sale of the NFT which is split between the creators.
+- `image` - the file name of the corresponding image that the NFT will display.
+- `attributes` - an array of attributes for the NFT where each item in the array is an object with `trait_type` and `value` properties.
+- `properties` - an object with `files`, `category`, and `creators` properties. `files` is a list of files included with the metadata, `category` represents the type of NFT (e.g. image), and `creators` is a list of objects representing the creators of the NFTs and their share of seller fee basis points. Here's an example:
+    ```json
+    {
+        "files": [{ "uri": "some-image.png", "type": "image/png" }],
+        "category": "image",
+        "creators": [
+            {
+                "address": "8T9YDcm5zFMRNiUS4aohgVxkqCNAFbnvvzBbxBzkRFck",
+                "share": 100
+            }
+        ]
+    }
+    ```
+- `collection` - an object with `name` and `family` properties representing the name and family of the NFT collection.
+
+The metadata file will look like this:
 
 ```json
 {
@@ -89,9 +102,11 @@ The metadata file will look something like the following:
 }
 ```
 
-## Candy Machine v2
+### Configure a candy machine
 
-Candy Machine v2 is an NFT distribution program created by Metaplex. A candy machine is configured using a JSON file that can be reused. In other words, a creator can use the same configuration file to create each multiple NFT collections. When a new candy machine is created, the configurations are stored in an account on-chain where the configuration fields can be updated using the Candy Machine CLI. You can read more about Candy Machine configurations [here](https://docs.metaplex.com/candy-machine-v2/configuration).
+With the NFT metadata prepared, you can use Candy Machine v2 to configure and create your NFT's "candy machine." 
+
+Configuration happens through a simple JSON file. When you use Candy Machine v2 to create your candy machine, the JSON in this configuration file is stored in an account on-chain where the configuration fields can then be updated using the Candy Machine CLI. The properties in this configuration file are:
 
  - `price` is the amount to charge for each NFT minted from the Candy Machine.
 
@@ -164,18 +179,41 @@ Candy Machine v2 is an NFT distribution program created by Metaplex. A candy mac
 
  - `noMutable` indicates whether the NFTs' metadata is mutable or not after minting. If set to false, the metadata can later be updated. If set to true, the metadata cannot be updated later and the setting cannot be reset to false.
 
- Once the assets for a collection and the candy machine configuration file are prepared, the next step is to create the candy machine. This is done using the `upload` command from the Candy Machine CLI. The `upload` command does two things:
+You can read more about Candy Machine configurations [here](https://docs.metaplex.com/candy-machine-v2/configuration).
 
- 1. Uploads the asset files to the specified storage type and creates a `.cache` file
- 2. Creates an on-chain account referred to as a Candy Machine that temporarily stores the links to the uploaded collection and correspond to the `.cache` file. The on-chain Candy Machine account is then used to distribute the collection once minting goes live.
+### Upload a candy machine
+
+Once the assets for a collection and the candy machine configuration file are prepared, the next step is to create the candy machine. This is done using the `upload` command from the Candy Machine CLI. The `upload` command does two things:
+1. Uploads the asset files to the specified storage type and creates a `.cache` file
+2. Creates an on-chain account referred to as a Candy Machine that temporarily stores the links to the uploaded collection and correspond to the `.cache` file. The on-chain Candy Machine account is then used to distribute the collection once minting goes live.
 
 After running the `upload` command, it is best practice to also run the `verify_upload` command. This command will check that each entry in the `.cache` file matches the on-chain Candy Machine account. If any of the URI entries do not match the information stored on on-chain, you will need to re-run the upload command.
 
-Once the upload has been successfully verified, the Candy Machine is ready to mint tokens. The Candy Machine configuration settings will how tokens are minted. Minting is often done through a frontend UI and separated between whitelist and public minting.
+### Sign the NFT Collection
 
-Note that the data stored on the Candy Machine account is only used to manage the distribution of the collection. Once a Candy Machine is fully minted, the data stored is no longer useful and the rent for the account can be fully recovered using the `withdraw` command. The `withdraw` command must be executed with the `keypair` that created the Candy Machine.
+The final step in creating an NFT collection is for the creator to sign the NFTs and verify themselves as the creator. It's important for a creator to sign the collection to prevent fraudulent collections. Since the creator field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.
 
-The final step in creating an NFT collection is for the creator to sign the NFTs and verify themselves as the creator. It is important for a creator to sign the collection to prevent fraudulent collections. Since the creator field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.
+You can sign a collection using the Candy Machine v2 CLI `sign_all` command.
+
+## Mint Process
+
+Once the upload has been successfully verified, the candy machine is ready to mint tokens. The candy machine configuration settings will determine how tokens are minted. Minting is often done through a frontend UI and split between whitelist and public minting.
+
+For testing, you can mint a token directly from the Candy Machine v2 CLI using the `mint_one_token` command.
+
+### Mint using the Candy Machine UI
+>>>>>PUT SOME STUFF HERE
+
+### Mint using Captcha
+>>>>>PUT SOME STUFF HERE
+
+### Allow whitelisted mints
+>>>>>PUT SOME STUFF HERE
+
+## Withdraw candy machine rent
+
+Once a candy machine is fully minted, the data stored in the candy machine account is no longer relevant. At that point, the account can be close and the rent for the account recovered using the `withdraw` command. The `withdraw` command must be executed with the keypair that created the Candy Machine.
+
 
 # Demo
 
@@ -183,56 +221,59 @@ Let’s put all of this into practice by creating a Candy Machine and minting ou
 
 ### 1. Download the starter code
 
-Let's begin by downloading the starter [code](https://github.com/ZYJLiu/metaplex-starter). The starter code includes an `assets` folder and the configuration file for our Candy Machine, `config.json`. Additionally, it includes two helper scripts. One creates a new keypair we will use for this lesson. The other creates the whitelist token we will later use to enable whitelist settings.
+Let's begin by downloading the starter [code](https://github.com/Unboxed-Software/solana-metaplex-intro). The starter code includes an `assets` folder and the configuration file for our Candy Machine, `config.json`. Additionally, it includes two helper scripts. One creates a new keypair we will use for this lesson. The other creates the whitelist token we will later use to enable whitelist settings.
 
 ### 2. Setup
-While in the `metaplex-starter` folder, lets first install the dependencies for our starter code:
+While in the project's root directory, lets first install the dependencies for our starter code:
 ```sh
 npm install
 ```
 
-Next let's set up a new keypair to use for this lesson and airdrop some devnet SOL using our helper script. Run the following command:
+Next, let's set up a new keypair to use for this lesson and airdrop some devnet SOL using our helper script. Run the following command:
 
 ```sh
 npm start
 ```
-You should now have see a new `metaplex-starter.json` file.
-Copy the keypair from the new file and import it into Phantom
+You should now see a new `private-key.json` file. Copy the keypair from the new file and import it into Phantom.
 
 ![Gif of Phantom Import](../assets/solana-nft-phantom.gif)
 
 ### 3. Download Metaplex
 
-While in the `metaplex-starter` directory, clone the Metaplex repo:
+Now that our project has a new keypair, we're ready to set up the Metaplex helpers. While in the project's root directory, clone the Metaplex repository:
 
 ```sh
 git clone https://github.com/metaplex-foundation/metaplex.git
 ```
 
-If you don't already ts-node installed globally go ahead and do that now:
+This repository contains the Candy Machine v2 CLI tools. If you want to have a look at them more closely, you can find them in `metaplex/js/packages/cli/src/candy-machine-cli-v2.ts`.
+
+We'll be using `ts-nod` to run commands. If you don't have `ts-node` installed globally, install it now:
 
 ```sh
 npm install -g typescript
 npm install -g ts-node
 ```
 
-Next, install Metaplex dependencies:
+Next, install the Metaplex package dependencies:
 
 ```sh
 yarn install --cwd metaplex/js/
 ```
 
-Confirm that Candy Machine was installed:
+Finally, let's confirm that everything is working by checking the Candy Machine v2 version:
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts --version
 ```
 
+If this command logs a version to the console, you should be good to go. If not, you'll have to debug the problem(s) before moving on. Check the logs if you're having issues.
+
 ![Gif of Metaplex Install](../assets/solana-nft-metaplex-install.gif)
 
 ### 4. Candy Machine Configuration
 
-Now that we have installed Metaplex, let's configure our Candy Machine.
+Now that we have installed Metaplex, it's time to configure our candy machine.
 
 Open the `config.json` located in our metaplex-starter folder. Copy and paste the configurations below into `config.json`:
 
@@ -260,15 +301,19 @@ Open the `config.json` located in our metaplex-starter folder. Copy and paste th
 
 Update the `solTreasuryAccount` field with the wallet address we imported to Phantom. This will be the only setting we change for now.
 
-```json
-    "solTreasuryAccount": "<YOUR_WALLET_ADDRESS>"
-```
+Let's walk through the values we have real quick:
+- `price` is set to `1`, meaning each NFT will cost 1 SOL.
+- `number` is set to `5`, meaning the collection has 5 NFTs total.
+- `goLiveDate` is set to a date in the past so that the collection will be live as soon as we upload it.
+- `storage` is set to `arweave` which means the metadata will be stored for 7 days on arweave. Rembember, if we were doing this for Mainnet we would use `arweave-sol` to make the storage permanent.
+- `noRetainAuthority` is set to `false` so that minter of the NFT cannot change the metadata.
+- `noMutable` is set to `false` so that we can update the metadata after the fact if we need to.
 
 ### 5. Prepare Assets
 
-Next, let's prepare the assets for our Candy Machine. The starter code includes an `assets` folder that holds the images and the metadata files we'll use for our collection.
+Now let's prepare the assets for our candy machine. The starter code includes an `assets` folder that holds the images and the metadata files we'll use for our collection. 
 
-Open each `.json` file and update the `address` field with the wallet address we imported to Phantom.
+Open the `0.json` file. Notice that all of the fields are already filled out except for the `address` field under `creators`. You'll need to set this to the address we imported to Phantom. Do this for the remaining `json` files in the `assets` folder.
 
 ```json
 {
@@ -297,7 +342,7 @@ Open each `.json` file and update the `address` field with the wallet address we
 }
 ```
 
-Once you’ve updated the `address` field for each `.json` file, let's verify that the assets are ready for upload by running the `verify_assets` command.
+Once you’ve updated the `address` field for each `.json` file, we can verify that the assets are ready for upload by running Candy Machine's `verify_assets` command.
 
 This will check that:
 
@@ -320,7 +365,7 @@ Now that we’ve configured our Candy Machine and verified that our assets are r
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts upload \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
-    -k ~/metaplex-starter/metaplex-starter.json \
+    -k ./private-key.json \
     -cp config.json \
     -c example \
     ./assets
@@ -390,7 +435,7 @@ This verifies that each entry in the `devnet-example.json` file has been success
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_upload \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
-    -k ~/metaplex-starter/metaplex-starter.json \
+    -k ./private-key.json \
     -c example
 ```
 
@@ -403,7 +448,7 @@ Now let's mint an NFT from our Candy Machine by running the `mint_one_token` com
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts mint_one_token \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
-    -k ~/metaplex-starter/metaplex-starter.json \
+    -k ./private-key.json \
     -c example
 ```
 
@@ -415,7 +460,7 @@ You should now be able to see the newly minted NFT in the Phantom wallet.
 
 ### 7. Candy Machine UI
 
-Now that we have our Candy Machine, let's set up a frontend to mint our NFTs using the Candy Machine UI.
+Now that we know our candy machine works, let's set up a frontend to mint our NFTs using the Candy Machine UI.
 
 Navigate to the candy-machine-ui folder using the following path: `/metaplex/js/packages/candy-machine-ui`.
 
@@ -436,7 +481,7 @@ From within the `candy-machine-ui` folder, run the following command:
 yarn install && yarn start
 ```
 
-Navigate to [localhost:3000](http://localhost:3000) in the browser and click "MINT" to mint an NFT from the Candy Machine!
+Navigate to [localhost:3000](http://localhost:3000) in the browser and click "MINT" to mint an NFT from your candy machine!
 
 ![Gif of Metaplex Mint UI](../assets/solana-nft-metaplex-mint-ui.gif)
 
@@ -458,10 +503,12 @@ Update the Candy Machine by running the `update_candy_machine` command:
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machine \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
-    -k ~/metaplex-starter/metaplex-starter.json \
+    -k ./private-key.json \
     -cp config.json \
     -c example
 ```
+
+Note that the path in the command above starts from the root directory of your project. If your command line working directory is different, you'll need to adjust the path accordingly.
 
 Refresh [localhost:3000](http://localhost:3000) in the browser and click the mint button. It should now require a CAPTCHA verification before minting.
 
@@ -494,7 +541,7 @@ Next, open the `config.json` file and reset the `gatekeeper` field to `null`:
 Update the `goLiveDate` to sometime in the future:
 
 ```json
-    "goLiveDate": "25 Dec 2022 00:00:00 GMT"
+    "goLiveDate": "25 Dec 2050 00:00:00 GMT"
 ```
 
 Update `whitelistMintSettings` and set the `mint` field to the address of the token we just created:
@@ -508,12 +555,12 @@ Update `whitelistMintSettings` and set the `mint` field to the address of the to
     }
 ```
 
-Update the Candy Machine by running the `update_candy_machine` command again:
+Update the candy machine again by running the `update_candy_machine` command:
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machine \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
-    -k ~/metaplex-starter/metaplex-starter.json \
+    -k ./private-key.json \
     -cp config.json \
     -c example
 ```
@@ -528,12 +575,12 @@ Go ahead and mint out the Candy Machine from a wallet with the whitelist token u
 
 ### 10. Withdraw Rent
 
-Now that our Candy Machine is fully minted, the rent used for the Candy Machine can be retrieved by running the `withdraw` command. Note to replace `<candy_machine_id>` with the address of the Candy Machine from `devnet-example.json` before running the command:
+Now that our Candy Machine is fully minted, the rent used for the Candy Machine can be retrieved by running the `withdraw` command. You'll need to replace `<candy_machine_id>` with the address of the Candy Machine from `devnet-example.json` before running the command below.
 
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts withdraw <candy_machine_id> \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
-    -k ~/metaplex-starter/metaplex-starter.json \
+    -k ./private-key.json
 ```
 
 ![Gif of Withdraw](../assets/solana-nft-metaplex-withdraw.gif)
@@ -545,11 +592,13 @@ Finally, sign the NFTs to verify yourself as the creator of the collection by ru
 ```sh
 ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts sign_all \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
-    -k ~/metaplex-starter/metaplex-starter.json \
+    -k ./private-key.json \
     -c example
 ```
 
 ![Gif of Sign All](../assets/solana-nft-metaplex-sign-all.gif)
+
+Awesome work! While Metaplex makes it straightforward to create an NFT collection, it's still difficult to get some of these command line tools working. If you run into any snags, be patient with yourself while you debug the problem.
 
 # Challenge
 
@@ -565,3 +614,5 @@ Recall that the sequence of steps are as follows:
 6. Mint NFTs
 7. Withdraw Candy Machine
 8. Sign collection
+
+Have some fun with this! This will be your first independently created NFT collection!
