@@ -65,6 +65,8 @@ Under the hood, the `createMint` function is simply creating a transaction that 
 1. Create a new account 
 2. Initialize a new Mint 
 
+JC nit: Maybe explain why this is important -- that if you do them in separate transactions, someone else could scoop your created account for their own mint!
+
 This would look as follows:
 
 ```tsx
@@ -258,8 +260,10 @@ The `mintTo` function returns a `TransactionSignature` that can be viewed on the
 - `destination` the token account that tokens will be minted to
 - `authority` the account authorized to mint tokens
 - `amount` the amount of tokens to mint - remember to account for the decimals of the `mint`!
+JC nit: can make this even clearer to say that this is the raw token amount, outside of decimals
 
 It's not uncommon to update the mint authority on a token mint to null after the tokens have been minted. This would set a maximum supply and ensure no tokens can be minted in the future. Conversely, minting authority could be granted to a program so tokens could be automatically minted at regular intervals or according to programmable conditions.
+JC nit: an example here could be really useful!
 
 Under the hood, the `mintTo` function simply creates a transaction with the instructions obtained from the `createMintToInstruction` function.
 
@@ -291,6 +295,7 @@ async function buildMintToTransaction(
 SPL-Token transfers require both the sender and receiver to have token accounts for the mint of the tokens being transferred. The tokens are transferred from the sender’s token account to the receiver’s token account.
 
 You can use `getOrCreateAssociatedTokenAccount` when obtaining the receiver's associated token account to ensure their token account exists before the transfer. Just remember that for the account to be created enough lamports need to be deposited for it to be rent exempt.
+JC: it's probably worth clarifying that they spend the rent to create the receiver's token account
 
 Once you know the receiver's token account address, you transfer tokens using the `spl-token` library's `transfer` function.
 
@@ -339,6 +344,8 @@ async function buildTransferTransaction(
     return transaction
 }
 ```
+
+JC: in the name of encouraging associated token accounts, this could take in the destination wallet address and use `getOrCreateAssociatedTokenAccount` to get the destination token account
 
 ## Burn Tokens
 
@@ -391,9 +398,14 @@ async function buildBurnTransaction(
 }
 ```
 
+JC:
+## Approve / Revoke Delegate
+This is an important point -- please add in a section about the importance of using approve / revoke on delegates rather than signing with your keypair.  Dapps need to start using it way more to avoid putting user funds at risk.
+
 # Demo
 
 We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, transfer tokens, burn tokens, and close a Token Account.
+JC nit: there isn't a bit about closing later on, so can remove that mention
 
 ### 1. Basic scaffolding
 
@@ -571,6 +583,8 @@ async function main() {
 ```
 
 ### 5. Transfer Tokens
+
+JC: This would be a great place to do an approval, before the transfer
 
 Next, lets transfer some of the tokens we just minted using the `spl-token` library's `transfer` function.
 
