@@ -5,8 +5,8 @@
 *By the end of this lesson, you will be able to:*
 
 - Understand the role of Metaplex in the Solana NFT ecosystem
-- Use Candy Machine v2 to create an NFT collection
-- Use a frontend UI to mint NFTs from a candy machine
+- Use Candy Machine v2 to create and distribute an NFT collection
+- Use Candy Machine UI to mint NFTs from a candy machine
 
 # TL;DR
 
@@ -36,15 +36,22 @@ While the first three points are standard features that can be achieved with the
 Typically, an NFT’s metadata has both an on-chain and off-chain component. The on-chain metadata is stored in an account associated with the token mint and contains a URI attribute that points to an off-chain JSON file. The off-chain component stores additional data and a link to the image. Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.
 
 Below is an example of the relationship between on-chain and off-chain metadata. The on-chain metadata contains a URI field that points to an off-chain `.json` file that stores the link to the image of the NFT and additional metadata.
+
 ![Screenshot of Metadata](../assets/solana-nft-metaplex-metadata.png)
 
 ## Metaplex
 
-The de facto standard tools for NFTs on Solana are provided by an organization called Metaplex. Metaplex is an organization that provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain.
+The de facto standard tools for NFTs on Solana are provided by an organization called Metaplex. Metaplex is an organization that provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. These tools are very comprehensive for most use cases and allow you to easily manage the entire NFT process:
+
+1. Creating an NFT collection
+2. Minting an NFT collection
+3. Signing for minted NFTs
 
 One of the core programs provided by Metaplex is the Token Metadata Program. The Token Metadata Program standardizes the process of associating metadata to an NFT. When you create an NFT with Metaplex, the Token Metadata Program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint.
 
 In addition to the Token Metadata Program, Metaplex provides Candy Machine v2. Candy Machine v2 leverages the Token Metadata Program to create tokens, manage their metadata, and customize their distribution.
+
+You can use Metaplex's tools by cloning the [Metaplex repository](https://github.com/metaplex-foundation/metaplex.git) and executing certain commands. We'll go over the commands here in the Overview and then walk through actually executing them in the Demo.
 
 ## Create an NFT with Metaplex
 
@@ -201,12 +208,6 @@ Once the assets for a collection and the candy machine configuration file are pr
 
 After running the `upload` command, it is best practice to also run the `verify_upload` command. This command will check that each entry in the `.cache` file matches the on-chain candy machine account. If any of the URI entries do not match the information stored on on-chain, you will need to re-run the upload command.
 
-### Sign the NFT Collection
-
-The final step in creating an NFT collection is for the creator to sign the NFTs and verify themselves as the creator. It's important for a creator to sign the collection to prevent fraudulent collections. Since the creator field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.
-
-You can sign a collection using the Candy Machine v2 CLI `sign_all` command.
-
 ## Mint Process
 
 Once the upload has been successfully verified, the candy machine is ready to mint tokens. The candy machine configuration settings will determine how tokens are minted. Minting is often done through a frontend UI and split between whitelist and public minting.
@@ -214,17 +215,54 @@ Once the upload has been successfully verified, the candy machine is ready to mi
 For testing, you can mint a token directly from the Candy Machine v2 CLI using the `mint_one_token` command.
 
 ### Mint using the Candy Machine UI
->>>>>PUT SOME STUFF HERE
+
+In addition to Candy Machine v2's command line tools, Metaplex also makes it easy to create a frontend for minting using Candy Machine UI. 
+
+The directory in the Metaplex repository with the Candy Machine UI has a `.env.example` file with an example of the environment variables you need to run the frontend project. 
+
+While creating a candy machine, you'll receive an address of the candy machine account. You simply need to change the name of `.env.example` to `.env` and update the `REACT_APP_CANDY_MACHINE_ID` environment variable to be the address of the candy machine account.
+
+At that point, you can simply use `yarn start` or `npm start` to run the frontend project and start minting on localhost. For production use cases, you can adapt this code or deploy it as is.
 
 ### Mint using CAPTCHA
->>>>>PUT SOME STUFF HERE
+
+There are a few things you can do to customize the minting process. One of them is adding CAPTCHA verification. For this, simply open the the candy machine's configuration file and update the `gatekeeper` field to the following:
+
+```json
+    "gatekeeper": {
+        "gatekeeperNetwork": "ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6",
+        "expireOnUse": true
+    }
+```
+
+You can then update the candy machine by running the `update_candy_machine` command. At that point, minting with the candy machine's UI will require CAPTCHA verification.
 
 ### Allow whitelisted mints
->>>>>PUT SOME STUFF HERE
+
+You can also allow whitelisted mints by issuing a token that can be exchanged for early access to a mint. To do this, you simply create a standard SPL token, then adjust the `whitelistMintSettings` in the candy machine configuration file:
+
+```json
+    "whitelistMintSettings": {
+        "mode": { "burnEveryTime": true },
+        "mint": "<WHITELIST_TOKEN_ADDRESS>",
+        "presale": true,
+        "discountPrice": 0.01
+    }
+```
+
+The example above will burn an SPL token from the address specified in the `mint` field in exchange for access to an otherwise restricted mint.
+
+After updating the configuration, simply update the candy machine again by running the `update_candy_machine` command.
 
 ## Withdraw candy machine rent
 
 Once a candy machine is fully minted, the data stored in the candy machine account is no longer relevant. At that point, the account can be closed and the rent for the account recovered using the `withdraw` command. The `withdraw` command must be executed with the keypair that created the Candy Machine.
+
+## Sign the NFT Collection
+
+The final step in creating an NFT collection is for the creator to sign the NFTs. This verifies them as the creator, thereby preventing fraudulent collections. Since the `creator` field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.
+
+You can sign a collection using the Candy Machine v2 CLI `sign_all` command.
 
 # Demo
 
@@ -262,7 +300,7 @@ git clone https://github.com/metaplex-foundation/metaplex.git
 
 This repository contains the Candy Machine v2 CLI tools. If you want to have a look at them more closely, you can find them in `metaplex/js/packages/cli/src/candy-machine-cli-v2.ts`.
 
-We'll be using `ts-node` to run commands. If you don't have`typescript` and `ts-node` installed globally, install it now:
+We'll be using `ts-node` to run commands. If you don't have `typescript` and `ts-node` installed globally, install it now:
 
 ```sh
 npm install -g typescript
