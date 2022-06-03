@@ -283,8 +283,6 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts --version
 
 If this command logs a version number to the console, you should be good to go. If not, you'll have to debug the problem(s) before moving on. Check the logs if you're having issues.
 
-![Gif of Metaplex Install](../assets/solana-nft-metaplex-install.gif)
-
 Note that this and all subsequent commands include paths to their source files starting from our project's root directory. If at any point you change your command line's working directory, you'll need to adjust the path on the command.
 
 ### 4. Candy Machine Configuration
@@ -373,7 +371,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_assets ./ass
 
 The output should look something like this:
 
-![Gif of Metaplex Verify Assets](../assets/solana-nft-metaplex-verify-assets.gif)
+![Screenshot of Metaplex Verify Assets console upload](../assets/solana-nft-metaplex-verify-assets.png)
 
 ### 6. Create Candy Machine
 
@@ -390,7 +388,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts upload \
 
 The output should look something like this:
 
-![Gif of Metaplex Upload](../assets/solana-nft-metaplex-upload.gif)
+![Screenshot of Metaplex Upload console output](../assets/solana-nft-metaplex-upload.png)
 
 There will now be a `.cache` folder with a `devnet-example.json` file that includes the address of our candy machine and Arweave links corresponding to the metadata of each NFT in our candy machine. When we run the upload command, the images and metadata files in our `assets` folder are uploaded to Arweave in preparation for minting. These Arweave links represent the off-chain component of each NFT's metadata.
 
@@ -458,7 +456,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_upload \
 
 The output should look something like this:
 
-![Gif of Metaplex Verify Upload](../assets/solana-nft-metaplex-verify-upload.gif)
+![Screenshot of Metaplex Verify Upload console output](../assets/solana-nft-metaplex-verify-upload.png)
 
 Now let's mint an NFT from our candy machine by running the `mint_one_token` command:
 
@@ -468,8 +466,6 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts mint_one_token \
     -k ./private-key.json \
     -c example
 ```
-
-![Gif of Metaplex Mint One](../assets/solana-nft-metaplex-mint-one.gif)
 
 You should now be able to see the newly minted NFT in the Phantom wallet.
 
@@ -500,8 +496,6 @@ yarn install && yarn start
 
 Navigate to [localhost:3000](http://localhost:3000) in the browser and click "MINT" to mint an NFT from your candy machine!
 
-![Gif of Metaplex Mint UI](../assets/solana-nft-metaplex-mint-ui.gif)
-
 ### 8. Enable Gatekeeper
 
 Now that we have our candy machine's UI working, let's update our candy machine to enable the gatekeeper setting.
@@ -529,7 +523,7 @@ Note that the path in the command above starts from the root directory of your p
 
 Refresh [localhost:3000](http://localhost:3000) in the browser and click the mint button. It should now require a CAPTCHA verification before minting.
 
-![Gif of Metaplex Gatekeeper](../assets/solana-nft-metaplex-gatekeeper.gif)
+![Screenshot of Metaplex Gatekeeper UI](../assets/solana-nft-metaplex-gatekeeper.png)
 
 ### 9. Enable Whitelist
 
@@ -585,11 +579,9 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machin
 
 Refresh [localhost:3000](http://localhost:3000) in the browser and mint from a wallet that holds the whitelist token:
 
-![Gif of Whitelist Mint](../assets/solana-nft-whitelist-mint.gif)
+![Screenshot of Whitelist Mint UI](../assets/solana-nft-whitelist-mint.png)
 
-Go ahead and mint out the candy machine from a wallet with the whitelist token until you see the following:
-
-![Screenshot of Sold Out UI](../assets/solana-nft-sold-out.png)
+Go ahead and mint out the candy machine from a wallet with the whitelist token until the button says it's sold out.
 
 ### 10. Withdraw Rent
 
@@ -601,8 +593,6 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts withdraw <candy_mac
     -k ./private-key.json
 ```
 
-![Gif of Withdraw](../assets/solana-nft-metaplex-withdraw.gif)
-
 ### 11. Signing NFTs
 
 Finally, sign the NFTs to verify yourself as the creator of the collection by running the `sign_all` command:
@@ -613,8 +603,6 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts sign_all \
     -k ./private-key.json \
     -c example
 ```
-
-![Gif of Sign All](../assets/solana-nft-metaplex-sign-all.gif)
 
 Awesome work! While Metaplex makes it straightforward to create an NFT collection, it's still difficult to get some of these command line tools working. If you run into any snags, be patient with yourself while you debug the problem.
 
