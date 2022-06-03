@@ -34,31 +34,24 @@
    - Fetch a program’s accounts
    - Use Borsh to deserialize custom data
 
-# Module 2 - Client interaction with the Solana Program Library
-1. Intro to SPL
-   - Explain Native Programs
-   - Explain Solana Program Library Programs
-   - Explain the Solana Accounts model
-   - Explain Native Programs
-2. Token Program
+# Module 2 - Client interaction with common Solana programs
+1. Token Program
    - Explain the Solana Token Program
    - Create a new token using `spl-token`
    - Explain associated token accounts
    - Create a token account using `spl-token`
    - Explain rent in the Solana Accounts model
    - Mint a token using `spl-token`
-3. Token Swap Program
+2. Token Swap Program
    - Create a token swap pool
    - Deposit liquidity
    - Withdraw liquidity
    - Swap tokens
-4. NFTs with Metaplex
+3. NFTs with Metaplex
    - Explain NFTs and how they're supported by the Solana network
-   - Create a new NFT using the metaplex library
-   - How does it work
-   - Write code to mint an NFT
-   - Explain possible utility behind NFTs
-   - Write code to leverage NFTs
+   - Understand the role of Metaplex in the Solana NFT ecosystem
+   - Use Candy Machine v2 to create and distribute an NFT collection
+   - Use Candy Machine UI to mint NFTs from a candy machine
 
 # Module 3 - Basic Solana Program Development
 1. High-level view of the network

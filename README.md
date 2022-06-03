@@ -20,8 +20,10 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    5. [Deserialize custom account data](./content/deserialize-custom-data.md)
    6. [Page, Order, and Filter custom account data](./content/paging-ordering-filtering-data.md)
 
-### Module 2 - Client interaction with the Solana Program Library
-Coming soon
+### Module 2 - Client interaction with common Solana programs
+   1. [Create tokens with the Token Program](./content/token-program.md)
+   2. [Swap tokens with the Token Swap Program](./content/token-swap.md)
+   3. [Create Solana NFTs With Metaplex](./content/nfts-with-metaplex.md)
 
 ### Module 3 - Basic Solana Program Development
 Coming soon

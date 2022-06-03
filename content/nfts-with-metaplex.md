@@ -1,9 +1,10 @@
-# Creating Solana NFTs With Metaplex
+# Create Solana NFTs With Metaplex
 
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
 
+- Explain NFTs and how they're supported by the Solana network
 - Understand the role of Metaplex in the Solana NFT ecosystem
 - Use Candy Machine v2 to create and distribute an NFT collection
 - Use Candy Machine UI to mint NFTs from a candy machine
