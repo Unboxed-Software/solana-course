@@ -12,6 +12,7 @@
 # TL;DR
 
 - The **token swap program** is an SPL contract deployed to Mainnet and Devnet available for use by developers and protocols.
+JC: they shouldn't use those programs and instead deploy their own -- we don't support it on any of the networks
 - The program accepts six different **instructions**, all of which we will explore in this lesson.
 - Developers are able to create and use **liquidity pools** to swap between any SPL token that they wish.
 - The program uses a mathematical formula called "**curve**" to calculate the price of all trades. Curves aim to mimic normal market dynamics: for example, as traders buy a lot of one token type, the value of the other token type goes up.
@@ -25,6 +26,7 @@ Before we get into how to create and interact with swap pools on Solana, it’s 
 Users provide liquidity to these pools by depositing their own tokens into each pool. These users are called liquidity providers. When a liquidity provider (or LP) deposits some tokens to the swap pool, LP-tokens are minted that represent the LP's fractional ownership in the pool.
 
 Most swap pools charge a transaction fee for facilitating each swap. These transactions fees are then paid out to the LP’s in proportion to the amount of liquidity they are providing in the pool. This provides incentive for LP's to provide liquidity to the pool.
+JC: "transaction fee" is a loaded term since there's also the Solana transaction fee to pay -- can you call them "trading fee" and specify that they exist independently of the transaction fee?
 
 When an LP is ready to withdraw their deposited liquidity, their LP-tokens are burned and tokens from the pool (proportional to the amount of LP-tokens burned) are sent to their wallet.
 
@@ -41,9 +43,12 @@ Creating swap pools with the SPL token swap program really showcases the account
 As we talk through creating a swap pool, we'll assume we're creating a swap pool for two tokens named Token A and Token B. Creating the swap pool with the `spl-token-swap` library is as simple as sending a transaction with an instruction created with the `TokenSwap.createInitSwapInstruction` function. However, there are a number of accounts you need to create or derive beforehand that will be needed when creating that instruction:
 1. **Token swap state account** - holds information about the swap pool
 2. **Swap pool authority** - the account used to sign transactions on behalf of the swap program
+JC: you explain it later, but you can specify that this is a program-derived address based on the token swap state account
 3. **Token accounts for Token A and Token B** - associated token accounts for each of the tokens and the swap pool
+JC: "associated token account" is also a loaded term, so maybe strike the word since it isn't necessary?
 4. **Pool token mint** - the mint for the swap pool's LP-token
 5. **Pool token account** - the token account for the pool token mint
+JC: This is actually the pool token account that receives the first minting of pool tokens, representing the value inside of the token A and B accounts
 6. **Pool token fee account** - the account that gets paid the swap pool's transaction fees
 
 ### Token Swap State Account
@@ -128,7 +133,7 @@ const poolTokenMint = await token.createMint(
 
 ### Pool Token Account
 
-The pool token account is the account that the liquidity pool tokens get minted to. Liquidity pool tokens represent an LP's deposited liquidity in the pool.
+The pool token account is the account that the (JC: initial) liquidity pool tokens get minted to. Liquidity pool tokens represent an LP's deposited liquidity in the pool.
 
 ```tsx
 const tokenAccountPool = Web3.Keypair.generate()
@@ -150,9 +155,13 @@ transaction.add(createTokenAccountPoolInstruction)
 transaction.add(initializeTokenAccountPoolInstruction)
 ```
 
+JC: feel free to use the creator's associated token account here!
+
 ### Pool Token Fee Account
 
 The pool token fee account is the token account that the fees for the token swaps are paid to. This account must be owned by a specific account defined in the swap program - that account has public key [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet).
+
+JC: if we encourage people to use their own program (or deploy or own), then it doesn't need to be owned by that address, it's a holdover from when Serum was running token-swap.
 
 ```tsx
 const feeOwner = new web3.PublicKey('HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN')
@@ -216,6 +225,8 @@ const createSwapInstruction = TokenSwap.createInitSwapInstruction(
 transaction.add(createSwapInstruction)
 ```
 
+JC: As you're probably aware, when using the Serum version, you *must* specify a particular fee.  If you're using that version, be sure to explain why the fees are set to those numbers.  If you decide to roll your own program, then you don't need to do that.
+
 When a transaction with these instructions successfully executes, the swap pool is created and ready to be used.
 
 ## Interacting with Swap Pools
@@ -234,7 +245,7 @@ Since Solana programs require all accounts to be declared in the instruction, us
 We swap tokens using the `TokenSwap.swapInstruction` helper function which requires the following arguments:
 1. `tokenSwap` - the token swap state account
 2. `authority` - the swap pool authority
-3. `userTransferAuthority` - the authority over the user token account
+3. `userTransferAuthority` - the authority over the user token account (JC nit: maybe "delegate" is clearer than "authority")
 4. `userSource` - user token account to transfer tokens into the swap
 5. `poolSource` - swap pool token account to receive tokens transferred from the user
 6. `poolDestination` - swap pool token account to send tokens to the user
@@ -245,6 +256,7 @@ We swap tokens using the `TokenSwap.swapInstruction` helper function which requi
 11. `swapProgramId` - the address of the token swap program
 12. `tokenProgramId` - the address of the token program
 13. `amountIn` - amount of tokens deposited by the user into the swap pool
+JC nit: maybe use trading language here, and say it's the amount they want to "trade", and not "deposit"?
 14. `minimumAmountOut` - minimum amount of tokens send to the user token account. This parameter is used to account for slippage. Slippage is the difference between the value of a token when you submit the transaction versus when the order is fulfilled. In this case, the lower the number, the more slippage can possible occur without the transaction failing. Throughout this lesson we'll use 0 for swaps as calculating slippage is outside the scope of this lesson. In a production app, however, it's important to let users specify the amount of slippage they're comfortable with.
 
 The instruction for swapping token A for token B will look like this:
