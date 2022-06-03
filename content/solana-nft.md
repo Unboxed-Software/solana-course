@@ -251,6 +251,8 @@ You can also allow whitelisted mints by issuing a token that can be exchanged fo
 
 The example above will burn an SPL token from the address specified in the `mint` field in exchange for access to an otherwise restricted mint.
 
+It's important to note that if both whitelisting and gatekeeping are enabled then minting will not work. So if you enable whitelisted mints, be sure to set `gatekeeper` to `null`.
+
 After updating the configuration, simply update the candy machine again by running the `update_candy_machine` command.
 
 ## Withdraw candy machine rent
