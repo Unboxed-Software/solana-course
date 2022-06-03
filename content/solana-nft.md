@@ -40,11 +40,11 @@ Below is an example of the relationship between on-chain and off-chain metadata.
 
 ## Metaplex
 
-The defacto standard tools for NFTs on Solana are provided by an organization called Metaplex. Metaplex is an organization that provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain.
+The de facto standard tools for NFTs on Solana are provided by an organization called Metaplex. Metaplex is an organization that provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain.
 
 One of the core programs provided by Metaplex is the Token Metadata Program. The Token Metadata Program standardizes the process of associating metadata to an NFT. When you create an NFT with Metaplex, the Token Metadata Program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint.
 
-In addition to the Token Metadata PRogram, Metaplex provides Candy Machine v2. Candy Machine v2 leverages the Token Metadata Program to create tokens, manage their metadata, and customize their distribution.
+In addition to the Token Metadata Program, Metaplex provides Candy Machine v2. Candy Machine v2 leverages the Token Metadata Program to create tokens, manage their metadata, and customize their distribution.
 
 ## Create an NFT with Metaplex
 
