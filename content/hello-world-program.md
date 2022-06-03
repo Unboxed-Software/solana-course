@@ -39,7 +39,7 @@ Data accounts store state (e.g. name, count). Note that data accounts must be ow
 Program accounts store the executable programs (e.g. instruction logic) and process instructions. There are two types of program accounts:
 
 - Native program accounts which refer to Solana’s native programs (e.g. System Program)
-- All other program accounts
+- All other program accounts (which are owned by a native program referred to as the BPF (Berkeley Packet Filter) Loader)
 
 The diagram below demonstrates the relationship between program accounts and data accounts:
 
@@ -162,7 +162,7 @@ use solana_program::{
 };
 ```
 
-Next, let's set up the entry point to our program using the `entrypoint!` macro and create the `process_instruction` function. The `msg!` macro then allows us to print “Hello world!” to the program log when the program is invoked.      
+Next, let's set up the entry point to our program using the `entrypoint!` macro and create the `process_instruction` function. The `msg!` macro then allows us to print “Hello, world!” to the program log when the program is invoked.      
 
 ```rust
 entrypoint!(process_instruction);
@@ -172,7 +172,7 @@ pub fn process_instruction(
   accounts: &[AccountInfo],
   instruction_data: &[u8]
 ) -> ProgramResult{
-  msg!("Hello world!");
+  msg!("Hello, world!");
 
   Ok(())
 }
