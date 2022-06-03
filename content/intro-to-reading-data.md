@@ -1,4 +1,4 @@
-# Reading Data From The Solana Network
+# Read Data From The Solana Network
 
 # Lesson Objectives
 

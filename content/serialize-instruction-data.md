@@ -1,4 +1,4 @@
-# Serializing Custom Instruction Data
+# Serialize Custom Instruction Data
 
 # Lesson Objectives
 

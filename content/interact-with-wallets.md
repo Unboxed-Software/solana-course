@@ -1,4 +1,4 @@
-# Interacting With Wallets
+# Interact With Wallets
 
 # Lesson Objectives
 
