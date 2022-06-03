@@ -655,8 +655,8 @@ Recall that the sequence of steps are as follows:
 3. Verify assets
 4. Upload newly configured candy machine
 5. Verify the upload
-6. Sign collection
-7. Mint some NFTs
-8. Close the candy machine account and withdraw the rent
+6. Mint some NFTs
+7. Close the candy machine account and withdraw the rent
+8. Sign collection
 
 Have some fun with this! This will be your first independently created NFT collection!
