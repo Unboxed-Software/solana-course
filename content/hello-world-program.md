@@ -10,7 +10,7 @@
 
 - Explain the entry point to a Solana program
 
-- Submit a transaction to invoke our hello world program
+- Submit a transaction to invoke our “Hello, world!” program
 
 # TL;DR
 
@@ -20,42 +20,38 @@
 
 # Overview
 
-Solana programs are written in the Rust programming language. Solana programs are stored in accounts with a unique address referred to as the program id. To understand programs on Solana we must first understand the basics of Solana’s Account Model.
+Solana programs are written in the Rust programming language. Solana programs are stored in accounts with a unique address referred to as the program id. To understand programs on Solana we must first understand the basics of Solana’s Account Model. Once we understand Solana's account model, then we will be able to see how Solana programs (which are similar to what the Ethereum network calls, "smart contracts") are just a particular type of Solana account which can execute instructions.
 
 ### Account Model
 
-All data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data. 
+As you'll recall from the Introduction to Reading Data lesson, accounts are like the files in Solana’s network ledger. All data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data. 
 
-There are two main categories of accounts:
+There are two main categories of Solana accounts:
 
-1. Data accounts which store state (ex. name, count) and must be owned by a program account
-2. Program accounts which store the executable programs (ex. instruction logic) and process instructions 
+- Data accounts
+- Program accounts
 
-There are two types of data accounts:
+Data accounts store state (e.g. name, count). Note that data accounts must be owned by a program account. There are two types of data accounts:
 
-1. Data accounts owned by the System Program (ex. user wallets)
-2. Data accounts owned by all other programs 
+- Data accounts owned by the System Program (ex. user wallets)
+- Data accounts owned by any other program
 
-There are two types of program accounts:
+Program accounts store the executable programs (e.g. instruction logic) and process instructions. There are two types of program accounts:
 
-1. Native program accounts which refer to Solana’s native programs (ex. System Program)
-2. All other program accounts 
+- Native program accounts which refer to Solana’s native programs (e.g. System Program)
+- All other program accounts
 
 The diagram below demonstrates the relationship between program accounts and data accounts:
 
 ![Screenshot Account Model Example Diagram](../assets/hello-world-account-diagram.png)
 
-Note that program ownership differs from a user which has authority over an account. For example, a user wallet with authority over a token account must sign a transaction in order to send tokens from the token account. The signed transaction then authorizes the token program, which owns the token account, to transfer tokens to another token account.
-
-See the image below for the full list of fields an account stores with its description.
-
-![Screenshot Account Fields](../assets/hello-world-account-fields.png)
+Note that a program's ownership of an account differs from a user's authority over an account. For example, a user wallet with authority over a token account must sign a transaction in order to send tokens from the token account. The signed transaction then authorizes the token program, which owns the token account, to transfer tokens to another token account.
 
 ### Solana Programs
 
-To write Solana programs with Rust, we use the [solana_program](https://docs.rs/solana-program/latest/solana_program/index.html) library crate. Crates in Rust define functionality that can be shared with multiple projects. The `solana_program` crate acts as a standard library for Solana programs and contains modules and macros to help with the develop of our program. You can read more about Rust crates [here](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
+To write Solana programs with Rust, we use the [solana_program](https://docs.rs/solana-program/latest/solana_program/index.html) library crate. Crates in Rust define functionality that can be shared with multiple projects. The `solana_program` crate acts as a standard library for Solana programs. This standard library contains the modules and macros that we'll use to develop our Solana programs. You can read more about Rust crates [here](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
 
-Paths are brought into scope with the [use](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) keyword. In the example below, we bring into scope the [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) struct from the `account_info` module within the `solana_program` crate. You can read more about Rust modules [here](https://doc.rust-lang.org/book/ch07-02-defining-modules-to-control-scope-and-privacy.html).
+To show Rust where to find an item in a module tree, we use a path in the same way we use a path when navigating a filesystem. If we want to call a function, we need to know its path. To "use" the modules available in the solana_program crate, we'll need to know how to invoke them by their "path" and bring it into the scope of our program. Paths are brought into scope with the [use](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) keyword. In the example below, we bring into scope the [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) struct from the `account_info` module within the `solana_program` crate. You can read more about Rust modules [here](https://doc.rust-lang.org/book/ch07-02-defining-modules-to-control-scope-and-privacy.html).
 
 ```rust
 use solana_program::account_info::AccountInfo
@@ -77,9 +73,9 @@ Solana programs require a single entry point to process program instructions. Th
 
 The entry point to a Solana program requires a `process_instruction` function with the following arguments: 
 
-- `program_id` is the address of the account the program is stored
-- `accounts` is the list of accounts required to process the instruction
-- `instruction_data` is the serialized instruction-specific data
+- `program_id` - the address of the account where the program is stored
+- `accounts` - the list of accounts required to process the instruction
+- `instruction_data` - the serialized instruction-specific data
 
 ```rust
 entrypoint!(process_instruction);
@@ -91,7 +87,7 @@ fn process_instruction(
 ) -> ProgramResult;
 ```
 
-Recall that Solana programs accounts only store instruction logic. This means programs are read-only and “stateless”. The “state” (data) that a program requires to process an instruction are stored in data accounts. 
+Recall that Solana program accounts only store the logic for processing instructions. Program accounts are "read-only" accounts. This means that programs are “stateless”. The “state” (the set of data) that a program requires in order to process an instruction is stored in data accounts (separate from the program account).
 
 In order to process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
 
@@ -142,7 +138,7 @@ const transactionSignature = await web3.sendAndConfirmTransaction(
 
 # Demo
 
-Lets practice what we’ve learned by creating a basic program that will print "Hello world!" to the program log. We will build our program using Solana Playground, a tool that allows you to write and deploy Solana programs from the browser. 
+Let's practice what we’ve learned by creating a basic program that will print "Hello world!" to the program log. We will build our program using Solana Playground, a tool that allows you to write and deploy Solana programs from the browser. 
 
 Click [here](https://beta.solpg.io/) to open Solana Playground. Next, delete everything in the default `lib.rs` file and create a Playground wallet.
 
@@ -150,11 +146,11 @@ Click [here](https://beta.solpg.io/) to open Solana Playground. Next, delete eve
 
 First, lets bring into scope everything we’ll need from the `solana_program` crate. 
 
-- `AccountInfo` is a struct within the `account_info` module that allows us to access account information
-- `entrypoint` is a macro that declares the entry point of the program
-- `ProgramResult` is a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
-- `Pubkey` is a struct within the `pubkey` module allows us to access addresses as a public key
-- `msg` is a macro allows us to print messages to the program log
+- `AccountInfo` - a struct within the `account_info` module that allows us to access account information
+- `entrypoint` - a macro that declares the entry point of the program
+- `ProgramResult` - a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
+- `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
+- `msg` - a macro allows us to print messages to the program log
 
 ```rust
 use solana_program::{
@@ -166,7 +162,7 @@ use solana_program::{
 };
 ```
 
-Next, lets set up the entry point to our program using the `entrypoint!` macro and create the `process_instruction` function. The `msg!` macro then allows us to print “Hello world!” to the program log when the program is invoked.      
+Next, let's set up the entry point to our program using the `entrypoint!` macro and create the `process_instruction` function. The `msg!` macro then allows us to print “Hello world!” to the program log when the program is invoked.      
 
 ```rust
 entrypoint!(process_instruction);
@@ -182,7 +178,7 @@ pub fn process_instruction(
 }
 ```
 
-All together, the hello world program will look like this:
+All together, the “Hello, world!” program will look like this:
 
 ```rust
 use solana_program::{
@@ -206,13 +202,13 @@ pub fn process_instruction(
 }
 ```
 
-Now lets build and deploy our program using Solana Playground.
+Now let's build and deploy our program using Solana Playground.
 
 ![Gif Solana Playground Build and Deploy](../assets/hello-world-build-deploy.gif)
 
-Finally, lets invoke our program from the client side. Download the code [here](https://github.com/ZYJLiu/solana-hello-world-client).
+Finally, let's invoke our program from the client side. Download the code [here](https://github.com/ZYJLiu/solana-hello-world-client).
 
-The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our hello world program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser. 
+The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our  “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser. 
 
 In the `index.ts` file you should see the following: 
 
@@ -280,11 +276,11 @@ let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
 
 ![Gif Solana Playground Program Id](../assets/hello-world-program-id.gif)
 
-Next, run `npm start` in the terminal.
+Next, run `npm start`.
 
-![Gif terminal npm start](../assets/hello-world-npm-start.gif)
+![Gif npm start](../assets/hello-world-npm-start.gif)
 
-Lastly, copy the transaction URL printed in the terminal into your browser. Scroll down to see “Hello, world!” under Program Instruction Logs.
+Lastly, copy the transaction URL printed in the console into your browser. Scroll down to see “Hello, world!” under Program Instruction Logs.
 
 ![Screenshot Solana Explorer Program Log](../assets/hello-world-program-log.png)
 
