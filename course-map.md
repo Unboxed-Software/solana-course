@@ -33,6 +33,13 @@
    - Derive PDAs given specific seeds
    - Fetch a program’s accounts
    - Use Borsh to deserialize custom data
+6. Page, Filter, and Order account data
+   - Prefetch accounts without data
+   - Determine where in an account’s buffer layout specific data is stored
+   - Prefetch accounts with a subset of data that can be used to order accounts
+   - Fetch only accounts whose data matches specific criteria
+   - Fetch a subset of total accounts using `getMultipleAccounts`
+   - Combine to page, filter, and order data
 
 # Module 2 - Client interaction with common Solana programs
 1. Token Program
