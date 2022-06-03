@@ -71,11 +71,10 @@ Before creating a collection you need to prepare the assets and metadata for you
 - `seller_fee_basis_points` - the fee collected upon sale of the NFT which is split between the creators.
 - `image` - the file name of the corresponding image that the NFT will display.
 - `attributes` - an array of attributes for the NFT where each item in the array is an object with `trait_type` and `value` properties.
-- `properties` - an object with `files`, `category`, and `creators` properties. `files` is a list of files included with the metadata, `category` represents the type of NFT (e.g. image), and `creators` is a list of objects representing the creators of the NFTs and their share of seller fee basis points. Here's an example:
+- `properties` - an object with `files` and `creators` properties. `files` is a list of files included with the metadata and `creators` is a list of objects representing the creators of the NFTs and their share of seller fee basis points. Here's an example:
     ```json
     {
         "files": [{ "uri": "some-image.png", "type": "image/png" }],
-        "category": "image",
         "creators": [
             {
                 "address": "8T9YDcm5zFMRNiUS4aohgVxkqCNAFbnvvzBbxBzkRFck",
