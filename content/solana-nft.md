@@ -261,7 +261,7 @@ Once a candy machine is fully minted, the data stored in the candy machine accou
 
 ## Sign the NFT Collection
 
-The final step in creating an NFT collection is for the creator to sign the NFTs. This verifies them as the creator, thereby preventing fraudulent collections. Since the `creator` field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them.
+The final step in creating an NFT collection is for the creator to sign the NFTs. This verifies them as the creator, thereby preventing fraudulent collections. Since the `creator` field of a collection can specify any address, signing an NFT proves that the creator specified in the creator field also verified that the NFT was actually created by them. This step is usually performed after all NFTs have been minted from the candy machine since it will only sign the NFTs that have already been minted.
 
 You can sign a collection using the Candy Machine v2 CLI `sign_all` command.
 
