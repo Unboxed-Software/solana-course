@@ -854,7 +854,7 @@ async function main() {
 }
 ```
 
-### 6. Revoke Delegate
+### 7. Revoke Delegate
 
 Now that we've finished transferring tokens, lets revoke the `delegate` using the `spl-token` library's `revoke` function.
 
@@ -948,7 +948,7 @@ async function main() {
 }
 ```
 
-### 6. Burn Tokens
+### 8. Burn Tokens
 
 Finally, let's remove some tokens from circulation by burning them.
 
@@ -1054,7 +1054,7 @@ async function main() {
         25 * 10 ** mintInfo.decimals)
 }
 ```
-### 7. Test it all out
+### 9. Test it all out
 
 With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, approved a delegate, transferred 50 using a delegate, revoked the delegate, and burned 25 more. You're well on your way to being a token expert.
 
