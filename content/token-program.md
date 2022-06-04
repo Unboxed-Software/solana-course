@@ -1046,7 +1046,8 @@ async function main() {
         user, 
         tokenAccount.address, 
         mint, user, 
-        25 * 10 ** mintInfo.decimals)
+        25 * 10 ** mintInfo.decimals
+    )
 }
 ```
 ### 9. Test it all out
