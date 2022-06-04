@@ -357,7 +357,7 @@ const transactionSignature = await burn(
 )
 ```
 
-The `burn` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `TransactionSignature` function requires the following arguments:
+The `burn` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `burn` function requires the following arguments:
 
 - `connection` the JSON-RPC connection to the cluster
 - `payer` the account of the payer for the transaction
@@ -391,9 +391,103 @@ async function buildBurnTransaction(
 }
 ```
 
+## Approve Delegate
+
+Approving a delegate is the process of authorizing another account to withdraw tokens from a token account. When using a delegate, the authority over the token account remains with the owner. The maximum amount of tokens a delegate may transfer is specified at the time the owner of the token account approves the delegate.
+
+To approve a delegate using the `spl-token` library, you use the `approve` function.
+
+```tsx
+const transactionSignature = await approve(
+    connection,
+    payer,
+    account,
+    delegate,
+    owner,
+    amount
+  )
+```
+
+The `approve` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `approve` function requires the following arguments:
+
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `account` the token account to delegate tokens from
+- `delegate` the account the owner is authorizing to transfer tokens from the token account
+- `owner` the account of the owner of the token account
+- `amount` the maximum number of tokens the delegate may transfer
+
+Under the hood, the `approve` function creates a transaction with instructions obtained from the `createApproveInstruction` function:
+
+```tsx
+import * as web3 from '@solana/web3'
+import * as token from '@solana/spl-token'
+
+async function buildApproveTransaction(
+    account: web3.PublicKey,
+    delegate: web3.PublicKey,
+    owner: web3.PublicKey,
+    amount: number
+): Promise<web3.Transaction> {
+    const transaction = new web3.Transaction().add(
+        token.createApproveInstruction(
+            account,
+            delegate,
+            owner,
+            amount
+        )
+    )
+
+    return transaction
+}
+```
+
+## Revoke Delegate
+
+A previously approved delegate for a token account can be later revoked. Once a delegate is revoked, the delegate can no longer transfer tokens from the owner's token account. Any remaining amount left untransferred from the previously approved amount can no longer be tranferred by the delegate.
+
+To revoke a delegate using the `spl-token` library, you use the `revoke` function.
+
+```tsx
+const transactionSignature = await revoke(
+    connection,
+    payer,
+    account,
+    owner,
+  )
+```
+
+The `revoke` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `revoke` function requires the following arguments:
+
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `account` the token account to revoke the delegate authority from
+- `owner` the account of the owner of the token account
+
+Under the hood, the `revoke` function creates a transaction with instructions obtained from the `createRevokeInstruction` function:
+
+```tsx
+import * as web3 from '@solana/web3'
+import * as token from '@solana/spl-token'
+
+async function buildRevokeTransaction(
+    account: web3.PublicKey,
+    owner: web3.PublicKey,
+): Promise<web3.Transaction> {
+    const transaction = new web3.Transaction().add(
+        token.createRevokeInstruction(
+            account,
+            owner,
+        )
+    )
+
+    return transaction
+}
+```
+
 # Demo
 
-We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, transfer tokens, burn tokens, and close a Token Account.
+We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, approve a delegate, transfer tokens, and burn tokens.
 
 ### 1. Basic scaffolding
 
@@ -443,6 +537,8 @@ async function createNewMint(
 
 With that function completed, call it from the body of `main`, setting `user` as the `payer`, `mintAuthority`, and `freezeAuthority`.
 
+After creating the new mint, let's fetch the account data using the `getMint` function and store it in a variable called `mintInfo`. We'll use this data later to adjust input amounts for the decimal precision of the mint.
+
 ```tsx
 async function main() {
     const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
@@ -455,6 +551,8 @@ async function main() {
         user.publicKey,
         2
     )
+
+    const mintInfo = await token.getMint(connection, mint);
 }
 ```
 
@@ -505,6 +603,8 @@ async function main() {
         2
     )
 
+    const mintInfo = await token.getMint(connection, mint);
+
     const tokenAccount = await createTokenAccount(
         connection,
         user,
@@ -546,6 +646,8 @@ async function mintTokens(
 
 Lets call the function in `main` using the `mint` and `tokenAccount` created previously.
 
+Note that we must adjust the `amount` for the decimal precision of the mint. Tokens from our `mint` have a decimal precision of 2. If we only specify `100` as the input amount, then only `1` token will be minted to our token account.
+
 ```tsx
 async function main() {
     const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
@@ -559,6 +661,8 @@ async function main() {
         2
     )
 
+    const mintInfo = await token.getMint(connection, mint);
+
     const tokenAccount = await createTokenAccount(
         connection,
         user,
@@ -566,11 +670,96 @@ async function main() {
         user.publicKey
     )
 
-    await mintTokens(connection, user, mint, tokenAccount.address, user, 100)
+    await mintTokens(
+        connection,
+        user,
+        mint,
+        tokenAccount.address,
+        user,
+        100 * 10 ** mintInfo.decimals
+    )
 }
 ```
 
-### 5. Transfer Tokens
+### 5. Approve Delegate
+
+Now that we have a token mint and a token account, lets authorize a delegate to tranfer tokens on our behalf.
+
+Create a function `approveDelegate` that uses the `spl-token` function `approve` to mint tokens:
+
+```tsx
+async function approveDelegate(
+    connection: web3.Connection,
+    payer: web3.Keypair,
+    account: web3.PublicKey,
+    delegate: web3.PublicKey,
+    owner: web3.Signer | web3.PublicKey,
+    amount: number
+) {
+    const transactionSignature = await token.approve(
+        connection,
+        payer,
+        account,
+        delegate,
+        owner,
+        amount
+  )
+
+    console.log(
+        `Approve Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+    )
+}
+```
+
+In `main`, lets generate a new `Keypair` to represent the delegate account.
+
+Then, lets call our new `approveDelegate` function and authorize the delegate to tranfer up to 50 tokens from the `user` token account. Remember to adjust the amount for the decimal precision of the `mint`.
+
+```tsx
+async function main() {
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+    const user = await initializeKeypair(connection)
+
+    const mint = await createNewMint(
+        connection,
+        user,
+        user.publicKey,
+        user.publicKey,
+        2
+    )
+
+    const mintInfo = await token.getMint(connection, mint);
+
+    const tokenAccount = await createTokenAccount(
+        connection,
+        user,
+        mint,
+        user.publicKey
+    )
+
+    await mintTokens(
+        connection,
+        user,
+        mint,
+        tokenAccount.address,
+        user,
+        100 * 10 ** mintInfo.decimals
+    )
+
+    const delegate = web3.Keypair.generate();
+
+    await approveDelegate(
+      connection,
+      user,
+      tokenAccount.address,
+      delegate.publicKey,
+      user.publicKey,
+      50 * 10 ** mintInfo.decimals
+    )
+}
+```
+
+### 6. Transfer Tokens
 
 Next, lets transfer some of the tokens we just minted using the `spl-token` library's `transfer` function.
 
@@ -602,7 +791,7 @@ Before we can call this new function, we need to know the account into which we'
 
 In `main`, lets generate a new `Keypair` to be the receiver (but remember that this is just to simulate having someone to send tokens to - in a real application you'd need to know the wallet address of the person receiving the tokens).
 
-Then, create a token account for the receiver. Finally, lets call our new `transferTokens` function to transfer tokens from the `user` token account to the `receiver` token account.
+Then, create a token account for the receiver. Finally, lets call our new `transferTokens` function to transfer tokens from the `user` token account to the `receiver` token account. We'll use the `delegate` we approved in the previous step to perform the tranfer on our behalf.
 
 ```tsx
 async function main() {
@@ -624,7 +813,16 @@ async function main() {
         user.publicKey
     )
 
-    await mintTokens(connection, user, mint, tokenAccount.address, user, 100)
+    const mintInfo = await token.getMint(connection, mint);
+
+    await mintTokens(
+        connection,
+        user,
+        mint,
+        tokenAccount.address,
+        user,
+        100 * 10 ** mintInfo.decimals
+    )
 
     const receiver = web3.Keypair.generate().publicKey
     const receiverTokenAccount = await createTokenAccount(
@@ -634,13 +832,118 @@ async function main() {
         receiver
     )
 
+    const delegate = web3.Keypair.generate();
+
+    await approveDelegate(
+        connection,
+        user,
+        tokenAccount.address,
+        delegate.publicKey,
+        user.publicKey,
+        50 * 10 ** mintInfo.decimals
+    )
+
     await transferTokens(
         connection,
         user,
         tokenAccount.address,
         receiverTokenAccount.address,
+        delegate,
+        50 * 10 ** mintInfo.decimals
+    )
+}
+```
+
+### 6. Revoke Delegate
+
+Now that we've finished transferring tokens, lets revoke the `delegate` using the `spl-token` library's `revoke` function.
+
+```tsx
+async function revokeDelegate(
+    connection: web3.Connection,
+    payer: web3.Keypair,
+    account: web3.PublicKey,
+    owner: web3.Signer | web3.PublicKey,
+) {
+    const transactionSignature = await token.revoke(
+        connection,
+        payer,
+        account,
+        owner,
+  )
+
+    console.log(
+        `Revote Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+    )
+}
+```
+
+All we will need for this function is the token account and user. Lets call our new `revokeDelegate` function to revoke the delegate from the `user` token account.
+
+```tsx
+async function main() {
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+    const user = await initializeKeypair(connection)
+
+    const mint = await createNewMint(
+        connection,
         user,
-        50
+        user.publicKey,
+        user.publicKey,
+        2
+    )
+
+    const mintInfo = await token.getMint(connection, mint);
+
+    const tokenAccount = await createTokenAccount(
+        connection,
+        user,
+        mint,
+        user.publicKey
+    )
+
+    await mintTokens(
+        connection,
+        user,
+        mint,
+        tokenAccount.address,
+        user,
+        100 * 10 ** mintInfo.decimals
+    )
+
+    const receiver = web3.Keypair.generate().publicKey
+    const receiverTokenAccount = await createTokenAccount(
+        connection,
+        user,
+        mint,
+        receiver
+    )
+
+    const delegate = web3.Keypair.generate();
+
+    await approveDelegate(
+        connection,
+        user,
+        tokenAccount.address,
+        delegate.publicKey,
+        user.publicKey,
+        50 * 10 ** mintInfo.decimals
+    )
+
+    await transferTokens(
+        connection,
+        user,
+        tokenAccount.address,
+        receiverTokenAccount.address,
+        delegate,
+        50 * 10 ** mintInfo.decimals
+    )
+
+    await revokeDelegate(
+        connection,
+        user,
+        tokenAccount.address,
+        user.publicKey,
     )
 }
 ```
@@ -675,7 +978,7 @@ async function burnTokens(
 }
 ```
 
-Now call this new function in `main` to burn 25 of the user's tokens.
+Now call this new function in `main` to burn 25 of the user's tokens. Remember to adjust the amount for the decimal precision of the `mint`.
 
 ```tsx
 async function main() {
@@ -690,6 +993,8 @@ async function main() {
         2
     )
 
+    const mintInfo = await token.getMint(connection, mint);
+
     const tokenAccount = await createTokenAccount(
         connection,
         user,
@@ -697,7 +1002,14 @@ async function main() {
         user.publicKey
     )
 
-    await mintTokens(connection, user, mint, tokenAccount.address, user, 100)
+    await mintTokens(
+        connection,
+        user,
+        mint,
+        tokenAccount.address,
+        user,
+        100 * 10 ** mintInfo.decimals
+    )
 
     const receiver = web3.Keypair.generate().publicKey
     const receiverTokenAccount = await createTokenAccount(
@@ -707,21 +1019,44 @@ async function main() {
         receiver
     )
 
+    const delegate = web3.Keypair.generate();
+
+    await approveDelegate(
+        connection,
+        user,
+        tokenAccount.address,
+        delegate.publicKey,
+        user.publicKey,
+        50 * 10 ** mintInfo.decimals
+    )
+
     await transferTokens(
         connection,
         user,
         tokenAccount.address,
         receiverTokenAccount.address,
-        user,
-        50
+        delegate,
+        50 * 10 ** mintInfo.decimals
     )
 
-    await burnTokens(connection, user, tokenAccount.address, mint, user, 25)
+    await revokeDelegate(
+        connection,
+        user,
+        tokenAccount.address,
+        user.publicKey,
+    )
+
+    await burnTokens(
+        connection, 
+        user, 
+        tokenAccount.address, 
+        mint, user, 
+        25 * 10 ** mintInfo.decimals)
 }
 ```
 ### 7. Test it all out
 
-With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, transferred half of them, and burned 25 more. You're well on your way to being a token expert.
+With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, approved a delegate, transferred 50 using a delegate, revoked the delegate, and burned 25 more. You're well on your way to being a token expert.
 
 If you need a bit more time with this project to feel comfortable, have a look at the complete [solution code](https://github.com/Unboxed-Software/solana-token-client)
 
