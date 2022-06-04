@@ -393,7 +393,7 @@ async function buildBurnTransaction(
 
 ## Approve Delegate
 
-Approving a delegate is the process of authorizing another account to withdraw tokens from a token account. When using a delegate, the authority over the token account remains with the owner. The maximum amount of tokens a delegate may transfer is specified at the time the owner of the token account approves the delegate.
+Approving a delegate is the process of authorizing another account to transfer or burn tokens from a token account. When using a delegate, the authority over the token account remains with the original owner. The maximum amount of tokens a delegate may transfer or burn is specified at the time the owner of the token account approves the delegate. Note that there can only be one delegate account associated with a token account at any given time.
 
 To approve a delegate using the `spl-token` library, you use the `approve` function.
 
@@ -413,9 +413,9 @@ The `approve` function returns a `TransactionSignature` that can be viewed on So
 - `connection` the JSON-RPC connection to the cluster
 - `payer` the account of the payer for the transaction
 - `account` the token account to delegate tokens from
-- `delegate` the account the owner is authorizing to transfer tokens from the token account
+- `delegate` the account the owner is authorizing to transfer or burn tokens
 - `owner` the account of the owner of the token account
-- `amount` the maximum number of tokens the delegate may transfer
+- `amount` the maximum number of tokens the delegate may transfer or burn
 
 Under the hood, the `approve` function creates a transaction with instructions obtained from the `createApproveInstruction` function:
 
@@ -444,7 +444,7 @@ async function buildApproveTransaction(
 
 ## Revoke Delegate
 
-A previously approved delegate for a token account can be later revoked. Once a delegate is revoked, the delegate can no longer transfer tokens from the owner's token account. Any remaining amount left untransferred from the previously approved amount can no longer be tranferred by the delegate.
+A previously approved delegate for a token account can be later revoked. Once a delegate is revoked, the delegate can no longer transfer tokens from the owner's token account. Any remaining amount left untransferred from the previously approved amount can no longer be transferred by the delegate.
 
 To revoke a delegate using the `spl-token` library, you use the `revoke` function.
 
@@ -537,7 +537,7 @@ async function createNewMint(
 
 With that function completed, call it from the body of `main`, setting `user` as the `payer`, `mintAuthority`, and `freezeAuthority`.
 
-After creating the new mint, let's fetch the account data using the `getMint` function and store it in a variable called `mintInfo`. We'll use this data later to adjust input amounts for the decimal precision of the mint.
+After creating the new mint, let's fetch the account data using the `getMint` function and store it in a variable called `mintInfo`. We'll use this data later to adjust input `amount` for the decimal precision of the mint.
 
 ```tsx
 async function main() {
@@ -646,7 +646,7 @@ async function mintTokens(
 
 Lets call the function in `main` using the `mint` and `tokenAccount` created previously.
 
-Note that we must adjust the `amount` for the decimal precision of the mint. Tokens from our `mint` have a decimal precision of 2. If we only specify `100` as the input amount, then only `1` token will be minted to our token account.
+Note that we have to adjust the input `amount` for the decimal precision of the mint. Tokens from our `mint` have a decimal precision of 2. If we only specify 100 as the input `amount`, then only 1 token will be minted to our token account.
 
 ```tsx
 async function main() {
@@ -683,7 +683,7 @@ async function main() {
 
 ### 5. Approve Delegate
 
-Now that we have a token mint and a token account, lets authorize a delegate to tranfer tokens on our behalf.
+Now that we have a token mint and a token account, lets authorize a delegate to transfer tokens on our behalf.
 
 Create a function `approveDelegate` that uses the `spl-token` function `approve` to mint tokens:
 
@@ -711,9 +711,7 @@ async function approveDelegate(
 }
 ```
 
-In `main`, lets generate a new `Keypair` to represent the delegate account.
-
-Then, lets call our new `approveDelegate` function and authorize the delegate to tranfer up to 50 tokens from the `user` token account. Remember to adjust the amount for the decimal precision of the `mint`.
+In `main`, lets generate a new `Keypair` to represent the delegate account. Then, lets call our new `approveDelegate` function and authorize the delegate to tranfer up to 50 tokens from the `user` token account. Remember to adjust the `amount` for the decimal precision of the `mint`.
 
 ```tsx
 async function main() {
@@ -791,7 +789,7 @@ Before we can call this new function, we need to know the account into which we'
 
 In `main`, lets generate a new `Keypair` to be the receiver (but remember that this is just to simulate having someone to send tokens to - in a real application you'd need to know the wallet address of the person receiving the tokens).
 
-Then, create a token account for the receiver. Finally, lets call our new `transferTokens` function to transfer tokens from the `user` token account to the `receiver` token account. We'll use the `delegate` we approved in the previous step to perform the tranfer on our behalf.
+Then, create a token account for the receiver. Finally, lets call our new `transferTokens` function to transfer tokens from the `user` token account to the `receiver` token account. We'll use the `delegate` we approved in the previous step to perform the transfer on our behalf.
 
 ```tsx
 async function main() {
@@ -833,7 +831,6 @@ async function main() {
     )
 
     const delegate = web3.Keypair.generate();
-
     await approveDelegate(
         connection,
         user,
@@ -878,7 +875,7 @@ async function revokeDelegate(
 }
 ```
 
-All we will need for this function is the token account and user. Lets call our new `revokeDelegate` function to revoke the delegate from the `user` token account.
+Revoke will set delegate for the token account to null and reset the delegated amount to 0. All we will need for this function is the token account and user. Lets call our new `revokeDelegate` function to revoke the delegate from the `user` token account.
 
 ```tsx
 async function main() {
@@ -920,7 +917,6 @@ async function main() {
     )
 
     const delegate = web3.Keypair.generate();
-
     await approveDelegate(
         connection,
         user,
@@ -978,7 +974,7 @@ async function burnTokens(
 }
 ```
 
-Now call this new function in `main` to burn 25 of the user's tokens. Remember to adjust the amount for the decimal precision of the `mint`.
+Now call this new function in `main` to burn 25 of the user's tokens. Remember to adjust the `amount` for the decimal precision of the `mint`.
 
 ```tsx
 async function main() {
@@ -1020,7 +1016,6 @@ async function main() {
     )
 
     const delegate = web3.Keypair.generate();
-
     await approveDelegate(
         connection,
         user,
