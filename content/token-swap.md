@@ -34,6 +34,12 @@ Due to the decentralized nature of cryptocurrency, however, we now have a new wa
 
 Since swap pools are completely decentralized, anybody can issue instructions to the swap program to create a new swap pool between any SPL tokens they wish. This is a massive lift beyond traditional finance. Swap pools and Automated Market Makers (AMMs) are one of DeFi's most fascinating and complex topics. The nitty-gritty details of how they work are outside the scope of this lesson, but there is a ton of material out there available to you if you’re interested in learning more. For example, the Solana Token Swap Program was heavily inspired by [Uniswap](https://uniswap.org/) and [Balancer](https://balancer.fi/), each of which provide excellent documentation that you can read through.
 
+## Token Swap Program and `@solana/spl-token-swap`
+
+Unlike the Token Program, there is no Solana-maintained deployment of the Token Swap Program. Rather, Solana provides [source code](https://github.com/solana-labs/solana-program-library/tree/master/token-swap/program) for the Token Swap Program as a reference implementation that you can fork and deploy yourself. You can also use a token swap program maintained by a third party organization you trust. Throughout this lesson, we'll be using the deployment maintained by Serum at address `SwaPpA9LAaLfeLi3a68M4DjnLqgtticKg6CnyNwgAC8`.
+
+Solana also maintains the `@solana/spl-token-swap` JS library. This library provides helper functions for interacting with a token swap program. Each helper function takes an argument representing a token swap program id. As long as the program you use accepts the Token Swap instructions, you can use the `@solana/spl-token-swap` library with it. 
+
 ## Creating a Swap Pool
 
 Creating swap pools with the SPL Token Swap Program really showcases the account, instruction, and authorization models on Solana. This lesson will combine and build on top of a lot of what we have learned so far in the course. For operations specific to the Token Swap Program, we'll use the `@solana/spl-token-swap` library.
