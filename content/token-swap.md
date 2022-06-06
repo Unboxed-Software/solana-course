@@ -11,7 +11,7 @@
 
 # TL;DR
 
-- The **token swap program** is an SPL contract deployed to Mainnet and Devnet available for use by developers and protocols.
+- The **Token Swap Program** is an SPL contract deployed to Devnet available for testing and experimentation by developers and protocols. For production use cases, use your own deployment or one regularly maintained by a reputable service.
 - The program accepts six different **instructions**, all of which we will explore in this lesson.
 - Developers are able to create and use **liquidity pools** to swap between any SPL token that they wish.
 - The program uses a mathematical formula called "**curve**" to calculate the price of all trades. Curves aim to mimic normal market dynamics: for example, as traders buy a lot of one token type, the value of the other token type goes up.
@@ -32,11 +32,11 @@ The purpose of swap pools is to facilitate decentralized trade between users. In
 
 Due to the decentralized nature of cryptocurrency, however, we now have a new way to facilitate trades. Many protocols decentralized exchanges have been built to take advantage of this. [Project Serum](https://www.projectserum.com/) is an example of such a decentralized central limit order book built on Solana.
 
-Since swap pools are completely decentralized, anybody can issue instructions to the swap program to create a new swap pool between any SPL tokens they wish. This is a massive lift beyond traditional finance. Swap pools and Automated Market Makers (AMMs) are one of DeFi's most fascinating and complex topics. The nitty-gritty details of how they work are outside the scope of this lesson, but there is a ton of material out there available to you if you’re interested in learning more. For example, the Solana Token Swap program was heavily inspired by [Uniswap](https://uniswap.org/) and [Balancer](https://balancer.fi/), each of which provide excellent documentation that you can read through.
+Since swap pools are completely decentralized, anybody can issue instructions to the swap program to create a new swap pool between any SPL tokens they wish. This is a massive lift beyond traditional finance. Swap pools and Automated Market Makers (AMMs) are one of DeFi's most fascinating and complex topics. The nitty-gritty details of how they work are outside the scope of this lesson, but there is a ton of material out there available to you if you’re interested in learning more. For example, the Solana Token Swap Program was heavily inspired by [Uniswap](https://uniswap.org/) and [Balancer](https://balancer.fi/), each of which provide excellent documentation that you can read through.
 
 ## Creating a Swap Pool
 
-Creating swap pools with the SPL token swap program really showcases the account, instruction, and authorization models on Solana. This lesson will combine and build on top of a lot of what we have learned so far in the course. For operations specific to the Token Swap Program, we'll use the `@solana/spl-token-swap` library.
+Creating swap pools with the SPL Token Swap Program really showcases the account, instruction, and authorization models on Solana. This lesson will combine and build on top of a lot of what we have learned so far in the course. For operations specific to the Token Swap Program, we'll use the `@solana/spl-token-swap` library.
 
 As we talk through creating a swap pool, we'll assume we're creating a swap pool for two tokens named Token A and Token B. Creating the swap pool with the `spl-token-swap` library is as simple as sending a transaction with an instruction created with the `TokenSwap.createInitSwapInstruction` function. However, there are a number of accounts you need to create or derive beforehand that will be needed when creating that instruction:
 1. **Token swap state account** - holds information about the swap pool
@@ -242,8 +242,8 @@ We swap tokens using the `TokenSwap.swapInstruction` helper function which requi
 8. `poolMint` - the LP-token mint address
 9. `feeAccount` - the token account which receives the owner trade fees
 10. `hostFeeAccount` - the token account which receives the host trade fees (optional parameter), set to null if none is provided
-11. `swapProgramId` - the address of the token swap program
-12. `tokenProgramId` - the address of the token program
+11. `swapProgramId` - the address of the Token Swap Program
+12. `tokenProgramId` - the address of the Token Program
 13. `amountIn` - amount of tokens deposited by the user into the swap pool
 14. `minimumAmountOut` - minimum amount of tokens send to the user token account. This parameter is used to account for slippage. Slippage is the difference between the value of a token when you submit the transaction versus when the order is fulfilled. In this case, the lower the number, the more slippage can possible occur without the transaction failing. Throughout this lesson we'll use 0 for swaps as calculating slippage is outside the scope of this lesson. In a production app, however, it's important to let users specify the amount of slippage they're comfortable with.
 
@@ -272,9 +272,9 @@ transaction.add(swapInstruction)
 
 ### Deposit liquidity
 
-The token swap program has two variations of deposit instructions. One allows users to only deposit tokens to one side of the swap pool at a time. The other allows for users to deposit to both sides of the swap pool at the same time.
+The Token Swap Program has two variations of deposit instructions. One allows users to only deposit tokens to one side of the swap pool at a time. The other allows for users to deposit to both sides of the swap pool at the same time.
 
-In order to deposit liquidity to both sides of the swap pool, a user’s wallet must have a sufficient amount of each token. When depositing both tokens, instead of providing the amount of each token to deposit, the user specifies the amount of LP-tokens they would like to receive. The token swap program then calculates the amount of each token that a depositor will receive given the pool's curve and current liquidity.
+In order to deposit liquidity to both sides of the swap pool, a user’s wallet must have a sufficient amount of each token. When depositing both tokens, instead of providing the amount of each token to deposit, the user specifies the amount of LP-tokens they would like to receive. The Token Swap Program then calculates the amount of each token that a depositor will receive given the pool's curve and current liquidity.
 
 We can deposit both tokens at the same time using the `TokenSwap.depositAllTokenTypesInstruction` helper function which requires the following arguments:
 1. `tokenSwap` - the token swap state account
@@ -286,8 +286,8 @@ We can deposit both tokens at the same time using the `TokenSwap.depositAllToken
 7. `intoB` - swap pool token account B to receive user's token B
 8. `poolToken` - the LP-token mint address
 9. `poolAccount` - user LP-token account the swap pool mints LP-token to
-10. `swapProgramId` - the address of the token swap program
-11. `tokenProgramId` - the address of the token program
+10. `swapProgramId` - the address of the Token Swap Program
+11. `tokenProgramId` - the address of the Token Program
 12. `poolTokenAmount` - amount of LP-token the depositor expects to receive
 13. `maximumTokenA` - maximum amount of token A allowed to deposit
 14. `maximumTokenB` - maximum amount of token A allowed to deposit
@@ -317,7 +317,7 @@ const instruction = TokenSwap.depositAllTokenTypesInstruction(
 transaction.add(instruction)
 ```
 
-We can deposit tokens to only one side of the swap pool in a similar way using the `TokenSwap.depositSingleTokenTypeExactAmountInInstruction`. The main difference is that the last argument in the instruction is `minimumPoolTokenAmount`. When depositing to only one side of the swap pool, the user specifies exactly how many tokens to deposit. In turn, the token swap program calculates the amount of LP-tokens to mint the user for their deposit. An instruction depositing only Token A will look like this:
+We can deposit tokens to only one side of the swap pool in a similar way using the `TokenSwap.depositSingleTokenTypeExactAmountInInstruction`. The main difference is that the last argument in the instruction is `minimumPoolTokenAmount`. When depositing to only one side of the swap pool, the user specifies exactly how many tokens to deposit. In turn, the Token Swap Program calculates the amount of LP-tokens to mint the user for their deposit. An instruction depositing only Token A will look like this:
 
 ```tsx
 const instruction = TokenSwap.depositSingleTokenTypeExactAmountInInstruction(
@@ -341,7 +341,7 @@ transaction.add(instruction)
 
 In exchange for providing liquidity, depositors receive LP-tokens representing their fractional ownership of all A and B tokens in the pool. At any time, liquidity providers may redeem their LP-token in exchange for tokens A and B at the current "fair" exchange rate as determined by the curve. When liquidity is withdrawn, tokens A and/or B are transferred into the user's token accounts and the user's LP-token are burned.
 
-The token swap program has two variations of withdraw instructions. One allows users to only withdraw tokens from one side of the swap pool at a time. The other allows for withdraws from both sides of the swap pool at the same time.
+The Token Swap Program has two variations of withdraw instructions. One allows users to only withdraw tokens from one side of the swap pool at a time. The other allows for withdraws from both sides of the swap pool at the same time.
 
 We can withdraw both tokens at the same time using the `TokenSwap.withdrawAllTokenTypesInstruction` helper function which requires the following arguements:
 1. `tokenSwap` - the token swap state account
@@ -354,8 +354,8 @@ We can withdraw both tokens at the same time using the `TokenSwap.withdrawAllTok
 8. `fromB` - swap pool token B account to withdraw from
 9. `userAccountA` - user token A account to receive tokens withdrawn from swap pool token A account
 10. `userAccountB` - user token B account to receive tokens withdrawn from swap pool token B account
-11. `swapProgramId` - the address of the token swap program
-12. `tokenProgramId` - the address of the token program
+11. `swapProgramId` - the address of the Token Swap Program
+12. `tokenProgramId` - the address of the Token Program
 13. `poolTokenAmount` - amount of LP-tokens the user expects to burn on withdraw
 14. `minimumTokenA` - minimum amount of token A to withdraw
 15. `minimumTokenB` - minimum amount of token B to withdraw
@@ -386,7 +386,7 @@ const instruction = TokenSwap.withdrawAllTokenTypesInstruction(
 transaction.add(instruction)
 ```
 
-We can withdraw tokens from only one side of the swap pool in a similar way using the `TokenSwap.withdrawSingleTokenTypeExactAmountOut`. The main difference is that the last argument in the instruction is `maximumPoolTokenAmount`. When withdrawing only one side of the swap pool, the user specifies exact how many tokens to withdraw. In turn, the token swap program calculates the amount of LP-tokens to mint the user must burn. An instruction withdrawing only Token B will look like this:
+We can withdraw tokens from only one side of the swap pool in a similar way using the `TokenSwap.withdrawSingleTokenTypeExactAmountOut`. The main difference is that the last argument in the instruction is `maximumPoolTokenAmount`. When withdrawing only one side of the swap pool, the user specifies exact how many tokens to withdraw. In turn, the Token Swap Program calculates the amount of LP-tokens to mint the user must burn. An instruction withdrawing only Token B will look like this:
 
 ```tsx
 const instruction = TokenSwap.depositSingleTokenTypeExactAmountInInstruction(
@@ -408,7 +408,7 @@ transaction.add(instruction)
 
 ## Curves
 
-Trading curves are at the core of how swap pools and AMMs (Automated Market Makers) operate. The trading curve is the function that the token swap program uses to calculate how much of a destination token will be provided given an amount of source token. The curve effectively sets the market price of the tokens in the pool.
+Trading curves are at the core of how swap pools and AMMs (Automated Market Makers) operate. The trading curve is the function that the Token Swap Program uses to calculate how much of a destination token will be provided given an amount of source token. The curve effectively sets the market price of the tokens in the pool.
 
 The pool we’ll be interacting with in this lesson employs a [Constant Product](https://spl.solana.com/token-swap#curves) Curve Function. The constant product curve is the well-known Uniswap and Balancer style curve that preserves an invariant on all swaps. This invariant can be expressed as the product of the quantity of token A and token B in the swap pool.
 
@@ -601,7 +601,7 @@ At this point, you should be able to airdrop yourself some tokens and then depos
 
 ### 3. Create the Withdrawal Instruction
 
-The withdrawal instruction is very similar to the deposit instruction, but there are some subtle differences. Like deposits, the token swap program accepts two variations of the withdrawal instruction. You can either withdraw liquidity from a single side of the swap pool, or you can withdraw your deposited liquidity from both sides at the same time.
+The withdrawal instruction is very similar to the deposit instruction, but there are some subtle differences. Like deposits, the Token Swap Program accepts two variations of the withdrawal instruction. You can either withdraw liquidity from a single side of the swap pool, or you can withdraw your deposited liquidity from both sides at the same time.
 
 Of the two variations of withdraw instructions on the Token Swap Program, we'll be using the variation that removes liquidity from both sides of the swap pool at once: `TokenSwap.withdrawAllTokenTypesInstruction`.
 
