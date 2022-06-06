@@ -259,7 +259,7 @@ The `mintTo` function returns a `TransactionSignature` that can be viewed on the
 - `mint` - the token mint that the new token account is associated with
 - `destination` - the token account that tokens will be minted to
 - `authority` - the account authorized to mint tokens
-- `amount` the raw amount of tokens to mint outside of decimals, e.g. if Scrooge Coin mint's decimals property was set to 2 then to get 1 full Scrooge Coin you would need to set this property to 100
+- `amount` - the raw amount of tokens to mint outside of decimals, e.g. if Scrooge Coin mint's decimals property was set to 2 then to get 1 full Scrooge Coin you would need to set this property to 100
 
 It's not uncommon to update the mint authority on a token mint to null after the tokens have been minted. This would set a maximum supply and ensure no tokens can be minted in the future. Conversely, minting authority could be granted to a program so tokens could be automatically minted at regular intervals or according to programmable conditions.
 
