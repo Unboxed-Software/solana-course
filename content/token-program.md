@@ -58,7 +58,7 @@ const tokenMint = await createMint(
 - `mintAuthority` - the account which is authorized to do the actual minting of tokens from the token mint.
 - `freezeAuthority` - an account authorized to freeze the tokens in a token account. If freezing is not a desired attribute, the parameter can be set to null
 - `decimals` - specifies the desired decimal precision of the token
-   
+
 When creating a new mint from a script that has access to your secret key, you can simply use the `createMint` function. However, if you were to build a website to allow users to create a new token mint, you would need to do so with the user's secret key without making them expose it to the browser. In that case, you would want to build and submit a transaction with the right instructions.
 
 Under the hood, the `createMint` function is simply creating a transaction that contains two instructions:
@@ -109,7 +109,7 @@ Note that the first line in the function body of the previous code snippet conta
 Until recently, all accounts on Solana were required to do one of the following to avoid being deallocated:
 1. Pay rent at specific intervals
 2. Deposit enough SOL upon initialization to be considered rent-exempt
-   
+
 Recently, the first option was done away with and it became a requirement to deposit enough SOL for rent exemption when initializing a new account.
 
 In this case, we're creating a new account for a token mint so we use `getMinimumBalanceForRentExemptMint` from the `@solana/spl-token` library. However, this concept applies to all accounts and you can use the more generic `getMinimumBalanceForRentExemption` method on `Connection` for other accounts you may need to create.
@@ -426,7 +426,7 @@ async function createNewMint(
     freezeAuthority: web3.PublicKey,
     decimals: number
 ): Promise<web3.PublicKey> {
-    
+
     const tokenMint = await token.createMint(
         connection,
         payer,
