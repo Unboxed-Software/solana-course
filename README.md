@@ -20,8 +20,10 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    5. [Deserialize custom account data](./content/deserialize-custom-data.md)
    6. [Page, Order, and Filter custom account data](./content/paging-ordering-filtering-data.md)
 
-### Module 2 - Client interaction with the Solana Program Library
-Coming soon
+### Module 2 - Client interaction with common Solana programs
+   1. [Create tokens with the Token Program](./content/token-program.md)
+   2. [Swap tokens with the Token Swap Program](./content/token-swap.md)
+   3. [Create Solana NFTs With Metaplex](./content/nfts-with-metaplex.md)
 
 ### Module 3 - Basic Solana Program Development
 Coming soon
@@ -31,7 +33,7 @@ Coming soon
 
 ## Contribute To The Course
 
-We plan for this course to be perpetually open-source and would love for anyone and everyone to contribute! 
+We plan for this course to be perpetually open-source and we'd love for anyone and everyone to contribute! 
 
 ### Adding Content
 
@@ -40,14 +42,14 @@ The [Course Map](./course-map.md) lists the modules and lessons we plan to creat
 To start work, do the following:
 
 1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
-2. Create a PR during or when complete
+2. Create a PR to the `rough` branch during or when complete
 
 ### Editing Existing Content
 
 If you want to fix a typo or otherwise improve on existing content, follow the same process as with adding content:
 
 1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
-2. Create a PR during or when complete
+2. Create a PR to the `rough` branch during or when complete
 
 ### Committing
 
@@ -62,7 +64,7 @@ General flow for making a contribution:
 4. Push your work back up to your fork
 5. Submit a Pull request so that we can review your changes
 
-**NOTE**: Be sure to merge the latest from "upstream" before making a 
+**NOTE**: Be sure to merge the latest from `upstream/rough` before making a 
 pull request!
 
 ### Providing General Feedback
