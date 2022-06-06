@@ -158,7 +158,7 @@ transaction.add(initializeTokenAccountPoolInstruction)
 
 ### Pool Token Fee Account
 
-The pool token fee account is the token account that the fees for the token swaps are paid to. This account must be owned by a specific account defined in the swap program - that account has public key [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet).
+The pool token fee account is the token account that the fees for the token swaps are paid to. For the Serum deployment of the Token Swap Program that we are using, this account must be owned by a specific account defined in the swap program: [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet).
 
 ```tsx
 const feeOwner = new web3.PublicKey('HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN')
