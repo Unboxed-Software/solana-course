@@ -63,7 +63,7 @@ When creating a new mint from a script that has access to your secret key, you c
 
 Under the hood, the `createMint` function is simply creating a transaction that contains two instructions:
 1. Create a new account 
-2. Initialize a new Mint 
+2. Initialize a new mint 
 
 This would look as follows:
 
