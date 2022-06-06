@@ -53,11 +53,11 @@ const tokenMint = await createMint(
 
  The `createMint` function returns the `publicKey` of the new token mint. This function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the public key of the payer for the transaction
-- `mintAuthority` the account which is authorized to do the actual minting of tokens from the token mint. 
-- `freezeAuthority` an account authorized to freeze the tokens in a token account. If freezing is not a desired attribute, the parameter can be set to null
-- `decimals` specifies the desired decimal precision of the token
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the public key of the payer for the transaction
+- `mintAuthority` - the account which is authorized to do the actual minting of tokens from the token mint. 
+- `freezeAuthority` - an account authorized to freeze the tokens in a token account. If freezing is not a desired attribute, the parameter can be set to null
+- `decimals` - specifies the desired decimal precision of the token
    
 When creating a new mint from a script that has access to your secret key, you can simply use the `createMint` function. However, if you were to build a website to allow users to create a new token mint, you would need to do so with the user's secret key without making them expose it to the browser. In that case, you would want to build and submit a transaction with the right instructions.
 
@@ -101,6 +101,8 @@ async function buildCreateMintTransaction(
 }
 ```
 
+When manually building the instructions to create a new token mint, make sure you add the instructions to create the account and initialize the mint to the same transaction. If you were to do each step in a separate transaction, it's theoretically possible for somebody else to take the account you create and initialize it for their own mint.
+
 ### Rent and Rent Exemption
 Note that the first line in the function body of the previous code snippet contains a call to `getMinimumBalanceForRentExemptMint`, the result of which is passed into the `createAccount` function. This is part of account initialization called rent exemption.
 
@@ -132,11 +134,11 @@ const tokenAccount = await createAccount(
 
 The `createAccount` function returns the `publicKey` of the new token account. This function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `mint` the token mint that the new token account is associated with
-- `owner` the account of the owner of the new token account
-- `keypair` this is an optional parameter for specifying the new token account address. If no keypair is provided, the `createAccount` function defaults to a derivation from the associated `mint` and `owner` accounts.
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `mint` - the token mint that the new token account is associated with
+- `owner` - the account of the owner of the new token account
+- `keypair` - this is an optional parameter for specifying the new token account address. If no keypair is provided, the `createAccount` function defaults to a derivation from the associated `mint` and `owner` accounts.
 
 Please note that this `createAccount` function is different from the `createAccount` function shown above when we looked under the hood of the `createMint` function. Previously we used the `createAccount` function on `SystemProgram` to return the instruction for creating all accounts. The `createAccount` function here is a helper function in the `spl-token` library that submits a transaction with two instructions. The first creates the account and the second initializes the account as a Token Account.
 
@@ -198,10 +200,10 @@ const associatedTokenAccount = await createAssociatedTokenAccount(
 
 This function returns the `publicKey` of the new associated token account and requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `mint` the token mint that the new token account is associated with
-- `owner` the account of the owner of the new token account
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `mint` - the token mint that the new token account is associated with
+- `owner` - the account of the owner of the new token account
 
 You can also use `getOrCreateAssociatedTokenAccount` to get the Token Account associated with a given address or create it if it doesn't exist. For example, if you were writing code to airdrop tokens to a given user, you'd likely use this function to ensure that the token account associated with the given user gets created if it doesn't already exist.
 
@@ -252,12 +254,12 @@ const transactionSignature = await mintTo(
 
 The `mintTo` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `mintTo` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `mint` the token mint that the new token account is associated with
-- `destination` the token account that tokens will be minted to
-- `authority` the account authorized to mint tokens
-- `amount` the amount of tokens to mint - remember to account for the decimals of the `mint`!
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `mint` - the token mint that the new token account is associated with
+- `destination` - the token account that tokens will be minted to
+- `authority` - the account authorized to mint tokens
+- `amount` the raw amount of tokens to mint outside of decimals, e.g. if Scrooge Coin mint's decimals property was set to 100 then to get 1 full Scrooge Coin you would need to set this property to 100
 
 It's not uncommon to update the mint authority on a token mint to null after the tokens have been minted. This would set a maximum supply and ensure no tokens can be minted in the future. Conversely, minting authority could be granted to a program so tokens could be automatically minted at regular intervals or according to programmable conditions.
 
@@ -290,7 +292,7 @@ async function buildMintToTransaction(
 
 SPL-Token transfers require both the sender and receiver to have token accounts for the mint of the tokens being transferred. The tokens are transferred from the sender’s token account to the receiver’s token account.
 
-You can use `getOrCreateAssociatedTokenAccount` when obtaining the receiver's associated token account to ensure their token account exists before the transfer. Just remember that for the account to be created enough lamports need to be deposited for it to be rent exempt.
+You can use `getOrCreateAssociatedTokenAccount` when obtaining the receiver's associated token account to ensure their token account exists before the transfer. Just remember that if the account doesn't exist already, this function will create it and the payer on the transaction will be debited the lamports required for the account creation.
 
 Once you know the receiver's token account address, you transfer tokens using the `spl-token` library's `transfer` function.
 
@@ -393,7 +395,7 @@ async function buildBurnTransaction(
 
 # Demo
 
-We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, transfer tokens, burn tokens, and close a Token Account.
+We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, transfer tokens, and burn tokens.
 
 ### 1. Basic scaffolding
 
@@ -729,7 +731,7 @@ If you need a bit more time with this project to feel comfortable, have a look a
 
 Now it’s your turn to build something independently. Create an application that allows a users to create a new mint, create a token account, and mint tokens.
 
-Note that you will not be able to directly use the helper functions we went over in the demo. In order to interact with the token program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval. 
+Note that you will not be able to directly use the helper functions we went over in the demo. In order to interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval. 
 
 ![Screenshot of Token Program Challenge Frontend](../assets/token-program-frontend.png)
 
