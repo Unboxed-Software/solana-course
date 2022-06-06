@@ -101,7 +101,7 @@ async function buildCreateMintTransaction(
 }
 ```
 
-When manually building the instructions to create a new token mint, make sure you add the instructions to create the account and initialize the mint to the same transaction. If you were to do each step in a separate transaction, it's theoretically possible for somebody else to take the account you create and initialize it for their own mint.
+When manually building the instructions to create a new token mint, make sure you add the instructions for creating the account and initializing the mint to the *same transaction*. If you were to do each step in a separate transaction, it's theoretically possible for somebody else to take the account you create and initialize it for their own mint.
 
 ### Rent and Rent Exemption
 Note that the first line in the function body of the previous code snippet contains a call to `getMinimumBalanceForRentExemptMint`, the result of which is passed into the `createAccount` function. This is part of account initialization called rent exemption.
