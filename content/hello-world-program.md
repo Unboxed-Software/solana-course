@@ -16,7 +16,9 @@
 
 # Overview
 
-Solana programs are written in the Rust programming language. Solana programs are stored in accounts with a unique address. This unique address is referred to as the program id.
+In this lesson we'll be using the Rust programming language to write and deploy a Solana program.
+
+Solana programs are stored in accounts with a unique address. This unique address is referred to as the program id.
 
 To understand programs on Solana we must first understand the basics of Solana’s account model. Once we understand Solana's account model, then we will be able to see how Solana programs (which are similar to "smart contracts" on the Ethereum blockchain) are just a particular type of Solana account that can execute instructions.
 
