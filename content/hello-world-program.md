@@ -1,15 +1,10 @@
 # Hello World
 
-### List links for further reading here:
-
-- [https://docs.rs/solana-program/latest/solana_program/](https://docs.rs/solana-program/latest/solana_program/)
-
 # Objectives
 
 *By the end of this lesson, you will be able to:*
 
 - Explain the entry point to a Solana program
-
 - Submit a transaction to invoke our “Hello, world!” program
 
 # TL;DR
@@ -22,7 +17,7 @@
 
 Solana programs are written in the Rust programming language. Solana programs are stored in accounts with a unique address referred to as the program id. To understand programs on Solana we must first understand the basics of Solana’s Account Model. Once we understand Solana's account model, then we will be able to see how Solana programs (which are similar to what the Ethereum network calls, "smart contracts") are just a particular type of Solana account which can execute instructions.
 
-### Account Model
+## Account Model
 
 As you'll recall from the Introduction to Reading Data lesson, accounts are like the files in Solana’s network ledger. All data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data.
 
@@ -47,7 +42,7 @@ The diagram below demonstrates the relationship between program accounts and dat
 
 Note that a program's ownership of an account differs from a user's authority over an account. For example, a user wallet with authority over a token account must sign a transaction in order to send tokens from the token account. The signed transaction then authorizes the token program, which owns the token account, to transfer tokens to another token account.
 
-### Solana Programs
+## Solana Programs
 
 To write Solana programs with Rust, we use the [solana_program](https://docs.rs/solana-program/latest/solana_program/index.html) library crate. Crates in Rust define functionality that can be shared with multiple projects. The `solana_program` crate acts as a standard library for Solana programs. This standard library contains the modules and macros that we'll use to develop our Solana programs. You can read more about Rust crates [here](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
 
@@ -91,7 +86,7 @@ Recall that Solana program accounts only store the logic for processing instruct
 
 In order to process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
 
-### Transactions
+## Transactions
 
 In order to invoke Solana program instructions, clients must build and submit a transaction. Recall that transactions are made up of one more or instructions. Transactions process instructions in order and “atomically”. Atomically means that if any instruction within the transaction fails, then the entire transaction will fail. This provides users with the certainty that if a transaction is confirmed, then all instructions within the transaction were processed successfully.
 
