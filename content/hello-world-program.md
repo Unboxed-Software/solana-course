@@ -31,9 +31,11 @@ There are two main categories of Solana accounts:
 - Data accounts
 - Program accounts
 
-Data accounts store state (e.g. name, count). Note that data accounts must be owned by a program account. There are two types of data accounts:
+Note that data accounts must be owned by a program account.
 
-- Data accounts owned by the System Program (ex. user wallets)
+Data accounts store state (e.g. name, count). There are two types of data accounts:
+
+- Data accounts owned by the System Program (e.g. user wallets)
 - Data accounts owned by any other program
 
 Program accounts store the executable programs (e.g. instruction logic) and process instructions. There are two types of program accounts:
