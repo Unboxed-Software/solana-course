@@ -11,7 +11,7 @@
 # TL;DR
 
 - **Accounts** on Solana each have a unique address, store data, and are owned by a program
-- **Programs** on Solana are a particular type of account marked as executable and store instruction logic
+- **Programs** on Solana are a particular type of account that is marked as executable and which stores instruction logic
 - **Transactions** on Solana are made up of instructions which are executed by programs
 
 # Overview
