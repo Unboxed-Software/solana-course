@@ -16,7 +16,7 @@
 
 # Overview
 
-In this lesson we'll be using the Rust programming language to write and deploy a Solana program.
+In this lesson we'll be using the Rust programming language to write a Solana program. We will also be using the Solana Playground to deploy a Solana program.
 
 Solana programs are stored in accounts with a unique address. This unique address is referred to as the program id.
 
