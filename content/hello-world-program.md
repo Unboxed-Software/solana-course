@@ -4,6 +4,7 @@
 
 *By the end of this lesson, you will be able to:*
 
+- Describe the Solana account model
 - Explain the entry point to a Solana program
 - Submit a transaction to invoke our “Hello, world!” program
 
