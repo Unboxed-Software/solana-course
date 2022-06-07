@@ -283,4 +283,10 @@ Congratulations! You’ve just successfully built and deployed a Solana program.
 
 # Challenge
 
-Now it’s your turn to build something independently. Write a new program that uses the `msg!` macro to print your own message to the program log. Next, build and deploy your program like we did in the demo. Finally, invoke your newly deployed program and use Solana Explorer to check that your message was printed in the program log.
+Now it’s your turn to build something independently.
+
+1. Write a new program that uses the `msg!` macro to print your own message to the program log.
+2. Build and deploy your program like we did in the demo.
+3. Invoke your newly deployed program and use Solana Explorer to check that your message was printed in the program log.
+
+As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!
