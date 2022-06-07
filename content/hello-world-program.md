@@ -139,7 +139,7 @@ Click [here](https://beta.solpg.io/) to open Solana Playground. Next, delete eve
 
 ![Gif Solana Playground Create Wallet](../assets/hello-world-create-wallet.gif)
 
-First, lets bring into scope everything we’ll need from the `solana_program` crate.
+First, let's bring into scope everything we’ll need from the `solana_program` crate.
 
 - `AccountInfo` - a struct within the `account_info` module that allows us to access account information
 - `entrypoint` - a macro that declares the entry point of the program
