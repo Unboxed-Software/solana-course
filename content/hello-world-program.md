@@ -40,8 +40,8 @@ Data accounts store state (e.g. name, count). There are two types of data accoun
 
 Program accounts store the executable programs (e.g. instruction logic) and process instructions. There are two types of program accounts:
 
-- Native program accounts which refer to Solana’s native programs (e.g. System Program)
-- All other program accounts (which are owned by a native program referred to as the BPF (Berkeley Packet Filter) Loader)
+- Solana's native program accounts (e.g. the System, Stake, or BPF Loader Programs)
+- All other program accounts (these are owned by the BPF - Berkeley Packet Filter - Loader Program)
 
 The diagram below demonstrates the relationship between program accounts and data accounts:
 
