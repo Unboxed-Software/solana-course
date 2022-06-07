@@ -56,11 +56,11 @@ For a basic program we will need the following:
 
 ```rust
 use solana_program::{
-  account_info::AccountInfo,
-  entrypoint,
-  entrypoint::ProgramResult,
-  pubkey::Pubkey,
-  msg
+    account_info::AccountInfo,
+    entrypoint,
+    entrypoint::ProgramResult,
+    pubkey::Pubkey,
+    msg
 };
 ```
 
@@ -112,7 +112,7 @@ const instruction = new web3.TransactionInstruction({
     keys: [],
     programId,
     data: Buffer.alloc(0),
-  });
+});
 ```
 
 Once we’ve built our instruction, we add the instruction to our transaction. This process can be repeated if a transaction requires multiple instructions.
@@ -128,7 +128,7 @@ const transactionSignature = await web3.sendAndConfirmTransaction(
     connection,
     transaction,
     [payer]
-  );
+);
 ```
 
 # Demo
@@ -149,11 +149,11 @@ First, let's bring into scope everything we’ll need from the `solana_program` 
 
 ```rust
 use solana_program::{
-  account_info::AccountInfo,
-  entrypoint,
-  entrypoint::ProgramResult,
-  pubkey::Pubkey,
-  msg
+    account_info::AccountInfo,
+    entrypoint,
+    entrypoint::ProgramResult,
+    pubkey::Pubkey,
+    msg
 };
 ```
 
@@ -163,13 +163,13 @@ Next, let's set up the entry point to our program using the `entrypoint!` macro 
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  instruction_data: &[u8]
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
 ) -> ProgramResult{
-  msg!("Hello, world!");
+    msg!("Hello, world!");
 
-  Ok(())
+    Ok(())
 }
 ```
 
@@ -177,23 +177,23 @@ All together, the “Hello, world!” program will look like this:
 
 ```rust
 use solana_program::{
-  account_info::AccountInfo,
-  entrypoint,
-  entrypoint::ProgramResult,
-  pubkey::Pubkey,
-  msg
+    account_info::AccountInfo,
+    entrypoint,
+    entrypoint::ProgramResult,
+    pubkey::Pubkey,
+    msg
 };
 
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  instruction_data: &[u8]
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
 ) -> ProgramResult{
-  msg!("Hello, world!");
+    msg!("Hello, world!");
 
-  Ok(())
+    Ok(())
 }
 ```
 
@@ -218,48 +218,48 @@ let payer = initializeKeypair();
 let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
 
 async function main() {
-  await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL * 1);
+    await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL * 1);
 
-  const transactionSignature = await sayHello();
+    const transactionSignature = await sayHello();
 
-  console.log(
-    `Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`
-  );
+    console.log(
+        `Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`
+    );
 }
 
 main()
-  .then(() => {
-    console.log("Finished successfully");
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+    .then(() => {
+        console.log("Finished successfully");
+    })
+    .catch((error) => {
+        console.error(error);
+    });
 
 export async function sayHello(): Promise<web3.TransactionSignature> {
-  const transaction = new web3.Transaction();
+    const transaction = new web3.Transaction();
 
-  const instruction = new web3.TransactionInstruction({
-    keys: [],
-    programId,
-    data: Buffer.alloc(0),
-  });
+    const instruction = new web3.TransactionInstruction({
+        keys: [],
+        programId,
+        data: Buffer.alloc(0),
+    });
 
-  transaction.add(instruction);
+    transaction.add(instruction);
 
-  const transactionSignature = await web3.sendAndConfirmTransaction(
-    connection,
-    transaction,
-    [payer]
-  );
+    const transactionSignature = await web3.sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [payer]
+);
 
-  return transactionSignature;
+    return transactionSignature;
 }
 
 function initializeKeypair(): web3.Keypair {
-  const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[];
-  const secretKey = Uint8Array.from(secret);
-  const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey);
-  return keypairFromSecretKey;
+    const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[];
+    const secretKey = Uint8Array.from(secret);
+    const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey);
+    return keypairFromSecretKey;
 }
 ```
 
