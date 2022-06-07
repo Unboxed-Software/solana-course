@@ -24,7 +24,7 @@ Solana programs are written in the Rust programming language. Solana programs ar
 
 ### Account Model
 
-As you'll recall from the Introduction to Reading Data lesson, accounts are like the files in Solana’s network ledger. All data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data. 
+As you'll recall from the Introduction to Reading Data lesson, accounts are like the files in Solana’s network ledger. All data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data.
 
 There are two main categories of Solana accounts:
 
@@ -71,7 +71,7 @@ use solana_program::{
 
 Solana programs require a single entry point to process program instructions. The entry point is declared using the [entrypoint!](https://docs.rs/solana-program/latest/solana_program/macro.entrypoint.html) macro. You can read more about Rust macros [here](https://doc.rust-lang.org/book/ch19-06-macros.html).
 
-The entry point to a Solana program requires a `process_instruction` function with the following arguments: 
+The entry point to a Solana program requires a `process_instruction` function with the following arguments:
 
 - `program_id` - the address of the account where the program is stored
 - `accounts` - the list of accounts required to process the instruction
@@ -81,9 +81,9 @@ The entry point to a Solana program requires a `process_instruction` function wi
 entrypoint!(process_instruction);
 
 fn process_instruction(
-    program_id: &Pubkey,      
-    accounts: &[AccountInfo], 
-    instruction_data: &[u8], 
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
 ) -> ProgramResult;
 ```
 
@@ -93,14 +93,14 @@ In order to process an instruction, the data accounts that an instruction requir
 
 ### Transactions
 
-In order to invoke Solana program instructions, clients must build and submit a transaction. Recall that transactions are made up of one more or instructions. Transactions process instructions in order and “atomically”. Atomically means that if any instruction within the transaction fails, then the entire transaction will fail. This provides users with the certainty that if a transaction is confirmed, then all instructions within the transaction were processed successfully. 
+In order to invoke Solana program instructions, clients must build and submit a transaction. Recall that transactions are made up of one more or instructions. Transactions process instructions in order and “atomically”. Atomically means that if any instruction within the transaction fails, then the entire transaction will fail. This provides users with the certainty that if a transaction is confirmed, then all instructions within the transaction were processed successfully.
 
-Building a basic transaction requires the following steps: 
+Building a basic transaction requires the following steps:
 
 1. Create a new transaction
 2. Create an instruction
 3. Add the instruction to the transaction
-4. Submit the transaction to be processed by the Solana network 
+4. Submit the transaction to be processed by the Solana network
 
 First, we must create a new transaction using the `Transaction` function from `@solana/web3.js`.
 
@@ -138,13 +138,13 @@ const transactionSignature = await web3.sendAndConfirmTransaction(
 
 # Demo
 
-Let's practice what we’ve learned by creating a basic program that will print "Hello world!" to the program log. We will build our program using Solana Playground, a tool that allows you to write and deploy Solana programs from the browser. 
+Let's practice what we’ve learned by creating a basic program that will print "Hello world!" to the program log. We will build our program using Solana Playground, a tool that allows you to write and deploy Solana programs from the browser.
 
 Click [here](https://beta.solpg.io/) to open Solana Playground. Next, delete everything in the default `lib.rs` file and create a Playground wallet.
 
 ![Gif Solana Playground Create Wallet](../assets/hello-world-create-wallet.gif)
 
-First, lets bring into scope everything we’ll need from the `solana_program` crate. 
+First, lets bring into scope everything we’ll need from the `solana_program` crate.
 
 - `AccountInfo` - a struct within the `account_info` module that allows us to access account information
 - `entrypoint` - a macro that declares the entry point of the program
@@ -162,7 +162,7 @@ use solana_program::{
 };
 ```
 
-Next, let's set up the entry point to our program using the `entrypoint!` macro and create the `process_instruction` function. The `msg!` macro then allows us to print “Hello, world!” to the program log when the program is invoked.      
+Next, let's set up the entry point to our program using the `entrypoint!` macro and create the `process_instruction` function. The `msg!` macro then allows us to print “Hello, world!” to the program log when the program is invoked.
 
 ```rust
 entrypoint!(process_instruction);
@@ -208,9 +208,9 @@ Now let's build and deploy our program using Solana Playground.
 
 Finally, let's invoke our program from the client side. Download the code [here](https://github.com/ZYJLiu/solana-hello-world-client).
 
-The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our  “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser. 
+The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our  “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
 
-In the `index.ts` file you should see the following: 
+In the `index.ts` file you should see the following:
 
 ```tsx
 import web3 = require("@solana/web3.js");
@@ -284,7 +284,7 @@ Lastly, copy the transaction URL printed in the console into your browser. Scrol
 
 ![Screenshot Solana Explorer Program Log](../assets/hello-world-program-log.png)
 
-Congratulations! You’ve just successfully built and deployed a Solana program. 
+Congratulations! You’ve just successfully built and deployed a Solana program.
 
 # Challenge
 
