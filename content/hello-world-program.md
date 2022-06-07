@@ -24,7 +24,7 @@ To understand programs on Solana we must first understand the basics of Solana�
 
 ## Account Model
 
-As you'll recall from the Introduction to Reading Data lesson, accounts are like the files in Solana’s network ledger. All data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data.
+As you'll recall from the [Read data from the network](./intro-to-reading-data.md) lesson, accounts are like the files in Solana’s network ledger. All data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data.
 
 There are two main categories of Solana accounts:
 
