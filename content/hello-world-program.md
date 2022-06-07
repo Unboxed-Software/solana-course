@@ -47,7 +47,9 @@ The diagram below demonstrates the relationship between program accounts and dat
 
 ![Screenshot Account Model Example Diagram](../assets/hello-world-account-diagram.png)
 
-Note that a program's ownership of an account differs from a user's authority over an account. For example, a user wallet with authority over a token account must sign a transaction in order to send tokens from the token account. The signed transaction then authorizes the token program, which owns the token account, to transfer tokens to another token account.
+Note that a *program's ownership* of an account differs from a *user's authority* over an account.
+
+For example, a user wallet with authority over a token account must sign a transaction in order to send tokens from the token account. The signed transaction then authorizes the token program (which owns the token account) to transfer tokens to another token account.
 
 ## Solana Programs
 
