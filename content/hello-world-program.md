@@ -279,7 +279,7 @@ Lastly, copy the transaction URL printed in the console into your browser. Scrol
 
 ![Screenshot Solana Explorer Program Log](../assets/hello-world-program-log.png)
 
-Congratulations! You’ve just successfully built and deployed a Solana program.
+Congratulations, you’ve just successfully built and deployed a Solana program!
 
 # Challenge
 
