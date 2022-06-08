@@ -122,7 +122,7 @@ Building a basic transaction requires the following steps:
 First, we must create a new transaction using the `Transaction` function from `@solana/web3.js`.
 
 ```tsx
-import web3 = require("@solana/web3.js");
+import web3 = require("@solana/web3.js")
 
 const transaction = new web3.Transaction()
 ```
@@ -134,13 +134,13 @@ const instruction = new web3.TransactionInstruction({
     keys: [],
     programId,
     data: Buffer.alloc(0),
-});
+})
 ```
 
 Once we’ve built our instruction, we add the instruction to our transaction. This process can be repeated if a transaction requires multiple instructions.
 
 ```tsx
-transaction.add(instruction);
+transaction.add(instruction)
 ```
 
 Lastly, we send the new transaction to be processed by the Solana network.
@@ -150,7 +150,7 @@ const transactionSignature = await web3.sendAndConfirmTransaction(
     connection,
     transaction,
     [payer]
-);
+)
 ```
 
 # Demo
