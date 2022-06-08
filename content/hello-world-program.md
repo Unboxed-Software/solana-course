@@ -165,9 +165,11 @@ const transactionSignature = await web3.sendAndConfirmTransaction(
 )
 ```
 
+...and there you have it - you now know all the things you need for the foundations of creating a Solana program using Rust. Let’s practice what we’ve learned so far!
+
 # Demo
 
-Let's practice what we’ve learned by creating a basic program that will print "Hello world!" to the program log. We will build our program using Solana Playground, a tool that allows you to write and deploy Solana programs from the browser.
+We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser.
 
 Click [here](https://beta.solpg.io/) to open Solana Playground. Next, delete everything in the default `lib.rs` file and create a Playground wallet.
 
