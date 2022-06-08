@@ -524,4 +524,4 @@ Test your program with [this script](https://github.com/ixmorrow/movie-review-pt
 
 # Challenge
 
-For this lessons challenge, try writing your own script to interact with the program you’ve just deployed!
+For this lesson's challenge, try writing your own script to interact with the program you’ve just deployed!
