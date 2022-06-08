@@ -131,7 +131,9 @@ const transaction = new web3.Transaction()
 
 ### Create an instruction
 
-Next, we build the instruction using the `TransactionInstruction` function. The `keys` field is where the accounts required by the instruction are listed. Note that the format for building a new instruction on the client side matches the arguments required by the `process_instruction` function passed into the program entry point.
+Next, we build the instruction using the `TransactionInstruction` function.
+
+The `keys` field is where the accounts required by the instruction are listed.
 
 ```tsx
 const instruction = new web3.TransactionInstruction({
@@ -140,6 +142,8 @@ const instruction = new web3.TransactionInstruction({
     data: Buffer.alloc(0),
 })
 ```
+
+Note that the format for building a new instruction here on the client side matches the arguments required by the `process_instruction` function passed into the program entry point.
 
 ### Add the instruction to the transaction
 
