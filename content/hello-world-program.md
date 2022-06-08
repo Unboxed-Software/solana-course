@@ -119,6 +119,8 @@ Building a basic transaction requires the following steps:
 3. Add the instruction to the transaction
 4. Submit the transaction to be processed by the Solana network
 
+### Create a new transaction
+
 First, we must create a new transaction using the `Transaction` function from `@solana/web3.js`.
 
 ```tsx
@@ -126,6 +128,8 @@ import web3 = require("@solana/web3.js")
 
 const transaction = new web3.Transaction()
 ```
+
+### Create an instruction
 
 Next, we build the instruction using the `TransactionInstruction` function. The `keys` field is where the accounts required by the instruction are listed. Note that the format for building a new instruction on the client side matches the arguments required by the `process_instruction` function passed into the program entry point.
 
@@ -137,11 +141,15 @@ const instruction = new web3.TransactionInstruction({
 })
 ```
 
+### Add the instruction to the transaction
+
 Once we’ve built our instruction, we add the instruction to our transaction. This process can be repeated if a transaction requires multiple instructions.
 
 ```tsx
 transaction.add(instruction)
 ```
+
+### Submit the transaction
 
 Lastly, we send the new transaction to be processed by the Solana network.
 
