@@ -110,7 +110,7 @@ In order to process an instruction, the data accounts that an instruction requir
 
 ## Transactions
 
-In order to invoke Solana program instructions, clients must build and submit a transaction. Recall that transactions are made up of one more or instructions. Transactions process instructions in order and “atomically”. Atomically means that if any instruction within the transaction fails, then the entire transaction will fail. This provides users with the certainty that if a transaction is confirmed, then all instructions within the transaction were processed successfully.
+In order to execute Solana program instructions, clients must build and submit a transaction. Recall that transactions are made up of one more or instructions. Transactions process instructions in order and “atomically”. Atomically means that if any instruction within the transaction fails, then the entire transaction will fail. This provides users with the certainty that if a transaction is confirmed, then all instructions within the transaction were processed successfully.
 
 Building a basic transaction requires the following steps:
 
