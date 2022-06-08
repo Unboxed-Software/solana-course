@@ -169,9 +169,7 @@ const transactionSignature = await web3.sendAndConfirmTransaction(
 
 # Demo
 
-We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser.
-
-Click [here](https://beta.solpg.io/) to open Solana Playground. Next, delete everything in the default `lib.rs` file and create a Playground wallet.
+We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser. Click [here](https://beta.solpg.io/) to open Solana Playground. Next, go ahead and delete everything in the default `lib.rs` file and create a Playground wallet.
 
 ![Gif Solana Playground Create Wallet](../assets/hello-world-create-wallet.gif)
 
