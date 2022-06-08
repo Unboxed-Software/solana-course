@@ -297,15 +297,15 @@ function initializeKeypair(): web3.Keypair {
 }
 ```
 
-Update the `programId` with the your program id from Solana Playground.
+Update the `programId` with the program id you just deployed using Solana Playground.
 
-```rust
+```tsx
 let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
 ```
 
 ![Gif Solana Playground Program Id](../assets/hello-world-program-id.gif)
 
-Next, run `npm start`.
+Next, install the Node modules with `npm i`, and as soon as that is done, run `npm start`.
 
 ![Gif npm start](../assets/hello-world-npm-start.gif)
 
