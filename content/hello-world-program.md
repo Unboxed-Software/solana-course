@@ -305,7 +305,7 @@ let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
 
 ![Gif Solana Playground Program Id](../assets/hello-world-program-id.gif)
 
-Next, install the Node modules with `npm i`, and as soon as that is done, run `npm start`.
+Next, install the Node modules with `npm i`. Once those have been installed, run `npm start`.
 
 ![Gif npm start](../assets/hello-world-npm-start.gif)
 
