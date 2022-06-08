@@ -84,6 +84,12 @@ use solana_program::{
 };
 ```
 
+- `AccountInfo` - a struct within the `account_info` module that allows us to access account information
+- `entrypoint` - a macro that declares the entry point of the program
+- `ProgramResult` - a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
+- `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
+- `msg` - a macro allows us to print messages to the program log
+
 ### Entry points
 
 Solana programs require a single entry point to process program instructions. The entry point is declared using the [entrypoint!](https://docs.rs/solana-program/latest/solana_program/macro.entrypoint.html) macro. You can read more about Rust macros [here](https://doc.rust-lang.org/book/ch19-06-macros.html).
@@ -174,12 +180,6 @@ We're going to build a "Hello, World!" program using Solana Playground. Solana P
 ![Gif Solana Playground Create Wallet](../assets/hello-world-create-wallet.gif)
 
 First, let's bring into scope everything we’ll need from the `solana_program` crate.
-
-- `AccountInfo` - a struct within the `account_info` module that allows us to access account information
-- `entrypoint` - a macro that declares the entry point of the program
-- `ProgramResult` - a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
-- `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
-- `msg` - a macro allows us to print messages to the program log
 
 ```rust
 use solana_program::{
