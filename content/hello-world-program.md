@@ -72,7 +72,7 @@ use solana_program::account_info::AccountInfo
 
 You can read more about Rust modules [here](https://doc.rust-lang.org/book/ch07-02-defining-modules-to-control-scope-and-privacy.html).
 
-For a basic program we will need to use all of the following paths:
+For a basic program we will need to use all of the following `solana_program` paths:
 
 ```rust
 use solana_program::{
