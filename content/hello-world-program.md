@@ -55,13 +55,24 @@ For example, a user wallet with authority over a token account must sign a trans
 
 To write Solana programs with Rust, we use the [solana_program](https://docs.rs/solana-program/latest/solana_program/index.html) library crate. Crates in Rust define functionality that can be shared with multiple projects. The `solana_program` crate acts as a standard library for Solana programs. This standard library contains the modules and macros that we'll use to develop our Solana programs. You can read more about Rust crates [here](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
 
-To show Rust where to find an item in a module tree, we use a path in the same way we use a path when navigating a filesystem. If we want to call a function, we need to know its path. To "use" the modules available in the solana_program crate, we'll need to know how to invoke them by their "path" and bring it into the scope of our program. Paths are brought into scope with the [use](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) keyword. In the example below, we bring into scope the [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) struct from the `account_info` module within the `solana_program` crate. You can read more about Rust modules [here](https://doc.rust-lang.org/book/ch07-02-defining-modules-to-control-scope-and-privacy.html).
+### Pathways and scope
+
+To tell Rust where to find an item in a module tree, we use a path just like when we're navigating a filesystem. If we want to call a particular function within a module, then we need to know the pathway to it.
+
+To "use" a module available within the `solana_program` crate we'll need to know:
+
+1. How to invoke the module by its path
+2. How bring it into the scope of our program.
+
+Paths are brought into scope with the [use](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) keyword. In the example below, we bring into scope the [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) struct from the `account_info` module within the `solana_program` crate.
 
 ```rust
 use solana_program::account_info::AccountInfo
 ```
 
-For a basic program we will need the following:
+You can read more about Rust modules [here](https://doc.rust-lang.org/book/ch07-02-defining-modules-to-control-scope-and-privacy.html).
+
+For a basic program we will need to use all of the following paths:
 
 ```rust
 use solana_program::{
