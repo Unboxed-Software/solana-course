@@ -84,13 +84,15 @@ use solana_program::{
 };
 ```
 
+### Entry points
+
 Solana programs require a single entry point to process program instructions. The entry point is declared using the [entrypoint!](https://docs.rs/solana-program/latest/solana_program/macro.entrypoint.html) macro. You can read more about Rust macros [here](https://doc.rust-lang.org/book/ch19-06-macros.html).
 
 The entry point to a Solana program requires a `process_instruction` function with the following arguments:
 
 - `program_id` - the address of the account where the program is stored
-- `accounts` - the list of accounts required to process the instruction
-- `instruction_data` - the serialized instruction-specific data
+- `accounts` - the list of data accounts required to process the instruction
+- `instruction_data` - the serialized, instruction-specific data
 
 ```rust
 entrypoint!(process_instruction);
