@@ -305,11 +305,13 @@ let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
 
 ![Gif Solana Playground Program Id](../assets/hello-world-program-id.gif)
 
-Next, install the Node modules with `npm i`. Once those have been installed, run `npm start`.
+Next, install the Node modules with `npm i`. Once those have been installed, we'll need create an `.env` file at the top-level of the client program folder. Add a `PRIVATE_KEY` variable to this file. You can use the Playground wallet you just created.
+
+Now, go ahead and run `npm start`.
 
 ![Gif npm start](../assets/hello-world-npm-start.gif)
 
-Lastly, copy the transaction URL printed in the console into your browser. Scroll down to see “Hello, world!” under Program Instruction Logs.
+And finally, copy the transaction URL printed in the console into your browser. Scroll down to see “Hello, world!” under Program Instruction Logs.
 
 ![Screenshot Solana Explorer Program Log](../assets/hello-world-program-log.png)
 
