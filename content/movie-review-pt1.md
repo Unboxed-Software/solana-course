@@ -304,7 +304,7 @@ pub mod state;
 
 Logging is a very important part of software development and that’s no different for Smart Contract development. Logs are useful for developers when writing Smart Contracts, as well as for users of the contract. Program logs in Solana are visible in the block explorer when viewing a transaction all the way at the bottom of the page. Scroll to the bottom of [this transaction](https://explorer.solana.com/tx/4tePbMnP8YAVjC1d8j5oBEif1hsJTShkufDdQLeqw4vJxyVRK1UKTbGsqtjN9qYyvjeSgKvg9E5xHRrbV7Fs9nvG?cluster=devnet) in the Solana Explorer to view the logs from a transaction sent to the Movie Review program.
 
-![Untitled](Movie%20Review%20Program%20Pt1%207d36b864ac8f45149e18078f23df6093/Untitled.png)
+![Screenshot of a log from Move Review program](../assets/movie-review-logs.png)
 
 To write logs like this, all you have to do is bring in `msg` from the `solana_program` crate.
 
