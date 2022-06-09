@@ -1,3 +1,4 @@
+
 # Swap Tokens With The Token Swap Program
 
 # Lesson Objectives
@@ -11,6 +12,7 @@
 
 # TL;DR
 
+
 - The **Token Swap Program** is an SPL contract deployed to Devnet available for testing and experimentation by developers and protocols. For production use cases, use your own deployment or one regularly maintained by a reputable service.
 - The program accepts six different **instructions**, all of which we will explore in this lesson.
 - Developers are able to create and use **liquidity pools** to swap between any SPL token that they wish.
@@ -19,6 +21,7 @@
 # Overview
 
 ## Swap Pools
+
 
 Before we get into how to create and interact with swap pools on Solana, it’s important we understand the basics of what a swap pool is. A swap pool is an aggregation of two different tokens with the purpose of providing liquidity to facilitate exchange between each token.
 
@@ -444,6 +447,7 @@ B_out = 454.5454...
 
 The product of the amount of token A and token B must always equal a constant, hence the name ‘Constant Product’. More information can be found on the [Uniswap whitepaper](https://uniswap.org/whitepaper.pdf) and the [Balancer whitepaper](https://balancer.fi/whitepaper.pdf).
 
+
 If curves don't make a whole lot of sense, don't worry! While learning more about how they work doesn't hurt, you don't need to understand the entirety of the mathematics to be able to implement the common curves.
 
 # Demo
@@ -454,9 +458,11 @@ For this demo, a token pool of two brand new tokens has been created and is live
 - withdrawing your deposited liquidity
 - swapping from one token to the other
 
+
 ![Screenshot of Token Swap Demo](../assets/token-swap-frontend.png)
 
 ### 1. Download the starter code
+
 
 Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-token-swap-frontend/tree/starter).
 
@@ -501,10 +507,12 @@ Since the `handleTransactionSubmit` function is already going to be submitting a
 
 ```tsx
 const handleTransactionSubmit = async () => {
+
     if (!publicKey) {
         alert('Please connect your wallet!')
         return
     }
+
 
     const kryptATA = await token.getAssociatedTokenAddress(kryptMint, publicKey)
     const scroogeATA = await token.getAssociatedTokenAddress(ScroogeCoinMint, publicKey)
@@ -847,6 +855,7 @@ const handleTransactionSubmit = async () => {
 ```
 
 And that’s it! Once you have the swap instruction implemented, the UI should be fully functional and you can airdrop yourself tokens, deposit liquidity, withdraw your liquidity, and swap from token to token!
+
 
 Please take your time with this code and the concepts in this lesson. Swap pools can get a lot more complicated than the one we have implemented today so it's important to understand the basics. If you need some more time with the demo, take it! And if you need, have a look at the [solution code here](https://github.com/Unboxed-Software/solana-token-swap-frontend).
 
