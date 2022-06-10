@@ -150,10 +150,14 @@ In order to process an instruction, the data accounts that an instruction requir
 
 # Demo
 
-We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser. Click [here](https://beta.solpg.io/) to open Solana Playground. Next, go ahead and delete everything in the default `lib.rs` file and create a Playground wallet.
+We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser. 
+
+### 1. Setup
+Click [here](https://beta.solpg.io/) to open Solana Playground. Next, go ahead and delete everything in the default `lib.rs` file and create a Playground wallet.
 
 ![Gif Solana Playground Create Wallet](../assets/hello-world-create-wallet.gif)
 
+### 2. Solana Program Crate
 First, let's bring into scope everything we’ll need from the `solana_program` crate.
 
 ```rust
@@ -168,6 +172,7 @@ use solana_program::{
 
 Next, let's set up the entry point to our program using the `entrypoint!` macro and create the `process_instruction` function. The `msg!` macro then allows us to print “Hello, world!” to the program log when the program is invoked.
 
+### 3. Entry Point
 ```rust
 entrypoint!(process_instruction);
 
@@ -206,10 +211,12 @@ pub fn process_instruction(
 }
 ```
 
+### 4. Build and Deploy
 Now let's build and deploy our program using Solana Playground.
 
 ![Gif Solana Playground Build and Deploy](../assets/hello-world-build-deploy.gif)
 
+### 5. Invoke Program
 Finally, let's invoke our program from the client side. Download the code [here](https://github.com/ZYJLiu/solana-hello-world-client).
 
 The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our  “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
