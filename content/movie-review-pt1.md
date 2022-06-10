@@ -312,7 +312,7 @@ msg!("Data from the program: {}", test_struct.key);
 
 For this lesson’s demo, we’ll be building out the first half of the Movie Review program with a focus on deserializing instruction data, iterating over accounts, deserializing account data, and creating program logs. The following lesson will focus on the second half of this program.
 
-### 1. Entry Point
+### 1. Entry point
 
 We’ll be using [SolPG](https://beta.solpg.io/) again to build out this program. SolPG saves state in your browser, so everything you did in the previous lesson should still be there. To get started, we’re going clear everything out from the current [lib.rs](http://lib.rs) file.
 
@@ -358,7 +358,7 @@ pub fn process_instruction(
 }
 ```
 
-### 2. Deserialize Instruction Data
+### 2. Deserialize instruction data
 
 Now, before we continue with the processor logic, the rest will make more sense if we implement the `unpack` function we just added above. Create a new file called instruction.rs and add the following:
 
@@ -412,7 +412,7 @@ impl MovieInstruction {
 
 And that’s it for the instruction file! Now, remember we left the lib.rs file partially finished to come and write the implementation on the unpack function.
 
-### 3. Program Logic
+### 3. Program logic
 
 Now that that’s done, we know how the `unpack` function will deserialize the data and the struct we expect to receive. So, let’s add it to our match instruction inside lib.rs.
 
@@ -457,7 +457,7 @@ pub fn add_movie_review(
 }
 ```
 
-### 4. Deserialize State
+### 4. Deserialize state
 
 Once we have grabbed the `AccountInfos` from the array, we can define how we want to deserialize its data. Create a new file called state.rs and add the following:
 
@@ -485,7 +485,7 @@ impl IsInitialized for MovieAccountState {
 }
 ```
 
-### 5. Program Logic Continued
+### 5. Program logic continued
 
 Finally, let’s deserialize the movie review account’s data and log it!
 
