@@ -75,11 +75,11 @@ The entry point and program logic will live inside the lib.rs file.
 
 ## Instruction
 
-The instruction.rs file is where you write the logic for deserializing the instruction data to whatever struct your program expects the data to be. Notice in the example above, we brought in a Crate from the instruction.rs file
+The instruction.rs file is where you write the logic for deserializing the instruction data to whatever struct your program expects the data to be. Notice in the example above, we brought in a crate from the instruction.rs file:
 
 `use instruction::TestInstruction;`
 
- there we have written an `unpack` function that will try to deserialize whatever data was passed in as instruction data to the data struct it expects.
+There we have written an `unpack` function that will try to deserialize whatever data was passed in as instruction data to the data struct it expects.
 
 To do so, we’ll first define an [enum](https://doc.rust-lang.org/std/keyword.enum.html) that will hold the various different data structs our program can expect to receive.
 
