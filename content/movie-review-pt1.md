@@ -1,11 +1,5 @@
 # Movie Review Program Pt1
 
-### List links for further reading here:
-
-- [Rust book](https://doc.rust-lang.org/stable/book/)
-- [Rust by Example](https://doc.rust-lang.org/rust-by-example/index.html)
-- [On-Chain Solana Docs](https://docs.solana.com/developing/on-chain-programs/overview)
-
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
