@@ -264,7 +264,7 @@ impl IsInitialized for UserInfo {
 }
 ```
 
-Because we used the Borsh macro on this struct, there are some functions that are implemented for it that will help with the deserialization part. Now that the state is defined, we can deserialize an account’s data field into this struct and have access to that information in a much easier to read format.
+Because we used the Borsh macro on this struct, there are some functions implemented that help with the deserialization part. Now that the state is defined, we can deserialize an account’s data field into this struct and have access to that information in a much easier to read format.
 
 ```rust
 // Inside lib.rs
