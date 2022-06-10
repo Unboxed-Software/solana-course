@@ -530,7 +530,7 @@ pub fn add_movie_review(
 
 Now, you can build and deploy your program from SolPG just like in the last lesson. This will deploy your program to the same program id from the previous lesson if you went through the Hello World demo already. You can either upgrade your Hello World demo by just following the same steps as before or you can generate a new program id through SolPG and deploy to that one instead.
 
-Notice that while we went over how to deserialize the `instruction_data` , we never actually used it. The reason for this is because you’ll go over how to use this data in the next lesson when you complete the movie review program by creating new review accounts with it!
+Notice that while we went over how to deserialize the `instruction_data`, we never actually used it. The reason for this is because we’ll go over how to use this data in the next lesson as you create new review accounts to complete the movie review program!
 
 Test your program with [this script](https://github.com/ixmorrow/movie-review-pt1-testing-script/tree/master), make sure to paste the program id of your program into the script which you can see by going to Extra → Program Credentials in the ‘Build & Deploy’ page of the side bar! Check out the program [solution code](https://github.com/ixmorrow/movie-program-pt1) if you get stuck along the way
 
