@@ -237,7 +237,7 @@ if !fee_payer.is_signer {
 
 ## State
 
-By now, we should be familiar with the fact that programs on Solana are stateless, so the only way to persist state is with accounts. This is done by writing state to the data fields of System Accounts, but remember this field is just bytes of data. In order for us to be able to read/update this field in the program, we should have a way to deserialize a specific account’s data field similarly to how we will deserialize the `instruction_data` passed in. That logic for how a specific account (say an account representing a MovieReview) will live inside the state.rs file.
+By now, we should be familiar with the fact that programs on Solana are stateless and the only way to persist state is with accounts. This is done by writing state to the data fields of System Accounts, but remember this field is just bytes of data. In order for us to be able to read/update this field in the program, we should have a way to deserialize a specific account’s data field similarly to how we will deserialize the `instruction_data` passed in. That logic for how a specific account (say an account representing a MovieReview) will live inside the state.rs file.
 
 In order to deserialize account data, we must first define how that data should be deserialized. To do that, we’ll need to create a struct inside state.rs that will represent what we want the byte buffer to be deserialized into. Again, we’ll be using some Borsh macros to make this process a little easier.
 
@@ -288,7 +288,7 @@ let account_data = try_from_slice_unchecked::<UserInfo>(&user_account.data.borro
 
 ## Lib Cont.
 
-In the previous lesson, the Hello World demo only had one file. Now, we’re learning how to split programs up across three separate files. Once you start splitting your program up like this you will need to make sure you register all of the files in one central location, we’ll be doing this in lib.rs as well. **You must register every file in your program like this.**
+In the previous lesson, the "Hello, world!" demo program only had one file. Now, we’re learning how to split programs up across three separate files. Once you start splitting your program up like this you will need to make sure you register all of the files in one central location, we’ll be doing this in lib.rs as well. **You must register every file in your program like this.**
 
 ```rust
 // This would be inside lib.rs
