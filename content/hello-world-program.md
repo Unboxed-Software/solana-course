@@ -20,30 +20,91 @@ Solana's ability to run arbitrary executable code is part of what makes it so po
 
 This lesson will give you a basic introduction to writing a deploying a Solana program using the Rust programming language. To avoid the distraction of setting up a local development environment, we'll be using a browser-based IDE called Solana Playground.
 
-## Solana Programs
+## Rust Basics
 
-Recall that all data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data. Solana programs are just a particular type of Solana account that store and execute instructions.
+Before we dive into the building our "Hello world!" program, let’s first go over some Rust basics. If you want to dig deeper into Rust, have a look at the [Rust language book](https://doc.rust-lang.org/book/ch00-00-introduction.html).
 
-To write Solana programs with Rust, we use the [solana_program](https://docs.rs/solana-program/latest/solana_program/index.html) library crate. Crates in Rust define functionality that can be shared with multiple projects. The `solana_program` crate acts as a standard library for Solana programs. This standard library contains the modules and macros that we'll use to develop our Solana programs. You can read more about Rust crates [here](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
+### Module System
+
+Rust organizes code using what is collectively referred to as the “module system”. 
+
+This includes:
+
+- **Packages** - A Cargo feature that lets you build, test, and share crates
+- **Crates** - A tree of modules that produces a library or executable
+- **Modules** and **use** - Let you control the organization, scope, and privacy of paths
+- **Paths** - A way of naming an item, such as a struct, function, or module
+
+For this lesson, we’ll focus on using crates, modules, and paths.
 
 ### Pathways and scope
 
-To tell Rust where to find an item in a module tree, we use a path just like when we're navigating a filesystem. If we want to call a particular function within a module, then we need to know the pathway to it.
+Crates in Rust contain modules that define functionality which can be shared with multiple projects.  If we want to access an item within a module, then we need to know the path (like when we're navigating a filesystem).
 
-To "use" a module available within the `solana_program` crate we'll need to know:
+To use a module available within a crate, we'll need to:
 
-1. How to invoke the module by its path
-2. How bring it into the scope of our program.
+1. Bring the module into the scope of our program
+2. Specify the item in the module tree using its path
 
-Paths are brought into scope with the [use](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) keyword. In the example below, we bring into scope the [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) struct from the `account_info` module within the `solana_program` crate.
+Paths are brought into scope with the [use](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) keyword. In the example below, we bring into scope the `AccountInfo` struct from the `account_info` module within the `solana_program` crate. Bringing an item into scope this way allows us to use the item multiple times within our program without specifying the full path each time.
 
 ```rust
 use solana_program::account_info::AccountInfo
 ```
 
-You can read more about Rust modules [here](https://doc.rust-lang.org/book/ch07-02-defining-modules-to-control-scope-and-privacy.html).
+### Declaring Functions in Rust
 
-For a basic program we will need to use all of the following `solana_program` paths:
+We define a function in Rust by using the `fn` keyword followed by a function name and a set of parentheses.
+
+```rust
+fn process_instruction()
+```
+
+We can then add arguments to our function by including variable names and specifying its corresponding data type within the parentheses.
+
+Rust is known as a ”statically typed” language and every value in Rust is of a certain ”data type”. This meaning that Rust must know the types of all variables at compile time. In cases when multiple types are possible, we must add a type annotation to our variables.
+
+In the example below, we create a function named `process_instruction` that requires the following arguments:
+
+- `program_id` - required to be type `Pubkey`
+- `accounts` - required to be type `AccountInfo`
+- `instruction_data` - required to be type `u8`
+
+Note the `&` in front of the type for each argument listed in the `process_instruction` function. In Rust, an `&` represent a ”reference” to another variable that allows you to refer to some value without taking ownership of it. The “reference” is guaranteed to point to a valid value of a particular type. The action of creating a reference in Rust is called “borrowing”.
+
+In this example, when the `process_instruction` function is called, a user must pass in values for the required arguments. The `process_instruction` function then references the values passed in by the user, and guarantees that each value is the correct data type specified in the `process_instruction` function.
+
+Additionally, note the brackets `[]` around `&[AccountInfo]` and `&[u8]`. This means that the `accounts` and `instruction_data` arguments expect “slices” of types `AccountInfo` and `u8`. A “slice” is similar to an array (collection of objects of the same type), except the length is not known at compile time. In other words, the `accounts` and `instruction_data` arguments expect inputs of unknown length.
+
+```rust
+fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
+)
+```
+
+We can then have our functions return values by declaring the return type using an arrow `->` after the function.
+
+In the example below, the `process_instruction` function will now return a value of type `ProgramResult`. We will go over this in the next section.
+
+```rust
+fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
+) -> ProgramResult
+```
+
+## Solana Programs
+
+Recall that all data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data. Solana programs are just a particular type of Solana account that store and execute instructions.
+
+### Solana Program Crate
+
+To write Solana programs with Rust, we use the `solana_program` library crate. The `solana_program` crate acts as a standard library for Solana programs. This standard library contains the modules and macros that we'll use to develop our Solana programs. If you want to dig deeper `solana_program` crate, have a look [here](https://docs.rs/solana-program/latest/solana_program/index.html).
+
+For a basic program we will need to bring into scope the following items from the `solana_program` crate:
 
 ```rust
 use solana_program::{
@@ -55,21 +116,21 @@ use solana_program::{
 };
 ```
 
-- `AccountInfo` - a struct within the `account_info` module that allows us to access account information
-- `entrypoint` - a macro that declares the entry point of the program
-- `ProgramResult` - a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
-- `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
-- `msg` - a macro allows us to print messages to the program log
+- `AccountInfo` - a struct within the `account_info` module that allows us to access account information
+- `entrypoint` - a macro that declares the entry point of the program
+- `ProgramResult` - a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
+- `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
+- `msg` - a macro allows us to print messages to the program log
 
-### Entry points
+### Entry point
 
-Solana programs require a single entry point to process program instructions. The entry point is declared using the [entrypoint!](https://docs.rs/solana-program/latest/solana_program/macro.entrypoint.html) macro. You can read more about Rust macros [here](https://doc.rust-lang.org/book/ch19-06-macros.html).
+Solana programs require a single entry point to process program instructions. The entry point is declared using the `entrypoint!` macro.
 
-The entry point to a Solana program requires a `process_instruction` function with the following arguments:
+The entry point to a Solana program requires a `process_instruction` function with the following arguments:
 
-- `program_id` - the address of the account where the program is stored
-- `accounts` - the list of accounts required to process the instruction
-- `instruction_data` - the serialized, instruction-specific data
+- `program_id` - the address of the account where the program is stored
+- `accounts` - the list of accounts required to process the instruction
+- `instruction_data` - the serialized, instruction-specific data
 
 ```rust
 entrypoint!(process_instruction);
@@ -81,11 +142,9 @@ fn process_instruction(
 ) -> ProgramResult;
 ```
 
-Recall that Solana program accounts only store the logic for processing instructions. Program accounts are "read-only" accounts. This means that programs are “stateless”. The “state” (the set of data) that a program requires in order to process an instruction is stored in data accounts (separate from the program account).
+Recall that Solana program accounts only store the logic to process instructions. This means program accounts are "read-only" and “stateless”. The “state” (the set of data) that a program requires in order to process an instruction is stored in data accounts (separate from the program account).
 
-In order to process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
-
-
+In order to process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
 
 ...and there you have it - you now know all the things you need for the foundations of creating a Solana program using Rust. Let’s practice what we’ve learned so far!
 
