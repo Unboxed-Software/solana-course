@@ -13,7 +13,7 @@
 # TL;DR
 
 - The focus over the next three lessons will be to walk you through how the Movie Review program that was used in the first module was created. This is split up over multiple lessons to make the information a little more digestible.
-- In the previous lesson, the Hello World demo was confined to a single file. Going forward we'll be separating our smart contract code into multiple files where the code in each file serves a specific purpose.
+- In the previous lesson, the "Hello, World!"" demo was confined to a single file. Going forward we'll be separating our smart contract code into multiple files where the code in each file serves a specific purpose.
 - Logging helpful and relevant information is good for troubleshooting during development and for users who will interact with the program because they are visible in the explorer.
 
 # Overview
@@ -28,7 +28,7 @@ For this lesson, we will be splitting up this program across 3 different files:
 - **instruction.rs**
 - **state.rs**
 
-Many Solana smart contract tutorials out there follow the general program architecture that splits the programs across 6 files. While working your way through these, it’s very easy to get carried away and get confused on what each of these files is used for. We felt following this same practice right now might be too much new information to really comprehend how they all fit together, so we are keeping it to 3 files for this lesson - but don’t worry, we will teach you the common program architecture after we’re sure you’ve got the basics.
+Many Solana smart contract tutorials use a general program architecture which splits the programs across 6 files. While working your way through these, it’s very easy to get carried away and get confused on what each of these files is used for. We felt following this same practice right now might be too much new information to really comprehend how they all fit together, so we are keeping it to 3 files for this lesson - but don’t worry, we will teach you the common program architecture after we’re sure you’ve got the basics.
 
 ## Lib
 
