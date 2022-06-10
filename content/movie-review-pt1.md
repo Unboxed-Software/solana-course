@@ -42,7 +42,7 @@ The entry point to a Solana program requires a function defined with the followi
 - `accounts` is the array of accounts submitted in the transaction
 - `instruction_data` is the serialized instruction-specific data
 
-Once the entry point function is defined, it will be passed as an arugment into the `entrypoint!` macro which signifies where the program logic will start where the `program_id`, `accounts`, and `instruction_data` are all passed in as parameters. A simple entrypoint to a program may look like this:
+Once the entry point function is defined, it will be passed as an argument into the `entrypoint!` macro which signifies where the program logic will start where the `program_id`, `accounts`, and `instruction_data` are all passed in as parameters. A simple entrypoint to a program may look like this:
 
 ```rust
 // bring in crates that will be used
@@ -192,7 +192,7 @@ pub fn do_something(
 }
 ```
 
-The [next_account_info](https://docs.rs/solana-program/latest/solana_program/account_info/fn.next_account_info.html) function from the `solana_program` crate defines how to fetch the next item in an `AccountInfo` iterator.  Depending on how many accounts your program expects, you will have to do this for each one. The `fee_payer` and `user_account` variables are of type [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) that has the following properties:
+The [next_account_info](https://docs.rs/solana-program/latest/solana_program/account_info/fn.next_account_info.html) function from the `solana_program` crate defines how to fetch the next item in an `AccountInfo` iterator. Depending on how many accounts your program expects, you will have to do this for each one. The `fee_payer` and `user_account` variables are of type [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) that has the following properties:
 
 ```rust
 pub struct AccountInfo<'a> {
@@ -313,6 +313,7 @@ msg!("Data from the program: {}", test_struct.key);
 For this lesson’s demo, we’ll be building out the first half of the Movie Review program with a focus on deserializing instruction data, iterating over accounts, deserializing account data, and creating program logs. The following lesson will focus on the second half of this program.
 
 ### 1. Entry Point
+
 We’ll be using [SolPG](https://beta.solpg.io/) again to build out this program. SolPG saves state in your browser, so everything you did in the previous lesson should still be there. To get started, we’re going clear everything out from the current [lib.rs](http://lib.rs) file.
 
 Inside lib.rs, we’re going to bring in the following crates and define where we’d like our entry point to the program to be with the `entrypoint` macro.
@@ -358,6 +359,7 @@ pub fn process_instruction(
 ```
 
 ### 2. Deserialize Instruction Data
+
 Now, before we continue with the processor logic, the rest will make more sense if we implement the `unpack` function we just added above. Create a new file called instruction.rs and add the following:
 
 ```rust
@@ -409,7 +411,9 @@ impl MovieInstruction {
 ```
 
 And that’s it for the instruction file! Now, remember we left the lib.rs file partially finished to come and write the implementation on the unpack function.
+
 ### 3. Program Logic
+
 Now that that’s done, we know how the `unpack` function will deserialize the data and the struct we expect to receive. So, let’s add it to our match instruction inside lib.rs.
 
 ```rust
@@ -431,7 +435,7 @@ pub fn process_instruction(
 }
 ```
 
-Next, we’ll write the logic for the `add_movie_review` function that we’re calling in the code above. Notice, that we passed in the `program_id` , `accounts` , and the deserialized `instruction_data`  to this function.
+Next, we’ll write the logic for the `add_movie_review` function that we’re calling in the code above. Notice, that we passed in the `program_id` , `accounts` , and the deserialized `instruction_data` to this function.
 
 The first thing we’ll do inside the `add_movie_review` function is iterate over our array of `AccountInfos` that was passed in the function using `next_account_info`. For this demo, we’ll expect two accounts to be passed in - the payer of the transaction and the movie review account. The actual movie review program will require more that we will discuss in the next lesson because that focuses on creating new movie reviews. The purpose of this lesson is to just fetch a movie review account that has already been created and log the account’s data.
 
@@ -454,6 +458,7 @@ pub fn add_movie_review(
 ```
 
 ### 4. Deserialize State
+
 Once we have grabbed the `AccountInfos` from the array, we can define how we want to deserialize its data. Create a new file called state.rs and add the following:
 
 ```rust
@@ -479,7 +484,9 @@ impl IsInitialized for MovieAccountState {
     }
 }
 ```
+
 ### 5. Program Logic Continued
+
 Finally, let’s deserialize the movie review account’s data and log it!
 
 ```rust
