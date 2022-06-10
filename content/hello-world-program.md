@@ -230,9 +230,13 @@ You can locate the program Id on Solana Playground referencing the image below.
 
 ![Gif Solana Playground Program Id](../assets/hello-world-program-id.gif)
 
-Next, install the Node modules with `npm i`. Once those have been installed, we'll need create an `.env` file at the top-level of the client program folder. Add a `PRIVATE_KEY` variable to this file. You can use the Playground wallet you just created.
+Next, install the Node modules with `npm i`.
 
-Now, go ahead and run `npm start`. This command will output a transaction URL to view on Solana Explorer.
+Now, go ahead and run `npm start`. This command will: 
+1. Generate a new keypair and create a `.env` file if one does not already exist
+2. Airdrop devnet SOL
+3. Invoke the “Hello, world!” program
+4. Output the transaction URL to view on Solana Explorer
 
 Copy the transaction URL printed in the console into your browser. Scroll down to see “Hello, world!” under Program Instruction Logs.
 
