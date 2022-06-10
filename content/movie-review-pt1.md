@@ -19,14 +19,14 @@
 # TL;DR
 
 - The focus over the next three lessons will be to walk you through how the Movie Review program that was used in the first module was created. This is split up over multiple lessons to make the information a little more digestible.
-- In the previous lesson, the Hello World demo was confined to a single file. Going forward we'll be separating our smart contract code into multiple files where the code in each file serves a specific purpose. 
+- In the previous lesson, the Hello World demo was confined to a single file. Going forward we'll be separating our smart contract code into multiple files where the code in each file serves a specific purpose.
 - Logging helpful and relevant information is good for troubleshooting during development and for users who will interact with the program because they are visible in the explorer.
 
 # Overview
 
 ## Program Structure
 
-Last lesson, we learned about some Rust primitives like Crates and Macros, both of which will be relevant going forward. But, last lesson’s program was simple enough that it could be confined to one file - while you can write almost any smart contract program in one file on Solana, it’s much easier to understand and follow if you break it up across a few different ones. 
+Last lesson, we learned about some Rust primitives like Crates and Macros, both of which will be relevant going forward. But, last lesson’s program was simple enough that it could be confined to one file - while you can write almost any smart contract program in one file on Solana, it’s much easier to understand and follow if you break it up across a few different ones.
 
 For this lesson, we will be splitting up this program across 3 different files:
 
@@ -34,15 +34,15 @@ For this lesson, we will be splitting up this program across 3 different files:
 - **instruction.rs**
 - **state.rs**
 
-Many Solana smart contract tutorials out there follow the general program architecture that splits the programs across 6 files. While working your way through these, it’s very easy to get carried away and get confused on what each of these files is used for. We felt following this same practice right now might be too much new information to really comprehend how they all fit together, so we are keeping it to 3 files for this lesson - but don’t worry, we will teach you the common program architecture after we’re sure you’ve got the basics. 
+Many Solana smart contract tutorials out there follow the general program architecture that splits the programs across 6 files. While working your way through these, it’s very easy to get carried away and get confused on what each of these files is used for. We felt following this same practice right now might be too much new information to really comprehend how they all fit together, so we are keeping it to 3 files for this lesson - but don’t worry, we will teach you the common program architecture after we’re sure you’ve got the basics.
 
 ## Lib
 
 ### Entrypoint
 
-In the previous lesson, we learned that Solana programs require a single entry point to process program instructions. The entry point is declared using the `[entrypoint!](https://docs.rs/solana-program/latest/solana_program/macro.entrypoint.html)` macro. 
+In the previous lesson, we learned that Solana programs require a single entry point to process program instructions. The entry point is declared using the [entrypoint!](https://docs.rs/solana-program/latest/solana_program/macro.entrypoint.html) macro.
 
-The entry point to a Solana program requires a function defined with the following parameters: 
+The entry point to a Solana program requires a function defined with the following parameters:
 
 - `program_id` is the address of the account the program is stored at
 - `accounts` is the array of accounts submitted in the transaction
@@ -84,7 +84,7 @@ The instruction.rs file is where you write the logic for deserializing the instr
 
 `use instruction::TestInstruction;`
 
- there we have written an `unpack` function that will try to deserialize whatever data was passed in as instruction data to the data struct it expects. 
+ there we have written an `unpack` function that will try to deserialize whatever data was passed in as instruction data to the data struct it expects.
 
 To do so, we’ll first define an [enum](https://doc.rust-lang.org/std/keyword.enum.html) that will hold the various different data structs our program can expect to receive.
 
@@ -125,7 +125,7 @@ impl ExampleInstruction {
 // match the variant to determine which data struct is expected by
 // the function and return the TestStruct or an error
         Ok(match variant {
-            0 => Self::TestStruct { 
+            0 => Self::TestStruct {
                 name: payload.name,
                 age: payload.age,
                 bio: payload.bio},
@@ -188,7 +188,7 @@ pub fn do_something(
 ) -> ProgramResult {
 	// Get Account iterator
 	let account_info_iter = &mut accounts.iter();
-  
+
 	// Get first account
 	let fee_payer = next_account_info(account_info_iter)?;
 	// Get second account
@@ -198,7 +198,7 @@ pub fn do_something(
 }
 ```
 
-The `[next_account_info](https://docs.rs/solana-program/latest/solana_program/account_info/fn.next_account_info.html)` function from the Solana crate defines how to fetch the next item in an `AccountInfo` iterator.  Depending on how many accounts your program expects, you will have to do this for each one. The `fee_payer` and `user_account` variables are type `[AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html)` that has the following properties:
+The [next_account_info](https://docs.rs/solana-program/latest/solana_program/account_info/fn.next_account_info.html) function from the `solana_program` crate defines how to fetch the next item in an `AccountInfo` iterator.  Depending on how many accounts your program expects, you will have to do this for each one. The `fee_payer` and `user_account` variables are of type [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) that has the following properties:
 
 ```rust
 pub struct AccountInfo<'a> {
@@ -220,19 +220,19 @@ Luckily for us, the `next_account_info` function handles everything behind the s
 
 // Get Account iterator
 let account_info_iter = &mut accounts.iter();
-  
+
 // Get first account
 let fee_payer = next_account_info(account_info_iter)?;
 // Get second account
 let user_account = next_account_info(account_info_iter)?;
 
-				
+
 // check if account signed the transaction
 if !fee_payer.is_signer {
 	msg!("Fee payer is not signer");
   return Err(ProgramError::MissingRequiredSignature);
 }
-			
+
 ....
 
 ```
@@ -271,7 +271,7 @@ Because we used the Borsh macro on this struct, there are some functions that ar
 ```rust
 // inside lib.rs
 use crate::state::UserInfo
- 
+
 ...
 
 // iterator over the accounts array created
@@ -280,8 +280,8 @@ let account_info_iter = &mut accounts.iter();
 let fee_payer = next_account_info(account_info_iter)?;
 let user_account = next_account_info(account_info_iter)?;
 // using try_from_slice_unchecked Borsh can deserialize the byte
-// buffer into our UserInfo struct 
-let account_data = try_from_slice_unchecked::<UserInfo>(&User_account.data.borrow()).unwrap();
+// buffer into our UserInfo struct
+let account_data = try_from_slice_unchecked::<UserInfo>(&user_account.data.borrow()).unwrap();
 
 // if successful, account_data is now a UserInfo struct
 
@@ -300,11 +300,11 @@ pub mod state;
 
 ## Program Logs
 
-Logging is a very important part of software development and that’s no different for Smart Contract development. Logs are useful for developers when writing Smart Contracts, as well as for users of the contract. Program logs in Solana are visible in the block explorer when viewing a transaction all the way at the bottom of the page. Scroll to the bottom of [this transaction](https://explorer.solana.com/tx/4tePbMnP8YAVjC1d8j5oBEif1hsJTShkufDdQLeqw4vJxyVRK1UKTbGsqtjN9qYyvjeSgKvg9E5xHRrbV7Fs9nvG?cluster=devnet) in the Solana Explorer to view the logs from a transaction sent to the Movie Review program.
+Logging is a very important part of software development and that’s no different for Smart Contract development. Logs are useful for developers when writing Smart Contracts, as well as for users of the contract. Program logs in Solana are visible in the block explorer when viewing a transaction all the way at the bottom of the page. Scroll to the bottom of [this transaction](https://explorer.solana.com/tx/4txDU5oBtjHQxWKJj1AnoDSfEQUurE6kBoiGqDprX6fBL2rEnLK5qJqLc2f1i9zMauYSSRq1nQJjeJzCCFF7BVsU?cluster=devnet) in the Solana Explorer to view the logs from a transaction sent to the Movie Review program.
 
 ![Screenshot of a log from Move Review program](../assets/movie-review-logs.png)
 
-To write logs like this, all you have to do is bring in `msg` from the `solana_program` crate.
+To write logs like this, all you have to do is bring in `msg` function from the `solana_program` crate.
 
 ```rust
 use solana::program::msg;
@@ -358,7 +358,7 @@ pub fn process_instruction(
 ) -> ProgramResult {
 // makes call to unpack function, which undefined at the moment
   let instruction = MovieInstruction::unpack(instruction_data)?;
-  
+
 }
 ```
 
@@ -402,7 +402,7 @@ impl MovieInstruction {
         let payload = MovieReviewPayload::try_from_slice(rest).unwrap();
 				// match the first byte and return the AddMovieReview struct
         Ok(match variant {
-            0 => Self::AddMovieReview { 
+            0 => Self::AddMovieReview {
                 title: payload.title,
                 rating: payload.rating,
                 description: payload.description },
@@ -432,7 +432,7 @@ pub fn process_instruction(
 }
 ```
 
-Next, we’ll write the logic for the `add_movie_review` function that we’re calling in the code above. Notice, that we passed in the `program_id` , `accounts` , and the deserialized `instruction_data`  to this function. 
+Next, we’ll write the logic for the `add_movie_review` function that we’re calling in the code above. Notice, that we passed in the `program_id` , `accounts` , and the deserialized `instruction_data`  to this function.
 
 The first thing we’ll do inside the `add_movie_review` function is iterate over our array of `AccountInfos` that was passed in the function using `next_account_info`. For this demo, we’ll expect two accounts to be passed in - the payer of the transaction and the movie review account. The actual movie review program will require more that we will discuss in the next lesson because that focuses on creating new movie reviews. The purpose of this lesson is to just fetch a movie review account that has already been created and log the account’s data.
 
@@ -447,7 +447,7 @@ pub fn add_movie_review(
 
     // Get Account iterator
     let account_info_iter = &mut accounts.iter();
-  
+
     // Get accounts
     let initializer = next_account_info(account_info_iter)?;
     let movie_review = next_account_info(account_info_iter)?;
@@ -497,7 +497,7 @@ msg!("Description: {}", description);
 
 // Get Account iterator
 let account_info_iter = &mut accounts.iter();
-  
+
 // Get accounts
 let initializer = next_account_info(account_info_iter)?;
 let movie_review = next_account_info(account_info_iter)?;
