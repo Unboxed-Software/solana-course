@@ -318,6 +318,7 @@ msg!("Data from the program: {}", test_struct.key);
 
 For this lesson’s demo, we’ll be building out the first half of the Movie Review program with a focus on deserializing instruction data, iterating over accounts, deserializing account data, and creating program logs. The following lesson will focus on the second half of this program.
 
+### 1. Entry Point
 We’ll be using [SolPG](https://beta.solpg.io/) again to build out this program. SolPG saves state in your browser, so everything you did in the previous lesson should still be there. To get started, we’re going clear everything out from the current [lib.rs](http://lib.rs) file.
 
 Inside lib.rs, we’re going to bring in the following crates and define where we’d like our entry point to the program to be with the `entrypoint` macro.
@@ -362,7 +363,8 @@ pub fn process_instruction(
 }
 ```
 
-Now, before we continue with the processor logic, the rest will make more sense if we implement the `unpack` function we just added above. Create a new file called [instruction.rs](http://instruction.rs) and add the following:
+### 2. Deserialize Instruction Data
+Now, before we continue with the processor logic, the rest will make more sense if we implement the `unpack` function we just added above. Create a new file called instruction.rs and add the following:
 
 ```rust
 use borsh::{BorshDeserialize};
@@ -412,9 +414,12 @@ impl MovieInstruction {
 }
 ```
 
-And that’s it for the instruction file! Now, remember we left the lib.rs file partially finished to come and write the implementation on the unpack function. Now that that’s done, we know how the `unpack` function will deserialize the data and the struct we expect to receive. So, let’s add it to our match instruction inside lib.rs.
+And that’s it for the instruction file! Now, remember we left the lib.rs file partially finished to come and write the implementation on the unpack function.
+### 3. Program Logic
+Now that that’s done, we know how the `unpack` function will deserialize the data and the struct we expect to receive. So, let’s add it to our match instruction inside lib.rs.
 
 ```rust
+// inside lib.rs
 pub fn process_instruction(
   program_id: &Pubkey,
   accounts: &[AccountInfo],
@@ -454,9 +459,11 @@ pub fn add_movie_review(
 }
 ```
 
+### 4. Deserialize State
 Once we have grabbed the `AccountInfos` from the array, we can define how we want to deserialize its data. Create a new file called state.rs and add the following:
 
 ```rust
+// inside state.rs
 use borsh::{BorshSerialize, BorshDeserialize};
 use solana_program::{
     program_pack::{IsInitialized, Sealed},
@@ -478,10 +485,11 @@ impl IsInitialized for MovieAccountState {
     }
 }
 ```
-
+### 5. Program Logic Continued
 Finally, let’s deserialize the movie review account’s data and log it!
 
 ```rust
+// inside lib.rs
 pub fn add_movie_review(
   program_id: &Pubkey,
   accounts: &[AccountInfo],
@@ -514,7 +522,7 @@ msg!("Description: {}", account_data.description);
 }
 ```
 
-Now, you can Build and deploy your program from SolPG just like in the last lesson. This will deploy your program to the same program id from the previous lesson if you went through the Hello World demo already. You can either upgrade your Hello World demo by just following the same steps as before or you can generate a new program id through SolPG and deploy to that one instead.
+Now, you can build and deploy your program from SolPG just like in the last lesson. This will deploy your program to the same program id from the previous lesson if you went through the Hello World demo already. You can either upgrade your Hello World demo by just following the same steps as before or you can generate a new program id through SolPG and deploy to that one instead.
 
 Notice that while we went over how to deserialize the `instruction_data` , we never actually used it. The reason for this is because you’ll go over how to use this data in the next lesson when you complete the movie review program by creating new review accounts with it!
 
