@@ -104,7 +104,7 @@ struct PostIxPayload {
 }
 ```
 
-Next, we can implement the `unpack` function on the `ExampleInstruction` enum that was called in the `process_instruction` function above. This is where we will use borsh to deserialize the `instruction_data` into the `PostIxPayload` struct defined above and create a `TestStruct` from the payload.
+Next, we can implement the `unpack` function on the `ExampleInstruction` enum that was called in the `process_instruction` function above. This is where we will use Borsh to deserialize the `instruction_data` into the `PostIxPayload` struct defined above and create a `TestStruct` from the payload.
 
 ```rust
 impl ExampleInstruction {
