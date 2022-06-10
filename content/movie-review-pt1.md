@@ -13,8 +13,8 @@
 # TL;DR
 
 - The focus over the next three lessons will be to walk you through how the Movie Review program that was used in the first module was created. This is split up over multiple lessons to make the information a little more digestible.
-- In the previous lesson, the "Hello, World!"" demo was confined to a single file. Going forward we'll be separating our smart contract code into multiple files where the code in each file serves a specific purpose.
-- Logging helpful and relevant information is good for troubleshooting during development and for users who will interact with the program because they are visible in the explorer.
+- In the previous lesson, the "Hello, World!" demo was confined to a single file. Going forward we'll be separating our smart contract code into multiple files where the code in each file serves a specific purpose.
+- Logging helpful and relevant information is good for troubleshooting during development and for users who will interact with the program because the logs are visible in the explorer.
 
 # Overview
 
