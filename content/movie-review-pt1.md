@@ -20,7 +20,7 @@
 
 ## Program Structure
 
-Last lesson, we learned about some Rust primitives like Crates and Macros, both of which will be relevant going forward. But, last lesson’s program was simple enough that it could be confined to one file - while you can write almost any smart contract program in one file on Solana, it’s much easier to understand and follow if you break it up across a few different ones.
+The last lesson’s program was simple enough that it could be confined to one file. Now, while you can write almost any smart contract program in a single file for Solana, it’s much easier to understand and follow if you break it up across a few different ones.
 
 For this lesson, we will be splitting up this program across 3 different files:
 
@@ -28,7 +28,7 @@ For this lesson, we will be splitting up this program across 3 different files:
 - **instruction.rs**
 - **state.rs**
 
-Many Solana smart contract tutorials use a general program architecture which splits the programs across 6 files. While working your way through these, it’s very easy to get carried away and get confused on what each of these files is used for. We felt following this same practice right now might be too much new information to really comprehend how they all fit together, so we are keeping it to 3 files for this lesson - but don’t worry, we will teach you the common program architecture after we’re sure you’ve got the basics.
+Many Solana smart contract tutorials use a general program architecture which splits the programs across six files. While working your way through these, it’s very easy to get carried away and confused about what each of these files is used for. We feel that following this same practice is adding too much new information to really comprehend how the parts all fit together. So, with that in mind, we are keeping our program simple - just three files for this lesson. Don’t worry though, we will teach you the common program architecture after we’re sure you’ve got the basics.
 
 ## Lib
 
