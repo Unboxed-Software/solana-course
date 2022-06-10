@@ -47,7 +47,8 @@ Once the entry point function is defined, it will be passed as an argument into 
 ```rust
 // Bring in crates that will be used
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult,
+    account_info::AccountInfo,
+    entrypoint::ProgramResult,
     pubkey::Pubkey,
     msg,
 };
