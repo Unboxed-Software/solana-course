@@ -22,7 +22,7 @@ This lesson will give you a basic introduction to writing a deploying a Solana p
 
 ## Rust Basics
 
-Before we dive into the building our "Hello world!" program, let’s first go over some Rust basics. If you want to dig deeper into Rust, have a look at the [Rust language book](https://doc.rust-lang.org/book/ch00-00-introduction.html).
+Before we dive into the building our "Hello, world!" program, let’s first go over some Rust basics. If you want to dig deeper into Rust, have a look at the [Rust language book](https://doc.rust-lang.org/book/ch00-00-introduction.html).
 
 ### Module System
 
