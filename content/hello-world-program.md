@@ -4,54 +4,25 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Describe the Solana account model
 - Explain the entry point to a Solana program
+- Build and deploy a basic Solana program
 - Submit a transaction to invoke our “Hello, world!” program
 
 # TL;DR
 
-- **Accounts** on Solana each have a unique address, store data, and are owned by a program
-- **Programs** on Solana are a particular type of account that is marked as executable and which stores instruction logic
-- **Transactions** on Solana are made up of instructions which are executed by programs
+- **Programs** on Solana are a particular type of account that stores and executes instruction logic
+- Solana programs have a single **entry point** to process instructions
+- A program processes an instruction using the **program_id**, list of **accounts**, and **instruction_data** included with the instruction 
 
 # Overview
 
-In this lesson we'll be using the Rust programming language to write a Solana program. We will also be using the Solana Playground to deploy a Solana program.
+Solana's ability to run arbitrary executable code is part of what makes it so powerful. Solana programs, similar to "smart contracts" in other blockchain environments, are quite literally the backbone of the Solana ecosystem. And the collection of programs grows daily as developers and creators dream up and deploy new programs.
 
-Solana programs are stored in accounts with a unique address. This unique address is referred to as the program id.
-
-To understand programs on Solana we must first understand the basics of Solana’s account model. Once we understand Solana's account model, then we will be able to see how Solana programs (which are similar to "smart contracts" on the Ethereum blockchain) are just a particular type of Solana account that can execute instructions.
-
-## Account Model
-
-As you'll recall from the [Read data from the network](./intro-to-reading-data.md) lesson, accounts are like the files in Solana’s network ledger. All data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data.
-
-There are two main categories of Solana accounts:
-
-- Data accounts
-- Program accounts
-
-Note that data accounts must be owned by a program account.
-
-Data accounts store state (e.g. name, count). There are two types of data accounts:
-
-- Data accounts owned by the System Program (e.g. user wallets)
-- Data accounts owned by any other program
-
-Program accounts store the executable programs (e.g. instruction logic) and process instructions. There are two types of program accounts:
-
-- Solana's native program accounts (e.g. the System, Stake, or BPF Loader Programs)
-- All other program accounts (these are owned by the BPF - Berkeley Packet Filter - Loader Program)
-
-The diagram below demonstrates the relationship between program accounts and data accounts:
-
-![Screenshot Account Model Example Diagram](../assets/hello-world-account-diagram.png)
-
-Note that a *program's ownership* of an account differs from a *user's authority* over an account.
-
-For example, a user wallet with authority over a token account must sign a transaction in order to send tokens from the token account. The signed transaction then authorizes the token program (which owns the token account) to transfer tokens to another token account.
+This lesson will give you a basic introduction to writing a deploying a Solana program using the Rust programming language. To avoid the distraction of setting up a local development environment, we'll be using a browser-based IDE called Solana Playground.
 
 ## Solana Programs
+
+Recall that all data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data. Solana programs are just a particular type of Solana account that store and execute instructions.
 
 To write Solana programs with Rust, we use the [solana_program](https://docs.rs/solana-program/latest/solana_program/index.html) library crate. Crates in Rust define functionality that can be shared with multiple projects. The `solana_program` crate acts as a standard library for Solana programs. This standard library contains the modules and macros that we'll use to develop our Solana programs. You can read more about Rust crates [here](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
 
@@ -97,7 +68,7 @@ Solana programs require a single entry point to process program instructions. Th
 The entry point to a Solana program requires a `process_instruction` function with the following arguments:
 
 - `program_id` - the address of the account where the program is stored
-- `accounts` - the list of data accounts required to process the instruction
+- `accounts` - the list of accounts required to process the instruction
 - `instruction_data` - the serialized, instruction-specific data
 
 ```rust
@@ -114,62 +85,7 @@ Recall that Solana program accounts only store the logic for processing instruct
 
 In order to process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
 
-## Transactions
 
-In order to execute Solana program instructions, clients must build and submit a transaction. Recall that transactions are made up of one more or instructions. Transactions process instructions in order and atomistically. This means that if any one, single instruction within the transaction fails, then the entire transaction will fail. This provides users with the certainty that if a transaction is confirmed, then all of the instructions within the transaction were processed successfully.
-
-Building a basic transaction requires the following steps:
-
-1. Create a new transaction
-2. Create an instruction
-3. Add the instruction to the transaction
-4. Submit the transaction to be processed by the Solana network
-
-### Create a new transaction
-
-First, we must create a new transaction using the `Transaction` function from `@solana/web3.js`.
-
-```tsx
-import web3 = require("@solana/web3.js")
-
-const transaction = new web3.Transaction()
-```
-
-### Create an instruction
-
-Next, we build the instruction using the `TransactionInstruction` function.
-
-The `keys` field is where the accounts required by the instruction are listed.
-
-```tsx
-const instruction = new web3.TransactionInstruction({
-    keys: [],
-    programId,
-    data: Buffer.alloc(0),
-})
-```
-
-Note that the format for building a new instruction here on the client side matches the arguments required by the `process_instruction` function passed into the program entry point.
-
-### Add the instruction to the transaction
-
-Once we’ve built our instruction, we add the instruction to our transaction. This process can be repeated if a transaction requires multiple instructions.
-
-```tsx
-transaction.add(instruction)
-```
-
-### Submit the transaction
-
-Lastly, we send the new transaction to be processed by the Solana network.
-
-```tsx
-const transactionSignature = await web3.sendAndConfirmTransaction(
-    connection,
-    transaction,
-    [payer]
-)
-```
 
 ...and there you have it - you now know all the things you need for the foundations of creating a Solana program using Rust. Let’s practice what we’ve learned so far!
 
@@ -239,79 +155,20 @@ Finally, let's invoke our program from the client side. Download the code [here]
 
 The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our  “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
 
-In the `index.ts` file you should see the following:
-
-```tsx
-import web3 = require("@solana/web3.js");
-import Dotenv from "dotenv";
-Dotenv.config();
-
-let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
-
-let payer = initializeKeypair();
-let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-
-async function main() {
-    await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL * 1);
-
-    const transactionSignature = await sayHello();
-
-    console.log(
-        `Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`
-    );
-}
-
-main()
-    .then(() => {
-        console.log("Finished successfully");
-    })
-    .catch((error) => {
-        console.error(error);
-    });
-
-export async function sayHello(): Promise<web3.TransactionSignature> {
-    const transaction = new web3.Transaction();
-
-    const instruction = new web3.TransactionInstruction({
-        keys: [],
-        programId,
-        data: Buffer.alloc(0),
-    });
-
-    transaction.add(instruction);
-
-    const transactionSignature = await web3.sendAndConfirmTransaction(
-        connection,
-        transaction,
-        [payer]
-);
-
-    return transactionSignature;
-}
-
-function initializeKeypair(): web3.Keypair {
-    const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[];
-    const secretKey = Uint8Array.from(secret);
-    const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey);
-    return keypairFromSecretKey;
-}
-```
-
-Update the `programId` with the program id you just deployed using Solana Playground.
+Open the `index.ts` file you should see a variable named `programId`. Go ahead and update this with the program Id of the “Hello, world!" program you just deployed using Solana Playground.
 
 ```tsx
 let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
 ```
+You can locate the program Id on Solana Playground referencing the image below.
 
 ![Gif Solana Playground Program Id](../assets/hello-world-program-id.gif)
 
 Next, install the Node modules with `npm i`. Once those have been installed, we'll need create an `.env` file at the top-level of the client program folder. Add a `PRIVATE_KEY` variable to this file. You can use the Playground wallet you just created.
 
-Now, go ahead and run `npm start`.
+Now, go ahead and run `npm start`. This command will output a transaction URL to view on Solana Explorer.
 
-![Gif npm start](../assets/hello-world-npm-start.gif)
-
-And finally, copy the transaction URL printed in the console into your browser. Scroll down to see “Hello, world!” under Program Instruction Logs.
+Copy the transaction URL printed in the console into your browser. Scroll down to see “Hello, world!” under Program Instruction Logs.
 
 ![Screenshot Solana Explorer Program Log](../assets/hello-world-program-log.png)
 
@@ -319,7 +176,7 @@ Congratulations, you’ve just successfully built and deployed a Solana program!
 
 # Challenge
 
-Now it’s your turn to build something independently.
+Now it’s your turn to build something independently. Because we're starting with very simple programs, yours will look almost identical to what we just created. It's useful to try and get to the point where you can write it from scratch without referencing prior code, so try not to copy and paste here.
 
 1. Write a new program that uses the `msg!` macro to print your own message to the program log.
 2. Build and deploy your program like we did in the demo.
