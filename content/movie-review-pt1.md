@@ -442,7 +442,7 @@ pub fn process_instruction(
 
 Next, we’ll write the logic for the `add_movie_review` function that we’re calling in the code above. Notice, that we passed in the `program_id` , `accounts` , and the deserialized `instruction_data` to this function.
 
-The first thing we’ll do inside the `add_movie_review` function is iterate over our array of `AccountInfos` that was passed in the function using `next_account_info`. For this demo, we’ll expect two accounts to be passed in - the payer of the transaction and the movie review account. The actual movie review program will require more that we will discuss in the next lesson because that focuses on creating new movie reviews. The purpose of this lesson is to just fetch a movie review account that has already been created and log the account’s data.
+The first thing we’ll do inside the `add_movie_review` function is iterate over our array of `AccountInfos` that was passed in the function using `next_account_info`. For the purpose of this demo, we’ll expect two accounts to be passed in - the payer of the transaction, and the movie review account. The actual movie review program will require more, but we will discuss in the next lesson when we focus on creating new movie reviews. The purpose of this lesson is to just fetch a movie review account that has already been created, and log the account’s data.
 
 ```rust
 pub fn add_movie_review(
