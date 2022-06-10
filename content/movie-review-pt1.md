@@ -38,9 +38,9 @@ In the previous lesson, we learned that Solana programs require a single entry p
 
 The entry point to a Solana program requires a function defined with the following parameters:
 
-- `program_id` is the address of the account the program is stored at
-- `accounts` is the array of accounts submitted in the transaction
-- `instruction_data` is the serialized instruction-specific data
+- `program_id` - is the address of the account the program is stored at
+- `accounts` - is the array of accounts submitted in the transaction
+- `instruction_data` - is the serialized instruction-specific data
 
 Once the entry point function is defined, it will be passed as an argument into the `entrypoint!` macro which signifies where the program logic will start where the `program_id`, `accounts`, and `instruction_data` are all passed in as parameters. A simple entrypoint to a program may look like this:
 
