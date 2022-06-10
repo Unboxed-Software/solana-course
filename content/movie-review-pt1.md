@@ -42,7 +42,7 @@ The entry point to a Solana program requires a function defined with the followi
 - `accounts` - is the array of accounts submitted in the transaction
 - `instruction_data` - is the serialized instruction-specific data
 
-Once the entry point function is defined, it will be passed as an argument into the `entrypoint!` macro which signifies where the program logic will start where the `program_id`, `accounts`, and `instruction_data` are all passed in as parameters. A simple entrypoint to a program may look like this:
+Once the entry point function is defined, it will be passed as an argument into the `entrypoint!` macro which signifies where the program logic will start. A simple entrypoint to a program may look like this:
 
 ```rust
 // Bring in crates that will be used
