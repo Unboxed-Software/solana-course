@@ -18,17 +18,15 @@
 
 # TL;DR
 
-- The focus over the next two lessons will be to walk you through how the Movie Review program that was used in the first module was created. This is split up over two lessons to make the information a little more digestible.
-- Instruction data is submitted as a byte buffer, you’ll need to write logic somewhere in the program to deserialize this byte buffer so it can interact with it.
-- To interact with the accounts passed into a program, you must be able to iterate over all the `AccountInfos` submitted through the instruction and save the data in a local variable.
-- Once you have iterated over these, in order to read and update their state you will have to write logic in the program to deserialize the data field of the account from a byte buffer to something that you can understand.
-- Logging helpful and relevant logs is good for troubleshooting during development and for users who will interact with the program because they are visible in the explorer.
+- The focus over the next three lessons will be to walk you through how the Movie Review program that was used in the first module was created. This is split up over multiple lessons to make the information a little more digestible.
+- In the previous lesson, the Hello World demo was confined to a single file. Going forward we'll be separating our smart contract code into multiple files where the code in each file serves a specific purpose. 
+- Logging helpful and relevant information is good for troubleshooting during development and for users who will interact with the program because they are visible in the explorer.
 
 # Overview
 
 ## Program Structure
 
-Last lesson, we learned about some Rust primitives like Crates and Macros, both of which will be relevant going forward. But, last lesson’s program was simple enough that it could be confined to one file - while you can write almost any Smart Contract program in one file on Solana, it’s much easier to understand and follow if you break it up across a few different ones. 
+Last lesson, we learned about some Rust primitives like Crates and Macros, both of which will be relevant going forward. But, last lesson’s program was simple enough that it could be confined to one file - while you can write almost any smart contract program in one file on Solana, it’s much easier to understand and follow if you break it up across a few different ones. 
 
 For this lesson, we will be splitting up this program across 3 different files:
 
