@@ -4,11 +4,11 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Deserialize Instruction Data
-- Deserialize Account Data
-- Iterate over Accounts
-- Log messages within a Program
-- Learn the Structure of a Smart Contract on Solana
+- Deserialize instruction data
+- Deserialize account data
+- Iterate over accounts
+- Log messages within a program
+- Learn the structure of a smart contract on Solana
 
 # TL;DR
 
