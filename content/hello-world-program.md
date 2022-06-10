@@ -122,7 +122,7 @@ use solana_program::{
 - `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
 - `msg` - a macro allows us to print messages to the program log
 
-### Entry point
+### Entry Point
 
 Solana programs require a single entry point to process program instructions. The entry point is declared using the `entrypoint!` macro.
 
