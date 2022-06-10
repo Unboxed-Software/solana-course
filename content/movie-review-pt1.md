@@ -132,7 +132,11 @@ impl ExampleInstruction {
 
 ## Lib Cont.
 
-After our instruction data has been deserialized into a struct, our execution is returned back to the `process_instruction` function in the lib.rs file because that’s where the `unpack` function was called. Then, we will match what was returned in our instruction to what the program expects, this will determine where the flow of execution will go next. Match statements in Rust are similar to if/else statements or a switch statement, to learn more about them [check this out](https://doc.rust-lang.org/rust-by-example/flow_control/match.html).
+After our instruction data has been deserialized into a struct, our execution is returned back to the `process_instruction` function in the lib.rs file - because that’s where the `unpack` function was called.
+
+Then, we will match what was returned in our instruction to what the program expects. This will determine where the flow of execution will go next.
+
+Match statements in Rust are similar to if/else statements or a switch statement, to learn more about them [check this out](https://doc.rust-lang.org/rust-by-example/flow_control/match.html).
 
 ```rust
 // Inside lib.rs
@@ -167,7 +171,7 @@ pub fn process_instruction(
 }
 ```
 
-For simple programs where there is only one or two instructions to execute, it’s fine to write the logic inside the match statement. For programs with many different possible instructions to match against, it’s much easier to read/understand if the logic is executed in a separate function that’s called in the match statement. As you can see, we are following the latter practice here by making a call to a function called `do_something` that will execute some more logic.
+For simple programs where there are only one or two instructions to execute, it’s fine to write the logic inside the match statement. For programs with many different possible instructions to match against, it’s much easier to read/understand if the logic is executed in a separate function that’s called in the match statement. As you can see, we are following the latter practice here by making a call to a function called `do_something` that will execute some more logic.
 
 When it’s time to write logic code, you are generally going to want access to the accounts passed in with the transaction. Right now, the `accounts` variable is an array of `AccountInfos`. Remember that all accounts necessary for Solana programs must be provided as input and in the order that they are expected. Because of this, as developers we do not need to worry about writing generic code to handle all situations - if something in the `accounts` array is not what’s expected we can just return an error.
 
@@ -193,7 +197,7 @@ pub fn do_something(
 }
 ```
 
-The [next_account_info](https://docs.rs/solana-program/latest/solana_program/account_info/fn.next_account_info.html) function from the `solana_program` crate defines how to fetch the next item in an `AccountInfo` iterator. Depending on how many accounts your program expects, you will have to do this for each one. The `fee_payer` and `user_account` variables are of type [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) that has the following properties:
+The [next_account_info](https://docs.rs/solana-program/latest/solana_program/account_info/fn.next_account_info.html) function from the `solana_program` crate defines how to fetch the next item in an `AccountInfo` iterator. Depending on how many accounts your program expects, you will have to do this for each one. The `fee_payer` and `user_account` variables are of type [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) which has the following properties:
 
 ```rust
 pub struct AccountInfo<'a> {
