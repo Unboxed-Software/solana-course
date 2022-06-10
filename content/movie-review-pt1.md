@@ -263,7 +263,7 @@ Because we used the Borsh macro on this struct, there are some functions that ar
 
 ```rust
 // Inside lib.rs
-use crate::state::UserInfo
+use crate::state::UserInfo;
 
 ...
 
