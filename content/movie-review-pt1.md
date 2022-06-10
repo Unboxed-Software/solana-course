@@ -45,7 +45,7 @@ The entry point to a Solana program requires a function defined with the followi
 Once the entry point function is defined, it will be passed as an argument into the `entrypoint!` macro which signifies where the program logic will start where the `program_id`, `accounts`, and `instruction_data` are all passed in as parameters. A simple entrypoint to a program may look like this:
 
 ```rust
-// bring in crates that will be used
+// Bring in crates that will be used
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult,
     pubkey::Pubkey,
@@ -55,17 +55,17 @@ use crate::processor::Processor;
 use solana_program::entrypoint;
 use instruction::TestInstruction;
 
-// process_instruction funciton passed into entrypoint macro
+// `process_instruction` function passed into entrypoint macro
 entrypoint!(process_instruction);
 
-// process_instuction defined, this will be the first block of code to
-// execute in the contract
+// `process_instuction` defined, this will be the first block of code to
+// Execute in the contract
 pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8]
 ) -> ProgramResult {
-    // some logic here
+    // Some logic here
     let instruction = ExampleInstruction::unpack(instruction_data)?;
 }
 ```
@@ -86,8 +86,8 @@ To do so, we’ll first define an [enum](https://doc.rust-lang.org/std/keyword.e
 use borsh::{BorshDeserialize};
 use solana_program::{program_error::ProgramError};
 
-// only one data struct in this enum, but could have as many options
-// as we want
+// Only one data struct in this enum, but
+// could have as many options as we want
 pub enum ExampleInstruction {
     TestStruct {
         name: String,
@@ -134,7 +134,7 @@ impl ExampleInstruction {
 After our instruction data has been deserialized into a struct, our execution is returned back to the `process_instruction` function in the lib.rs file because that’s where the `unpack` function was called. Then, we will match what was returned in our instruction to what the program expects, this will determine where the flow of execution will go next. Match statements in Rust are similar to if/else statements or a switch statement, to learn more about them [check this out](https://doc.rust-lang.org/rust-by-example/flow_control/match.html).
 
 ```rust
-// inside lib.rs
+// Inside lib.rs
 // crates
 use solana_program::{
     entrypoint,
@@ -272,8 +272,8 @@ let account_info_iter = &mut accounts.iter();
 // Get accounts
 let fee_payer = next_account_info(account_info_iter)?;
 let user_account = next_account_info(account_info_iter)?;
-// Using try_from_slice_unchecked Borsh can deserialize the byte
-// buffer into our UserInfo struct
+// Using `try_from_slice_unchecked` Borsh can deserialize
+// the byte buffer into our UserInfo struct
 let account_data = try_from_slice_unchecked::<UserInfo>(&user_account.data.borrow()).unwrap();
 
 // If successful, account_data is now a UserInfo struct
