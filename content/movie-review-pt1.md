@@ -61,12 +61,12 @@ entrypoint!(process_instruction);
 // process_instuction defined, this will be the first block of code to
 // execute in the contract
 pub fn process_instruction(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  instruction_data: &[u8]
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
 ) -> ProgramResult {
-// some logic here
-let instruction = ExampleInstruction::unpack(instruction_data)?;
+    // some logic here
+    let instruction = ExampleInstruction::unpack(instruction_data)?;
 }
 ```
 
@@ -108,16 +108,16 @@ Next, we can implement the `unpack` function on the `ExampleInstruction` enum th
 
 ```rust
 impl ExampleInstruction {
-/// Unpack inbound buffer to associated Instruction
-/// The expected format for input is a Borsh serialized vector
-  pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
-// take the first byte as the variant to determine which instruction to
-//  execute
+    // Unpack inbound buffer to associated Instruction
+    // The expected format for input is a Borsh serialized vector
+    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+        // Take the first byte as the variant to
+        // determine which instruction to execute
         let (&variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
-// use the temporary payload struct to deserialize
+        // Use the temporary payload struct to deserialize
         let payload = PostIxPayload::try_from_slice(rest).unwrap();
-// match the variant to determine which data struct is expected by
-// the function and return the TestStruct or an error
+        // Match the variant to determine which data struct is expected by
+        // the function and return the TestStruct or an error
         Ok(match variant {
             0 => Self::TestStruct {
                 name: payload.name,
@@ -149,20 +149,20 @@ use instruction::MovieInstruction;
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  instruction_data: &[u8]
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
 ) -> ProgramResult {
-// call unpack to deserialize instruction_data
-  let instruction = ExampleInstruction::unpack(instruction_data)?;
-// match the returned data struct to what you expect
-  match instruction {
-    ExampleInstruction::TestStruct { name, age, bio } => {
-			// make call to a function to execute some logic with the
-			// the accounts and the deserialized instruction data
-      do_something(program_id, accounts, name, age, bio)
+    // Call unpack to deserialize instruction_data
+    let instruction = ExampleInstruction::unpack(instruction_data)?;
+    // Match the returned data struct to what you expect
+    match instruction {
+        ExampleInstruction::TestStruct { name, age, bio } => {
+            // Make call to a function to execute some logic with
+            // the accounts and the deserialized instruction data
+            do_something(program_id, accounts, name, age, bio)
+        }
     }
-  }
 }
 ```
 
@@ -174,20 +174,20 @@ So, to get the accounts passed in we’ll have to iterate over each account one 
 
 ```rust
 pub fn do_something(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  name: String,
-  age: u8,
-  bio: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    name: String,
+    age: u8,
+    bio: String
 ) -> ProgramResult {
-	// Get Account iterator
-	let account_info_iter = &mut accounts.iter();
+    // Get Account iterator
+    let account_info_iter = &mut accounts.iter();
 
-	// Get first account
-	let fee_payer = next_account_info(account_info_iter)?;
-	// Get second account
-	let user_account = next_account_info(account_info_iter)?;
-	....
+    // Get first account
+    let fee_payer = next_account_info(account_info_iter)?;
+    // Get second account
+    let user_account = next_account_info(account_info_iter)?;
+    ...
 
 }
 ```
@@ -220,14 +220,13 @@ let fee_payer = next_account_info(account_info_iter)?;
 // Get second account
 let user_account = next_account_info(account_info_iter)?;
 
-
-// check if account signed the transaction
+// Check if account signed the transaction
 if !fee_payer.is_signer {
 	msg!("Fee payer is not signer");
   return Err(ProgramError::MissingRequiredSignature);
 }
 
-....
+...
 
 ```
 
@@ -238,8 +237,8 @@ By now, we should be familiar with the fact that programs on Solana are stateles
 In order to deserialize account data, we must first define how that data should be deserialized. To do that, we’ll need to create a struct inside state.rs that will represent what we want the byte buffer to be deserialized into. Again, we’ll be using some Borsh macros to make this process a little easier.
 
 ```rust
-// inside state.rs
-// bring in crates
+// Inside state.rs
+// Bring in crates
 use solana_program::{
     program_pack::{IsInitialized, Sealed},
 };
@@ -263,21 +262,21 @@ impl IsInitialized for UserInfo {
 Because we used the Borsh macro on this struct, there are some functions that are implemented for it that will help with the deserialization part. Now that the state is defined, we can deserialize an account’s data field into this struct and have access to that information in a much easier to read format.
 
 ```rust
-// inside lib.rs
+// Inside lib.rs
 use crate::state::UserInfo
 
 ...
 
-// iterator over the accounts array created
+// Iterator over the accounts array created
 let account_info_iter = &mut accounts.iter();
-// get accounts
+// Get accounts
 let fee_payer = next_account_info(account_info_iter)?;
 let user_account = next_account_info(account_info_iter)?;
-// using try_from_slice_unchecked Borsh can deserialize the byte
+// Using try_from_slice_unchecked Borsh can deserialize the byte
 // buffer into our UserInfo struct
 let account_data = try_from_slice_unchecked::<UserInfo>(&user_account.data.borrow()).unwrap();
 
-// if successful, account_data is now a UserInfo struct
+// If successful, account_data is now a UserInfo struct
 
 ...
 ```
@@ -287,7 +286,7 @@ let account_data = try_from_slice_unchecked::<UserInfo>(&user_account.data.borro
 In the previous lesson, the Hello World demo only had one file. Now, we’re learning how to split programs up across three separate files. Once you start splitting your program up like this you will need to make sure you register all of the files in one central location, we’ll be doing this in lib.rs as well. **You must register every file in your program like this.**
 
 ```rust
-// this would be inside lib.rs
+// This would be inside lib.rs
 pub mod instruction;
 pub mod state;
 ```
@@ -302,9 +301,9 @@ To write logs like this, all you have to do is bring in `msg` function from the 
 
 ```rust
 use solana::program::msg;
-// write a log
+// Write a log
 msg!("This is a test log");
-// log with data in it, the data will be where the {} are
+// Log with data in it, the data will be where the {} are
 msg!("Data from the program: {}", test_struct.key);
 ```
 
@@ -339,21 +338,21 @@ use instruction::MovieInstruction;
 use state::MovieAccountState;
 use borsh::BorshSerialize;
 
-// entry point is a function call process_instruction
+// Entry point is a function call process_instruction
 entrypoint!(process_instruction);
 ```
 
 Using the `entrypoint` macro, we determined `process_instruction` as the program entry point, now we can define this function below.
 
 ```rust
-// inside lib.rs
+// Inside lib.rs
 pub fn process_instruction(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  instruction_data: &[u8]
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
 ) -> ProgramResult {
-// makes call to unpack function, which undefined at the moment
-  let instruction = MovieInstruction::unpack(instruction_data)?;
+// Makes call to unpack function, which undefined at the moment
+    let instruction = MovieInstruction::unpack(instruction_data)?;
 
 }
 ```
@@ -367,18 +366,18 @@ use borsh::{BorshDeserialize};
 use solana_program::{program_error::ProgramError};
 
 pub enum MovieInstruction {
-  AddMovieReview {
-    title: String,
-    rating: u8,
-    description: String
-  }
+    AddMovieReview {
+        title: String,
+        rating: u8,
+        description: String
+    }
 }
 
 #[derive(BorshDeserialize)]
 struct MovieReviewPayload {
-  title: String,
-  rating: u8,
-  description: String
+    title: String,
+    rating: u8,
+    description: String
 }
 ```
 
@@ -388,17 +387,18 @@ Finally, we’ll implement and define the `unpack` function on the `IntroInstruc
 
 ```rust
 ...
-// inside instruction.rs
+
+// Inside instruction.rs
 impl MovieInstruction {
-/// Unpack inbound buffer to associated Instruction
-/// The expected format for input is a Borsh serialized vector
-  pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
-				// split the first byte of data
+    // Unpack inbound buffer to associated Instruction
+    // The expected format for input is a Borsh serialized vector
+    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+        // Split the first byte of data
         let (&variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
-				// try_from_slice is one of the implementations from the BorshDeserialization trait
-				// deserializes instruction byte data into the payload struct
+        // `try_from_slice` is one of the implementations from the BorshDeserialization trait
+        // Deserializes instruction byte data into the payload struct
         let payload = MovieReviewPayload::try_from_slice(rest).unwrap();
-				// match the first byte and return the AddMovieReview struct
+        // Match the first byte and return the AddMovieReview struct
         Ok(match variant {
             0 => Self::AddMovieReview {
                 title: payload.title,
@@ -417,21 +417,21 @@ And that’s it for the instruction file! Now, remember we left the lib.rs file 
 Now that that’s done, we know how the `unpack` function will deserialize the data and the struct we expect to receive. So, let’s add it to our match instruction inside lib.rs.
 
 ```rust
-// inside lib.rs
+// Inside lib.rs
 pub fn process_instruction(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  instruction_data: &[u8]
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
 ) -> ProgramResult {
-// unpack called
-  let instruction = MovieInstruction::unpack(instruction_data)?;
-// match against the data struct returned into `instruction` variable
-  match instruction {
+    // Unpack called
+    let instruction = MovieInstruction::unpack(instruction_data)?;
+    // Match against the data struct returned into `instruction` variable
+    match instruction {
     MovieInstruction::AddMovieReview { title, rating, description } => {
-			// make a call to `add_move_review` function
-      add_movie_review(program_id, accounts, title, rating, description)
+        // Make a call to `add_move_review` function
+        add_movie_review(program_id, accounts, title, rating, description)
+        }
     }
-  }
 }
 ```
 
@@ -441,11 +441,11 @@ The first thing we’ll do inside the `add_movie_review` function is iterate ove
 
 ```rust
 pub fn add_movie_review(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  title: String,
-  rating: u8,
-  description: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
 ) -> ProgramResult {
 
     // Get Account iterator
@@ -462,7 +462,7 @@ pub fn add_movie_review(
 Once we have grabbed the `AccountInfos` from the array, we can define how we want to deserialize its data. Create a new file called state.rs and add the following:
 
 ```rust
-// inside state.rs
+// Inside state.rs
 use borsh::{BorshSerialize, BorshDeserialize};
 use solana_program::{
     program_pack::{IsInitialized, Sealed},
@@ -490,36 +490,36 @@ impl IsInitialized for MovieAccountState {
 Finally, let’s deserialize the movie review account’s data and log it!
 
 ```rust
-// inside lib.rs
+// Inside lib.rs
 pub fn add_movie_review(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  title: String,
-  rating: u8,
-  description: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
 ) -> ProgramResult {
-// logging instruction data that was passed in
-msg!("Adding movie review...");
-msg!("Title: {}", title);
-msg!("Rating: {}", rating);
-msg!("Description: {}", description);
+    // Logging instruction data that was passed in
+    msg!("Adding movie review...");
+    msg!("Title: {}", title);
+    msg!("Rating: {}", rating);
+    msg!("Description: {}", description);
 
-// Get Account iterator
-let account_info_iter = &mut accounts.iter();
+    // Get Account iterator
+    let account_info_iter = &mut accounts.iter();
 
-// Get accounts
-let initializer = next_account_info(account_info_iter)?;
-let movie_review = next_account_info(account_info_iter)?;
-// deserialize the account data of the already made MovieReview account
-let account_data = try_from_slice_unchecked::<MovieAccountState>(&movie_review.data.borrow()).unwrap();
+    // Get accounts
+    let initializer = next_account_info(account_info_iter)?;
+    let movie_review = next_account_info(account_info_iter)?;
+    // Deserialize the account data of the already made MovieReview account
+    let account_data = try_from_slice_unchecked::<MovieAccountState>(&movie_review.data.borrow()).unwrap();
 
-// logging the already made MovieReview account's data
-msg!("Fetching movie review...");
-msg!("Title: {}", account_data.title);
-msg!("Rating: {}", account_data.rating);
-msg!("Description: {}", account_data.description);
+    // Logging the already made MovieReview account's data
+    msg!("Fetching movie review...");
+    msg!("Title: {}", account_data.title);
+    msg!("Rating: {}", account_data.rating);
+    msg!("Description: {}", account_data.description);
 
-  Ok(())
+    Ok(())
 }
 ```
 
