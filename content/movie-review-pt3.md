@@ -78,9 +78,9 @@ fn process_instruction(
 
 ### Processor
 
-The processor is generally where the flow of execution goes after the entry point, notice the call we made in the above example `processor::process_instruction(program_id, accounts, instruction_data)` , we brought this in with the line `use crate::processor` . This is how you are able to access functions and structs from other files in Rust.
+The processor is generally where the flow of execution goes after the entry point, notice the call we made in the above example `processor::process_instruction(program_id, accounts, instruction_data)`, we brought this in with the line `use crate::processor`. This is how you are able to access functions and structs from other files in Rust.
 
-The processor.rs file is where most of the program logic will live. Inside this file, we will define all the different functions that our contract will need, including the `process_instruction` function! Notice that the `process_instruction` function has the keyword `pub` in front, this means it's a public function and is callable outside the scope of the processor.rs file.
+The processor.rs file is where most of the program logic will live. Inside this file, we will define all the different functions that our contract will need, including the `process_instruction` function! Notice that the `process_instruction` function has the keyword [`pub`](https://doc.rust-lang.org/std/keyword.pub.html) in front, this means it's a public function and is callable outside the scope of the processor.rs file.
 
 ```rust
 // inside processor.rs
@@ -145,7 +145,7 @@ impl From<ExampleError> for ProgramError {
 }
 ```
 
-Now, you can return these errors like you would any `ProgramError`
+Now, you can return these errors like you would any `ProgramError`.
 
 ```rust
 return Err(ExampleError::DeserializationFailure.into());
@@ -168,10 +168,10 @@ pub enum ExampleInstruction {
     bio: String
   },
   UpdateStruct {
-  	name: String,
-  	age: u8,
-  	bio: String,
-  	city: String
+	name: String,
+	age: u8,
+	bio: String,
+	city: String
   }
 }
 
@@ -209,7 +209,7 @@ impl ExampleInstruction {
 }
 ```
 
-Then you simply follow the same steps as before and match against the data structure returned from the call to `unpack`
+Then you simply follow the same steps as before and match against the data structure returned from the call to `unpack`.
 
 ```rust
 let instruction = ExampleInstruction::unpack(instruction_data)?;
@@ -233,7 +233,7 @@ As stated before, the demo for this lesson we’ll be implementing some addition
 
 ### 1. Program Architecture
 
-To get started, we are going to refactor our program from only three files to the six file architecture we talked about previously. As a reminder
+To get started, we are going to refactor our program from only three files to the six file architecture we talked about previously. As a reminder, that is:
 
 - **entrypoint.rs**
 - **instruction.rs**
@@ -263,14 +263,14 @@ fn process_instruction(
     accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
-		// log info about input data
+	// log info about input data
     msg!(
         "process_instruction: {}: {} accounts, data={:?}",
         program_id,
         accounts.len(),
         instruction_data
     );
-		// call process_instruction inside processor.rs and pass input params
+	// call process_instruction inside processor.rs and pass input params
     processor::process_instruction(program_id, accounts, instruction_data)?;
 
     Ok(())
@@ -448,15 +448,15 @@ pub fn process_instruction(
     accounts: &[AccountInfo],
     instruction_data: &[u8]
   ) -> ProgramResult {
-		// unpack instruction data
+	// unpack instruction data
     let instruction = MovieInstruction::unpack(instruction_data)?;
     match instruction {
       MovieInstruction::AddMovieReview { title, rating, description } => {
         add_movie_review(program_id, accounts, title, rating, description)
       },
-			// new arm to match against our new data structure
+	// new arm to match against our new data structure
       MovieInstruction::UpdateMovieReview { title, rating, description } => {
-				// make call to update function that we'll define next
+	// make call to update function that we'll define next
         update_movie_review(program_id, accounts, title, rating, description)
       }
     }
@@ -481,7 +481,7 @@ description: String
     let initializer = next_account_info(account_info_iter)?;
     let pda_account = next_account_info(account_info_iter)?;
 
-	msg!("unpacking state account");
+    msg!("unpacking state account");
     let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
     msg!("borrowed account data");
 }
@@ -491,9 +491,9 @@ Now that we have our accounts and data, we can start with our validation checks.
 
 ```rust
 if !account_data.is_initialized() {
-        msg!("Account is not initialized");
-        return Err(ProgramError::AccountAlreadyInitialized);
-    }
+    msg!("Account is not initialized");
+    return Err(ProgramError::AccountAlreadyInitialized);
+}
 ```
 
 But wait, take a closer look at the `ProgramError` we’re returning there - it says `AccountAlreadyInitialized` which made sense in the `add_movie_review` function but doesn’t really make sense here since the account *should* be initialized already. Here is an example of when you might want to create your own custom program errors and we’re going to do just that now.
@@ -541,19 +541,19 @@ Then bring in the following crate to processor.rs like so
 use crate::error::ReviewError;
 ```
 
-### 4. Validation checks
+### 4.Account Validation Checks
 
 Now you can refactor the `is_initialized` validation check to return the new `UnitializedAccount` error type that we just created.
 
 ```rust
 msg!("checking if movie account is initialized");
 if !account_data.is_initialized() {
-	msg!("Account is not initialized");
-	return Err(ReviewError::UnitializedAccount.into());
+  msg!("Account is not initialized");
+  return Err(ReviewError::UnitializedAccount.into());
 }
 ```
 
-Our next validation check will be on the pda itself. We will derive the pda ourselves with the initializer’s public key and the title that is currently stored in the movie review. The reason we’re doing this is because you should only be able to update a review that was created by you and since the way the pdas were derived in the first place is with the initializer’s key and the title this is an implicit check that that is the case here. If the initializer provided here is not the same public key that was used to derive this pda, then the pda that we derive program side will not equal the pda that was passed in. We’ll also return the second custom error type that we defined in [error.rs](http://error.rs) if they don’t match.
+Our next validation check will be on the pda itself. We will derive the pda ourselves with the initializer’s public key and the title that is currently stored in the movie review. The reason we’re doing this is because you should only be able to update a review that was created by you and since the way the pdas were derived in the first place is with the initializer’s key and the title, this is an implicit check that the `initializer` passed in here did indeed create this review. If the `initializer` provided here is not the same public key that was used to derive this pda, then the pda that we derive program side will not equal the pda that was passed in. We’ll also return the second custom error type that we defined in [error.rs](http://error.rs) if they don’t match.
 
 ```rust
 // Derive PDA and check that it matches client
@@ -561,7 +561,7 @@ let (pda, _bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(),
 
 if pda != *pda_account.key {
     msg!("Invalid seeds for PDA");
-		// return custom error
+	// return custom error
     return Err(ReviewError::InvalidPDA.into())
 }
 ```
@@ -575,12 +575,13 @@ if !initializer.is_signer {
 }
 ```
 
+### 5. Instruction Data Validation
+
 There is a scenario that we have not accounted for yet. Remember when a review account is created, a specific amount of space is allocated based on the length of the data that it’s going to be storing with this line here
-*`let* account_len: *usize* = 1 + 1 + (4 + *title*.len()) + (4 + *description*.len());`
+`*let* account_len: *usize* = 1 + 1 + (4 + *title*.len()) + (4 + *description*.len());`
+ and the rent required to store that account on the blockchain was calculated based on this length of data. Well, what happens if when the review is originally created, the account only needs 50 bytes of space to store the data but then the creator wants to update it and the length of the updated review is 75 bytes long? In that case, the data will be cutoff after 50 bytes and the last 25 bytes will not be stored. There are a couple ways you can avoid this. The [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) method was just recently enabled by Solana Labs since slot 133920008, or **May 15th, 2022** and allows you to dynamically change the size of your accounts. We will not be using this method for this demo, but it’s something to be aware of. To learn more about realloc, check out [this blog post](https://dev.to/jacobcreech/how-to-change-account-size-on-solana-55b4).
 
- and the rent required to store that account on the blockchain was calculated based on this length of data. Well what happens if when the review is originally created, the account only needs 50 bytes of space to store the data but then the creator wants to update it and the length of the updated review is 75 bytes long? Well, the data will be cutoff after 50 bytes and the last 25 bytes will not be stored. There are a couple ways you can avoid this. The [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) method was just recently enabled by Solana Labs since slot 133920008, or **May 15th, 2022** and allows you to dynamically change the size of your accounts. We will not be using this method for this demo, but it’s something to be aware of. To learn more about realloc, check out [this blog post](https://dev.to/jacobcreech/how-to-change-account-size-on-solana-55b4).
-
-Instead, we are going to change how we are allocating space when the review accounts are originally created. Instead of only creating enough space to store the specific data passed in, we’re just going to allocate space for an arbitrary number of bytes for all accounts. That way, every account has enough room to grow if needed up to 1000 bytes, which will be the maximum amount of space allowed and we don’t have to worry about re-calculating rent. To do that we need to change how the account length is calculated inside the `add_movie_review` function to this:
+Instead, we are going to change how we are allocating space when the review accounts are originally created. Instead of only creating enough space to store the specific data passed in, we’re just going to allocate space for an arbitrary number of bytes for all accounts. That way, every account has enough room to grow if needed up to 1000 bytes, which will be the maximum amount of space allowed and we don’t have to worry about re-calculating rent. To do that, we need to change how the account length is calculated inside the `add_movie_review` function to this:
 
 ```rust
 // inside add_movie_review
@@ -609,12 +610,12 @@ if rating > 5 {
 Lastly, once all of this validation has passed, we’ll update the movie review data, serialize it, and log some info.
 
 ```rust
-		msg!("Review before update:");
+    msg!("Review before update:");
     msg!("Title: {}", account_data.title);
     msg!("Rating: {}", account_data.rating);
     msg!("Description: {}", account_data.description);
 
-		// update data
+	// update data
     account_data.rating = rating;
     account_data.description = description;
 
@@ -627,7 +628,7 @@ Lastly, once all of this validation has passed, we’ll update the movie review 
     account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
     msg!("state account serialized");
 
-		Ok(())
+	Ok(())
 ```
 
 You’ll notice that we **do not** update the title stored in the Movie Review. This is because the title is used as a seed to derive the pda, so if we were to change it here on the update our program would not be able to derive the address of this account deterministically anymore. Plus, if you’re going to change the title of the movie that the review is about, you should probably create a new review altogether.
@@ -816,4 +817,4 @@ Now, you can simply build and upgrade your program just as before. Clone [this b
 
 # Challenge
 
-Now that you have a fully functional Movie Review program try implementing some additional functionality on your own. A great example would be to add a Delete instruction that follows the common security practices that we’ve introduced in this lesson. The delete instruction should close the account that the review is stored in. To close an account you will need to zero out the account data as well as transfer lamports out of the PDA. Once the transaction is finished and the account is not rent exempt anymore, the runtime will take care of the rest.
+Now that you have a fully functional Movie Review program try implementing some additional functionality on your own. A great example would be to add a `delete_movie_review` instruction that follows the common security practices that we’ve introduced in this lesson. The delete instruction should close the account that the review is stored in. To close an account you will need to zero out the account data as well as transfer lamports out of the PDA. Once the transaction is finished and the account is not rent exempt, the runtime will take care of the rest.
