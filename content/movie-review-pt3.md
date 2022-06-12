@@ -4,6 +4,7 @@
 
 - [Neodyme Security Workshop](https://workshop.neodyme.io/)
 - [Solana Smart Contracts: Common Pitfalls](https://blog.neodyme.io/posts/solana_common_pitfalls/)
+- [How to Audit a Solana Smart Contract](https://medium.com/coinmonks/how-to-audit-solana-smart-contracts-part-1-a-systematic-approach-56a434f6c9ed)
 
 # Lesson Objectives
 
