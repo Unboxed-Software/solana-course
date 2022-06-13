@@ -12,7 +12,7 @@
 
 - **Programs** on Solana are a particular type of account that stores and executes instruction logic
 - Solana programs have a single **entry point** to process instructions
-- A program processes an instruction using the **program_id**, list of **accounts**, and **instruction_data** included with the instruction 
+- A program processes an instruction using the **program_id**, list of **accounts**, and **instruction_data** included with the instruction
 
 # Overview
 
@@ -22,11 +22,11 @@ This lesson will give you a basic introduction to writing a deploying a Solana p
 
 ## Rust Basics
 
-Before we dive into the building our "Hello world!" program, let’s first go over some Rust basics. If you want to dig deeper into Rust, have a look at the [Rust language book](https://doc.rust-lang.org/book/ch00-00-introduction.html).
+Before we dive into the building our "Hello, world!" program, let’s first go over some Rust basics. If you want to dig deeper into Rust, have a look at the [Rust language book](https://doc.rust-lang.org/book/ch00-00-introduction.html).
 
 ### Module System
 
-Rust organizes code using what is collectively referred to as the “module system”. 
+Rust organizes code using what is collectively referred to as the “module system”.
 
 This includes:
 
@@ -39,7 +39,7 @@ For this lesson, we’ll focus on using crates, modules, and paths.
 
 ### Pathways and scope
 
-Crates in Rust contain modules that define functionality which can be shared with multiple projects.  If we want to access an item within a module, then we need to know the path (like when we're navigating a filesystem).
+Crates in Rust contain modules that define functionality which can be shared with multiple projects. If we want to access an item within a module, then we need to know the path (like when we're navigating a filesystem).
 
 To use a module available within a crate, we'll need to:
 
@@ -122,7 +122,7 @@ use solana_program::{
 - `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
 - `msg` - a macro allows us to print messages to the program log
 
-### Entry point
+### Entry Point
 
 Solana programs require a single entry point to process program instructions. The entry point is declared using the `entrypoint!` macro.
 
@@ -150,7 +150,7 @@ In order to process an instruction, the data accounts that an instruction requir
 
 # Demo
 
-We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser. 
+We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser.
 
 ### 1. Setup
 Click [here](https://beta.solpg.io/) to open Solana Playground. Next, go ahead and delete everything in the default `lib.rs` file and create a Playground wallet.
@@ -219,7 +219,7 @@ Now let's build and deploy our program using Solana Playground.
 ### 5. Invoke Program
 Finally, let's invoke our program from the client side. Download the code [here](https://github.com/ZYJLiu/solana-hello-world-client).
 
-The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our  “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
+The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
 
 Open the `index.ts` file you should see a variable named `programId`. Go ahead and update this with the program Id of the “Hello, world!" program you just deployed using Solana Playground.
 
@@ -232,7 +232,7 @@ You can locate the program Id on Solana Playground referencing the image below.
 
 Next, install the Node modules with `npm i`.
 
-Now, go ahead and run `npm start`. This command will: 
+Now, go ahead and run `npm start`. This command will:
 1. Generate a new keypair and create a `.env` file if one does not already exist
 2. Airdrop devnet SOL
 3. Invoke the “Hello, world!” program
