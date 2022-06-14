@@ -131,9 +131,7 @@ For this lesson, we will be splitting up this program across 3 different files:
 
 Many Solana smart contract tutorials use a general program architecture which splits the programs across six files. While working your way through these, it’s very easy to get carried away and confused about what each of these files is used for. We feel that following this same practice is adding too much new information to really comprehend how the parts all fit together. So, with that in mind, we are keeping our program simple - just three files for this lesson. Don’t worry though, we will teach you the common program architecture after we’re sure you’ve got the basics.
 
-## Lib
-
-### Entrypoint
+## Entrypoint
 
 In the previous lesson, we learned that Solana programs require a single entry point to process program instructions. The entry point is declared using the [entrypoint!](https://docs.rs/solana-program/latest/solana_program/macro.entrypoint.html) macro.
 
@@ -168,7 +166,6 @@ pub fn process_instruction(
     instruction_data: &[u8]
 ) -> ProgramResult {
     // Some logic here
-    let instruction = ExampleInstruction::unpack(instruction_data)?;
 }
 ```
 
@@ -206,7 +203,7 @@ struct PostIxPayload {
 }
 ```
 
-Next, we can implement the `unpack` function on the `ExampleInstruction` enum that was called in the `process_instruction` function above. This is where we will use Borsh to deserialize the `instruction_data` into the `PostIxPayload` struct defined above and create a `TestStruct` from the payload.
+Next, we can implement the `unpack` function on the `ExampleInstruction` enum. This is where we will use Borsh to deserialize the `instruction_data` into the `PostIxPayload` struct defined above and create a `TestStruct` from the payload.
 
 ```rust
 impl ExampleInstruction {
@@ -231,13 +228,10 @@ impl ExampleInstruction {
 }
 ```
 
-## Lib Cont.
+## Program Logic
 
-After our instruction data has been deserialized into a struct, our execution is returned back to the `process_instruction` function in the lib.rs file - because that’s where the `unpack` function was called.
+Now that we've covered the entry point and how to deserialize our instruction data, we can call the `unpack` function and match on what it returns. This will determine where the flow of execution will go next.
 
-Then, we will match what was returned in our instruction to what the program expects. This will determine where the flow of execution will go next.
-
-Match statements in Rust are similar to if/else statements or a switch statement, to learn more about them [check this out](https://doc.rust-lang.org/rust-by-example/flow_control/match.html).
 
 ```rust
 // Inside lib.rs
@@ -274,121 +268,6 @@ pub fn process_instruction(
 
 For simple programs where there are only one or two instructions to execute, it’s fine to write the logic inside the match statement. For programs with many different possible instructions to match against, it’s much easier to read/understand if the logic is executed in a separate function that’s called in the match statement. As you can see, we are following the latter practice here by making a call to a function called `do_something` that will execute some more logic.
 
-When it’s time to write logic code, you are generally going to want access to the accounts passed in with the transaction. Right now, the `accounts` variable is an array of `AccountInfos`. Remember that all accounts necessary for Solana programs must be provided as input and in the order that they are expected. Because of this, as developers we do not need to worry about writing generic code to handle all situations - if something in the `accounts` array is not what’s expected we can just return an error.
-
-So, to get the accounts passed in we’ll have to iterate over each account one by one and store them in a temporary variable whose scope is within this function. We can do this using an [iterator](https://doc.rust-lang.org/rust-by-example/trait/iter.html?highlight=iter#iterators) which is a programming concept unique to Rust. Normally, we’d have to write some type of for/while loop to iterate over items in an array, but with Rust there is functionality built in to do just that without looping.
-
-```rust
-pub fn do_something(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    name: String,
-    age: u8,
-    bio: String
-) -> ProgramResult {
-    // Get Account iterator
-    let account_info_iter = &mut accounts.iter();
-
-    // Get first account
-    let fee_payer = next_account_info(account_info_iter)?;
-    // Get second account
-    let user_account = next_account_info(account_info_iter)?;
-    ...
-
-}
-```
-
-The [next_account_info](https://docs.rs/solana-program/latest/solana_program/account_info/fn.next_account_info.html) function from the `solana_program` crate defines how to fetch the next item in an `AccountInfo` iterator. Depending on how many accounts your program expects, you will have to do this for each one. The `fee_payer` and `user_account` variables are of type [AccountInfo](https://docs.rs/solana-program/latest/solana_program/account_info/struct.AccountInfo.html) which has the following properties:
-
-```rust
-pub struct AccountInfo<'a> {
-    pub key: &'a Pubkey,
-    pub is_signer: bool,
-    pub is_writable: bool,
-    pub lamports: Rc<RefCell<&'a mut u64>>,
-    pub data: Rc<RefCell<&'a mut [u8]>>,
-    pub owner: &'a Pubkey,
-    pub executable: bool,
-    pub rent_epoch: Epoch,
-}
-```
-
-Luckily for us, the `next_account_info` function handles everything behind the scenes for us here. Once you’ve called this function and passed in an iterator over an array of `AccountInfos`, all of these properties will be available to you. Using our example above, that would look like:
-
-```rust
-...
-
-// Get Account iterator
-let account_info_iter = &mut accounts.iter();
-
-// Get first account
-let fee_payer = next_account_info(account_info_iter)?;
-// Get second account
-let user_account = next_account_info(account_info_iter)?;
-
-// Check if account signed the transaction
-if !fee_payer.is_signer {
-	msg!("Fee payer is not signer");
-  return Err(ProgramError::MissingRequiredSignature);
-}
-
-...
-
-```
-
-## State
-
-By now, we should be familiar with the fact that programs on Solana are stateless and the only way to persist state is with accounts. This is done by writing state to the data fields of System Accounts, but remember this field is just bytes of data. In order for us to be able to read/update this field in the program, we should have a way to deserialize a specific account’s data field similarly to how we will deserialize the `instruction_data` passed in. That logic for how a specific account (say an account representing a MovieReview) will live inside the state.rs file.
-
-In order to deserialize account data, we must first define how that data should be deserialized. To do that, we’ll need to create a struct inside state.rs that will represent what we want the byte buffer to be deserialized into. Again, we’ll be using some Borsh macros to make this process a little easier.
-
-```rust
-// Inside state.rs
-// Bring in crates
-use solana_program::{
-    program_pack::{IsInitialized, Sealed},
-};
-use borsh::{BorshDeserialize, BorshSerialize};
-
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct UserInfo {
-    pub is_initialized: bool,
-    pub age: u8,
-    pub name: String,
-    pub bio: String,
-}
-
-impl IsInitialized for UserInfo {
-    fn is_initialized(&self) -> bool {
-        self.is_initialized
-    }
-}
-```
-
-Because we used the Borsh macro on this struct, there are some functions implemented that help with the deserialization part. Now that the state is defined, we can deserialize an account’s data field into this struct and have access to that information in a much easier to read format.
-
-```rust
-// Inside lib.rs
-use crate::state::UserInfo;
-
-...
-
-// Iterator over the accounts array created
-let account_info_iter = &mut accounts.iter();
-// Get accounts
-let fee_payer = next_account_info(account_info_iter)?;
-let user_account = next_account_info(account_info_iter)?;
-// Using `try_from_slice_unchecked` Borsh can deserialize
-// the byte buffer into our UserInfo struct
-let account_data = try_from_slice_unchecked::<UserInfo>(&user_account.data.borrow()).unwrap();
-
-// If successful, account_data is now a UserInfo struct
-
-...
-```
-
-## Lib Cont.
-
 In the previous lesson, the "Hello, world!" demo program only had one file. Now, we’re learning how to split programs up across three separate files. Once you start splitting your program up like this you will need to make sure you register all of the files in one central location, we’ll be doing this in lib.rs as well. **You must register every file in your program like this.**
 
 ```rust
@@ -399,7 +278,7 @@ pub mod state;
 
 ## Demo
 
-For this lesson’s demo, we’ll be building out the first half of the Movie Review program with a focus on deserializing instruction data, iterating over accounts, deserializing account data, and creating program logs. The following lesson will focus on the second half of this program.
+For this lesson’s demo, we’ll be building out the first half of the Movie Review program with a focus on deserializing the instruction data. The following lesson will focus on the second half of this program.
 
 ### 1. Entry point
 
@@ -527,58 +406,6 @@ pub fn process_instruction(
 
 Next, we’ll write the logic for the `add_movie_review` function that we’re calling in the code above. Notice, that we passed in the `program_id` , `accounts` , and the deserialized `instruction_data` to this function.
 
-The first thing we’ll do inside the `add_movie_review` function is iterate over our array of `AccountInfos` that was passed in the function using `next_account_info`. For the purpose of this demo, we’ll expect two accounts to be passed in - the payer of the transaction, and the movie review account. The actual movie review program will require more, but we will discuss in the next lesson when we focus on creating new movie reviews. The purpose of this lesson is to just fetch a movie review account that has already been created, and log the account’s data.
-
-```rust
-pub fn add_movie_review(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    title: String,
-    rating: u8,
-    description: String
-) -> ProgramResult {
-
-    // Get Account iterator
-    let account_info_iter = &mut accounts.iter();
-
-    // Get accounts
-    let initializer = next_account_info(account_info_iter)?;
-    let movie_review = next_account_info(account_info_iter)?;
-}
-```
-
-### 4. Deserialize state
-
-Once we have grabbed the `AccountInfos` from the array, we can define how we want to deserialize its data. Create a new file called state.rs and add the following:
-
-```rust
-// Inside state.rs
-use borsh::{BorshSerialize, BorshDeserialize};
-use solana_program::{
-    program_pack::{IsInitialized, Sealed},
-};
-
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct MovieAccountState {
-    pub is_initialized: bool,
-    pub rating: u8,
-    pub title: String,
-    pub description: String
-}
-
-impl Sealed for MovieAccountState {}
-
-impl IsInitialized for MovieAccountState {
-    fn is_initialized(&self) -> bool {
-        self.is_initialized
-    }
-}
-```
-
-### 5. Program logic continued
-
-Finally, let’s deserialize the movie review account’s data and log it!
-
 ```rust
 // Inside lib.rs
 pub fn add_movie_review(
@@ -588,34 +415,17 @@ pub fn add_movie_review(
     rating: u8,
     description: String
 ) -> ProgramResult {
+
     // Logging instruction data that was passed in
     msg!("Adding movie review...");
     msg!("Title: {}", title);
     msg!("Rating: {}", rating);
     msg!("Description: {}", description);
 
-    // Get Account iterator
-    let account_info_iter = &mut accounts.iter();
-
-    // Get accounts
-    let initializer = next_account_info(account_info_iter)?;
-    let movie_review = next_account_info(account_info_iter)?;
-    // Deserialize the account data of the already made MovieReview account
-    let account_data = try_from_slice_unchecked::<MovieAccountState>(&movie_review.data.borrow()).unwrap();
-
-    // Logging the already made MovieReview account's data
-    msg!("Fetching movie review...");
-    msg!("Title: {}", account_data.title);
-    msg!("Rating: {}", account_data.rating);
-    msg!("Description: {}", account_data.description);
-
     Ok(())
-}
+  }
 ```
-
-Now, you can build and deploy your program from SolPG just like in the last lesson. This will deploy your program to the same program id from the previous lesson if you went through the Hello World demo already. You can either upgrade your Hello World demo by just following the same steps as before or you can generate a new program id through SolPG and deploy to that one instead.
-
-Notice that while we went over how to deserialize the `instruction_data`, we never actually used it. The reason for this is because we’ll go over how to use this data in the next lesson as you create new review accounts to complete the movie review program!
+All we're doing for now is logging the data that was passed in. Now, you can build and deploy your program from SolPG just like in the last lesson. This will deploy your program to the same program id from the previous lesson if you went through the Hello World demo already. You can either upgrade your Hello World demo by just following the same steps as before or you can generate a new program id through SolPG and deploy to that one instead.
 
 Test your program with [this script](https://github.com/ixmorrow/movie-review-pt1-testing-script/tree/master), make sure to paste the program id of your program into the script which you can see by going to Extra → Program Credentials in the ‘Build & Deploy’ page of the side bar! Check out the program [solution code](https://github.com/ixmorrow/movie-program-pt1) if you get stuck along the way
 
