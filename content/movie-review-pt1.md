@@ -397,22 +397,6 @@ pub mod instruction;
 pub mod state;
 ```
 
-## Program Logs
-
-Logging is a very important part of software development and that’s no different for Smart Contract development. Logs are useful for developers when writing Smart Contracts, as well as for users of the contract. Program logs in Solana are visible in the block explorer when viewing a transaction all the way at the bottom of the page. Scroll to the bottom of [this transaction](https://explorer.solana.com/tx/4txDU5oBtjHQxWKJj1AnoDSfEQUurE6kBoiGqDprX6fBL2rEnLK5qJqLc2f1i9zMauYSSRq1nQJjeJzCCFF7BVsU?cluster=devnet) in the Solana Explorer to view the logs from a transaction sent to the Movie Review program.
-
-![Screenshot of a log from Move Review program](../assets/movie-review-logs.png)
-
-To write logs like this, all you have to do is bring in `msg` function from the `solana_program` crate.
-
-```rust
-use solana::program::msg;
-// Write a log
-msg!("This is a test log");
-// Log with data in it, the data will be where the {} are
-msg!("Data from the program: {}", test_struct.key);
-```
-
 ## Demo
 
 For this lesson’s demo, we’ll be building out the first half of the Movie Review program with a focus on deserializing instruction data, iterating over accounts, deserializing account data, and creating program logs. The following lesson will focus on the second half of this program.
