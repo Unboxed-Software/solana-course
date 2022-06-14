@@ -1,13 +1,11 @@
-# Movie Review Program Pt1
+# Create a Basic Program: Part 1
 
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
 
+- Learn some Rust basics
 - Deserialize instruction data
-- Deserialize account data
-- Iterate over accounts
-- Log messages within a program
 - Learn the structure of a smart contract on Solana
 
 # TL;DR
@@ -17,6 +15,109 @@
 - Logging helpful and relevant information is good for troubleshooting during development and for users who will interact with the program because the logs are visible in the explorer.
 
 # Overview
+
+## Rust Basics
+As the complexity of a program grows, it's important to maintain a project structure that remains readable and extensible. This involves encapsulating code into functions, data structures, and files that fit a program's flow and logic. Before we dive into the specifics of how we'll be structuring a basic program, let's talk about the Rust basics we'll be using throughout this lesson.
+
+### Struct
+A struct, or structure, is a custom data type that lets you package together and name multiple related values that make up a meaningful group. Each piece of data in a struct can be of different types and each has a name associated with it.
+```rust
+struct User {
+  active: bool,
+  age: u64
+}
+```
+To use a struct after we’ve defined it, we create an instance of that struct by specifying concrete values for each of the fields.
+```rust
+let User1 = User {
+  active = true,
+  age = 36
+}
+```
+To get or set a specific value from a struct, we use dot notation.
+```rust
+User1.age = 37
+```
+
+### Enumerations
+Enumerations (or Enums) are a data struct that allow you to define a type by enumerating its possible variants. An example of an enum may look like:
+```rust
+enum Light {
+    On,
+    Off
+}
+```
+The `Light` enum has two possible variants in this situation, it's either `On` or `Off`.
+
+### Match statements
+`Match` statements are a control flow struct that is very similar to a `Switch` statement in C/C++. The `match` statement allows you to compare a value against a series of patterns and then execute code based on which pattern matches the value. Patterns can be made of literal values, variable names, wildcards, and many other things. The match statement must include all possible scenarios, otherwise the code will not compile.
+```rust
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter,
+}
+
+fn value_in_cents(coin: Coin) -> u8 {
+    match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter => 25,
+    }
+}
+```
+
+### Iterators
+ The iterator pattern allows you to perform some task on a sequence of items in turn. An iterator is responsible for the logic of iterating over each item and determining when the sequence has finished. In Rust, iterators are lazy, meaning they have no effect until you call methods that consume the iterator to use it up. Once you've created an iterator, you must call the `next()` function on it to get the next piece item.
+ ```rust
+ let v1 = vec![1, 2, 3];
+ // create the iterator over the vec
+ let v1_iter = v1.iter();
+ // use the iterator to get the first item
+ let first_item = v1_iter.next();
+ // use the iterator to get the second item
+ let second_item = v1_iter.next();
+ ```
+
+ ### Implement
+ `Impl` is a keyword in Rust that used to define implementations on types. Functions and consts can both be defined in an implementation.
+ ```rust
+ struct Example {
+     number: i32,
+ }
+
+ impl Example {
+     fn boo() {
+         println!("boo! Example::boo() was called!");
+     }
+
+     fn answer(&mut self) {
+         self.number += 42;
+     }
+
+     fn get_number(&self) -> i32 {
+         self.number
+     }
+ }
+ ```
+ You can call the implementations of the example struct like so
+ ```rust
+Example.boo();
+ ```
+### Variables
+Variables in rust by default are immutable, meaning once a variable is set - it cannot be changed. In order to create a variable that we'd like to change at some point in the future, we must make use of the `mut` keyword, which stands for mutable. Defining a variable with this keyword means that the value store in it can change.
+```rust
+// compiler will throw error
+let test = 1;
+test = 2;
+
+// this is allowed
+let mut test2 = 5;
+test2 = 4;
+```
+The Rust compiler guarantees that when you state a value won’t change, it really won’t change, so you don’t have to keep track of it yourself. Your code is thus easier to reason through.
 
 ## Program Structure
 
