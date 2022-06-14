@@ -227,6 +227,9 @@ impl ExampleInstruction {
     }
 }
 ```
+You'll notice that we added the `BorshDeserialize` derive macro to the `PostIxPayload` in the example above. This attribute implements some methods defined in the `borsh` crate on the payload struct, one of them being the `try_from_slice` method we call in the `unpack` function.
+
+We used borsh on the client side many times when serializing our data to send to a program, this logic here is simply the flip side of that. Remember, once we serialized our data client side it was just an array of bytes, so that is exactly what our program will receive. Bytes are hard to understand, so in order for us to be able to comprehend and use this data we'll need to convert it from the array of bytes to something that we can understand - that's what deserializing means. This is exactly what our `unpack` function is doing here. The `try_from_slice` method specifically is able to convert the byte buffer to the `payload` struct because the struct is defined with the `BorshDeserialize` derive macro.
 
 ## Program Logic
 
