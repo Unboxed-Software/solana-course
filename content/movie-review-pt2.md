@@ -66,13 +66,13 @@ Recall that the `AccountInfo` for all accounts required by an instruction are pa
 Note that `&mut` means a mutable reference the `accounts` argument. You can read more about references in Rust [here](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and the `mut` keyword [here](https://doc.rust-lang.org/std/keyword.mut.html).
 
 ```rust
-  // Get Account iterator
-  let account_info_iter = &mut accounts.iter();
+// Get Account iterator
+let account_info_iter = &mut accounts.iter();
 
-  // Get accounts
-  let initializer = next_account_info(account_info_iter)?;
-  let pda_account = next_account_info(account_info_iter)?;
-  let system_program = next_account_info(account_info_iter)?;
+// Get accounts
+let initializer = next_account_info(account_info_iter)?;
+let pda_account = next_account_info(account_info_iter)?;
+let system_program = next_account_info(account_info_iter)?;
 ```
 
 ## Create New Account
@@ -96,12 +96,12 @@ For our `MovieAccountState` we are storing four fields. We will allocate 1 byte 
 We’ll store the space we calculate in a variable called `account_len`. We then calculate the rent required for the space we need using the `minimum_balance` function from the `rent` module of the `solana_program` crate.
 
 ```rust
-  // Calculate account size required for struct MovieAccountState
-  let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
+// Calculate account size required for struct MovieAccountState
+let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 
-  // Calculate rent required
-  let rent = Rent::get()?;
-  let rent_lamports = rent.minimum_balance(account_len);
+// Calculate rent required
+let rent = Rent::get()?;
+let rent_lamports = rent.minimum_balance(account_len);
 ```
 
 ## Program Derived Addresses (PDA)
@@ -142,17 +142,17 @@ For this lesson we will use `invoke_signed`. Unlike a regular signature where a 
 A program can securely sign transactions this way because `invoke_signed` generates the PDA used for signing with the program ID of the program invoking the instruction. Therefore, it is not possible for one program to generate a matching PDA to sign for an account using a PDA derived using another program ID.
 
 ```rust
- invoke_signed(
+invoke_signed(
     &system_instruction::create_account(
-      initializer.key,
-      pda_account.key,
-      rent_lamports,
-      account_len.try_into().unwrap(),
-      program_id,
+        initializer.key,
+        pda_account.key,
+        rent_lamports,
+        account_len.try_into().unwrap(),
+        program_id,
     ),
     &[initializer.clone(), pda_account.clone(), system_program.clone()],
     &[&[initializer.key.as_ref(), title.as_bytes().as_ref(), &[bump_seed]]],
-  )?;
+)?;
 ```
 
 ## Deserialize Account Data
@@ -162,20 +162,20 @@ Once the system program creates a new account for us, we can now populate the da
 We’ll assign this data to a variable called `account_data`. We now have access to the data field of the `pda_account` and are ready to continue with our checks and updates. We first check if the account has already been initialized by using the `is_initilized` function implemented for our `MovieAccountState` struct in `state.rs`. If the account has not been initialized, then we populate the additional fields (rating, title description) on the `MovieAccountState` struct using the inputs provided by the user. Lastly, we set the initialized field to true.
 
 ```rust
-  msg!("unpacking state account");
-  let mut account_data = try_from_slice_unchecked::<MovieAccountState>(pda_account.data.borrow()).unwrap();
-  msg!("borrowed account data");
+msg!("unpacking state account");
+let mut account_data = try_from_slice_unchecked::<MovieAccountState>(pda_account.data.borrow()).unwrap();
+msg!("borrowed account data");
 
-  msg!("checking if movie account is already initialized");
-  if account_data.is_initialized() {
-      msg!("Account already initialized");
-      return Err(ProgramError::AccountAlreadyInitialized);
-  }
+msg!("checking if movie account is already initialized");
+if account_data.is_initialized() {
+    msg!("Account already initialized");
+    return Err(ProgramError::AccountAlreadyInitialized);
+}
 
-  account_data.title = title;
-  account_data.rating = rating;
-  account_data.description = description;
-  account_data.is_initialized = true;
+account_data.title = title;
+account_data.rating = rating;
+account_data.description = description;
+account_data.is_initialized = true;
 ```
 
 ## Serialize Account Data
@@ -308,13 +308,13 @@ use borsh::BorshSerialize;
 Next, let’s continue building our `add_movie_review` function. We’ll start by parsing through the accounts we will need to process our instruction. Recall that the `AccountInfo` for all accounts are passing into the `add_movie_review` function through a single `accounts` argument. We will need to iterate through `accounts` and assign the `AccountInfo` for each account to its own variable.
 
 ```rust
-  // Get Account iterator
-  let account_info_iter = &mut accounts.iter();
+// Get Account iterator
+let account_info_iter = &mut accounts.iter();
 
-  // Get accounts
-  let initializer = next_account_info(account_info_iter)?;
-  let pda_account = next_account_info(account_info_iter)?;
-  let system_program = next_account_info(account_info_iter)?;
+// Get accounts
+let initializer = next_account_info(account_info_iter)?;
+let pda_account = next_account_info(account_info_iter)?;
+let system_program = next_account_info(account_info_iter)?;
 ```
 
 ### Verify PDA
@@ -322,13 +322,13 @@ Next, let’s continue building our `add_movie_review` function. We’ll start b
 Next, within our `add_movie_review` function let’s independently derive the PDA we expect the user to have passed in. Since `pda_account` is just a variable name we’ve assigned to the second account passed in through the `accounts` argument, the user could have provided a different address than the one we expect. This step verifies that the the address we expect matches the address provided by the user.
 
 ```rust
-  // Derive PDA and check that it matches client
-  let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
+// Derive PDA and check that it matches client
+let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
 
-  if pda != *pda_account.key {
+if pda != *pda_account.key {
     msg!("Invalid seeds for PDA");
     return Err(ProgramError::InvalidArgument)
-  }
+}
 ```
 
 ### Calculate Space and Rent
@@ -336,12 +336,12 @@ Next, within our `add_movie_review` function let’s independently derive the PD
 Next, let’s calculate the rent that our new account will need. Recall that rent is the amount of lamports a user must allocate to an account for storing data on the Solana network. To calculate rent, we must first calculate the amount of space our new account requires.
 
 ```rust
-  // Calculate account size required
-  let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
+// Calculate account size required
+let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 
-  // Calculate rent required
-  let rent = Rent::get()?;
-  let rent_lamports = rent.minimum_balance(account_len);
+// Calculate rent required
+let rent = Rent::get()?;
+let rent_lamports = rent.minimum_balance(account_len);
 ```
 
 ### Create New Account
@@ -349,20 +349,20 @@ Next, let’s calculate the rent that our new account will need. Recall that ren
 Once we’ve calculated the rent and verified the PDA, we are ready to create our new account. In order to create a new account, we must call the `create_account` instruction from the system program. We do this with a Cross Program Invocation (CPI) using the `invoke_signed` function. We use `invoke_signed` because want the our Movie Review program to have ownership over this new account and need the Movie Review program to “sign” the instruction.
 
 ```rust
-  // Create the account
-  invoke_signed(
+// Create the account
+invoke_signed(
     &system_instruction::create_account(
-      initializer.key,
-      pda_account.key,
-      rent_lamports,
-      account_len.try_into().unwrap(),
-      program_id,
+        initializer.key,
+        pda_account.key,
+        rent_lamports,
+        account_len.try_into().unwrap(),
+        program_id,
     ),
     &[initializer.clone(), pda_account.clone(), system_program.clone()],
     &[&[initializer.key.as_ref(), title.as_bytes().as_ref(), &[bump_seed]]],
-  )?;
+)?;
 
-  msg!("PDA created: {}", pda);
+msg!("PDA created: {}", pda);
 ```
 
 ### Update Account Data
@@ -370,20 +370,20 @@ Once we’ve calculated the rent and verified the PDA, we are ready to create ou
 Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We will first check the the `is_initalized` field using `is_initialized` function from `state.rs`. If the check returns false, then we assign each parameter specified in the `MovieAccountState` struct using the arguments passed into the `add_movie_review` function and set `is_initialized` to true.
 
 ```rust
-  msg!("unpacking state account");
-	let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
-  msg!("borrowed account data");
+msg!("unpacking state account");
+let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
+msg!("borrowed account data");
 
-  msg!("checking if movie account is already initialized");
-  if account_data.is_initialized() {
-      msg!("Account already initialized");
-      return Err(ProgramError::AccountAlreadyInitialized);
-  }
+msg!("checking if movie account is already initialized");
+if account_data.is_initialized() {
+    msg!("Account already initialized");
+    return Err(ProgramError::AccountAlreadyInitialized);
+}
 
-  account_data.title = title;
-  account_data.rating = rating;
-  account_data.description = description;
-  account_data.is_initialized = true;
+account_data.title = title;
+account_data.rating = rating;
+account_data.description = description;
+account_data.is_initialized = true;
 ```
 
 ### Serialize Account Data
