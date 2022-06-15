@@ -4,53 +4,108 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Learn some Rust basics
-- Deserialize instruction data
-- Learn the structure of a smart contract on Solana
+- Use basic Rust language features for encapsulating code
+- Deserialize instruction data into Rust data types
+- Execute different program logic for different types of instructions
+- Explain the structure of a smart contract on Solana
 
 # TL;DR
 
-- The focus over the next three lessons will be to walk you through how the Movie Review program that was used in the first module was created. This is split up over multiple lessons to make the information a little more digestible.
-- In the previous lesson, the "Hello, World!" demo was confined to a single file. Going forward we'll be separating our smart contract code into multiple files where the code in each file serves a specific purpose.
-- Logging helpful and relevant information is good for troubleshooting during development and for users who will interact with the program because the logs are visible in the explorer.
+- Most programs support multiple discrete instructions - you decide when writing your program what these instructions are and what data must accompany them
+- Rust enums are often used to represent discrete program instructions
+- You can use the `borsh` crate and the `derive` attribute to provide Borsh deserialization and serialization functionality to Rust structs
+- Rust `match` expressions help create conditional code paths based on the provided instruction
 
 # Overview
 
-## Rust Basics
-As the complexity of a program grows, it's important to maintain a project structure that remains readable and extensible. This involves encapsulating code into functions, data structures, and files that fit a program's flow and logic. Before we dive into the specifics of how we'll be structuring a basic program, let's talk about the Rust basics we'll be using throughout this lesson.
+One of the most basic elements of a Solana program is the logic for handling instruction data. Most programs support multiple related functions and use differences in instruction data to determine which code path to execute. For example, instruction data may indicate that a client wishes to create a new piece of data or delete an existing piece of data.
 
-### Struct
-A struct, or structure, is a custom data type that lets you package together and name multiple related values that make up a meaningful group. Each piece of data in a struct can be of different types and each has a name associated with it.
+Since instruction data is provided to your program's entry point as a byte array, it's common to create a Rust data type to represent instructions in a more usable format. This lesson will walk through how to set up such a type, how to deserialize the instruction data into this format, and how to execute the proper code path based on the instruction passed into the program's entry point.
+
+## Rust basics
+
+Before we dive into the specifics of a basic Solana program, let's talk about the Rust basics we'll be using throughout this lesson.
+
+### Variables
+
+Variable assignment in Rust happens with the `let` keyword.
+
+```rust
+let age = 33;
+```
+
+Variables in Rust by default are immutable, meaning a variable's value cannot be changed once it has been set. In order to create a variable that we'd like to change at some point in the future, we must make use of the `mut` keyword, which stands for mutable. Defining a variable with this keyword means that the value stored in it can change.
+
+```rust
+// compiler will throw error
+let age = 33;
+age = 34;
+
+// this is allowed
+let mut mutable_age = 33;
+mutable_age = 34;
+```
+The Rust compiler guarantees that when you state a value won’t change, it really won’t change, so you don’t have to keep track of it yourself. This makes your code easier to reason through.
+
+### Structs
+
+A struct, or structure, is a custom data type that lets you package together and name multiple related values that make up a meaningful group. Each piece of data in a struct can be of different types and each has a name associated with it. These pieces of data are called **fields**. They behave similarly to properties in other languages.
+
 ```rust
 struct User {
-  active: bool,
-  age: u64
+    active: bool,
+    email: String,
+    age: u64,
 }
 ```
+
 To use a struct after we’ve defined it, we create an instance of that struct by specifying concrete values for each of the fields.
+
 ```rust
-let User1 = User {
-  active = true,
-  age = 36
+let mut user1 = User {
+    active = true,
+    email = String::from("test@test.com"),
+    age = 36
 }
 ```
+
 To get or set a specific value from a struct, we use dot notation.
+
 ```rust
-User1.age = 37
+user1.age = 37
 ```
 
 ### Enumerations
 Enumerations (or Enums) are a data struct that allow you to define a type by enumerating its possible variants. An example of an enum may look like:
+
 ```rust
-enum Light {
+enum LightStatus {
     On,
     Off
 }
 ```
-The `Light` enum has two possible variants in this situation, it's either `On` or `Off`.
+
+The `LightStatus` enum has two possible variants in this situation: it's either `On` or `Off`.
+
+You can also embed values into enum variants, similar to adding fields to a struct. 
+
+```rust 
+enum LightStatus {
+    On {
+        color: String
+    },
+    Off
+}
+
+let light_status = LightStatus::On { color: String::from("red") }
+```
+
+In this example, setting a variable to the `On` variant of `LightStatus` requires also setting the value of `color`.
 
 ### Match statements
-`Match` statements are a control flow struct that is very similar to a `Switch` statement in C/C++. The `match` statement allows you to compare a value against a series of patterns and then execute code based on which pattern matches the value. Patterns can be made of literal values, variable names, wildcards, and many other things. The match statement must include all possible scenarios, otherwise the code will not compile.
+
+Match statements are a control flow struct that is very similar to a `switch` statement in C/C++. The `match` statement allows you to compare a value against a series of patterns and then execute code based on which pattern matches the value. Patterns can be made of literal values, variable names, wildcards, and more. The match statement must include all possible scenarios, otherwise the code will not compile.
+
 ```rust
 enum Coin {
     Penny,
@@ -69,144 +124,102 @@ fn value_in_cents(coin: Coin) -> u8 {
 }
 ```
 
-### Iterators
- The iterator pattern allows you to perform some task on a sequence of items in turn. An iterator is responsible for the logic of iterating over each item and determining when the sequence has finished. In Rust, iterators are lazy, meaning they have no effect until you call methods that consume the iterator to use it up. Once you've created an iterator, you must call the `next()` function on it to get the next piece item.
- ```rust
- let v1 = vec![1, 2, 3];
- // create the iterator over the vec
- let v1_iter = v1.iter();
- // use the iterator to get the first item
- let first_item = v1_iter.next();
- // use the iterator to get the second item
- let second_item = v1_iter.next();
- ```
+### Implementations
 
- ### Implement
- `Impl` is a keyword in Rust that used to define implementations on types. Functions and consts can both be defined in an implementation.
- ```rust
- struct Example {
-     number: i32,
- }
-
- impl Example {
-     fn boo() {
-         println!("boo! Example::boo() was called!");
-     }
-
-     fn answer(&mut self) {
-         self.number += 42;
-     }
-
-     fn get_number(&self) -> i32 {
-         self.number
-     }
- }
- ```
- You can call the implementations of the example struct like so
- ```rust
-Example.boo();
- ```
-### Variables
-Variables in rust by default are immutable, meaning once a variable is set - it cannot be changed. In order to create a variable that we'd like to change at some point in the future, we must make use of the `mut` keyword, which stands for mutable. Defining a variable with this keyword means that the value store in it can change.
-```rust
-// compiler will throw error
-let test = 1;
-test = 2;
-
-// this is allowed
-let mut test2 = 5;
-test2 = 4;
-```
-The Rust compiler guarantees that when you state a value won’t change, it really won’t change, so you don’t have to keep track of it yourself. Your code is thus easier to reason through.
-
-## Program Structure
-
-The last lesson’s program was simple enough that it could be confined to one file. Now, while you can write almost any smart contract program in a single file for Solana, it’s much easier to understand and follow if you break it up across a few different ones.
-
-For this lesson, we will be splitting up this program across 3 different files:
-
-- **lib.rs**
-- **instruction.rs**
-- **state.rs**
-
-Many Solana smart contract tutorials use a general program architecture which splits the programs across six files. While working your way through these, it’s very easy to get carried away and confused about what each of these files is used for. We feel that following this same practice is adding too much new information to really comprehend how the parts all fit together. So, with that in mind, we are keeping our program simple - just three files for this lesson. Don’t worry though, we will teach you the common program architecture after we’re sure you’ve got the basics.
-
-## Entrypoint
-
-In the previous lesson, we learned that Solana programs require a single entry point to process program instructions. The entry point is declared using the [entrypoint!](https://docs.rs/solana-program/latest/solana_program/macro.entrypoint.html) macro.
-
-The entry point to a Solana program requires a function defined with the following parameters:
-
-- `program_id` - is the address of the account the program is stored at
-- `accounts` - is the array of accounts submitted in the transaction
-- `instruction_data` - is the serialized instruction-specific data
-
-Once the entry point function is defined, it will be passed as an argument into the `entrypoint!` macro which signifies where the program logic will start. A simple entrypoint to a program may look like this:
+The `impl` keyword is used in Rust to define a type's implementations. Functions and constants can both be defined in an implementation.
 
 ```rust
-// Bring in crates that will be used
-use solana_program::{
-    account_info::AccountInfo,
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-    msg,
-};
-use crate::processor::Processor;
-use solana_program::entrypoint;
-use instruction::TestInstruction;
-
-// `process_instruction` function passed into entrypoint macro
-entrypoint!(process_instruction);
-
-// `process_instuction` defined, this will be the first block of code to
-// Execute in the contract
-pub fn process_instruction(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    instruction_data: &[u8]
-) -> ProgramResult {
-    // Some logic here
+struct Example {
+    number: i32,
 }
-```
 
-The entry point and program logic will live inside the lib.rs file.
+impl Example {
+    fn boo() {
+        println!("boo! Example::boo() was called!");
+    }
 
-## Instruction
+    fn answer(&mut self) {
+        self.number += 42;
+    }
 
-The instruction.rs file is where you write the logic for deserializing the instruction data to whatever struct your program expects the data to be. Notice in the example above, we brought in a crate from the instruction.rs file:
-
-`use instruction::TestInstruction;`
-
-There we have written an `unpack` function that will try to deserialize whatever data was passed in as instruction data to the data struct it expects.
-
-To do so, we’ll first define an [enum](https://doc.rust-lang.org/std/keyword.enum.html) that will hold the various different data structs our program can expect to receive.
-
-```rust
-use borsh::{BorshDeserialize};
-use solana_program::{program_error::ProgramError};
-
-// Only one data struct in this enum, but
-// could have as many options as we want
-pub enum ExampleInstruction {
-    TestStruct {
-        name: String,
-        age: u8,
-        bio: String,
+    fn get_number(&self) -> i32 {
+        self.number
     }
 }
+```
+You can call the implementations of the example struct like so:
 
-#[derive(BorshDeserialize)]
-struct PostIxPayload {
-    name: String,
-    age: u8,
-    bio: String,
+```rust
+let example = Example { 
+    number = 1 
+}
+
+example.boo();
+```
+
+### Traits and attributes
+
+You won't be creating your own traits or attributes at this stage, so we won't go into details about either. However, you will be using the `derive` attribute macro and some traits provided by the `borsh` crate, so it's important you have a high level understanding of each.
+
+Traits describe an abstract interface that types can implement. If a trait defines a function `bark()` and a type then adopts that trait, the type must then implement the `bark()` function.
+
+[Attributes](https://doc.rust-lang.org/rust-by-example/attribute.html) add metadata to a type and can be used for many different purposes.
+
+When you add the [`derive` attribute](https://doc.rust-lang.org/rust-by-example/trait/derive.html) to a type and provide one or more supported traits, code is generated under the hood to automatically implement the traits for that type. We'll provide a concrete example of this shortly.
+
+## Representing instructions as a Rust data type
+
+Now that we've covered the Rust basics, let's apply them to Solana programs.
+
+More often than not, programs will have more than one function. For example, you may have a program that acts as the backend for notes. Assume this program accepts instructions for creating a new note, updating an existing note, and deleting an existing note. 
+
+Since instructions have discrete types, they're usually a great fit for an enum data type.
+
+```rust
+enum NoteInstruction {
+    CreateNote {
+        title: String,
+        body: String,
+        id: u64
+    },
+    UpdateNote {
+        title: String,
+        body: String,
+        id: u64
+    },
+    DeleteNote {
+        id: u64
+    }
 }
 ```
 
-Next, we can implement the `unpack` function on the `ExampleInstruction` enum. This is where we will use Borsh to deserialize the `instruction_data` into the `PostIxPayload` struct defined above and create a `TestStruct` from the payload.
+Notice that each variant of the `NoteInstruction` enum comes with embedded data that will be used by the program to accomplish the taks of creating, updating, and deleting a note, respectively.
+
+## Deserialize instruction data
+
+Instruction data is passed to the program as a byte array, so you need a way to deterministically convert that array into an instance of the instruction enum type.
+
+In previous modules, we used Borsh for client-side serialization and deserialization. To use Borsh program-side, we use the `borsh` crate. This crate provides traits for `BorshDeserialize` and `BorshSerialize` that you can apply to your types using the `derive` attribute. 
+
+To make deserializing instruction data simple, you can create a struct representing the data and use the `derive` attribute to apply the `BorshDeserialize` trait to the struct. This implements the methods defined in `BorshDeserialize`, including the the `try_from_slice` method that we'll be using to deserialize the instruction data.
+
+Remember, the struct itself needs to match the structure of the data in the byte array.
 
 ```rust
-impl ExampleInstruction {
+#[derive(BorshDeserialize)]
+struct NoteInstructionPayload {
+    id: u64,
+    title: String,
+    body: String
+}
+```
+
+Once this struct has been created, you can create an implementation for your instruction enum that defines and implements a function that accepts the instruction data as an argument and returns the appropriate instance of the enum with the deserialized data.
+
+It's standard practice to structure your program to expect the first byte (or x number of bytes) to be an identifier for which instruction the program should run. This could be an integer or a string identifier. For this example, we'll use the first byte and map integers 0, 1, and 2 to instructions create, update, and delete, respectively.
+
+```rust
+impl NoteInstruction {
     // Unpack inbound buffer to associated Instruction
     // The expected format for input is a Borsh serialized vector
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
@@ -214,41 +227,38 @@ impl ExampleInstruction {
         // determine which instruction to execute
         let (&variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
         // Use the temporary payload struct to deserialize
-        let payload = PostIxPayload::try_from_slice(rest).unwrap();
+        let payload = NoteInstructionPayload::try_from_slice(rest).unwrap();
         // Match the variant to determine which data struct is expected by
         // the function and return the TestStruct or an error
         Ok(match variant {
-            0 => Self::TestStruct {
-                name: payload.name,
-                age: payload.age,
-                bio: payload.bio},
+            0 => Self::CreateNote {
+                title: payload.title,
+                body: payload.body,
+                id: payload.id
+            },
+            1 => Self::UpdateNote {
+                title: payload.title,
+                body: payload.body,
+                id: payload.id
+            },
+            2 => Self::DeleteNote {
+                id: payload.id
+            },
             _ => return Err(ProgramError::InvalidInstructionData)
         })
     }
 }
 ```
-You'll notice that we added the `BorshDeserialize` derive macro to the `PostIxPayload` in the example above. This attribute implements some methods defined in the `borsh` crate on the payload struct, one of them being the `try_from_slice` method we call in the `unpack` function.
 
-We used borsh on the client side many times when serializing our data to send to a program, this logic here is simply the flip side of that. Remember, once we serialized our data client side it was just an array of bytes, so that is exactly what our program will receive. Bytes are hard to understand, so in order for us to be able to comprehend and use this data we'll need to convert it from the array of bytes to something that we can understand - that's what deserializing means. This is exactly what our `unpack` function is doing here. The `try_from_slice` method specifically is able to convert the byte buffer to the `payload` struct because the struct is defined with the `BorshDeserialize` derive macro.
+This function starts by using the `split_first` function on the `input` parameter to return a tuple where the first element, `variant`, is the first byte from the byte array and the second element, `rest`, is the rest of the byte array. It then uses the `try_from_slice` method on `NoteInstructionPayload` to deserialize the rest of the byte array into an instane of `NoteInstructionPayload`. Finally, it uses a `match` statement on `variant` to create and return the appropriate enum instance.
+
+Note that there is Rust syntax in this function that we haven't explained yet. The `ok_or` and `unwrap` functions are used for error handling and will be discussed in detail in another lesson.
 
 ## Program Logic
 
-Now that we've covered the entry point and how to deserialize our instruction data, we can call the `unpack` function and match on what it returns. This will determine where the flow of execution will go next.
-
+With a way to deserialize instruction data into a custom Rust type, you can then use appropriate control flow to execute different code paths in your program based on which instruction is passed into your program's entry point.
 
 ```rust
-// Inside lib.rs
-// crates
-use solana_program::{
-    entrypoint,
-    pubkey::Pubkey,
-    msg,
-    account_info::{next_account_info, AccountInfo},
-    program_error::ProgramError,
-};
-pub mod instruction;
-use instruction::MovieInstruction;
-
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
@@ -257,26 +267,44 @@ pub fn process_instruction(
     instruction_data: &[u8]
 ) -> ProgramResult {
     // Call unpack to deserialize instruction_data
-    let instruction = ExampleInstruction::unpack(instruction_data)?;
+    let instruction = NoteInstruction::unpack(instruction_data)?;
     // Match the returned data struct to what you expect
     match instruction {
-        ExampleInstruction::TestStruct { name, age, bio } => {
-            // Make call to a function to execute some logic with
-            // the accounts and the deserialized instruction data
-            do_something(program_id, accounts, name, age, bio)
+        NoteInstruction::CreateNote { name, age, bio } => {
+            // Execute program code to create a note
+        },
+        NoteInstruction::UpdateNote { title, body, id } => {
+            // Execute program code to update a note
+        },
+        NoteInstruction::DeleteNote { id } => {
+            // Execute program code to delete a note
         }
     }
 }
 ```
 
-For simple programs where there are only one or two instructions to execute, it’s fine to write the logic inside the match statement. For programs with many different possible instructions to match against, it’s much easier to read/understand if the logic is executed in a separate function that’s called in the match statement. As you can see, we are following the latter practice here by making a call to a function called `do_something` that will execute some more logic.
+For simple programs where there are only one or two instructions to execute, it may be fine to write the logic inside the match statement. For programs with many different possible instructions to match against, your code will be much more readable if the logic for each instruction is written in a separate function and simply called from inside the `match` statement.
 
-In the previous lesson, the "Hello, world!" demo program only had one file. Now, we’re learning how to split programs up across three separate files. Once you start splitting your program up like this you will need to make sure you register all of the files in one central location, we’ll be doing this in lib.rs as well. **You must register every file in your program like this.**
+## Program Structure
+
+The [Hello World lesson’s](hello-world-program.md) program was simple enough that it could be confined to one file. But as the complexity of a program grows, it's important to maintain a project structure that remains readable and extensible. This involves encapsulating code into functions, data structures, and functions as we've shown so far. But it also involves grouping related code into separate files.
+
+For example, a good portion of the code we've worked through so far has to do with defining and deserializing instructions. That code should live in its own file rather than be written in the same file as the entry point. By doing so, we would then have 2 files, one with the program entry point and the other with the instruction code:
+
+- **lib.rs**
+- **instruction.rs**
+
+Once you start splitting your program up like this you will need to make sure you register all of the files in one central location. We’ll be doing this in `lib.rs`. **You must register every file in your program like this.**
 
 ```rust
 // This would be inside lib.rs
 pub mod instruction;
-pub mod state;
+```
+
+Additionally, any declarations that you would like to be available through `use` statements in other files will need to be prefaced with the `pub` keyword:
+
+```rust
+pub enum NoteInstruction { ... }
 ```
 
 ## Demo
@@ -285,7 +313,7 @@ For this lesson’s demo, we’ll be building out the first half of the Movie Re
 
 ### 1. Entry point
 
-We’ll be using [SolPG](https://beta.solpg.io/) again to build out this program. SolPG saves state in your browser, so everything you did in the previous lesson should still be there. To get started, let's clear everything out from the current [lib.rs](http://lib.rs) file.
+We’ll be using [Solana Playground](https://beta.solpg.io/) again to build out this program. Solana Playground saves state in your browser, so everything you did in the previous lesson should still be there. To get started, let's clear everything out from the current `lib.rs` file.
 
 Inside lib.rs, we’re going to bring in the following crates and define where we’d like our entry point to the program to be with the `entrypoint` macro.
 
@@ -295,43 +323,28 @@ use solana_program::{
     entrypoint::ProgramResult,
     pubkey::Pubkey,
     msg,
-    account_info::{next_account_info, AccountInfo},
-    system_instruction,
-    program_error::ProgramError,
-    sysvar::{rent::Rent, Sysvar},
-    program::{invoke_signed},
-    borsh::try_from_slice_unchecked,
-    program_pack::{IsInitialized},
+    account_info::AccountInfo,
 };
-use std::convert::TryInto;
-pub mod instruction;
-pub mod state;
-use instruction::MovieInstruction;
-use state::MovieAccountState;
-use borsh::BorshSerialize;
 
 // Entry point is a function call process_instruction
 entrypoint!(process_instruction);
-```
 
-Using the `entrypoint` macro, we determined `process_instruction` as the program entry point, now we can define this function below.
-
-```rust
 // Inside lib.rs
 pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8]
 ) -> ProgramResult {
-// Makes call to unpack function, which undefined at the moment
-    let instruction = MovieInstruction::unpack(instruction_data)?;
-
+    
+    Ok(())
 }
 ```
 
 ### 2. Deserialize instruction data
 
-Now, before we continue with the processor logic, the rest will make more sense if we implement the `unpack` function we just added above. Create a new file called instruction.rs and add the following:
+Before we continue with the processor logic, we should define our supported instructions and implement our deserialization function.
+
+For readability, let's create a new file called `instruction.rs`. Inside this new file, add `use` statements for `BorshDeserialize` and `ProgramError`, then create a `MovieInstruction` enum with an `AddMovieReview` variant. This variant should have embedded values for `title,` `rating`, and `description`.
 
 ```rust
 use borsh::{BorshDeserialize};
@@ -344,7 +357,11 @@ pub enum MovieInstruction {
         description: String
     }
 }
+```
 
+Next, define a `MovieReviewPayload` struct. This will act as a intermediary between the instruction data byte array and the enum to facilitate deserialization. It should use a `derive` attribute to provide a default implementation for the `BorshDeserialize` trait.
+
+```rust
 #[derive(BorshDeserialize)]
 struct MovieReviewPayload {
     title: String,
@@ -353,14 +370,12 @@ struct MovieReviewPayload {
 }
 ```
 
-We just brought in the crates we’ll need for this file and defined the structs we’ll be using to deserialize the `instruction_data` into. Notice the `#derive(...)]` above the payload struct, this is known as an [attribute](https://doc.rust-lang.org/rust-by-example/attribute.html) in Rust. Specifically, the [derive attribute](https://doc.rust-lang.org/rust-by-example/trait/derive.html) allows the compiler to provide some basic implementations that can be used on the data structure with this attribute. We’re deriving some traits that make deserialization with Borsh much easier. It is also helpful to note that you can define your own customized versions of these implementations if you’d like, but for our purposes the basic ones will do the trick.
-
-Finally, we’ll implement and define the `unpack` function on the `IntroInstruction` enum.
+Finally, create an implementation for the `MovieInstruction` enum that defines and implements a function called `unpack` that takes a byte array as an argument and returns a `Result` type. This function should:
+1. Use the `split_first` function to split the first byte of the array from the rest of the array
+2. Deserialize the rest of the array into an instance of `MovieReviewPayload`
+3. Use a `match` statement to return the `AddMovieReview` variant of `MovieInstruction` if the first byte of the array was a 0 or return a program error otherwise
 
 ```rust
-...
-
-// Inside instruction.rs
 impl MovieInstruction {
     // Unpack inbound buffer to associated Instruction
     // The expected format for input is a Borsh serialized vector
@@ -381,8 +396,6 @@ impl MovieInstruction {
     }
 }
 ```
-
-And that’s it for the instruction file! Now, remember we left the lib.rs file partially finished to come and write the implementation on the unpack function.
 
 ### 3. Program logic
 
