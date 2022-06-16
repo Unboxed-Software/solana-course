@@ -1,4 +1,4 @@
-# Movie Review Program Pt2
+# Create a Basic Program: Part 2
 
 # Lesson Objectives
 
@@ -11,25 +11,43 @@
 # TL;DR
 
 - Creating an account requires that we calculate the space and rent to allocate for a new account
-- A Program Derived Address (PDA) is derived from a program ID and an optional list of seeds
-- Creating a new account requires that perform a Cross Program Invocation (CPI) to the `create_account` instruction on the System Program
+- A Program Derived Address (PDA) is derived from a program Id and an optional list of seeds
+- Creating a new account requires a Cross Program Invocation (CPI) to the `create_account` instruction on the System Program
 - Updating the data field on an account requires that we serialize (convert to byte array) the data into the account
 
 # Overview
 
-In the previous lesson we went over how to, deserialize instruction data, deserialize account data, and print messages to the program log.
+Solana maintains speed, efficiency, and extensibility in part by making programs stateless. Rather than having state stored on the program itself, programs use Solana's account model to read state from and write state to separate PDA accounts.
 
-In this lesson we will build upon what we have already done. The next step is to create a new account to store the movie review data from the user.
+While this is an extremely flexible model, it's also a paradigm that can be difficult to work in if its unfamiliar. But don't worry! We'll start simple in this lesson and work up to more complex programs in the next module.
+
+In this lesson we will learn the basics of state management for a Solana program. Building upon what we have already done, the next step is to create a new account to store the data provided by the user.
 
 ## Account State
 
 In order to store data on a new account, we must first define a struct that serves as the format for the data field of the account. These structs are stored in a `state.rs` file and are used to serialize data into an account and deserialize data from an existing account.
 
-For our movie review program, we will store the rating, description, and title provided by the user. We will also want a field to check whether the account storing the review has already been initialized. This is to prevent duplicate reviews of the same movie by the same user. We’ll refer to this format as the `MovieAccountState`.
+### Represent State as a Rust Type
 
-To store data on an account, we must serialize the data. Serialization is the process of converting an object into a bytes array (an area of memory containing a continuous sequence of bytes). For our use case, the object is simply the data we want to store. Writing to the data field of an account requires that we first serialization the data we want to store.
+Under the hood, account data is represented as a byte array, just as it is with instruction data. Since we'll be using account data to manage our program's state, one of the first things we can do to make managing state easier is to represent it as a Rust data type. 
 
-Deserialization is the process of reconstructing an object from a byte array. To read the data from an existing account, we must deserialized the account data from bytes into readable objects. We can then update this (deserialized) data and serialize the data into the account again.
+While this type should reflect the structure of your data, for most use cases a simple struct is sufficient. For example, a note-taking program that stores notes in their own accounts would likely have data for a title, body, and maybe an ID of some kind. We could create a struct to represent that as follows:
+
+```rust
+struct NoteState {
+    title: String,
+    body: String,
+    id: u64
+}
+```
+
+### Using Borsh for Serialization and Deserialization
+
+To access the data store on an account, we must serialize and deserialize the data. 
+1. Serialization is the process of converting an object into a bytes array (an area of memory containing a continuous sequence of bytes). 
+2. Deserialization is the process of reconstructing an object from a byte array. 
+
+For our use case, the object is simply the data we want to store. Writing to the data field of an account requires that we serialization the data we want to store. To read the data from an existing account, we must deserialized the account data from bytes into readable objects. We can then update this (deserialized) data and serialize the data into the account again. 
 
 To serialize and deserialize account data on Solana, we use the `BorshSerialize` and `BorshDeserialize` macros from the `borsh` crate.
 
@@ -37,45 +55,52 @@ To serialize and deserialize account data on Solana, we use the `BorshSerialize`
 use borsh::{BorshSerialize, BorshDeserialize};
 
 #[derive(BorshSerialize, BorshDeserialize)]
-pub struct MovieAccountState {
-    pub is_initialized: bool,
-    pub rating: u8,
-    pub description: String,
-    pub title: String
+struct NoteState {
+    title: String,
+    body: String,
+    id: u64
 }
 ```
 
-We can implement additional functionality to our struct using the `impl` keyword. You can read more about the `impl` keyword [here](https://doc.rust-lang.org/std/keyword.impl.html).
+## Iterators
 
-For our movie reviews, we want the ability to check whether an account has already been initialized. To do this we’ll create an `is_initilized` function that checks the `is_initialized` field on the `MovieAccountState` struct.
+An [Iterator](https://doc.rust-lang.org/std/iter/trait.Iterator.html) is a Rust trait used to iterate over a collection of values. Iterators are used in Solana programs to iterate over the list of accounts passed into the program entry point through the `accounts` argument.
 
-Note that `fn in_initialized` is the function we call and takes in `self` as a parameter (which is the `MovieAccountState` struct), and that `self.is_initilized` is referring to the `is_initilized` field on the `MovieAccountState` struct.
+### Rust Iterator
+The iterator pattern allows you to perform some task on a sequence of items. The `iter()` method creates an iterator object that references a collection. An iterator is responsible for the logic of iterating over each item and determining when the sequence has finished. In Rust, iterators are lazy, meaning they have no effect until you call methods that consume the iterator to use it up. Once you've created an iterator, you must call the `next()` function on it to get the next item.
 
 ```rust
-impl IsInitialized for MovieAccountState {
-    fn is_initialized(&self) -> bool {
-        self.is_initialized
-    }
-}
+let v1 = vec![1, 2, 3];
+
+// create the iterator over the vec
+let v1_iter = v1.iter();
+
+// use the iterator to get the first item
+let first_item = v1_iter.next();
+
+// use the iterator to get the second item
+let second_item = v1_iter.next();
 ```
 
-## Iterate Accounts
+### Solana Accounts Iterator
 
-Recall that the `AccountInfo` for all accounts required by an instruction are passing through a single `accounts` argument. In order to parse through the accounts and use them within our instruction, we will need to create an [iterator](https://doc.rust-lang.org/stable/std/iter/) with a mutable reference to the `accounts` argument and assign the `AccountInfo` for each account its own variable. We will do this using the `next_account_info` function from the `account_info` module provided by the `solana_program` crate.
+Recall that the `AccountInfo` for all accounts required by an instruction are passing through a single `accounts` argument. In order to parse through the accounts and use them within our instruction, we will need to create an iterator with a mutable reference to the `accounts` argument and assign the `AccountInfo` for each account its own variable. We will do this using the `next_account_info` function from the `account_info` module provided by the `solana_program` crate.
 
-Note that `&mut` means a mutable reference the `accounts` argument. You can read more about references in Rust [here](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and the `mut` keyword [here](https://doc.rust-lang.org/std/keyword.mut.html).
+For example, the instruction to create a new note in a note-taking program would at minimum require the accounts for the user creating the note, a PDA to store the note, and the `system_program` to initialize a new account. All three accounts would be passed into the program entry point through the `accounts` argument. An iterator of `accounts` is then used to separate out the `AccountInfo` associated with each account to process the instruction.  
+
+Note that `&mut` means a mutable reference to the `accounts` argument. You can read more about references in Rust [here](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and the `mut` keyword [here](https://doc.rust-lang.org/std/keyword.mut.html).
 
 ```rust
 // Get Account iterator
 let account_info_iter = &mut accounts.iter();
 
 // Get accounts
-let initializer = next_account_info(account_info_iter)?;
-let pda_account = next_account_info(account_info_iter)?;
+let note_creator = next_account_info(account_info_iter)?;
+let note_pda_account = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-## Create New Account
+## Creating Accounts
 
 Before we can update the data field of an account, we have to first create a new account.
 
@@ -85,38 +110,38 @@ To create a new account within our program we must:
 2. Have an address to assign the new account
 3. Invoke the system program to create the new account
 
-## Space and Rent
+### Space and Rent
 
-Recall that storing data on the Solana network requires users to allocate rent in the form of lamports. The amount of rent required by a new account depends on the amount of space the account requires. Since we are creating a custom movie review account where we specify the data to store, we must also manually calculate the space that the account requires. The space we calculate is then used to determine the amount of rent a payer must allocation.
+Recall that storing data on the Solana network requires users to allocate rent in the form of lamports. The amount of rent required by a new account depends on the amount of space the account requires. Since we are creating a custom account where we specify the data to store, we must also manually calculate the space that the account requires. The space we calculate is then used to determine the amount of rent a payer must allocation.
 
 Note that rent is more like a deposit. All the lamports allocated for rent can be fully refunded when an account is closed. Additionally, all account are now required to be [rent-exempt](https://twitter.com/jacobvcreech/status/1524790032938287105) (this means lamports are not deducted from the account over time). An account is considered rent-exempt if it holds at least 2 years worth of rent. In other words, accounts are stored on-chain permanently until the owner closes the account and withdraws the rent.
 
-For our `MovieAccountState` we are storing four fields. We will allocate 1 byte each for the `is_initialized` and `rating`. For both `title` and `description` we will allocate space equal to 4 bytes plus the length of the string. The additional 4 bytes is prefix that stores the actual length of the string input by the user. This prefix is used to find where the next field is located in the array of bytes (i.e. how many bytes after after `title` to find `description`).
+In our example, the `NoteState` struct specifies three fields we would like the account to store. For both `title` and `body` we will allocate space equal to 4 bytes plus the length of the string. The additional 4 bytes is a prefix that stores the actual length of the string input by the user. This prefix is used to find where the next field is located in the array of bytes (i.e. how many bytes after after `title` to find `body`). Next, we will allocate 8 bytes for the `id` to store the u64 type.
 
-We’ll store the space we calculate in a variable called `account_len`. We then calculate the rent required for the space we need using the `minimum_balance` function from the `rent` module of the `solana_program` crate.
+We’ll assign the space we've calculated for our account to a variable called `account_len`. We then calculate the rent required for the space using the `minimum_balance` function from the `rent` module of the `solana_program` crate.
 
 ```rust
 // Calculate account size required for struct MovieAccountState
-let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
+let account_len: usize = (4 + title.len()) + (4 + body.len()) + 8;
 
 // Calculate rent required
 let rent = Rent::get()?;
 let rent_lamports = rent.minimum_balance(account_len);
 ```
 
-## Program Derived Addresses (PDA)
+### Program Derived Addresses (PDA)
 
-To create an account, we also need to have an address to assign the account. For program owned accounts, this will be a program derived address (PDA) found using the `find_program_address` function. As the name implies, PDAs are derived using the program ID (address of the program creating the account) and an optional list of “seeds”. Optional seeds are additional inputs used in the function to derive the PDA. Providing additional seeds to derive a PDA allows us to create an arbitrary number of accounts the program may own.
+Before creating an account, we also need to have an address to assign the account. For program owned accounts, this will be a program derived address (PDA) found using the `find_program_address` function. As the name implies, PDAs are derived using the program Id (address of the program creating the account) and an optional list of “seeds”. Optional seeds are additional inputs used in the `find_program_address` function to derive the PDA. Providing additional seeds allows us to create an arbitrary number of PDA accounts and a deterministic way to find each account.
 
-For our movie review program, we will two additional seeds to derive the PDA for each new account. We will use the initializer’s publickey and the movie title as the optional seeds. Setting up the PDA this way restrict each user to only one review for any one movie title. However, it still allows the same user to review with movies with different titles and different users to review the movie with the same title.
+There is one more seed that is needed to derive a PDA. This seed is referred to as the “bump seed” and is a number between 255-0. It is a requirement that PDAs do not have a corresponding private key. This is done by deriving the PDA using a new “bump seed” until a valid PDA is found. The `find_program_addres` function tries to find a PDA using the optional seeds provided, the program ID, and the “bump seed” starting from 255. If the output is not a valid PDA, then the function decreases the bump by 1 and tries again (255, 254, 253, etc). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
-There is one more seed that is needed to derive a PDA. This seed is referred to as the “bump seed” and is a number between 255-0. It is a requirement that PDAs do not have a corresponding private key. This is done by deriving the PDA again using a new “bump seed” until a valid PDA is found. The `find_program_addres` function tries to find a PDA using the optional seeds provided, the program ID, and the “bump seed” starting from 255. If the output is not a valid PDA, then the function decreases the bump by 1 and tries again (255, 254, 253, etc). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
+For our note-taking program, we will use the note creator's publickey and the id as the optional seeds to derive the PDA. Deriving the PDA this way allows us to deterministicly find the account for each note.
 
 ```rust
-let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
+let (note_pda_account, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
 ```
 
-## Cross Program Invocation (CPI)
+### Cross Program Invocation (CPI)
 
 Once we’ve calculated the rent required for our account and found a valid PDA to assign as the address of the new account, we are finally ready to create the account. Creating a new account within our program requires a Cross Program Invocation (CPI). A CPI is when one program invokes an instruction on another program. To create a new account within our program, we will invoke the `create_account` instruction on the system program.
 
@@ -137,53 +162,55 @@ pub fn invoke_signed(
 ) -> ProgramResult
 ```
 
-For this lesson we will use `invoke_signed`. Unlike a regular signature where a private key is used, `invoke_signed` uses the optional seeds, bump seed, and program ID to derive a PDA and sign an instruction. This is done by checking the derived PDA against the all accounts passed into the instruction. If any of the accounts match the PDA, then the signer field for that account is marked to true.
+For this lesson we will use `invoke_signed`. Unlike a regular signature where a private key is used, `invoke_signed` uses the optional seeds, bump seed, and program Id to derive a PDA and sign an instruction. This is done by comparing the derived PDA against all accounts passed into the instruction. If any of the accounts match the PDA, then the signer field for that account is set to true.
 
-A program can securely sign transactions this way because `invoke_signed` generates the PDA used for signing with the program ID of the program invoking the instruction. Therefore, it is not possible for one program to generate a matching PDA to sign for an account using a PDA derived using another program ID.
+A program can securely sign transactions this way because `invoke_signed` generates the PDA used for signing with the program Id of the program invoking the instruction. Therefore, it is not possible for one program to generate a matching PDA to sign for an account with a PDA derived using another program Id.
 
 ```rust
 invoke_signed(
+    // instruction
     &system_instruction::create_account(
-        initializer.key,
-        pda_account.key,
+        note_creator.key,
+        note_pda_account.key,
         rent_lamports,
         account_len.try_into().unwrap(),
         program_id,
     ),
-    &[initializer.clone(), pda_account.clone(), system_program.clone()],
-    &[&[initializer.key.as_ref(), title.as_bytes().as_ref(), &[bump_seed]]],
+    // account_infos
+    &[note_creator.clone(), note_pda_account.clone(), system_program.clone()],
+    // signers_seeds
+    &[&[note_creator.key.as_ref(), id.as_bytes().as_ref(), &[bump_seed]]],
 )?;
 ```
 
-## Deserialize Account Data
+## Serializing and Deserializing Account Data
 
-Once the system program creates a new account for us, we can now populate the data field of the account using the format of a struct type we specified in `state.rs`. We start by reference the `pda_account` (that we that we just created) and borrowing the data field on the account. This allows us to access the data without taking ownership. The `try_from_sliced_unchecked` function deserializes the data field of the borrowed account, using the format of our `MovieAccountState` struct.
+Once we've created a new account, we need to access and update its data field. To read from and write to the data field of an account, we'll need to deserialize and serialize the account data. 
 
-We’ll assign this data to a variable called `account_data`. We now have access to the data field of the `pda_account` and are ready to continue with our checks and updates. We first check if the account has already been initialized by using the `is_initilized` function implemented for our `MovieAccountState` struct in `state.rs`. If the account has not been initialized, then we populate the additional fields (rating, title description) on the `MovieAccountState` struct using the inputs provided by the user. Lastly, we set the initialized field to true.
+### Deserialize Account Data
+
+After the system program creates a new account, we can update the data field of the account using the format of a struct type we specified in `state.rs`. We start by reference the `note_pda_account` (that we just created) and borrowing the data field on the account. This allows us to access the data without taking ownership. The `try_from_sliced_unchecked` function deserializes the data field of the borrowed account, using the format of our `NoteState` struct.
+
+Next, we’ll assign this data to a variable called `account_data`. We now have access to the data field of the `note_pda_account` and are ready to continue with our updates. We then update the fields (title, body, id) specified on the `NoteState` struct using the inputs provided by the user.
 
 ```rust
 msg!("unpacking state account");
-let mut account_data = try_from_slice_unchecked::<MovieAccountState>(pda_account.data.borrow()).unwrap();
+let mut account_data = try_from_slice_unchecked::<NoteState>(note_pda_account.data.borrow()).unwrap();
 msg!("borrowed account data");
 
-msg!("checking if movie account is already initialized");
-if account_data.is_initialized() {
-    msg!("Account already initialized");
-    return Err(ProgramError::AccountAlreadyInitialized);
-}
-
 account_data.title = title;
-account_data.rating = rating;
-account_data.description = description;
-account_data.is_initialized = true;
+account_data.body = rating;
+account_data.id = id;
 ```
 
-## Serialize Account Data
+### Serialize Account Data
 
-Our `account_data` variable now holds the deserialized data in the format of our `MovieAccountState` struct updated with the user’s inputs for the movie review. We now need to save the data on the `account_data` variable to the data field on our actual `pda_account`. We do this by borrowing a mutable reference to the data field of the `pda_account` again and then serializing (convert to bytes) the `account_data` to the data field on the `pda_account`. This effectively saves the updated `account_data` variable to the data field of the new account. Now when a user fetches the `pda_account` and deserializes (convert from bytes) the data field, it will display the updated data we’ve serialized into the account.
+The `account_data` variable now holds the deserialized data in the format of our `NoteState` struct updated with the user’s inputs. We now need to save the data on the `account_data` variable to the data field on our actual `note_pda_account`. We do this by borrowing a mutable reference to the data of the `note_pda_account` and then serializing (convert to bytes) the content of the `account_data` variable to the data field of the `note_pda_account`. 
+
+This effectively saves the updated `account_data` variable to the data field of the new account. Now when a user fetches the `note_pda_account` and deserializes (convert from bytes) the data, it will display the updated data we’ve serialized into the account.
 
 ```rust
-account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
+account_data.serialize(&mut &mut note_pda_account.data.borrow_mut()[..])?;
 ```
 
 # Demo
@@ -200,7 +227,7 @@ Our program currently includes the `instruction.rs` file we use to deserialize t
 
 ### Create `state.rs` file
 
-In this lesson we will create a new account that stores the data for each movie review. Let’s create a new file named `state.rs`.
+Let’s begin by creating a new file named `state.rs`.
 
 This file will:
 
@@ -241,6 +268,10 @@ Lastly, lets implement some additional functionality for our `MovieAccountState`
 
 1. `Sealed` is Solana's version of Rust's `Sized` trait. This simply specifies that `MovieAccountState` has a known size.
 2. `IsInitialized` checks the `is_initialized` field of our `MovieAccountState` struct.
+
+For our movie reviews, we want the ability to check whether an account has already been initialized. To do this, we create an `is_initilized` function that checks the `is_initialized` field on the `MovieAccountState` struct. This prevents duplicate reviews of the same movie by the same user.
+
+Note that `fn in_initialized` is the function we call and takes in `self` as a parameter (which is the `MovieAccountState` struct), and `self.is_initilized` is referring to the `is_initilized` field on the `MovieAccountState` struct.
 
 ```rust
 impl Sealed for MovieAccountState {}
@@ -305,7 +336,7 @@ use borsh::BorshSerialize;
 
 ### Iterate through `accounts`
 
-Next, let’s continue building our `add_movie_review` function. We’ll start by parsing through the accounts we will need to process our instruction. Recall that the `AccountInfo` for all accounts are passing into the `add_movie_review` function through a single `accounts` argument. We will need to iterate through `accounts` and assign the `AccountInfo` for each account to its own variable.
+Next, let’s continue building our `add_movie_review` function. Recall that the `AccountInfo` for all accounts are passing into the `add_movie_review` function through a single `accounts` argument. To process our instruction, we will need to iterate through `accounts` and assign the `AccountInfo` for each account to its own variable.
 
 ```rust
 // Get Account iterator
@@ -321,6 +352,8 @@ let system_program = next_account_info(account_info_iter)?;
 
 Next, within our `add_movie_review` function let’s independently derive the PDA we expect the user to have passed in. Since `pda_account` is just a variable name we’ve assigned to the second account passed in through the `accounts` argument, the user could have provided a different address than the one we expect. This step verifies that the the address we expect matches the address provided by the user.
 
+Note that we derive the PDA for each new account using the initializer’s publickey and the movie title as optional seeds. Setting up the PDA this way restrict each user to only one review for any one movie title. However, it still allows the same user to review with movies with different titles and different users to review movies with the same title.
+
 ```rust
 // Derive PDA and check that it matches client
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
@@ -335,6 +368,8 @@ if pda != *pda_account.key {
 
 Next, let’s calculate the rent that our new account will need. Recall that rent is the amount of lamports a user must allocate to an account for storing data on the Solana network. To calculate rent, we must first calculate the amount of space our new account requires.
 
+The `MovieAccountState` struct has four fields. We will allocate 1 byte each for `is_initialized` and `rating`. For both `title` and `description` we will allocate space equal to 4 bytes plus the length of the string.
+
 ```rust
 // Calculate account size required
 let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
@@ -346,7 +381,7 @@ let rent_lamports = rent.minimum_balance(account_len);
 
 ### Create New Account
 
-Once we’ve calculated the rent and verified the PDA, we are ready to create our new account. In order to create a new account, we must call the `create_account` instruction from the system program. We do this with a Cross Program Invocation (CPI) using the `invoke_signed` function. We use `invoke_signed` because want the our Movie Review program to have ownership over this new account and need the Movie Review program to “sign” the instruction.
+Once we’ve calculated the rent and verified the PDA, we are ready to create our new account. In order to create a new account, we must call the `create_account` instruction from the system program. We do this with a Cross Program Invocation (CPI) using the `invoke_signed` function. We use `invoke_signed` because we are creating the account using a PDA and need the Movie Review program to “sign” the instruction.
 
 ```rust
 // Create the account
@@ -367,7 +402,7 @@ msg!("PDA created: {}", pda);
 
 ### Update Account Data
 
-Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We will first check the the `is_initalized` field using `is_initialized` function from `state.rs`. If the check returns false, then we assign each parameter specified in the `MovieAccountState` struct using the arguments passed into the `add_movie_review` function and set `is_initialized` to true.
+Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We will first check the `is_initalized` field using the `is_initialized` function from `state.rs`. If the check returns false, then we assign each parameter specified in the `MovieAccountState` struct using the arguments passed into the `add_movie_review` function and set `is_initialized` to true.
 
 ```rust
 msg!("unpacking state account");
@@ -515,6 +550,6 @@ Our Movie Review program is finally complete. We are now ready to build and depl
 
 # Challenge
 
-Now that we’ve deployed the Movie Review program, test out the program using the finalized Movie Review frontend from Module 1. You can find the code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-paging-account-data) (make sure to download the branch specified in the link).
+Now that we’ve deployed the Movie Review program, test out the program using the finalized Movie Review frontend from Module 1. You can find the code [here](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account-data) (make sure to download the branch specified in the link).
 
 Simply replace the `MOVIE_REVIEW_PROGRAM_ID` in both the `MovieList.tsx` and `Form.tsx` components with the address of the program you’ve deployed. Then run the frontend, submit a view, and refresh the browser to see the review.
