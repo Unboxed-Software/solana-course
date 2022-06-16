@@ -11,8 +11,8 @@
 
 # TL;DR
 
-- Most programs support multiple discrete instructions - you decide when writing your program what these instructions are and what data must accompany them
-- Rust enums are often used to represent discrete program instructions
+- Most programs support **multiple discrete instructions** - you decide when writing your program what these instructions are and what data must accompany them
+- Rust **enums** are often used to represent discrete program instructions
 - You can use the `borsh` crate and the `derive` attribute to provide Borsh deserialization and serialization functionality to Rust structs
 - Rust `match` expressions help create conditional code paths based on the provided instruction
 
@@ -45,6 +45,7 @@ age = 34;
 let mut mutable_age = 33;
 mutable_age = 34;
 ```
+
 The Rust compiler guarantees that when you state a value won’t change, it really won’t change, so you don’t have to keep track of it yourself. This makes your code easier to reason through.
 
 ### Structs
@@ -55,7 +56,7 @@ A struct, or structure, is a custom data type that lets you package together and
 struct User {
     active: bool,
     email: String,
-    age: u64,
+    age: u64
 }
 ```
 
@@ -104,14 +105,14 @@ In this example, setting a variable to the `On` variant of `LightStatus` require
 
 ### Match statements
 
-Match statements are a control flow struct that is very similar to a `switch` statement in C/C++. The `match` statement allows you to compare a value against a series of patterns and then execute code based on which pattern matches the value. Patterns can be made of literal values, variable names, wildcards, and more. The match statement must include all possible scenarios, otherwise the code will not compile.
+Match statements are very similar to `switch` statements in C/C++. The `match` statement allows you to compare a value against a series of patterns and then execute code based on which pattern matches the value. Patterns can be made of literal values, variable names, wildcards, and more. The match statement must include all possible scenarios, otherwise the code will not compile.
 
 ```rust
 enum Coin {
     Penny,
     Nickel,
     Dime,
-    Quarter,
+    Quarter
 }
 
 fn value_in_cents(coin: Coin) -> u8 {
@@ -119,7 +120,7 @@ fn value_in_cents(coin: Coin) -> u8 {
         Coin::Penny => 1,
         Coin::Nickel => 5,
         Coin::Dime => 10,
-        Coin::Quarter => 25,
+        Coin::Quarter => 25
     }
 }
 ```
@@ -130,7 +131,7 @@ The `impl` keyword is used in Rust to define a type's implementations. Functions
 
 ```rust
 struct Example {
-    number: i32,
+    number: i32
 }
 
 impl Example {
@@ -197,7 +198,7 @@ enum NoteInstruction {
 }
 ```
 
-Notice that each variant of the `NoteInstruction` enum comes with embedded data that will be used by the program to accomplish the taks of creating, updating, and deleting a note, respectively.
+Notice that each variant of the `NoteInstruction` enum comes with embedded data that will be used by the program to accomplish the tasks of creating, updating, and deleting a note, respectively.
 
 ## Deserialize instruction data
 
@@ -254,7 +255,7 @@ impl NoteInstruction {
 }
 ```
 
-This function starts by using the `split_first` function on the `input` parameter to return a tuple where the first element, `variant`, is the first byte from the byte array and the second element, `rest`, is the rest of the byte array. It then uses the `try_from_slice` method on `NoteInstructionPayload` to deserialize the rest of the byte array into an instane of `NoteInstructionPayload`. Finally, it uses a `match` statement on `variant` to create and return the appropriate enum instance.
+This function starts by using the `split_first` function on the `input` parameter to return a tuple where the first element, `variant`, is the first byte from the byte array and the second element, `rest`, is the rest of the byte array. It then uses the `try_from_slice` method on `NoteInstructionPayload` to deserialize the rest of the byte array into an instance of `NoteInstructionPayload`. Finally, it uses a `match` statement on `variant` to create and return the appropriate enum instance.
 
 Note that there is Rust syntax in this function that we haven't explained yet. The `ok_or` and `unwrap` functions are used for error handling and will be discussed in detail in another lesson.
 
