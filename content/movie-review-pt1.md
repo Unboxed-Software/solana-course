@@ -270,7 +270,7 @@ pub fn process_instruction(
     let instruction = NoteInstruction::unpack(instruction_data)?;
     // Match the returned data struct to what you expect
     match instruction {
-        NoteInstruction::CreateNote { name, age, bio } => {
+        NoteInstruction::CreateNote { title, body, id } => {
             // Execute program code to create a note
         },
         NoteInstruction::UpdateNote { title, body, id } => {
