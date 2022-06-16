@@ -63,16 +63,16 @@ To use a struct after we’ve defined it, we create an instance of that struct b
 
 ```rust
 let mut user1 = User {
-    active = true,
-    email = String::from("test@test.com"),
-    age = 36
-}
+    active: true,
+    email: String::from("test@test.com"),
+    age: 36
+};
 ```
 
 To get or set a specific value from a struct, we use dot notation.
 
 ```rust
-user1.age = 37
+user1.age = 37;
 ```
 
 ### Enumerations
@@ -97,7 +97,7 @@ enum LightStatus {
     Off
 }
 
-let light_status = LightStatus::On { color: String::from("red") }
+let light_status = LightStatus::On { color: String::from("red") };
 ```
 
 In this example, setting a variable to the `On` variant of `LightStatus` requires also setting the value of `color`.
@@ -147,14 +147,18 @@ impl Example {
     }
 }
 ```
-You can call the implementations of the example struct like so:
+
+The function `boo` here can only be called on the type itself rather than an instance of the type, like so:
 
 ```rust
-let example = Example { 
-    number = 1 
-}
+Example::boo();
+```
 
-example.boo();
+Meanwhile, `answer` requires a mutable instance of `Example` and can be called with dot syntax:
+
+```rust
+let mut example = Example { number: 3 };
+example.answer();
 ```
 
 ### Traits and attributes
@@ -254,7 +258,7 @@ This function starts by using the `split_first` function on the `input` paramete
 
 Note that there is Rust syntax in this function that we haven't explained yet. The `ok_or` and `unwrap` functions are used for error handling and will be discussed in detail in another lesson.
 
-## Program Logic
+## Program logic
 
 With a way to deserialize instruction data into a custom Rust type, you can then use appropriate control flow to execute different code paths in your program based on which instruction is passed into your program's entry point.
 
@@ -285,7 +289,7 @@ pub fn process_instruction(
 
 For simple programs where there are only one or two instructions to execute, it may be fine to write the logic inside the match statement. For programs with many different possible instructions to match against, your code will be much more readable if the logic for each instruction is written in a separate function and simply called from inside the `match` statement.
 
-## Program Structure
+## Program file structure
 
 The [Hello World lesson’s](hello-world-program.md) program was simple enough that it could be confined to one file. But as the complexity of a program grows, it's important to maintain a project structure that remains readable and extensible. This involves encapsulating code into functions, data structures, and functions as we've shown so far. But it also involves grouping related code into separate files.
 
