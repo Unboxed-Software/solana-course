@@ -218,7 +218,7 @@ struct NoteInstructionPayload {
 }
 ```
 
-Once this struct has been created, you can create an implementation for your instruction enum that defines and implements a function that accepts the instruction data as an argument and returns the appropriate instance of the enum with the deserialized data.
+Once this struct has been created, you can create an implementation for your instruction enum to handle the logic associated with deserializing instruction data. It's common to see this done inside a function called `unpack` that accepts the instruction data as an argument and returns the appropriate instance of the enum with the deserialized data.
 
 It's standard practice to structure your program to expect the first byte (or x number of bytes) to be an identifier for which instruction the program should run. This could be an integer or a string identifier. For this example, we'll use the first byte and map integers 0, 1, and 2 to instructions create, update, and delete, respectively.
 
@@ -363,7 +363,7 @@ pub enum MovieInstruction {
 }
 ```
 
-Next, define a `MovieReviewPayload` struct. This will act as a intermediary between the instruction data byte array and the enum to facilitate deserialization. It should use a `derive` attribute to provide a default implementation for the `BorshDeserialize` trait.
+Next, define a `MovieReviewPayload` struct. This will act as an intermediary type for deserializtion so it should use the `derive` attribute macro to provide a default implementation for the `BorshDeserialize` trait.
 
 ```rust
 #[derive(BorshDeserialize)]
@@ -403,31 +403,18 @@ impl MovieInstruction {
 
 ### 3. Program logic
 
-Now that that’s done, we know how the `unpack` function will deserialize the data and the struct we expect to receive. So, let’s add it to our match instruction inside lib.rs.
+With the instruction deserialization handled, we can return to the `lib.rs` file to handle some of our program logic.
+
+Remember, since we added code to a different file, we need to register it in the `lib.rs` file using `pub mod instruction;`. Then we can add a `use` statement to bring the `MovieInstruction` type into scope.
 
 ```rust
-// Inside lib.rs
-pub fn process_instruction(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    instruction_data: &[u8]
-) -> ProgramResult {
-    // Unpack called
-    let instruction = MovieInstruction::unpack(instruction_data)?;
-    // Match against the data struct returned into `instruction` variable
-    match instruction {
-    MovieInstruction::AddMovieReview { title, rating, description } => {
-        // Make a call to `add_move_review` function
-        add_movie_review(program_id, accounts, title, rating, description)
-        }
-    }
-}
+pub mod instruction;
+use instruction::{MovieInstruction};
 ```
 
-Next, we’ll write the logic for the `add_movie_review` function that we’re calling in the code above. Notice, that we passed in the `program_id` , `accounts` , and the deserialized `instruction_data` to this function.
+Next, let's define a new function `add_movie_review` that takes as arguments `program_id`, `accounts`, `title`, `rating`, and `description`. It should also return an instance of `ProgramResult` Inside this function, let's simply log our values for now and we'll revisit the rest of the implementation of the function in the next lesson.
 
 ```rust
-// Inside lib.rs
 pub fn add_movie_review(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
@@ -443,11 +430,34 @@ pub fn add_movie_review(
     msg!("Description: {}", description);
 
     Ok(())
-  }
+}
 ```
-All we're doing for now is logging the data that was passed in. Now, you can build and deploy your program from SolPG just like in the last lesson. This will deploy your program to the same program id from the previous lesson if you went through the Hello World demo already. You can either upgrade your Hello World demo by just following the same steps as before or you can generate a new program id through SolPG and deploy to that one instead.
 
-Test your program with [this script](https://github.com/ixmorrow/movie-review-pt1-testing-script/tree/master), make sure to paste the program id of your program into the script which you can see by going to Extra → Program Credentials in the ‘Build & Deploy’ page of the side bar! Check out the program [solution code](https://github.com/ixmorrow/movie-program-pt1) if you get stuck along the way
+With that done, we can call `add_movie_review` from `process_instruction` (the function we set as our entry point). In order to pass all the required arguments to the function, we'll first need to call the `unpack` we created on `MovieInstruction`, then use a `match` statement to ensure that the instruction we've received is the `AddMovieReview` variant.
+
+```rust
+pub fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
+) -> ProgramResult {
+    // Unpack called
+    let instruction = MovieInstruction::unpack(instruction_data)?;
+    // Match against the data struct returned into `instruction` variable
+    match instruction {
+        MovieInstruction::AddMovieReview { title, rating, description } => {
+            // Make a call to `add_move_review` function
+            add_movie_review(program_id, accounts, title, rating, description)
+        }
+    }
+}
+```
+
+And just like that, your program should be functional enough to log the instruction data passed in when a transaction is submitted! Now, you can build and deploy your program from Solana Program just like in the last lesson. If you haven't changed the program ID since going through the last lesson, it will automatically deploy to the same ID. If you'd like to you can generate a new program ID from the playground before deploying so that it's at a separate address.
+
+You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md). In both cases, make sure you copy and past the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
+
+If you need to spend some more time with this demo before moving on, please do! You can also have a look at the program [solution code](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) if you get stuck.
 
 # Challenge
 
