@@ -79,7 +79,7 @@ Recall that storing data on the Solana network requires users to allocate rent i
 
 Note that rent is more like a deposit. All the lamports allocated for rent can be fully refunded when an account is closed. Additionally, all new accounts are now required to be [rent-exempt](https://twitter.com/jacobvcreech/status/1524790032938287105) (this means lamports are not deducted from the account over time). An account is considered rent-exempt if it holds at least 2 years worth of rent. In other words, accounts are stored on-chain permanently until the owner closes the account and withdraws the rent.
 
-In our Notes app example, the `NoteState` struct specifies three fields that need to be stored in an account: `title`, `body`, and `id`. To calculate the size the account needs to be, you would simply add up the size required to store the data in each field. 
+In our Notes app example, the `NoteState` struct specifies three fields that need to be stored in an account: `title`, `body`, and `id`. To calculate the size the account needs to be, you would simply add up the size required to store the data in each field.
 
 For dynamic data, like strings, Borsh adds an additional 4 bytes at the beginning to store the length of that particular field. That means `title` and `body` are each 4 bytes plus their respective sizes. The `id` field is a 64-bit integer, or 8 bytes.
 
@@ -154,7 +154,7 @@ Once we've created a new account, we need to access and update the account's dat
 
 ### Deserialize Account Data
 
-The first step to updating an account's data is to deserialize its `data` byte array into its Rust type. You can do this by first borrowing the data field on the account. This allows you to access the data without taking ownership. 
+The first step to updating an account's data is to deserialize its `data` byte array into its Rust type. You can do this by first borrowing the data field on the account. This allows you to access the data without taking ownership.
 
 You can then use the `try_from_slice_unchecked` function to deserializes the data field of the borrowed account, using the format of the type you created to represent the data. This gives you an instance of your Rust type so you can easily update fields using dot notation. If we were to do this with the Notes app example we've been using, it would look like this:
 
@@ -165,7 +165,7 @@ msg!("borrowed account data");
 
 account_data.title = title;
 account_data.body = rating;
-account_data.id = id; 
+account_data.id = id;
 ```
 
 ### Serialize Account Data
@@ -207,7 +207,7 @@ let second_item = v1_iter.next();
 
 Recall that the `AccountInfo` for all accounts required by an instruction are passing through a single `accounts` argument. In order to parse through the accounts and use them within our instruction, we will need to create an iterator with a mutable reference to the `accounts` argument and assign the `AccountInfo` for each account its own variable. We will do this using the `next_account_info` function from the `account_info` module provided by the `solana_program` crate.
 
-For example, the instruction to create a new note in a note-taking program would at minimum require the accounts for the user creating the note, a PDA to store the note, and the `system_program` to initialize a new account. All three accounts would be passed into the program entry point through the `accounts` argument. An iterator of `accounts` is then used to separate out the `AccountInfo` associated with each account to process the instruction.  
+For example, the instruction to create a new note in a note-taking program would at minimum require the accounts for the user creating the note, a PDA to store the note, and the `system_program` to initialize a new account. All three accounts would be passed into the program entry point through the `accounts` argument. An iterator of `accounts` is then used to separate out the `AccountInfo` associated with each account to process the instruction.
 
 Note that `&mut` means a mutable reference to the `accounts` argument. You can read more about references in Rust [here](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and the `mut` keyword [here](https://doc.rust-lang.org/std/keyword.mut.html).
 
@@ -465,88 +465,88 @@ use borsh::BorshSerialize;
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  instruction_data: &[u8]
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
 ) -> ProgramResult {
-  let instruction = MovieInstruction::unpack(instruction_data)?;
-  match instruction {
-    MovieInstruction::AddMovieReview { title, rating, description } => {
-      add_movie_review(program_id, accounts, title, rating, description)
+    let instruction = MovieInstruction::unpack(instruction_data)?;
+    match instruction {
+        MovieInstruction::AddMovieReview { title, rating, description } => {
+            add_movie_review(program_id, accounts, title, rating, description)
+        }
     }
-  }
 }
 
 pub fn add_movie_review(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  title: String,
-  rating: u8,
-  description: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
 ) -> ProgramResult {
-  msg!("Adding movie review...");
-  msg!("Title: {}", title);
-  msg!("Rating: {}", rating);
-  msg!("Description: {}", description);
+    msg!("Adding movie review...");
+    msg!("Title: {}", title);
+    msg!("Rating: {}", rating);
+    msg!("Description: {}", description);
 
-  // Get Account iterator
-  let account_info_iter = &mut accounts.iter();
+    // Get Account iterator
+    let account_info_iter = &mut accounts.iter();
 
-  // Get accounts
-  let initializer = next_account_info(account_info_iter)?;
-  let pda_account = next_account_info(account_info_iter)?;
-  let system_program = next_account_info(account_info_iter)?;
+    // Get accounts
+    let initializer = next_account_info(account_info_iter)?;
+    let pda_account = next_account_info(account_info_iter)?;
+    let system_program = next_account_info(account_info_iter)?;
 
-  // Derive PDA and check that it matches client
-  let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
+    // Derive PDA and check that it matches client
+    let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
 
-  if pda != *pda_account.key {
-    msg!("Invalid seeds for PDA");
-    return Err(ProgramError::InvalidArgument)
-  }
+    if pda != *pda_account.key {
+        msg!("Invalid seeds for PDA");
+        return Err(ProgramError::InvalidArgument)
+    }
 
-  // Calculate account size required
-  let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
+    // Calculate account size required
+    let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 
-  // Calculate rent required
-  let rent = Rent::get()?;
-  let rent_lamports = rent.minimum_balance(account_len);
+    // Calculate rent required
+    let rent = Rent::get()?;
+    let rent_lamports = rent.minimum_balance(account_len);
 
-  // Create the account
-  invoke_signed(
-    &system_instruction::create_account(
-      initializer.key,
-      pda_account.key,
-      rent_lamports,
-      account_len.try_into().unwrap(),
-      program_id,
-    ),
-    &[initializer.clone(), pda_account.clone(), system_program.clone()],
-    &[&[initializer.key.as_ref(), title.as_bytes().as_ref(), &[bump_seed]]],
-  )?;
+    // Create the account
+    invoke_signed(
+        &system_instruction::create_account(
+            initializer.key,
+            pda_account.key,
+            rent_lamports,
+            account_len.try_into().unwrap(),
+            program_id,
+        ),
+        &[initializer.clone(), pda_account.clone(), system_program.clone()],
+        &[&[initializer.key.as_ref(), title.as_bytes().as_ref(), &[bump_seed]]],
+    )?;
 
-  msg!("PDA created: {}", pda);
+    msg!("PDA created: {}", pda);
 
-  msg!("unpacking state account");
-  let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
-  msg!("borrowed account data");
+    msg!("unpacking state account");
+    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
+    msg!("borrowed account data");
 
-  msg!("checking if movie account is already initialized");
-  if account_data.is_initialized() {
-      msg!("Account already initialized");
-      return Err(ProgramError::AccountAlreadyInitialized);
-  }
+    msg!("checking if movie account is already initialized");
+    if account_data.is_initialized() {
+        msg!("Account already initialized");
+        return Err(ProgramError::AccountAlreadyInitialized);
+    }
 
-  account_data.title = title;
-  account_data.rating = rating;
-  account_data.description = description;
-  account_data.is_initialized = true;
+    account_data.title = title;
+    account_data.rating = rating;
+    account_data.description = description;
+    account_data.is_initialized = true;
 
-  msg!("serializing account");
-  account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
-  msg!("state account serialized");
+    msg!("serializing account");
+    account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
+    msg!("state account serialized");
 
-  Ok(())
+    Ok(())
 }
 ```
 
