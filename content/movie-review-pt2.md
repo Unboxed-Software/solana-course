@@ -10,8 +10,8 @@
 
 # TL;DR
 
-- Program state is stored in external accounts rather than in the program itself
-- A Program Derived Address (PDA) is derived from a program Id and an optional list of seeds and subsequently used as the address for a storage account
+- Program state is stored in other accounts rather than in the program itself
+- A Program Derived Address (PDA) is derived from a program Id and an optional list of seeds. Once derived, PDAs are subsequently used as the address for a storage account.
 - Creating an account requires that we calculate the space required and the corresponding rent to allocate for the new account
 - Creating a new account requires a Cross Program Invocation (CPI) to the `create_account` instruction on the System Program
 - Updating the data field on an account requires that we serialize (convert to byte array) the data into the account
@@ -46,7 +46,7 @@ struct NoteState {
 
 ### Using Borsh for Serialization and Deserialization
 
-Just as with instruction data, we need a mechanism for converting from our Rust data type to a byte array, and vis versa. **Serialization** is the process of converting an object into a byte array. **Deserialization** is the process of reconstructing an object from a byte array.
+Just as with instruction data, we need a mechanism for converting from our Rust data type to a byte array, and vice versa. **Serialization** is the process of converting an object into a byte array. **Deserialization** is the process of reconstructing an object from a byte array.
 
 We'll continue to use Borsh for serialization and deserialization. In Rust, we can use the `borsh` crate to get access to the `BorshSerialize` and `BorshDeserialize` traits. We can then apply those traits using the `derive` attribute macro.
 
@@ -98,9 +98,9 @@ let rent_lamports = rent.minimum_balance(account_len);
 
 Before creating an account, we also need to have an address to assign the account. For program owned accounts, this will be a program derived address (PDA) found using the `find_program_address` function. As the name implies, PDAs are derived using the program Id (address of the program creating the account) and an optional list of “seeds”. Optional seeds are additional inputs used in the `find_program_address` function to derive the PDA. Providing additional seeds allows us to create an arbitrary number of PDA accounts and a deterministic way to find each account.
 
-In addition to the seeds you provide for deriving a PDA, the `find_program_adress` function will provide one additional "bump seed." What makes PDAs unique from other Solana account addresses is that they do not hae a corresponding secret key. This ensures that only the program that owns the address can sign on behalf of the PDA. When the `find_program_addres` function attempts to derive a PDA using the provided seeds, it passes in the number 255 as the "bump seed." If the resulting address is invalid (i.e. has a corresponding secret key), then the function decreases the bump seed by 1 and derives a new PDA with that bump seed. Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
+In addition to the seeds you provide for deriving a PDA, the `find_program_adress` function will provide one additional "bump seed." What makes PDAs unique from other Solana account addresses is that they do not have a corresponding secret key. This ensures that only the program that owns the address can sign on behalf of the PDA. When the `find_program_addres` function attempts to derive a PDA using the provided seeds, it passes in the number 255 as the "bump seed." If the resulting address is invalid (i.e. has a corresponding secret key), then the function decreases the bump seed by 1 and derives a new PDA with that bump seed. Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
-For our note-taking program, we will use the note creator's public key and the ID as the optional seeds to derive the PDA. Deriving the PDA this way allows us to deterministicly find the account for each note.
+For our note-taking program, we will use the note creator's public key and the ID as the optional seeds to derive the PDA. Deriving the PDA this way allows us to deterministically find the account for each note.
 
 ```rust
 let (note_pda_account, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
