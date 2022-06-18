@@ -277,9 +277,9 @@ Lastly, let's implement some additional functionality for our `MovieAccountState
 1. `Sealed` is Solana's version of Rust's `Sized` trait. This simply specifies that `MovieAccountState` has a known size.
 2. `IsInitialized` checks the `is_initialized` field of our `MovieAccountState` struct.
 
-For our movie reviews, we want the ability to check whether an account has already been initialized. To do this, we create an `is_initilized` function that checks the `is_initialized` field on the `MovieAccountState` struct. This prevents duplicate reviews of the same movie by the same user.
+For our movie reviews, we want the ability to check whether an account has already been initialized. To do this, we create an `is_initialized` function that checks the `is_initialized` field on the `MovieAccountState` struct. This prevents duplicate reviews of the same movie by the same user.
 
-Note that `fn in_initialized` is the function we call and takes in `self` as a parameter (which is the `MovieAccountState` struct), and `self.is_initilized` is referring to the `is_initilized` field on the `MovieAccountState` struct.
+Note that `fn in_initialized` is the function we call and takes in `self` as a parameter (which is the `MovieAccountState` struct), and `self.is_initialized` is referring to the `is_initialized` field on the `MovieAccountState` struct.
 
 ```rust
 impl Sealed for MovieAccountState {}
