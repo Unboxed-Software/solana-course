@@ -272,7 +272,7 @@ pub struct MovieAccountState {
 
 ### 4. Implement Struct Functionality
 
-Lastly, lets implement some additional functionality for our `MovieAccountState` struct using the `impl` keyword.
+Lastly, let's implement some additional functionality for our `MovieAccountState` struct using the `impl` keyword.
 
 1. `Sealed` is Solana's version of Rust's `Sized` trait. This simply specifies that `MovieAccountState` has a known size.
 2. `IsInitialized` checks the `is_initialized` field of our `MovieAccountState` struct.
