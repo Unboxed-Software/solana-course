@@ -227,13 +227,13 @@ This overview covered a lot of new concepts. Let’s practice them together by c
 
 As a refresher, we are building a Solana program which lets users review movies. Last lesson, we deserialized the instruction data passed in by the user but we have not yet store this data in an account. Let’s now update our program to create new accounts to store the user’s movie review.
 
-### Get the starter code
+### 1. Get the starter code
 
 If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can reference the starter code [here](https://beta.solpg.io/6295b25b0e6ab1eb92d947f7).
 
 Our program currently includes the `instruction.rs` file we use to deserialize the `instruction_data` passed into the program entry point. We have also completed `lib.rs` file to the point where we can print our deserialized instruction data to the program log using the `msg!` macro.
 
-### Create `state.rs` file
+### 2. Create `state.rs` file
 
 Let’s begin by creating a new file named `state.rs`.
 
@@ -251,7 +251,7 @@ use solana_program::{
 };
 ```
 
-### Create Struct
+### 3. Create Struct
 
 Next, let’s create our `MovieAccountState` struct. This struct will define the parameters that each new movie review account will store in its data field. Our `MovieAccountState` struct will require the following parameters:
 
@@ -270,7 +270,7 @@ pub struct MovieAccountState {
 }
 ```
 
-### Implement Struct Functionality
+### 4. Implement Struct Functionality
 
 Lastly, lets implement some additional functionality for our `MovieAccountState` struct using the `impl` keyword.
 
@@ -316,7 +316,7 @@ impl IsInitialized for MovieAccountState {
 }
 ```
 
-### Update `lib.rs`
+### 5. Update `lib.rs`
 
 Next, let’s update our `lib.rs` file. First, we’ll bring into scope everything we will need to complete our Movie Review program. You can read more about the details each item we are using from the `solana_program` crate [here](https://docs.rs/solana-program/latest/solana_program/).
 
@@ -342,7 +342,7 @@ use state::MovieAccountState;
 use borsh::BorshSerialize;
 ```
 
-### Iterate through `accounts`
+### 6. Iterate through `accounts`
 
 Next, let’s continue building out our `add_movie_review` function. Recall that an array of accounts is passed into the `add_movie_review` function through a single `accounts` argument. To process our instruction, we will need to iterate through `accounts` and assign the `AccountInfo` for each account to its own variable.
 
@@ -356,7 +356,7 @@ let pda_account = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-### Verify PDA
+### 7. Verify PDA
 
 Next, within our `add_movie_review` function let’s independently derive the PDA we expect the user to have passed in. Since `pda_account` is just a variable name we’ve assigned to the second account passed in through the `accounts` argument, the user could have provided a different address than the one we expect. This step verifies that the the address we expect matches the address provided by the user.
 
@@ -372,7 +372,7 @@ if pda != *pda_account.key {
 }
 ```
 
-### Calculate Space and Rent
+### 8. Calculate Space and Rent
 
 Next, let’s calculate the rent that our new account will need. Recall that rent is the amount of lamports a user must allocate to an account for storing data on the Solana network. To calculate rent, we must first calculate the amount of space our new account requires.
 
@@ -387,7 +387,7 @@ let rent = Rent::get()?;
 let rent_lamports = rent.minimum_balance(account_len);
 ```
 
-### Create New Account
+### 9. Create New Account
 
 Once we’ve calculated the rent and verified the PDA, we are ready to create our new account. In order to create a new account, we must call the `create_account` instruction from the system program. We do this with a Cross Program Invocation (CPI) using the `invoke_signed` function. We use `invoke_signed` because we are creating the account using a PDA and need the Movie Review program to “sign” the instruction.
 
@@ -408,7 +408,7 @@ invoke_signed(
 msg!("PDA created: {}", pda);
 ```
 
-### Update Account Data
+### 10. Update Account Data
 
 Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We will first check the `is_initalized` field using the `is_initialized` function from `state.rs`. If the check returns false, then we assign each parameter specified in the `MovieAccountState` struct using the arguments passed into the `add_movie_review` function and set `is_initialized` to true.
 
@@ -429,7 +429,7 @@ account_data.description = description;
 account_data.is_initialized = true;
 ```
 
-### Serialize Account Data
+### 11. Serialize Account Data
 
 Lastly, we serialize the updated `account_data` into the data field of our `pda_account`.
 
@@ -550,7 +550,7 @@ pub fn add_movie_review(
 }
 ```
 
-### Build and Deploy
+### 12. Build and Deploy
 
 Our Movie Review program is finally complete. We are now ready to build and deploy our program!
 
