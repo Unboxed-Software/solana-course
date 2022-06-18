@@ -358,7 +358,7 @@ let system_program = next_account_info(account_info_iter)?;
 
 ### 7. Verify PDA
 
-Next, within our `add_movie_review` function let’s independently derive the PDA we expect the user to have passed in. Since `pda_account` is just a variable name we’ve assigned to the second account passed in through the `accounts` argument, the user could have provided a different address than the one we expect. This step verifies that the the address we expect matches the address provided by the user.
+Next, within our `add_movie_review` function, let’s independently derive the PDA we expect the user to have passed in. Since `pda_account` is just a variable name we’ve assigned to the second account passed in through the `accounts` argument, the user could have provided a different address than the one we expect. This step verifies that the the address we expect matches the address provided by the user.
 
 Note that we derive the PDA for each new account using the initializer’s publickey and the movie title as optional seeds. Setting up the PDA this way restrict each user to only one review for any one movie title. However, it still allows the same user to review with movies with different titles and different users to review movies with the same title.
 
