@@ -52,7 +52,7 @@ The path to `AccountInfo` would be `solana_program::account_info::AccountInfo`.
 
 Absent of any other keywords, we would need to reference this entire path to use `AccountInfo` in our code.
 
-However, with the [`use`](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) we can bring an item into scope so that it can be reused throughout a file without specifying the full path each time. It's common to see a series of `use` commands at the top of a Rust file.
+However, with the [`use`](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) keyword we can bring an item into scope so that it can be reused throughout a file without specifying the full path each time. It's common to see a series of `use` commands at the top of a Rust file.
 
 ```rust
 use solana_program::account_info::AccountInfo
