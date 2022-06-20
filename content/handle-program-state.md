@@ -1,4 +1,4 @@
-# Create a Basic Program: Part 2
+# Create a Basic Program, Part 2 - Handle Program State
 
 # Lesson Objectives
 
