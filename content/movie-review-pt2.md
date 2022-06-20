@@ -98,7 +98,7 @@ let rent_lamports = rent.minimum_balance(account_len);
 
 Before creating an account, we also need to have an address to assign the account. For program owned accounts, this will be a program derived address (PDA) found using the `find_program_address` function. As the name implies, PDAs are derived using the program Id (address of the program creating the account) and an optional list of “seeds”. Optional seeds are additional inputs used in the `find_program_address` function to derive the PDA. Providing additional seeds allows us to create an arbitrary number of PDA accounts and a deterministic way to find each account.
 
-In addition to the seeds you provide for deriving a PDA, the `find_program_adress` function will provide one additional "bump seed." What makes PDAs unique from other Solana account addresses is that they do not have a corresponding secret key. This ensures that only the program that owns the address can sign on behalf of the PDA. When the `find_program_addres` function attempts to derive a PDA using the provided seeds, it passes in the number 255 as the "bump seed." If the resulting address is invalid (i.e. has a corresponding secret key), then the function decreases the bump seed by 1 and derives a new PDA with that bump seed. Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
+In addition to the seeds you provide for deriving a PDA, the `find_program_address` function will provide one additional "bump seed." What makes PDAs unique from other Solana account addresses is that they do not have a corresponding secret key. This ensures that only the program that owns the address can sign on behalf of the PDA. When the `find_program_address` function attempts to derive a PDA using the provided seeds, it passes in the number 255 as the "bump seed." If the resulting address is invalid (i.e. has a corresponding secret key), then the function decreases the bump seed by 1 and derives a new PDA with that bump seed. Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
 For our note-taking program, we will use the note creator's public key and the ID as the optional seeds to derive the PDA. Deriving the PDA this way allows us to deterministically find the account for each note.
 
@@ -227,13 +227,13 @@ This overview covered a lot of new concepts. Let’s practice them together by c
 
 As a refresher, we are building a Solana program which lets users review movies. Last lesson, we deserialized the instruction data passed in by the user but we have not yet store this data in an account. Let’s now update our program to create new accounts to store the user’s movie review.
 
-### Get the starter code
+### 1. Get the starter code
 
 If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can reference the starter code [here](https://beta.solpg.io/6295b25b0e6ab1eb92d947f7).
 
 Our program currently includes the `instruction.rs` file we use to deserialize the `instruction_data` passed into the program entry point. We have also completed `lib.rs` file to the point where we can print our deserialized instruction data to the program log using the `msg!` macro.
 
-### Create `state.rs` file
+### 2. Create `state.rs` file
 
 Let’s begin by creating a new file named `state.rs`.
 
@@ -251,7 +251,7 @@ use solana_program::{
 };
 ```
 
-### Create Struct
+### 3. Create Struct
 
 Next, let’s create our `MovieAccountState` struct. This struct will define the parameters that each new movie review account will store in its data field. Our `MovieAccountState` struct will require the following parameters:
 
@@ -270,16 +270,16 @@ pub struct MovieAccountState {
 }
 ```
 
-### Implement Struct Functionality
+### 4. Implement Struct Functionality
 
-Lastly, lets implement some additional functionality for our `MovieAccountState` struct using the `impl` keyword.
+Lastly, let's implement some additional functionality for our `MovieAccountState` struct using the `impl` keyword.
 
 1. `Sealed` is Solana's version of Rust's `Sized` trait. This simply specifies that `MovieAccountState` has a known size.
 2. `IsInitialized` checks the `is_initialized` field of our `MovieAccountState` struct.
 
-For our movie reviews, we want the ability to check whether an account has already been initialized. To do this, we create an `is_initilized` function that checks the `is_initialized` field on the `MovieAccountState` struct. This prevents duplicate reviews of the same movie by the same user.
+For our movie reviews, we want the ability to check whether an account has already been initialized. To do this, we create an `is_initialized` function that checks the `is_initialized` field on the `MovieAccountState` struct. This prevents duplicate reviews of the same movie by the same user.
 
-Note that `fn in_initialized` is the function we call and takes in `self` as a parameter (which is the `MovieAccountState` struct), and `self.is_initilized` is referring to the `is_initilized` field on the `MovieAccountState` struct.
+Note that `fn in_initialized` is the function we call and takes in `self` as a parameter (which is the `MovieAccountState` struct), and `self.is_initialized` is referring to the `is_initialized` field on the `MovieAccountState` struct.
 
 ```rust
 impl Sealed for MovieAccountState {}
@@ -316,7 +316,7 @@ impl IsInitialized for MovieAccountState {
 }
 ```
 
-### Update `lib.rs`
+### 5. Update `lib.rs`
 
 Next, let’s update our `lib.rs` file. First, we’ll bring into scope everything we will need to complete our Movie Review program. You can read more about the details each item we are using from the `solana_program` crate [here](https://docs.rs/solana-program/latest/solana_program/).
 
@@ -342,7 +342,7 @@ use state::MovieAccountState;
 use borsh::BorshSerialize;
 ```
 
-### Iterate through `accounts`
+### 6. Iterate through `accounts`
 
 Next, let’s continue building out our `add_movie_review` function. Recall that an array of accounts is passed into the `add_movie_review` function through a single `accounts` argument. To process our instruction, we will need to iterate through `accounts` and assign the `AccountInfo` for each account to its own variable.
 
@@ -356,11 +356,11 @@ let pda_account = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-### Verify PDA
+### 7. Verify PDA
 
-Next, within our `add_movie_review` function let’s independently derive the PDA we expect the user to have passed in. Since `pda_account` is just a variable name we’ve assigned to the second account passed in through the `accounts` argument, the user could have provided a different address than the one we expect. This step verifies that the the address we expect matches the address provided by the user.
+Next, within our `add_movie_review` function, let’s independently derive the PDA we expect the user to have passed in. Since `pda_account` is just a variable name we’ve assigned to the second account passed in through the `accounts` argument, the user could have provided a different address than the one we expect. This step verifies that the the address we expect matches the address provided by the user.
 
-Note that we derive the PDA for each new account using the initializer’s publickey and the movie title as optional seeds. Setting up the PDA this way restrict each user to only one review for any one movie title. However, it still allows the same user to review with movies with different titles and different users to review movies with the same title.
+Note that we derive the PDA for each new account using the initializer’s public key and the movie title as optional seeds. Setting up the PDA this way restricts each user to only one review for any one movie title. However, it still allows the same user to review movies with different titles and different users to review movies with the same title.
 
 ```rust
 // Derive PDA and check that it matches client
@@ -372,7 +372,7 @@ if pda != *pda_account.key {
 }
 ```
 
-### Calculate Space and Rent
+### 8. Calculate Space and Rent
 
 Next, let’s calculate the rent that our new account will need. Recall that rent is the amount of lamports a user must allocate to an account for storing data on the Solana network. To calculate rent, we must first calculate the amount of space our new account requires.
 
@@ -387,7 +387,7 @@ let rent = Rent::get()?;
 let rent_lamports = rent.minimum_balance(account_len);
 ```
 
-### Create New Account
+### 9. Create New Account
 
 Once we’ve calculated the rent and verified the PDA, we are ready to create our new account. In order to create a new account, we must call the `create_account` instruction from the system program. We do this with a Cross Program Invocation (CPI) using the `invoke_signed` function. We use `invoke_signed` because we are creating the account using a PDA and need the Movie Review program to “sign” the instruction.
 
@@ -408,9 +408,9 @@ invoke_signed(
 msg!("PDA created: {}", pda);
 ```
 
-### Update Account Data
+### 10. Update Account Data
 
-Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We will first check the `is_initalized` field using the `is_initialized` function from `state.rs`. If the check returns false, then we assign each parameter specified in the `MovieAccountState` struct using the arguments passed into the `add_movie_review` function and set `is_initialized` to true.
+Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We will first check the `is_initialized` field using the `is_initialized` function from `state.rs`. If the check returns false, then we assign each parameter specified in the `MovieAccountState` struct using the arguments passed into the `add_movie_review` function and set `is_initialized` to true.
 
 ```rust
 msg!("unpacking state account");
@@ -429,7 +429,7 @@ account_data.description = description;
 account_data.is_initialized = true;
 ```
 
-### Serialize Account Data
+### 11. Serialize Account Data
 
 Lastly, we serialize the updated `account_data` into the data field of our `pda_account`.
 
@@ -465,92 +465,92 @@ use borsh::BorshSerialize;
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  instruction_data: &[u8]
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
 ) -> ProgramResult {
-  let instruction = MovieInstruction::unpack(instruction_data)?;
-  match instruction {
-    MovieInstruction::AddMovieReview { title, rating, description } => {
-      add_movie_review(program_id, accounts, title, rating, description)
+    let instruction = MovieInstruction::unpack(instruction_data)?;
+    match instruction {
+        MovieInstruction::AddMovieReview { title, rating, description } => {
+            add_movie_review(program_id, accounts, title, rating, description)
+        }
     }
-  }
 }
 
 pub fn add_movie_review(
-  program_id: &Pubkey,
-  accounts: &[AccountInfo],
-  title: String,
-  rating: u8,
-  description: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
 ) -> ProgramResult {
-  msg!("Adding movie review...");
-  msg!("Title: {}", title);
-  msg!("Rating: {}", rating);
-  msg!("Description: {}", description);
+    msg!("Adding movie review...");
+    msg!("Title: {}", title);
+    msg!("Rating: {}", rating);
+    msg!("Description: {}", description);
 
-  // Get Account iterator
-  let account_info_iter = &mut accounts.iter();
+    // Get Account iterator
+    let account_info_iter = &mut accounts.iter();
 
-  // Get accounts
-  let initializer = next_account_info(account_info_iter)?;
-  let pda_account = next_account_info(account_info_iter)?;
-  let system_program = next_account_info(account_info_iter)?;
+    // Get accounts
+    let initializer = next_account_info(account_info_iter)?;
+    let pda_account = next_account_info(account_info_iter)?;
+    let system_program = next_account_info(account_info_iter)?;
 
-  // Derive PDA and check that it matches client
-  let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
+    // Derive PDA and check that it matches client
+    let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
 
-  if pda != *pda_account.key {
-    msg!("Invalid seeds for PDA");
-    return Err(ProgramError::InvalidArgument)
-  }
+    if pda != *pda_account.key {
+        msg!("Invalid seeds for PDA");
+        return Err(ProgramError::InvalidArgument)
+    }
 
-  // Calculate account size required
-  let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
+    // Calculate account size required
+    let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 
-  // Calculate rent required
-  let rent = Rent::get()?;
-  let rent_lamports = rent.minimum_balance(account_len);
+    // Calculate rent required
+    let rent = Rent::get()?;
+    let rent_lamports = rent.minimum_balance(account_len);
 
-  // Create the account
-  invoke_signed(
-    &system_instruction::create_account(
-      initializer.key,
-      pda_account.key,
-      rent_lamports,
-      account_len.try_into().unwrap(),
-      program_id,
-    ),
-    &[initializer.clone(), pda_account.clone(), system_program.clone()],
-    &[&[initializer.key.as_ref(), title.as_bytes().as_ref(), &[bump_seed]]],
-  )?;
+    // Create the account
+    invoke_signed(
+        &system_instruction::create_account(
+            initializer.key,
+            pda_account.key,
+            rent_lamports,
+            account_len.try_into().unwrap(),
+            program_id,
+        ),
+        &[initializer.clone(), pda_account.clone(), system_program.clone()],
+        &[&[initializer.key.as_ref(), title.as_bytes().as_ref(), &[bump_seed]]],
+    )?;
 
-  msg!("PDA created: {}", pda);
+    msg!("PDA created: {}", pda);
 
-  msg!("unpacking state account");
-  let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
-  msg!("borrowed account data");
+    msg!("unpacking state account");
+    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
+    msg!("borrowed account data");
 
-  msg!("checking if movie account is already initialized");
-  if account_data.is_initialized() {
-      msg!("Account already initialized");
-      return Err(ProgramError::AccountAlreadyInitialized);
-  }
+    msg!("checking if movie account is already initialized");
+    if account_data.is_initialized() {
+        msg!("Account already initialized");
+        return Err(ProgramError::AccountAlreadyInitialized);
+    }
 
-  account_data.title = title;
-  account_data.rating = rating;
-  account_data.description = description;
-  account_data.is_initialized = true;
+    account_data.title = title;
+    account_data.rating = rating;
+    account_data.description = description;
+    account_data.is_initialized = true;
 
-  msg!("serializing account");
-  account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
-  msg!("state account serialized");
+    msg!("serializing account");
+    account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
+    msg!("state account serialized");
 
-  Ok(())
+    Ok(())
 }
 ```
 
-### Build and Deploy
+### 12. Build and Deploy
 
 Our Movie Review program is finally complete. We are now ready to build and deploy our program! If you need more time with this project to feel comfortable with these concepts, have a look at the [solution](https://beta.solpg.io/62ad36a2b5e36a8f6716d45d) code before continuing.
 
