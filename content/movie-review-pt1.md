@@ -1,4 +1,4 @@
-# Create a Basic Program: Part 1 - Handling Instruction Data
+# Create a Basic Program: Part 1 - Handle Instruction Data
 
 # Lesson Objectives
 
