@@ -18,7 +18,7 @@
 
 Solana's ability to run arbitrary executable code is part of what makes it so powerful. Solana programs, similar to "smart contracts" in other blockchain environments, are quite literally the backbone of the Solana ecosystem. And the collection of programs grows daily as developers and creators dream up and deploy new programs.
 
-This lesson will give you a basic introduction to writing a deploying a Solana program using the Rust programming language. To avoid the distraction of setting up a local development environment, we'll be using a browser-based IDE called Solana Playground.
+This lesson will give you a basic introduction to writing and deploying a Solana program using the Rust programming language. To avoid the distraction of setting up a local development environment, we'll be using a browser-based IDE called Solana Playground.
 
 ## Rust Basics
 
@@ -30,23 +30,29 @@ Rust organizes code using what is collectively referred to as the “module syst
 
 This includes:
 
-- **Packages** - A Cargo feature that lets you build, test, and share crates
-- **Crates** - A tree of modules that produces a library or executable
-- **Modules** and **use** - Let you control the organization, scope, and privacy of paths
-- **Paths** - A way of naming an item, such as a struct, function, or module
+- **Modules** - A module separates code into logical units to provide isolated namespaces for organization, scope, and privacy of paths
+- **Crates** - A crate is either a library or an executable program. The source code for a crate is usually subdivided into multiple modules.
+- **Packages** - A package contains a collection of crates as well as a manifest file for specifying metadata and dependencies between packages
 
-For this lesson, we’ll focus on using crates, modules, and paths.
+Throughout this lesson, we’ll focus on using crates and modules.
 
-### Pathways and scope
+### Paths and scope
 
-Crates in Rust contain modules that define functionality which can be shared with multiple projects. If we want to access an item within a module, then we need to know the path (like when we're navigating a filesystem).
+Crates in Rust contain modules that define functionality which can be shared with multiple projects. If we want to access an item within a module, then we need to know its "path" (like when we're navigating a filesystem).
 
-To use a module available within a crate, we'll need to:
+Think of the crate structure as a tree where the crate is the base and modules are branches, each of which can have submodules or items that are additional branches.
 
-1. Bring the module into the scope of our program
-2. Specify the item in the module tree using its path
+The path to a particular module or item is the name of each step from the crate to that module where each is separated by `::`. As an example, let's look at the following structure:
 
-Paths are brought into scope with the [use](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) keyword. In the example below, we bring into scope the `AccountInfo` struct from the `account_info` module within the `solana_program` crate. Bringing an item into scope this way allows us to use the item multiple times within our program without specifying the full path each time.
+1. The base crate is `solana_program`
+2. `solana_program` contains a module named `account_info`
+3. `account_info` contains a struct named `AccountInfo`
+   
+The path to `AccountInfo` would be `solana_program::account_info::AccountInfo`. 
+
+Absent of any other keywords, we would need to reference this entire path to use `AccountInfo` in our code.
+
+However, with the [`use`](https://doc.rust-lang.org/stable/book/ch07-04-bringing-paths-into-scope-with-the-use-keyword.html) we can bring an item into scope so that it can be reused throughout a file without specifying the full path each time. It's common to see a series of `use` commands at the top of a Rust file.
 
 ```rust
 use solana_program::account_info::AccountInfo
@@ -96,6 +102,24 @@ fn process_instruction(
 ) -> ProgramResult
 ```
 
+### Result enum
+
+`Result` is a standard library type that represents two discrete outcomes: success (`Ok`) or failure (`Err`). We'll talk more about enums in a future lesson, but you'll see `Ok` used later in this lesson so it's important to cover the basics.
+
+When you use `Ok` or `Err`, you must include a value, the type of which is determined by the context of the code. For example, a function that requires a return value of type `Result<String, i64>` is saying that the function can either return `Ok` with an embedded string value or `Err` with an embedded integer. In this example, the integer is an error code that can be used to appropriately handle the error.
+
+To return a success case with a string value, you would do the following:
+
+```rust
+Ok(String::from("Success!"));
+```
+
+To return an error with an integer, you would do the following:
+
+```rust
+Err(404);
+```
+
 ## Solana Programs
 
 Recall that all data stored on the Solana network are contained in what are referred to as accounts. Each account has its own unique address which is used to identify and access the account data. Solana programs are just a particular type of Solana account that store and execute instructions.
@@ -120,9 +144,9 @@ use solana_program::{
 - `entrypoint` - a macro that declares the entry point of the program
 - `ProgramResult` - a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
 - `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
-- `msg` - a macro allows us to print messages to the program log
+- `msg` - a macro that allows us to print messages to the program log
 
-### Entry Point
+### Solana Program Entry Point
 
 Solana programs require a single entry point to process program instructions. The entry point is declared using the `entrypoint!` macro.
 
@@ -145,6 +169,8 @@ fn process_instruction(
 Recall that Solana program accounts only store the logic to process instructions. This means program accounts are "read-only" and “stateless”. The “state” (the set of data) that a program requires in order to process an instruction is stored in data accounts (separate from the program account).
 
 In order to process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
+
+Following program execution, the program must return a value of type `ProgramResult`. This type is a `Result` where the embedded value of a success case is `()` and the embedded value of a failure case is `ProgramError`. `()` is effectively an empty value and `ProgramError` is an error type defined in the `solana_program` crate.
 
 ...and there you have it - you now know all the things you need for the foundations of creating a Solana program using Rust. Let’s practice what we’ve learned so far!
 
@@ -217,7 +243,7 @@ Now let's build and deploy our program using Solana Playground.
 ![Gif Solana Playground Build and Deploy](../assets/hello-world-build-deploy.gif)
 
 ### 5. Invoke Program
-Finally, let's invoke our program from the client side. Download the code [here](https://github.com/ZYJLiu/solana-hello-world-client).
+Finally, let's invoke our program from the client side. Download the code [here](https://github.com/Unboxed-Software/solana-hello-world-client).
 
 The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
 
