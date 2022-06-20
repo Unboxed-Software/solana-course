@@ -564,4 +564,5 @@ If you use the frontend, simply replace the `MOVIE_REVIEW_PROGRAM_ID` in both th
 
 Now it’s your turn to build something independently. Equipped with the concepts intoduced in this lesson, you now know everything you'll need to recreate the Student Intro program from Module 1.
 
-Once you've finished writing the program, you can then build and deploy your program the same way we did in the demo above. You can then test your program using the same [frontend code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data) from the challenge section of the [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). Remember to replace the program ID in the frontend with the one you've deployed!
+Once you've finished writing the program, you can then build and deploy your program the same way we did in the demo above. You can then test your program using the same [frontend code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data) from the challenge section of the [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). Remember to replace the program ID in the frontend with the one you've deployed! If you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b0cb61f6273245aca4f5af). 
+
