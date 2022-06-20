@@ -72,15 +72,15 @@ Rust is known as a ”statically typed” language and every value in Rust is 
 
 In the example below, we create a function named `process_instruction` that requires the following arguments:
 
-- `program_id` - required to be type `Pubkey`
-- `accounts` - required to be type `AccountInfo`
-- `instruction_data` - required to be type `u8`
+- `program_id` - required to be type `&Pubkey`
+- `accounts` - required to be type `&[AccountInfo]`
+- `instruction_data` - required to be type `&[u8]`
 
-Note the `&` in front of the type for each argument listed in the `process_instruction` function. In Rust, an `&` represent a ”reference” to another variable that allows you to refer to some value without taking ownership of it. The “reference” is guaranteed to point to a valid value of a particular type. The action of creating a reference in Rust is called “borrowing”.
+Note the `&` in front of the type for each argument listed in the `process_instruction` function. In Rust, `&` represents a ”reference” to another variable. This allows you to refer to some value without taking ownership of it. The “reference” is guaranteed to point to a valid value of a particular type. The action of creating a reference in Rust is called “borrowing”.
 
 In this example, when the `process_instruction` function is called, a user must pass in values for the required arguments. The `process_instruction` function then references the values passed in by the user, and guarantees that each value is the correct data type specified in the `process_instruction` function.
 
-Additionally, note the brackets `[]` around `&[AccountInfo]` and `&[u8]`. This means that the `accounts` and `instruction_data` arguments expect “slices” of types `AccountInfo` and `u8`. A “slice” is similar to an array (collection of objects of the same type), except the length is not known at compile time. In other words, the `accounts` and `instruction_data` arguments expect inputs of unknown length.
+Additionally, note the brackets `[]` around `&[AccountInfo]` and `&[u8]`. This means that the `accounts` and `instruction_data` arguments expect “slices” of types `AccountInfo` and `u8`, respectively. A “slice” is similar to an array (collection of objects of the same type), except the length is not known at compile time. In other words, the `accounts` and `instruction_data` arguments expect inputs of unknown length.
 
 ```rust
 fn process_instruction(
