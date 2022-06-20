@@ -79,7 +79,7 @@ Recall that storing data on the Solana network requires users to allocate rent i
 
 Note that rent is more like a deposit. All the lamports allocated for rent can be fully refunded when an account is closed. Additionally, all new accounts are now required to be [rent-exempt](https://twitter.com/jacobvcreech/status/1524790032938287105) (this means lamports are not deducted from the account over time). An account is considered rent-exempt if it holds at least 2 years worth of rent. In other words, accounts are stored on-chain permanently until the owner closes the account and withdraws the rent.
 
-In our Notes app example, the `NoteState` struct specifies three fields that need to be stored in an account: `title`, `body`, and `id`. To calculate the size the account needs to be, you would simply add up the size required to store the data in each field. 
+In our Notes app example, the `NoteState` struct specifies three fields that need to be stored in an account: `title`, `body`, and `id`. To calculate the size the account needs to be, you would simply add up the size required to store the data in each field.
 
 For dynamic data, like strings, Borsh adds an additional 4 bytes at the beginning to store the length of that particular field. That means `title` and `body` are each 4 bytes plus their respective sizes. The `id` field is a 64-bit integer, or 8 bytes.
 
@@ -154,7 +154,7 @@ Once we've created a new account, we need to access and update the account's dat
 
 ### Deserialize Account Data
 
-The first step to updating an account's data is to deserialize its `data` byte array into its Rust type. You can do this by first borrowing the data field on the account. This allows you to access the data without taking ownership. 
+The first step to updating an account's data is to deserialize its `data` byte array into its Rust type. You can do this by first borrowing the data field on the account. This allows you to access the data without taking ownership.
 
 You can then use the `try_from_slice_unchecked` function to deserializes the data field of the borrowed account, using the format of the type you created to represent the data. This gives you an instance of your Rust type so you can easily update fields using dot notation. If we were to do this with the Notes app example we've been using, it would look like this:
 
@@ -165,7 +165,7 @@ msg!("borrowed account data");
 
 account_data.title = title;
 account_data.body = rating;
-account_data.id = id; 
+account_data.id = id;
 ```
 
 ### Serialize Account Data
@@ -207,7 +207,7 @@ let second_item = v1_iter.next();
 
 Recall that the `AccountInfo` for all accounts required by an instruction are passing through a single `accounts` argument. In order to parse through the accounts and use them within our instruction, we will need to create an iterator with a mutable reference to the `accounts` argument and assign the `AccountInfo` for each account its own variable. We will do this using the `next_account_info` function from the `account_info` module provided by the `solana_program` crate.
 
-For example, the instruction to create a new note in a note-taking program would at minimum require the accounts for the user creating the note, a PDA to store the note, and the `system_program` to initialize a new account. All three accounts would be passed into the program entry point through the `accounts` argument. An iterator of `accounts` is then used to separate out the `AccountInfo` associated with each account to process the instruction.  
+For example, the instruction to create a new note in a note-taking program would at minimum require the accounts for the user creating the note, a PDA to store the note, and the `system_program` to initialize a new account. All three accounts would be passed into the program entry point through the `accounts` argument. An iterator of `accounts` is then used to separate out the `AccountInfo` associated with each account to process the instruction.
 
 Note that `&mut` means a mutable reference to the `accounts` argument. You can read more about references in Rust [here](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and the `mut` keyword [here](https://doc.rust-lang.org/std/keyword.mut.html).
 
@@ -552,12 +552,16 @@ pub fn add_movie_review(
 
 ### Build and Deploy
 
-Our Movie Review program is finally complete. We are now ready to build and deploy our program!
+Our Movie Review program is finally complete. We are now ready to build and deploy our program! If you need more time with this project to feel comfortable with these concepts, have a look at the [solution](https://beta.solpg.io/62ad36a2b5e36a8f6716d45d) code before continuing.
 
 ![Gif Build and Deploy Program](../assets/movie-review-pt2-build-deploy.gif)
 
-You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
+You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account-data) we built in the [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
 
 If you use the frontend, simply replace the `MOVIE_REVIEW_PROGRAM_ID` in both the `MovieList.tsx` and `Form.tsx` components with the address of the program you’ve deployed. Then run the frontend, submit a view, and refresh the browser to see the review.
 
 # Challenge
+
+Now it’s your turn to build something independently. Equipped with the concepts intoduced in this lesson, you now know everything you'll need to recreate the Student Intro program from Module 1.
+
+Once you've finished writing the program, you can then build and deploy your program the same way we did in the demo above. You can then test your program using the same [frontend code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data) from the challenge section of the [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). Remember to replace the program ID in the frontend with the one you've deployed!
