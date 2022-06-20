@@ -1,4 +1,4 @@
-# Create a Basic Program: Part 1
+# Create a Basic Program: Part 1 - Handling Instruction Data
 
 # Lesson Objectives
 
@@ -18,9 +18,9 @@
 
 # Overview
 
-One of the most basic elements of a Solana program is the logic for handling instruction data. Most programs support multiple related functions and use differences in instruction data to determine which code path to execute. For example, instruction data may indicate that a client wishes to create a new piece of data or delete an existing piece of data.
+One of the most basic elements of a Solana program is the logic for handling instruction data. Most programs support multiple related functions and use differences in instruction data to determine which code path to execute. For example, two different data formats in the instruction data passed to the program may represent instructions for creating a new piece of data vs deleting the same piece of data.
 
-Since instruction data is provided to your program's entry point as a byte array, it's common to create a Rust data type to represent instructions in a more usable format. This lesson will walk through how to set up such a type, how to deserialize the instruction data into this format, and how to execute the proper code path based on the instruction passed into the program's entry point.
+Since instruction data is provided to your program's entry point as a byte array, it's common to create a Rust data type to represent instructions in a way that's more usable throughout your code. This lesson will walk through how to set up such a type, how to deserialize the instruction data into this format, and how to execute the proper code path based on the instruction passed into the program's entry point.
 
 ## Rust basics
 
@@ -34,7 +34,7 @@ Variable assignment in Rust happens with the `let` keyword.
 let age = 33;
 ```
 
-Variables in Rust by default are immutable, meaning a variable's value cannot be changed once it has been set. In order to create a variable that we'd like to change at some point in the future, we must make use of the `mut` keyword, which stands for mutable. Defining a variable with this keyword means that the value stored in it can change.
+Variables in Rust by default are immutable, meaning a variable's value cannot be changed once it has been set. In order to create a variable that we'd like to change at some point in the future, we use the `mut` keyword. Defining a variable with this keyword means that the value stored in it can change.
 
 ```rust
 // compiler will throw error
@@ -46,7 +46,7 @@ let mut mutable_age = 33;
 mutable_age = 34;
 ```
 
-The Rust compiler guarantees that when you state a value won’t change, it really won’t change, so you don’t have to keep track of it yourself. This makes your code easier to reason through.
+The Rust compiler guarantees that immutable variables truly cannot change so that you don’t have to keep track of it yourself. This makes your code easier to reason through and simplifies debugging.
 
 ### Structs
 
@@ -164,7 +164,7 @@ example.answer();
 
 ### Traits and attributes
 
-You won't be creating your own traits or attributes at this stage, so we won't go into details about either. However, you will be using the `derive` attribute macro and some traits provided by the `borsh` crate, so it's important you have a high level understanding of each.
+You won't be creating your own traits or attributes at this stage, so we won't provide an in depth explanation of either. However, you will be using the `derive` attribute macro and some traits provided by the `borsh` crate, so it's important you have a high level understanding of each.
 
 Traits describe an abstract interface that types can implement. If a trait defines a function `bark()` and a type then adopts that trait, the type must then implement the `bark()` function.
 
@@ -176,7 +176,7 @@ When you add the [`derive` attribute](https://doc.rust-lang.org/rust-by-example/
 
 Now that we've covered the Rust basics, let's apply them to Solana programs.
 
-More often than not, programs will have more than one function. For example, you may have a program that acts as the backend for notes. Assume this program accepts instructions for creating a new note, updating an existing note, and deleting an existing note. 
+More often than not, programs will have more than one function. For example, you may have a program that acts as the backend for a note-taking app. Assume this program accepts instructions for creating a new note, updating an existing note, and deleting an existing note. 
 
 Since instructions have discrete types, they're usually a great fit for an enum data type.
 
@@ -221,7 +221,7 @@ struct NoteInstructionPayload {
 
 Once this struct has been created, you can create an implementation for your instruction enum to handle the logic associated with deserializing instruction data. It's common to see this done inside a function called `unpack` that accepts the instruction data as an argument and returns the appropriate instance of the enum with the deserialized data.
 
-It's standard practice to structure your program to expect the first byte (or x number of bytes) to be an identifier for which instruction the program should run. This could be an integer or a string identifier. For this example, we'll use the first byte and map integers 0, 1, and 2 to instructions create, update, and delete, respectively.
+It's standard practice to structure your program to expect the first byte (or other fixed number of bytes) to be an identifier for which instruction the program should run. This could be an integer or a string identifier. For this example, we'll use the first byte and map integers 0, 1, and 2 to instructions create, update, and delete, respectively.
 
 ```rust
 impl NoteInstruction {
@@ -255,7 +255,11 @@ impl NoteInstruction {
 }
 ```
 
-This function starts by using the `split_first` function on the `input` parameter to return a tuple where the first element, `variant`, is the first byte from the byte array and the second element, `rest`, is the rest of the byte array. It then uses the `try_from_slice` method on `NoteInstructionPayload` to deserialize the rest of the byte array into an instance of `NoteInstructionPayload`. Finally, it uses a `match` statement on `variant` to create and return the appropriate enum instance.
+There's a lot in this example so let's take it one step at a time:
+
+1. This function starts by using the `split_first` function on the `input` parameter to return a tuple. The first element, `variant`, is the first byte from the byte array and the second element, `rest`, is the rest of the byte array. 
+2. The function then uses the `try_from_slice` method on `NoteInstructionPayload` to deserialize the rest of the byte array into an instance of `NoteInstructionPayload` called `payload`
+3. Finally, the function uses a `match` statement on `variant` to create and return the appropriate enum instance using information from `payload`
 
 Note that there is Rust syntax in this function that we haven't explained yet. The `ok_or` and `unwrap` functions are used for error handling and will be discussed in detail in another lesson.
 
@@ -292,7 +296,7 @@ For simple programs where there are only one or two instructions to execute, it 
 
 ## Program file structure
 
-The [Hello World lesson’s](hello-world-program.md) program was simple enough that it could be confined to one file. But as the complexity of a program grows, it's important to maintain a project structure that remains readable and extensible. This involves encapsulating code into functions, data structures, and functions as we've shown so far. But it also involves grouping related code into separate files.
+The [Hello World lesson’s](hello-world-program.md) program was simple enough that it could be confined to one file. But as the complexity of a program grows, it's important to maintain a project structure that remains readable and extensible. This involves encapsulating code into functions and data structures as we've done so far. But it also involves grouping related code into separate files.
 
 For example, a good portion of the code we've worked through so far has to do with defining and deserializing instructions. That code should live in its own file rather than be written in the same file as the entry point. By doing so, we would then have 2 files, one with the program entry point and the other with the instruction code:
 
@@ -314,11 +318,13 @@ pub enum NoteInstruction { ... }
 
 ## Demo
 
-For this lesson’s demo, we’ll be building out the first half of the Movie Review program with a focus on deserializing the instruction data. The following lesson will focus on the second half of this program.
+For this lesson’s demo, we’ll be building out the first half of the Movie Review program that we worked with in Module 1. This program stores movie reviews submitted by users.
+
+For now, we'll focus on deserializing the instruction data. The following lesson will focus on the second half of this program.
 
 ### 1. Entry point
 
-We’ll be using [Solana Playground](https://beta.solpg.io/) again to build out this program. Solana Playground saves state in your browser, so everything you did in the previous lesson should still be there. To get started, let's clear everything out from the current `lib.rs` file.
+We’ll be using [Solana Playground](https://beta.solpg.io/) again to build out this program. Solana Playground saves state in your browser, so everything you did in the previous lesson may still be there. If it is, let's clear everything out from the current `lib.rs` file.
 
 Inside lib.rs, we’re going to bring in the following crates and define where we’d like our entry point to the program to be with the `entrypoint` macro.
 
@@ -376,6 +382,7 @@ struct MovieReviewPayload {
 ```
 
 Finally, create an implementation for the `MovieInstruction` enum that defines and implements a function called `unpack` that takes a byte array as an argument and returns a `Result` type. This function should:
+
 1. Use the `split_first` function to split the first byte of the array from the rest of the array
 2. Deserialize the rest of the array into an instance of `MovieReviewPayload`
 3. Use a `match` statement to return the `AddMovieReview` variant of `MovieInstruction` if the first byte of the array was a 0 or return a program error otherwise
@@ -454,7 +461,9 @@ pub fn process_instruction(
 }
 ```
 
-And just like that, your program should be functional enough to log the instruction data passed in when a transaction is submitted! Now, you can build and deploy your program from Solana Program just like in the last lesson. If you haven't changed the program ID since going through the last lesson, it will automatically deploy to the same ID. If you'd like to you can generate a new program ID from the playground before deploying so that it's at a separate address.
+And just like that, your program should be functional enough to log the instruction data passed in when a transaction is submitted! 
+
+Build and deploy your program from Solana Program just like in the last lesson. If you haven't changed the program ID since going through the last lesson, it will automatically deploy to the same ID. If you'd like it to have a separate address you can generate a new program ID from the playground before deploying.
 
 You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md). In both cases, make sure you copy and past the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
 
@@ -462,4 +471,10 @@ If you need to spend some more time with this demo before moving on, please do! 
 
 # Challenge
 
-For this lessons challenge, try writing your own script to interact with the program you’ve just deployed!
+For this lesson's challenge, try replicating the Student Intro program from Module 1. Recall that we created a frontend application that lets students introduce themselves! The program takes a user's name and a short message as the `instruction_data` and creates an account to store the data on-chain.
+
+Using what you've learned in this lesson, build the Student Intro program to the point where you can print the `name` and `message` provided by the user to the program logs when the program is invoked.
+
+You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) we created in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md) and then checking the program logs on Solana Explorer. Remember to replace the program ID in the frontend code with the one you've deployed. 
+
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b0ce53f6273245aca4f5b0).
