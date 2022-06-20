@@ -465,7 +465,7 @@ And just like that, your program should be functional enough to log the instruct
 
 Build and deploy your program from Solana Program just like in the last lesson. If you haven't changed the program ID since going through the last lesson, it will automatically deploy to the same ID. If you'd like it to have a separate address you can generate a new program ID from the playground before deploying.
 
-You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md). In both cases, make sure you copy and past the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
+You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
 
 If you need to spend some more time with this demo before moving on, please do! You can also have a look at the program [solution code](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) if you get stuck.
 
