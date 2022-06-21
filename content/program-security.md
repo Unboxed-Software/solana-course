@@ -1,4 +1,4 @@
-# Movie Review Program Pt3
+# Create a Basic Program, Part 3 - Basic Security and Validation
 
 ### List links for further reading here:
 
@@ -52,6 +52,12 @@ The simplest way to avoid this problem is to always check tha the owner of an ac
 
 ### Signer checks
 
+
+## Data Validation
+
+// Make sure rating <= 5 and > 0
+// Anything with strings?
+
 ## Error
 
 The error.rs file is strictly for defining any custom errors that we’d like to create for our program. The `solana_program` crate does offer a [ProgramError](https://docs.rs/solana-program/1.7.8/solana_program/program_error/enum.ProgramError.html) enum with a handful of different generic errors that we can use, but sometimes it’s helpful to create your own to provide more context about the error when debugging. Custom program errors can be useful to you as a developer, but also for anyone sending transactions to your contract!
@@ -100,78 +106,6 @@ Now, you can return these errors like you would any `ProgramError`.
 
 ```rust
 return Err(ExampleError::DeserializationFailure.into());
-```
-
-### Multiple Instructions
-
-Where we left off in the previous lesson, our Movie Review program only had one possible instruction - `add_movie_review`. That is actually the entirety of the original movie review program that you would have used in the first module believe it or not. In this lesson, we’ll be taking your version of the Movie Review program a step further by adding another instruction that, given the right parameters, will update an already existing movie review.
-
-You may or may not recall this, but in the instruction.rs file from the previous two lessons we split the first byte of the `instruction_data` passed in away from the rest of the buffer to determine which data structure to return inside the `unpack` function. There was only one possibility so it did not really matter, but this is how you would determine which instruction in the program this transaction is targeting.
-
-You would first need multiple data structures in the enumerator:
-
-```rust
-// inside instruction.rs
-pub enum ExampleInstruction {
-  TestStruct {
-    name: String,
-    age: u8,
-    bio: String
-  },
-  UpdateStruct {
-	name: String,
-	age: u8,
-	bio: String,
-	city: String
-  }
-}
-
-/// Generic Payload Deserialization
-#[derive(BorshDeserialize)]
-struct MovieReviewPayload {
-  name: String,
-  age: u8,
-  bio: String,
-  city: String
-}
-```
-
-Once you have multiple possible data types, you can match based on the first byte of `instruction_data` inside the `unpack` function:
-
-```rust
-impl ExampleInstruction {
-  pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
-        let (&variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
-        let payload = Payload::try_from_slice(rest).unwrap();
-        Ok(match variant {
-            0 => Self::TestStruct {
-                name: payload.name,
-                age: payload.age,
-                bio: payload.bio },
-            // new match here
-            1 => Self::UpdateStruct {
-                name: payload.name,
-                age: payload.age,
-                bio: payload.bio,
-                city: payload.city },
-            _ => return Err(ProgramError::InvalidInstructionData)
-        })
-    }
-}
-```
-
-Then you simply follow the same steps as before and match against the data structure returned from the call to `unpack`.
-
-```rust
-let instruction = ExampleInstruction::unpack(instruction_data)?;
-  match instruction {
-    ExampleInstruction::TestStruct { name, age, bio } => {
-      do_something(program_id, accounts, name, age, bio)
-    },
-	ExampleInstruction::UpdateStruct { name, age, bio, city } => {
-      do_something_else(program_id, accounts, name, age, bio, city)
-    }
-  }
 ```
 
 # Demo
@@ -713,6 +647,10 @@ description: String
     if !account_data.is_initialized() {
         msg!("Account is not initialized");
         return Err(ReviewError::UnitializedAccount.into());
+    }
+
+    if pda_account.owner != program_id {
+      throw //
     }
 
     // Derive PDA and check that it matches client
