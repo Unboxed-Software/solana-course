@@ -10,7 +10,10 @@
 
 *By the end of this lesson, you will be able to:*
 
+- Explain the importance of "thinking like an attacker"
 - Understand basic security practices
+- Perform signer checks
+- Perform basic data validation
 - Validate `instruction_data` passed in the program
 - Validate accounts passed in the program
 
@@ -21,86 +24,33 @@
 
 # Overview
 
-## Program Structure
+In the last two lessons we worked through building a Movie Review program together. The end result is pretty cool! It's exciting to get something working in a new development environment. 
 
-In the previous two lessons, we only used three separate files for our program. The common practice for a fully fledged smart contract on Solana is split across six different files:
+But proper program development doesn't end at "get it working." It's important to think through the various failure points in your code and try to mitigate them. Failure points are where undesirable behavior in your code could potentially occur, whether due to users interacting with your program in unexpected ways or bad actors intentionally trying to exploit your program.
 
-- **entrypoint.rs**
-- **instruction.rs**
-- **processor.rs**
-- **state.rs**
-- **error.rs**
-- **lib.rs**
+Remember, **you have no control over the transactions that will be sent to your program once it’s deployed**. You can only control how your program handles them. While this lesson is far from a comprehensive overview of program security, we'll cover some of the basic pitfalls you should look out for.
 
-This is how we are going to refactor the Movie Review program we just wrote. Now don’t be alarmed, although there are three new files to incorporate, this architecture is not much different than what we just did. The instruction.rs and state.rs files are exactly the same, the error.rs file is where we can define our own custom errors, entrypoint.rs will serve as our entry point to the program, and all of the code that was in lib.rs before will be moved to the processor.rs file. Going forward, lib.rs will only be used to register all of the other files like this:
+## Think like an attacker
 
-```rust
-// inside lib.rs
-pub mod entrypoint;
-pub mod instruction;
-pub mod processor;
-pub mod state;
-pub mod error;
-```
+[Neodyme](https://workshop.neodyme.io/) gave a presentation at Breakpoint 2021 entitled "Think Like An Attacker: Bringing Smart Contracts to Their Break(ing) Point." If there's one thing you take away from this lesson, it's that you should think like an attacker.
 
-### Entry point
+As mentioned previously, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program is different and will have different security risks associated with it. Understanding common pitfalls is *essential but insufficient*. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
 
-As stated above, the entrypoint.rs file will hold the code that defines the entry point to our program in order to separate this from the actual program logic. A simple entrypoint.rs file may look like:
+As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do. *All programs can be broken* - it's not a question of "if." Rather, it's a question of "how much dedication would it take." Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code.
 
-```rust
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult,
-    pubkey::Pubkey,
-    msg,
-};
-// bring in processor crate
-use crate::processor;
-use solana_program::entrypoint;
+For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. However, if we take a closer look at the code, we'll notice that the program also facilitates a lot of unintentional behavior that we could easily catch by asking "How do I break this?" We'll dig into some of these problems in this lesson, but remember that it's up to you to change your mindset toward security.
 
-// define entrypoint
-entrypoint!(process_instruction);
-fn process_instruction(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    instruction_data: &[u8],
-) -> ProgramResult {
-    msg!(
-        "process_instruction: {}: {} accounts, data={:?}",
-        program_id,
-        accounts.len(),
-        instruction_data
-    );
-	// calls process_instruction function in processor file
-    processor::process_instruction(program_id, accounts, instruction_data)?;
+## Basic security checks
 
-    Ok(())
-}
-```
+### Ownership checks
 
-### Processor
+An ownership check simply checks that the owner of an account is the public key you expect it to be. As an example, imagine a note-taking app where users can create, update, and delete notes stored by the program in PDA accounts.
 
-The processor is generally where the flow of execution goes after the entry point, notice the call we made in the above example `processor::process_instruction(program_id, accounts, instruction_data)`, we brought this in with the line `use crate::processor`. This is how you are able to access functions and structs from other files in Rust.
+If the user invoked the `update` instruction, they would supply the `pda_account` for the movie review they want to update. Since the user can input any instruction data they want, they could provide an account whose data matches the data format of a note account but was not created by the note-taking program. This account could potentially contain malicious data and so should not be trusted.
 
-The processor.rs file is where most of the program logic will live. Inside this file, we will define all the different functions that our contract will need, including the `process_instruction` function! Notice that the `process_instruction` function has the keyword [`pub`](https://doc.rust-lang.org/std/keyword.pub.html) in front, this means it's a public function and is callable outside the scope of the processor.rs file.
+The simplest way to avoid this problem is to always check tha the owner of an account is 
 
-```rust
-// inside processor.rs
-use crate::instruction::IntroInstruction;
-
-// define functions for contract logic
-pub fn process_instruction(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    instruction_data: &[u8],
-) -> ProgramResult {
-
-// process_instruction logic takes place here
-let instruction = ExampleInstruction::unpack(instruction_data)?;
-...
-
-```
-
-The `process_instruction` function is where you will write the logic to determine what action to take based on the information that was provided in the `instruction_data` parameter, just like before. The processor.rs file will take the place that the lib.rs file has served up until this point.
+### Signer checks
 
 ## Error
 
@@ -223,10 +173,6 @@ let instruction = ExampleInstruction::unpack(instruction_data)?;
     }
   }
 ```
-
-## Smart Contract Security
-
-One thing that we have not had to worry about thus far in the course is writing secure and robust code. This is a very important aspect of writing smart contracts, as I’m sure you’ve heard of some of the many hacks that have resulted  in millions of dollars stolen. When writing smart contracts, it’s important to remember that **you have no control over the transactions that will be sent to it once it’s deployed - y**ou can only control how your program handles them. This means you must think of all the possible attack vectors to your program and implement logic that prevents these from happening. It’s often helpful to think like an attacker when developing a smart contract and test how your program reacts to malicious transactions before releasing it to the world.
 
 # Demo
 
