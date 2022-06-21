@@ -78,7 +78,7 @@ import { NextPage } from 'next'
 import { FC, ReactNode } from "react"
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
-import web3 from '@solana/web3.js'
+import * as web3 from '@solana/web3.js'
 
 export const Home: NextPage = (props) => {
     const endpoint = web3.clusterApiUrl('devnet')
@@ -111,7 +111,7 @@ import { NextPage } from 'next'
 import { FC, ReactNode } from "react"
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
-import web3 from '@solana/web3.js'
+import * as web3 from '@solana/web3.js'
 
 const Home: NextPage = (props) => {
     const endpoint = web3.clusterApiUrl('devnet')
@@ -420,7 +420,7 @@ With that, we can fill in the body of `onClick`.
 
 First, check that both `connection` and `publicKey` exist (if either does not then the user’s wallet isn’t connected yet).
 
-Next, construct two instances of `PublicKey`, one for the program id `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and one for the data account `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+Next, construct two instances of `PublicKey`, one for the program ID `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and one for the data account `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
 Next, construct a `Transaction`, then a new `TransactionInstruction` that includes the data account as a writable key.
 

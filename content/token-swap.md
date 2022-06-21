@@ -38,7 +38,7 @@ Since swap pools are completely decentralized, anybody can issue instructions to
 
 Unlike the Token Program, there is no Solana-maintained deployment of the Token Swap Program. Rather, Solana provides [source code](https://github.com/solana-labs/solana-program-library/tree/master/token-swap/program) for the Token Swap Program as a reference implementation that you can fork and deploy yourself. You can also use a token swap program maintained by a third party organization you trust. Throughout this lesson, we'll be using the deployment maintained by Serum at address `SwaPpA9LAaLfeLi3a68M4DjnLqgtticKg6CnyNwgAC8`.
 
-Solana also maintains the `@solana/spl-token-swap` JS library. This library provides helper functions for interacting with a token swap program. Each helper function takes an argument representing a token swap program id. As long as the program you use accepts the Token Swap instructions, you can use the `@solana/spl-token-swap` library with it.
+Solana also maintains the `@solana/spl-token-swap` JS library. This library provides helper functions for interacting with a token swap program. Each helper function takes an argument representing a token swap program ID. As long as the program you use accepts the Token Swap instructions, you can use the `@solana/spl-token-swap` library with it.
 
 ## Creating a Swap Pool
 
