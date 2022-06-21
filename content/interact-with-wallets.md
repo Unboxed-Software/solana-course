@@ -78,7 +78,7 @@ import { NextPage } from 'next'
 import { FC, ReactNode } from "react"
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
-import web3 from '@solana/web3.js'
+import * as web3 from '@solana/web3.js'
 
 export const Home: NextPage = (props) => {
     const endpoint = web3.clusterApiUrl('devnet')
@@ -111,7 +111,7 @@ import { NextPage } from 'next'
 import { FC, ReactNode } from "react"
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
-import web3 from '@solana/web3.js'
+import * as web3 from '@solana/web3.js'
 
 const Home: NextPage = (props) => {
     const endpoint = web3.clusterApiUrl('devnet')
