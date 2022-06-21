@@ -24,13 +24,13 @@ While this is an extremely flexible model, it's also a paradigm that can be diff
 
 In this lesson we'll learn the basics of state management for a Solana program, including representing state as a Rust type, creating accounts using Program Derived Addresses, and serializing account data.
 
-## Program State
+## Program state
 
 All Solana accounts have a `data` field that holds a byte array. This makes accounts as flexible as files on a computer. You can store literally anything in an account (so long as the account has the storage space for it).
 
 Just as files in a traditional filesystem conform to specific data formats like PDF or MP3, the data stored in a Solana account needs to follow some kind of pattern so that the data can be retrieved and deserialized into something usable.
 
-### Represent State as a Rust Type
+### Represent state as a Rust type
 
 When writing a program in Rust, we typically create this "format" by defining a Rust data type. If you went through the [first part of this lesson](basic-program-pt-1.md), this is very similar to what we did when we created an enum to represent discrete instructions.
 
@@ -44,7 +44,7 @@ struct NoteState {
 }
 ```
 
-### Using Borsh for Serialization and Deserialization
+### Using Borsh for serialization and deserialization
 
 Just as with instruction data, we need a mechanism for converting from our Rust data type to a byte array, and vice versa. **Serialization** is the process of converting an object into a byte array. **Deserialization** is the process of reconstructing an object from a byte array.
 
@@ -63,7 +63,7 @@ struct NoteState {
 
 These traits will provide methods on `NoteState` that we can use to serialize and deserialize the data as needed.
 
-## Creating Accounts
+## Creating accounts
 
 Before we can update the data field of an account, we have to first create that account.
 
@@ -73,7 +73,7 @@ To create a new account within our program we must:
 2. Have an address to assign the new account
 3. Invoke the system program to create the new account
 
-### Space and Rent
+### Space and rent
 
 Recall that storing data on the Solana network requires users to allocate rent in the form of lamports. The amount of rent required by a new account depends on the amount of space you would like allocated to that account. That means we need to know before creating the account how much space to allocate.
 
@@ -150,11 +150,11 @@ invoke_signed(
 )?;
 ```
 
-## Serializing and Deserializing Account Data
+## Serializing and deserializing account data
 
 Once we've created a new account, we need to access and update the account's data field. This means deserializing its byte array into an instance of the type we created, updating the fields on that instance, then serializing that instance back into a byte array.
 
-### Deserialize Account Data
+### Deserialize account data
 
 The first step to updating an account's data is to deserialize its `data` byte array into its Rust type. You can do this by first borrowing the data field on the account. This allows you to access the data without taking ownership.
 
@@ -168,7 +168,7 @@ account_data.body = rating;
 account_data.id = id;
 ```
 
-### Serialize Account Data
+### Serialize account data
 
 Once the Rust instance representing the account's data has been updated with the appropriate values, you can "save" the data on the account.
 
@@ -186,7 +186,7 @@ You may have noticed in the previous examples that we referenced `note_creator` 
 
 To get access to this and other accounts, we use an [Iterator](https://doc.rust-lang.org/std/iter/trait.Iterator.html). An iterator is a Rust trait used to give sequential access to each element in a collection of values. Iterators are used in Solana programs to safely iterate over the list of accounts passed into the program entry point through the `accounts` argument.
 
-### Rust Iterator
+### Rust iterator
 
 The iterator pattern allows you to perform some task on a sequence of items. The `iter()` method creates an iterator object that references a collection. An iterator is responsible for the logic of iterating over each item and determining when the sequence has finished. In Rust, iterators are lazy, meaning they have no effect until you call methods that consume the iterator to use it up. Once you've created an iterator, you must call the `next()` function on it to get the next item.
 
@@ -203,7 +203,7 @@ let first_item = v1_iter.next();
 let second_item = v1_iter.next();
 ```
 
-### Solana Accounts Iterator
+### Solana accounts iterator
 
 Recall that the `AccountInfo` for all accounts required by an instruction are passing through a single `accounts` argument. In order to parse through the accounts and use them within our instruction, we will need to create an iterator with a mutable reference to the `accounts`.
 
@@ -252,6 +252,7 @@ use borsh::{BorshSerialize, BorshDeserialize};
 
 Next, let’s create our `MovieAccountState` struct. This struct will define the parameters that each new movie review account will store in its data field. Our `MovieAccountState` struct will require the following parameters:
 
+- `is_initialized` - shows whether or not the account has been initialized
 - `rating` - user’s rating of the movie
 - `description` - user’s description of the movie
 - `title` - title of the movie the user is reviewing
@@ -259,6 +260,7 @@ Next, let’s create our `MovieAccountState` struct. This struct will define the
 ```rust
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct MovieAccountState {
+    pub is_initialized: bool,
     pub rating: u8,
     pub description: String,
     pub title: String
@@ -315,7 +317,7 @@ Note that we derive the PDA for each new account using the initializer’s publi
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
 ```
 
-### 6. Calculate Space and Rent
+### 6. Calculate space and rent
 
 Next, let’s calculate the rent that our new account will need. Recall that rent is the amount of lamports a user must allocate to an account for storing data on the Solana network. To calculate rent, we must first calculate the amount of space our new account requires.
 
@@ -330,7 +332,7 @@ let rent = Rent::get()?;
 let rent_lamports = rent.minimum_balance(account_len);
 ```
 
-### 7. Create New Account
+### 7. Create new account
 
 Once we’ve calculated the rent and verified the PDA, we are ready to create our new account. In order to create a new account, we must call the `create_account` instruction from the system program. We do this with a Cross Program Invocation (CPI) using the `invoke_signed` function. We use `invoke_signed` because we are creating the account using a PDA and need the Movie Review program to “sign” the instruction.
 
@@ -351,7 +353,7 @@ invoke_signed(
 msg!("PDA created: {}", pda);
 ```
 
-### 8. Update Account Data
+### 8. Update account data
 
 Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We first deserialize the the account data from `pda_account` using `try_from_slice_unchecked`, then set the values of each field.
 
@@ -363,6 +365,7 @@ msg!("borrowed account data");
 account_data.title = title;
 account_data.rating = rating;
 account_data.description = description;
+account_data.is_initialized = true;
 ```
 
 Lastly, we serialize the updated `account_data` into the data field of our `pda_account`.
@@ -373,7 +376,7 @@ account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
 msg!("state account serialized");
 ```
 
-### 9. Build and Deploy
+### 9. Build and deploy
 
 We're ready to build and deploy our program!
 
@@ -383,11 +386,20 @@ You can test your program by submitting a transaction with the right instruction
 
 If you use the frontend, simply replace the `MOVIE_REVIEW_PROGRAM_ID` in both the `MovieList.tsx` and `Form.tsx` components with the address of the program you’ve deployed. Then run the frontend, submit a view, and refresh the browser to see the review.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b0f2d1f6273245aca4f5b1) before continuing.
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b11d39f6273245aca4f5b3) before continuing.
 
 # Challenge
 
 Now it’s your turn to build something independently. Equipped with the concepts intoduced in this lesson, you now know everything you'll need to recreate the entirety of the Student Intro program from Module 1.
 
-Once you've finished writing the program, you can then build and deploy your program the same way we did in the demo above. You can then test your program using the same [frontend code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data) from the challenge section of the [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). Remember to replace the program ID in the frontend with the one you've deployed! If you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b0cb61f6273245aca4f5af). 
+The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the `instruction_data` and creates an account to store the data on-chain.
+
+Using what you've learned in this lesson, build out this program. In addition to taking a name a short message as instruction data, the program should:
+
+1. Create a separate account for each student
+2. Store `is_initialized` as a boolean, `name` as a string, and `msg` as a string in each account
+
+You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) we created in the [Page, Order, and Filter Custom Account Data lesson](./paging-ordering-filtering-data.md). Remember to replace the program ID in the frontend code with the one you've deployed. 
+
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
 
