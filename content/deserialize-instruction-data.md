@@ -4,7 +4,10 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Use basic Rust language features for encapsulating code
+- Assign mutable and immutable variables in Rust
+- Create and use Rust structs and enums
+- Use Rust match statements
+- Add implementations to Rust types
 - Deserialize instruction data into Rust data types
 - Execute different program logic for different types of instructions
 - Explain the structure of a smart contract on Solana

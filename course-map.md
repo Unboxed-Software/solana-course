@@ -61,51 +61,39 @@
    - Use Candy Machine UI to mint NFTs from a candy machine
 
 # Module 3 - Basic Solana Program Development
-1. High-level view of the network
-   - Explain Solana's Proof of History model
-   - Explan Solana's Proof of Stake model
-   - Explain Solana Validators
-   - Explain Solana's Network model
-   - Explan Solana Clusters
-   - Explain Solana Nodes
-   - Explain Solana Epochs
-   - Explain Solana Slots
-   - Explain Solana Blocks
-   - Explain the Solana runtime (this differentiates Solana from other chains)
-2. Hello World from scratch
-   - Explain Solana programs and how they fit into the broader Solana architecture
-   - Install the Solana CLI
-   - Use CLI (help, airdrop, key pair, program, deploy,  balance, test validator)
-   - Set up a local environment for Solana program development
-   - Explain basic program project architecture (setup, layout, entry point, cargo, crates, lib, config)
-   - Deploy basic program locally
-3. Rust primer
-   - Split code into multiple crates
-   - Use Rust primitives
-   - Create and use Enums
-   - Create functions
-   - Create structs
-   - Create associated functions and methods (`impl`)
-   - Use basic control flow (if/else, match)
-   - Use variable binding
-   - Define traits
-   - Explain ownership
-   - Explain borrowing
-4. Debugging
-   - Interpret program error codes
-   - Write program logs
-   - Read program logs
-   - Log remaining compute units
-   - Create and run Solana unit tests using solana-program-test
+1. Hello World
+   - Use the Rust module system
+   - Define a function in Rust
+   - Explain the `Result` type
+   - Explain the entry point to a Solana program
+   - Build and deploy a basic Solana program
+   - Submit a transaction to invoke our “Hello, world!” program
+2. Create a Basic Program, Part 1 - Handle Instruction Data
+   - Assign mutable and immutable variables in Rust
+   - Create and use Rust structs and enums
+   - Use Rust match statements
+   - Add implementations to Rust types
+   - Deserialize instruction data into Rust data types
+   - Execute different program logic for different types of instructions
+   - Explain the structure of a smart contract on Solana
+3. Create a Basic Program, Part 2 - State Management
+   - Describe the process of creating a new account using a Program Derived Address (PDA)
+   - Use seeds to derive a PDA
+   - Use the space required by an account to calculate the amount of rent (in lamports) a user must allocate
+   - Use a Cross Program Invocation (CPI) to initialize an account with a PDA as the address of the new  account
+   - Explain how to update the data stored on a new account
+4. Create a Basic Program, Part 3 - Basic Security and Validation
+   - Explain the importance of "thinking like an attacker"
+   - Understand basic security practices
+   - Perform signer checks
+   - Perform basic data validation
+   - Defend against unintended behavior
 
-# Module 4 - Advanced Solana Program Development
-1. A more advanced program...
-   - Explain Solana program state management
-   - Add instruction-based matching in Rust
-   - Deserialize data
-   - Serialize data
-   - Use common Solana data structures
-   - Account size limit
+# Module 4 - Intermediate Solana Program Development
+1. Set up a local dev environment
+   - Use basic Solana CLI commands
+   - Set up a local environment for Solana program development
+   - Use Rust and Solana CLI to deploy a Solana program from your local environment
 2. PDAs
    - Explain PDAs
    - Explain the Solana runtime policy
