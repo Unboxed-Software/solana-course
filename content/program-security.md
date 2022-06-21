@@ -40,6 +40,13 @@ As Neodyme mentioned in their presentation, the right mindset requires moving fr
 
 For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. However, if we take a closer look at the code, we'll notice that the program also facilitates a lot of unintentional behavior that we could easily catch by asking "How do I break this?" We'll dig into some of these problems in this lesson, but remember that it's up to you to change your mindset toward security.
 
+## Error handling
+
+Before we dive into security checks, it's important to know how use errors in Rust. While your code can handle some issues gracefully, other issues will require that your program stop execution and return a program error.
+
+// How to create errors
+// How to return errors from your program
+
 ## Basic security checks
 
 ### Ownership checks
@@ -50,13 +57,36 @@ If the user invoked the `update` instruction, they would supply the `pda_account
 
 The simplest way to avoid this problem is to always check tha the owner of an account is 
 
+```rust
+if note_pda.owner != program_id {
+  return Err(ProgramError::InvalidNoteAccount);
+}
+```
+
 ### Signer checks
 
+
+### General account validation
+
+// PDA validation
+// Derive PDA and check that it matches client
+e.g. :
+```rust
+let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
+if pda != *pda_account.key {
+    msg!("Invalid seeds for PDA");
+    return Err(ProgramError::InvalidArgument)
+}
+```
+
+// 
 
 ## Data Validation
 
 // Make sure rating <= 5 and > 0
 // Anything with strings?
+
+// is_initialized check
 
 ## Error
 
@@ -66,6 +96,12 @@ We’ll be using the [thiserror](https://docs.rs/thiserror/latest/thiserror/) li
 
 ```rust
 use thiserror::Error;
+
+#[derive(Error)]
+pub enum MovieReviewError {
+  #[error("Invalid rating")]
+  InvalidRating,
+}
 
 /// Errors that may be returned by the program.
 #[derive(Error)]
@@ -650,7 +686,7 @@ description: String
     }
 
     if pda_account.owner != program_id {
-      throw //
+      return Err(ProgramError::InvalidOwner)
     }
 
     // Derive PDA and check that it matches client
