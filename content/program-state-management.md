@@ -321,11 +321,11 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), 
 
 Next, let’s calculate the rent that our new account will need. Recall that rent is the amount of lamports a user must allocate to an account for storing data on the Solana network. To calculate rent, we must first calculate the amount of space our new account requires.
 
-The `MovieAccountState` struct has three fields. We will allocate 1 byte each for `rating`. For both `title` and `description` we will allocate space equal to 4 bytes plus the length of the string.
+The `MovieAccountState` struct has three fields. We will allocate 1 byte each for `rating` and `is_initialized`. For both `title` and `description` we will allocate space equal to 4 bytes plus the length of the string.
 
 ```rust
 // Calculate account size required
-let account_len: usize = 1 + (4 + title.len()) + (4 + description.len());
+let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 
 // Calculate rent required
 let rent = Rent::get()?;
@@ -386,7 +386,7 @@ You can test your program by submitting a transaction with the right instruction
 
 If you use the frontend, simply replace the `MOVIE_REVIEW_PROGRAM_ID` in both the `MovieList.tsx` and `Form.tsx` components with the address of the program you’ve deployed. Then run the frontend, submit a view, and refresh the browser to see the review.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b11d39f6273245aca4f5b3) before continuing.
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b23597f6273245aca4f5b4) before continuing.
 
 # Challenge
 
