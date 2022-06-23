@@ -766,8 +766,8 @@ description: String
         return Err(ReviewError::InvalidRating.into())
     }
 
-    let update_len: usize = 1 + 1 + (4 + description.len());
-    if update_len > 1000 - account_data.title.len() {
+    let update_len: usize = 1 + 1 + (4 + description.len()) + account_data.title.len();
+    if update_len > 1000 {
         msg!("Data length is larger than 1000 bytes");
         return Err(ReviewError::InvalidDataLength.into())
     }
@@ -793,7 +793,7 @@ description: String
 }
 ```
 
-You are now ready to build and upgrade your program just as before. If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b3d8c3f6273245aca4f5c0) before continuing.
+You are now ready to build and upgrade your program just as before. If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b41889f6273245aca4f5c3) before continuing.
 
 # Challenge
 
@@ -806,4 +806,4 @@ Using what you've learned in this lesson, try applying what you've learned to th
 1. Add an instruction allowing students to update their message
 2. Implement the basic security checks we've learned in this lesson
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the solution code. Note that your code will likely look different depending on the checks you implement and the errors you write.
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b41814f6273245aca4f5c2). Note that your code will likely look different depending on the checks you implement and the errors you write.
