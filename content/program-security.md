@@ -793,7 +793,9 @@ description: String
 }
 ```
 
-You are now ready to build and upgrade your program just as before. If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b41889f6273245aca4f5c3) before continuing.
+You are now ready to build and upgrade your program just as before. You can test your program by submitting a transaction with the right instruction data. For that, feel free to use this [frontend](https://github.com/ZYJLiu/solana-movie-frontend). Remember to replace `MOVIE_REVIEW_PROGRAM_ID` with your program ID in `Form.tsx` and `MovieCoordinator.ts` to make sure you're testing the right program.
+
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b41889f6273245aca4f5c3) before continuing.
 
 # Challenge
 
