@@ -158,7 +158,7 @@ If you didn’t complete the demo from the last lesson or just want to make sure
 
 To get started, we are going to refactor our program to a common file structure used with Solana programs.
 
-- **lib.rs** - \*\*\*\*register modules
+- **lib.rs** - register modules
 - **entrypoint.rs -** entry point to the program
 - **instruction.rs -** serialize and deserialize instruction data
 - **processor.rs -** program logic to process instructions
@@ -264,25 +264,25 @@ pub fn process_instruction(
     msg!("Rating: {}", rating);
     msg!("Description: {}", description);
 
-	  // Get Account iterator
+// Get Account iterator
     let account_info_iter = &mut accounts.iter();
 
-	  // Get accounts
+// Get accounts
     let initializer = next_account_info(account_info_iter)?;
     let pda_account = next_account_info(account_info_iter)?;
     let system_program = next_account_info(account_info_iter)?;
 
-	  // Derive PDA and check that it matches client
+// Derive PDA and check that it matches client
     let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
 
-	  // Allocate account size
+// Allocate account size
     let account_len: 1000;
 
-	  // Calculate rent required
+// Calculate rent required
     let rent = Rent::get()?;
     let rent_lamports = rent.minimum_balance(account_len);
 
-	  // Create the account
+// Create the account
     invoke_signed(
       &system_instruction::create_account(
         initializer.key,
@@ -456,7 +456,7 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ReviewError{
-		// Error 0
+    // Error 0
     #[error("Account not initialized yet")]
     UninitializedAccount,
     // Error 1
