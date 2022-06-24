@@ -127,7 +127,7 @@ if !initializer.is_signer {
 
 In addition to checking the signers and owners of accounts, it's important to ensure that the provided accounts are what your code expects them to be. For example, you would want to validate that a provided PDA account's address can be rederived with the expected seeds. This ensures that it is the account you expect it to be.
 
-In the note-taking app example, that would mean ensuring that you can rederive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
+In the note-taking app example, that would mean ensuring that you can rederive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
