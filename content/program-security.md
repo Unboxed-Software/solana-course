@@ -16,7 +16,7 @@
 - **Thinking like an attacker** means asking "How do I break this?"
 - Perform **owner checks** to ensure that the provided account is owned by the public key you expect, e.g. ensuring that an account you expect to be a PDA is owned by `program_id`
 - Perform **signer checks** to ensure that any account modification has been signed by the right party or parties
-- **Account validation** entails ensuring that provided accounts are the accounts you expect them to be, e.g. rederiving PDAs with the expected seeds to make sure the address matches the provided account
+- **Account validation** entails ensuring that provided accounts are the accounts you expect them to be, e.g. deriving PDAs with the expected seeds to make sure the address matches the provided account
 - **Data validation** entails ensuring that any provided data meets the criteria required by the program
 
 # Overview
@@ -125,9 +125,9 @@ if !initializer.is_signer {
 
 ### General account validation
 
-In addition to checking the signers and owners of accounts, it's important to ensure that the provided accounts are what your code expects them to be. For example, you would want to validate that a provided PDA account's address can be rederived with the expected seeds. This ensures that it is the account you expect it to be.
+In addition to checking the signers and owners of accounts, it's important to ensure that the provided accounts are what your code expects them to be. For example, you would want to validate that a provided PDA account's address can be derived with the expected seeds. This ensures that it is the account you expect it to be.
 
-In the note-taking app example, that would mean ensuring that you can rederive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
+In the note-taking app example, that would mean ensuring that you can derive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
@@ -566,7 +566,7 @@ if !initializer.is_signer {
 
 ### Account Validation
 
-Next, let’s check that the `pda_account` passed in by the user is the PDA we expect by rederiving the PDA using `initializer` and `title` as seeds. If the addresses do not match, we’ll return our custom `InvalidPDA` error. We'll implement this the same way we did in the `add_movie_review` function.
+Next, let’s check that the `pda_account` passed in by the user is the PDA we expect by deriving the PDA using `initializer` and `title` as seeds. If the addresses do not match, we’ll return our custom `InvalidPDA` error. We'll implement this the same way we did in the `add_movie_review` function.
 
 ```rust
 // Derive PDA and check that it matches client
