@@ -106,7 +106,7 @@ The simplest way to avoid this problem is to always check that the owner of an a
 
 ```rust
 if note_pda.owner != program_id {
-	return Err(ProgramError::InvalidNoteAccount);
+    return Err(ProgramError::InvalidNoteAccount);
 }
 ```
 
@@ -155,8 +155,8 @@ Or, the character may have an allowance of attribute points they can allocate an
 
 ```rust
 if attribute_allowance > new_agility {
-	msg!("Trying to allocate more points than allowed");
-	return Err(AttributeError::ExceedsAllowance.into())
+    msg!("Trying to allocate more points than allowed");
+    return Err(AttributeError::ExceedsAllowance.into())
 }
 ```
 
@@ -174,11 +174,11 @@ To avoid integer overflow and underflow, either:
 
 1. Have logic in place that ensures overflow or underflow *cannot* happen or
 2. Use checked math like `checked_add` instead of `+`
-	```rust
+    ```rust
     let first_int: u8 = 5;
     let second_int: u8 = 255;
     let sum = first_int.checked_add(second_int);
-	```
+    ```
 
 # Demo
 
@@ -445,16 +445,16 @@ Let’s begin by updating `instruction.rs`. We’ll start by adding an `UpdateMo
 ```rust
 // inside instruction.rs
 pub enum MovieInstruction {
-  AddMovieReview {
-    title: String,
-    rating: u8,
-    description: String
-  },
-  UpdateMovieReview {
-    title: String,
-    rating: u8,
-    description: String
-  }
+    AddMovieReview {
+        title: String,
+        rating: u8,
+        description: String
+    },
+    UpdateMovieReview {
+        title: String,
+        rating: u8,
+        description: String
+    }
 }
 ```
 
@@ -465,7 +465,7 @@ Lastly, in the `unpack` function we need to add `UpdateMovieReview` to the match
 ```rust
 // inside instruction.rs
 impl MovieInstruction {
-  pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (&variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
         let payload = MovieReviewPayload::try_from_slice(rest).unwrap();
         Ok(match variant {
@@ -494,17 +494,17 @@ pub fn process_instruction(
     accounts: &[AccountInfo],
     instruction_data: &[u8]
 ) -> ProgramResult {
-	// unpack instruction data
+    // unpack instruction data
     let instruction = MovieInstruction::unpack(instruction_data)?;
     match instruction {
-      	MovieInstruction::AddMovieReview { title, rating, description } => {
-        	add_movie_review(program_id, accounts, title, rating, description)
-      	},
-      	// add UpdateMovieReview to match against our new data structure
-      	MovieInstruction::UpdateMovieReview { title, rating, description } => {
-        	// make call to update function that we'll define next
-        	update_movie_review(program_id, accounts, title, rating, description)
-      	}
+        MovieInstruction::AddMovieReview { title, rating, description } => {
+            add_movie_review(program_id, accounts, title, rating, description)
+        },
+        // add UpdateMovieReview to match against our new data structure
+        MovieInstruction::UpdateMovieReview { title, rating, description } => {
+            // make call to update function that we'll define next
+            update_movie_review(program_id, accounts, title, rating, description)
+        }
     }
 }
 ```
@@ -513,11 +513,11 @@ Next, we can define the new `update_movie_review` function. The definition shou
 
 ```rust
 pub fn update_movie_review(
-	program_id: &Pubkey,
-	accounts: &[AccountInfo],
-	title: String,
-	rating: u8,
-	description: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
 ) -> ProgramResult {
 
 }
@@ -531,11 +531,11 @@ Just like the `add_movie_review` function, let's start by iterating through the 
 
 ```rust
 pub fn update_movie_review(
-	program_id: &Pubkey,
-	accounts: &[AccountInfo],
-	title: String,
-	rating: u8,
-	description: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
 ) -> ProgramResult {
     msg!("Updating movie review...");
 
@@ -555,7 +555,7 @@ Before we continue, let's implement some basic security checks. We'll start with
 
 ```rust
 if pda_account.owner != program_id {
-	return Err(ProgramError::InvalidOwner)
+    return Err(ProgramError::InvalidOwner)
 }
 ```
 
