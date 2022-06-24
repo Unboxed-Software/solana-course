@@ -33,9 +33,15 @@ Remember, **you have no control over the transactions that will be sent to your 
 
 As mentioned previously, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program is different and will have different security risks associated with it. Understanding common pitfalls is *essential but insufficient*. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
 
-As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do. *All programs can be broken* - it's not a question of "if." Rather, it's a question of "how much effort and dedication would it take." Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code.
+As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do.
 
-For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. If we take a closer look at the code, however, we'll notice that the program also facilitates a lot of unintentional behavior that we could easily catch by asking "How do I break this?" We'll dig into some of these problems and how to fix them in this lesson, but remember that memorizing a few pitfalls isn't sufficient. It's up to you to change your mindset toward security.
+### All programs can be broken
+
+It's not a question of "if."
+
+Rather, it's a question of "how much effort and dedication would it take."
+
+Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code. For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. If we take a closer look at the code, however, we'll notice that the program also facilitates a lot of unintentional behavior that we could easily catch by asking "How do I break this?" We'll dig into some of these problems and how to fix them in this lesson, but remember that memorizing a few pitfalls isn't sufficient. It's up to you to change your mindset toward security.
 
 ## Error handling
 
