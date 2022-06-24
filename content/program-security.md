@@ -593,7 +593,7 @@ let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_accoun
 msg!("borrowed account data");
 ```
 
-Now that we have access to the account and its fields, the first thing we need to do is verify that the account has already been initialized. An unitialized account can't be updated so the program should return our custom `UninitializedAccount` error.
+Now that we have access to the account and its fields, the first thing we need to do is verify that the account has already been initialized. An uninitialized account can't be updated so the program should return our custom `UninitializedAccount` error.
 
 ```rust
 if !account_data.is_initialized() {
