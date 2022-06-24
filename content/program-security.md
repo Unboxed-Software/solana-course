@@ -457,7 +457,7 @@ pub enum MovieInstruction {
 }
 ```
 
-The payload struct can stay the same since aside from the variant type, the instruction data is the same as what we used for `AddMovieReview`. 
+The payload struct can stay the same since aside from the variant type, the instruction data is the same as what we used for `AddMovieReview`.
 
 Lastly, in the `unpack` function we need to add `UpdateMovieReview` to the match statement.
 
@@ -518,7 +518,7 @@ pub fn update_movie_review(
 	rating: u8,
 	description: String
 ) -> ProgramResult {
-    
+
 }
 ```
 
@@ -639,7 +639,7 @@ pub fn update_movie_review(
     title: String,
     rating: u8,
     description: String
-) -> ProgramResult {    
+) -> ProgramResult {
     msg!("Updating movie review...");
 
     let account_info_iter = &mut accounts.iter();
