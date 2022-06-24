@@ -2,7 +2,7 @@
 
 # Lesson Objectives
 
-_By the end of this lesson, you will be able to:_
+*By the end of this lesson, you will be able to:*
 
 - Explain the importance of "thinking like an attacker"
 - Understand basic security practices
@@ -169,13 +169,17 @@ To avoid integer overflow and underflow, either:
 
 # Demo
 
-Let’s practice together by continuing to work on the Movie Review program from the last lesson. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way. We'll be using the [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code.
+Let’s practice together with the Movie Review program we've worked on in previous lessons. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way.
 
-As a refresher, we are building a Solana program which lets users review movies. Last lesson, we learned how to create a new account using a PDA and serialize data to the account. Let’s now modify our program to include an update instruction and apply what we’ve learned by adding some security checks.
+As a refresher, the Movie Review program lets users store movie reviews in PDA accounts. Last lesson, we finished implementing the basic functionality of adding a movie review. Now, we'll add some security checks to the functionality we've already created and add the ability to update a movie review in a secure manner.
+
+Just as before, we'll be using [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code.
 
 ## 1. Get the starter code
 
-To begin, you can find the starter code [here](https://beta.solpg.io/62b552f3f6273245aca4f5c9). We have refactor our program to a common file structure used with Solana programs.
+To begin, you can find the starter code [here](https://beta.solpg.io/62b552f3f6273245aca4f5c9). If you've been following along with the Movie Review demos, you'll notice that we've refactored our program.
+
+The refactored starter code is almost the same as what it was before. Since `lib.rs` was getting rather large and unwieldy, we've separated its code into 3 files: `lib.rs`, `entrypoint.rs`, and `processor.rs`. `lib.rs` now *only* registers the code's modules, `entrypoint.rs` *only* defines and sets the program's entrypoint, and `processor.rs` handles the program logic for processing instructions. We've also added an `error.rs` file where we'll be defining custom errors. The complete file structure is as follows:
 
 - **lib.rs** - register modules
 - **entrypoint.rs -** entry point to the program
@@ -184,44 +188,27 @@ To begin, you can find the starter code [here](https://beta.solpg.io/62b552f3f6
 - **state.rs -** serialize and deserialize state
 - **error.rs -** custom program errors
 
-For those of you interested, you can compare starter code to the solution code from the previous lesson [here](https://beta.solpg.io/62b23597f6273245aca4f5b4).
+In addition to some changes to file structure, we've updated a small amount of code that will let this demo be more focused on security without having you write unecessary boiler plate.
 
-The refactored starter code basically separates the content of lib.rs into two files called processor.rs and entrypoint.rs. The entrypoint.rs file contains our entry point logic and the processor.rs file contains our instruction logic. Within entrypoint.rs we now make a call to a `process_instruction` function from processor.rs.
+Since we'll be allowing updates to movie reviews, we also changed `account_len` in the `add_movie_review` function (now in `processor.rs`). Instead of calculating the size of the review and setting the account length to only as large as it needs to be, we're simply going to allocate 1000 bytes to each review account. This way, we don’t have to worry about reallocating size or re-calculating rent when a user updates their movie review.
 
+We went from this:
 ```rust
-// inside entrypoint.rs
-processor::process_instruction(program_id, accounts, instruction_data)?;
-```
-
-Within process.rs, we've also brought into scope `ProgramError` and `IsInitialized` from the `solana_program` crate.
-
-```rust
-// inside processor.rs
-use solana_program::{
-    program_error::ProgramError
-    program_pack::{IsInitialized}
-};
-```
-
-The start code also contains a small change to `account_len` in the `add_movie_review` function. Instead of calculating the space for each new account, we’re simply going to allocate 1000 bytes as the maximum amount of space for all accounts. This way, we don’t have to worry about re-calculating rent when a user updates their movie review.
-
-```rust
-// From this
 let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 ```
 
+To this:
 ```rust
-// To this
 let account_len: usize = 1000;
 ```
 
 The [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) method was just recently enabled by Solana Labs which allows you to dynamically change the size of your accounts. We will not be using this method for this demo, but it’s something to be aware of.
 
-Next, we've implemented some additional functionality for our `MovieAccountState` struct in state.rs using the `impl` keyword.
+Finally, we've also implemented some additional functionality for our `MovieAccountState` struct in `state.rs` using the `impl` keyword.
 
 For our movie reviews, we want the ability to check whether an account has already been initialized. To do this, we create an `is_initialized` function that checks the `is_initialized` field on the `MovieAccountState` struct.
 
-`Sealed` is Solana's version of Rust's `Sized` trait. This simply specifies that `MovieAccountState` has a known size.
+`Sealed` is Solana's version of Rust's `Sized` trait. This simply specifies that `MovieAccountState` has a known size and provides for some compiler optimizations.
 
 ```rust
 // inside state.rs
@@ -234,20 +221,17 @@ impl IsInitialized for MovieAccountState {
 }
 ```
 
-Lastly, the lib.rs now simply registers the modules of our program.
-
-```rust
-//inside lib.rs
-pub mod entrypoint;
-pub mod instruction;
-pub mod processor;
-pub mod state;
-pub mod error;
-```
+Before moving on, make sure you have a solid grasp on the current state of the program. Look through the code and spend some time thinking through any spots that are confusing to you. It may be helpful to compare the starter code to the [solution code from the previous lesson](https://beta.solpg.io/62b23597f6273245aca4f5b4).
 
 ## 2. Custom Errors
 
-Let's begin by writing our custom program errors. The starter code includes an empty error.rs file for you to add the following errors.
+Let's begin by writing our custom program errors. We'll need errors that we can use in the following situations:
+* The update instruction has been invoked on an account that hasn't been initialized yet
+* The provided PDA doesn't match the expected or derived PDA
+* The input data is larger than the program allows
+* The rating provided does not fall in the 1-5 range
+
+The starter code includes an empty `error.rs` file. Open that file and add errors for each of the above cases.
 
 ```rust
 // inside error.rs
@@ -277,7 +261,9 @@ impl From<ReviewError> for ProgramError {
 }
 ```
 
-Next, let’s bring `ReviewError` into the scope of processor.rs. We will be using these errors shortly when we add our security checks.
+Note that in addition to adding the error cases, we also added the implementation that lets us convert our error into a `ProgramError` type as needed.
+
+Before moving on, let’s bring `ReviewError` into scope in the `processor.rs`. We will be using these errors shortly when we add our security checks.
 
 ```rust
 // inside processor.rs
@@ -286,11 +272,28 @@ use crate::error::ReviewError;
 
 ## 3. Add security checks to `add_movie_review`
 
-We'll start with implementing some security checks to our `add_movie_review` function.
+Now that we have errors to use, let's implement some security checks to our `add_movie_review` function.
 
-### Account Validation
+### Signer check
 
-Let's first validate that the `pda_account` passed in by the user is the `pda` we expect. Recall we derived the `pda` for a movie review using the `initializer` and `title` as seeds. Within our instruction we’ll derive the `pda` again and then check if it matches the `pda_account`. If the addresses do not match, we’ll return our custom `InvalidPDA` error.
+The first thing we should do is ensure that the `initializer` of a review is also a signer on the transaction. This ensures that you can't submit movie reviews impersonating somebody else. We'll put this check right after iterating through the accounts.
+
+```rust
+let account_info_iter = &mut accounts.iter();
+
+let initializer = next_account_info(account_info_iter)?;
+let pda_account = next_account_info(account_info_iter)?;
+let system_program = next_account_info(account_info_iter)?;
+
+if !initializer.is_signer {
+    msg!("Missing required signature");
+    return Err(ProgramError::MissingRequiredSignature)
+}
+```
+
+### Account validation
+
+Next, let's make sure the `pda_account` passed in by the user is the `pda` we expect. Recall we derived the `pda` for a movie review using the `initializer` and `title` as seeds. Within our instruction we’ll derive the `pda` again and then check if it matches the `pda_account`. If the addresses do not match, we’ll return our custom `InvalidPDA` error.
 
 ```rust
 // Derive PDA and check that it matches client
@@ -302,11 +305,11 @@ if pda != *pda_account.key {
 }
 ```
 
-### Data Validation
+### Data validation
 
-Next, let's include some data validation checks.
+Now let's perform some data validation.
 
-We'll start with checking the input for rating since we want to limit the ratings to a scale of 1 to 5. If the rating provided by the user outside of this range, we’ll return our custom `InvalidRating` error.
+We'll start by making sure `rating` falls within the 1 to 5 scale. If the rating provided by the user outside of this range, we’ll return our custom `InvalidRating` error.
 
 ```rust
 if rating > 5 || rating < 1 {
@@ -354,6 +357,11 @@ pub fn add_movie_review(
     let initializer = next_account_info(account_info_iter)?;
     let pda_account = next_account_info(account_info_iter)?;
     let system_program = next_account_info(account_info_iter)?;
+
+    if !initializer.is_signer {
+        msg!("Missing required signature");
+        return Err(ProgramError::MissingRequiredSignature)
+    }
 
     let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
     if pda != *pda_account.key {
@@ -414,13 +422,11 @@ pub fn add_movie_review(
 }
 ```
 
-## 5. Create New Update Instruction
+## 4. Support movie review updates in `MovieInstruction`
 
-Next, let's add an instruction to our program that allows users to update their movie review.
+Now that `add_movie_review` is more secure, let's turn our attention to supporting the ability to update a movie review.
 
-### Changes to instruction.rs
-
-Let’s begin by updating instruction.rs. We’ll start with defining the data struct we want to unpack the `instruction_data` into. Considering our new functionality is to just update an existing review, it makes sense to expect the same instruction data as before, so all we have to do is define this data struct in the `MovieInstruction` enum inside instruction.rs.
+Let’s begin by updating `instruction.rs`. We’ll start by adding an `UpdateMovieReview` variant to `MovieInstruction` that includes embedded data for the new title, rating, and description.
 
 ```rust
 // inside instruction.rs
@@ -438,7 +444,9 @@ pub enum MovieInstruction {
 }
 ```
 
-The payload struct can stay the same, but now we just need to add `UpdateMovieReview` inside the match statement of the `unpack` function for this new data struct so we know which function an instruction is targeting.
+The payload struct can stay the same since aside from the variant type, the instruction data is the same as what we used for `AddMovieReview`. 
+
+Lastly, in the `unpack` function we need to add `UpdateMovieReview` to the match statement.
 
 ```rust
 // inside instruction.rs
@@ -461,7 +469,7 @@ impl MovieInstruction {
 }
 ```
 
-### Changes to processor.rs
+## 5. Define `update_movie_review` function
 
 Now that we can unpack our `instruction_data` and determine which instruction of the program to run, we can add `UpdateMovieReview` to the match statement in the `process_instruction` function in the processor.rs file.
 
@@ -471,30 +479,49 @@ pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8]
-  ) -> ProgramResult {
+) -> ProgramResult {
 	// unpack instruction data
     let instruction = MovieInstruction::unpack(instruction_data)?;
     match instruction {
-      MovieInstruction::AddMovieReview { title, rating, description } => {
-        add_movie_review(program_id, accounts, title, rating, description)
-      },
-      // add UpdateMovieReview to match against our new data structure
-      MovieInstruction::UpdateMovieReview { title, rating, description } => {
-        // make call to update function that we'll define next
-        update_movie_review(program_id, accounts, title, rating, description)
-      }
+      	MovieInstruction::AddMovieReview { title, rating, description } => {
+        	add_movie_review(program_id, accounts, title, rating, description)
+      	},
+      	// add UpdateMovieReview to match against our new data structure
+      	MovieInstruction::UpdateMovieReview { title, rating, description } => {
+        	// make call to update function that we'll define next
+        	update_movie_review(program_id, accounts, title, rating, description)
+      	}
     }
 }
 ```
 
-Next, we can define the new `update_movie_review` function which will have some similarities to the `add_movie_review` function. First, we’ll grab the `AccountInfo` structs passed in the accounts parameter. There are only two accounts required for this instruction, the `initializer` and the `pda_account` of the review we want to update. After getting the `AccountInfo` structs, we can deserialize the data stored on the `pda_account` because it should already be initialized.
+Next, we can define the new `update_movie_review` function. The definition should have the same parameters as the definition of `add_movie_review`.
 
 ```rust
-pub fn update_movie_review(program_id: &Pubkey,
-accounts: &[AccountInfo],
-title: String,
-rating: u8,
-description: String
+pub fn update_movie_review(
+	program_id: &Pubkey,
+	accounts: &[AccountInfo],
+	title: String,
+	rating: u8,
+	description: String
+) -> ProgramResult {
+    
+}
+```
+
+## 6. Implement `update_movie_review` function
+
+All that's left now is to fill in the logic for updating a movie review. Only let's make it secure from the start.
+
+Just like the `add_movie_review` function, let's start by iterating through the accounts. The only accounts we'll need are the first two: `initializer` and `pda_account`.
+
+```rust
+pub fn update_movie_review(
+	program_id: &Pubkey,
+	accounts: &[AccountInfo],
+	title: String,
+	rating: u8,
+	description: String
 ) -> ProgramResult {
     msg!("Updating movie review...");
 
@@ -505,33 +532,17 @@ description: String
     let initializer = next_account_info(account_info_iter)?;
     let pda_account = next_account_info(account_info_iter)?;
 
-    msg!("unpacking state account");
-    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
-    msg!("borrowed account data");
-
-    account_data.rating = rating;
-    account_data.description = description;
-
-    msg!("serializing account");
-    account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
-    msg!("state account serialized");
-
-    Ok(())
 }
 ```
 
-## 7. Add security checks to `update_movie_review`
-
-We are now ready to apply some basic security checks to our update instruction.
-
 ### Ownership Check
 
-Let’s begin by performing an ownership check to verify that the `pda_account` passed in by the user is owned by our program. We do this by checking that the owner field on the `pda_account` matches the program ID of our movie review program and returning an error if it does not match.
+Before we continue, let's implement some basic security checks. We'll start with an ownership check on for `pda_account` to verify that it is owned by our program. If it isn't, we'll return an `InvalidOwner` error.
 
 ```rust
 if pda_account.owner != program_id {
-      return Err(ProgramError::InvalidOwner)
-    }
+	return Err(ProgramError::InvalidOwner)
+}
 ```
 
 ### Signer Check
@@ -547,7 +558,7 @@ if !initializer.is_signer {
 
 ### Account Validation
 
-Next, let’s check that the `pda_account` passed in by the user is the `pda` we expect. If the addresses do not match, we’ll return our custom `InvalidPDA` error. We'll implement this the same way we did in the `add_movie_review` function.
+Next, let’s check that the `pda_account` passed in by the user is the PDA we expect by rederiving the PDA using `initializer` and `title` as seeds. If the addresses do not match, we’ll return our custom `InvalidPDA` error. We'll implement this the same way we did in the `add_movie_review` function.
 
 ```rust
 // Derive PDA and check that it matches client
@@ -559,9 +570,17 @@ if pda != *pda_account.key {
 }
 ```
 
-### Data Validation
+### Unpack `pda_account` and perform data validation
 
-In the `update_movie_review`function, we want to check if the account has **not** been initialized since we want updating an existing account. If the account does not already exists, then we will return our custom `UninitializedAccount` error.
+Now that our code ensures we can trust the passed in accounts, let's unpack the `pda_account` and perform some data validation. We'll start by unpacking `pda_account` and assigning it to a mutable variable `account_data`.
+
+```rust
+msg!("unpacking state account");
+let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
+msg!("borrowed account data");
+```
+
+Now that we have access to the account and its fields, the first thing we need to do is verify that the account has already been initialized. An unitialized account can't be updated so the program should return our custom `UninitializedAccount` error.
 
 ```rust
 if !account_data.is_initialized() {
@@ -570,20 +589,14 @@ if !account_data.is_initialized() {
 }
 ```
 
-Just like in the `add_movie_review` function, we want to limit the `rating` to a scale of 1 to 5. If the rating provided by the user outside of this range, we’ll return our custom `InvalidRating` error.
+Next, we need to validate the `rating`, `title`, and `description` data ust like in the `add_movie_review` function. We want to limit the `rating` to a scale of 1 to 5 and limit the overall size of the review to be fewer than 1000 bytes. If the rating provided by the user outside of this range, we’ll return our custom `InvalidRating` error, and if the review is too long we'll return our custom `InvalidDataLength` error.
 
 ```rust
 if rating > 5 || rating < 1 {
     msg!("Rating cannot be higher than 5");
     return Err(ReviewError::InvalidRating.into())
 }
-```
 
-Lastly, let’s check that the updated content of the review does not exceed the space total space we’ve allocated for the account. If the size exceeds 1000 bytes, we’ll return our custom `InvalidDataLength` error.
-
-In `update_movie_review` we want to use the title that already exists on the account, so we use `account_data.title.len()`.
-
-```rust
 let total_len: usize = 1 + 1 + (4 + account_data.title.len()) + (4 + description.len());
 if total_len > 1000 {
     msg!("Data length is larger than 1000 bytes");
@@ -591,25 +604,35 @@ if total_len > 1000 {
 }
 ```
 
-All together, the `update_movie_review` function should look something like this. We’ll also include some messages to display in the program logs.
+### Update the movie review account
+
+Now that we've implemented all of the security checks, we can finally update the movie review account by updating `account_data` and re-serializing it. At that point, we can return `Ok` from our program.
 
 ```rust
-pub fn update_movie_review(program_id: &Pubkey,
-accounts: &[AccountInfo],
-title: String,
-rating: u8,
-description: String
-) -> ProgramResult {
+account_data.rating = rating;
+account_data.description = description;
+
+account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
+
+Ok(())
+```
+
+All together, the `update_movie_review` function should look something like the code snippet below. We've included some additional logging for clarity in debugging.
+
+```rust
+pub fn update_movie_review(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
+) -> ProgramResult {    
     msg!("Updating movie review...");
 
     let account_info_iter = &mut accounts.iter();
 
     let initializer = next_account_info(account_info_iter)?;
     let pda_account = next_account_info(account_info_iter)?;
-
-    msg!("unpacking state account");
-    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
-    msg!("review title: {}", account_data.title);
 
     if pda_account.owner != program_id {
       return Err(ProgramError::IllegalOwner)
@@ -626,6 +649,11 @@ description: String
         return Err(ReviewError::InvalidPDA.into())
     }
 
+    msg!("unpacking state account");
+    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
+    msg!("review title: {}", account_data.title);
+
+    msg!("checking if movie account is initialized");
     if !account_data.is_initialized() {
         msg!("Account is not initialized");
         return Err(ReviewError::UninitializedAccount.into());
@@ -663,13 +691,15 @@ description: String
 }
 ```
 
-You are now ready to build and upgrade your program just as before. You can test your program by submitting a transaction with the right instruction data. For that, feel free to use this [frontend](https://github.com/ZYJLiu/solana-movie-frontend). Remember to replace `MOVIE_REVIEW_PROGRAM_ID` with your program ID in `Form.tsx` and `MovieCoordinator.ts` to make sure you're testing the right program.
+## 7. Build and upgrade
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b41889f6273245aca4f5c3) before continuing.
+We're ready to build and upgrade our program! You can test your program by submitting a transaction with the right instruction data. For that, feel free to use this [frontend](https://github.com/Unboxed-Software/solana-movie-frontend). Remember to replace `MOVIE_REVIEW_PROGRAM_ID` with your program ID in `Form.tsx` and `MovieCoordinator.ts` to make sure you're testing the right program.
+
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b62de0f6273245aca4f5ca) before continuing.
 
 # Challenge
 
-Now it’s your turn to build something independently.
+Now it’s your turn to build something independently by building on top of the Student Intro program that you've used in previous lessons. If you haven't been following along or haven't saved your code from before, feel free to use [this starter code](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
 
 The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain.
 
@@ -678,4 +708,4 @@ Using what you've learned in this lesson, try applying what you've learned to th
 1. Add an instruction allowing students to update their message
 2. Implement the basic security checks we've learned in this lesson
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b419c0f6273245aca4f5c4). Note that your code will likely look different depending on the checks you implement and the errors you write.
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b419c0f6273245aca4f5c4). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write.
