@@ -91,9 +91,9 @@ if pda != *note_pda.key {
 
 While these won't comprehensively secure your program, there are a few security checks you can keep in mind to fill in some of the larger gaps in your code:
 
-- Ownership checks - used to verify if an account is owned by the program
-- Signer checks - used to verify that account has signed a transaction
-- General Account Validation - used to verify an account is the expected account
+- Ownership checks - used to verify that an account is owned by the program
+- Signer checks - used to verify that an account has signed a transaction
+- General Account Validation - used to verify that an account is the expected account
 - Data Validation - used to verify the inputs provided by a user
 
 ### Ownership checks
