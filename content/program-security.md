@@ -164,7 +164,7 @@ This is always important to keep in mind, but especially so when dealing with an
 
 To avoid integer overflow and underflow, either:
 
-1. Have logic in place that ensures overflow or underflow _cannot_ happen or
+1. Have logic in place that ensures overflow or underflow *cannot* happen or
 2. Use checked math like `checked_add` instead of `+`
 
 # Demo
