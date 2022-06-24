@@ -49,7 +49,7 @@ Before we dive into some of the common security pitfalls and how to avoid them, 
 
 ### How to create errors
 
-The `solana_program` crate includes a `ProgramError` enum with a list of generic errors that we can use, but it's often useful to create your own to provide more context about the error when debugging.
+While the `solana_program` crate provides a `ProgramError` enum with a list of generic errors we can use, it will often be useful to create your own. Your custom errors will be able to provide more context and detail while you're debugging your code.
 
 We can define our own errors by creating an enum type that lists the errors we want to use. For example, the `NoteError` contains variants `Forbidden` and `InvalidLength`. The enum is made into a Rust `Error` type by using the `derive` attribute macro to implement the `Error` trait from the `thiserror` library. Each error type also has its own #[error(…)] error notation. This lets you provide an error message for each particular error type.
 
