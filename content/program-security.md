@@ -140,7 +140,7 @@ if pda != *note_pda.key {
 
 ## Data validation
 
-Similar to validating accounts, you should also validate other data provided by the client. For example, you may have a game program where a user can allocate character attribute points to various categories. You may have a maximum limit in each category of 100, in which case you would want to verify that the existing allocation of points plus the new allocation doesn't exceed the maximum.
+Similar to validating accounts, you should also validate any data provided by the client. For example, you may have a game program where a user can allocate character attribute points to various categories. You may have a maximum limit in each category of 100, in which case you would want to verify that the existing allocation of points plus the new allocation doesn't exceed the maximum.
 
 ```rust
 if character.agility + new_agility > 100 {
