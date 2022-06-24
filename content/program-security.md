@@ -602,7 +602,7 @@ if !account_data.is_initialized() {
 }
 ```
 
-Next, we need to validate the `rating`, `title`, and `description` data ust like in the `add_movie_review` function. We want to limit the `rating` to a scale of 1 to 5 and limit the overall size of the review to be fewer than 1000 bytes. If the rating provided by the user outside of this range, we’ll return our custom `InvalidRating` error, and if the review is too long we'll return our custom `InvalidDataLength` error.
+Next, we need to validate the `rating`, `title`, and `description` data just like in the `add_movie_review` function. We want to limit the `rating` to a scale of 1 to 5 and limit the overall size of the review to be fewer than 1000 bytes. If the rating provided by the user outside of this range, we’ll return our custom `InvalidRating` error, and if the review is too long we'll return our custom `InvalidDataLength` error.
 
 ```rust
 if rating > 5 || rating < 1 {
