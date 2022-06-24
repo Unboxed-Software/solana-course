@@ -2,19 +2,22 @@
 
 # Lesson Objectives
 
-_By the end of this lesson, you will be able to:_
+*By the end of this lesson, you will be able to:*
 
 - Explain the importance of "thinking like an attacker"
 - Understand basic security practices
+- Perform owner checks
 - Perform signer checks
-- Perform basic data validation
-- Validate `instruction_data` passed in the program
 - Validate accounts passed in the program
+- Perform basic data validation
 
 # TL;DR
 
-- The last two lessons showed you how the movie review program was created, this lesson will be focused on building on top of that and adding functionality to allow users to update their reviews.
-- We’ll also be covering some common security pitfalls in Solana smart contracts and how to avoid them.
+- **Thinking like an attacker** means asking "How do I break this?"
+- Perform **owner checks** to ensure that the provided account is owned by the public key you expect, e.g. ensuring that an account you expect to be a PDA is owned by `program_id`
+- Perform **signer checks** to ensure that any account modification has been signed by the right party or parties
+- **Account validation** entails ensuring that provided accounts are the accounts you expect them to be, e.g. rederiving PDAs with the expected seeds to make sure the address matches the provided account
+- **Data validation** entails ensuring that any provided data meets the criteria required by the program
 
 # Overview
 
@@ -28,100 +31,97 @@ Remember, **you have no control over the transactions that will be sent to your 
 
 [Neodyme](https://workshop.neodyme.io/) gave a presentation at Breakpoint 2021 entitled "Think Like An Attacker: Bringing Smart Contracts to Their Break(ing) Point." If there's one thing you take away from this lesson, it's that you should think like an attacker.
 
-As mentioned previously, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program is different and will have different security risks associated with it. Understanding common pitfalls is _essential but insufficient_. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
+As mentioned previously, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program is different and will have different security risks associated with it. Understanding common pitfalls is *essential but insufficient*. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
 
-As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code _actually does_ as opposed to what you wrote it to do. _All programs can be broken_ - it's not a question of "if." Rather, it's a question of "how much dedication would it take." Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code.
+As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do. *All programs can be broken* - it's not a question of "if." Rather, it's a question of "how much effort and dedication would it take." Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code.
 
-For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. However, if we take a closer look at the code, we'll notice that the program also facilitates a lot of unintentional behavior that we could easily catch by asking "How do I break this?" We'll dig into some of these problems in this lesson, but remember that it's up to you to change your mindset toward security.
+For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. However, if we take a closer look at the code, we'll notice that the program also facilitates a lot of unintentional behavior that we could easily catch by asking "How do I break this?" We'll dig into some of these problems and how to fix them in this lesson, but remember that memorizing a few pitfalls isn't sufficient. It's up to you to change your mindset toward security.
 
 ## Error handling
 
-Before we dive into security checks, it's important to know how use errors in your program. While your code can handle some issues gracefully, other issues will require that your program stop execution and return a program error.
+Before we dive into some of the common security pitfalls and how to avoid them, it's important to know how to use errors in your program. While your code can handle some issues gracefully, other issues will require that your program stop execution and return a program error.
 
-### How to Create Errors
+### How to create errors
 
-The `solana_program` crate includes a `ProgramError` enum with a list of generic errors that we can use, but sometimes it’s helpful to create your own to provide more context about the error when debugging.
+The `solana_program` crate includes a `ProgramError` enum with a list of generic errors that we can use, but it's often useful to create your own to provide more context about the error when debugging.
 
-We can define our own errors by creating an enum type that lists the errors we want to use. For example, the `CustomerError` enum below is declared with the #[derive(Error)] notation which is the derive macro for the `thiserror` library. Each error type also has its own #[error(…)] error notation, which is the error message associated with this particular error type.
+We can define our own errors by creating an enum type that lists the errors we want to use. For example, the `NoteError` contains variants `Forbidden` and `InvalidLength`. The enum is made into a Rust `Error` type by using the `derive` attribute macro to implement the `Error` trait from the `thiserror` library. Each error type also has its own #[error(…)] error notation. This lets you provide an error message for each particular error type.
 
 ```rust
 use solana_program::{program_error::ProgramError};
 use thiserror::Error;
 
 #[derive(Error)]
-pub enum CustomError{
-    #[error("First Error Message Here")]
-    FirstErrorMessageName,
+pub enum NoteError {
+    #[error("Wrong note owner")]
+    Forbidden,
 
-    #[error("Second Error Message Here")]
-    SecondErrorMessageName,
+    #[error("Text is too long")]
+    InvalidLength,
 }
 ```
 
-Before we can use our errors, we must implement a way to turn these custom errors into a `ProgramError`. The compiler will not accept our custom errors as is because it expects only `ProgramError` types from the `solana_program` crate.
+### How to return errors
+
+The compiler expects errors returned by the program to be of type `ProgramError` from the `solana_program` crate. That means we won't be able to return our custom error unless we have a way to convert it into this type. The following implementation handles conversion between our custom error and the `ProgramError` type.
 
 ```rust
-impl From<CustomError> for ProgramError {
-    fn from(e: CustomError) -> Self {
+impl From<NoteError> for ProgramError {
+    fn from(e: NoteError) -> Self {
         ProgramError::Custom(e as u32)
     }
 }
 ```
 
-### How to Return Errors
-
-To use our custom errors within the program, we must first bring the `CustomError` enum into the scope.
+To return the custom error from the program, simply use the `into()` method to convert the error into an instance of `ProgramError`.
 
 ```rust
-use crate::error::CustomError;
+if pda != *note_pda.key {
+    return Err(NoteError::Forbidden.into());
+}
 ```
 
-Next, we can return these errors within our program like any ProgramError by calling the `into()` method to convert our `CustomError` into a `ProgramError`.
+## Basic security checks
 
-```rust
-if <CHECK_LOGIC> {
-        return Err(CustomError::FirstErrorMessageName.into());
-    }
-```
-
-## Basic Security Checks
-
-Now let's go over some basic security checks for developing Solana programs.
-In this section we will go over:
+While these won't comprehensively secure your program, there are a few security checks you can keep in mind to fill in some of the larger gaps in your code:
 
 - Ownership checks - used to verify if an account is owned by the program
 - Signer checks - used to verify that account has signed a transaction
 - General Account Validation - used to verify an account is the expected account
 - Data Validation - used to verify the inputs provided by a user
 
-### Ownership Checks
+### Ownership checks
 
-An ownership check verify that an account is owned by a specified program. As an example, imagine a note-taking app where users can create, update, and delete notes stored by the program in PDA accounts.
+An ownership check verifies that an account is owned by the expeced public key. Let's use the note-taking app example that we've referenced in previous lessons. In this app, users can create, update, and delete notes that are stored by the program in PDA accounts.
 
-If the user invoked the `update` instruction, they would supply the `pda_account` for the movie review they want to update. Since the user can input any instruction data they want, they could provide an account whose data matches the data format of a note account but was not created by the note-taking program. This account could potentially contain malicious data and so should not be trusted.
+If a user were to invoke the `update` instruction, they would need supply the `pda_account` for the movie review they want to update. Since the user can input any instruction data they want, they could provide an account whose data matches the data format of a note account but was not created by the note-taking program. This account could potentially contain malicious data and so should not be trusted.
 
-The simplest way to avoid this problem is to always check that the owner of an account is owned by the program.
+The simplest way to avoid this problem is to always check that the owner of an account is the public key you expect it to be. In this case, we expect the note account to be a PDA account owned by the program itself.
 
 ```rust
 if note_pda.owner != program_id {
-  return Err(ProgramError::InvalidNoteAccount);
+	return Err(ProgramError::InvalidNoteAccount);
 }
 ```
 
-### Signer Checks
+As a side note, using PDAs whenever possible is more secure than trusting externally-owned accounts, even if they are owned by the transaction signer. The only accounts that the program has complete control over are PDA accounts, making them the most secure.
 
-A signer check verifies that an account expected as a signer has actually signed a transaction. For example, lets consider the update instruction for our note-taking app. We would want to verify that the initializer signed the transaction before processing the `update` instruction. Otherwise, anyone can update another user's notes by simply passing in the user's publickey as the initializer.
+### Signer checks
+
+A signer check simply verifies that the right parties have signed a transaction. In the note-taking app, for example, we would want to verify that the note creator signed the transaction before we process the `update` instruction. Otherwise, anyone can update another user's notes by simply passing in the user's public key as the initializer.
 
 ```rust
 if !initializer.is_signer {
-        msg!("Missing required signature");
-        return Err(ProgramError::MissingRequiredSignature)
-    }
+    msg!("Missing required signature");
+    return Err(ProgramError::MissingRequiredSignature)
+}
 ```
 
-### General Account Validation
+### General account validation
 
-An account validation check verifies that an account passed in by the client matches the one we expect. In our note-taking app, we want to check that the `note_pda` account passed in by the client is the account for the note created by the `initializer` with the specified `title`. Without this check, a user could pass in the pda for another note they've created and the program would continue to process the instruction. For example, the user could pass in a valid pda owned by the program and have signed the transaction, but the pda is for a note other than the one with the specified `title`.
+In addition to checking the signers and owners of accounts, it's important to ensure that the provided accounts are what your code expects them to be. For example, you would want to validate that a provided PDA account's address can be rederived with the expected seeds. This ensures that it is the account you expect it to be.
+
+In the note-taking app example, that would mean ensuring that you can rederive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
@@ -132,25 +132,39 @@ if pda != *note_pda.key {
 }
 ```
 
-## Data Validation
+## Data validation
 
-There are situations where we should also check the data inputs provided by the client. For example, image a `rating` is passed in by the user through the `instruction_data`. If we want the limit the rating to a maximum of 5, then we would need to include a data validation check. Otherwise, a user could provide an arbitrary value for the rating and the program would continue to process the instruction.
+Similar to validating accounts, you should also validate other data provided by the client. For example, you may have a game program where a user can allocate character attribute points to various categories. You may have a maximum limit in each category of 100, in which case you would want to verify that the existing allocation of points plus the new allocation doesn't exceed the maximum.
 
 ```rust
-if rating > 5 {
-    msg!("Rating cannot be higher than 5");
-    return Err(CustomError::RatingTooHigh.into())
+if character.agility + new_agility > 100 {
+    msg!("Attribute points cannot exceed 100");
+    return Err(AttributeError::TooHigh.into())
 }
 ```
 
-Similarly, image we stored an `is_initialized` field on an account then want to check whether the account has already been initialized. Note that this specific example is simply to help with debugging as the program would throw an error even without this check if we tried to initialize an account that already existed.
+Or the character may have an allowance of attribute points they can allocate and you want to make sure they don't exceed that allowance.
 
 ```rust
-if account_data.is_initialized() {
-    msg!("Account already initialized");
-    return Err(ProgramError::AccountAlreadyInitialized);
+if attribute_allowance > new_agility {
+	msg!("Trying to allocate more points than allowed");
+	return Err(AttributeError::ExceedsAllowance.into())
 }
 ```
+
+Without these checks, program behavior would differ from what you expect. In some cases, however, it's more than just an issue of undefined behavior. Sometimes failure to validate data can result in security loopholes that are financially devestating. 
+
+For example, imagine that the character referenced in these examples is an NFT. Further, imagine that the program allows the NFT to be staked to earn token rewards proportional to the NFTs number of attribute points. Failure to implement these data validation checks would allow a bad actor to assign an obscenely high number of attribute points and quickly drain your treasury of all the rewards that were meant to be spread more evenly amongst a larger pool of stakers.
+
+### Integer overflow and underflow
+
+Rust integers have fixed sizes. This means they can only support a specific range of numbers. An arithmetic operation that results in a higher or lower value than what is supported by the range will cause the resulting value to wrap around. For example, a `u8` only supports numbers 0-255, so the result of addition that would be 256 would actually be 0, 257 would be 1, etc.
+
+This is always important to keep in mind, but especially so when dealing with any code that represents true value: depositing and withdrawing tokens, for example.
+
+To avoid integer overflow and underflow, either:
+1. Have logic in place that ensures overflow or underflow *cannot* happen or
+2. Use checked math like `checked_add` instead of `+`
 
 # Demo
 
