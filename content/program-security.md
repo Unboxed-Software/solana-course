@@ -239,10 +239,11 @@ Before moving on, make sure you have a solid grasp on the current state of the p
 ## 2. Custom Errors
 
 Let's begin by writing our custom program errors. We'll need errors that we can use in the following situations:
-* The update instruction has been invoked on an account that hasn't been initialized yet
-* The provided PDA doesn't match the expected or derived PDA
-* The input data is larger than the program allows
-* The rating provided does not fall in the 1-5 range
+
+- The update instruction has been invoked on an account that hasn't been initialized yet
+- The provided PDA doesn't match the expected or derived PDA
+- The input data is larger than the program allows
+- The rating provided does not fall in the 1-5 range
 
 The starter code includes an empty `error.rs` file. Open that file and add errors for each of the above cases.
 
