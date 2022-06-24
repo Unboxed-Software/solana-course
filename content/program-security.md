@@ -168,7 +168,7 @@ For example, imagine that the character referenced in these examples is an NFT. 
 
 Rust integers have fixed sizes. This means they can only support a specific range of numbers. An arithmetic operation that results in a higher or lower value than what is supported by the range will cause the resulting value to wrap around. For example, a `u8` only supports numbers 0-255, so the result of addition that would be 256 would actually be 0, 257 would be 1, etc.
 
-This is always important to keep in mind, but especially so when dealing with any code that represents true value: depositing and withdrawing tokens, for example.
+This is always important to keep in mind, but especially so when dealing with any code that represents true value, such as depositing and withdrawing tokens.
 
 To avoid integer overflow and underflow, either:
 
