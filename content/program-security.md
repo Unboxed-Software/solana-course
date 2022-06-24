@@ -31,9 +31,9 @@ Remember, **you have no control over the transactions that will be sent to your 
 
 [Neodyme](https://workshop.neodyme.io/) gave a presentation at Breakpoint 2021 entitled "Think Like An Attacker: Bringing Smart Contracts to Their Break(ing) Point." If there's one thing you take away from this lesson, it's that you should think like an attacker.
 
-As mentioned previously, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program is different and will have different security risks associated with it. Understanding common pitfalls is _essential but insufficient_. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
+As mentioned previously, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program is different and will have different security risks associated with it. Understanding common pitfalls is *essential but insufficient*. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
 
-As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code _actually does_ as opposed to what you wrote it to do. _All programs can be broken_ - it's not a question of "if." Rather, it's a question of "how much effort and dedication would it take." Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code.
+As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do. *All programs can be broken* - it's not a question of "if." Rather, it's a question of "how much effort and dedication would it take." Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code.
 
 For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. However, if we take a closer look at the code, we'll notice that the program also facilitates a lot of unintentional behavior that we could easily catch by asking "How do I break this?" We'll dig into some of these problems and how to fix them in this lesson, but remember that memorizing a few pitfalls isn't sufficient. It's up to you to change your mindset toward security.
 
@@ -487,7 +487,7 @@ pub fn process_instruction(
 }
 ```
 
-Next, we can define the new `update_movie_review` function which will have some similarities to the `add_movie_review` function. First, we’ll grab the `AccountInfo` structs passed in the accounts parameter. There are only two accounts required for this instruction, the `initializer` and the `pda_account` of the review we want to update. After getting the `AccountInfo` structs, we can deserialize the data stored on the `pda_account` because it should already be initialized. We’ll also include some messages to display in the program logs.
+Next, we can define the new `update_movie_review` function which will have some similarities to the `add_movie_review` function. First, we’ll grab the `AccountInfo` structs passed in the accounts parameter. There are only two accounts required for this instruction, the `initializer` and the `pda_account` of the review we want to update. After getting the `AccountInfo` structs, we can deserialize the data stored on the `pda_account` because it should already be initialized.
 
 ```rust
 pub fn update_movie_review(program_id: &Pubkey,
@@ -509,18 +509,8 @@ description: String
     let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
     msg!("borrowed account data");
 
-    msg!("Review before update:");
-    msg!("Title: {}", account_data.title);
-    msg!("Rating: {}", account_data.rating);
-    msg!("Description: {}", account_data.description);
-
     account_data.rating = rating;
     account_data.description = description;
-
-    msg!("Review after update:");
-    msg!("Title: {}", account_data.title);
-    msg!("Rating: {}", account_data.rating);
-    msg!("Description: {}", account_data.description);
 
     msg!("serializing account");
     account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
@@ -601,7 +591,7 @@ if total_len > 1000 {
 }
 ```
 
-All together, the `update_movie_review` function should look something like this:
+All together, the `update_movie_review` function should look something like this. We’ll also include some messages to display in the program logs.
 
 ```rust
 pub fn update_movie_review(program_id: &Pubkey,
