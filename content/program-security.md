@@ -485,7 +485,7 @@ impl MovieInstruction {
 
 ## 5. Define `update_movie_review` function
 
-Now that we can unpack our `instruction_data` and determine which instruction of the program to run, we can add `UpdateMovieReview` to the match statement in the `process_instruction` function in the processor.rs file.
+Now that we can unpack our `instruction_data` and determine which instruction of the program to run, we can add `UpdateMovieReview` to the match statement in the `process_instruction` function in the `processor.rs` file.
 
 ```rust
 // inside processor.rs
