@@ -23,9 +23,9 @@
 
 In the last two lessons we worked through building a Movie Review program together. The end result is pretty cool! It's exciting to get something working in a new development environment.
 
-But proper program development doesn't end at "get it working." It's important to think through the various failure points in your code and try to mitigate them. Failure points are where undesirable behavior in your code could potentially occur, whether due to users interacting with your program in unexpected ways or bad actors intentionally trying to exploit your program.
+Proper program development, however, doesn't end at "get it working." It's important to think through the possible failure points in your code in order to mitigate them. Failure points are where undesirable behavior in your code could potentially occur. Whether due to users interacting with your program in unexpected ways or bad actors intentionally trying to exploit your program, it is good practice to anticipate failure points.
 
-Remember, **you have no control over the transactions that will be sent to your program once it’s deployed**. You can only control how your program handles them. While this lesson is far from a comprehensive overview of program security, we'll cover some of the basic pitfalls you should look out for.
+Remember, **you have no control over the transactions that will be sent to your program once it’s deployed**. You can only control how your program handles them. While this lesson is far from a comprehensive overview of program security, we'll cover some of the basic pitfalls to look out for.
 
 ## Think like an attacker
 
@@ -33,9 +33,15 @@ Remember, **you have no control over the transactions that will be sent to your 
 
 As mentioned previously, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program is different and will have different security risks associated with it. Understanding common pitfalls is *essential but insufficient*. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
 
-As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do. *All programs can be broken* - it's not a question of "if." Rather, it's a question of "how much effort and dedication would it take." Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code.
+As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do.
 
-For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. However, if we take a closer look at the code, we'll notice that the program also facilitates a lot of unintentional behavior that we could easily catch by asking "How do I break this?" We'll dig into some of these problems and how to fix them in this lesson, but remember that memorizing a few pitfalls isn't sufficient. It's up to you to change your mindset toward security.
+### All programs can be broken
+
+It's not a question of "if."
+
+Rather, it's a question of "how much effort and dedication would it take."
+
+Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code. For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. If we take a closer look at the code, however, we'll notice how the program also facilitates a lot of unintentional behavior we could easily catch by asking "How do I break this?" We'll dig into some of these problems and how to fix them in this lesson, but remember that memorizing a few pitfalls isn't sufficient. It's up to you to change your mindset toward security.
 
 ## Error handling
 
@@ -43,9 +49,9 @@ Before we dive into some of the common security pitfalls and how to avoid them, 
 
 ### How to create errors
 
-The `solana_program` crate includes a `ProgramError` enum with a list of generic errors that we can use, but it's often useful to create your own to provide more context about the error when debugging.
+While the `solana_program` crate provides a `ProgramError` enum with a list of generic errors we can use, it will often be useful to create your own. Your custom errors will be able to provide more context and detail while you're debugging your code.
 
-We can define our own errors by creating an enum type that lists the errors we want to use. For example, the `NoteError` contains variants `Forbidden` and `InvalidLength`. The enum is made into a Rust `Error` type by using the `derive` attribute macro to implement the `Error` trait from the `thiserror` library. Each error type also has its own #[error(…)] error notation. This lets you provide an error message for each particular error type.
+We can define our own errors by creating an enum type listing the errors we want to use. For example, the `NoteError` contains variants `Forbidden` and `InvalidLength`. The enum is made into a Rust `Error` type by using the `derive` attribute macro to implement the `Error` trait from the `thiserror` library. Each error type also has its own `#[error("...")]` notation. This lets you provide an error message for each particular error type.
 
 ```rust
 use solana_program::{program_error::ProgramError};
@@ -85,16 +91,16 @@ if pda != *note_pda.key {
 
 While these won't comprehensively secure your program, there are a few security checks you can keep in mind to fill in some of the larger gaps in your code:
 
-- Ownership checks - used to verify if an account is owned by the program
-- Signer checks - used to verify that account has signed a transaction
-- General Account Validation - used to verify an account is the expected account
+- Ownership checks - used to verify that an account is owned by the program
+- Signer checks - used to verify that an account has signed a transaction
+- General Account Validation - used to verify that an account is the expected account
 - Data Validation - used to verify the inputs provided by a user
 
 ### Ownership checks
 
 An ownership check verifies that an account is owned by the expected public key. Let's use the note-taking app example that we've referenced in previous lessons. In this app, users can create, update, and delete notes that are stored by the program in PDA accounts.
 
-If a user were to invoke the `update` instruction, they would need supply the `pda_account` for the movie review they want to update. Since the user can input any instruction data they want, they could provide an account whose data matches the data format of a note account but was not created by the note-taking program. This account could potentially contain malicious data and so should not be trusted.
+If a user were to invoke the `update` instruction, they would need to supply the `pda_account` for the movie review they want to update. Since the user can input any instruction data they want, they could provide an account whose data matches the data format of a note account but was not created by the note-taking program. This account could potentially contain malicious data and so should not be trusted.
 
 The simplest way to avoid this problem is to always check that the owner of an account is the public key you expect it to be. In this case, we expect the note account to be a PDA account owned by the program itself.
 
@@ -121,7 +127,7 @@ if !initializer.is_signer {
 
 In addition to checking the signers and owners of accounts, it's important to ensure that the provided accounts are what your code expects them to be. For example, you would want to validate that a provided PDA account's address can be rederived with the expected seeds. This ensures that it is the account you expect it to be.
 
-In the note-taking app example, that would mean ensuring that you can rederive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
+In the note-taking app example, that would mean ensuring that you can rederive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
@@ -134,7 +140,9 @@ if pda != *note_pda.key {
 
 ## Data validation
 
-Similar to validating accounts, you should also validate other data provided by the client. For example, you may have a game program where a user can allocate character attribute points to various categories. You may have a maximum limit in each category of 100, in which case you would want to verify that the existing allocation of points plus the new allocation doesn't exceed the maximum.
+Similar to validating accounts, you should also validate any data provided by the client.
+
+For example, you may have a game program where a user can allocate character attribute points to various categories. You may have a maximum limit in each category of 100, in which case you would want to verify that the existing allocation of points plus the new allocation doesn't exceed the maximum.
 
 ```rust
 if character.agility + new_agility > 100 {
@@ -143,7 +151,7 @@ if character.agility + new_agility > 100 {
 }
 ```
 
-Or the character may have an allowance of attribute points they can allocate and you want to make sure they don't exceed that allowance.
+Or, the character may have an allowance of attribute points they can allocate and you want to make sure they don't exceed that allowance.
 
 ```rust
 if attribute_allowance > new_agility {
@@ -160,7 +168,7 @@ For example, imagine that the character referenced in these examples is an NFT. 
 
 Rust integers have fixed sizes. This means they can only support a specific range of numbers. An arithmetic operation that results in a higher or lower value than what is supported by the range will cause the resulting value to wrap around. For example, a `u8` only supports numbers 0-255, so the result of addition that would be 256 would actually be 0, 257 would be 1, etc.
 
-This is always important to keep in mind, but especially so when dealing with any code that represents true value: depositing and withdrawing tokens, for example.
+This is always important to keep in mind, but especially so when dealing with any code that represents true value, such as depositing and withdrawing tokens.
 
 To avoid integer overflow and underflow, either:
 
