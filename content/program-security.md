@@ -201,7 +201,7 @@ The refactored starter code is almost the same as what it was before. Since `lib
 - **state.rs -** serialize and deserialize state
 - **error.rs -** custom program errors
 
-In addition to some changes to file structure, we've updated a small amount of code that will let this demo be more focused on security without having you write unecessary boiler plate.
+In addition to some changes to file structure, we've updated a small amount of code that will let this demo be more focused on security without having you write unnecessary boiler plate.
 
 Since we'll be allowing updates to movie reviews, we also changed `account_len` in the `add_movie_review` function (now in `processor.rs`). Instead of calculating the size of the review and setting the account length to only as large as it needs to be, we're simply going to allocate 1000 bytes to each review account. This way, we don’t have to worry about reallocating size or re-calculating rent when a user updates their movie review.
 
