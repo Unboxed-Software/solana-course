@@ -106,7 +106,7 @@ The simplest way to avoid this problem is to always check that the owner of an a
 
 ```rust
 if note_pda.owner != program_id {
-	return Err(ProgramError::InvalidNoteAccount);
+    return Err(ProgramError::InvalidNoteAccount);
 }
 ```
 
@@ -155,8 +155,8 @@ Or, the character may have an allowance of attribute points they can allocate an
 
 ```rust
 if attribute_allowance > new_agility {
-	msg!("Trying to allocate more points than allowed");
-	return Err(AttributeError::ExceedsAllowance.into())
+    msg!("Trying to allocate more points than allowed");
+    return Err(AttributeError::ExceedsAllowance.into())
 }
 ```
 
@@ -174,11 +174,11 @@ To avoid integer overflow and underflow, either:
 
 1. Have logic in place that ensures overflow or underflow *cannot* happen or
 2. Use checked math like `checked_add` instead of `+`
-	```rust
+    ```rust
     let first_int: u8 = 5;
     let second_int: u8 = 255;
     let sum = first_int.checked_add(second_int);
-	```
+    ```
 
 # Demo
 
@@ -201,7 +201,7 @@ The refactored starter code is almost the same as what it was before. Since `lib
 - **state.rs -** serialize and deserialize state
 - **error.rs -** custom program errors
 
-In addition to some changes to file structure, we've updated a small amount of code that will let this demo be more focused on security without having you write unecessary boiler plate.
+In addition to some changes to file structure, we've updated a small amount of code that will let this demo be more focused on security without having you write unnecessary boiler plate.
 
 Since we'll be allowing updates to movie reviews, we also changed `account_len` in the `add_movie_review` function (now in `processor.rs`). Instead of calculating the size of the review and setting the account length to only as large as it needs to be, we're simply going to allocate 1000 bytes to each review account. This way, we don’t have to worry about reallocating size or re-calculating rent when a user updates their movie review.
 
@@ -239,10 +239,11 @@ Before moving on, make sure you have a solid grasp on the current state of the p
 ## 2. Custom Errors
 
 Let's begin by writing our custom program errors. We'll need errors that we can use in the following situations:
-* The update instruction has been invoked on an account that hasn't been initialized yet
-* The provided PDA doesn't match the expected or derived PDA
-* The input data is larger than the program allows
-* The rating provided does not fall in the 1-5 range
+
+- The update instruction has been invoked on an account that hasn't been initialized yet
+- The provided PDA doesn't match the expected or derived PDA
+- The input data is larger than the program allows
+- The rating provided does not fall in the 1-5 range
 
 The starter code includes an empty `error.rs` file. Open that file and add errors for each of the above cases.
 
@@ -444,27 +445,27 @@ Let’s begin by updating `instruction.rs`. We’ll start by adding an `UpdateMo
 ```rust
 // inside instruction.rs
 pub enum MovieInstruction {
-  AddMovieReview {
-    title: String,
-    rating: u8,
-    description: String
-  },
-  UpdateMovieReview {
-    title: String,
-    rating: u8,
-    description: String
-  }
+    AddMovieReview {
+        title: String,
+        rating: u8,
+        description: String
+    },
+    UpdateMovieReview {
+        title: String,
+        rating: u8,
+        description: String
+    }
 }
 ```
 
-The payload struct can stay the same since aside from the variant type, the instruction data is the same as what we used for `AddMovieReview`. 
+The payload struct can stay the same since aside from the variant type, the instruction data is the same as what we used for `AddMovieReview`.
 
 Lastly, in the `unpack` function we need to add `UpdateMovieReview` to the match statement.
 
 ```rust
 // inside instruction.rs
 impl MovieInstruction {
-  pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (&variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
         let payload = MovieReviewPayload::try_from_slice(rest).unwrap();
         Ok(match variant {
@@ -484,7 +485,7 @@ impl MovieInstruction {
 
 ## 5. Define `update_movie_review` function
 
-Now that we can unpack our `instruction_data` and determine which instruction of the program to run, we can add `UpdateMovieReview` to the match statement in the `process_instruction` function in the processor.rs file.
+Now that we can unpack our `instruction_data` and determine which instruction of the program to run, we can add `UpdateMovieReview` to the match statement in the `process_instruction` function in the `processor.rs` file.
 
 ```rust
 // inside processor.rs
@@ -493,17 +494,17 @@ pub fn process_instruction(
     accounts: &[AccountInfo],
     instruction_data: &[u8]
 ) -> ProgramResult {
-	// unpack instruction data
+    // unpack instruction data
     let instruction = MovieInstruction::unpack(instruction_data)?;
     match instruction {
-      	MovieInstruction::AddMovieReview { title, rating, description } => {
-        	add_movie_review(program_id, accounts, title, rating, description)
-      	},
-      	// add UpdateMovieReview to match against our new data structure
-      	MovieInstruction::UpdateMovieReview { title, rating, description } => {
-        	// make call to update function that we'll define next
-        	update_movie_review(program_id, accounts, title, rating, description)
-      	}
+        MovieInstruction::AddMovieReview { title, rating, description } => {
+            add_movie_review(program_id, accounts, title, rating, description)
+        },
+        // add UpdateMovieReview to match against our new data structure
+        MovieInstruction::UpdateMovieReview { title, rating, description } => {
+            // make call to update function that we'll define next
+            update_movie_review(program_id, accounts, title, rating, description)
+        }
     }
 }
 ```
@@ -512,13 +513,13 @@ Next, we can define the new `update_movie_review` function. The definition shou
 
 ```rust
 pub fn update_movie_review(
-	program_id: &Pubkey,
-	accounts: &[AccountInfo],
-	title: String,
-	rating: u8,
-	description: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
 ) -> ProgramResult {
-    
+
 }
 ```
 
@@ -530,11 +531,11 @@ Just like the `add_movie_review` function, let's start by iterating through the 
 
 ```rust
 pub fn update_movie_review(
-	program_id: &Pubkey,
-	accounts: &[AccountInfo],
-	title: String,
-	rating: u8,
-	description: String
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    title: String,
+    rating: u8,
+    description: String
 ) -> ProgramResult {
     msg!("Updating movie review...");
 
@@ -554,7 +555,7 @@ Before we continue, let's implement some basic security checks. We'll start with
 
 ```rust
 if pda_account.owner != program_id {
-	return Err(ProgramError::InvalidOwner)
+    return Err(ProgramError::InvalidOwner)
 }
 ```
 
@@ -593,7 +594,7 @@ let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_accoun
 msg!("borrowed account data");
 ```
 
-Now that we have access to the account and its fields, the first thing we need to do is verify that the account has already been initialized. An unitialized account can't be updated so the program should return our custom `UninitializedAccount` error.
+Now that we have access to the account and its fields, the first thing we need to do is verify that the account has already been initialized. An uninitialized account can't be updated so the program should return our custom `UninitializedAccount` error.
 
 ```rust
 if !account_data.is_initialized() {
@@ -602,7 +603,7 @@ if !account_data.is_initialized() {
 }
 ```
 
-Next, we need to validate the `rating`, `title`, and `description` data ust like in the `add_movie_review` function. We want to limit the `rating` to a scale of 1 to 5 and limit the overall size of the review to be fewer than 1000 bytes. If the rating provided by the user outside of this range, we’ll return our custom `InvalidRating` error, and if the review is too long we'll return our custom `InvalidDataLength` error.
+Next, we need to validate the `rating`, `title`, and `description` data just like in the `add_movie_review` function. We want to limit the `rating` to a scale of 1 to 5 and limit the overall size of the review to be fewer than 1000 bytes. If the rating provided by the user outside of this range, then we’ll return our custom `InvalidRating` error. If the review is too long, then we'll return our custom `InvalidDataLength` error.
 
 ```rust
 if rating > 5 || rating < 1 {
@@ -639,7 +640,7 @@ pub fn update_movie_review(
     title: String,
     rating: u8,
     description: String
-) -> ProgramResult {    
+) -> ProgramResult {
     msg!("Updating movie review...");
 
     let account_info_iter = &mut accounts.iter();
@@ -706,7 +707,7 @@ pub fn update_movie_review(
 
 ## 7. Build and upgrade
 
-We're ready to build and upgrade our program! You can test your program by submitting a transaction with the right instruction data. For that, feel free to use this [frontend](https://github.com/Unboxed-Software/solana-movie-frontend). Remember to replace `MOVIE_REVIEW_PROGRAM_ID` with your program ID in `Form.tsx` and `MovieCoordinator.ts` to make sure you're testing the right program.
+We're ready to build and upgrade our program! You can test your program by submitting a transaction with the right instruction data. For that, feel free to use this [frontend](https://github.com/Unboxed-Software/solana-movie-frontend). Remember, to make sure you're testing the right program you'll need to replace `MOVIE_REVIEW_PROGRAM_ID` with your program ID in `Form.tsx` and `MovieCoordinator.ts`.
 
 If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b62de0f6273245aca4f5ca) before continuing.
 
