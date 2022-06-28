@@ -29,7 +29,7 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    1. [Hello World](./content/hello-world-program.md)
    2. [Create a Basic Program, Part 1 - Handle Instruction Data](./content/deserialize-instruction-data.md)
    3. [Create a Basic Program, Part 2 - State Management](./content/program-state-management.md)
-   4. COMING SOON: Create a Basic Program, Part 3 - Basic Security and validation
+   4. [Create a Basic Program, Part 3 - Basic Security and Validation](./content/program-security.md)
 
 ### Module 4 - Intermediate Solana Program Development
 Coming soon

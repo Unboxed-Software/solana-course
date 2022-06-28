@@ -85,9 +85,10 @@
 4. Create a Basic Program, Part 3 - Basic Security and Validation
    - Explain the importance of "thinking like an attacker"
    - Understand basic security practices
+   - Perform owner checks
    - Perform signer checks
+   - Validate accounts passed into the program
    - Perform basic data validation
-   - Defend against unintended behavior
 
 # Module 4 - Intermediate Solana Program Development
 1. Set up a local dev environment
