@@ -8,7 +8,7 @@
 - Understand basic security practices
 - Perform owner checks
 - Perform signer checks
-- Validate accounts passed in the program
+- Validate accounts passed into the program
 - Perform basic data validation
 
 # TL;DR
