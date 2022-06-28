@@ -38,7 +38,7 @@ Coming soon
 
 We plan for this course to be perpetually open-source and we'd love for anyone and everyone to contribute!
 
-### Adding Content
+### Adding content
 
 The [Course Map](./course-map.md) lists the modules and lessons we plan to create.
 
@@ -47,7 +47,7 @@ To start work, do the following:
 1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
 2. Create a PR to the `rough` branch during or when complete
 
-### Editing Existing Content
+### Editing existing content
 
 If you want to fix a typo or otherwise improve on existing content, follow the same process as with adding content:
 
@@ -70,6 +70,6 @@ General flow for making a contribution:
 **NOTE**: Be sure to merge the latest from `upstream/rough` before making a
 pull request!
 
-### Providing General Feedback
+### Providing general feedback
 
 If you have feedback on content or suggestions for additional content, simply [create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) explaining your feedback/suggestions.
