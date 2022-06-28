@@ -12,7 +12,7 @@ The first two modules will primarily focus on client-side Solana development whe
 
 While you can absolutely just jump into the lessons below, we suggest you start by reading our [Course Guide](./content/getting-started.md) first for a primer on how lessons are organized and how you can get the most out of them.
 
-### Module 1 - Client interaction with the Solana Network
+### Module 1 - Client interaction with the Solana network
    1. [Read data from the network](./content/intro-to-reading-data.md)
    2. [Write data to the network](./content/intro-to-writing-data.md)
    3. [Interact with wallets](./content/interact-with-wallets.md)
@@ -25,13 +25,13 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    2. [Swap tokens with the Token Swap Program](./content/token-swap.md)
    3. [Create Solana NFTs With Metaplex](./content/nfts-with-metaplex.md)
 
-### Module 3 - Basic Solana Program Development
+### Module 3 - Basic Solana program development
    1. [Hello World](./content/hello-world-program.md)
    2. [Create a Basic Program, Part 1 - Handle Instruction Data](./content/deserialize-instruction-data.md)
    3. [Create a Basic Program, Part 2 - State Management](./content/program-state-management.md)
    4. COMING SOON: Create a Basic Program, Part 3 - Basic Security and validation
 
-### Module 4 - Intermediate Solana Program Development
+### Module 4 - Intermediate Solana program development
 Coming soon
 
 ## Contribute To The Course
