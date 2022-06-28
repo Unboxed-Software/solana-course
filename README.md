@@ -2,7 +2,7 @@
 
 ## About
 
-This course is designed to be the absolute best starting point for Web Developers looking to learn Web3 Development. Solana is the ideal network for starting your Web3 journey because of its high speed, low cost, energy efficiency, and more. 
+This course is designed to be the absolute best starting point for Web Developers looking to learn Web3 Development. Solana is the ideal network for starting your Web3 journey because of its high speed, low cost, energy efficiency, and more.
 
 This course is being made publicly available upon completion of the first of four planned modules. We'll update the list of available lessons in the [Get Started](#get-started) section below as they're completed. If you'd like to help out, have a look [how you can contribute](#contribute-to-the-course).
 
@@ -36,11 +36,11 @@ Coming soon
 
 ## Contribute To The Course
 
-We plan for this course to be perpetually open-source and we'd love for anyone and everyone to contribute! 
+We plan for this course to be perpetually open-source and we'd love for anyone and everyone to contribute!
 
 ### Adding Content
 
-The [Course Map](./course-map.md) lists the modules and lessons we plan to create. 
+The [Course Map](./course-map.md) lists the modules and lessons we plan to create.
 
 To start work, do the following:
 
@@ -67,7 +67,7 @@ General flow for making a contribution:
 4. Push your work back up to your fork
 5. Submit a Pull request so that we can review your changes
 
-**NOTE**: Be sure to merge the latest from `upstream/rough` before making a 
+**NOTE**: Be sure to merge the latest from `upstream/rough` before making a
 pull request!
 
 ### Providing General Feedback
