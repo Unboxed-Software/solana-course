@@ -34,7 +34,7 @@ While you can absolutely just jump into the lessons below, we suggest you start 
 ### Module 4 - Intermediate Solana program development
 Coming soon
 
-## Contribute To The Course
+## Contribute to the Course
 
 We plan for this course to be perpetually open-source and we'd love for anyone and everyone to contribute!
 
