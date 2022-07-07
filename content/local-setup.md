@@ -31,7 +31,7 @@ If you are on Windows 10 version 2004 and higher (Build 19041 and higher) or Win
 wsl --install
 ```
 
-If you are running an older version of windows, follow the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install-manual). 
+If you are running an older version of windows, follow the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install-manual).
 
 You can read more about installing WSL [here](https://docs.microsoft.com/en-us/windows/wsl/install).
 
@@ -49,7 +49,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ### Download Solana CLI
 
-Now we are ready to download Solana CLI for Linux. Go ahead and run the following command in an Ubuntu terminal. You can read more about downloading Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools). 
+Now we are ready to download Solana CLI for Linux. Go ahead and run the following command in an Ubuntu terminal. You can read more about downloading Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
 
 ```bash
 sh -c "$(curl -sSfL https://release.solana.com/v1.10.24/install)"
@@ -194,7 +194,7 @@ Let’s practice by building and deploying the “Hello World!” program from l
 
 ### 1. Setup Solana Config
 
-First, set to endpoint to Devnet using the `solana config set --url` ****command.
+First, set to endpoint to Devnet using the `solana config set --url` command.
 
 ```bash
 solana config set --url https://api.devnet.solana.com
@@ -208,7 +208,7 @@ solana config get
 
 ### 2. Create New Rust Project
 
-Now we are ready to create our a new program.  Run the `cargo new --lib` command.
+Now we are ready to create our a new program. Run the `cargo new --lib` command.
 
 ```bash
 cargo new --lib <PROJECT_FILE_NAME>
@@ -274,7 +274,7 @@ The `solana program deploy` will output the `Program Id` for your program. You c
 
 # Challenge
 
-Now that the program is deployed, try invoking your program using the client-side script [here](https://github.com/ZYJLiu/solana-hello-world-client). 
+Now that the program is deployed, try invoking your program using the client-side script [here](https://github.com/ZYJLiu/solana-hello-world-client).
 
 Replace the program Id with the one from the program you just deployed and then run `npm start`. This will return a Solana Explorer URL. Copy the URL into the browser to look up the transaction on Solana Explorer and check that “Hello, World!” was printed to the program log. Alternatively, you can use the `solana logs | grep "<PROGRAM_ID> invoke" -A <NUMBER_OF_LINES_TO_RETURN>` command to view the program logs in a separate terminal.
 
