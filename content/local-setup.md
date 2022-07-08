@@ -99,7 +99,7 @@ solana config set --url devnet
 solana config set --url mainnet-beta
 ```
 
-Similarly, use the `solana config set --keypair` command to change the `Keypair Path`. Solana CLI will now use the keypair from the specified path when running commands.
+Similarly, use the `solana config set --keypair` command to change the `Keypair Path`. Solana CLI will then use the keypair from the specified path when running commands.
 
 ```bash
 solana config set --keypair ~/<FILE_PATH>
@@ -123,7 +123,7 @@ To view the SOL balance of the current keypair set in `solana config`, use the `
 solana balance
 ```
 
-To airdrop SOL on Devnet or Localhost, use the `solana airdrop <AMOUNT>` command. Note that while on Devnet you are limited to 2 SOL per airdrop.
+To airdrop SOL on devnet or localhost, use the `solana airdrop <AMOUNT>` command. Note that while on devnet you are limited to 2 SOL per airdrop.
 
 ```bash
 solana airdrop 2
@@ -175,7 +175,7 @@ Let's practice by building and deploying the "Hello World!" program that we crea
 
 ### 1. Setup Solana Config
 
-First, set to endpoint to localhost using the `solana config set --url` \*\*\*\*command.
+First, set to endpoint to localhost using the `solana config set --url' command.
 
 ```bash
 solana config set --url localhost
@@ -271,9 +271,9 @@ With the test validator still running, try invoking your program using the clien
 
 Now it’s your turn to build something independently. Try to build a new program to print your own message to the program logs. This time deploy your program to devnet instead of localhost.
 
-Remember to update your `RPC URL` to devnet using the `solana config set --url` \*\*\*\*command.
+Remember to update your `RPC URL` to devnet using the `solana config set --url` command.
 
-You can invoke the program using the same client-side script from the demo by updating the connection to and Solana Explorer URL to devnet.
+You can invoke the program using the same client-side script from the demo by updating the connection and Solana Explorer URL to devnet.
 
 ```tsx
 let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
