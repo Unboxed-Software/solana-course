@@ -709,7 +709,7 @@ pub fn update_movie_review(
 
 We're ready to build and upgrade our program! You can test your program by submitting a transaction with the right instruction data. For that, feel free to use this [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews).  Remember, to make sure you're testing the right program you'll need to replace `MOVIE_REVIEW_PROGRAM_ID` with your program ID in `Form.tsx` and `MovieCoordinator.ts`.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b62de0f6273245aca4f5ca) before continuing.
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62c8c6dbf6273245aca4f5e7) before continuing.
 
 # Challenge
 
