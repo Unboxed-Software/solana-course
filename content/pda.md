@@ -29,7 +29,7 @@ In this lesson we will focus on using PDAs to store data. We will discuss signin
 
 ### Finding PDAs
 
-PDAs are not technically created. Rather, they are _found_ or _derived_ based on a program ID and one or more input seeds. Regular Solana keypairs lie on the ed25519 Elliptic Curve and have public/private keys. PDAs are addresses that lie _off_ the ed25519 Elliptic curve and do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are simply 32 byte strings that look like public keys without an associated private key.
+PDAs are not technically created. Rather, they are _found_ or _derived_ based on a program ID and one or more input seeds. Regular Solana keypairs lie on the ed25519 Elliptic Curve and have public/private keys. PDAs are addresses that lie _off_ the ed25519 Elliptic curve and do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
 
 To find a PDA within a Solana program, we use the `find_program_address` function. This function takes an optional list of “seeds” and a program ID as inputs, and then returns the PDA and a bump seed.
 
@@ -37,11 +37,11 @@ To find a PDA within a Solana program, we use the `find_program_address` functio
 let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_input.as_bytes().as_ref(), "SEED".as_bytes()], program_id)
 ```
 
-“Seeds” are simply optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and with no additional seeds. However, using seeds to find a PDA allows us to create an arbitrary number of accounts our program can own.
+“Seeds” are optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and with no additional seeds. However, using seeds to find a PDA allows us to create an arbitrary number of accounts our program can own.
 
 A “bump seed” is an additional seed the `find_program_address` function includes to ensure the PDA lies _off_ the ed25519 Elliptic curve and does not have a corresponding private key. The `find_program_address` function tries to find a PDA using the optional seeds provided, the program ID, and the “bump seed” starting from 255. If the output is not a valid PDA, then the function decreases the bump by 1 and tries again (255, 254, 253, etc). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
-Under the hood, the `find_program_address` function the input `seeds` and `program_id` to the `try_find_program_address` function.
+Under the hood, the `find_program_address` function passes the input `seeds` and `program_id` to the `try_find_program_address` function.
 
 ```rust
  pub fn find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> (Pubkey, u8) {
@@ -50,7 +50,7 @@ Under the hood, the `find_program_address` function the input `seeds` and `progr
     }
 ```
 
-The `try_find_program_address` function then introduces the `bump_seed`. The `bump_seed` is simply a `u8` variable with a value ranging between 0 to 255. In a loop from 255 to 0, the `bump_seed` is appended to the optional input seeds which is then passed to the `create_program_address` function. If the output of `create_program_address` is not a valid PDA, then the `bump_seed` is decreased by 1 and the loop continues.
+The `try_find_program_address` function then introduces the `bump_seed`. The `bump_seed` is a `u8` variable with a value ranging between 0 to 255. In a loop from 255 to 0, a `bump_seed` is appended to the optional input seeds and then passed to the `create_program_address` function. If the output of `create_program_address` is not a valid PDA, then the `bump_seed` is decreased by 1 and the loop continues.
 
 ```rust
 pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<(Pubkey, u8)> {
@@ -73,7 +73,7 @@ pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<
 }
 ```
 
-The `create_program_address` function performs a set of hash operations over the input seeds and `program_id` to compute a key and then verifies if the computed key lies on the ed25519 elliptic curve or not. If a valid PDA is found, then the PDA is returned. Otherwise, an error is returned.
+The `create_program_address` function performs a set of hash operations over the seeds and `program_id` to compute a key and then verifies if the computed key lies on the ed25519 elliptic curve or not. If a valid PDA is found, then the PDA is returned. Otherwise, an error is returned.
 
 ```rust
 pub fn create_program_address(
@@ -97,7 +97,7 @@ pub fn create_program_address(
     }
 ```
 
-In summary, the `find_program_address` passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds calls the `create_program_address` function in a loop until a valid PDA is found. Once a valid PDA is found, both the PDA and `bump_seed` are returned.
+In summary, the `find_program_address` function passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds calls the `create_program_address` function in a loop until a valid PDA is found. Once a valid PDA is found, both the PDA and `bump_seed` are returned.
 
 Note that it is possible for the same input seeds and different valid bumps to generate different valid PDAs. The `bump_seed` returned by `find_program_address` will always be the first valid PDA found, and thus the `bump_seed` with the largest value. This `bump_seed` is commonly referred to as the "canonical bump". It's recommended to only use the canonical bump to avoid confusion and alway validate the PDAs passed into your program.
 
