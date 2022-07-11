@@ -12,22 +12,24 @@ _By the end of this lesson, you will be able to:_
 # TL;DR
 
 - A Program Derived Address (PDA) is derived from a program ID and an optional list of seeds.
-- PDAs are designed to be controlled by the program they are derived from
-- PDAs provide a deterministic way to find data stored on accounts
-- Programs can sign instruction for PDAs derived from its program ID
+- PDAs are controlled by the program they are derived from
+- PDAs provide a deterministic way to find data
+- Programs can sign instructions on behalf of PDAs derived from its program ID
+
+# Overview
 
 ## What is a Program Derived Address
 
-Program Derived Addresses (PDAs) are effectively account addresses designed to be signed for by a program rather than a secret key. As the name suggests, PDAs are derived using a program ID and an optional set of seeds. A PDA has the same form as a Solana public key, expect they are ensured to not be on the ed25519 curve and thus have no associated private key.
+Program Derived Addresses (PDAs) are account addresses designed to be signed for by a program rather than a secret key. As the name suggests, PDAs are derived using a program ID. Optionally, the derived accounts can also be found using a set of "seeds." More on this later, but these seeds will play an important role in how we use PDAs for data storage and retrieval. A PDA looks exactly like the public key of a Solana key pair. There is an important difference, though - these public keys have no corresponding private key. In other words, unlike the public keys of Solana key pairs, PDAs are not on the ed25519 curve.
 
 PDAs serve two main functions:
 
 1. Provide a deterministic way to find the address of an account
-2. Authorize a program to sign for a PDA in the same way a user may sign with the private key associated with their public key.
+2. Authorize a program to sign on their behalf in the same way a user may sign with their private key.
 
-In this lesson we will focus on using PDAs to store data. We will discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
+In this lesson we will focus on using PDAs to find and store data. We will We will discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
 
-### Finding PDAs
+## Finding PDAs
 
 PDAs are not technically created. Rather, they are _found_ or _derived_ based on a program ID and one or more input seeds. Regular Solana keypairs lie on the ed25519 Elliptic Curve and have public/private keys. PDAs are addresses that lie _off_ the ed25519 Elliptic curve and do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
 
@@ -37,9 +39,11 @@ To find a PDA within a Solana program, we use the `find_program_address` functio
 let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_input.as_bytes().as_ref(), "SEED".as_bytes()], program_id)
 ```
 
-“Seeds” are optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and with no additional seeds. However, using seeds to find a PDA allows us to create an arbitrary number of accounts our program can own.
+### Seeds
 
-A “bump seed” is an additional seed the `find_program_address` function includes to ensure the PDA lies _off_ the ed25519 Elliptic curve and does not have a corresponding private key. The `find_program_address` function tries to find a PDA using the optional seeds provided, the program ID, and the “bump seed” starting from 255. If the output is not a valid PDA, then the function decreases the bump by 1 and tries again (255, 254, 253, etc). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
+“Seeds” are optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and no additional seeds. Using seeds to find our PDAs, however, allows us to create an arbitrary number of accounts our program can own.
+
+A “bump seed” is an additional seed the `find_program_address` function includes to ensure the PDA lies off the ed25519 Elliptic curve, i.e. to ensure the PDA does not have a corresponding private key. The `find_program_address` function tries to find a PDA using the optional seeds provided, the program ID, and the “bump seed” starting from 255. If the output is not a valid PDA, then the function decreases the bump by 1 and tries again (255, 254, 253, etc). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
 Under the hood, the `find_program_address` function passes the input `seeds` and `program_id` to the `try_find_program_address` function.
 
@@ -99,13 +103,13 @@ pub fn create_program_address(
 
 In summary, the `find_program_address` function passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds calls the `create_program_address` function in a loop until a valid PDA is found. Once a valid PDA is found, both the PDA and `bump_seed` are returned.
 
-Note that it is possible for the same input seeds and different valid bumps to generate different valid PDAs. The `bump_seed` returned by `find_program_address` will always be the first valid PDA found, and thus the `bump_seed` with the largest value. This `bump_seed` is commonly referred to as the "canonical bump". It's recommended to only use the canonical bump to avoid confusion and alway validate the PDAs passed into your program.
+Note that for the same input seeds, different valid bumps will generate different valid PDAs. The `bump_seed` returned by `find_program_address` will always be the first valid PDA found. Because the function starts with a `bump_seed` value of 255 and iterates downwards to zero, the `bump_seed` that ultimately gets returned will always be the largest valid 8-bit value possible. This `bump_seed` is commonly referred to as the "canonical bump". To avoid confusion, it's recommended to only use the canonical bump, and to always validate every PDA passed into your program.
 
-### Why do PDAs matter?
+## Why do PDAs matter?
 
-PDAs are important because it allows us to easily map our program’s accounts. Instead of keeping track of each address, we simply need to remember the seeds used to derive PDAs to find an account.
+PDAs are important because they allows us to easily map our program’s accounts. Instead of keeping track of each address, we simply need to remember the seeds used to derive PDAs to find an account.
 
-For example, in programs that store user-specific data it’s common to use a user’s public key as the seed. This separates each user’s data into its own PDA and makes it possible for the client to locate each user’s data by finding the address using the program ID and the user’s public key. One limitation of this approach is that it would limit each user to only one PDA account for our program.
+For example, in programs that store user-specific data it’s common to add a user’s public key as an optional seed. This separates each user’s data into its own PDA and makes it possible for the client to locate each user’s data by finding the address with the program ID and the user’s public key. One limitation of this approach is that it would limit each user to only one PDA account for our program.
 
 If we wanted to associate multiple PDA accounts with a user, we would use one or more additional seeds to create and identify accounts. For example, in a note-taking app there may be one account per note where each PDA is derived with the user’s public key and the note’s title.
 
@@ -113,7 +117,7 @@ In addition to providing a deterministic way to derive a unique address for an a
 
 ## Store and locate data with PDAs
 
-Without talking about it explicitly, we’ve been mapping seeds to PDAs this entire course. Think about the Movie Review program where we used the initializer’s public key and the movie title as the seeds to derive a PDA for each new account.
+Without talking about it explicitly, we’ve been mapping seeds to PDAs this entire course. Think about the Movie Review program we built. Remember how we used the initializer’s public key and the movie title? Yep, we used them as the seeds. With those seeds we were able to derive a PDA for each new movie reviewing account.
 
 ### Map to data using PDA derivation
 
@@ -307,7 +311,7 @@ impl MovieInstruction {
 }
 ```
 
-### 3. Update to `processor.rs`
+### 4. Update to `processor.rs`
 
 Recall that `processor.rs` defines the logic for how we process each instruction within our program. To enable commenting, we’ll update the `add_movie_review` function and then implement the `add_comment` function.
 
@@ -499,7 +503,7 @@ pub fn add_comment(
 }
 ```
 
-### 4. Build and deploy
+### 5. Build and deploy
 
 We're ready to build and deploy our program!
 
