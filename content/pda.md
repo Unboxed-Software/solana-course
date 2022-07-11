@@ -514,7 +514,7 @@ If you need more time with this project to feel comfortable with these concepts,
 
 # Challenge
 
-Now it’s your turn to build something independently by building on top of the Student Intro program that you've used in previous lessons. If you haven't been following along or haven't saved your code from before, feel free to use this [starter code](https://beta.solpg.io/62c9120df6273245aca4f5e8).
+Now it’s your turn to build something independently. If you haven't been following along or haven't saved your work from before, feel free to use this [starter code](https://beta.solpg.io/62c9120df6273245aca4f5e8).
 
 The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain.
 
