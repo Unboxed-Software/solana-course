@@ -518,7 +518,7 @@ Now it’s your turn to build something independently. If you haven't been follo
 
 The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain.
 
-Using what you've learned in this lesson, try applying what you've learned to the Student Intro Program.
+Using the concepts and tools detailed in this lesson, apply what you've learned to the Student Intro Program.
 
 1. Build and deploy the program locally
 2. Add an instruction allowing other users to reply to an intro
