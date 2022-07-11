@@ -151,13 +151,13 @@ If you've been following along with the Movie Review demos, you'll notice that t
 
 Open the folder, then run `cargo-build-bpf` to build the program. The `cargo-build-bpf` command will output instruction to deploy the program.
 
-```bash
+```sh
 cargo-build-bpf
 ```
 
 Deploy the program by copying the output of `cargo-build-bpf` and running the `solana program deploy` command.
 
-```bash
+```sh
 solana program deploy <PATH>
 ```
 
