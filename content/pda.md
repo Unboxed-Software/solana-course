@@ -121,7 +121,7 @@ Without talking about it explicitly, we’ve been mapping seeds to PDAs this ent
 
 ### Map to data using PDA derivation
 
-What we are currently doing with the Movie Review program is mapping given seeds to data accounts. Deriving the PDAs for our movie review accounts this way allowed us to create a unique address for every new review. To later retrieve the review account, all we need to know is the initializer’s public key and the movie title of the review.
+What we are currently doing with the Movie Review program is mapping given seeds to data accounts. Deriving the PDAs for our movie review accounts this way allows us to create a unique address for every new review. To later retrieve the review account, all we need to know is the initializer’s public key and the movie title of the review.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id)
