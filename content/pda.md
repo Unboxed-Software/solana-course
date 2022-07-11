@@ -27,7 +27,7 @@ PDAs serve two main functions:
 1. Provide a deterministic way to find the address of an account
 2. Authorize a program to sign on their behalf in the same way a user may sign with their private key.
 
-In this lesson we will focus on using PDAs to find and store data. We will We will discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
+In this lesson we will focus on using PDAs to find and store data. We will discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
 
 ## Finding PDAs
 
