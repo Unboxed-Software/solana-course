@@ -1,23 +1,25 @@
-# CPIs
+# Cross Program Invocations
 
-### List links for further reading here:
+### Further Reading:
 
-- [https://docs.solana.com/developing/programming-model/calling-between-programs](https://docs.solana.com/developing/programming-model/calling-between-programs)
-- [https://solanacookbook.com/references/programs.html#how-to-do-cross-program-invocation](https://solanacookbook.com/references/programs.html#how-to-do-cross-program-invocation)
+- [Official Solana CPI Docs](https://docs.solana.com/developing/programming-model/calling-between-programs)
+- [Solana Cookbook](https://solanacookbook.com/references/programs.html#how-to-do-cross-program-invocation)
 
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
 
 - Explain Cross-Program Invocations
-- Understand how to construct and use comparison
+- Understand how to construct and use CPIs
 - Understand how a program provides a signature for a PDA
+- Understand some pitfalls and troubleshoot some common errors associated with CPIs
 
 # TL;DR
 
-- A **Cross-Program Invocation (CPI)** is a call from one program to another.
+- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific instruction on the called program.
 - CPIs are made using the commands **`invoke`** or **`invoke_signed`**, which is also how programs provide signatures for PDAs that they own.
 - CPIs make all programs in the Solana ecosystem completely interoperable because all public instructions of a program can be invoked by another program via a CPI.
+- Because we have no control over the accounts and data submitted to a program, it's important to verify all of the parameters passed into a CPI to ensure program security.
 
 # Overview
 
@@ -38,7 +40,7 @@ pub fn invoke(
     account_infos: &[AccountInfo<'_>]
 ) -> ProgramResult
 
-// used when a program must provide a 'signature' for a PDA, hence the signer_seeds param
+// used when a program must provide a 'signature' for a PDA, hence the signer_seeds parameter
 pub fn invoke_signed(
     instruction: &Instruction,
     account_infos: &[AccountInfo<'_>],
@@ -82,7 +84,7 @@ assert_eq!(v[1], 2);
 assert_eq!(v[2], 3);
 ```
 
-The `accounts` field of the `Instruction` struct is expecting a vector of [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html) objects, which can be created one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters, `pubkey: Pubkey` and `is_signer: bool`. The account metadata struct returned from both looks like this
+The `accounts` field of the `Instruction` struct is expecting a vector of [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html) objects, which can be created one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters, `pubkey: Pubkey` and `is_signer: bool`. The account metadata struct returned from both looks like this, look familiar?
 ```rust
 pub struct AccountMeta {
     pub pubkey: Pubkey,
@@ -92,6 +94,8 @@ pub struct AccountMeta {
 ```
 An example of putting this in action may look something like
 ```rust
+use solana_program::instruction::AccountMeta;
+
 vec![
    AccountMeta::new(account1_pubkey, true),
    AccountMeta::read_only(account2_pubkey, false),
@@ -118,19 +122,19 @@ invoke_signed(
 )?;
 ```
 
-While PDAs have no private keys of their own, they can be used by a program to issue an instruction that includes the program address as a signer. The only way for the runtime to verify that the address belongs to a program is for the program to supply the seeds used to generate the address in the `signers_seeds` field. The runtime will internally call `create_program_address` using the seeds provided and the `program_id` of the program calling `invoke_signed`, and compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that the address is a PDA of the calling program and it has ‘signed’ this transaction.
+While PDAs have no private keys of their own, they can be used by a program to issue an instruction that includes the program address as a signer. The only way for the runtime to verify that the address belongs to a program is for the program to supply the seeds used to generate the address in the `signers_seeds` field. The Solana runtime will internally call `create_program_address` using the seeds provided and the `program_id` of the program calling `invoke_signed`, and compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that the address is a PDA of the calling program and it has ‘signed’ this transaction.
 
 ## Why CPIs Matter?
 
 CPIs are a very important feature of the Solana ecosystem and they make all programs deployed interoperable with each other. With CPIs there is no need to re-invent the wheel when it comes to development. This creates the opportunity for building new protocols and applications on top of what’s already been built, just like building blocks or legos. It’s important to remember that CPIs are a two-way street and the same is true for any programs that you deploy! If you build something cool and useful, developers have the ability to build on top of what you’ve done or just plug your protocol into whatever it is that they are building.
 
-Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate valid transactions with signatures for those addresses which can be very useful for many applications in Web3 (DeFi, NFTs, etc.). Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs).
+Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate valid transactions with signatures for those addresses, which can be very useful for many applications in Web3 (DeFi, NFTs, etc.). Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs).
 
 ## Best Practices and Common Pitfalls
 
-There are some common mistakes and things to remember when utilizing CPIs that are important to your program’s security and robustness. The first thing to remember is that, as we know by now, we have no control over what information is passed into our programs. For this reason, it’s important to always verify the `program_id`, accounts, and data passed into the CPI. Without these security checks, someone could submit a transaction that invokes an instruction on a completely different program than was expected which is not ideal. Luckily, there are inherent checks on the validity of any PDAs that are marked as signers within the `invoke_signed` function, but all other accounts and `instruction_data` must be verified somewhere in your program before making the CPI. It is also important to remember you’re targeting the intended instruction on the program you are invoking. The easiest way to do this is to read the source code, the same way you would if you were constructing an instruction from the client side.
+There are some common mistakes and things to remember when utilizing CPIs that are important to your program’s security and robustness. The first thing to remember is that, as we know by now, we have no control over what information is passed into our programs. For this reason, it’s important to always verify the `program_id`, accounts, and data passed into the CPI. Without these security checks, someone could submit a transaction that invokes an instruction on a completely different program than was expected, which is not ideal. Luckily, there are inherent checks on the validity of any PDAs that are marked as signers within the `invoke_signed` function, but all other accounts and `instruction_data` must be verified somewhere in your program before making the CPI. It is also important to remember to make sure you’re targeting the intended instruction on the program you are invoking. The easiest way to do this is to read the source code of the program you will be invoking, the same way you would if you were constructing an instruction from the client side.
 
-There are some common errors you might receive when invoking CPIs, they usually mean you are constructing the CPI with incorrect information. For example, you may come across an error message similar to this:
+There are some common errors you might receive when executing a CPI, they usually mean you are constructing the CPI with incorrect information. For example, you may come across an error message similar to this:
 
 ```
 EF1M4SPfKcchb6scq297y8FPCaLvj5kGjwMzjTM68wjA's signer privilege escalated
@@ -145,6 +149,7 @@ Another error very similar to the incorrect signature message that often comes u
 2qoeXa9fo8xVHzd2h9mVcueh6oK3zmAiJxCTySM5rbLZ's writable privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
+Remember, any account whose data may be mutated by the program during execution must be specified as writable. During execution, writing to an account that was not specified as writable will cause the transaction to fail. Writing to an account that is not owned by the program will cause the transaction to fail. Any account whose lamport balance may be mutated by the program during execution must be specified as writable. During execution, mutating the lamports of an account that was not specified as writable will cause the transaction to fail. While subtracting lamports from an account not owned by the program will cause the transaction to fail, adding lamports to any account is allowed, as long is it is mutable.
 
 To see this in action, view this [transaction in the explorer](https://explorer.solana.com/tx/ExB9YQJiSzTZDBqx4itPaa4TpT8VK4Adk7GU5pSoGEzNz9fa7PPZsUxssHGrBbJRnCvhoKgLCWnAycFB7VYDbBg?cluster=devnet).
 
@@ -152,7 +157,7 @@ To see this in action, view this [transaction in the explorer](https://explorer.
 
 To get some hands on experience with CPIs, we’ll be making some additions to the Movie Review program again.
 
-Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to add some functionality so that users will be minted tokens anytime a review is created or they leave a comment on a review.
+Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to add some functionality so that users will be minted tokens anytime a review is created or they leave a comment on a review. To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI.
 
 ### 1. Get starter code
 
@@ -160,7 +165,7 @@ To get started, we will be using the final state of the Movie Review program fro
 
 ### 2. Updates to add_movie_review
 
-Because we want users to be minted tokens upon creating a review, it would make sense to add this logic inside the `add_movie_review` function which is exactly what we’ll be doing. To implement this, the first thing we need to do is import the address of the token program and the constant `LAMPORTS_PER_SOL`.
+To implement this, the first thing we need to do is import the address of the token program and the constant `LAMPORTS_PER_SOL`.
 
 ```rust
 // inside processor.rs
@@ -168,7 +173,7 @@ use spl_token::ID as TOKEN_PROGRAM_ID;
 use solana_program::native_token::LAMPORTS_PER_SOL;
 ```
 
-Then, we’ll need to determine which accounts will be needed for this new functionality. Right now, the function expects four accounts - we’ll need to update the beginning of the function to this:
+Because we want users to be minted tokens upon creating a review, it would make sense to add the logic inside the `add_movie_review` function. To start, we’ll need to determine which accounts will be needed for this new functionality. Right now, the function expects four accounts - we’ll need to update the beginning of the function to this:
 
 ```rust
 // inside add_movie_review
@@ -216,7 +221,7 @@ if *token_program.key != TOKEN_PROGRAM_ID {
 }
 ```
 
-First, we derive the mint authority using `find_program_address` with the seed “tokens”. The mint authority must be a PDA of this program in order for the program have the ability to mint tokens to users. Then, we check that the address of the derived mint authority is equal to the one passed in to the program. We also verify the address of the token program that was passed in.
+First, we derive the mint authority address using the `find_program_address` function with the seed “tokens”. The mint authority must be a PDA of this program in order for the program have the ability to mint tokens to users. Then, we check that the address of the derived mint authority is equal to the one passed in to the program. We also verify the address of the token program that was passed in.
 
 Finally, we can issue a CPI to the `mint_to` function of the token program with the correct accounts using `invoke_signed`.
 
@@ -241,7 +246,9 @@ invoke_signed(
 Ok(())
 ```
 
-The SPL Token Program has some functionality baked in to it to make CPIs even easier. Remember when we mentioned that some programs had public functions that you can call that return an `Instruction` object? Well, lucky for us, the SPL Token Program is one of those programs, meaning we don't have to go through the tedious process of manually creating the instruction ourselves. We are calling a function called `mint_to` in the instruction.rs file of token program that returns a MintTo `Instruction` object. This is what the `mint_to` function expects as input, you can [view the source code here](https://github.com/solana-labs/solana-program-library/blob/024ba3ad410fef2d31e500c0f1a30db0c222a6a8/token/program-2022/src/instruction.rs#L1317).
+The SPL Token Program has some functionality baked in to it to make CPIs even easier. Remember when we mentioned that some programs had public functions that you can call that return an `Instruction` object? Well, luckily for us, the SPL Token Program is one of those programs, meaning we don't have to go through the tedious process of manually creating the instruction ourselves. We are calling a function called `mint_to` in the instruction.rs file of token program that returns a MintTo `Instruction` object.
+
+This is what the `mint_to` function expects as input, you can [view the source code here](https://github.com/solana-labs/solana-program-library/blob/024ba3ad410fef2d31e500c0f1a30db0c222a6a8/token/program-2022/src/instruction.rs#L1317).
 
 ```rust
 // inside the token program, returns an Instruction object
