@@ -2,7 +2,7 @@
 
 # Lesson Objectives
 
-_By the end of this lesson, you will be able to:_
+*By the end of this lesson, you will be able to:*
 
 - Explain Program Derived Addresses (PDAs)
 - Explain various use cases of PDAs
@@ -31,7 +31,7 @@ In this lesson we will focus on using PDAs to find and store data. We will We wi
 
 ## Finding PDAs
 
-PDAs are not technically created. Rather, they are _found_ or _derived_ based on a program ID and one or more input seeds. Regular Solana keypairs lie on the ed25519 Elliptic Curve and have public/private keys. PDAs are addresses that lie _off_ the ed25519 Elliptic curve and do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
+PDAs are not technically created. Rather, they are *found* or *derived* based on a program ID and one or more input seeds. Regular Solana keypairs lie on the ed25519 Elliptic Curve and have public/private keys. PDAs are addresses that lie *off* the ed25519 Elliptic curve and do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
 
 To find a PDA within a Solana program, we use the `find_program_address` function. This function takes an optional list of “seeds” and a program ID as inputs, and then returns the PDA and a bump seed.
 
