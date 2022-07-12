@@ -2,7 +2,7 @@
 
 # Lesson Objectives
 
-_By the end of this lesson, you will be able to:_
+*By the end of this lesson, you will be able to:*
 
 - Explain Program Derived Addresses (PDAs)
 - Explain various use cases of PDAs
@@ -27,11 +27,11 @@ PDAs serve two main functions:
 1. Provide a deterministic way to find the address of an account
 2. Authorize a program to sign on their behalf in the same way a user may sign with their private key.
 
-In this lesson we will focus on using PDAs to find and store data. We will We will discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
+In this lesson we will focus on using PDAs to find and store data. We will discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
 
 ## Finding PDAs
 
-PDAs are not technically created. Rather, they are _found_ or _derived_ based on a program ID and one or more input seeds. Regular Solana keypairs lie on the ed25519 Elliptic Curve and have public/private keys. PDAs are addresses that lie _off_ the ed25519 Elliptic curve and do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
+PDAs are not technically created. Rather, they are *found* or *derived* based on a program ID and one or more input seeds. Regular Solana keypairs lie on the ed25519 Elliptic Curve and have public/private keys. PDAs are addresses that lie *off* the ed25519 Elliptic curve and do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
 
 To find a PDA within a Solana program, we use the `find_program_address` function. This function takes an optional list of “seeds” and a program ID as inputs, and then returns the PDA and a bump seed.
 
@@ -49,9 +49,9 @@ Under the hood, the `find_program_address` function passes the input `seeds` and
 
 ```rust
  pub fn find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> (Pubkey, u8) {
-        Self::try_find_program_address(seeds, program_id)
-            .unwrap_or_else(|| panic!("Unable to find a viable program address bump seed"))
-    }
+    Self::try_find_program_address(seeds, program_id)
+        .unwrap_or_else(|| panic!("Unable to find a viable program address bump seed"))
+}
 ```
 
 The `try_find_program_address` function then introduces the `bump_seed`. The `bump_seed` is a `u8` variable with a value ranging between 0 to 255. In a loop from 255 to 0, a `bump_seed` is appended to the optional input seeds and then passed to the `create_program_address` function. If the output of `create_program_address` is not a valid PDA, then the `bump_seed` is decreased by 1 and the loop continues.
@@ -81,24 +81,24 @@ The `create_program_address` function performs a set of hash operations over the
 
 ```rust
 pub fn create_program_address(
-        seeds: &[&[u8]],
-        program_id: &Pubkey,
-    ) -> Result<Pubkey, PubkeyError> {
+    seeds: &[&[u8]],
+    program_id: &Pubkey,
+) -> Result<Pubkey, PubkeyError> {
 
-        let mut hasher = crate::hash::Hasher::default();
-        for seed in seeds.iter() {
-            hasher.hash(seed);
-        }
-        hasher.hashv(&[program_id.as_ref(), PDA_MARKER]);
-        let hash = hasher.result();
-
-        if bytes_are_curve_point(hash) {
-            return Err(PubkeyError::InvalidSeeds);
-        }
-
-        Ok(Pubkey::new(hash.as_ref()))
-
+    let mut hasher = crate::hash::Hasher::default();
+    for seed in seeds.iter() {
+        hasher.hash(seed);
     }
+    hasher.hashv(&[program_id.as_ref(), PDA_MARKER]);
+    let hash = hasher.result();
+
+    if bytes_are_curve_point(hash) {
+        return Err(PubkeyError::InvalidSeeds);
+    }
+
+    Ok(Pubkey::new(hash.as_ref()))
+
+}
 ```
 
 In summary, the `find_program_address` function passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds calls the `create_program_address` function in a loop until a valid PDA is found. Once a valid PDA is found, both the PDA and `bump_seed` are returned.
@@ -121,7 +121,7 @@ Without talking about it explicitly, we’ve been mapping seeds to PDAs this ent
 
 ### Map to data using PDA derivation
 
-What we are currently doing with the Movie Review program is mapping given seeds to data accounts. Deriving the PDAs for our movie review accounts this way allowed us to create a unique address for every new review. To later retrieve the review account, all we need to know is the initializer’s public key and the movie title of the review.
+What we are currently doing with the Movie Review program is mapping given seeds to data accounts. Deriving the PDAs for our movie review accounts this way allows us to create a unique address for every new review. To later retrieve the review account, all we need to know is the initializer’s public key and the movie title of the review.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id)
@@ -151,13 +151,13 @@ If you've been following along with the Movie Review demos, you'll notice that t
 
 Open the folder, then run `cargo-build-bpf` to build the program. The `cargo-build-bpf` command will output instruction to deploy the program.
 
-```bash
+```sh
 cargo-build-bpf
 ```
 
 Deploy the program by copying the output of `cargo-build-bpf` and running the `solana program deploy` command.
 
-```bash
+```sh
 solana program deploy <PATH>
 ```
 
@@ -279,7 +279,7 @@ Next, let’s update how we unpack the instruction data. Here we’ve moved the 
 
 ```rust
 impl MovieInstruction {
-  pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (&variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
         Ok(match variant {
             0 => {
@@ -328,8 +328,8 @@ pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8]
-  ) -> ProgramResult {
-	// unpack instruction data
+) -> ProgramResult {
+    // unpack instruction data
     let instruction = MovieInstruction::unpack(instruction_data)?;
     match instruction {
         MovieInstruction::AddMovieReview { title, rating, description } => {
@@ -379,7 +379,6 @@ account_data.discriminator = review_discriminator.to_string();
 Next, let’s add the logic to initialize the counter account within the `add_movie_review` function. Add the following to the `add_movie_review` function.
 
 ```rust
-
 msg!("create comment counter");
 let counter_discriminator = "counter";
 let counter_len: usize = (4 + counter_discriminator.len()) + 1 + 1;
@@ -515,11 +514,11 @@ If you need more time with this project to feel comfortable with these concepts,
 
 # Challenge
 
-Now it’s your turn to build something independently by building on top of the Student Intro program that you've used in previous lessons. If you haven't been following along or haven't saved your code from before, feel free to use this [starter code](https://beta.solpg.io/62c9120df6273245aca4f5e8).
+Now it’s your turn to build something independently. If you haven't been following along or haven't saved your work from before, feel free to use this [starter code](https://beta.solpg.io/62c9120df6273245aca4f5e8).
 
 The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain.
 
-Using what you've learned in this lesson, try applying what you've learned to the Student Intro Program.
+Using the concepts and tools detailed in this lesson, apply what you've learned to the Student Intro Program.
 
 1. Build and deploy the program locally
 2. Add an instruction allowing other users to reply to an intro
