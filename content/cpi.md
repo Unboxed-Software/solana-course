@@ -326,7 +326,9 @@ Ok(())
 
 Now we’re ready to build and deploy our program! You can build the program by running `cargo build-bpf` and then running the command that is returned, it should look something like `solana program deploy <PATH>`.
 
-You can test your program by submitting a transaction with the right accounts and data.
+You can test your program by submitting a transaction with the right accounts and data. We have prepared a script for you in the `/ts/movieTest.ts` file of your repository. Be sure to change the `program_id` in the script to match your deployed program's id and change the wallet path to where yours is stored (or you can create a new keypair to pass in the script).
+
+Run the command `npx tsc` inside this directory to compile the typescript files, then run the compiled 'movieTest.js' file inside the `/dist` directory with the command `node movieTest.js`.
 
 If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code here](https://github.com/ixmorrow/movie-review-tokens).
 
