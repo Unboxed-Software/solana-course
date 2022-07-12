@@ -58,7 +58,21 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 Now we are ready to download Solana CLI for Linux. Go ahead and run the following command in an Ubuntu terminal. You can read more about downloading Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
 
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.10.24/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
+```
+
+## Setup on Mac
+
+### Download Rust
+
+First, download Rust by following the instructions [here](https://www.rust-lang.org/tools/install)
+
+### Download Solana CLI
+
+Next, download Solana CLI. Run the following command in your terminal. You can read more about downloading Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
+
+```bash
+sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 ```
 
 ## Solana CLI Basics
