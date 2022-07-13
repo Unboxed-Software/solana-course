@@ -163,7 +163,7 @@ Last lesson, we added the ability to leave comments on other movie reviews using
 
 To get started, we will be using the final state of the Movie Review program from the previous PDA lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can [download the starter code here](https://github.com/ixmorrow/movie-review-tokens/tree/starter).
 
-### 2. Updates to add_movie_review
+### 2. Updates to `add_movie_review`
 
 To implement this, the first thing we need to do is import the address of the token program and the constant `LAMPORTS_PER_SOL`.
 
@@ -268,7 +268,7 @@ Notice that we are using `invoke_signed` and not `invoke` here. Reason being is 
 
 The `add_movie_review` instruction should be fully functional now and it will mint a user 10 tokens when a review is created.
 
-### 3. Updates to add_comment
+### 3. Updates to `add_comment`
 
 Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from 10 to 5. First, update the accounts needed.
 
@@ -322,7 +322,7 @@ invoke_signed(
 Ok(())
 ```
 
-### 4. Build and Deploy
+### 4. Build and deploy
 
 Now we’re ready to build and deploy our program! You can build the program by running `cargo build-bpf` and then running the command that is returned, it should look something like `solana program deploy <PATH>`.
 
@@ -336,4 +336,4 @@ If you need more time with the concepts from this lesson or got stuck along the 
 
 To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.
 
- A great example would be to build a decentralized Stack Overflow. The program could use tokens to determine a user's overall rating, mint tokens when questions are answered correctly, allow users to upvote answers, etc. All of that is possible and you have the skills and knowledge to be able to build something like this on your own now!
+ A great example would be to build a decentralized Stack Overflow. The program could use tokens to determine a user's overall rating, mint tokens when questions are answered correctly, allow users to upvote answers, etc. All of that is possible and you have the skills and knowledge to go and build something like it on your own now!
