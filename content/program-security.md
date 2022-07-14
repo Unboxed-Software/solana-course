@@ -657,15 +657,15 @@ pub fn update_movie_review(
         return Err(ProgramError::MissingRequiredSignature)
     }
 
+    msg!("unpacking state account");
+    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
+    msg!("review title: {}", account_data.title);
+
     let (pda, _bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), account_data.title.as_bytes().as_ref(),], program_id);
     if pda != *pda_account.key {
         msg!("Invalid seeds for PDA");
         return Err(ReviewError::InvalidPDA.into())
     }
-
-    msg!("unpacking state account");
-    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
-    msg!("review title: {}", account_data.title);
 
     msg!("checking if movie account is initialized");
     if !account_data.is_initialized() {
