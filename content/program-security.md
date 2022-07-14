@@ -657,15 +657,15 @@ pub fn update_movie_review(
         return Err(ProgramError::MissingRequiredSignature)
     }
 
+    msg!("unpacking state account");
+    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
+    msg!("review title: {}", account_data.title);
+
     let (pda, _bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), account_data.title.as_bytes().as_ref(),], program_id);
     if pda != *pda_account.key {
         msg!("Invalid seeds for PDA");
         return Err(ReviewError::InvalidPDA.into())
     }
-
-    msg!("unpacking state account");
-    let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
-    msg!("review title: {}", account_data.title);
 
     msg!("checking if movie account is initialized");
     if !account_data.is_initialized() {
@@ -709,7 +709,7 @@ pub fn update_movie_review(
 
 We're ready to build and upgrade our program! You can test your program by submitting a transaction with the right instruction data. For that, feel free to use this [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews).  Remember, to make sure you're testing the right program you'll need to replace `MOVIE_REVIEW_PROGRAM_ID` with your program ID in `Form.tsx` and `MovieCoordinator.ts`.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62b62de0f6273245aca4f5ca) before continuing.
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62c8c6dbf6273245aca4f5e7) before continuing.
 
 # Challenge
 
@@ -722,4 +722,4 @@ Using what you've learned in this lesson, try applying what you've learned to th
 1. Add an instruction allowing students to update their message
 2. Implement the basic security checks we've learned in this lesson
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b419c0f6273245aca4f5c4). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write.
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62c9120df6273245aca4f5e8). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write.
