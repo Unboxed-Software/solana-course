@@ -129,6 +129,39 @@ What we are currently doing with the Movie Review program is mapping given seeds
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id)
 ```
 
+Associated token accounts (ATA) are another common use case for PDAs. Tokens are often held in an ATA with an address derived using a wallet address and the mint address of a specific token. The address for an ATA is found using the `get_associated_token_address` function which takes a `wallet_address` and `token_mint_address` as inputs.
+
+```rust
+let associated_token_address = get_associated_token_address(&wallet_address, &token_mint_address);
+```
+
+```rust
+pub fn get_associated_token_address(
+    wallet_address: &Pubkey,
+    token_mint_address: &Pubkey
+) -> Pubkey
+```
+
+Under the hood, the associated token address is a PDA found using the `wallet_address`, `token_program_id`, and `token_mint_address` as seeds, and the associated token program as the `program_id`. This provides a deterministic way to find a token account associated with any wallet address for a specific token mint.
+
+```rust
+fn get_associated_token_address_and_bump_seed_internal(
+    wallet_address: &Pubkey,
+    token_mint_address: &Pubkey,
+    program_id: &Pubkey,
+    token_program_id: &Pubkey,
+) -> (Pubkey, u8) {
+    Pubkey::find_program_address(
+        &[
+            &wallet_address.to_bytes(),
+            &token_program_id.to_bytes(),
+            &token_mint_address.to_bytes(),
+        ],
+        program_id,
+    )
+}
+```
+
 ### Map to data using single PDA account
 
 Another approach to organizing movie reviews could be to create an account to represent a user’s profile that uses a PDA derived from the user’s public key as an optional seed. This would limit every user to one profile, and we could find the profile of any user if we know their public key.
@@ -136,8 +169,6 @@ Another approach to organizing movie reviews could be to create an account to re
 In this profile account we could then store a list of addresses for all the reviews the user has created. This way, if we know the public key of the user we are looking for, we can easily locate all the movie reviews created by that user.
 
 One limitation of this approach is that it would require use to reallocate space for the profile account every time a new movie review is created. Eventually, we would reach the memory limitations to an account, where an account can have a maximum size of 10 megabytes.
-
-
 
 # Demo
 
