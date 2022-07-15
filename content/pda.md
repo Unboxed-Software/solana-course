@@ -145,7 +145,7 @@ Previously, we finished implementing the ability to update a movie review in a s
 
 ### 1. Get the starter code
 
-To begin, you can find the starter code [here](https://github.com/ZYJLiu/movei-review-pda-lesson/tree/starter).
+To begin, you can find the starter code [here](https://github.com/ZYJLiu/movie-review-pda-lesson/tree/starter).
 
 If you've been following along with the Movie Review demos, you'll notice that this is the program we’ve built out so far. Previously, we used [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code. In this lesson, we’ll build and deploy the program locally.
 
@@ -176,7 +176,7 @@ Recall that the `state.rs` file defines the structs our program uses to populate
 We’ll need to define two new structs to enable commenting.
 
 1. `MovieCommentCounter` - to store a counter for the number of comments associated with a review
-2. `MovieComment` - to store the movie review address a comment is associated with and the content of the comment
+2. `MovieComment` - to store data associated with each comment
 
 To begin, let’s bring into scope `Pubkey` from the `solana_program` crate. Update `use solana_program` at the top of `state.rs` with the following:
 
@@ -186,13 +186,14 @@ use solana_program::{
 };
 ```
 
-Next, let’s define the structs we’ll be using for our program. Note that we are adding a `discriminator` field to each struct. This discriminator is a string that we can later use to filter through accounts when we fetch our program accounts.
+Next, let’s define the structs we’ll be using for our program. Note that we are adding a `discriminator` field to each struct. This discriminator is a string that we can use in our frontend to filter through accounts when we fetch our program accounts.
 
 ```rust
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct MovieAccountState {
     pub discriminator: String,
     pub is_initialized: bool,
+    pub reviewer: Pubkey,
     pub rating: u8,
     pub title: String,
     pub description: String,
@@ -202,7 +203,7 @@ pub struct MovieAccountState {
 pub struct MovieCommentCounter {
     pub discriminator: String,
     pub is_initialized: bool,
-    pub counter: u8,
+    pub counter: u64
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -210,7 +211,9 @@ pub struct MovieComment {
     pub discriminator: String,
     pub is_initialized: bool,
     pub review: Pubkey,
+    pub commenter: Pubkey,
     pub comment: String,
+    pub count: u64
 }
 
 impl Sealed for MovieAccountState {}
@@ -238,13 +241,7 @@ impl IsInitialized for MovieComment {
 
 Recall that the `instruction.rs` file defines how we deserialize the instruction data for each instruction in our program. Let’s update `instruction.rs` to define how to deserialize the instruction data for our new `add_comment` instruction.
 
-To begin, we’ll also need to bring into scope `Pubkey` from the `solana_program` crate. Update `use solana_program` at the top of `instruction.rs` with the following:
-
-```rust
-use solana_program::{program_error::ProgramError, pubkey::Pubkey};
-```
-
-Next, let’s update our `MovieInstruction` enum to include an `AddComment` variant.
+To begin, let’s update our `MovieInstruction` enum to include an `AddComment` variant.
 
 ```rust
 pub enum MovieInstruction {
@@ -259,18 +256,16 @@ pub enum MovieInstruction {
         description: String
     },
     AddComment {
-        review: Pubkey,
         comment: String
     }
 }
 ```
 
-Note that instruction data for creating a new comment differs from our previous instructions. We’ll also need a new payload struct for `AddComment`.
+Note that instruction data for creating a new comment differs from our previous instructions. We’ll also need to add a new payload struct for `AddComment`.
 
 ```rust
 #[derive(BorshDeserialize)]
 struct CommentPayload {
-    review: Pubkey,
     comment: String
 }
 ```
@@ -301,14 +296,12 @@ impl MovieInstruction {
             2 => {
                 let payload = CommentPayload::try_from_slice(rest).unwrap();
                 Self::AddComment {
-                    review: payload.review,
                     comment: payload.comment
                 }
             }
             _ => return Err(ProgramError::InvalidInstructionData)
         })
     }
-}
 ```
 
 ### 4. Update to `processor.rs`
@@ -329,7 +322,6 @@ pub fn process_instruction(
     accounts: &[AccountInfo],
     instruction_data: &[u8]
 ) -> ProgramResult {
-    // unpack instruction data
     let instruction = MovieInstruction::unpack(instruction_data)?;
     match instruction {
         MovieInstruction::AddMovieReview { title, rating, description } => {
@@ -339,8 +331,8 @@ pub fn process_instruction(
             update_movie_review(program_id, accounts, title, rating, description)
         },
 
-        MovieInstruction::AddComment { review, comment } => {
-            add_comment(program_id, accounts, review, comment)
+        MovieInstruction::AddComment { comment } => {
+            add_comment(program_id, accounts, comment)
         }
     }
 }
@@ -363,17 +355,22 @@ let pda_counter = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-For review accounts, we will use the word “review” as the discriminator. We’ll need to account for the length of the new discriminator field when calculating the space.
+For review accounts, we will use the word “review” as the discriminator. We’ll need to add the discriminator to the instruction and update how we calculate `total_len` to account for the length of the new discriminator field.
 
 ```rust
 let review_discriminator = "review";
 let total_len: usize = (4 + review_discriminator.len()) + 1 + 1 + (4 + title.len()) + (4 + description.len());
 ```
 
-Once we’ve initialized the review account, we’ll also need to set the discriminator on the account as “review”.
+Once we’ve initialized the review account, we’ll also need to update the `account_data` with the fields we specified in the `MovieAccountState` struct.
 
 ```rust
 account_data.discriminator = review_discriminator.to_string();
+account_data.title = title;
+account_data.reviewer = *initializer.key;
+account_data.rating = rating;
+account_data.description = description;
+account_data.is_initialized = true;
 ```
 
 Next, let’s add the logic to initialize the counter account within the `add_movie_review` function. Add the following to the `add_movie_review` function.
@@ -381,7 +378,7 @@ Next, let’s add the logic to initialize the counter account within the `add_mo
 ```rust
 msg!("create comment counter");
 let counter_discriminator = "counter";
-let counter_len: usize = (4 + counter_discriminator.len()) + 1 + 1;
+let counter_len: usize = (4 + counter_discriminator.len()) + 1 + 8;
 
 let rent = Rent::get()?;
 let counter_rent_lamports = rent.minimum_balance(counter_len);
@@ -429,7 +426,7 @@ Lastly, let’s implement our `add_comment` function to create new comment accou
 
 When a new comment is created for a review, we will derive the PDA for the comment account using the review address and current count (stored in the counter account) as seeds. The count on the counter account will then increment by 1 every time a new comment is created.
 
-Since the count updates every time a new comment is created, we can create an arbitrary number of comments for a review and easily fetch all the comments associated with any review. As long as we have the address of the review account, we can find the number of comments that for the review. With the comment count, we can then loop through the count to derive and fetch all the comment accounts for a review.
+Since the count updates every time a new comment is created, we can create an arbitrary number of comments for a review and easily fetch all the comments associated with any review. As long as we have the address of the review account, we can find the number of comments for the review. With the comment count, we can then loop through the count to derive and fetch all the comment accounts for a review.
 
 Add the `add_comment` function to `processor.rs`.
 
@@ -437,11 +434,9 @@ Add the `add_comment` function to `processor.rs`.
 pub fn add_comment(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
-    review: Pubkey,
     comment: String
 ) -> ProgramResult {
     msg!("Adding Comment...");
-    msg!("Review: {}", review);
     msg!("Comment: {}", comment);
 
     let account_info_iter = &mut accounts.iter();
@@ -455,7 +450,7 @@ pub fn add_comment(
     let mut counter_data = try_from_slice_unchecked::<MovieCommentCounter>(&pda_counter.data.borrow()).unwrap();
 
     let comment_discriminator = "comment";
-    let account_len: usize = (4 + comment_discriminator.len()) + 1 + 32 + (4 + comment.len());
+    let account_len: usize = (4 + comment_discriminator.len()) + 1 + 32 + 32 + (4 + comment.len()) + 8;
 
     let rent = Rent::get()?;
     let rent_lamports = rent.minimum_balance(account_len);
@@ -490,6 +485,7 @@ pub fn add_comment(
 
     comment_data.discriminator = comment_discriminator.to_string();
     comment_data.review = *pda_review.key;
+    comment_data.commenter = *commenter.key;
     comment_data.comment = comment;
     comment_data.is_initialized = true;
     comment_data.serialize(&mut &mut pda_comment.data.borrow_mut()[..])?;
@@ -508,9 +504,9 @@ We're ready to build and deploy our program!
 
 Build the updated program by running `cargo-build-bpf`. Then deploy the program by running the deploy command provided as the output of `cargo-build-bpf`.
 
-You can test your program by submitting a transaction with the right instruction data.
+You can test your program by submitting a transaction with the right instruction data. or that, feel free to use this [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-comments).
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62c60b87f6273245aca4f5e4) before continuing.
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62d0c35cf6273245aca4f5f5) before continuing.
 
 # Challenge
 
