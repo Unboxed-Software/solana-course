@@ -25,7 +25,7 @@ Program Derived Addresses (PDAs) are account addresses designed to be signed for
 PDAs serve two main functions:
 
 1. Provide a deterministic way to find the address of an account
-2. Authorize a program to sign on their behalf in the same way a user may sign with their private key.
+2. Authorize the program from which a PDA was derived to sign on its behalf in the same way a user may sign with their private key.
 
 In this lesson we will focus on using PDAs to find and store data. We will discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
 
@@ -113,7 +113,7 @@ For example, in programs that store user-specific data it’s common to add a us
 
 If we wanted to associate multiple PDA accounts with a user, we would use one or more additional seeds to create and identify accounts. For example, in a note-taking app there may be one account per note where each PDA is derived with the user’s public key and the note’s title.
 
-In addition to providing a deterministic way to derive a unique address for an account, PDAs also allow programs to sign for a instruction without a private key. We will go over signing with a PDA more in depth next lesson where we discuss Cross Program Invocations (CPIs). For now, we will focus on storing and locating data using PDAs.
+In addition to providing a deterministic way to derive a unique address for an account, PDAs also allow programs to sign for a instruction without a private key. We will go over signing with a PDA more in depth a later lesson where we discuss Cross Program Invocations (CPIs). For now, we will focus on storing and locating data using PDAs.
 
 ## Store and locate data with PDAs
 
@@ -134,6 +134,8 @@ Another approach to organizing movie reviews could be to create an account to re
 In this profile account we could then store a list of addresses for all the reviews the user has created. This way, if we know the public key of the user we are looking for, we can easily locate all the movie reviews created by that user.
 
 One limitation of this approach is that it would require use to reallocate space for the profile account every time a new movie review is created. Eventually, we would reach the memory limitations to an account, where an account can have a maximum size of 10 megabytes.
+
+
 
 # Demo
 
