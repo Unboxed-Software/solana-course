@@ -105,6 +105,8 @@ In summary, the `find_program_address` function passes our input seeds and `prog
 
 Note that for the same input seeds, different valid bumps will generate different valid PDAs. The `bump_seed` returned by `find_program_address` will always be the first valid PDA found. Because the function starts with a `bump_seed` value of 255 and iterates downwards to zero, the `bump_seed` that ultimately gets returned will always be the largest valid 8-bit value possible. This `bump_seed` is commonly referred to as the "canonical bump". To avoid confusion, it's recommended to only use the canonical bump, and to always validate every PDA passed into your program.
 
+One point to emphasize is that the `find_program_address` function only finds and returns a *Program Derived Address* and the bump seed used to derive the PDA. The `find_program_address` function does *not* initialize a new account and the PDA returned by the function is not necessarily associated with an account that stores data. To create a new account mapped to a PDA, we must call to the system program within our program to initialize a new account using the PDA we've derived as the address of the new account.
+
 ## Why do PDAs matter?
 
 PDAs are important because they allows us to easily map our program’s accounts. Instead of keeping track of each address, we simply need to remember the seeds used to derive PDAs to find an account.
