@@ -2,22 +2,30 @@
 
 # Lesson Objectives
 
-- Use basic Solana CLI commands
 - Set up a local environment for Solana program development
-- Use Rust and Solana CLI to deploy a Solana program from your local environment
+- Use basic Solana CLI commands
+- Run a local test validator
+- Use Rust and the Solana CLI to deploy a Solana program from your local development environment
+- Use the Solana CLI to view program logs
 
 # TL;DR
 
-- To get started with Solana locally, you’ll first need to install Rust and the Solana CLI
-- Once you have Rust and Solana CLI installed, you’ll be able to build and deploy your programs locally using the `cargo build-bpf` and `solana program deploy` commands.
+- To get started with Solana locally, you’ll first need to install **Rust** and the **Solana CLI**
+- Using the Solana CLI you can run a **local test validator** using the `solana-test-validator` command
+- Once you have Rust and Solana CLI installed, you’ll be able to build and deploy your programs locally using the `cargo build-bpf` and `solana program deploy` commands
+- You can view program logs using the `solana logs` command
 
 # Overview
 
-This lesson will be slightly different from the others. Instead of covering a lot of ground on how to write a program or interact with the network, this lesson will primarily focus on the admittedly tedious task of setting up your local development environment.
+So far in this course, we've used Solana Playground to develop and deploy Solana programs. And while it's a great tool, for certain complex projects you may prefer to have a local development environment set up. This may be in order to use crates not supported by Solana Playground, to take advantage of custom scripts or tooling you've created, or simply out of personal preference.
 
-We'll start by going over the steps for installing the Rust compile and the Solana CLI in both Windows and macOS. If you have a Windows machine, by all means skip the macOS section and vice versa.
+With that said, this lesson will be slightly different from the others. Instead of covering a lot of ground on how to write a program or interact with the Solana network, this lesson will primarily focus on the admittedly tedious task of setting up your local development environment.
 
-The Solana CLI is a command-line interface tool for interacting with a Solana cluster and provides a collection of different commands for each action you might want to take. Once you've installed Rust and the Solana CLI, we'll walk through some of the most important Solana CLI commands.
+In order to build, test, and deploy Solana programs from your machine, you'll need to install the Rust compiler and the Solana Command Line Interface (CLI). We'll start by guiding you through these installation processes, then cover how to use what you'll have just installed.
+
+The installation instructions below contain the steps for installing Rust and the Solana CLI at the time of writing. They may have changed by the time you're reading this, so if you run into issues please consult the official installation pages for each:
+- [Install Rust](https://www.rust-lang.org/tools/install)
+- [Install the Solana Tool Suite](https://docs.solana.com/cli/install-solana-cli-tools)
 
 ## Setup on Windows (with Linux)
 
@@ -69,19 +77,21 @@ First, download Rust by following the instructions [here](https://www.rust-lang.
 
 ### Download Solana CLI
 
-Next, download Solana CLI. Run the following command in your terminal. You can read more about downloading Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
+Next, download the Solana CLI by running the following command in your terminal.
 
 ```bash
 sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 ```
 
+You can read more about downloading the Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
+
 ## Solana CLI Basics
 
-You can view the list of all possible Solana CLI commands by running:
+The Solana CLI is a command-line interface tool that provides a collection of commands for interacting with a Solana cluster.
 
-```bash
-solana --help
-```
+We'll cover some of the most common commands in this lesson, but you can always view the list of all possible Solana CLI commands by running `solana --help`.
+
+### Solana CLI configuration
 
 The Solana CLI stores a number of configuration settings that impact the behavior of certain commands. You can use the following command to view the current configuration:
 
@@ -97,7 +107,7 @@ The `solana config get` command will return the following:
 - `Keypair Path` - the keypair path used when running Solana CLI subcommands
 - `Commitment` - provides a measure of the network confirmation and describes how finalized a block is at that point in time
 
-You can change your Solana CLI config by using the `solana config set` command followed by the setting you want to update.
+You can change your Solana CLI configuration at any time by using the `solana config set` command followed by the setting you want to update.
 
 The most common change will be to the cluster you are targeting. Use the `solana config set --url` command to change the `RPC URL`.
 
@@ -113,11 +123,23 @@ solana config set --url devnet
 solana config set --url mainnet-beta
 ```
 
-Similarly, use the `solana config set --keypair` command to change the `Keypair Path`. Solana CLI will then use the keypair from the specified path when running commands.
+Similarly, you can use the `solana config set --keypair` command to change the `Keypair Path`. Solana CLI will then use the keypair from the specified path when running commands.
 
 ```bash
 solana config set --keypair ~/<FILE_PATH>
 ```
+
+### Test validators
+
+You'll often find it helpful to run a local validator for testing and debugging rather than deploying to Devnet.
+
+You can run a local test validator using the `solana-test-validator` command. This command creates and ongoing process that will require its own command line window. 
+
+It's often helpful to open a new command line tab or window and run the `solana logs` command alongside the test validator. This creates another ongoing process that will stream the logs associated with your configuration's cluster.
+
+If your CLI configuration is pointed to `localhost` then the logs will always be associated with the test validator you've created, but you can also stream logs from other clusters like Devnet and Mainnet-beta. When streaming logs from other clusters, you'll want to include a program ID with the command to limit the logs you see to your specific program.
+
+### Keypairs
 
 You can generate a new keypair using the `solana-keygen new --outfile` command followed by the file path to store the keypair.
 
@@ -125,7 +147,7 @@ You can generate a new keypair using the `solana-keygen new --outfile` command f
 solana-keygen new --outfile ~/<FILE_PATH>
 ```
 
-To view the `publickey` of the current keypair set in `solana config`, use the `solana address` command.
+At times you may need to check which keypair your configuration is pointed to. To view the `publickey` of the current keypair set in `solana config`, use the `solana address` command.
 
 ```bash
 solana address
@@ -137,27 +159,39 @@ To view the SOL balance of the current keypair set in `solana config`, use the `
 solana balance
 ```
 
-To airdrop SOL on devnet or localhost, use the `solana airdrop <AMOUNT>` command. Note that while on devnet you are limited to 2 SOL per airdrop.
+To airdrop SOL on devnet or localhost, use the `solana airdrop` command. Note that while on devnet you are limited to 2 SOL per airdrop.
 
 ```bash
 solana airdrop 2
 ```
 
-## Solana Program from Local Environment
+As you develop and test programs in your local environment, you'll likely encounter errors that are caused by:
 
-While the Solana Playground is enormously helpful, it's hard to beat the flexibility of your own local development environment. As you build more complex programs that are potentially integrated with one or more clients that are also under development, you may want to write and build your programs locally.
+  - Using the wrong keypair
+  - Not having enough SOL to deploy your program or perform a transaction
+  - Pointing to the wrong cluster
 
-To create a new Rust package to write a Solana program, use the `cargo new --lib` command.
+The CLI commands we've covered so far should help you quickly resolve those issues.
+
+## Develop Solana programs in your local environment
+
+While the Solana Playground is enormously helpful, it's hard to beat the flexibility of your own local development environment. As you build more complex programs, you may end up integrating them with one or more clients that are also under development in your local environment. Testing between these programs and clients is often simpler when your write, build, and deploy your programs locally.
+
+### Create a new project
+
+To create a new Rust package to write a Solana program, you can use the `cargo new --lib` command with the name of the new directory you'd like to create.
 
 ```bash
-cargo new --lib <PROJECT_FILE_NAME>
+cargo new --lib <PROJECT_DIRECTORY_NAME>
 ```
 
-The new Rust package will include a `Cargo.toml` manifest file which describes the package. This file contains metadata such as name, version, and dependencies, which are call "crates" in Rust. To write a Solana program, you’ll need to update `Cargo.toml` to include `solana-program` as a dependency.
+This command will create a new directory with the name you specified at the end of the command. This new directory will contain a `Cargo.toml` manifest file that describes the package.
+
+The manifest file contains metadata such as name, version, and dependencies (crates). To write a Solana program, you’ll need to update the `Cargo.toml` file to include `solana-program` as a dependency. You may also need to add the `[lib]` and `crate-type` lines shown below.
 
 ```rust
 [package]
-name = "<PROJECT_FILE_NAME>"
+name = "<PROJECT_DIRECTORY_NAME>"
 version = "0.1.0"
 edition = "2021"
 
@@ -165,19 +199,30 @@ edition = "2021"
 no-entrypoint = []
 
 [dependencies]
-solana-program = "1.10.7"
+solana-program = "~1.8.14"
 
 [lib]
 crate-type = ["cdylib", "lib"]
 ```
 
-To build a Solana program, we use the `cargo build-bpf` command. The `cargo build-bpf` outputs a `solana program deploy` command specifying the file path to deploy the program.
+At that point, you can start writing your program in the `src` folder.
+
+### Build and deploy
+
+When it comes time to build your Solana program, you can use the `cargo build-bpf` command.
 
 ```bash
 cargo build-bpf
 ```
 
-When you are ready to deploy the program, use the `solana program deploy` command output from `cargo build-bpf`.
+The output of this command will include instructions for a deploying your program that look something like this:
+
+> To deploy this program:
+>   $ solana program deploy /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local.so
+> The program address will default to this keypair (override with --program-id):
+>   /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local-keypair.json
+
+When you are ready to deploy the program, use the `solana program deploy` command output from `cargo build-bpf`. This will deploy your program to the cluster specified in your CLI configuration.
 
 ```rust
 solana program deploy <PATH>
@@ -185,49 +230,34 @@ solana program deploy <PATH>
 
 # Demo
 
-Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program.md). We'll do this all locally, including deploying to a local test validator. Before we begin, make sure you've installed Rust and Solana CLI. You can reference to the instructions in the overview to get set up if you haven't already.
+Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program.md).
 
-### 1. Setup Solana Config
+We'll do this all locally, including deploying to a local test validator. Before we begin, make sure you've installed Rust and the Solana CLI. You can refer to the instructions in the overview to get set up if you haven't already.
 
-First, set to endpoint to localhost using the `solana config set --url' command.
+### 1. Create a new Rust project
 
-```bash
-solana config set --url localhost
-```
-
-Next, check that the Solana CLI configuration has updated using the `solana config get` command.
+Let's start by creating a new Rust project. Run the `cargo new --lib` command below. Feel free to replace the directory name with your own.
 
 ```bash
-solana config get
+cargo new --lib solana-hello-world-local
 ```
 
-### 2. Create New Rust Project
-
-Now we are ready to create our a new program. Run the `cargo new --lib` command.
-
-```bash
-cargo new --lib <PROJECT_FILE_NAME>
-```
-
-Remember to update the `cargo.toml` file to include `solana-program` as a dependency.
+Remember to update the `cargo.toml` file to include `solana-program` as a dependency and the `crate-type` if isn't there already.
 
 ```bash
 [package]
-name = "<PROJECT_FILE_NAME>"
+name = "solana-hello-world-local"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-no-entrypoint = []
-
 [dependencies]
-solana-program = "1.10.7"
+solana-program = "~1.8.14"
 
 [lib]
 crate-type = ["cdylib", "lib"]
 ```
 
-### 3. Build and Deploy Program
+### 2. Write your program
 
 Next, update `lib.rs` with the “Hello World!” program below. This program simply prints “Hello, world!” to the program log when the program is invoked.
 
@@ -253,19 +283,35 @@ pub fn process_instruction(
 }
 ```
 
-Next, build the program using by running the `cargo build-bpf` command.
+### 2. Run a local test validator
+
+With your program written, let's make sure our Solana CLI configuration points to localhost by using the `solana config set --url' command.
 
 ```bash
-cargo build-bpf
+solana config set --url localhost
 ```
 
-Before we can deploy our program locally, we must first run a local test validator. In a separate terminal, run the `solana-test-validator` command. This is only necessary when our `RPC URL` is set to localhost.
+Next, check that the Solana CLI configuration has updated using the `solana config get` command.
+
+```bash
+solana config get
+```
+
+Finally, run a local test validator. In a separate terminal window, run the `solana-test-validator` command. This is only necessary when our `RPC URL` is set to localhost.
 
 ```bash
 solana-test-validator
 ```
 
-We are now ready to deploy our program. Run the `solana program deploy` command output from `cargo build-bpf`.
+### 3. Build and Deploy Program
+
+We're now ready to build and deploy our program. Build the program by running the `cargo build-bpf` command.
+
+```bash
+cargo build-bpf
+```
+
+Now let's deploy our program. Run the `solana program deploy` command output from `cargo build-bpf`.
 
 ```bash
 solana program deploy <PATH>
@@ -273,21 +319,27 @@ solana program deploy <PATH>
 
 The `solana program deploy` will output the `Program ID` for your program. You can now look up deployed program on [Solana Explorer](https://explorer.solana.com/?cluster=custom) (for localhost, select “Custom RPC URL” as the cluster).
 
+### 4. View program logs
+
 Before we invoke our program, open a separate terminal and run the `solana logs` command. This will allow use to view the program logs in the terminal.
 
 ```bash
-solana logs
+solana logs <PROGRAM_ID>
 ```
 
-With the test validator still running, try invoking your program using the client-side script [here](https://github.com/ZYJLiu/solana-hello-world-client). Replace the program ID with the one from the program you just deployed and then run `npm start`. This will return a Solana Explorer URL. Copy the URL into the browser to look up the transaction on Solana Explorer and check that “Hello, World!” was printed to the program log. Alternatively, you can view the program logs in the terminal where you ran the `solana logs` command.
+With the test validator still running, try invoking your program using the client-side script [here](https://github.com/Unboxed-Software/solana-hello-world-client).
+
+Replace the program ID in `index.ts` with the one from the program you just deployed, then run `npm install` followed by `npm start`. This will return a Solana Explorer URL. Copy the URL into the browser to look up the transaction on Solana Explorer and check that “Hello, World!” was printed to the program log. Alternatively, you can view the program logs in the terminal where you ran the `solana logs` command.
+
+And that's it! You've just created and deployed your first program from a local development environment.
 
 # Challenge
 
-Now it’s your turn to build something independently. Try to build a new program to print your own message to the program logs. This time deploy your program to devnet instead of localhost.
+Now it’s your turn to build something independently. Try to create a new program to print your own message to the program logs. This time deploy your program to devnet instead of localhost.
 
 Remember to update your `RPC URL` to devnet using the `solana config set --url` command.
 
-You can invoke the program using the same client-side script from the demo by updating the connection and Solana Explorer URL to devnet.
+You can invoke the program using the same client-side script from the demo as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
 
 ```tsx
 let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
