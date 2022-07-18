@@ -19,7 +19,7 @@
 
 So far in this course, we've used Solana Playground to develop and deploy Solana programs. And while it's a great tool, for certain complex projects you may prefer to have a local development environment set up. This may be in order to use crates not supported by Solana Playground, to take advantage of custom scripts or tooling you've created, or simply out of personal preference.
 
-With that said, this lesson will be slightly different from the others. Instead of covering a lot of ground on how to write a program or interact with the Solana network, this lesson will primarily focus on the admittedly tedious task of setting up your local development environment.
+With that said, this lesson will be slightly different from the others. Instead of covering a lot of ground on how to write a program or interact with the Solana network, this lesson will primarily focus on the less glamorous task of setting up your local development environment.
 
 In order to build, test, and deploy Solana programs from your machine, you'll need to install the Rust compiler and the Solana Command Line Interface (CLI). We'll start by guiding you through these installation processes, then cover how to use what you'll have just installed.
 
@@ -31,9 +31,9 @@ The installation instructions below contain the steps for installing Rust and th
 
 ### Download Windows Subsystem for Linux (WSL)
 
-If you are on a windows computer, it is recommended to use Windows Subsystem for Linux (WSL) to build your Solana Programs.
+If you are on a Windows computer, it is recommended to use Windows Subsystem for Linux (WSL) to build your Solana Programs.
 
-Open an **administrator** PowerShell or Windows Command Prompt and check windows version
+Open an **administrator** PowerShell or Windows Command Prompt and check Windows version
 
 ```bash
 winver
@@ -45,7 +45,7 @@ If you are on Windows 10 version 2004 and higher (Build 19041 and higher) or Win
 wsl --install
 ```
 
-If you are running an older version of windows, follow the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install-manual).
+If you are running an older version of Windows, follow the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install-manual).
 
 You can read more about installing WSL [here](https://docs.microsoft.com/en-us/windows/wsl/install).
 
@@ -135,6 +135,8 @@ You'll often find it helpful to run a local validator for testing and debugging 
 
 You can run a local test validator using the `solana-test-validator` command. This command creates and ongoing process that will require its own command line window. 
 
+### Stream program logs
+
 It's often helpful to open a new command line tab or window and run the `solana logs` command alongside the test validator. This creates another ongoing process that will stream the logs associated with your configuration's cluster.
 
 If your CLI configuration is pointed to `localhost` then the logs will always be associated with the test validator you've created, but you can also stream logs from other clusters like Devnet and Mainnet-beta. When streaming logs from other clusters, you'll want to include a program ID with the command to limit the logs you see to your specific program.
@@ -175,7 +177,7 @@ The CLI commands we've covered so far should help you quickly resolve those issu
 
 ## Develop Solana programs in your local environment
 
-While the Solana Playground is enormously helpful, it's hard to beat the flexibility of your own local development environment. As you build more complex programs, you may end up integrating them with one or more clients that are also under development in your local environment. Testing between these programs and clients is often simpler when your write, build, and deploy your programs locally.
+While the Solana Playground is enormously helpful, it's hard to beat the flexibility of your own local development environment. As you build more complex programs, you may end up integrating them with one or more clients that are also under development in your local environment. Testing between these programs and clients is often simpler when you write, build, and deploy your programs locally.
 
 ### Create a new project
 
@@ -217,10 +219,12 @@ cargo build-bpf
 
 The output of this command will include instructions for a deploying your program that look something like this:
 
-> To deploy this program:
->   $ solana program deploy /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local.so
-> The program address will default to this keypair (override with --program-id):
->   /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local-keypair.json
+```text
+To deploy this program:
+  $ solana program deploy /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local.so
+The program address will default to this keypair (override with --program-id):
+  /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local-keypair.json
+```
 
 When you are ready to deploy the program, use the `solana program deploy` command output from `cargo build-bpf`. This will deploy your program to the cluster specified in your CLI configuration.
 
@@ -351,9 +355,8 @@ console.log(
 );
 ```
 
-You can also use the `solana logs | grep "<PROGRAM_ID> invoke" -A <NUMBER_OF_LINES_TO_RETURN>` command to view the program logs in a separate terminal. When using `solana logs` on devnet you must specify the program ID. Otherwise, the `solana logs` command will return a constant stream of logs from devnet.
+You can also open a separate command line window and use the `solana logs | grep "<PROGRAM_ID> invoke" -A <NUMBER_OF_LINES_TO_RETURN>`. When using `solana logs` on devnet you must specify the program ID. Otherwise, the `solana logs` command will return a constant stream of logs from devnet. For example, you would do the following to monitor invocations to the Token Program and show the first 5 lines of logs for each invocation:
 
 ```bash
-
-solana logs | grep "<PROGRAM_ID> invoke" -A 5
+solana logs | grep "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke" -A 5
 ```
