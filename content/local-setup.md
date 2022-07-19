@@ -287,7 +287,7 @@ pub fn process_instruction(
 }
 ```
 
-### 2. Run a local test validator
+### 3. Run a local test validator
 
 With your program written, let's make sure our Solana CLI configuration points to localhost by using the `solana config set --url' command.
 
@@ -307,7 +307,7 @@ Finally, run a local test validator. In a separate terminal window, run the `sol
 solana-test-validator
 ```
 
-### 3. Build and Deploy Program
+### 4. Build and Deploy Program
 
 We're now ready to build and deploy our program. Build the program by running the `cargo build-bpf` command.
 
@@ -323,7 +323,7 @@ solana program deploy <PATH>
 
 The `solana program deploy` will output the `Program ID` for your program. You can now look up deployed program on [Solana Explorer](https://explorer.solana.com/?cluster=custom) (for localhost, select “Custom RPC URL” as the cluster).
 
-### 4. View program logs
+### 5. View program logs
 
 Before we invoke our program, open a separate terminal and run the `solana logs` command. This will allow use to view the program logs in the terminal.
 
