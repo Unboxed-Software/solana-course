@@ -70,13 +70,13 @@ Now we are ready to download Solana CLI for Linux. Go ahead and run the followin
 sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 ```
 
-## Setup on MacOS
+## Setup on macOS
 
 ### Download Rust
 
 First, download Rust by following the instructions [here](https://www.rust-lang.org/tools/install)
 
-### Download Solana CLI
+### Download the Solana CLI
 
 Next, download the Solana CLI by running the following command in your terminal.
 
@@ -222,9 +222,9 @@ The output of this command will include instructions for a deploying your progra
 
 ```text
 To deploy this program:
-    $ solana program deploy /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local.so
+  $ solana program deploy /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local.so
 The program address will default to this keypair (override with --program-id):
-    /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local-keypair.json
+  /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local-keypair.json
 ```
 
 When you are ready to deploy the program, use the `solana program deploy` command output from `cargo build-bpf`. This will deploy your program to the cluster specified in your CLI configuration.
