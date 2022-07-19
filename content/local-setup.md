@@ -24,6 +24,7 @@ With that said, this lesson will be slightly different from the others. Instead 
 In order to build, test, and deploy Solana programs from your machine, you'll need to install the Rust compiler and the Solana Command Line Interface (CLI). We'll start by guiding you through these installation processes, then cover how to use what you'll have just installed.
 
 The installation instructions below contain the steps for installing Rust and the Solana CLI at the time of writing. They may have changed by the time you're reading this, so if you run into issues please consult the official installation pages for each:
+
 - [Install Rust](https://www.rust-lang.org/tools/install)
 - [Install the Solana Tool Suite](https://docs.solana.com/cli/install-solana-cli-tools)
 
