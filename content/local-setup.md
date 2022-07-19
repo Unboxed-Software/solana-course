@@ -308,7 +308,7 @@ Finally, run a local test validator. In a separate terminal window, run the `sol
 solana-test-validator
 ```
 
-### 4. Build and deploy program
+### 4. Build and deploy
 
 We're now ready to build and deploy our program. Build the program by running the `cargo build-bpf` command.
 
