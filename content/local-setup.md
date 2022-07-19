@@ -102,7 +102,7 @@ solana config get
 The `solana config get` command will return the following:
 
 - `Config File` - the file Solana CLI is located on your computer
-- `RPC URL` - endpoint you are using, connecting you to localhost, devnet, or mainnet
+- `RPC URL` - endpoint you are using, connecting you to localhost, Devnet, or mainnet
 - `WebSocket URL` - the websocket to listen for events from the cluster you are targeting (computed when you set the `RPC URL`)
 - `Keypair Path` - the keypair path used when running Solana CLI subcommands
 - `Commitment` - provides a measure of the network confirmation and describes how finalized a block is at that point in time
@@ -161,7 +161,7 @@ To view the SOL balance of the current keypair set in `solana config`, use the `
 solana balance
 ```
 
-To airdrop SOL on devnet or localhost, use the `solana airdrop` command. Note that while on devnet you are limited to 2 SOL per airdrop.
+To airdrop SOL on Devnet or localhost, use the `solana airdrop` command. Note that while on Devnet you are limited to 2 SOL per airdrop.
 
 ```bash
 solana airdrop 2
@@ -339,9 +339,9 @@ And that's it! You've just created and deployed your first program from a local 
 
 # Challenge
 
-Now it’s your turn to build something independently. Try to create a new program to print your own message to the program logs. This time deploy your program to devnet instead of localhost.
+Now it’s your turn to build something independently. Try to create a new program to print your own message to the program logs. This time deploy your program to Devnet instead of localhost.
 
-Remember to update your `RPC URL` to devnet using the `solana config set --url` command.
+Remember to update your `RPC URL` to Devnet using the `solana config set --url` command.
 
 You can invoke the program using the same client-side script from the demo as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
 
@@ -355,7 +355,7 @@ console.log(
 );
 ```
 
-You can also open a separate command line window and use the `solana logs | grep "<PROGRAM_ID> invoke" -A <NUMBER_OF_LINES_TO_RETURN>`. When using `solana logs` on devnet you must specify the program ID. Otherwise, the `solana logs` command will return a constant stream of logs from devnet. For example, you would do the following to monitor invocations to the Token Program and show the first 5 lines of logs for each invocation:
+You can also open a separate command line window and use the `solana logs | grep "<PROGRAM_ID> invoke" -A <NUMBER_OF_LINES_TO_RETURN>`. When using `solana logs` on Devnet you must specify the program ID. Otherwise, the `solana logs` command will return a constant stream of logs from Devnet. For example, you would do the following to monitor invocations to the Token Program and show the first 5 lines of logs for each invocation:
 
 ```bash
 solana logs | grep "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke" -A 5
