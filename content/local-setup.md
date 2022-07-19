@@ -86,7 +86,7 @@ sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 
 You can read more about downloading the Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
 
-## Solana CLI Basics
+## Solana CLI basics
 
 The Solana CLI is a command-line interface tool that provides a collection of commands for interacting with a Solana cluster.
 
@@ -308,7 +308,7 @@ Finally, run a local test validator. In a separate terminal window, run the `sol
 solana-test-validator
 ```
 
-### 4. Build and Deploy Program
+### 4. Build and deploy program
 
 We're now ready to build and deploy our program. Build the program by running the `cargo build-bpf` command.
 
