@@ -69,7 +69,7 @@ Now we are ready to download Solana CLI for Linux. Go ahead and run the followin
 sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 ```
 
-## Setup on Mac
+## Setup on MacOS
 
 ### Download Rust
 
