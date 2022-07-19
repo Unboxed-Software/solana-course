@@ -134,7 +134,7 @@ solana config set --keypair ~/<FILE_PATH>
 
 You'll often find it helpful to run a local validator for testing and debugging rather than deploying to Devnet.
 
-You can run a local test validator using the `solana-test-validator` command. This command creates and ongoing process that will require its own command line window.
+You can run a local test validator using the `solana-test-validator` command. This command creates an ongoing process that will require its own command line window.
 
 ### Stream program logs
 
