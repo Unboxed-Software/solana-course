@@ -138,7 +138,7 @@ You can run a local test validator using the `solana-test-validator` command. Th
 
 ### Stream program logs
 
-It's often helpful to open a new command line tab or window and run the `solana logs` command alongside the test validator. This creates another ongoing process that will stream the logs associated with your configuration's cluster.
+It's often helpful to open a new console and run the `solana logs` command alongside the test validator. This creates another ongoing process that will stream the logs associated with your configuration's cluster.
 
 If your CLI configuration is pointed to `localhost` then the logs will always be associated with the test validator you've created, but you can also stream logs from other clusters like Devnet and Mainnet Beta. When streaming logs from other clusters, you'll want to include a program ID with the command to limit the logs you see to your specific program.
 
