@@ -351,7 +351,7 @@ let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
 
 ```tsx
 console.log(
-  `Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+    `Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
 );
 ```
 
