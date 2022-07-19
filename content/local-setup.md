@@ -102,7 +102,7 @@ solana config get
 The `solana config get` command will return the following:
 
 - `Config File` - the file Solana CLI is located on your computer
-- `RPC URL` - endpoint you are using, connecting you to localhost, Devnet, or mainnet
+- `RPC URL` - endpoint you are using, connecting you to localhost, Devnet, or Mainnet
 - `WebSocket URL` - the websocket to listen for events from the cluster you are targeting (computed when you set the `RPC URL`)
 - `Keypair Path` - the keypair path used when running Solana CLI subcommands
 - `Commitment` - provides a measure of the network confirmation and describes how finalized a block is at that point in time
@@ -139,7 +139,7 @@ You can run a local test validator using the `solana-test-validator` command. Th
 
 It's often helpful to open a new command line tab or window and run the `solana logs` command alongside the test validator. This creates another ongoing process that will stream the logs associated with your configuration's cluster.
 
-If your CLI configuration is pointed to `localhost` then the logs will always be associated with the test validator you've created, but you can also stream logs from other clusters like Devnet and Mainnet-beta. When streaming logs from other clusters, you'll want to include a program ID with the command to limit the logs you see to your specific program.
+If your CLI configuration is pointed to `localhost` then the logs will always be associated with the test validator you've created, but you can also stream logs from other clusters like Devnet and Mainnet Beta. When streaming logs from other clusters, you'll want to include a program ID with the command to limit the logs you see to your specific program.
 
 ### Keypairs
 
