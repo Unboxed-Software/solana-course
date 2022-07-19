@@ -290,7 +290,7 @@ pub fn process_instruction(
 
 ### 3. Run a local test validator
 
-With your program written, let's make sure our Solana CLI configuration points to localhost by using the `solana config set --url' command.
+With your program written, let's make sure our Solana CLI configuration points to localhost by using the `solana config set --url` command.
 
 ```bash
 solana config set --url localhost
