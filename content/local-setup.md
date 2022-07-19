@@ -334,7 +334,7 @@ solana logs <PROGRAM_ID>
 
 With the test validator still running, try invoking your program using the client-side script [here](https://github.com/Unboxed-Software/solana-hello-world-client).
 
-Replace the program ID in `index.ts` with the one from the program you just deployed, then run `npm install` followed by `npm start`. This will return a Solana Explorer URL. Copy the URL into the browser to look up the transaction on Solana Explorer and check that “Hello, World!” was printed to the program log. Alternatively, you can view the program logs in the terminal where you ran the `solana logs` command.
+Replace the program ID in `index.ts` with the one from the program you just deployed, then run `npm install` followed by `npm start`. This will return a Solana Explorer URL. Copy the URL into the browser to look up the transaction on Solana Explorer and check that “Hello, world!” was printed to the program log. Alternatively, you can view the program logs in the terminal where you ran the `solana logs` command.
 
 And that's it! You've just created and deployed your first program from a local development environment.
 
