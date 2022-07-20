@@ -220,7 +220,7 @@ Deploy the program by copying the output of `cargo-build-bpf` and running the `s
 solana program deploy <PATH>
 ```
 
-You can test the program using the movie review [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews) by updating the program ID with the one you’ve just deployed. Make sure you use the `solution-update-reviews` branch.
+You can test the program by using the movie review [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews) and updating the program ID with the one you’ve just deployed. Make sure you use the `solution-update-reviews` branch.
 
 ### 2. Plan out the account structure
 
