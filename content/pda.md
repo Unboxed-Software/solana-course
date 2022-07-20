@@ -159,6 +159,8 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[
     program_id)
 ```
 
+### Associated token account addresses
+
 Another practical example of this type of mapping is how associated token account (ATA) addresses are determined. Tokens are often held in an ATA whose address was derived using a wallet address and the mint address of a specific token. The address for an ATA is found using the `get_associated_token_address` function which takes a `wallet_address` and `token_mint_address` as inputs.
 
 ```rust
