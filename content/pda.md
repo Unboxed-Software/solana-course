@@ -662,7 +662,7 @@ If you need more time with this project to feel comfortable with these concepts,
 
 # Challenge
 
-Now it’s your turn to build something independently! Go ahead and work with the Student Intro program that we've used in past lessons. The Student Intro program is a Solana program that lets students introduce themselves. This program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain. For this challenge you should:
+Now it’s your turn to build something independently! Go ahead and work with the Student Intro program that we've used in past lessons. The Student Intro program is a Solana program that lets students introduce themselves. This program takes a user's name and a short message as the `instruction_data` and creates an account to store the data on-chain. For this challenge you should:
 
 1. Add an instruction allowing other users to reply to an intro
 2. Build and deploy the program locally
