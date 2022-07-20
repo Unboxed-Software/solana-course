@@ -147,7 +147,7 @@ There may be times where using this approach makes sense for your application, b
 
 ### Map to data using PDA derivation
 
-If you're strategic about the seeds you use to derive PDAs, you can embed the required mappings into the seeds themselves. This is the natural evolution of the note-taking app example we just discussed. If you start to use the note creator's public key as a seed to create one map account per user, then why not use both the creator's public key and some other known piece of information to derive a PDA for the note itself.
+If you're strategic about the seeds you use to derive PDAs, you can embed the required mappings into the seeds themselves. This is the natural evolution of the note-taking app example we just discussed. If you start to use the note creator's public key as a seed to create one map account per user, then why not use both the creator's public key and some other known piece of information to derive a PDA for the note itself?
 
 Without talking about it explicitly, we’ve been mapping seeds to accounts this entire course. Think about the Movie Review program we've been building throughout the course. This program uses a review creator's public key and the title of the movie they're reviewing to find the address that should be used to store the review. This let's the program create a unique address for every new review while also making it easy to locate a review when needed. When you want to find a user's review of "Spiderman," you know that it is stored at the PDA account whose address can be derived using the user's public key and the text "Spiderman" as seeds.
 
