@@ -136,8 +136,6 @@ For example, you might have a note-taking app whose backing program uses random 
 
 When it comes time to retrieve a user's notes, you could then look at the map account and see the list of addresses associated with the user's public key, then retrieve the account for each of those addresses.
 
-INSERT A DIAGRAM HERE
-
 While this approach is perhaps more approachable for traditional web developers, it comes with some drawbacks. Since the size of the mapping stored in the map account will grow over time, you'll either need to allocate more size than necessary to the account when you first create it, or you'll need to reallocate space for it every time a new note is created. On top of that, you'll eventually reach the account size limit of 10 megabytes.
 
 You could mitigate this issue to some degree by creating a separate map account for each user. Rather than having a single PDA map account for the entire program, you would have one per user where each is derived with the user's public key, then the addresses for each note stored inside the corresponding user's map account.
@@ -257,16 +255,7 @@ We’ll need to define two new structs to enable commenting.
 1. `MovieCommentCounter` - to store a counter for the number of comments associated with a review
 2. `MovieComment` - to store data associated with each comment
 
-To begin, let’s bring into scope `Pubkey` from the `solana_program` crate. Update `use solana_program` at the top of `state.rs` with the following:
-
-```rust
-use solana_program::{
-    program_pack::{IsInitialized, Sealed}, 
-    pubkey::Pubkey
-};
-```
-
-Next, let’s define the structs we’ll be using for our program. Note that we are adding a `discriminator` field to each struct, including the existing `MovieAccountState`. Since we now have multiple account types, we need a way to only fetch the account type we need from the client. This discriminator is a string that can be used to filter through accounts when we fetch our program accounts.
+To start, let’s define the structs we’ll be using for our program. Note that we are adding a `discriminator` field to each struct, including the existing `MovieAccountState`. Since we now have multiple account types, we need a way to only fetch the account type we need from the client. This discriminator is a string that can be used to filter through accounts when we fetch our program accounts.
 
 ```rust
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -317,11 +306,40 @@ impl IsInitialized for MovieComment {
 }
 ```
 
-### 4. Create `add_comment` instruction
+Since we've added a new `discriminator` field to our existing struct, the account size calculation needs to change. Let's use this as an opportunity to clean up some of our code a bit. We'll add an implementation for each of the three structs above that adds a constant `DISCRIMINATOR` and either a constant `SIZE` or function `get_account_size` so we can quickly get the size needed when initializing an account.
 
-Recall that the `instruction.rs` file defines how we deserialize the instruction data for each instruction in our program. Let’s update `instruction.rs` to define how to deserialize the instruction data for our new `add_comment` instruction.
+```rust
+impl MovieAccountState {
+    pub const DISCRIMINATOR: &'static str = "review";
 
-To begin, let’s update our `MovieInstruction` enum to include an `AddComment` variant.
+    pub fn get_account_size(title: String, description: String) -> usize {
+        return (4 + MovieAccountState::DISCRIMINATOR.len())
+            + 1
+            + 1
+            + (4 + title.len())
+            + (4 + description.len());
+    }
+}
+
+impl MovieCommentCounter {
+    pub const DISCRIMINATOR: &'static str = "counter";
+    pub const SIZE: usize = (4 + MovieCommentCounter::DISCRIMINATOR.len()) + 1 + 8;
+}
+
+impl MovieComment {
+    pub const DISCRIMINATOR: &'static str = "comment";
+
+    pub fn get_account_size(comment: String) -> usize {
+        return (4 + MovieComment::DISCRIMINATOR.len()) + 1 + 32 + 32 + (4 + comment.len()) + 8;
+    }
+}
+```
+
+Now everywhere we need the discriminator or account size we can use this implementation and not risk unintentional typos.
+
+### 4. Create `AddComment` instruction
+
+Recall that the `instruction.rs` file defines the instructions our program will accept and how to deserialize the data for each. We need to add a new instruction variant for adding comments. Let’s start by adding a new variant `AddComment` to the `MovieInstruction` enum.
 
 ```rust
 pub enum MovieInstruction {
@@ -341,7 +359,7 @@ pub enum MovieInstruction {
 }
 ```
 
-Note that instruction data for creating a new comment differs from our previous instructions. We’ll also need to add a new payload struct for `AddComment`.
+Next, let's create a `CommentPayload` struct to represent the instruction data associated with this new instruction. Most of the data we'll include in the account are public keys associated with accounts passed into the program, so the only thing we actually need here is a single field to represent the comment text.
 
 ```rust
 #[derive(BorshDeserialize)]
@@ -350,7 +368,7 @@ struct CommentPayload {
 }
 ```
 
-Next, let’s update how we unpack the instruction data. Here, we’ve moved the deserialization of instruction data into the match statement using the associated payload struct for each instruction.
+Now let’s update how we unpack the instruction data. Notice that we’ve moved the deserialization of instruction data into each matching case using the associated payload struct for each instruction.
 
 ```rust
 impl MovieInstruction {
@@ -364,7 +382,6 @@ impl MovieInstruction {
                 rating: payload.rating,
                 description: payload.description }
             },
-
             1 => {
                 let payload = MovieReviewPayload::try_from_slice(rest).unwrap();
                 Self::UpdateMovieReview {
@@ -382,11 +399,12 @@ impl MovieInstruction {
             _ => return Err(ProgramError::InvalidInstructionData)
         })
     }
+}
 ```
 
 Lastly, let's update the `process_instruction` function in `processor.rs` to use the new instruction variant we've created.
 
-We'll start by bringing into scope the new structs from `state.rs`.
+In `processor.rs`, bring into scope the new structs from `state.rs`.
 
 ```rust
 use crate::state::{MovieAccountState, MovieCommentCounter, MovieComment};
@@ -418,8 +436,6 @@ pub fn process_instruction(
 
 ### 5. Update `add_movie_review` to create comment counter account
 
-Recall that `processor.rs` defines the logic for how we process each instruction within our program. As part of enabling commenting, 
-
 Before we implement the `add_comment` function, we need to update the `add_movie_review` function to create the review's comment counter account.
 
 Remember that this account will keep track of the total number of comments that exist for an associated review. It's address will be a PDA derived using the movie review address and the word “comment” as seeds. Note that how we store the counter is simply a design choice. We could also add a “counter” field to the original movie review account.
@@ -435,54 +451,71 @@ let pda_counter = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-For review accounts, we will use the word “review” as the discriminator. We’ll need to add the discriminator to the instruction and update how we calculate `total_len` to account for the length of the new discriminator field.
+Next, there's a check to make sure `total_len` is less than 1000 bytes, but `total_len` is no longer accurate since we added the discriminator. Let's replace `total_len` with a call to `MovieAccountState::get_account_size`:
 
 ```rust
-let review_discriminator = "review";
-let total_len: usize = (4 + review_discriminator.len()) + 1 + 1 + (4 + title.len()) + (4 + description.len());
+let account_len: usize = 1000;
+
+if MovieAccountState::get_account_size(title.clone(), description.clone()) > account_len {
+    msg!("Data length is larger than 1000 bytes");
+    return Err(ReviewError::InvalidDataLength.into());
+}
 ```
 
-Once we’ve initialized the review account, we’ll also need to update the `account_data` with the fields we specified in the `MovieAccountState` struct.
+Note that this also needs to be updated in the `update_movie_review` function for that instruction to work properly.
+
+Once we’ve initialized the review account, we’ll also need to update the `account_data` with the new fields we specified in the `MovieAccountState` struct.
 
 ```rust
-account_data.discriminator = review_discriminator.to_string();
-account_data.title = title;
+account_data.discriminator = MovieAccountState::DISCRIMINATOR.to_string();
 account_data.reviewer = *initializer.key;
+account_data.title = title;
 account_data.rating = rating;
 account_data.description = description;
 account_data.is_initialized = true;
 ```
 
-Finally, let’s add the logic to initialize the counter account within the `add_movie_review` function. Add the following to the end of the `add_movie_review` function.
+Finally, let’s add the logic to initialize the counter account within the `add_movie_review` function. This means:
+
+1. Calculating the rent exemption amount for the counter account
+2. Deriving the counter PDA using the review address and the string "comment" as seeds
+3. Invoking the system program to create the account
+4. Set the starting counter value
+5. Serialize the account data and return from the function
+
+All of this should be added to the end of the `add_movie_review` function before the `Ok(())`.
 
 ```rust
 msg!("create comment counter");
-let counter_discriminator = "counter";
-let counter_len: usize = (4 + counter_discriminator.len()) + 1 + 8;
-
 let rent = Rent::get()?;
-let counter_rent_lamports = rent.minimum_balance(counter_len);
+let counter_rent_lamports = rent.minimum_balance(MovieCommentCounter::SIZE);
 
-let (counter, counter_bump) = Pubkey::find_program_address(&[pda.as_ref(), "comment".as_ref(),], program_id);
+let (counter, counter_bump) =
+    Pubkey::find_program_address(&[pda.as_ref(), "comment".as_ref()], program_id);
 if counter != *pda_counter.key {
     msg!("Invalid seeds for PDA");
-    return Err(ProgramError::InvalidArgument)
+    return Err(ProgramError::InvalidArgument);
 }
 
 invoke_signed(
     &system_instruction::create_account(
-    initializer.key,
-    pda_counter.key,
-    counter_rent_lamports,
-    counter_len.try_into().unwrap(),
-    program_id,
+        initializer.key,
+        pda_counter.key,
+        counter_rent_lamports,
+        MovieCommentCounter::SIZE.try_into().unwrap(),
+        program_id,
     ),
-    &[initializer.clone(), pda_counter.clone(), system_program.clone()],
+    &[
+        initializer.clone(),
+        pda_counter.clone(),
+        system_program.clone(),
+    ],
     &[&[pda.as_ref(), "comment".as_ref(), &[counter_bump]]],
 )?;
 msg!("comment counter created");
 
-let mut counter_data = try_from_slice_unchecked::<MovieCommentCounter>(&pda_counter.data.borrow()).unwrap();
+let mut counter_data =
+    try_from_slice_unchecked::<MovieCommentCounter>(&pda_counter.data.borrow()).unwrap();
 
 msg!("checking if counter account is already initialized");
 if counter_data.is_initialized() {
@@ -490,7 +523,7 @@ if counter_data.is_initialized() {
     return Err(ProgramError::AccountAlreadyInitialized);
 }
 
-counter_data.discriminator = counter_discriminator.to_string();
+counter_data.discriminator = MovieCommentCounter::DISCRIMINATOR.to_string();
 counter_data.counter = 0;
 counter_data.is_initialized = true;
 msg!("comment count: {}", counter_data.counter);
@@ -508,9 +541,7 @@ Finally, let’s implement our `add_comment` function to create new comment acco
 
 When a new comment is created for a review, we will increment the count on the comment counter PDA account and derive the PDA for the comment account using the review address and current count.
 
-Since the count updates every time a new comment is created, we can create an arbitrary number of comments for a review and easily fetch all the comments associated with any review. As long as we have the address of the review account, we can find the number of comments for the review. With the comment count, we can then loop through the count to derive and fetch all the comment accounts for a review.
-
-Add the `add_comment` function to `processor.rs`.
+Like in other instruction processing functions, we'll start by iterating through accounts passed into the program. Then before we do anything else we need to deserialize the counter account so we have access to the current comment count:
 
 ```rust
 pub fn add_comment(
@@ -531,8 +562,38 @@ pub fn add_comment(
 
     let mut counter_data = try_from_slice_unchecked::<MovieCommentCounter>(&pda_counter.data.borrow()).unwrap();
 
-    let comment_discriminator = "comment";
-    let account_len: usize = (4 + comment_discriminator.len()) + 1 + 32 + 32 + (4 + comment.len()) + 8;
+    Ok(())
+}
+```
+
+Now that we have access to the counter data, we can continue with the remaining steps:
+
+1. Calculate the rent exempt amount for the new comment account
+2. Derive the PDA for the comment account using the review address and the current comment count as seeds
+3. Invoke the System Program to create the new comment account
+4. Set the appropriate values to the newly created account
+5. Serialize the account data and return from the function
+
+```rust
+pub fn add_comment(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    comment: String
+) -> ProgramResult {
+    msg!("Adding Comment...");
+    msg!("Comment: {}", comment);
+
+    let account_info_iter = &mut accounts.iter();
+
+    let commenter = next_account_info(account_info_iter)?;
+    let pda_review = next_account_info(account_info_iter)?;
+    let pda_counter = next_account_info(account_info_iter)?;
+    let pda_comment = next_account_info(account_info_iter)?;
+    let system_program = next_account_info(account_info_iter)?;
+
+    let mut counter_data = try_from_slice_unchecked::<MovieCommentCounter>(&pda_counter.data.borrow()).unwrap();
+
+    let account_len = MovieComment::get_account_size(comment.clone());
 
     let rent = Rent::get()?;
     let rent_lamports = rent.minimum_balance(account_len);
@@ -565,7 +626,7 @@ pub fn add_comment(
         return Err(ProgramError::AccountAlreadyInitialized);
     }
 
-    comment_data.discriminator = comment_discriminator.to_string();
+    comment_data.discriminator = MovieComment::DISCRIMINATOR.to_string();
     comment_data.review = *pda_review.key;
     comment_data.commenter = *commenter.key;
     comment_data.comment = comment;
@@ -584,23 +645,21 @@ pub fn add_comment(
 
 We're ready to build and deploy our program!
 
-Build the updated program by running `cargo-build-bpf`. Then deploy the program by running the deploy command provided as the output of `cargo-build-bpf`.
+Build the updated program by running `cargo-build-bpf`. Then deploy the program by running the `solana program deploy` command printed to the console.
 
-You can test your program by submitting a transaction with the right instruction data. You can create your own script for that or feel free to use [this frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-comments).
+You can test your program by submitting a transaction with the right instruction data. You can create your own script or feel free to use [this frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-comments). Be sure to use the `solution-add-comments` branch and replace the `MOVIE_REVIEW_PROGRAM_ID` in `utils/constants.ts` with your program's ID or the frontend won't work with your program.
 
-Keep in mind that since we made breaking changes to the review accounts (i.e. adding a discriminator), none of the reviews you created previously will show on this frontend as it's designed to accommodate the changes we made in this demo.
+Keep in mind that we made breaking changes to the review accounts (i.e. adding a discriminator). If you were to use the same program ID that you've used previously when deploying this program, none of the reviews you created previously will show on this frontend due to a data mismatch.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62d0c35cf6273245aca4f5f5) before continuing.
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://github.com/Unboxed-Software/solana-movie-program) before continuing. Note that the solution code is on the `main` branch of the linked repository.
 
 # Challenge
 
-Now it’s your turn to build something independently. If you haven't been following along or haven't saved your work from before, feel free to use this [starter code](https://beta.solpg.io/62c9120df6273245aca4f5e8).
+Now it’s your turn to build something independently! Go ahead and work with the Student Intro program that we've used in past lessons. The Student Intro program is a Solana program that lets students introduce themselves. This program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain. For this challenge you should:
 
-The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain.
+1. Add an instruction allowing other users to reply to an intro
+2. Build and deploy the program locally
 
-Using the concepts and tools detailed in this lesson, apply what you've learned to the Student Intro Program.
-
-1. Build and deploy the program locally
-2. Add an instruction allowing other users to reply to an intro
+If you haven't been following along with past lessons or haven't saved your work from before, feel free to use [this starter code](https://beta.solpg.io/62c9120df6273245aca4f5e8).
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62cb5761f6273245aca4f5e9). Note that your code may look slightly different than the solution code.
