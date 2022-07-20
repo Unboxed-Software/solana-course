@@ -660,6 +660,6 @@ Now it’s your turn to build something independently! Go ahead and work with th
 1. Add an instruction allowing other users to reply to an intro
 2. Build and deploy the program locally
 
-If you haven't been following along with past lessons or haven't saved your work from before, feel free to use [this starter code](https://beta.solpg.io/62c9120df6273245aca4f5e8).
+If you haven't been following along with past lessons or haven't saved your work from before, feel free to use the starter code on the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-student-intro-program/tree/starter).
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62cb5761f6273245aca4f5e9). Note that your code may look slightly different than the solution code.
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intro-program). Note that the solution code is on the `main` branch and that your code may look slightly different.
