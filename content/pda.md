@@ -232,8 +232,8 @@ Adding comments means we need to make a few decisions about how to store the dat
 
 To do this, we'll create two new account types:
 
-1. Comment counter account
-2. Comment account
+- Comment counter account
+- Comment account
 
 There will be one comment counter account per review and one comment account per comment. The comment counter account will be linked to a given review by using a review's address as a seed for finding the comment counter PDA. It will also use the static string "comment" as a seed.
 
