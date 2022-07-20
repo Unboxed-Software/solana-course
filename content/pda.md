@@ -48,7 +48,7 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_in
 
 While you the developer determine the seeds to pass into the `find_program_address` function, the function itself provides an initial "bump seed." The cryptographic function for deriving a PDA results in a key that lies on the ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the ed25519 curve and therefore does not have a private key, the `find_program_address` function adds a numeric seed called a bump seed.
 
-The function starts by using the value `255` as the bump seed, then checks to see if the output is a valid PDA. If the result is not a valid PDA, the function decreases the bump seed by 1 and tries again (255, 254, 253, etc.). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
+The function starts by using the value `255` as the bump seed, then checks to see if the output is a valid PDA. If the result is not a valid PDA, the function decreases the bump seed by 1 and tries again (`255`, `254`, `253`, etc.). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
 ### Under the hood of `find_program_address`
 
