@@ -11,7 +11,7 @@
 
 # TL;DR
 
-- A **Program Derived Address** (PDA) is derived from a **program ID** and an optional list of **seeds**.
+- A **Program Derived Address** (PDA) is derived from a **program ID** and an optional list of **seeds**
 - PDAs are owned and controlled by the program they are derived from
 - PDA derivation provides a deterministic way to find data based on the seeds used for the derivation. Seeds can be used as known data that maps to data stored in a separate PDA account.
 - Programs can sign instructions on behalf of PDAs derived from its program ID
@@ -261,7 +261,7 @@ To begin, let’s bring into scope `Pubkey` from the `solana_program` crate. Upd
 
 ```rust
 use solana_program::{
-    program_pack::{IsInitialized, Sealed}, 
+    program_pack::{IsInitialized, Sealed},
     pubkey::Pubkey
 };
 ```
@@ -418,7 +418,7 @@ pub fn process_instruction(
 
 ### 5. Update `add_movie_review` to create comment counter account
 
-Recall that `processor.rs` defines the logic for how we process each instruction within our program. As part of enabling commenting, 
+Recall that `processor.rs` defines the logic for how we process each instruction within our program. As part of enabling commenting,
 
 Before we implement the `add_comment` function, we need to update the `add_movie_review` function to create the review's comment counter account.
 
