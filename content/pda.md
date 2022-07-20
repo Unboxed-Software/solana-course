@@ -200,7 +200,7 @@ Let’s practice together with the Movie Review program we've worked on in previ
 
 As a refresher, the Movie Review program lets users create movie reviews. These reviews are stored in an account using a PDA derived with the initializer’s public key and the title of the movie they are reviewing.
 
-Previously, we finished implementing the ability to update a movie review in a secure manner. In this demo, we'll add the ability for users to comment on a movie review and use that as an opportunity to work through how to structure storing comments using PDA accounts.
+Previously, we finished implementing the ability to update a movie review in a secure manner. In this demo, we'll add the ability for users to comment on a movie review. We'll use building this feature as an opportunity to work through how to structure the comment storage using PDA accounts.
 
 ### 1. Get the starter code
 
