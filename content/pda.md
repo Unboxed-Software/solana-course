@@ -63,7 +63,7 @@ Let's take a look at the source code for `find_program_address`.
 
 Under the hood, the `find_program_address` function passes the input `seeds` and `program_id` to the `try_find_program_address` function.
 
-The `try_find_program_address` function then introduces the `bump_seed`. The `bump_seed` is a `u8` variable with a value ranging between 0 to 255. Iterating over a descending range starting from 255, a `bump_seed` is appended to the optional input seeds which are then passed to the `create_program_address` function. If the output of `create_program_address` is not a valid PDA, then the `bump_seed` is decreased by 1 and the loop continues.
+The `try_find_program_address` function then introduces the `bump_seed`. The `bump_seed` is a `u8` variable with a value ranging between 0 to 255. Iterating over a descending range starting from 255, a `bump_seed` is appended to the optional input seeds which are then passed to the `create_program_address` function. If the output of `create_program_address` is not a valid PDA, then the `bump_seed` is decreased by 1 and the loop continues until a valid PDA is found.
 
 ```rust
 pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<(Pubkey, u8)> {
