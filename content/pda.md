@@ -143,7 +143,7 @@ You could mitigate this issue to some degree by creating a separate map account 
 
 This approach reduces the size required for each map account, but ultimately still adds an unnecessary requirement to the process: having to read the information on the map account *before* being able to find the accounts with the relevant note data.
 
-There may be times where using the approach makes sense for your application, but we don't recommend it as your "go to" strategy.
+There may be times where using this approach makes sense for your application, but we don't recommend it as your "go to" strategy.
 
 ### Map to data using PDA derivation
 
