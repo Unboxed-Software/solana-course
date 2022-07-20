@@ -669,4 +669,4 @@ Now it’s your turn to build something independently! Go ahead and work with th
 
 If you haven't been following along with past lessons or haven't saved your work from before, feel free to use [this starter code](https://beta.solpg.io/62c9120df6273245aca4f5e8).
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62cb5761f6273245aca4f5e9). Note that your code may look slightly different than the solution code.
+Try to do this independently if you can! If you get stuck though, feel free to reference the [solution code](https://beta.solpg.io/62cb5761f6273245aca4f5e9). Note that your code may look slightly different than the solution code.
