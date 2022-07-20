@@ -86,7 +86,7 @@ pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<
 }
 ```
 
-The `create_program_address` function performs a set of hash operations over the seeds and `program_id`. These operations compute a key, then verify if the computed key lies on the Ed25519 elliptic curve or not. If a valid PDA is found, then the PDA is returned. Otherwise, an error is returned.
+The `create_program_address` function performs a set of hash operations over the seeds and `program_id`. These operations compute a key, then verify if the computed key lies on the Ed25519 elliptic curve or not. If a valid PDA is found (i.e. an address that is *off* the curve), then the PDA is returned. Otherwise, an error is returned.
 
 ```rust
 pub fn create_program_address(
