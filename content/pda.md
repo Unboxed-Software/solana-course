@@ -13,7 +13,8 @@
 
 - A **Program Derived Address** (PDA) is derived from a **program ID** and an optional list of **seeds**
 - PDAs are owned and controlled by the program they are derived from
-- PDA derivation provides a deterministic way to find data based on the seeds used for the derivation. Seeds can be used as known data that maps to data stored in a separate PDA account.
+- PDA derivation provides a deterministic way to find data based on the seeds used for the derivation
+- Seeds can be used as known data that maps to data stored in a separate PDA account
 - Programs can sign instructions on behalf of PDAs derived from its program ID
 
 # Overview
