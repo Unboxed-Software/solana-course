@@ -21,7 +21,7 @@
 
 ## What is a Program Derived Address?
 
-Program Derived Addresses (PDAs) are account addresses designed to be signed for by a program rather than a secret key. As the name suggests, PDAs are derived using a program ID. Optionally, these derived accounts can also be found using the ID along with a set of "seeds." More on this later, but these seeds will play an important role in how we use PDAs for data storage and retrieval. A PDA looks exactly like the public key of a Solana keypair. There is an important difference, though - these public keys have no corresponding private key.
+Program Derived Addresses (PDAs) are account addresses designed to be signed for by a program rather than a secret key. As the name suggests, PDAs are derived using a program ID. Optionally, these derived accounts can also be found using the ID along with a set of "seeds." More on this later, but these seeds will play an important role in how we use PDAs for data storage and retrieval. For now, it is enough to understand that even though a PDA looks exactly like the public key of any Solana keypair, these *derived* public keys have no corresponding private key.
 
 PDAs serve two main functions:
 
