@@ -141,7 +141,7 @@ While such a solution is perhaps more approachable for traditional web developer
 
 You could mitigate this issue to some degree by creating a separate map account for each user. For example, rather than having a single PDA map account for the entire program, you would construct a PDA map account per user. Each of these map accounts could be derived with the user's public key. The addresses for each note could then be stored inside the corresponding user's map account.
 
-This reduces the size required for each map account, but ultimately still adds an unnecessary step to the process by having to read the information on the map account before being able to find the accounts with the relevant note data.
+This approach reduces the size required for each map account, but ultimately still adds an unnecessary requirement to the process: having to read the information on the map account *before* being able to find the accounts with the relevant note data.
 
 There may be times where using the approach makes sense for your application, but we don't recommend it as your "go to" strategy.
 
