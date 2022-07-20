@@ -240,7 +240,7 @@ There will be one comment counter account per review and one comment account per
 The comment account will be linked to a review in the same way. However, it will not include the "commment" string as a seed and will instead use the *actual comment count* as a seed. That way the client can easily retrieve comments for a given review by doing the following:
 
 1. Read the data on the comment counter account to determine the number of comments on a review.
-2. Loop `n` times where `n` is the total number of comments on the review. Each iteration in the loop will derive a PDA using the review address and the current number as seeds. The result is `n` number of PDAs, each of which is the address of an account that stores a comment.
+2. Where `n` is the total number of comments on the review, loop `n` times. Each iteration of the loop will derive a PDA using the review address and the current number as seeds. The result is `n` number of PDAs, each of which is the address of an account that stores a comment.
 3. Fetch the accounts for each of the `n` PDAs and read the data stored in each.
 
 This ensures that every one of our accounts can be deterministically retrieved using data that is already known ahead of time.
