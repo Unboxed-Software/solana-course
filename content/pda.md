@@ -110,7 +110,7 @@ pub fn create_program_address(
 }
 ```
 
-In summary, the `find_program_address` function passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds calls the `create_program_address` function in a loop until a valid PDA is found. Once a valid PDA is found, both the PDA and `bump_seed` are returned.
+In summary, the `find_program_address` function passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds, then calls the `create_program_address` function until a valid PDA is found. Once a valid PDA is found, both the PDA and `bump_seed` are returned.
 
 Note that for the same input seeds, different valid bumps will generate different valid PDAs. The `bump_seed` returned by `find_program_address` will always be the first valid PDA found. Because the function starts with a `bump_seed` value of 255 and iterates downwards to zero, the `bump_seed` that ultimately gets returned will always be the largest valid 8-bit value possible. This `bump_seed` is commonly referred to as the "canonical bump". To avoid confusion, it's recommended to only use the canonical bump, and to always validate every PDA passed into your program.
 
