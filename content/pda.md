@@ -126,7 +126,7 @@ If you need a refresher on how to store data in PDAs, have a look at the [Create
 
 Storing data in PDA accounts is only half of the equation. You also need a way to retrieve that data. We'll talk about two approaches:
 
-1. Creating a PDA "map" account that stores the addresses for various accounts where data is stored
+1. Creating a PDA "map" account that stores the addresses of various accounts where data is stored
 2. Strategically using seeds to locate the appropriate PDA accounts and retrieve the necessary data
 
 ### Map to data using PDA "map" accounts
