@@ -118,7 +118,7 @@ One point to emphasize is that the `find_program_address` function only returns 
 
 ## Use PDA accounts to store data
 
-Since programs themselves are stateless, program state is managed through external accounts. Using PDA accounts to store data related to the program is an obvious choice given that you can use seeds for mapping and that programs can sign on their behalf. While programs can invoke the System Program to create non-PDA accounts and use those to store data as well, PDAs tend to be the way to go.
+Since programs themselves are stateless, program state is managed through external accounts. Given that you can use seeds for mapping and that programs can sign on their behalf, using PDA accounts to store data related to the program is an obvious development choice. While programs can invoke the System Program to create non-PDA accounts and use those to store data as well, PDAs tend to be the way to go.
 
 If you need a refresher on how to store data in PDAs, have a look at the [Create a Basic Program, Part 2 - State Management lesson](./program-state-management.md).
 
