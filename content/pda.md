@@ -139,7 +139,7 @@ When it comes time to retrieve a user's notes, you could then look at the map ac
 
 While such a solution is perhaps more approachable for traditional web developers, it does come with some drawbacks that are particular to web3 development. Since the size of the mapping stored in the map account will grow over time, you'll either need to allocate more size than necessary to the account when you first create it, or you'll need to reallocate space for it every time a new note is created. On top of that, you'll eventually reach the account size limit of 10 megabytes.
 
-You could mitigate this issue to some degree by creating a separate map account for each user. Rather than having a single PDA map account for the entire program, you would have one per user where each is derived with the user's public key, then the addresses for each note stored inside the corresponding user's map account.
+You could mitigate this issue to some degree by creating a separate map account for each user. For example, rather than having a single PDA map account for the entire program, you would construct a PDA map account per user. Each of these map accounts could be derived with the user's public key. The addresses for each note could then be stored inside the corresponding user's map account.
 
 This reduces the size required for each map account, but ultimately still adds an unecessary step to the process by having to read the information on the map account before being able to find the accounts with the relevant note data.
 
