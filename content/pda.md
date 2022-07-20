@@ -187,7 +187,7 @@ fn get_associated_token_address_and_bump_seed_internal(
 }
 ```
 
-The mappings between seeds and PDA accounts that you use will be highly dependent on your specific program. And while this isn't a System Design and Architecture lesson, it's worth calling out a few guidelines:
+The mappings between seeds and PDA accounts that you use will be highly dependent on your specific program. While this isn't a lesson on system design or architecture, it's worth calling out a few guidelines:
 
 - Use seeds that will be known at the time of PDA derivation
 - Be thoughtful about what data is grouped together into a single account
