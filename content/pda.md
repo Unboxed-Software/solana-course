@@ -135,7 +135,7 @@ One approach to organizing data storage is to store clusters of relevant data in
 
 For example, you might have a note-taking app whose backing program uses random seeds to generate PDA accounts and stores one note in each account. The program would also have a single global PDA "map" account that stores a mapping of user's public keys to the list of PDAs where their notes are stored. This map account would be derived using a static seed, e.g. "GLOBAL_MAPPING".
 
-When it comes time to retrieve a user's notes, you could then look at the map account and see the list of addresses associated with the user's public key, then retrieve the account for each of those addresses.
+When it comes time to retrieve a user's notes, you could then look at the map account, see the list of addresses associated with a user's public key, then retrieve the account for each of those addresses.
 
 While this approach is perhaps more approachable for traditional web developers, it comes with some drawbacks. Since the size of the mapping stored in the map account will grow over time, you'll either need to allocate more size than necessary to the account when you first create it, or you'll need to reallocate space for it every time a new note is created. On top of that, you'll eventually reach the account size limit of 10 megabytes.
 
