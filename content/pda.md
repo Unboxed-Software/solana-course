@@ -648,7 +648,7 @@ pub fn add_comment(
 }
 ```
 
-### 5. Build and deploy
+### 7. Build and deploy
 
 We're ready to build and deploy our program!
 
