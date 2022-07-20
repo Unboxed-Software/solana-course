@@ -34,7 +34,7 @@ In this lesson we'll focus on using PDAs to find and store data. We'll discuss s
 
 PDAs are not technically created. Rather, they are *found* or *derived* based on a program ID and one or more input seeds.
 
-Solana keypairs can be found on what is called the "Ed25519 Elliptic Curve." This means that they and have corresponding public and private keys. Alternatively, PDAs are addresses that lie *off* the ed25519 Elliptic curve and therefore do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
+Solana keypairs can be found on what is called the "Ed25519 Elliptic Curve." This means that they and have corresponding public and private keys. Alternatively, PDAs are addresses that lie *off* the Ed25519 Elliptic curve and therefore do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
 
 To find a PDA within a Solana program, we'll use the `find_program_address` function. This function takes an optional list of “seeds” and a program ID as inputs, and then returns the PDA and a bump seed.
 
@@ -46,7 +46,7 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_in
 
 “Seeds” are optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and no additional seeds. Using seeds to find our PDAs, however, allows us to create an arbitrary number of accounts that our program can own.
 
-While you the developer determine the seeds to pass into the `find_program_address` function, the function itself provides an initial "bump seed." The cryptographic function for deriving a PDA results in a key that lies on the ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the ed25519 curve and therefore does not have a private key, the `find_program_address` function adds a numeric seed called a bump seed.
+While you the developer determine the seeds to pass into the `find_program_address` function, the function itself provides an initial "bump seed." The cryptographic function for deriving a PDA results in a key that lies on the Ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the Ed25519 curve and therefore does not have a private key, the `find_program_address` function adds a numeric seed called a bump seed.
 
 The function starts by using the value `255` as the bump seed, then checks to see if the output is a valid PDA. If the result is not a valid PDA, the function decreases the bump seed by 1 and tries again (`255`, `254`, `253`, et cetera). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
