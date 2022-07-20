@@ -137,7 +137,7 @@ For example, you might have a note-taking app whose backing program uses random 
 
 When it comes time to retrieve a user's notes, you could then look at the map account, see the list of addresses associated with a user's public key, then retrieve the account for each of those addresses.
 
-While such a solution is perhaps more approachable for traditional web developers, it does come with some drawbacks. Since the size of the mapping stored in the map account will grow over time, you'll either need to allocate more size than necessary to the account when you first create it, or you'll need to reallocate space for it every time a new note is created. On top of that, you'll eventually reach the account size limit of 10 megabytes.
+While such a solution is perhaps more approachable for traditional web developers, it does come with some drawbacks that are particular to web3 development. Since the size of the mapping stored in the map account will grow over time, you'll either need to allocate more size than necessary to the account when you first create it, or you'll need to reallocate space for it every time a new note is created. On top of that, you'll eventually reach the account size limit of 10 megabytes.
 
 You could mitigate this issue to some degree by creating a separate map account for each user. Rather than having a single PDA map account for the entire program, you would have one per user where each is derived with the user's public key, then the addresses for each note stored inside the corresponding user's map account.
 
