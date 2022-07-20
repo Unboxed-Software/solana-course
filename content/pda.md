@@ -152,7 +152,11 @@ If you're strategic about the seeds you use to derive PDAs, you can embed the re
 Now, without talking about it explicitly, we’ve been mapping seeds to accounts this entire course. Think about the Movie Review program we've been built in previous lessons. This program uses a review creator's public key and the title of the movie they're reviewing to find the address that *should* be used to store the review. This approach lets the program create a unique address for every new review while also making it easy to locate a review when needed. When you want to find a user's review of "Spiderman," you know that it is stored at the PDA account whose address can be derived using the user's public key and the text "Spiderman" as seeds.
 
 ```rust
-let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref()], program_id)
+let (pda, bump_seed) = Pubkey::find_program_address(&[
+        initializer.key.as_ref(),
+        title.as_bytes().as_ref()
+    ],
+    program_id)
 ```
 
 Another practical example of this type of mapping is how associated token account (ATA) addresses are determined. Tokens are often held in an ATA whose address was derived using a wallet address and the mint address of a specific token. The address for an ATA is found using the `get_associated_token_address` function which takes a `wallet_address` and `token_mint_address` as inputs.
