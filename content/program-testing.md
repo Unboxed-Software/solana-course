@@ -297,7 +297,7 @@ pub fn process_instruction(
 For some more detailed information regarding the compute budget [check out the docs](https://docs.solana.com/developing/programming-model/runtime#compute-budget).
 
 ### Stack size
-Every program has access to [4KB of stack frame size when executing]("https://docs.solana.com/developing/on-chain-programs/overview#stack"). This is a different concept from the compute budget we just discussed because the stack size limit is focused solely on memory, while the compute budget is meant to limit computationally intensive actions.
+Every program has access to [4KB of stack frame size when executing]("https://docs.solana.com/developing/on-chain-programs/overview#stack"). This is a different concept from the compute budget we just discussed because the stack size limit is focused solely on memory, while the compute budget is meant to limit computationally intensive actions. Many programming languages don’t require you to think about the stack and the heap very often. But in a systems programming language like Rust, whether a value is on the stack or the heap can make a large difference - especially when working within a constrained environment like a blockchain. If you aren't familiar with the differences between the two, [the Rust book has a great explanation](https://doc.rust-lang.org/stable/book/ch04-01-what-is-ownership.html).
 
 All values in Rust are stack allocated by default. You'll start to run into issues with using up all of the 4KB of memory when working with larger, more complex programs. This is often called "blowing the stack". If a program reaches it's 4KB stack at runtime, it will halt and return an `AccessViolation` error.
 ```text
