@@ -660,7 +660,7 @@ You can test your program by submitting a transaction with the right instruction
 
 Keep in mind that we made breaking changes to the review accounts (i.e. adding a discriminator). If you were to use the same program ID that you've used previously when deploying this program, none of the reviews you created previously will show on this frontend due to a data mismatch.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://github.com/Unboxed-Software/solana-movie-program) before continuing. Note that the solution code is on the `main` branch of the linked repository.
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-comments) before continuing. Note that the solution code is on the `solution-add-comments` branch of the linked repository.
 
 # Challenge
 
@@ -671,4 +671,4 @@ Now it’s your turn to build something independently! Go ahead and work with th
 
 If you haven't been following along with past lessons or haven't saved your work from before, feel free to use the starter code on the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-student-intro-program/tree/starter).
 
-Try to do this independently if you can! If you get stuck though, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intro-program). Note that the solution code is on the `main` branch and that your code may look slightly different.
+Try to do this independently if you can! If you get stuck though, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intro-program/tree/solution-add-replies). Note that the solution code is on the `solution-add-replies` branch and that your code may look slightly different.
