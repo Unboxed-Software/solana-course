@@ -300,7 +300,7 @@ Now that our project has a new keypair, we're ready to set up the Metaplex helpe
 git clone https://github.com/metaplex-foundation/deprecated-clis
 ```
 
-This repository contains the Candy Machine v2 CLI tools. If you want to have a look at them more closely, you can find them in `metaplex/js/packages/cli/src/candy-machine-cli-v2.ts`.
+This repository contains the Candy Machine v2 CLI tools. If you want to have a look at them more closely, you can find them in `deprecated-clis/src/candy-machine-v2-cli.ts`.
 
 We'll be using `ts-node` to run commands. If you don't have `typescript` and `ts-node` installed globally, install it now:
 
