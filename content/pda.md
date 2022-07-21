@@ -11,16 +11,17 @@
 
 # TL;DR
 
-- A **Program Derived Address** (PDA) is derived from a **program ID** and an optional list of **seeds**.
+- A **Program Derived Address** (PDA) is derived from a **program ID** and an optional list of **seeds**
 - PDAs are owned and controlled by the program they are derived from
-- PDA derivation provides a deterministic way to find data based on the seeds used for the derivation. Seeds can be used as known data that maps to data stored in a separate PDA account.
-- Programs can sign instructions on behalf of PDAs derived from its program ID
+- PDA derivation provides a deterministic way to find data based on the seeds used for the derivation
+- Seeds can be used to map to the data stored in a separate PDA account
+- A program can sign instructions on behalf of the PDAs derived from its ID
 
 # Overview
 
-## What is a Program Derived Address
+## What is a Program Derived Address?
 
-Program Derived Addresses (PDAs) are account addresses designed to be signed for by a program rather than a secret key. As the name suggests, PDAs are derived using a program ID. Optionally, the derived accounts can also be found using a set of "seeds." More on this later, but these seeds will play an important role in how we use PDAs for data storage and retrieval. A PDA looks exactly like the public key of a Solana keypair. There is an important difference, though - these public keys have no corresponding private key.
+Program Derived Addresses (PDAs) are account addresses designed to be signed for by a program rather than a secret key. As the name suggests, PDAs are derived using a program ID. Optionally, these derived accounts can also be found using the ID along with a set of "seeds." More on this later, but these seeds will play an important role in how we use PDAs for data storage and retrieval. For now, it is enough to understand that even though a PDA looks exactly like the public key of any Solana keypair, these *derived* public keys have no corresponding private key.
 
 PDAs serve two main functions:
 
@@ -33,9 +34,9 @@ In this lesson we'll focus on using PDAs to find and store data. We'll discuss s
 
 PDAs are not technically created. Rather, they are *found* or *derived* based on a program ID and one or more input seeds.
 
-Regular Solana keypairs lie on the ed25519 Elliptic Curve and have both a public and a corresponding private key. PDAs are addresses that lie *off* the ed25519 Elliptic curve and therefore do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
+Solana keypairs can be found on what is called the "Ed25519 Elliptic Curve." This means that they and have corresponding public and private keys. Alternatively, PDAs are addresses that lie *off* the Ed25519 Elliptic curve and therefore do not have a corresponding private key. The details of elliptic curve cryptography are outside the scope of this lesson, but for now it is sufficient to understand that PDAs are 32 byte strings that look like public keys without an associated private key.
 
-To find a PDA within a Solana program, we use the `find_program_address` function. This function takes an optional list of “seeds” and a program ID as inputs, and then returns the PDA and a bump seed.
+To find a PDA within a Solana program, we'll use the `find_program_address` function. This function takes an optional list of “seeds” and a program ID as inputs, and then returns the PDA and a bump seed.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_input.as_bytes().as_ref(), "SEED".as_bytes()], program_id)
@@ -45,9 +46,9 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_in
 
 “Seeds” are optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and no additional seeds. Using seeds to find our PDAs, however, allows us to create an arbitrary number of accounts that our program can own.
 
-While you the developer determine the seeds to pass into the `find_program_address` function, the function itself provides an additional "bump seed." The cryptographic function for deriving a PDA results in a key that lies on the ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the ed25519 curve and therefore does not have a private key, the `find_program_address` function adds a numeric seed called a bump seed.
+While you the developer determine the seeds to pass into the `find_program_address` function, the function itself provides an initial "bump seed." The cryptographic function for deriving a PDA results in a key that lies on the Ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the Ed25519 curve and therefore does not have a private key, the `find_program_address` function adds a numeric seed called a bump seed.
 
-The function starts by using the value `255` as the bump seed, then checks to see if the output is a valid PDA. If the result is not a valid PDA, the function decreases the bump seed by 1 and tries again (255, 254, 253, etc.). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
+The function starts by using the value `255` as the bump seed, then checks to see if the output is a valid PDA. If the result is not a valid PDA, the function decreases the bump seed by 1 and tries again (`255`, `254`, `253`, et cetera). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
 ### Under the hood of `find_program_address`
 
@@ -62,7 +63,7 @@ Let's take a look at the source code for `find_program_address`.
 
 Under the hood, the `find_program_address` function passes the input `seeds` and `program_id` to the `try_find_program_address` function.
 
-The `try_find_program_address` function then introduces the `bump_seed`. The `bump_seed` is a `u8` variable with a value ranging between 0 to 255. In a loop from 255 to 0, a `bump_seed` is appended to the optional input seeds and then passed to the `create_program_address` function. If the output of `create_program_address` is not a valid PDA, then the `bump_seed` is decreased by 1 and the loop continues.
+The `try_find_program_address` function then introduces the `bump_seed`. The `bump_seed` is a `u8` variable with a value ranging between 0 to 255. Iterating over a descending range starting from 255, a `bump_seed` is appended to the optional input seeds which are then passed to the `create_program_address` function. If the output of `create_program_address` is not a valid PDA, then the `bump_seed` is decreased by 1 and the loop continues until a valid PDA is found.
 
 ```rust
 pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<(Pubkey, u8)> {
@@ -85,7 +86,7 @@ pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<
 }
 ```
 
-The `create_program_address` function performs a set of hash operations over the seeds and `program_id` to compute a key and then verifies if the computed key lies on the ed25519 elliptic curve or not. If a valid PDA is found, then the PDA is returned. Otherwise, an error is returned.
+The `create_program_address` function performs a set of hash operations over the seeds and `program_id`. These operations compute a key, then verify if the computed key lies on the Ed25519 elliptic curve or not. If a valid PDA is found (i.e. an address that is *off* the curve), then the PDA is returned. Otherwise, an error is returned.
 
 ```rust
 pub fn create_program_address(
@@ -109,15 +110,15 @@ pub fn create_program_address(
 }
 ```
 
-In summary, the `find_program_address` function passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds calls the `create_program_address` function in a loop until a valid PDA is found. Once a valid PDA is found, both the PDA and `bump_seed` are returned.
+In summary, the `find_program_address` function passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds, then calls the `create_program_address` function until a valid PDA is found. Once found, both the PDA and the `bump_seed` are returned.
 
-Note that for the same input seeds, different valid bumps will generate different valid PDAs. The `bump_seed` returned by `find_program_address` will always be the first valid PDA found. Because the function starts with a `bump_seed` value of 255 and iterates downwards to zero, the `bump_seed` that ultimately gets returned will always be the largest valid 8-bit value possible. This `bump_seed` is commonly referred to as the "canonical bump". To avoid confusion, it's recommended to only use the canonical bump, and to always validate every PDA passed into your program.
+Note that for the same input seeds, different valid bumps will generate different valid PDAs. The `bump_seed` returned by `find_program_address` will always be the first valid PDA found. Because the function starts with a `bump_seed` value of 255 and iterates downwards to zero, the `bump_seed` that ultimately gets returned will always be the largest valid 8-bit value possible. This `bump_seed` is commonly referred to as the "*canonical bump*". To avoid confusion, it's recommended to only use the canonical bump, and to *always validate every PDA passed into your program.*
 
-One point to emphasize is that the `find_program_address` function only *finds* and returns a Program Derived Address and the bump seed used to derive it. The `find_program_address` function does *not* initialize a new account and the PDA returned by the function is not necessarily associated with an account that stores data.
+One point to emphasize is that the `find_program_address` function only returns a Program Derived Address and the bump seed used to derive it. The `find_program_address` function does *not* initialize a new account, nor is any PDA returned by the function necessarily associated with an account that stores data.
 
 ## Use PDA accounts to store data
 
-Since programs themselves are stateless, program state is managed through external accounts. Using PDA accounts to store data related to the program is an obvious choice given that you can use seeds for mapping and that programs can sign on their behalf. While programs can invoke the System Program to create non-PDA accounts and use those to store data as well, PDAs tend to be the way to go.
+Since programs themselves are stateless, program state is managed through external accounts. Given that you can use seeds for mapping and that programs can sign on their behalf, using PDA accounts to store data related to the program is an obvious development choice. While programs can invoke the System Program to create non-PDA accounts and use those to store data as well, PDAs tend to be the way to go.
 
 If you need a refresher on how to store data in PDAs, have a look at the [Create a Basic Program, Part 2 - State Management lesson](./program-state-management.md).
 
@@ -125,7 +126,7 @@ If you need a refresher on how to store data in PDAs, have a look at the [Create
 
 Storing data in PDA accounts is only half of the equation. You also need a way to retrieve that data. We'll talk about two approaches:
 
-1. Creating a PDA "map" account that stores the addresses for various accounts where data is stored
+1. Creating a PDA "map" account that stores the addresses of various accounts where data is stored
 2. Strategically using seeds to locate the appropriate PDA accounts and retrieve the necessary data
 
 ### Map to data using PDA "map" accounts
@@ -134,25 +135,31 @@ One approach to organizing data storage is to store clusters of relevant data in
 
 For example, you might have a note-taking app whose backing program uses random seeds to generate PDA accounts and stores one note in each account. The program would also have a single global PDA "map" account that stores a mapping of user's public keys to the list of PDAs where their notes are stored. This map account would be derived using a static seed, e.g. "GLOBAL_MAPPING".
 
-When it comes time to retrieve a user's notes, you could then look at the map account and see the list of addresses associated with the user's public key, then retrieve the account for each of those addresses.
+When it comes time to retrieve a user's notes, you could then look at the map account, see the list of addresses associated with a user's public key, then retrieve the account for each of those addresses.
 
-While this approach is perhaps more approachable for traditional web developers, it comes with some drawbacks. Since the size of the mapping stored in the map account will grow over time, you'll either need to allocate more size than necessary to the account when you first create it, or you'll need to reallocate space for it every time a new note is created. On top of that, you'll eventually reach the account size limit of 10 megabytes.
+While such a solution is perhaps more approachable for traditional web developers, it does come with some drawbacks that are particular to web3 development. Since the size of the mapping stored in the map account will grow over time, you'll either need to allocate more size than necessary to the account when you first create it, or you'll need to reallocate space for it every time a new note is created. On top of that, you'll eventually reach the account size limit of 10 megabytes.
 
-You could mitigate this issue to some degree by creating a separate map account for each user. Rather than having a single PDA map account for the entire program, you would have one per user where each is derived with the user's public key, then the addresses for each note stored inside the corresponding user's map account.
+You could mitigate this issue to some degree by creating a separate map account for each user. For example, rather than having a single PDA map account for the entire program, you would construct a PDA map account per user. Each of these map accounts could be derived with the user's public key. The addresses for each note could then be stored inside the corresponding user's map account.
 
-This reduces the size required for each map account, but ultimately still adds an unecessary step to the process by having to read the information on the map account before being able to find the accounts with the relevant note data.
+This approach reduces the size required for each map account, but ultimately still adds an unnecessary requirement to the process: having to read the information on the map account *before* being able to find the accounts with the relevant note data.
 
-There may be times where using the approach makes sense for your application, but we don't recommend it as your "go to" strategy.
+There may be times where using this approach makes sense for your application, but we don't recommend it as your "go to" strategy.
 
 ### Map to data using PDA derivation
 
-If you're strategic about the seeds you use to derive PDAs, you can embed the required mappings into the seeds themselves. This is the natural evolution of the note-taking app example we just discussed. If you start to use the note creator's public key as a seed to create one map account per user, then why not use both the creator's public key and some other known piece of information to derive a PDA for the note itself.
+If you're strategic about the seeds you use to derive PDAs, you can embed the required mappings into the seeds themselves. This is the natural evolution of the note-taking app example we just discussed. If you start to use the note creator's public key as a seed to create one map account per user, then why not use both the creator's public key and some other known piece of information to derive a PDA for the note itself?
 
-Without talking about it explicitly, we’ve been mapping seeds to accounts this entire course. Think about the Movie Review program we've been building throughout the course. This program uses a review creator's public key and the title of the movie they're reviewing to find the address that should be used to store the review. This let's the program create a unique address for every new review while also making it easy to locate a review when needed. When you want to find a user's review of "Spiderman," you know that it is stored at the PDA account whose address can be derived using the user's public key and the text "Spiderman" as seeds.
+Now, without talking about it explicitly, we’ve been mapping seeds to accounts this entire course. Think about the Movie Review program we've been built in previous lessons. This program uses a review creator's public key and the title of the movie they're reviewing to find the address that *should* be used to store the review. This approach lets the program create a unique address for every new review while also making it easy to locate a review when needed. When you want to find a user's review of "Spiderman," you know that it is stored at the PDA account whose address can be derived using the user's public key and the text "Spiderman" as seeds.
 
 ```rust
-let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref()], program_id)
+let (pda, bump_seed) = Pubkey::find_program_address(&[
+        initializer.key.as_ref(),
+        title.as_bytes().as_ref()
+    ],
+    program_id)
 ```
+
+### Associated token account addresses
 
 Another practical example of this type of mapping is how associated token account (ATA) addresses are determined. Tokens are often held in an ATA whose address was derived using a wallet address and the mint address of a specific token. The address for an ATA is found using the `get_associated_token_address` function which takes a `wallet_address` and `token_mint_address` as inputs.
 
@@ -180,7 +187,7 @@ fn get_associated_token_address_and_bump_seed_internal(
 }
 ```
 
-The mappings between seeds and PDA accounts that you use will be highly dependent on your specific program. And while this isn't a System Design and Architecture lesson, it's worth calling out a few guidelines:
+The mappings between seeds and PDA accounts that you use will be highly dependent on your specific program. While this isn't a lesson on system design or architecture, it's worth calling out a few guidelines:
 
 - Use seeds that will be known at the time of PDA derivation
 - Be thoughtful about what data is grouped together into a single account
@@ -193,7 +200,7 @@ Let’s practice together with the Movie Review program we've worked on in previ
 
 As a refresher, the Movie Review program lets users create movie reviews. These reviews are stored in an account using a PDA derived with the initializer’s public key and the title of the movie they are reviewing.
 
-Previously, we finished implementing the ability to update a movie review in a secure manner. In this demo, we'll add the ability for users to comment on a movie review and use that as an opportunity to work through how to structure storing comments using PDA accounts.
+Previously, we finished implementing the ability to update a movie review in a secure manner. In this demo, we'll add the ability for users to comment on a movie review. We'll use building this feature as an opportunity to work through how to structure the comment storage using PDA accounts.
 
 ### 1. Get the starter code
 
@@ -213,7 +220,7 @@ Deploy the program by copying the output of `cargo-build-bpf` and running the `s
 solana program deploy <PATH>
 ```
 
-You can test the program using the movie review [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews) by updating the program ID with the one you’ve just deployed. Make sure you use the `solution-update-reviews` branch.
+You can test the program by using the movie review [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews) and updating the program ID with the one you’ve just deployed. Make sure you use the `solution-update-reviews` branch.
 
 ### 2. Plan out the account structure
 
@@ -225,15 +232,15 @@ Adding comments means we need to make a few decisions about how to store the dat
 
 To do this, we'll create two new account types:
 
-1. Comment counter account
-2. Comment account
+- Comment counter account
+- Comment account
 
 There will be one comment counter account per review and one comment account per comment. The comment counter account will be linked to a given review by using a review's address as a seed for finding the comment counter PDA. It will also use the static string "comment" as a seed.
 
-The comment account will be linked to a review in the same way. However, it will not include the "commment" string as a seed and will instead use the *actual comment count* as a seed. That way the client can easily retrieve comments for a given review by doing the following:
+The comment account will be linked to a review in the same way. However, it will not include the "comment" string as a seed and will instead use the *actual comment count* as a seed. That way the client can easily retrieve comments for a given review by doing the following:
 
 1. Read the data on the comment counter account to determine the number of comments on a review.
-2. Loop `n` times where `n` is the total number of comments on the review. Each iteration in the loop will derive a PDA using the review address and the current number as seeds. The result is `n` number of PDAs, each of which is the address of an account that stores a comment.
+2. Where `n` is the total number of comments on the review, loop `n` times. Each iteration of the loop will derive a PDA using the review address and the current number as seeds. The result is `n` number of PDAs, each of which is the address of an account that stores a comment.
 3. Fetch the accounts for each of the `n` PDAs and read the data stored in each.
 
 This ensures that every one of our accounts can be deterministically retrieved using data that is already known ahead of time.
@@ -641,7 +648,7 @@ pub fn add_comment(
 }
 ```
 
-### 5. Build and deploy
+### 7. Build and deploy
 
 We're ready to build and deploy our program!
 
@@ -655,11 +662,11 @@ If you need more time with this project to feel comfortable with these concepts,
 
 # Challenge
 
-Now it’s your turn to build something independently! Go ahead and work with the Student Intro program that we've used in past lessons. The Student Intro program is a Solana program that lets students introduce themselves. This program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain. For this challenge you should:
+Now it’s your turn to build something independently! Go ahead and work with the Student Intro program that we've used in past lessons. The Student Intro program is a Solana program that lets students introduce themselves. This program takes a user's name and a short message as the `instruction_data` and creates an account to store the data on-chain. For this challenge you should:
 
 1. Add an instruction allowing other users to reply to an intro
 2. Build and deploy the program locally
 
 If you haven't been following along with past lessons or haven't saved your work from before, feel free to use the starter code on the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-student-intro-program/tree/starter).
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intro-program). Note that the solution code is on the `main` branch and that your code may look slightly different.
+Try to do this independently if you can! If you get stuck though, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intro-program). Note that the solution code is on the `main` branch and that your code may look slightly different.
