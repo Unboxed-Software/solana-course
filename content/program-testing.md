@@ -33,7 +33,7 @@ The Rust community thinks about tests in terms of two main categories: unit test
 The purpose of unit tests is to test each unit of code in isolation from the rest of the code to quickly pinpoint where code is and isn’t working as expected. Unit tests reside in the `src` directory in the file with the code they are testing. Unit tests are declared inside a module named `tests` annotated with `cfg(test)`. At its simplest, a test in Rust is a function that’s annotated with the `#[test]` attribute.
 
 ```rust
-// example testing module with a single testing function
+// example testing module with a single test
 #[cfg(test)]
 mod tests {
     #[test]
@@ -66,7 +66,7 @@ Each file in the `tests` directory is a separate crate, so we will need to bring
 
 We don’t need to annotate the tests in the `tests` directory with `#[cfg(test)]` because Cargo will only compile files inside the `tests` directory when we run `cargo test`. Cargo is pretty smart, right?
 
-Once you have tests written (either unit, integration, or both), all you need to do is run `cargo test-bpf` and they will execute. A successful completion of a single unit and single integration test will output something like this to the command line.
+Once you have tests written (either unit, integration, or both), all you need to do is run `cargo test-bpf` or `cargo test` and they will execute. A successful completion of a single unit and single integration test will output something like this to the command line.
 
 ```
 cargo test
@@ -111,7 +111,7 @@ To interact with a running local validator, open a new terminal and configure th
 solana config set --url localhost
 ```
 
-Once set, go ahead and check your wallet balance `solana balance` and then airdrop yourself some tokens `solana airdrop 50`. There is no limit to the amount of tokens you can airdrop yourself on localhost, unlike devnet. You can even open a third terminal to monitor logs that your program generates with `msg!()` by running `solana logs`.
+Once set, go ahead and check your wallet balance `solana balance` and then airdrop yourself some tokens `solana airdrop 50`. There is no limit to the amount of tokens you can airdrop yourself on localhost, unlike devnet. You can even open a third terminal to monitor logs that your program generates by running `solana logs`.
 
 At this point, building and deploying your programs is the same as before, except now they are just deployed to your local computer and not devnet. To send transactions to programs deployed locally, you’ll have to ensure that whatever client you’re submitting the transaction from is targeting your local cluster.
 
@@ -135,7 +135,7 @@ Feel free to read up on the [Solana Test Validator docs](https://docs.solana.com
 
 ### Rust Unit Tests
 
-To build integration and unit tests in Rust, you will have to use the `[solana_sdk](https://docs.rs/solana-sdk/latest/solana_sdk/)` crate. This crate is essentially the same thing as the `@solana/web3.js` package that we’ve been using in Typescript and gives us a way to interact with Solana programs in Rust. There is another crate that will be useful and was made specifically for testing Solana programs, `[solana_program_test](https://docs.rs/solana-program-test/latest/solana_program_test/#)` contains a BanksClient-based testing framework.
+To build integration and unit tests in Rust, you will have to use the [`solana_sdk`](https://docs.rs/solana-sdk/latest/solana_sdk/) crate. This crate is essentially the same thing as the `@solana/web3.js` package that we’ve been using in Typescript and gives us a way to interact with Solana programs in Rust. There is another crate that will be useful and was made specifically for testing Solana programs, [`solana_program_test`](https://docs.rs/solana-program-test/latest/solana_program_test/#) contains a BanksClient-based testing framework.
 
 A simple example of a unit test residing inside a `processor.rs` file may look like
 
@@ -178,14 +178,12 @@ mod tests {
         );
         transaction.sign(&[&payer, &test_acct], recent_blockhash);
 
-        assert_matches!(banks_client.process_transaction(transaction).await, Ok(()));
+        assert_matches!(banks_client.process_transaction(transaction).await, Ok(_);
     }
 }
 ```
 
-In the code snippet, we created a public key to use as our `program_id` and then initialized a `ProgramTest`. Then, we create a second `Keypair` and build our `Transaction` with the appropriate parameters. Finally, we use the `banks_client` that was returned when calling `ProgramTest::new` to process this transaction and check that the return value is equal to `Ok(())`. This is a very simple test, but from the code snippet you can see how you would go about creating more complex tests that involve more accounts and data similar to how you would client side.
-
-### Rust Integration Tests
+In the code snippet, we created a public key to use as our `program_id` and then initialized a `ProgramTest`. Then, we create a second `Keypair` and built our `Transaction` with the appropriate parameters. Finally, we used the `banks_client` that was returned when calling `ProgramTest::new` to process this transaction and check that the return value is equal to `Ok(_)`. This is a very simple test, but from the code snippet you can see how you would go about creating more complex tests that involve more accounts and data similar to how you would client side.
 
 ### RPC Tests
 
@@ -204,7 +202,7 @@ Then, you would add the following to the `package.json` file inside your typescr
 ...
 ```
 
-A test in Typescript with Mocha has a couple of new concepts involved. Mocha testing sections are declared with `describe` which tells the compiler that mocha tests are inside of it.
+A test in Typescript with Mocha has a couple of new concepts involved. Mocha testing sections are declared with the `describe` keyword, which tells the compiler that mocha tests are inside of it.
 
 ```tsx
 describe("begin tests", async () => {
@@ -215,7 +213,7 @@ describe("begin tests", async () => {
 })
 ```
 
-Inside the `describe` section, each test is designated with `it` like so
+Inside the `describe` section, each test is designated with `it`
 
 ```tsx
 describe("begin tests", async () => {
@@ -231,15 +229,15 @@ describe("begin tests", async () => {
 })
 ```
 
-The Chai package is used to determine whether or not each test passes, it has an `expect` function that can easily compare values. You would use Chai to verify that whatever operation your test was supposed to execute returns the expected value.
+The Chai package is used to determine whether or not each test passes, it has an `expect` function that can easily compare values. You would use Chai to verify that whatever operation your test was supposed to execute returns the expected value or updated some data correctly.
 
 ```tsx
 describe("begin tests", async () => {
     // first Mocha test
     it('first test', async () => {
-				// initialization code here to send the transaction
-				...
-				// fetch account info and deserialize
+		// initialization code here to send the transaction
+		...
+		// fetch account info and deserialize
         const acct_info = await connection.getAccountInfo(pda)
         const acct = acct_struct.decode(acct_info.data)
 
@@ -301,21 +299,21 @@ For some more detailed information regarding the compute budget [check out the d
 
 # Demo
 
-Since we have basically been testing programs via a client or script for this whole course, this demo is going to focus on writing unit and integration tests in Rust. We’ll be working with a very simple program that creates a PDA and then initializes some value in the PDA’s data field given the right parameters.
+Since we have basically been testing programs via a client or script for this whole course, this demo is going to focus on writing a unit tests in Rust. We'll be writing some tests for the Movie Review program that we've been working on. If you've been following along then you probably already have the starter code, as we'll just be picking up where we left off with the CPI lesson.
 
 ### 1. Clone starter code
 
-We’ve written the test program available for you [in this repo](https://github.com/ixmorrow/solana-program-testing/tree/starter-code). Clone it to your local machine and take a look at the program code in the `processor` file. You can see it’s a fairly short and straightforward program. There are a couple of validation checks on the accounts passed in and then the program creates and writes some data to a PDA.
+No worries if you don't already have the code locally, you can [clone the starter code from Github](https://github.com/ixmorrow/movie-review-tokens).
 
-### 2. Write Unit Tests
+### 2. Initialize testing framework
 
-Now we’re going to focus on writing some unit tests for this program. Our tests will focus on whether or not the program works as intended when the provided the proper data, as well as how it handles unexpected or malicious input. Remember, our goal when testing is to try to catch bugs and ensure security so it’s important to also write tests that are *supposed* to fail. We’re not just focused on testing if the code works, we’re also interested in testing the robustness of our code.
+Now we’re going to focus on writing some unit tests for this program. Our tests will focus on whether or not the program works as intended when provided the proper data, as well as how it handles unexpected or malicious input. Remember, our goal when testing is to try to catch bugs and ensure security so it’s important to also write tests that are *supposed* to fail. We’re not just focused on testing if the code works, we’re also interested in testing the robustness of our code.
 
 To get started, we’re going to declare a section of the `processor.rs` file for testing and import the necessary crates.
 
-```tsx
+```rust
 
-// inside processor.rs
+// at bottom of processor.rs
 #[cfg(test)]
 mod tests {
     use {
@@ -323,10 +321,19 @@ mod tests {
         assert_matches::*,
         solana_program::{
             instruction::{AccountMeta, Instruction},
-            system_program
+            program_pack::Pack,
+            system_program::ID as SYSTEM_PROGRAM_ID,
         },
         solana_program_test::*,
-        solana_sdk::{signature::Signer, transaction::Transaction},
+        solana_sdk::{
+            signature::Signer, signer::keypair::Keypair,
+            system_instruction::create_account, transaction::Transaction,
+        },
+        spl_associated_token_account::{
+            get_associated_token_address,
+            instruction::create_associated_token_account,
+        },
+        spl_token::{instruction::initialize_mint, state::Mint, ID as TOKEN_PROGRAM_ID},
     };
 
 
@@ -335,7 +342,7 @@ mod tests {
 
 Next, we’ll declare our first unit test and initialize the testing environment.
 
-```tsx
+```rust
 
 #[cfg(test)]
 mod tests {
@@ -348,86 +355,134 @@ mod tests {
         },
         solana_program_test::*,
         solana_sdk::{signature::Signer, transaction::Transaction},
+        spl_token::*,
     };
 
-// first unite test
+    // first unit test
     #[tokio::test]
     async fn it_works() {
         let program_id = Pubkey::new_unique();
-
         let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
-            "adder",
+            "bpf_program_template",
             program_id,
             processor!(process_instruction),
         )
         .start()
         .await;
+
+        ...
     }
 }
 ```
+### 3. Construct transaction
+Our first unit test will test whether or not our program is actually functioning as intended, to test this we’ll need to create a transaction to submit to the program. We'll be making use of the `solana_sdk` crate to help us do this, it may help to think about the steps you would need to go through to build this transaction from a typescript client when doing this.
 
-Our first unit test will test whether or not our program is actually functioning as intended, to test this we’ll need to create a transaction to submit to the the program.
+The code in the remainder of the demo should go inside the `it_works()` testing function we just created.
 
-```tsx
-#[tokio::test]
-    async fn it_works() {
-        let program_id = Pubkey::new_unique();
+First, we are going to create a token mint and assign the mint authority to a PDA of the Movie Review program so that it has the capability of minting tokens to users.
 
-        let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
-            "adder",
-            program_id,
-            processor!(process_instruction),
-        )
-        .start()
-        .await;
-// derive pda
-        let (pda, _bump_seed) = Pubkey::find_program_address(
-            &[payer.pubkey().as_ref()],
-            &program_id,
-        );
+```Rust
+// derive pda for token mint authority
+let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"tokens"], &program_id);
 
-// create transaction object with accounts and input data
-        let mut transaction = Transaction::new_with_payer(
-            &[Instruction {
-                program_id,
-                accounts: vec![
-                    AccountMeta::new(payer.pubkey(), true),
-                    AccountMeta::new(pda, false),
-                    AccountMeta::new_readonly(system_program::id(), false)
-                ],
-                data: vec![1, 2, 3],
-            }],
-            Some(&payer.pubkey()),
-        );
-        transaction.sign(&[&payer], recent_blockhash);
+// create mint account
+let mint_keypair = Keypair::new();
+let rent = banks_client.get_rent().await.unwrap();
+let mint_rent = rent.minimum_balance(Mint::LEN);
+let create_mint_acct_ix = create_account(
+    &payer.pubkey(),
+    &mint_keypair.pubkey(),
+    mint_rent,
+    Mint::LEN.try_into().unwrap(),
+    &TOKEN_PROGRAM_ID,
+);
+// create initialize mint instruction
+let init_mint_ix = initialize_mint(
+    &TOKEN_PROGRAM_ID,
+    &mint_keypair.pubkey(),
+    &mint_auth,
+    Some(&mint_auth),
+    9,
+)
+.unwrap();
+```
+We use two functions that we've imported from Solana crates to help create the `create_account` and `initialize_mint` instructions.
+
+Next, we need to create/derive the review, comment counter, and user associated token account addresses.
+```Rust
+// create review pda
+let title: String = "Captain America".to_owned();
+const RATING: u8 = 3;
+let review: String = "Liked the movie".to_owned();
+let (review_pda, _bump_seed) =
+    Pubkey::find_program_address(&[payer.pubkey().as_ref(), title.as_bytes()], &program_id);
+
+// create comment pda
+let (comment_pda, _bump_seed) =
+    Pubkey::find_program_address(&[review_pda.as_ref(), b"comment"], &program_id);
+
+// create user associate token account of token mint
+let init_ata_ix: Instruction = create_associated_token_account(
+    &payer.pubkey(),
+    &payer.pubkey(),
+    &mint_keypair.pubkey(),
+);
+
+let user_ata: Pubkey =
+    get_associated_token_address(&payer.pubkey(), &mint_keypair.pubkey());
+```
+Once we have all of the accounts initialized, we can put it all together into a single transaction.
+```Rust
+// concat data to single buffer
+let mut data_vec = vec![0];
+data_vec.append(
+    &mut (TryInto::<u32>::try_into(title.len()).unwrap().to_le_bytes())
+        .try_into()
+        .unwrap(),
+);
+data_vec.append(&mut title.into_bytes());
+data_vec.push(RATING);
+data_vec.append(
+    &mut (TryInto::<u32>::try_into(review.len())
+        .unwrap()
+        .to_le_bytes())
+    .try_into()
+    .unwrap(),
+);
+data_vec.append(&mut review.into_bytes());
+
+// create transaction object with instructions, accounts, and input data
+let mut transaction = Transaction::new_with_payer(
+    &[
+      create_mint_acct_ix,
+      init_mint_ix,
+      init_ata_ix,
+      Instruction {
+          program_id: program_id,
+          accounts: vec![
+              AccountMeta::new_readonly(payer.pubkey(), true),
+              AccountMeta::new(review_pda, false),
+              AccountMeta::new(comment_pda, false),
+              AccountMeta::new(mint_keypair.pubkey(), false),
+              AccountMeta::new_readonly(mint_auth, false),
+              AccountMeta::new(user_ata, false),
+              AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
+              AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
+          ],
+          data: data_vec,
+      },
+    ],
+    Some(&payer.pubkey()),
+);
+transaction.sign(&[&payer, &mint_keypair], recent_blockhash);
 
 // process transaction and compare the result
-        assert_matches!(banks_client.process_transaction(transaction).await, Ok(_));
-    }
+assert_matches!(banks_client.process_transaction(transaction).await, Ok(_));
 ```
 
-You can now run this test with `cargo test-bpf` and if it’s successful, you’ll be able to see the program logs and the final test result in the terminal.
+You can now run this test with `cargo test-bpf` and if it’s successful, you’ll be able to see the program logs and the final test result in the terminal. It may take a while to compile and run the test. Feel free to take a look at the solution code here.
 
-```
-running 1 test
-[2022-07-19T06:00:17.783298400Z DEBUG solana_runtime::message_processor::stable_log] Program 4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM invoke [1]
-[2022-07-19T06:00:17.788441600Z DEBUG solana_runtime::message_processor::stable_log] Program log: process_instruction: 4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM: 3 accounts, data=[1, 2, 3]
-[2022-07-19T06:00:17.791927800Z DEBUG solana_runtime::message_processor::stable_log] Program log: Initializer pubkey: UDuNN6qeSNVhBhPe6hyMVuV187do6fLyxC63TSvPNFa
-[2022-07-19T06:00:17.802666900Z DEBUG solana_runtime::message_processor::stable_log] Program log: PDA pubkey: HMbsQRL7BCJrmVuoFFbqjF7bxJ8h2bYRY399H3e7zw3J
-[2022-07-19T06:00:17.803613000Z DEBUG solana_runtime::message_processor::stable_log] Program 11111111111111111111111111111111 invoke [2]
-[2022-07-19T06:00:17.803708800Z TRACE solana_runtime::system_instruction_processor] process_instruction: CreateAccount { lamports: 7850880, space: 1000, owner: 4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM }
-[2022-07-19T06:00:17.808716100Z DEBUG solana_runtime::message_processor::stable_log] Program 11111111111111111111111111111111 success
-[2022-07-19T06:00:17.809164200Z DEBUG solana_runtime::message_processor::stable_log] Program log: PDA data: 1
-[2022-07-19T06:00:17.809320600Z DEBUG solana_runtime::message_processor::stable_log] Program 4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM consumed 42911 of 200000 compute units
-[2022-07-19T06:00:17.809480100Z DEBUG solana_runtime::message_processor::stable_log] Program 4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM success
-test processor::tests::it_works ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.93s
-```
+Take a look at the testing script in the `ts` directory and compare it to what we just wrote in Rust. They are doing almost the exact same thing, but seeing how the code differs between Typescript and Rust can be eye-opening sometimes.
 
 # Challenge
-
-*Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently.*
-
-1. Challenge instruction one
-2. Challenge instruction two
+We just wrote a single unit test in Rust, but a proper testing architecture is made up of more than just one test. As a challenge, build on top of what we just did and write some unit tests in Rust (or Typescript if you've seen enough Rust for the day) that test the other instructions in the program and also think about how you can write some tests with malicious or inaccurate code that's supposed to return an error from the program.
