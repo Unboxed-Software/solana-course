@@ -52,7 +52,7 @@ One of the core programs provided by Metaplex is the Token Metadata Program. The
 
 In addition to the Token Metadata Program, Metaplex provides Candy Machine v2. Candy Machine v2 leverages the Token Metadata Program to create tokens, manage their metadata, and customize their distribution.
 
-You can use explore the tools Metaplex offers by viewing the [Metaplex repository](https://github.com/metaplex-foundation/metaplex.git). We'll go over the basic Candy Machine v2 CLI commands here in the Overview and then walk through actually executing them in the Demo.
+You can explore the tools Metaplex offers by viewing the [Metaplex repository](https://github.com/metaplex-foundation/metaplex.git). We'll go over the basic Candy Machine v2 CLI commands here in the Overview and then walk through actually executing them in the Demo.
 
 ## Create an NFT with Metaplex
 
