@@ -17,6 +17,8 @@
 
 # Overview
 
+*Note that in this lesson we use the Candy Machine JS CLI. The new Sugar CLI replaces the Candy Machine JS CLI. You can learn more about Sugar CLI [here](https://docs.metaplex.com/tools/sugar/).*
+
 Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token Program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art.
 
 While a deep dive on the use cases for NFTs would be fascinating, this lesson will focus on the creation and distribution of NFTs.
