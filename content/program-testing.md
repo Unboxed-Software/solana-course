@@ -9,7 +9,7 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Understand all of the different ways how to test Solana programs
+- Understand various ways to test Solana programs
 - Know the difference between unit tests, integration tests, and RPC tests
 - Debug Solana programs
 
@@ -20,16 +20,14 @@
 
 # Overview
 
-## Testing Concepts
-
 Testing in software is very common and there are actually entire careers fields dedicated to just creating and running tests. A robust testing process can minimize the amount of bugs developers introduce into production code by catching them before they pose a real issue. You obviously cannot test *everything*, but it’s important to try to think of all the ways you can try to break your program or cause some unintended actions with your tests. This is especially imperative when developing smart contracts because a single bug can lead to millions of dollars lost or stolen.
 
-### Tests in Rust
-
-The rust package manager, Cargo, natively has some tools built into it to help developers write their own automated tests. Whenever we make a new library project with Cargo, a test module with a test function in it is automatically generated for us.
+The rust package manager, Cargo, natively has some tools built into it to help developers write their own automated tests. Whenever we make a new library project with `cargo new --lib`, a test module with a test function in it is automatically generated for us. You can run tests with Cargo with either `cargo test` or `cargo test-bpf`.
 
 The Rust community thinks about tests in terms of two main categories: unit tests and integration tests. *Unit tests* are small and more focused, testing one module in isolation at a time, and can test private interfaces. *Integration tests* are entirely external to your library and use your code in the same way any other external code would, using only the public interface and potentially exercising multiple modules per test.
 
+## Unit tests
+### What are unit tests?
 The purpose of unit tests is to test each unit of code in isolation from the rest of the code to quickly pinpoint where code is and isn’t working as expected. Unit tests reside in the `src` directory in the file with the code they are testing. Unit tests are declared inside a module named `tests` annotated with `cfg(test)`. At its simplest, a test in Rust is a function that’s annotated with the `#[test]` attribute.
 
 ```rust
@@ -47,94 +45,7 @@ mod tests {
 The `cfg` attribute stands for *configuration* and tells Rust that the following item should only be included given a certain configuration option. In this case, the `#[cfg(test)]` annotation tells Cargo to compile our test code only if we actively run the tests with `cargo test`, this way the testing code is not run when you call `cargo build` which saves on compile time.
 
 Tests are defined in the `tests` module with the `#[test]` attribute. When running `cargo test`, every function inside this module marked as a test will be run. You can also create helper functions that are not tests in the module, just don’t annotate them with the `#[test]` attribute.
-
-Integration tests on the other hand, are meant to be entirely external to the code they are testing. These tests are meant to interact with your code via its public interface in the manner that it’s intended to be accessed by others. Their purpose is to test whether many parts of your library work together correctly. Units of code that work correctly on their own could have problems when integrated, so test coverage of the integrated code is important as well.
-
-To create integration tests, you first need to create a `tests` directory at the top level of your project’s directory. We can then make as many test files as we want inside this `tests` directory, each file will act as its own integration test.
-
-```rust
-// example of integration test inside /tests/integration_test.rs file
-use example_lib;
-
-#[test]
-fn it_adds_two() {
-    assert_eq!(4, example_lib::add_two(2));
-}
-```
-
-Each file in the `tests` directory is a separate crate, so we will need to bring our library of code that we want to test into each file’s scope - that’s what the `use example_lib` line is doing.
-
-We don’t need to annotate the tests in the `tests` directory with `#[cfg(test)]` because Cargo will only compile files inside the `tests` directory when we run `cargo test`. Cargo is pretty smart, right?
-
-Once you have tests written (either unit, integration, or both), all you need to do is run `cargo test-bpf` or `cargo test` and they will execute. A successful completion of a single unit and single integration test will output something like this to the command line.
-
-```
-cargo test
-   Compiling adder v0.1.0 (file:///projects/adder)
-    Finished test [unoptimized + debuginfo] target(s) in 1.31s
-     Running unittests (target/debug/deps/adder-1082c4b063a8fbe6)
-
-running 1 test
-test tests::it_works ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-     Running tests/integration_test.rs (target/debug/deps/integration_test-1082c4b063a8fbe6)
-
-running 1 test
-test it_adds_two ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-   Doc-tests adder
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-```
-
-The three sections of output include the unit tests, the integration test, and the doc tests.
-
-### RPC Tests
-
-Solana programs support unit and integration tests in Rust like we just discussed, but there is also a third way to test your programs that is unique to smart contract development. The alternative method is to test your program is by deploying it to either devnet or a local validator and sending transactions to it from some client that you created. Deploying to devnet and then sending transactions to the program is essentially what we have been doing for the entirety of this course so you should be pretty familiar with that already and the first lesson of this module covered deploying to a local validator.
-
-As a reminder, the Solana CLI has a command that, when run, will start a full-featured, single-node cluster on the your workstation that you can then deploy programs and submit transactions to. To start the local validator, simply run `solana-test-validator`.
-
-When running a local validator, you will have to allow it to run in its own terminal window. Once it’s no longer needed, you can stop it with ctrl-c.
-
-![local validator](../assets/local-validator.png)
-
-To interact with a running local validator, open a new terminal and configure the CLI to target your local host.
-
-```
-solana config set --url localhost
-```
-
-Once set, go ahead and check your wallet balance `solana balance` and then airdrop yourself some tokens `solana airdrop 50`. There is no limit to the amount of tokens you can airdrop yourself on localhost, unlike devnet. You can even open a third terminal to monitor logs that your program generates by running `solana logs`.
-
-At this point, building and deploying your programs is the same as before, except now they are just deployed to your local computer and not devnet. To send transactions to programs deployed locally, you’ll have to ensure that whatever client you’re submitting the transaction from is targeting your local cluster.
-
-```tsx
-// in a Typescript client
-// targeting your local host instead of devnet
-const RPC_ENDPOINT_URL = "http://127.0.0.1:8899"
-const commitment = 'confirmed'
-const connection = new web3.Connection(RPC_ENDPOINT_URL, commitment)
-```
-
-When you’re done with local host, don’t forget to change the RPC configuration for your CLI and client back to whatever cluster you want to target! Forgetting that you changed these to local host can cause you a lot of pain and frustration down the road.
-
-`solana config set --url devnet`
-
-`const RPC_ENDPOINT_URL = "https://api.devnet.solana.com"`
-
-Feel free to read up on the [Solana Test Validator docs](https://docs.solana.com/developing/test-validator).
-
-## Building and Running Tests
-
-### Rust Unit Tests
-
+### How to build unit tests
 To build integration and unit tests in Rust, you will have to use the [`solana_sdk`](https://docs.rs/solana-sdk/latest/solana_sdk/) crate. This crate is essentially the same thing as the `@solana/web3.js` package that we’ve been using in Typescript and gives us a way to interact with Solana programs in Rust. There is another crate that will be useful and was made specifically for testing Solana programs, [`solana_program_test`](https://docs.rs/solana-program-test/latest/solana_program_test/#) contains a BanksClient-based testing framework.
 
 A simple example of a unit test residing inside a `processor.rs` file may look like
@@ -185,7 +96,93 @@ mod tests {
 
 In the code snippet, we created a public key to use as our `program_id` and then initialized a `ProgramTest`. Then, we create a second `Keypair` and built our `Transaction` with the appropriate parameters. Finally, we used the `banks_client` that was returned when calling `ProgramTest::new` to process this transaction and check that the return value is equal to `Ok(_)`. This is a very simple test, but from the code snippet you can see how you would go about creating more complex tests that involve more accounts and data similar to how you would client side.
 
-### RPC Tests
+## Integration tests
+### What are integration tests?
+Integration tests on the other hand, are meant to be entirely external to the code they are testing. These tests are meant to interact with your code via its public interface in the manner that it’s intended to be accessed by others. Their purpose is to test whether many parts of your library work together correctly. Units of code that work correctly on their own could have problems when integrated, so test coverage of the integrated code is important as well.
+
+To create integration tests, you first need to create a `tests` directory at the top level of your project’s directory. We can then make as many test files as we want inside this `tests` directory, each file will act as its own integration test.
+
+```rust
+// example of integration test inside /tests/integration_test.rs file
+use example_lib;
+
+#[test]
+fn it_adds_two() {
+    assert_eq!(4, example_lib::add_two(2));
+}
+```
+
+Each file in the `tests` directory is a separate crate, so we will need to bring our library of code that we want to test into each file’s scope - that’s what the `use example_lib` line is doing.
+
+We don’t need to annotate the tests in the `tests` directory with `#[cfg(test)]` because Cargo will only compile files inside the `tests` directory when we run `cargo test`. Cargo is pretty smart, right?
+
+Once you have tests written (either unit, integration, or both), all you need to do is run `cargo test-bpf` or `cargo test` and they will execute. A successful completion of a single unit and single integration test will output something like this to the command line.
+
+```
+cargo test
+   Compiling adder v0.1.0 (file:///projects/adder)
+    Finished test [unoptimized + debuginfo] target(s) in 1.31s
+     Running unittests (target/debug/deps/adder-1082c4b063a8fbe6)
+
+running 1 test
+test tests::it_works ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/integration_test.rs (target/debug/deps/integration_test-1082c4b063a8fbe6)
+
+running 1 test
+test it_adds_two ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests adder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+```
+
+The three sections of output include the unit tests, the integration test, and the doc tests.
+
+## RPC Tests
+### What are rpc tests?
+
+Solana programs support unit and integration tests in Rust like we just discussed, but there is also a third way to test your programs that is unique to smart contract development. The alternative method is to test your program is by deploying it to either devnet or a local validator and sending transactions to it from some client that you created. Deploying to devnet and then sending transactions to the program is essentially what we have been doing for the entirety of this course so you should be pretty familiar with that already and the first lesson of this module covered deploying to a local validator.
+
+As a reminder, the Solana CLI has a command that, when run, will start a full-featured, single-node cluster on the your workstation that you can then deploy programs and submit transactions to. To start the local validator, simply run `solana-test-validator`.
+
+When running a local validator, you will have to allow it to run in its own terminal window. Once it’s no longer needed, you can stop it with ctrl-c.
+
+![local validator](../assets/local-validator.png)
+
+To interact with a running local validator, you'd have to configure your Solana CLI to target your localhost.
+
+```
+solana config set --url localhost
+```
+
+You can even open a third terminal to monitor logs that your program generates by running `solana logs`.
+
+At this point, building and deploying your programs is the same as before, except now they are just deployed to your local computer and not devnet. To send transactions to programs deployed locally, you’ll have to ensure that whatever client you’re submitting the transaction from is targeting your local cluster.
+
+```tsx
+// in a Typescript client
+// targeting your local host instead of devnet
+const RPC_ENDPOINT_URL = "http://127.0.0.1:8899"
+const commitment = 'confirmed'
+const connection = new web3.Connection(RPC_ENDPOINT_URL, commitment)
+```
+
+When you’re done with local host, don’t forget to change the RPC configuration for your CLI and client back to whatever cluster you want to target! Forgetting that you changed these to local host can cause you a lot of pain and frustration down the road.
+
+`solana config set --url devnet`
+
+`const RPC_ENDPOINT_URL = "https://api.devnet.solana.com"`
+
+Feel free to read up on the [Solana Test Validator docs](https://docs.solana.com/developing/test-validator).
+
+### How to build rpc tests
 
 As stated before, you don’t have to write your unit tests in Rust - you can actually write them in just about any language you want by deploying the program to a cluster and submitting transactions from a client for the program to process. The most common way of conducting tests like this is by deploying to a local validator and writing a client testing script in Typescript using the [Mocha testing framework](https://mochajs.org/) paired with the [Chai assertion library](https://www.chaijs.com/) (it’s important to note that you can use just about any testing framework or any language for these tests, as long as there are Solana SDKs available to use).
 
@@ -271,6 +268,8 @@ When writing programs in general, it is inevitable that you will spend a good po
 
 Another helpful tool when debugging is logging. Solana makes it very easy to create new custom logs with the `msg!()` macro and, as you’ve seen in this course, you can even log data from accounts inside the program. This is probably one of the most helpful tools when it comes to debugging because you can see exactly how your program is interacting with the accounts involved and if it’s doing what is expected by logging data throughout the program.
 
+When writing unit tests in Rust, you cannot use the `msg!()` macro to log information within the test itself, instead you'll have to use the Rust native `println!()` macro. `msg!()` statements inside the program code will still work, you just can't log within the test with it.
+
 ### Compute Budget
 
 Developing on a blockchain comes with some unique constraints, one of those on Solana is the compute budget. All Solana transactions are restricted to a per instruction compute budget (with plans of moving this to a per transaction basis), the compute budget is meant to prevent a program from abusing resources. Every instruction has a budget of 200,000 compute units and different actions consume different amounts of compute units.
@@ -293,9 +292,30 @@ pub fn process_instruction(
 
 ```
 
-The compute budget is not to be confused with the amount of memory allocated on the stack for each instruction, which is something entirely different.
-
 For some more detailed information regarding the compute budget [check out the docs](https://docs.solana.com/developing/programming-model/runtime#compute-budget).
+
+### Stack size
+Every program has access to [4KB of stack frame size when executing]("https://docs.solana.com/developing/on-chain-programs/overview#stack"). This is a different concept from the compute budget we just discussed because the stack size limit is focused solely on memory, while the compute budget is meant to limit computationally intensive actions.
+
+All values in Rust are stack allocated by default. You'll start to run into issues with using up all of the 4KB of memory when working with larger, more complex programs. This is often called "blowing the stack". If a program reaches it's 4KB stack at runtime, it will halt and return an `AccessViolation` error.
+```text
+Error: Function _ZN16curve25519_dalek7edwards21EdwardsBasepointTable6create17h178b3d2411f7f082E Stack offset of -30728 exceeded max offset of -4096 by 26632 bytes, please minimize large stack variables
+```
+
+To get around this, you can refactor some of your code to allocate some memory to the heap instead. All programs have access to a 32KB runtime heap that can help you free up some memory on the stack. To do so, you'll have to make use of the [Box<T>](https://doc.rust-lang.org/std/boxed/struct.Box.html) struct. A box is a smart pointer to a heap allocated value of type `T`. Boxed values can be dereferenced using the `*` operator.
+
+```rust
+let authority_pubkey = Box::new(Pubkey::create_program_address(authority_signer_seeds, program_id)?);
+
+if *authority_pubkey != *authority_info.key {
+      msg!("Derived lending market authority {} does not match the lending market authority provided {}");
+      return Err();
+}
+
+```
+You simply wrap whatever variables you'd like to remove from the stack in the `Box` struct, and the compiler will allocate memory on the heap and place the value of what's wrapped inside the `Box` there.
+
+In this example, the value returned from the `Pubkey::create_program_address`, which is just a public key, will be stored on the heap and the `authority_pubkey` variable will hold a pointer to the location on the heap where the public key is stored. You can read more about this in [the Rust book](https://doc.rust-lang.org/stable/book/ch15-01-box.html).
 
 # Demo
 
