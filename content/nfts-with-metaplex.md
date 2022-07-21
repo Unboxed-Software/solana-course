@@ -1,5 +1,7 @@
 # Create Solana NFTs With Metaplex
 
+> *__Note:__ this lesson uses the Candy Machine JS CLI. The Candy Machine JS CLI has been deprecated and replaced by the new Sugar CLI. This lesson may be updated at some point in the future to use the most current tooling. In the meantime, it covers the fundamentals and will still function to create and mint NFTs. You can learn more about the Sugar CLI [here](https://docs.metaplex.com/tools/sugar/).*
+
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
@@ -52,7 +54,7 @@ One of the core programs provided by Metaplex is the Token Metadata Program. The
 
 In addition to the Token Metadata Program, Metaplex provides Candy Machine v2. Candy Machine v2 leverages the Token Metadata Program to create tokens, manage their metadata, and customize their distribution.
 
-You can use Metaplex's tools by cloning the [Metaplex repository](https://github.com/metaplex-foundation/metaplex.git) and executing certain commands. We'll go over the commands here in the Overview and then walk through actually executing them in the Demo.
+You can explore the tools Metaplex offers by viewing the [Metaplex repository](https://github.com/metaplex-foundation/metaplex.git). We'll go over the basic Candy Machine v2 CLI commands here in the Overview and then walk through actually executing them in the Demo.
 
 ## Create an NFT with Metaplex
 
@@ -216,9 +218,9 @@ For testing, you can mint a token directly from the Candy Machine v2 CLI using t
 
 ### Mint using the Candy Machine UI
 
-In addition to Candy Machine v2's command line tools, Metaplex also makes it easy to create a frontend for minting using Candy Machine UI. 
+In addition to Candy Machine v2's command line tools, Metaplex also makes it easy to create a frontend for minting using Candy Machine UI.
 
-The directory in the Metaplex repository with the Candy Machine UI has a `.env.example` file with an example of the environment variables you need to run the frontend project. 
+The directory in the Metaplex repository with the Candy Machine UI has a `.env.example` file with an example of the environment variables you need to run the frontend project.
 
 While creating a candy machine, you'll receive an address of the candy machine account. You simply need to change the name of `.env.example` to `.env` and update the `REACT_APP_CANDY_MACHINE_ID` environment variable to be the address of the candy machine account.
 
@@ -294,13 +296,13 @@ You should now see a new `private-key.json` file. Copy the keypair from the new 
 
 ### 3. Download Metaplex
 
-Now that our project has a new keypair, we're ready to set up the Metaplex helpers. While in the project's root directory, clone the Metaplex repository:
+Now that our project has a new keypair, we're ready to set up the Metaplex helpers. While in the project's root directory, clone the following repository:
 
 ```sh
-git clone https://github.com/metaplex-foundation/metaplex.git
+git clone https://github.com/metaplex-foundation/deprecated-clis
 ```
 
-This repository contains the Candy Machine v2 CLI tools. If you want to have a look at them more closely, you can find them in `metaplex/js/packages/cli/src/candy-machine-cli-v2.ts`.
+This repository contains the Candy Machine v2 CLI tools. If you want to have a look at them more closely, you can find them in `deprecated-clis/src/candy-machine-v2-cli.ts`.
 
 We'll be using `ts-node` to run commands. If you don't have `typescript` and `ts-node` installed globally, install it now:
 
@@ -312,13 +314,13 @@ npm install -g ts-node
 Next, install the Metaplex package dependencies:
 
 ```sh
-yarn install --cwd metaplex/js/
+ yarn install --cwd deprecated-clis
 ```
 
 Finally, let's confirm that everything is working by checking the Candy Machine v2 version:
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts --version
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts --version
 ```
 
 If this command logs a version number to the console, you should be good to go. If not, you'll have to debug the problem(s) before moving on. Check the logs if you're having issues.
@@ -406,7 +408,7 @@ The `verify_assets` command will check that:
 3. The `creators` field is consistent across all `.json` files
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_assets ./assets
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts verify_assets ./assets
 ```
 
 The output should look something like this:
@@ -418,7 +420,7 @@ The output should look something like this:
 Now that we’ve configured our candy machine and verified that our assets are ready for upload, let's upload our assets and create our candy machine by running the `upload` command.
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts upload \
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts upload \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
     -k ./private-key.json \
     -cp config.json \
@@ -488,7 +490,7 @@ Next, let's verify our upload by running the `verify_upload` command.
 This verifies that each entry in the `devnet-example.json` file has been successfully uploaded and matches the URI stored on-chain.
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts verify_upload \
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts verify_upload \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
     -k ./private-key.json \
     -c example
@@ -501,7 +503,7 @@ The output should look something like this:
 Now let's mint an NFT from our candy machine by running the `mint_one_token` command:
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts mint_one_token \
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts mint_one_token \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
     -k ./private-key.json \
     -c example
@@ -515,7 +517,13 @@ You should now be able to see the newly minted NFT in the Phantom wallet.
 
 Now that we know our candy machine works, let's set up a frontend to mint our NFTs using the Candy Machine UI.
 
-Navigate to the `candy-machine-ui` folder using the following path: `/metaplex/js/packages/candy-machine-ui`.
+First, clone the `candy-machine-ui` repository from Metaplex.
+
+```sh
+git clone https://github.com/metaplex-foundation/candy-machine-ui
+```
+
+Next, complete the following steps.
 
 1. Locate the `.env.example` file
 2. Rename this file to `.env`
@@ -552,7 +560,7 @@ Open the `config.json` file and update the `gatekeeper` field to enable CAPTCHA:
 Update the candy machine by running the `update_candy_machine` command:
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machine \
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts update_candy_machine \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
     -k ./private-key.json \
     -cp config.json \
@@ -610,7 +618,7 @@ Update `whitelistMintSettings` and set the `mint` field to the address of the to
 Update the candy machine again by running the `update_candy_machine` command:
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts update_candy_machine \
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts update_candy_machine \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
     -k ./private-key.json \
     -cp config.json \
@@ -628,7 +636,7 @@ Go ahead and mint out the candy machine from a wallet with the whitelist token u
 Now that our candy machine is fully minted, the rent used for the candy machine can be retrieved by running the `withdraw` command. You'll need to replace `<candy_machine_id>` with the address of the candy machine from `devnet-example.json` before running the command below.
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts withdraw <candy_machine_id> \
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts withdraw <candy_machine_id> \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
     -k ./private-key.json
 ```
@@ -638,7 +646,7 @@ ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts withdraw <candy_mac
 Finally, sign the NFTs to verify yourself as the creator of the collection by running the `sign_all` command:
 
 ```sh
-ts-node metaplex/js/packages/cli/src/candy-machine-v2-cli.ts sign_all \
+ts-node deprecated-clis/src/candy-machine-v2-cli.ts sign_all \
     -r, --rpc-url https://metaplex.devnet.rpcpool.com\
     -k ./private-key.json \
     -c example
