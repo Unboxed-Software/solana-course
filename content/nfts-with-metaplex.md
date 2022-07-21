@@ -1,5 +1,7 @@
 # Create Solana NFTs With Metaplex
 
+> *__Note:__ this lesson uses the Candy Machine JS CLI. The Candy Machine JS CLI has been deprecated and replaced by the new Sugar CLI. This lesson may be updated at some point in the future to use the most current tooling. In the meantime, it covers the fundamentals and will still function to create and mint NFTs. You can learn more about the Sugar CLI [here](https://docs.metaplex.com/tools/sugar/).*
+
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
@@ -16,8 +18,6 @@
 - **Candy Machine v2** is an NFT distribution program by Metaplex used to mint NFTs from a collection
 
 # Overview
-
-*Note that in this lesson we use the Candy Machine JS CLI. The new Sugar CLI replaces the Candy Machine JS CLI. You can learn more about Sugar CLI [here](https://docs.metaplex.com/tools/sugar/).*
 
 Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token Program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art.
 
