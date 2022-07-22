@@ -82,7 +82,7 @@ assert_eq!(v[1], 2);
 assert_eq!(v[2], 3);
 ```
 
-The `accounts` field of the `Instruction` struct expects a vector of type `AccountMeta`(https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). The `AccountMeta` struct has the following definition:
+The `accounts` field of the `Instruction` struct expects a vector of type [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). The `AccountMeta` struct has the following definition:
 
 ```rust
 pub struct AccountMeta {
