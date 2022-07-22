@@ -1,25 +1,21 @@
 # Cross Program Invocations
 
-### Further Reading:
-
-- [Official Solana CPI Docs](https://docs.solana.com/developing/programming-model/calling-between-programs)
-- [Solana Cookbook](https://solanacookbook.com/references/programs.html#how-to-do-cross-program-invocation)
-
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
 
-- Explain Cross-Program Invocations (CPIs)
-- Be able to construct and use CPIs
-- Explain how a program provides a signature for a PDA
-- Avoid common pitfalls and troubleshoot common errors associated with CPIs
+
+- Explain Cross-Program Invocations
+- Describe how to construct and use CPIs
+- Describe how a program provides a signature for a PDA
+- Explain some pitfalls and troubleshoot some common errors associated with CPIs
 
 # TL;DR
 
-- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific instruction on the program called
-- CPIs are made using the commands **`invoke`** or **`invoke_signed`**, the latter being how programs provide signatures for PDAs that they own
+- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific function on the called program
+- CPIs are made using the commands `invoke` or `invoke_signed`, the latter being how programs provide signatures for PDAs that they own
 - CPIs make programs in the Solana ecosystem completely interoperable because all public instructions of a program can be invoked by another program via a CPI
-- Because we have no control over the accounts and data submitted to a program, it's important to verify all of the parameters passed into a CPI to ensure program security.
+- Because we have no control over the accounts and data submitted to a program, it's important to verify all of the parameters passed into a CPI to ensure program security
 
 # Overview
 
@@ -27,20 +23,21 @@
 
 A Cross-Program Invocation (CPI) is a direct call from one program into another. Just as any client can call any program using the JSON RPC, any program can call any other program directly. The only requirement for invoking an instruction on another program from within your program is that you construct the instruction correctly. You can make CPIs to native programs, other programs you've created, and third party programs. CPIs essentially turn the entire Solana ecosystem into one giant API that is at your disposal as a developer.
 
-CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`, both of which we will cover in the lesson.
+
+CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`. We'll be covering both of these later in the lesson.
 
 ## How to make a CPI
 
 CPIs are made using the [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) or [`invoke_signed`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) function from the `solana_program` crate. You use `invoke` to essentially pass through the original transaction signature that was passed into your program. You use `invoke_signed` to have your program "sign" for its PDAs.
 
 ```rust
-// used when there are not signatures for PDAs needed
+// Used when there are not signatures for PDAs needed
 pub fn invoke(
     instruction: &Instruction,
     account_infos: &[AccountInfo<'_>]
 ) -> ProgramResult
 
-// used when a program must provide a 'signature' for a PDA, hence the signer_seeds parameter
+// Used when a program must provide a 'signature' for a PDA, hence the signer_seeds parameter
 pub fn invoke_signed(
     instruction: &Instruction,
     account_infos: &[AccountInfo<'_>],
@@ -52,11 +49,18 @@ CPIs extend the privileges of the caller to the callee. If the instruction the c
 
 It's important to note that you as the developer decide which accounts to pass into the CPI. You can think of a CPI as building another instruction from scratch with only information that was passed into your program.
 
-### Build the instruction
+### CPI with `invoke`
 
-Invoking an instruction on another program is very similar to invoking a program from a client. Whether you use `invoke` or `invoke_signed`, the first argument for the function is the instruction you want executed by the callee.
-
-When constructing an [`Instruction`](https://docs.rs/solana-program/1.10.19/solana_program/instruction/struct.Instruction.html) object, a list of all accounts that may be read or written to during the execution of that instruction must be supplied as [`AccountMeta`](https://docs.rs/solana-program/1.10.19/solana_program/instruction/struct.AccountMeta.html) values. `AccountMeta` is a struct that contains metadata about the accounts involved, including:
+```rust
+invoke(
+    &Instruction {
+        program_id: calling_program_id,
+        accounts: accounts_meta,
+        data,
+    },
+    &account_infos[account1.clone(), account2.clone(), account3.clone()],
+)?;
+```
 
 - `program_id` - the public key of the program you are going to invoke
 - `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to.
@@ -72,13 +76,16 @@ pub struct Instruction {
 }
 ```
 
-Depending on the program you're making the CPI to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
 
+Depending on the program you're making the CPI to, you may have to construct this `Instruction` object manually. Many individuals and organizations create publicly available crates alongside their programs that expose helper functions you can use to create the right `Instruction` object. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)), but in Rust and usable by your program. For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions rather than build them from scratch.
 In all other cases, you'll need to create the `Instruction` instance from scratch.
 
 While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
 
 Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
+
+
+The `accounts` and `data` arguments will require us to make use of the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro. The `vec` macro allows us to create a vector using array notation, like so:
 
 ```rust
 let v = vec![1, 2, 3];
@@ -87,7 +94,8 @@ assert_eq!(v[1], 2);
 assert_eq!(v[2], 3);
 ```
 
-The `accounts` field of the `Instruction` struct expects a vector of type [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). The `AccountMeta` struct has the following definition:
+
+The `accounts` field of the `Instruction` struct is expecting a vector of [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html) objects, which can be created one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters, `pubkey: Pubkey` and `is_signer: bool`. The account metadata struct returned from both looks like this. Seem familiar?
 
 ```rust
 pub struct AccountMeta {
@@ -96,8 +104,6 @@ pub struct AccountMeta {
     pub is_writable: bool,
 }
 ```
-
-You can create an `AccountMeta` instance in one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters: `pubkey` of type `Pubkey` and `is_signer` of type `bool`.
 
 Putting these two pieces together looks like this:
 
@@ -112,7 +118,7 @@ vec![
 ]
 ```
 
-The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format used and write your code to match. Feel free to read up on some of the [features of the vec macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
+The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format and write your code to match. Feel free to read up on some of the [features of the `vec` macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
 
 ```rust
 let mut vec = Vec::with_capacity(3);
@@ -120,6 +126,7 @@ vec.push(1);
 vec.push(2);
 vec.extend_from_slice(&number_variable.to_le_bytes());
 ```
+
 The [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#method.extend_from_slice) method is probably new to you. It's a method on vectors that takes a slice as input, iterates over the slice, clones each element, and then appends it to the `Vec`.
 
 ### Pass a list of accounts
@@ -153,14 +160,16 @@ There's no need to include a signature because the Solana runtime passes along t
 
 ### CPI with `invoke_signed`
 
-Recall from previous lessons that PDAs do not lie on the Ed25519 curve and therefore do not have a corresponding private key. Instead, programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` argument that facilitates signing for PDAs.
+
+Using `invoke_signed` is a little different just because there is an additional field that requires the seeds used to derive any PDAs that must sign the transaction. You may recall from previous lessons that PDAs do not lie on the Ed25519 curve and, therefore, do not have a corresponding private key. You’ve been told that programs can provide signatures for their PDAs, but have not learned how that actually happens - until now. Programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` field that comes into play here.
+
 
 ```rust
 invoke_signed(
-  &instruction,
-  accounts,
-  &[&["First addresses seed"],
-    &["Second addresses first seed", "Second addresses second seed"]],
+    &instruction,
+    accounts,
+    &[&["First addresses seed"],
+        &["Second addresses first seed", "Second addresses second seed"]],
 )?;
 ```
 
@@ -168,7 +177,7 @@ While PDAs have no private keys of their own, they can be used by a program to i
 
 The Solana runtime will internally call [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) using the seeds provided and the `program_id` of the calling program. It can then compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that indeed the program associated with this address is the caller and thus is authorized to be a signer.
 
-## Best Practices and Common Pitfalls
+## Best practices and common pitfalls
 
 ### Security checks
 
@@ -180,7 +189,7 @@ Fortunately, there are inherent checks on the validity of any PDAs that are mark
 
 There are some common errors you might receive when executing a CPI, they usually mean you are constructing the CPI with incorrect information. For example, you may come across an error message similar to this:
 
-```
+```text
 EF1M4SPfKcchb6scq297y8FPCaLvj5kGjwMzjTM68wjA's signer privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
@@ -189,19 +198,20 @@ This message is a little misleading, because “signer privilege escalated” do
 
 Another error very similar to the incorrect signature message that often comes up is thrown when an account is not marked as `writable` inside the `AccountMeta` struct that is submitted to the program when it should be.
 
-```
+```text
 2qoeXa9fo8xVHzd2h9mVcueh6oK3zmAiJxCTySM5rbLZ's writable privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
+
 Remember, any account whose data may be mutated by the program during execution must be specified as writable. During execution, writing to an account that was not specified as writable will cause the transaction to fail. Writing to an account that is not owned by the program will cause the transaction to fail. Any account whose lamport balance may be mutated by the program during execution must be specified as writable. During execution, mutating the lamports of an account that was not specified as writable will cause the transaction to fail. While subtracting lamports from an account not owned by the program will cause the transaction to fail, adding lamports to any account is allowed, as long is it is mutable.
 
 To see this in action, view this [transaction in the explorer](https://explorer.solana.com/tx/ExB9YQJiSzTZDBqx4itPaa4TpT8VK4Adk7GU5pSoGEzNz9fa7PPZsUxssHGrBbJRnCvhoKgLCWnAycFB7VYDbBg?cluster=devnet).
 
-## Why CPIs Matter?
+## Why CPIs matter?
 
-CPIs are a very important feature of the Solana ecosystem and they make all programs deployed interoperable with each other. With CPIs there is no need to re-invent the wheel when it comes to development. This creates the opportunity for building new protocols and applications on top of what’s already been built, just like building blocks or legos. It’s important to remember that CPIs are a two-way street and the same is true for any programs that you deploy! If you build something cool and useful, developers have the ability to build on top of what you’ve done or just plug your protocol into whatever it is that they are building. Composability is a big part of what makes crypto so unique and CPIs are what makes this possible on Solana.
+CPIs are a very important feature of the Solana ecosystem and they make all programs deployed interoperable with each other. With CPIs there is no need to re-invent the wheel when it comes to development. This creates the opportunity for building new protocols and applications on top of what’s already been built, just like building blocks or Lego bricks. It’s important to remember that CPIs are a two-way street and the same is true for any programs that you deploy! If you build something cool and useful, developers have the ability to build on top of what you’ve done or just plug your protocol into whatever it is that they are building. Composability is a big part of what makes crypto so unique and CPIs are what makes this possible on Solana.
 
-Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate valid transactions with signatures for those addresses, which can be very useful for many applications in Web3 (DeFi, NFTs, etc.). Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs).
+Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate valid transactions with signatures for those addresses. This can be *very* useful for many applications in Web3 (DeFi, NFTs, etc.). Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs!)
 
 # Demo
 
@@ -238,7 +248,7 @@ Because we want users to be minted tokens upon creating a review, it makes sense
 We'll start by adding these new accounts to the area of the function that iterates through the passed in accounts:
 
 ```rust
-// inside add_movie_review
+// Inside add_movie_review
 msg!("Adding movie review...");
 msg!("Title: {}", title);
 msg!("Rating: {}", rating);
@@ -263,7 +273,7 @@ There is no additional `instruction_data` required for the new functionality, so
 Before we dive into the minting logic, let's import the address of the Token program and the constant `LAMPORTS_PER_SOL` at the top of the file.
 
 ```rust
-// inside processor.rs
+// Inside processor.rs
 use solana_program::native_token::LAMPORTS_PER_SOL;
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::{instruction::initialize_mint, ID as TOKEN_PROGRAM_ID};
@@ -278,7 +288,7 @@ We'll also be structuring our token mint such that the mint account is a PDA acc
 Let's go ahead and derive the token mint and mint authority addresses using the `find_program_address` function with the seeds “token_mint” and "token_auth," respectively.
 
 ```rust
-// mint tokens here
+// Mint tokens here
 msg!("deriving mint authority");
 let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
 let (mint_auth_pda, _mint_auth_bump) =
@@ -312,7 +322,7 @@ if *token_program.key != TOKEN_PROGRAM_ID {
 Finally, we can issue a CPI to the `mint_to` function of the token program with the correct accounts using `invoke_signed`. The `spl_token` crate provides a `mint_to` helper function for creating the minting instruction. This is great because it means we don't have to manually build the entire instruction from scratch. Rather, we can simply pass in the arguments required by the function. Here's the function signature:
 
 ```rust
-// inside the token program, returns an Instruction object
+// Inside the token program, returns an Instruction object
 pub fn mint_to(
     token_program_id: &Pubkey,
     mint_pubkey: &Pubkey,
@@ -328,7 +338,7 @@ Then we provide copies of the `token_mint`, `user_ata`, and `mint_auth` accounts
 ```rust
 msg!("Minting 10 tokens to User associated token account");
 invoke_signed(
-	// instruction
+    // Instruction
     &spl_token::instruction::mint_to(
         token_program.key,
         token_mint.key,
@@ -337,9 +347,9 @@ invoke_signed(
         &[],
         10*LAMPORTS_PER_SOL,
     )?,
-	// account_infos
+    // Account_infos
     &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
-	// seeds
+    // Seeds
     &[&[b"token_mint", &[mint_bump]]],
 )?;
 
@@ -355,7 +365,7 @@ At this point, the `add_movie_review` instruction should be fully functional and
 Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from 10 to 5 so that adding reviews are weighted above commenting. First, update the accounts with the same four additional accounts as in the `add_movie_review` function.
 
 ```rust
-// inside add_comment
+// Inside add_comment
 let account_info_iter = &mut accounts.iter();
 
 let commenter = next_account_info(account_info_iter)?;
@@ -372,7 +382,7 @@ let token_program = next_account_info(account_info_iter)?;
 Next, move to the bottom of the `add_comment` function just before the `Ok(())`. Then derive the token mint and mint authority accounts. Remember, both are PDAs derived from seeds "token_mint" and "token_authority" respectively.
 
 ```rust
-// mint tokens here
+// Mint tokens here
 msg!("deriving mint authority");
 let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
 let (mint_auth_pda, _mint_auth_bump) =
@@ -408,7 +418,7 @@ Finally, use `invoke_signed` to send the `mint_to` instruction to the Token prog
 ```rust
 msg!("Minting 5 tokens to User associated token account");
 invoke_signed(
-    // instruction
+    // Instruction
     &spl_token::instruction::mint_to(
         token_program.key,
         token_mint.key,
@@ -417,9 +427,9 @@ invoke_signed(
         &[],
         5 * LAMPORTS_PER_SOL,
     )?,
-    // account_infos
+    // Account_infos
     &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
-    // seeds
+    // Seeds
     &[&[b"token_mint", &[mint_bump]]],
 )?;
 
