@@ -4,7 +4,7 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Understand various ways to test Solana programs
+- Describe various ways to test Solana programs
 - Explain the difference between unit tests, integration tests, and RPC tests
 - Debug Solana programs
 
