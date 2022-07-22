@@ -427,7 +427,7 @@ Ok(())
 
 We've written all the code needed to mint tokens to reviewers and commenters, but all of it assumes that there is a token mint at the PDA derived with the seed "token_mint." For this to work, we're going to set up an additional instruction for initializing the token mint. It will be written such that it can only be called once and it doesn't particularly matter who calls it.
 
-Given that we've already hammered home all of the concepts associated with PDAs and CPIs multiple times throughout this lesson, we're going to walk through this bit with less explanation than the prior steps. Start by adding a fourth instruction variant to the `MovieInstruction` enum in `instruction.rs`.
+Given that throughout this lesson we've already hammered home all of the concepts associated with PDAs and CPIs multiple times, we're going to walk through this bit with less explanation than the prior steps. Start by adding a fourth instruction variant to the `MovieInstruction` enum in `instruction.rs`.
 
 ```rust
 pub enum MovieInstruction {
