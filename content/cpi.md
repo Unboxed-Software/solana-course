@@ -9,29 +9,29 @@
 
 *By the end of this lesson, you will be able to:*
 
-- Explain Cross-Program Invocations
-- Understand how to construct and use CPIs
-- Understand how a program provides a signature for a PDA
-- Understand some pitfalls and troubleshoot some common errors associated with CPIs
+- Explain Cross-Program Invocations (CPIs)
+- Be able to construct and use CPIs
+- Explain how a program provides a signature for a PDA
+- Avoid common pitfalls and troubleshoot common errors associated with CPIs
 
 # TL;DR
 
-- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific function on the called program.
-- CPIs are made using the commands **`invoke`** or **`invoke_signed`**, the latter being how programs provide signatures for PDAs that they own.
-- CPIs make programs in the Solana ecosystem completely interoperable because all public instructions of a program can be invoked by another program via a CPI.
+- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific instruction on the program called
+- CPIs are made using the commands **`invoke`** or **`invoke_signed`**, the latter being how programs provide signatures for PDAs that they own
+- CPIs make programs in the Solana ecosystem completely interoperable because all public instructions of a program can be invoked by another program via a CPI
 - Because we have no control over the accounts and data submitted to a program, it's important to verify all of the parameters passed into a CPI to ensure program security.
 
 # Overview
 
 ## What is a CPI?
 
-A Cross-Program Invocation is a direct call from one program into another within the same instruction. Remember very early in the course when we talked about how all programs are callable from any client? Well, the same is true for programs on chain! Any on-chain program can make calls to any other program’s public instructions, they just need to construct the instruction correctly. You can make CPIs to native programs, other programs you've created, and third party programs. CPIs essentially turn the entire Solana ecosystem into one giant API that is at your disposal as a developer.
+A Cross-Program Invocation (CPI) is a direct call from one program into another. Just as any client can call any program using the JSON RPC, any program can call any other program directly. The only requirement for invoking an instruction on another program from within your program is that you construct the instruction correctly. You can make CPIs to native programs, other programs you've created, and third party programs. CPIs essentially turn the entire Solana ecosystem into one giant API that is at your disposal as a developer.
 
-CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`, both of which we will cover later in the lesson.
+CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`, both of which we will cover in the lesson.
 
 ## How to make a CPI
 
-CPIs are made using the [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) or [`invoke_signed`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) function from the `solana_program` crate. The former is what’s used when the signatures needed for the transaction are *not* for PDAs. The latter is what’s used when a program needs to provide a signature for a PDA.
+CPIs are made using the [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) or [`invoke_signed`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) function from the `solana_program` crate. You use `invoke` to essentially pass through the original transaction signature that was passed into your program. You use `invoke_signed` to have your program "sign" for its PDAs.
 
 ```rust
 // used when there are not signatures for PDAs needed
@@ -48,25 +48,21 @@ pub fn invoke_signed(
 ) -> ProgramResult
 ```
 
-CPIs extend the privileges of the caller to the callee. Meaning that any account that is passed into your program as a signer or writable account, if it is then passed into a CPI, will also be considered a signer or writable account inside the program being invoked. For example, if the instruction the callee program is processing contains an account that was marked as a signer or writable when originally passed into the caller program, then it will be considered a signer or writable account in the invoked program as well.
+CPIs extend the privileges of the caller to the callee. If the instruction the callee program is processing contains an account that was marked as a signer or writable when originally passed into the caller program, then it will be considered a signer or writable account in the invoked program as well.
 
 It's important to note that you as the developer decide which accounts to pass into the CPI. You can think of a CPI as building another instruction from scratch with only information that was passed into your program.
-### CPI with `invoke`
 
-```rust
-invoke(
-  &Instruction {
-      program_id: calling_program_id,
-      accounts: accounts_meta,
-      data,
-  },
-  &account_infos[account1.clone(), account2.clone(), account3.clone()],
-)?;
-```
+### Build the instruction
 
-As you can see, this is very similar to what we have been doing so far from the client side! We still need to construct an instruction that specifies which program it is calling, which accounts it may read or modify, and additional data that serves as input to the program. The additional field expects an array of `account_info` objects involved in the transaction. By the time you make a CPI in your program, you should have already grabbed all the `account_info` objects that were passed into your program and stored them in variables. These variables are what will need to be passed in here using the [`Clone`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html#impl-Clone) trait that is implemented on the `account_info` struct in the `solana_program` crate. This `Clone` trait returns a copy of the [`account_info`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html) struct.
+Invoking an instruction on another program is very similar to invoking a program from a client. Whether you use `invoke` or `invoke_signed`, the first argument for the function is the instruction you want executed by the callee.
 
-When constructing an [`Instruction`](https://docs.rs/solana-program/1.10.19/solana_program/instruction/struct.Instruction.html) object, a list of all accounts that may be read or written to during the execution of that instruction must be supplied as [`AccountMeta`](https://docs.rs/solana-program/1.10.19/solana_program/instruction/struct.AccountMeta.html) values, which are structs that contain metadata about the accounts involved. This is the same thing we have been doing client-side with the accounts before we submit a transaction.
+When constructing an [`Instruction`](https://docs.rs/solana-program/1.10.19/solana_program/instruction/struct.Instruction.html) object, a list of all accounts that may be read or written to during the execution of that instruction must be supplied as [`AccountMeta`](https://docs.rs/solana-program/1.10.19/solana_program/instruction/struct.AccountMeta.html) values. `AccountMeta` is a struct that contains metadata about the accounts involved, including:
+
+- `program_id` - the public key of the program you are going to invoke
+- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to.
+- `data` - a byte buffer representing the data being passed to the callee program as a vector
+
+The `Instruction` type has the following definition:
 
 ```rust
 pub struct Instruction {
@@ -75,11 +71,15 @@ pub struct Instruction {
     pub data: Vec<u8>,
 }
 ```
-Depending on the program you're making the CPI to, you may have to construct this `Instruction` object manually. Many individuals and organizations create publicly available crates alongside their programs that expose helper functions you can use to create the right `Instruction` object. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)), but in Rust and usable by your program. For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions rather than build them from scratch.
 
-The process for constructing the instruction manually is similar to how we've done it client-side, except we'll be implementing it in Rust instead of Typescript now! As you can see from the code snippet above, the `Instruction` object contains the same information that we're used to - it still requires a `program_id`, vector of `AccountMeta` objects, and a byte buffer that represents the `instruction_data`.
+Depending on the program you're making the CPI to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
 
-The `accounts` and `data` arguments will require us to make use of the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro. The vec macro allows us to create a vector using array notation, like so:
+In all other cases, you'll need to create the `Instruction` instance from scratch.
+
+While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
+
+Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the `vec`(https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
+
 ```rust
 let v = vec![1, 2, 3];
 assert_eq!(v[0], 1);
@@ -87,7 +87,8 @@ assert_eq!(v[1], 2);
 assert_eq!(v[2], 3);
 ```
 
-The `accounts` field of the `Instruction` struct is expecting a vector of [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html) objects, which can be created one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters, `pubkey: Pubkey` and `is_signer: bool`. The account metadata struct returned from both looks like this, look familiar?
+The `accounts` field of the `Instruction` struct expects a vector of type `AccountMeta`(https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). The `AccountMeta` struct has the following definition:
+
 ```rust
 pub struct AccountMeta {
     pub pubkey: Pubkey,
@@ -95,7 +96,11 @@ pub struct AccountMeta {
     pub is_writable: bool,
 }
 ```
+
+You can create an `AccountMeta` instance in one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters: `pubkey` of type `Pubkey` and `is_signer` of type `bool`.
+
 Putting these two pieces together looks like this:
+
 ```rust
 use solana_program::instruction::AccountMeta;
 
@@ -106,7 +111,9 @@ vec![
    AccountMeta::new(account4_pubkey, false),
 ]
 ```
-The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format and write your code to match. Feel free to read up on some of the [features of the vec macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
+
+The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format used and write your code to match. Feel free to read up on some of the [features of the vec macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
+
 ```rust
 let mut vec = Vec::with_capacity(3);
 vec.push(1);
@@ -115,8 +122,38 @@ vec.extend_from_slice(&number_variable.to_le_bytes());
 ```
 The [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#method.extend_from_slice) method is probably new to you. It's a method on vectors that takes a slice as input, iterates over the slice, clones each element, and then appends it to the `Vec`.
 
+### Pass a list of accounts
+
+In addition to the instruction, both `invoke` and `invoke_signed` also require a list of `account_info` objects. Just like the list of `AccountMeta` objects you added to the instruction, you must include all of the accounts that the program you're calling will read from or write to.
+
+By the time you make a CPI in your program, you should have already grabbed all the `account_info` objects that were passed into your program and stored them in variables. You'll construct your list of `account_info` objects for the CPI by choosing which of these accounts to copy and send along.
+
+You can copy each `account_info` object that you need to pass into the CPI using the [`Clone`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html#impl-Clone) trait that is implemented on the `account_info` struct in the `solana_program` crate. This `Clone` trait returns a copy of the [`account_info`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html) instance.
+
+```rust
+&[first_account.clone(), second_account.clone(), third_account.clone()]
+```
+
+### CPI with `invoke`
+
+With both the instruction and the list of accounts created, you can perform a call to `invoke`. 
+
+```rust
+invoke(
+  &Instruction {
+      program_id: calling_program_id,
+      accounts: accounts_meta,
+      data,
+  },
+  &[account1.clone(), account2.clone(), account3.clone()],
+)?;
+```
+
+There's no need to include a signature because the Solana runtime passes along the original signature passed into your program. Remember, `invoke` won't work if a signature is required on behalf of a PDA. For that, you'll need to use `invoke_signed`.
+
 ### CPI with `invoke_signed`
-Using `invoke_signed` is a little different just because there is an additional field that requires the seeds used to derive any PDAs that must sign the transaction. You may recall from previous lessons that PDAs do not lie on the ed25519 curve and, therefore, do not have a corresponding private key. You’ve been told that programs can provide signatures for their PDAs, but have not learned how that actually happens - until now. Programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` field that comes into play here.
+
+Recall from previous lessons that PDAs do not lie on the Ed25519 curve and therefore do not have a corresponding private key. Instead, programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` argument that facilitates signing for PDAs.
 
 ```rust
 invoke_signed(
@@ -127,11 +164,19 @@ invoke_signed(
 )?;
 ```
 
-While PDAs have no private keys of their own, they can be used by a program to issue an instruction that includes the program address as a signer. The only way for the runtime to verify that the address belongs to a program is for the program to supply the seeds used to generate the address in the `signers_seeds` field. The Solana runtime will internally call [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) using the seeds provided and the `program_id` of the program calling `invoke_signed`, and compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that indeed the program associated with this address is the caller and thus authorized to be the signer.
+While PDAs have no private keys of their own, they can be used by a program to issue an instruction that includes the PDA as a signer. The only way for the runtime to verify that the PDA belongs to the calling program is for the calling program to supply the seeds used to generate the address in the `signers_seeds` field.
+
+The Solana runtime will internally call [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) using the seeds provided and the `program_id` of the calling program. It can then compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that indeed the program associated with this address is the caller and thus is authorized to be a signer.
 
 ## Best Practices and Common Pitfalls
 
-There are some common mistakes and things to remember when utilizing CPIs that are important to your program’s security and robustness. The first thing to remember is that, as we know by now, we have no control over what information is passed into our programs. For this reason, it’s important to always verify the `program_id`, accounts, and data passed into the CPI. Without these security checks, someone could submit a transaction that invokes an instruction on a completely different program than was expected, which is not ideal. Luckily, there are inherent checks on the validity of any PDAs that are marked as signers within the `invoke_signed` function, but all other accounts and `instruction_data` must be verified somewhere in your program before making the CPI. It is also important to remember to make sure you’re targeting the intended instruction on the program you are invoking. The easiest way to do this is to read the source code of the program you will be invoking, the same way you would if you were constructing an instruction from the client side.
+### Security checks
+
+There are some common mistakes and things to remember when utilizing CPIs that are important to your program’s security and robustness. The first thing to remember is that, as we know by now, we have no control over what information is passed into our programs. For this reason, it’s important to always verify the `program_id`, accounts, and data passed into the CPI. Without these security checks, someone could submit a transaction that invokes an instruction on a completely different program than was expected, which is not ideal.
+
+Fortunately, there are inherent checks on the validity of any PDAs that are marked as signers within the `invoke_signed` function. All other accounts and `instruction_data` should be verified somewhere in your program code before making the CPI. It's also important to make sure you’re targeting the intended instruction on the program you are invoking. The easiest way to do this is to read the source code of the program you will be invoking just as you would if you were constructing an instruction from the client side.
+
+### Common errors
 
 There are some common errors you might receive when executing a CPI, they usually mean you are constructing the CPI with incorrect information. For example, you may come across an error message similar to this:
 
