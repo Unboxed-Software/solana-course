@@ -82,7 +82,7 @@ In all other cases, you'll need to create the `Instruction` instance from scratc
 
 While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
 
-Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the `vec`(https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
+Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
 
 
 The `accounts` and `data` arguments will require us to make use of the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro. The `vec` macro allows us to create a vector using array notation, like so:
@@ -96,7 +96,6 @@ assert_eq!(v[2], 3);
 
 
 The `accounts` field of the `Instruction` struct is expecting a vector of [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html) objects, which can be created one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters, `pubkey: Pubkey` and `is_signer: bool`. The account metadata struct returned from both looks like this. Seem familiar?
-
 
 ```rust
 pub struct AccountMeta {
@@ -144,7 +143,7 @@ You can copy each `account_info` object that you need to pass into the CPI using
 
 ### CPI with `invoke`
 
-With both the instruction and the list of accounts created, you can perform a call to `invoke`. 
+With both the instruction and the list of accounts created, you can perform a call to `invoke`.
 
 ```rust
 invoke(
