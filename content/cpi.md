@@ -172,7 +172,7 @@ To get started, we will be using the final state of the Movie Review program fro
 
 ### 2. Add dependencies to `Cargo.toml`
 
-Before we get started we need to add two new dependencies to the `Cargo.toml` file underneath `[dependencies]`. We'll be using the `spl-token` and `spl-associated-token-account` crates in addition to the existing dependencies. 
+Before we get started we need to add two new dependencies to the `Cargo.toml` file underneath `[dependencies]`. We'll be using the `spl-token` and `spl-associated-token-account` crates in addition to the existing dependencies.
 
 ```text
 spl-token = { version="~3.2.0", features = [ "no-entrypoint" ] }
