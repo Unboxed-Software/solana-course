@@ -148,7 +148,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 The three sections of output include the unit tests, the integration test, and the doc tests.
 
-As a side note, if the program you are testing creates a new account at all (i.e. creates a pda), then the command `cargo test` will not work and the program will fail to complete with an error like the following.
+As a side note, if the program you are testing creates a new account at all (i.e. creates a PDA), then the command `cargo test` will not work and the program will fail to complete with an error like the following.
 
 ```rust
 Account data resizing not supported yet: 0 -> 1000. Consider making this test conditional on `#[cfg(feature = "test-bpf")]`
@@ -423,7 +423,7 @@ The code in the remainder of the demo should go inside the `it_works()` testing 
 First, we are going to create a token mint and assign the mint authority to a PDA of the Movie Review program so that it has the capability of minting tokens to users.
 
 ```rust
-// Derive pda for token mint authority
+// Derive PDA for token mint authority
 let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"tokens"], &program_id);
 
 // Create mint account
@@ -453,14 +453,14 @@ We use two functions that we've imported from Solana crates to help create the `
 Next, we need to create/derive the review, comment counter, and user associated token account addresses.
 
 ```rust
-// Create review pda
+// Create review PDA
 let title: String = "Captain America".to_owned();
 const RATING: u8 = 3;
 let review: String = "Liked the movie".to_owned();
 let (review_pda, _bump_seed) =
     Pubkey::find_program_address(&[payer.pubkey().as_ref(), title.as_bytes()], &program_id);
 
-// Create comment pda
+// Create comment PDA
 let (comment_pda, _bump_seed) =
     Pubkey::find_program_address(&[review_pda.as_ref(), b"comment"], &program_id);
 
