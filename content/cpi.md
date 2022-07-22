@@ -345,11 +345,11 @@ Ok(())
 
 Note that we are using `invoke_signed` and not `invoke` here. The Token program requires the `mint_auth` account to sign for this transaction. Since the `mint_auth` account is a PDA, only the program it was derived from can sign on its behalf. When `invoke_signed` is called, the Solana runtime calls `create_program_address` with the seeds and bump provided and then compares the derived address with all of the addresses of the provided `AccountInfo` objects. If any of the addresses match the derived address, the runtime knows that the matching account is a PDA of this program and that the program is signing this transaction for this account.
 
-At this point, the `add_movie_review` instruction should be fully functional and will mint 10 tokens to the reviewer when a review is created.
+At this point, the `add_movie_review` instruction should be fully functional and will mint ten tokens to the reviewer when a review is created.
 
 ### 5. Repeat for `add_comment`
 
-Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from 10 to 5 so that adding reviews are weighted above commenting. First, update the accounts with the same four additional accounts as in the `add_movie_review` function.
+Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from ten to five so that adding reviews are weighted above commenting. First, update the accounts with the same four additional accounts as in the `add_movie_review` function.
 
 ```rust
 // Inside add_comment
