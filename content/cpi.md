@@ -156,7 +156,8 @@ invoke_signed(
     &instruction,
     accounts,
     &[&["First addresses seed"],
-        &["Second addresses first seed", "Second addresses second seed"]],
+        &["Second addresses first seed",
+        "Second addresses second seed"]],
 )?;
 ```
 
