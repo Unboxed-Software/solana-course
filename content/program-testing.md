@@ -30,7 +30,7 @@ The Rust community thinks about tests in terms of two main categories: unit test
 
 ## Unit tests
 ### What are unit tests?
-The purpose of unit tests is to test each unit of code in isolation from the rest of the code to quickly pinpoint where code is and isn’t working as expected. Unit tests reside in the `src` directory in the file with the code they are testing. Unit tests are declared inside a module named `tests` annotated with `cfg(test)`. At its simplest, a test in Rust is a function that’s annotated with the `#[test]` attribute.
+The purpose of unit tests is to test each unit of code in isolation from the rest of the code to quickly pinpoint where code is and isn’t working as expected. Unit tests generally reside in the file with the code they are testing. Unit tests are declared inside a module named `tests` annotated with `cfg(test)`. At its simplest, a test in Rust is a function that’s annotated with the `#[test]` attribute.
 
 ```rust
 // example testing module with a single test
