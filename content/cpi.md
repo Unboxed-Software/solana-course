@@ -85,7 +85,7 @@ assert_eq!(v[1], 2);
 assert_eq!(v[2], 3);
 ```
 
-The `accounts` field of the `Instruction` struct is expecting a vector of [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html) objects, which can be created one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters, `pubkey: Pubkey` and `is_signer: bool`. The account metadata struct returned from both looks like this, look familiar?
+The `accounts` field of the `Instruction` struct is expecting a vector of [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html) objects, which can be created one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters, `pubkey: Pubkey` and `is_signer: bool`. The account metadata struct returned from both looks like this. Seem familiar?
 
 ```rust
 pub struct AccountMeta {
