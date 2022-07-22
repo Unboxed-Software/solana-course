@@ -400,7 +400,7 @@ if *token_program.key != TOKEN_PROGRAM_ID {
 }
 ```
 
-Finally, use `invoke_signed` to send the `mint_to` instruction to the Token program, sending 5 tokens to the commenter.
+Finally, use `invoke_signed` to send the `mint_to` instruction to the Token program, sending five tokens to the commenter.
 
 ```rust
 msg!("Minting 5 tokens to User associated token account");
