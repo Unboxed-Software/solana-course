@@ -590,7 +590,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
 
 Now we’re ready to build and deploy our program! You can build the program by running `cargo build-bpf` and then running the command that is returned, it should look something like `solana program deploy <PATH>`.
 
-Before you can start testing whether or not adding a review or comment sends you tokens, you need to initialize the program's token mint. You can use [this script](https://github.com/Unboxed-Software/solana-movie-token-client) to do that. Once you'd cloned that repository, replace the `PROGRAM_ID` in `index.ts` with your program's ID. Then run `npm install` and then `npm start`. The script assumes you're deploying to Devnet so if you're deploying locally make sure to tailor the script accordingly.
+Before you can start testing whether or not adding a review or comment sends you tokens, you need to initialize the program's token mint. You can use [this script](https://github.com/Unboxed-Software/solana-movie-token-client) to do that. Once you'd cloned that repository, replace the `PROGRAM_ID` in `index.ts` with your program's ID. Then run `npm install` and then `npm start`. The script assumes you're deploying to Devnet. If you're deploying locally, then make sure to tailor the script accordingly.
 
 Once you've initialized your token mint, you can use the [Movie Review frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-tokens) to test adding reviews and comments. Again, the code assumes you're on Devnet so please act accordingly.
 
