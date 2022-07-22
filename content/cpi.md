@@ -11,10 +11,10 @@
 
 # TL;DR
 
-- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific function on the called program.
-- CPIs are made using the commands **`invoke`** or **`invoke_signed`**, the latter being how programs provide signatures for PDAs that they own.
-- CPIs make programs in the Solana ecosystem completely interoperable because all public instructions of a program can be invoked by another program via a CPI.
-- Because we have no control over the accounts and data submitted to a program, it's important to verify all of the parameters passed into a CPI to ensure program security.
+- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific function on the called program
+- CPIs are made using the commands **`invoke`** or **`invoke_signed`**, the latter being how programs provide signatures for PDAs that they own
+- CPIs make programs in the Solana ecosystem completely interoperable because all public instructions of a program can be invoked by another program via a CPI
+- Because we have no control over the accounts and data submitted to a program, it's important to verify all of the parameters passed into a CPI to ensure program security
 
 # Overview
 
