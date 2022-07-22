@@ -1,10 +1,5 @@
 # Cross Program Invocations
 
-### Further Reading:
-
-- [Official Solana CPI Docs](https://docs.solana.com/developing/programming-model/calling-between-programs)
-- [Solana Cookbook](https://solanacookbook.com/references/programs.html#how-to-do-cross-program-invocation)
-
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
