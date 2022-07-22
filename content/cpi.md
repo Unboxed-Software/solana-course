@@ -268,7 +268,7 @@ use spl_token::{instruction::initialize_mint, ID as TOKEN_PROGRAM_ID};
 
 Now we can move on to the logic that handles the actual minting of the tokens! We’ll be adding this to the very end of the `add_movie_review` function right before `Ok(())` is returned.
 
-Minting tokens requires a signature by the mint authority. Since the program needs to be able to mint tokens, the mint authority needs to be an account that the program can sign on behalf of. In other words, it needs to be a PDA account owned by the program.
+Minting tokens requires a signature by the mint authority. Since the program needs to be able to mint tokens, the mint authority needs to be an account that the program can sign for. In other words, it needs to be a PDA account owned by the program.
 
 We'll also be structuring our token mint such that the mint account is a PDA account that we can derive deterministically. This way we can always verify that the `token_mint` account passed into the program is the expected account.
 
