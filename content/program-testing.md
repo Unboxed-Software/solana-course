@@ -299,12 +299,18 @@ For some more detailed information regarding the compute budget [check out the d
 ### Stack size
 Every program has access to [4KB of stack frame size when executing]("https://docs.solana.com/developing/on-chain-programs/overview#stack"). This is a different concept from the compute budget we just discussed because the stack size limit is focused solely on memory, while the compute budget is meant to limit computationally intensive actions. Many programming languages don’t require you to think about the stack and the heap very often. But in a systems programming language like Rust, whether a value is on the stack or the heap can make a large difference - especially when working within a constrained environment like a blockchain. If you aren't familiar with the differences between the two, [the Rust book has a great explanation](https://doc.rust-lang.org/stable/book/ch04-01-what-is-ownership.html).
 
-All values in Rust are stack allocated by default. You'll start to run into issues with using up all of the 4KB of memory when working with larger, more complex programs. This is often called "blowing the stack". If a program reaches it's 4KB stack at runtime, it will halt and return an `AccessViolation` error.
+All values in Rust are stack allocated by default. You'll start to run into issues with using up all of the 4KB of memory when working with larger, more complex programs. This is often called "blowing the stack". Programs can reach the stack limit two ways: either some dependent crates may include functionality that violates the stack frame restrictions, or the program itself can reach the stack limit at runtime.
+
+This is an example of the error message you might see when the stack violation is originating from a dependent crate.
 ```text
 Error: Function _ZN16curve25519_dalek7edwards21EdwardsBasepointTable6create17h178b3d2411f7f082E Stack offset of -30728 exceeded max offset of -4096 by 26632 bytes, please minimize large stack variables
 ```
 
-To get around this, you can refactor some of your code to allocate some memory to the heap instead. All programs have access to a 32KB runtime heap that can help you free up some memory on the stack. To do so, you'll have to make use of the [Box<T>](https://doc.rust-lang.org/std/boxed/struct.Box.html) struct. A box is a smart pointer to a heap allocated value of type `T`. Boxed values can be dereferenced using the `*` operator.
+If a program reaches it's 4KB stack at runtime, it will halt and return an `AccessViolation` error.
+```text
+Program failed to complete: Access violation in stack frame 3 at address 0x200003f70 of size 8 by instruction #5128
+```
+To get around this, you can either refactor your code to make it more memory efficient or allocate some memory to the heap instead. All programs have access to a 32KB runtime heap that can help you free up some memory on the stack. To do so, you'll have to make use of the [Box<T>](https://doc.rust-lang.org/std/boxed/struct.Box.html) struct. A box is a smart pointer to a heap allocated value of type `T`. Boxed values can be dereferenced using the `*` operator.
 
 ```rust
 let authority_pubkey = Box::new(Pubkey::create_program_address(authority_signer_seeds, program_id)?);
