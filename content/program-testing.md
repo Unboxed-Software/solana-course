@@ -147,6 +147,12 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 The three sections of output include the unit tests, the integration test, and the doc tests.
 
+As a side note, if the program you are testing creates a new account at all (i.e. creates a pda), then the command `cargo test` will not work and the program will fail to complete with an error like the following.
+```rust
+Account data resizing not supported yet: 0 -> 1000. Consider making this test conditional on `#[cfg(feature = "test-bpf")]`
+```
+If you come across this, try using `cargo test-bpf` instead.
+
 ## RPC Tests
 ### What are rpc tests?
 
@@ -266,7 +272,7 @@ When testing a program, you may run into errors or output that is unexpected, th
 
 When writing programs in general, it is inevitable that you will spend a good portion of your time debugging. There are program errors that you may come across from time to time and they can be a little confusing. Some program errors have a hexadecimal code associated with them that looks something along the lines of `Program [program_id] failed: custom program error: 0x01` which might not seem to make any sense. This error code is actually a hexadecimal representation of this error’s decimal index inside the error enum of the program that returned it. So, if an error is returned in your program with a hexadecimal code and no message, try converting that hexadecimal number *x* to decimal *y* and looking up the corresponding error at *y* index of the program’s error enum.
 
-For example, if you were to receive an error sending a transaction to the SPL Token Program with the error code `0x01`, the decimal equivalent of this is 1. [Looking at the source code of the Token Program](https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/error.rs), we can see that the error located this index in the program's error enum is `InsufficientFunds`. You'll need to have access to the source code of any program that returns a custom program error code to translate it.
+For example, if you were to receive an error sending a transaction to the SPL Token Program with the error code `0x01`, the decimal equivalent of this is 1. [Looking at the source code of the Token Program](https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/error.rs), we can see that the error located at this index in the program's error enum is `InsufficientFunds`. You'll need to have access to the source code of any program that returns a custom program error code to translate it.
 
 ### Program Logs
 
