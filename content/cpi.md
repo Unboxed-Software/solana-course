@@ -54,7 +54,7 @@ Invoking an instruction on another program is very similar to invoking a program
 When constructing an [`Instruction`](https://docs.rs/solana-program/1.10.19/solana_program/instruction/struct.Instruction.html) object, a list of all accounts that may be read or written to during the execution of that instruction must be supplied as [`AccountMeta`](https://docs.rs/solana-program/1.10.19/solana_program/instruction/struct.AccountMeta.html) values. `AccountMeta` is a struct that contains metadata about the accounts involved, including:
 
 - `program_id` - the public key of the program you are going to invoke
-- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to.
+- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to
 - `data` - a byte buffer representing the data being passed to the callee program as a vector
 
 The `Instruction` type has the following definition:
