@@ -203,7 +203,7 @@ Install mocha and chai with `npm install mocha chai`
 Then, you would add the following to the `package.json` file inside your typescript project. This tells the compiler to execute the Typescript file or files inside the `/test` directory when the command `npm run test` is run. You’ll have to make sure the path here is the correct path to where your testing script is located.
 
 ```tsx
-// inside package.json
+// Inside package.json
 ...
 "scripts": {
         "test": "mocha -r ts-node/register ./test/*.ts"
