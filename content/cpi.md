@@ -5,14 +5,14 @@
 *By the end of this lesson, you will be able to:*
 
 
-- Explain Cross-Program Invocations
+- Explain Cross-Program Invocations (CPIs)
 - Describe how to construct and use CPIs
-- Describe how a program provides a signature for a PDA
-- Explain some pitfalls and troubleshoot some common errors associated with CPIs
+- Explain how a program provides a signature for a PDA
+- Avoid common pitfalls and troubleshoot common errors associated with CPIs
 
 # TL;DR
 
-- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific function on the called program
+- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific instruction on the program called
 - CPIs are made using the commands `invoke` or `invoke_signed`, the latter being how programs provide signatures for PDAs that they own
 - CPIs make programs in the Solana ecosystem completely interoperable because all public instructions of a program can be invoked by another program via a CPI
 - Because we have no control over the accounts and data submitted to a program, it's important to verify all of the parameters passed into a CPI to ensure program security
@@ -24,7 +24,7 @@
 A Cross-Program Invocation (CPI) is a direct call from one program into another. Just as any client can call any program using the JSON RPC, any program can call any other program directly. The only requirement for invoking an instruction on another program from within your program is that you construct the instruction correctly. You can make CPIs to native programs, other programs you've created, and third party programs. CPIs essentially turn the entire Solana ecosystem into one giant API that is at your disposal as a developer.
 
 
-CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`. We'll be covering both of these later in the lesson.
+CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`. We'll be covering both of these later in this lesson.
 
 ## How to make a CPI
 
@@ -63,7 +63,7 @@ invoke(
 ```
 
 - `program_id` - the public key of the program you are going to invoke
-- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to.
+- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to
 - `data` - a byte buffer representing the data being passed to the callee program as a vector
 
 The `Instruction` type has the following definition:
@@ -77,15 +77,12 @@ pub struct Instruction {
 ```
 
 
-Depending on the program you're making the CPI to, you may have to construct this `Instruction` object manually. Many individuals and organizations create publicly available crates alongside their programs that expose helper functions you can use to create the right `Instruction` object. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)), but in Rust and usable by your program. For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions rather than build them from scratch.
+Depending on the program you're making the call to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
 In all other cases, you'll need to create the `Instruction` instance from scratch.
 
 While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
 
 Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
-
-
-The `accounts` and `data` arguments will require us to make use of the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro. The `vec` macro allows us to create a vector using array notation, like so:
 
 ```rust
 let v = vec![1, 2, 3];
@@ -95,7 +92,8 @@ assert_eq!(v[2], 3);
 ```
 
 
-The `accounts` field of the `Instruction` struct is expecting a vector of [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html) objects, which can be created one of two ways - either with `AccountMeta::new` or `AccountMeta::read_only`. Using the `new` constructor creates a metadata object for writable accounts, while the `read_only` constructor specifies that the account is not writable. Both constructors expect two parameters, `pubkey: Pubkey` and `is_signer: bool`. The account metadata struct returned from both looks like this. Seem familiar?
+The `accounts` field of the `Instruction` struct expects a vector of type [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). The `AccountMeta` struct has the following definition:
+
 
 ```rust
 pub struct AccountMeta {
@@ -111,14 +109,16 @@ Putting these two pieces together looks like this:
 use solana_program::instruction::AccountMeta;
 
 vec![
-   AccountMeta::new(account1_pubkey, true),
-   AccountMeta::read_only(account2_pubkey, false),
-   AccountMeta::read_only(account3_pubkey, true),
-   AccountMeta::new(account4_pubkey, false),
+    AccountMeta::new(account1_pubkey, true),
+    AccountMeta::read_only(account2_pubkey, false),
+    AccountMeta::read_only(account3_pubkey, true),
+    AccountMeta::new(account4_pubkey, false),
 ]
 ```
 
-The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format and write your code to match. Feel free to read up on some of the [features of the `vec` macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
+
+The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format used and write your code to match. Feel free to read up on some of the [features of the `vec` macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
+
 
 ```rust
 let mut vec = Vec::with_capacity(3);
@@ -147,12 +147,12 @@ With both the instruction and the list of accounts created, you can perform a ca
 
 ```rust
 invoke(
-  &Instruction {
-      program_id: calling_program_id,
-      accounts: accounts_meta,
-      data,
-  },
-  &[account1.clone(), account2.clone(), account3.clone()],
+    &Instruction {
+        program_id: calling_program_id,
+        accounts: accounts_meta,
+        data,
+    },
+    &[account1.clone(), account2.clone(), account3.clone()],
 )?;
 ```
 
@@ -169,7 +169,8 @@ invoke_signed(
     &instruction,
     accounts,
     &[&["First addresses seed"],
-        &["Second addresses first seed", "Second addresses second seed"]],
+        &["Second addresses first seed",
+        "Second addresses second seed"]],
 )?;
 ```
 
@@ -177,7 +178,8 @@ While PDAs have no private keys of their own, they can be used by a program to i
 
 The Solana runtime will internally call [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) using the seeds provided and the `program_id` of the calling program. It can then compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that indeed the program associated with this address is the caller and thus is authorized to be a signer.
 
-## Best practices and common pitfalls
+
+## Best Practices and common pitfalls
 
 ### Security checks
 
@@ -211,7 +213,9 @@ To see this in action, view this [transaction in the explorer](https://explorer.
 
 CPIs are a very important feature of the Solana ecosystem and they make all programs deployed interoperable with each other. With CPIs there is no need to re-invent the wheel when it comes to development. This creates the opportunity for building new protocols and applications on top of what’s already been built, just like building blocks or Lego bricks. It’s important to remember that CPIs are a two-way street and the same is true for any programs that you deploy! If you build something cool and useful, developers have the ability to build on top of what you’ve done or just plug your protocol into whatever it is that they are building. Composability is a big part of what makes crypto so unique and CPIs are what makes this possible on Solana.
 
-Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate valid transactions with signatures for those addresses. This can be *very* useful for many applications in Web3 (DeFi, NFTs, etc.). Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs!)
+
+Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate transactions with valid signatures for those addresses. This can be *very* useful for many applications in Web3 (e.g. DeFi, NFTs, etc.) Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs!)
+
 
 # Demo
 
@@ -219,7 +223,7 @@ To get some hands on experience with CPIs, we’ll be making some additions to t
 
 Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to work on having the program mint tokens to the reviewer or commenter anytime a review or comment is submitted.
 
-To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token program lesson](./token-program.md) before moving forward with this demo.
+To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token Program lesson](./token-program.md) before moving forward with this demo.
 
 ### 1. Get starter code and add dependencies
 
@@ -281,7 +285,7 @@ use spl_token::{instruction::initialize_mint, ID as TOKEN_PROGRAM_ID};
 
 Now we can move on to the logic that handles the actual minting of the tokens! We’ll be adding this to the very end of the `add_movie_review` function right before `Ok(())` is returned.
 
-Minting tokens requires a signature by the mint authority. Since the program needs to be able to mint tokens, the mint authority needs to be an account that the program can sign on behalf of. In other words, it needs to be a PDA account owned by the program.
+Minting tokens requires a signature by the mint authority. Since the program needs to be able to mint tokens, the mint authority needs to be an account that the program can sign for. In other words, it needs to be a PDA account owned by the program.
 
 We'll also be structuring our token mint such that the mint account is a PDA account that we can derive deterministically. This way we can always verify that the `token_mint` account passed into the program is the expected account.
 
@@ -295,7 +299,7 @@ let (mint_auth_pda, _mint_auth_bump) =
     Pubkey::find_program_address(&[b"token_auth"], program_id);
 ```
 
-Then, we'll perform security checks against each of the new accounts passed into the program. Always remember to verify accounts!
+Next, we'll perform security checks against each of the new accounts passed into the program. Always remember to verify accounts!
 
 ```rust
 if *token_mint.key != mint_pda {
@@ -358,11 +362,11 @@ Ok(())
 
 Note that we are using `invoke_signed` and not `invoke` here. The Token program requires the `mint_auth` account to sign for this transaction. Since the `mint_auth` account is a PDA, only the program it was derived from can sign on its behalf. When `invoke_signed` is called, the Solana runtime calls `create_program_address` with the seeds and bump provided and then compares the derived address with all of the addresses of the provided `AccountInfo` objects. If any of the addresses match the derived address, the runtime knows that the matching account is a PDA of this program and that the program is signing this transaction for this account.
 
-At this point, the `add_movie_review` instruction should be fully functional and will mint 10 tokens to the reviewer when a review is created.
+At this point, the `add_movie_review` instruction should be fully functional and will mint ten tokens to the reviewer when a review is created.
 
 ### 5. Repeat for `add_comment`
 
-Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from 10 to 5 so that adding reviews are weighted above commenting. First, update the accounts with the same four additional accounts as in the `add_movie_review` function.
+Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from ten to five so that adding reviews are weighted above commenting. First, update the accounts with the same four additional accounts as in the `add_movie_review` function.
 
 ```rust
 // Inside add_comment
@@ -413,7 +417,7 @@ if *token_program.key != TOKEN_PROGRAM_ID {
 }
 ```
 
-Finally, use `invoke_signed` to send the `mint_to` instruction to the Token program, sending 5 tokens to the commenter.
+Finally, use `invoke_signed` to send the `mint_to` instruction to the Token program, sending five tokens to the commenter.
 
 ```rust
 msg!("Minting 5 tokens to User associated token account");
@@ -440,7 +444,7 @@ Ok(())
 
 We've written all the code needed to mint tokens to reviewers and commenters, but all of it assumes that there is a token mint at the PDA derived with the seed "token_mint." For this to work, we're going to set up an additional instruction for initializing the token mint. It will be written such that it can only be called once and it doesn't particularly matter who calls it.
 
-Given that we've already hammered home all of the concepts associated with PDAs and CPIs multiple times throughout this lesson, we're going to walk through this bit with less explanation than the prior steps. Start by adding a fourth instruction variant to the `MovieInstruction` enum in `instruction.rs`.
+Given that throughout this lesson we've already hammered home all of the concepts associated with PDAs and CPIs multiple times, we're going to walk through this bit with less explanation than the prior steps. Start by adding a fourth instruction variant to the `MovieInstruction` enum in `instruction.rs`.
 
 ```rust
 pub enum MovieInstruction {
@@ -525,7 +529,7 @@ pub fn process_instruction(
 }
 ```
 
-Lastly, declare and implement the `initialize_token_mint` function. This function will derive the token mint and mint authority PDAs, create the token mint account, and then initialize the token mint. We won't explain all of this in detail, but it's worth reading through the code, especially given that the creation and initialization of the token mint both involve CPIs. Again, if you need a refresher on tokens and mints, have a look at the [Token program lesson](./token-program.md).
+Lastly, declare and implement the `initialize_token_mint` function. This function will derive the token mint and mint authority PDAs, create the token mint account, and then initialize the token mint. We won't explain all of this in detail, but it's worth reading through the code, especially given that the creation and initialization of the token mint both involve CPIs. Again, if you need a refresher on tokens and mints, have a look at the [Token Program lesson](./token-program.md).
 
 ```rust
 pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
@@ -603,7 +607,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
 
 Now we’re ready to build and deploy our program! You can build the program by running `cargo build-bpf` and then running the command that is returned, it should look something like `solana program deploy <PATH>`.
 
-Before you can start testing whether or not adding a review or comment sends you tokens, you need to initialize the program's token mint. You can use [this script](https://github.com/Unboxed-Software/solana-movie-token-client) to do that. Once you'd cloned that repository, replace the `PROGRAM_ID` in `index.ts` with your program's ID. Then run `npm install` and then `npm start`. The script assumes you're deploying to Devnet so if you're deploying locally make sure to tailor the script accordingly.
+Before you can start testing whether or not adding a review or comment sends you tokens, you need to initialize the program's token mint. You can use [this script](https://github.com/Unboxed-Software/solana-movie-token-client) to do that. Once you'd cloned that repository, replace the `PROGRAM_ID` in `index.ts` with your program's ID. Then run `npm install` and then `npm start`. The script assumes you're deploying to Devnet. If you're deploying locally, then make sure to tailor the script accordingly.
 
 Once you've initialized your token mint, you can use the [Movie Review frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-tokens) to test adding reviews and comments. Again, the code assumes you're on Devnet so please act accordingly.
 
