@@ -29,13 +29,13 @@ CPIs have a similar make up to instructions that you are used to creating client
 CPIs are made using the [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) or [`invoke_signed`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) function from the `solana_program` crate. You use `invoke` to essentially pass through the original transaction signature that was passed into your program. You use `invoke_signed` to have your program "sign" for its PDAs.
 
 ```rust
-// used when there are not signatures for PDAs needed
+// Used when there are not signatures for PDAs needed
 pub fn invoke(
     instruction: &Instruction,
     account_infos: &[AccountInfo<'_>]
 ) -> ProgramResult
 
-// used when a program must provide a 'signature' for a PDA, hence the signer_seeds parameter
+// Used when a program must provide a 'signature' for a PDA, hence the signer_seeds parameter
 pub fn invoke_signed(
     instruction: &Instruction,
     account_infos: &[AccountInfo<'_>],
@@ -100,14 +100,14 @@ Putting these two pieces together looks like this:
 use solana_program::instruction::AccountMeta;
 
 vec![
-   AccountMeta::new(account1_pubkey, true),
-   AccountMeta::read_only(account2_pubkey, false),
-   AccountMeta::read_only(account3_pubkey, true),
-   AccountMeta::new(account4_pubkey, false),
+    AccountMeta::new(account1_pubkey, true),
+    AccountMeta::read_only(account2_pubkey, false),
+    AccountMeta::read_only(account3_pubkey, true),
+    AccountMeta::new(account4_pubkey, false),
 ]
 ```
 
-The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format used and write your code to match. Feel free to read up on some of the [features of the vec macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
+The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format used and write your code to match. Feel free to read up on some of the [features of the `vec` macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
 
 ```rust
 let mut vec = Vec::with_capacity(3);
@@ -115,6 +115,7 @@ vec.push(1);
 vec.push(2);
 vec.extend_from_slice(&number_variable.to_le_bytes());
 ```
+
 The [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#method.extend_from_slice) method is probably new to you. It's a method on vectors that takes a slice as input, iterates over the slice, clones each element, and then appends it to the `Vec`.
 
 ### Pass a list of accounts
@@ -135,12 +136,12 @@ With both the instruction and the list of accounts created, you can perform a ca
 
 ```rust
 invoke(
-  &Instruction {
-      program_id: calling_program_id,
-      accounts: accounts_meta,
-      data,
-  },
-  &[account1.clone(), account2.clone(), account3.clone()],
+    &Instruction {
+        program_id: calling_program_id,
+        accounts: accounts_meta,
+        data,
+    },
+    &[account1.clone(), account2.clone(), account3.clone()],
 )?;
 ```
 
@@ -152,10 +153,10 @@ Recall from previous lessons that PDAs do not lie on the Ed25519 curve and there
 
 ```rust
 invoke_signed(
-  &instruction,
-  accounts,
-  &[&["First addresses seed"],
-    &["Second addresses first seed", "Second addresses second seed"]],
+    &instruction,
+    accounts,
+    &[&["First addresses seed"],
+        &["Second addresses first seed", "Second addresses second seed"]],
 )?;
 ```
 
@@ -175,7 +176,7 @@ Fortunately, there are inherent checks on the validity of any PDAs that are mark
 
 There are some common errors you might receive when executing a CPI, they usually mean you are constructing the CPI with incorrect information. For example, you may come across an error message similar to this:
 
-```
+```text
 EF1M4SPfKcchb6scq297y8FPCaLvj5kGjwMzjTM68wjA's signer privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
@@ -184,7 +185,7 @@ This message is a little misleading, because “signer privilege escalated” do
 
 Another error very similar to the incorrect signature message that often comes up is thrown when an account is not marked as `writable` inside the `AccountMeta` struct that is submitted to the program when it should be.
 
-```
+```text
 2qoeXa9fo8xVHzd2h9mVcueh6oK3zmAiJxCTySM5rbLZ's writable privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
@@ -233,7 +234,7 @@ Because we want users to be minted tokens upon creating a review, it makes sense
 We'll start by adding these new accounts to the area of the function that iterates through the passed in accounts:
 
 ```rust
-// inside add_movie_review
+// Inside add_movie_review
 msg!("Adding movie review...");
 msg!("Title: {}", title);
 msg!("Rating: {}", rating);
@@ -258,7 +259,7 @@ There is no additional `instruction_data` required for the new functionality, so
 Before we dive into the minting logic, let's import the address of the Token program and the constant `LAMPORTS_PER_SOL` at the top of the file.
 
 ```rust
-// inside processor.rs
+// Inside processor.rs
 use solana_program::native_token::LAMPORTS_PER_SOL;
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::{instruction::initialize_mint, ID as TOKEN_PROGRAM_ID};
@@ -273,7 +274,7 @@ We'll also be structuring our token mint such that the mint account is a PDA acc
 Let's go ahead and derive the token mint and mint authority addresses using the `find_program_address` function with the seeds “token_mint” and "token_auth," respectively.
 
 ```rust
-// mint tokens here
+// Mint tokens here
 msg!("deriving mint authority");
 let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
 let (mint_auth_pda, _mint_auth_bump) =
@@ -307,7 +308,7 @@ if *token_program.key != TOKEN_PROGRAM_ID {
 Finally, we can issue a CPI to the `mint_to` function of the token program with the correct accounts using `invoke_signed`. The `spl_token` crate provides a `mint_to` helper function for creating the minting instruction. This is great because it means we don't have to manually build the entire instruction from scratch. Rather, we can simply pass in the arguments required by the function. Here's the function signature:
 
 ```rust
-// inside the token program, returns an Instruction object
+// Inside the token program, returns an Instruction object
 pub fn mint_to(
     token_program_id: &Pubkey,
     mint_pubkey: &Pubkey,
@@ -323,7 +324,7 @@ Then we provide copies of the `token_mint`, `user_ata`, and `mint_auth` accounts
 ```rust
 msg!("Minting 10 tokens to User associated token account");
 invoke_signed(
-	// instruction
+    // Instruction
     &spl_token::instruction::mint_to(
         token_program.key,
         token_mint.key,
@@ -332,9 +333,9 @@ invoke_signed(
         &[],
         10*LAMPORTS_PER_SOL,
     )?,
-	// account_infos
+    // Account_infos
     &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
-	// seeds
+    // Seeds
     &[&[b"token_mint", &[mint_bump]]],
 )?;
 
@@ -350,7 +351,7 @@ At this point, the `add_movie_review` instruction should be fully functional and
 Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from 10 to 5 so that adding reviews are weighted above commenting. First, update the accounts with the same four additional accounts as in the `add_movie_review` function.
 
 ```rust
-// inside add_comment
+// Inside add_comment
 let account_info_iter = &mut accounts.iter();
 
 let commenter = next_account_info(account_info_iter)?;
@@ -367,7 +368,7 @@ let token_program = next_account_info(account_info_iter)?;
 Next, move to the bottom of the `add_comment` function just before the `Ok(())`. Then derive the token mint and mint authority accounts. Remember, both are PDAs derived from seeds "token_mint" and "token_authority" respectively.
 
 ```rust
-// mint tokens here
+// Mint tokens here
 msg!("deriving mint authority");
 let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
 let (mint_auth_pda, _mint_auth_bump) =
@@ -403,7 +404,7 @@ Finally, use `invoke_signed` to send the `mint_to` instruction to the Token prog
 ```rust
 msg!("Minting 5 tokens to User associated token account");
 invoke_signed(
-    // instruction
+    // Instruction
     &spl_token::instruction::mint_to(
         token_program.key,
         token_mint.key,
@@ -412,9 +413,9 @@ invoke_signed(
         &[],
         5 * LAMPORTS_PER_SOL,
     )?,
-    // account_infos
+    // Account_infos
     &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
-    // seeds
+    // Seeds
     &[&[b"token_mint", &[mint_bump]]],
 )?;
 
