@@ -78,7 +78,7 @@ In all other cases, you'll need to create the `Instruction` instance from scratc
 
 While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
 
-Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the `vec`(https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
+Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
 
 ```rust
 let v = vec![1, 2, 3];
@@ -87,7 +87,7 @@ assert_eq!(v[1], 2);
 assert_eq!(v[2], 3);
 ```
 
-The `accounts` field of the `Instruction` struct expects a vector of type `AccountMeta`(https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). The `AccountMeta` struct has the following definition:
+The `accounts` field of the `Instruction` struct expects a vector of type [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). The `AccountMeta` struct has the following definition:
 
 ```rust
 pub struct AccountMeta {
@@ -136,7 +136,7 @@ You can copy each `account_info` object that you need to pass into the CPI using
 
 ### CPI with `invoke`
 
-With both the instruction and the list of accounts created, you can perform a call to `invoke`. 
+With both the instruction and the list of accounts created, you can perform a call to `invoke`.
 
 ```rust
 invoke(
@@ -217,7 +217,7 @@ To get started, we will be using the final state of the Movie Review program fro
 
 ### 2. Add dependencies to `Cargo.toml`
 
-Before we get started we need to add two new dependencies to the `Cargo.toml` file underneath `[dependencies]`. We'll be using the `spl-token` and `spl-associated-token-account` crates in addition to the existing dependencies. 
+Before we get started we need to add two new dependencies to the `Cargo.toml` file underneath `[dependencies]`. We'll be using the `spl-token` and `spl-associated-token-account` crates in addition to the existing dependencies.
 
 ```text
 spl-token = { version="~3.2.0", features = [ "no-entrypoint" ] }
