@@ -282,7 +282,7 @@ let (mint_auth_pda, _mint_auth_bump) =
     Pubkey::find_program_address(&[b"token_auth"], program_id);
 ```
 
-Then, we'll perform security checks against each of the new accounts passed into the program. Always remember to verify accounts!
+Next, we'll perform security checks against each of the new accounts passed into the program. Always remember to verify accounts!
 
 ```rust
 if *token_mint.key != mint_pda {
