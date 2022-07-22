@@ -67,13 +67,13 @@ pub struct Instruction {
 }
 ```
 
-Depending on the program you're making the CPI to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
+Depending on the program you're making the callcz to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
 
 In all other cases, you'll need to create the `Instruction` instance from scratch.
 
 While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
 
-Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the `vec`(https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
+Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
 
 ```rust
 let v = vec![1, 2, 3];
