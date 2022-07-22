@@ -196,7 +196,7 @@ Feel free to read up on the [Solana Test Validator docs](https://docs.solana.com
 
 ### How to build RPC tests
 
-As stated before, you don’t have to write your unit tests in Rust - you can actually write them in just about any language you want by deploying the program to a cluster and submitting transactions from a client for the program to process. The most common way of conducting tests like this is by deploying to a local validator and writing a client testing script in Typescript using the [Mocha testing framework](https://mochajs.org/) paired with the [Chai assertion library](https://www.chaijs.com/) (it’s important to note that you can use just about any testing framework or any language for these tests, as long as there are Solana SDKs available to use).
+As stated before, you don’t have to write your tests in Rust - you can actually write them in just about any language you want by deploying the program to a cluster and submitting transactions from a client for the program to process. The most common way of conducting tests like this is by deploying to a local validator and writing a client testing script in Typescript using the [Mocha testing framework](https://mochajs.org/) paired with the [Chai assertion library](https://www.chaijs.com/) (it’s important to note that you can use just about any testing framework or any language for these tests, as long as there are Solana SDKs available to use).
 
 Install mocha and chai with `npm install mocha chai`
 
@@ -311,7 +311,7 @@ For some more detailed information regarding the compute budget [check out the d
 
 Every program has access to [4KB of stack frame size when executing]("https://docs.solana.com/developing/on-chain-programs/overview#stack"). This is a different concept from the compute budget we just discussed because the stack size limit is focused solely on memory, while the compute budget is meant to limit computationally intensive actions. Many programming languages don’t require you to think about the stack and the heap very often. But in a systems programming language like Rust, whether a value is on the stack or the heap can make a large difference - especially when working within a constrained environment like a blockchain. If you aren't familiar with the differences between the two, [the Rust book has a great explanation](https://doc.rust-lang.org/stable/book/ch04-01-what-is-ownership.html).
 
-All values in Rust are stack allocated by default. You'll start to run into issues with using up all of the 4KB of memory when working with larger, more complex programs. This is often called "blowing the stack". Programs can reach the stack limit two ways: either some dependent crates may include functionality that violates the stack frame restrictions, or the program itself can reach the stack limit at runtime.
+All values in Rust are stack allocated by default. You'll start to run into issues with using up all of the 4KB of memory when working with larger, more complex programs. This is often called "blowing the stack", or [stack overflow](https://en.wikipedia.org/wiki/Stack_overflow). Programs can reach the stack limit two ways: either some dependent crates may include functionality that violates the stack frame restrictions, or the program itself can reach the stack limit at runtime.
 
 This is an example of the error message you might see when the stack violation is originating from a dependent crate.
 
