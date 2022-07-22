@@ -206,7 +206,7 @@ To get some hands on experience with CPIs, we’ll be making some additions to t
 
 Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to work on having the program mint tokens to the reviewer or commenter anytime a review or comment is submitted.
 
-To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token program lesson](./token-program.md) before moving forward with this demo.
+To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token Program lesson](./token-program.md) before moving forward with this demo.
 
 ### 1. Get starter code and add dependencies
 
