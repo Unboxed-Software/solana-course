@@ -111,6 +111,7 @@ vec.extend_from_slice(&number_variable.to_le_bytes());
 The [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#method.extend_from_slice) method is probably new to you. It's a method on vectors that takes a slice as input, iterates over the slice, clones each element, and then appends it to the `Vec`.
 
 ### CPI with `invoke_signed`
+
 Using `invoke_signed` is a little different just because there is an additional field that requires the seeds used to derive any PDAs that must sign the transaction. You may recall from previous lessons that PDAs do not lie on the ed25519 curve and, therefore, do not have a corresponding private key. You’ve been told that programs can provide signatures for their PDAs, but have not learned how that actually happens - until now. Programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` field that comes into play here.
 
 ```rust
@@ -124,7 +125,7 @@ invoke_signed(
 
 While PDAs have no private keys of their own, they can be used by a program to issue an instruction that includes the program address as a signer. The only way for the runtime to verify that the address belongs to a program is for the program to supply the seeds used to generate the address in the `signers_seeds` field. The Solana runtime will internally call [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) using the seeds provided and the `program_id` of the program calling `invoke_signed`, and compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that indeed the program associated with this address is the caller and thus authorized to be the signer.
 
-## Best Practices and Common Pitfalls
+## Best practices and common pitfalls
 
 There are some common mistakes and things to remember when utilizing CPIs that are important to your program’s security and robustness. The first thing to remember is that, as we know by now, we have no control over what information is passed into our programs. For this reason, it’s important to always verify the `program_id`, accounts, and data passed into the CPI. Without these security checks, someone could submit a transaction that invokes an instruction on a completely different program than was expected, which is not ideal. Luckily, there are inherent checks on the validity of any PDAs that are marked as signers within the `invoke_signed` function, but all other accounts and `instruction_data` must be verified somewhere in your program before making the CPI. It is also important to remember to make sure you’re targeting the intended instruction on the program you are invoking. The easiest way to do this is to read the source code of the program you will be invoking, the same way you would if you were constructing an instruction from the client side.
 
@@ -147,7 +148,7 @@ Remember, any account whose data may be mutated by the program during execution 
 
 To see this in action, view this [transaction in the explorer](https://explorer.solana.com/tx/ExB9YQJiSzTZDBqx4itPaa4TpT8VK4Adk7GU5pSoGEzNz9fa7PPZsUxssHGrBbJRnCvhoKgLCWnAycFB7VYDbBg?cluster=devnet).
 
-## Why CPIs Matter?
+## Why CPIs matter?
 
 CPIs are a very important feature of the Solana ecosystem and they make all programs deployed interoperable with each other. With CPIs there is no need to re-invent the wheel when it comes to development. This creates the opportunity for building new protocols and applications on top of what’s already been built, just like building blocks or legos. It’s important to remember that CPIs are a two-way street and the same is true for any programs that you deploy! If you build something cool and useful, developers have the ability to build on top of what you’ve done or just plug your protocol into whatever it is that they are building. Composability is a big part of what makes crypto so unique and CPIs are what makes this possible on Solana.
 
