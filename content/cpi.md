@@ -160,25 +160,37 @@ Another important aspect of CPIs is that they allow programs to sign for their P
 
 # Demo
 
-To get some hands on experience with CPIs, we’ll be making some additions to the Movie Review program again.
+To get some hands on experience with CPIs, we’ll be making some additions to the Movie Review program again. If you're dropping into this lesson without having gone through prior lessons, the Movie Review program allows users to submit movie reviews and have them stored in PDA accounts.
 
-Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to add some functionality so that users will be minted tokens anytime a review is created or they leave a comment on a review. To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI.
+Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to work on having the program mint tokens to the reviewer or commenter anytime a review or comment is submitted.
 
-### 1. Get starter code
+To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token program lesson](./token-program.md) before moving forward with this demo.
 
-To get started, we will be using the final state of the Movie Review program from the previous PDA lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can [download the starter code here](https://github.com/ixmorrow/movie-review-tokens/tree/starter).
+### 1. Get starter code and add dependencies
 
-### 2. Updates to `add_movie_review`
+To get started, we will be using the final state of the Movie Review program from the previous PDA lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can [download the starter code here](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-comments). We'll be using the `solution-add-comments` branch as our starting point.
 
-To implement this, the first thing we need to do is import the address of the token program and the constant `LAMPORTS_PER_SOL`.
+### 2. Add dependencies to `Cargo.toml`
 
-```rust
-// inside processor.rs
-use spl_token::ID as TOKEN_PROGRAM_ID;
-use solana_program::native_token::LAMPORTS_PER_SOL;
+Before we get started we need to add two new dependencies to the `Cargo.toml` file underneath `[dependencies]`. We'll be using the `spl-token` and `spl-associated-token-account` crates in addition to the existing dependencies. 
+
+```text
+spl-token = { version="~3.2.0", features = [ "no-entrypoint" ] }
+spl-associated-token-account = { version="=1.0.5", features = [ "no-entrypoint" ] }
 ```
 
-Because we want users to be minted tokens upon creating a review, it would make sense to add the logic inside the `add_movie_review` function. To start, we’ll need to determine which accounts will be needed for this new functionality. Right now, the function expects four accounts - we’ll need to update the beginning of the function to this:
+After adding the above, run `cargo check` in your console to have cargo resolve your dependencies and ensure that you are ready to continue. Depending on your setup you may need to modify crate versions before moving on.
+
+### 3. Add necessary accounts to `add_movie_review`
+
+Because we want users to be minted tokens upon creating a review, it makes sense to add minting logic inside the `add_movie_review` function. Since we'll be minting tokens, the `add_movie_review` instruction requires a few new accounts to be passed in:
+
+- `token_mint` - the mint address of the token
+- `mint_auth` - address of the authority of the token mint
+- `user_ata` - user’s associated token account for this mint (where the tokens will be minted)
+- `token_program` - address of the token program
+
+We'll start by adding these new accounts to the area of the function that iterates through the passed in accounts:
 
 ```rust
 // inside add_movie_review
@@ -199,36 +211,74 @@ let system_program = next_account_info(account_info_iter)?;
 let token_program = next_account_info(account_info_iter)?;
 ```
 
-Notice that there are four *new* accounts expected, all of which will be needed for the token minting logic.
+There is no additional `instruction_data` required for the new functionality, so no changes need to be made to how data is deserialized. The only additional information that’s needed is the extra accounts.
 
-- `token_mint` - the mint address of the token
-- `mint_auth` - address of the authority of the token mint
-- `user_ata` - user’s associated token account for this mint (where the tokens will be minted)
-- `token_program` - address of the token program
+### 4. Mint tokens to the reviewer in `add_movie_review`
 
-There is not any additional `instruction_data` necessary for this functionality, so no changes need to be made to how data is deserialized, the only additional information that’s needed is the extra accounts.
+Before we dive into the minting logic, let's import the address of the Token program and the constant `LAMPORTS_PER_SOL` at the top of the file.
 
-Now that we have the necessary accounts, we can move on to the logic that handles the actual minting of the tokens! We’ll be adding this to the very end of the `add_movie_review` function right before `Ok(())` is returned.
+```rust
+// inside processor.rs
+use solana_program::native_token::LAMPORTS_PER_SOL;
+use spl_associated_token_account::get_associated_token_address;
+use spl_token::{instruction::initialize_mint, ID as TOKEN_PROGRAM_ID};
+```
+
+Now we can move on to the logic that handles the actual minting of the tokens! We’ll be adding this to the very end of the `add_movie_review` function right before `Ok(())` is returned.
+
+Minting tokens requires a signature by the mint authority. Since the program needs to be able to mint tokens, the mint authority needs to be an account that the program can sign on behalf of. In other words, it needs to be a PDA account owned by the program.
+
+We'll also be structuring our token mint such that the mint account is a PDA account that we can derive deterministically. This way we can always verify that the `token_mint` account passed into the program is the expected account.
+
+Let's go ahead and derive the token mint and mint authority addresses using the `find_program_address` function with the seeds “token_mint” and "token_auth," respectively.
 
 ```rust
 // mint tokens here
 msg!("deriving mint authority");
-let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"tokens"], program_id);
+let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
+let (mint_auth_pda, _mint_auth_bump) =
+    Pubkey::find_program_address(&[b"token_auth"], program_id);
+```
 
-if *mint_auth.key != mint_pda {
+Then, we'll perform security checks against each of the new accounts passed into the program. Always remember to verify accounts!
+
+```rust
+if *token_mint.key != mint_pda {
+    msg!("Incorrect token mint");
+    return Err(ReviewError::IncorrectAccountError.into());
+}
+
+if *mint_auth.key != mint_auth_pda {
     msg!("Mint passed in and mint derived do not match");
-    return Err(ReviewError::InvalidPDA.into())
+    return Err(ReviewError::InvalidPDA.into());
+}
+
+if *user_ata.key != get_associated_token_address(initializer.key, token_mint.key) {
+    msg!("Incorrect token mint");
+    return Err(ReviewError::IncorrectAccountError.into());
 }
 
 if *token_program.key != TOKEN_PROGRAM_ID {
     msg!("Incorrect token program");
-    return Err(ReviewError::IncorrectAccountError.into())
+    return Err(ReviewError::IncorrectAccountError.into());
 }
 ```
 
-First, we derive the mint authority address using the `find_program_address` function with the seed “tokens”. The mint authority must be a PDA of this program in order for the program have the ability to mint tokens to users. Then, we check that the address of the derived mint authority is equal to the one passed in to the program. We also verify the address of the token program that was passed in.
+Finally, we can issue a CPI to the `mint_to` function of the token program with the correct accounts using `invoke_signed`. The `spl_token` crate provides a `mint_to` helper function for creating the minting instruction. This is great because it means we don't have to manually build the entire instruction from scratch. Rather, we can simply pass in the arguments required by the function. Here's the function signature:
 
-Finally, we can issue a CPI to the `mint_to` function of the token program with the correct accounts using `invoke_signed`.
+```rust
+// inside the token program, returns an Instruction object
+pub fn mint_to(
+    token_program_id: &Pubkey,
+    mint_pubkey: &Pubkey,
+    account_pubkey: &Pubkey,
+    owner_pubkey: &Pubkey,
+    signer_pubkeys: &[&Pubkey],
+    amount: u64,
+) -> Result<Instruction, ProgramError>
+```
+
+Then we provide copies of the `token_mint`, `user_ata`, and `mint_auth` accounts. And, most relevant to this lesson, we provide the seeds used to find the `token_mint` address, including the bump seed.
 
 ```rust
 msg!("Minting 10 tokens to User associated token account");
@@ -245,37 +295,19 @@ invoke_signed(
 	// account_infos
     &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
 	// seeds
-    &[&[b"tokens", &[mint_bump]]],
+    &[&[b"token_mint", &[mint_bump]]],
 )?;
 
 Ok(())
 ```
 
-The SPL Token Program has some functionality baked into it to make CPIs even easier. Remember when we mentioned that some programs had public functions that you can call that return an `Instruction` object? Well, luckily for us, the SPL Token Program is one of those programs, meaning we don't have to go through the tedious process of manually creating the instruction ourselves. We are calling a function called `mint_to` in the instruction.rs file of token program that returns a MintTo `Instruction` object.
+Note that we are using `invoke_signed` and not `invoke` here. The Token program requires the `mint_auth` account to sign for this transaction. Since the `mint_auth` account is a PDA, only the program it was derived from can sign on its behalf. When `invoke_signed` is called, the Solana runtime calls `create_program_address` with the seeds and bump provided and then compares the derived address with all of the addresses of the provided `AccountInfo` objects. If any of the addresses match the derived address, the runtime knows that the matching account is a PDA of this program and that the program is signing this transaction for this account.
 
-This is what the `mint_to` function expects as input, you can [view the source code here](https://github.com/solana-labs/solana-program-library/blob/024ba3ad410fef2d31e500c0f1a30db0c222a6a8/token/program-2022/src/instruction.rs#L1317).
+At this point, the `add_movie_review` instruction should be fully functional and will mint 10 tokens to the reviewer when a review is created.
 
-```rust
-// inside the token program, returns an Instruction object
-pub fn mint_to(
-    token_program_id: &Pubkey,
-    mint_pubkey: &Pubkey,
-    account_pubkey: &Pubkey,
-    owner_pubkey: &Pubkey,
-    signer_pubkeys: &[&Pubkey],
-    amount: u64,
-) -> Result<Instruction, ProgramError>
-```
+### 5. Repeat for `add_comment`
 
-Then, we pass in the `AccountInfo` objects of all the accounts involved using the `clone()` trait and the seeds and the bump for the token mint authority that must sign this transaction.
-
-Notice that we are using `invoke_signed` and not `invoke` here. Reason being is that the `mint_auth` account must sign this transaction in order for tokens to be minted, but the `mint_auth` account is supposed to be a PDA of our program. Therefore, the only way to provide a signature for the PDA is to use `invoke_signed`. The Solana runtime calls `create_program_address` with the seeds and bump provided and then compares the derived address with all of the addresses of the provided `AccountInfo` objects. If any of the addresses match the derived address, the runtime knows that that account is a PDA of this program and that the program is signing this transaction for this account.
-
-The `add_movie_review` instruction should be fully functional now and it will mint a user 10 tokens when a review is created.
-
-### 3. Updates to `add_comment`
-
-Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from 10 to 5. First, update the accounts needed.
+Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from 10 to 5 so that adding reviews are weighted above commenting. First, update the accounts with the same four additional accounts as in the `add_movie_review` function.
 
 ```rust
 // inside add_comment
@@ -292,53 +324,240 @@ let system_program = next_account_info(account_info_iter)?;
 let token_program = next_account_info(account_info_iter)?;
 ```
 
-We added the same four accounts as before. Next, you can add the CPI logic to mint the tokens at the end of the function.
+Next, move to the bottom of the `add_comment` function just before the `Ok(())`. Then derive the token mint and mint authority accounts. Remember, both are PDAs derived from seeds "token_mint" and "token_authority" respectively.
 
 ```rust
 // mint tokens here
 msg!("deriving mint authority");
-let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"tokens"], program_id);
+let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
+let (mint_auth_pda, _mint_auth_bump) =
+    Pubkey::find_program_address(&[b"token_auth"], program_id);
+```
 
-if *mint_auth.key != mint_pda {
+Next, verify that each of the new accounts is the correct account.
+
+```rust
+if *token_mint.key != mint_pda {
+    msg!("Incorrect token mint");
+    return Err(ReviewError::IncorrectAccountError.into());
+}
+
+if *mint_auth.key != mint_auth_pda {
     msg!("Mint passed in and mint derived do not match");
-    return Err(ReviewError::InvalidPDA.into())
+    return Err(ReviewError::InvalidPDA.into());
+}
+
+if *user_ata.key != get_associated_token_address(commenter.key, token_mint.key) {
+    msg!("Incorrect token mint");
+    return Err(ReviewError::IncorrectAccountError.into());
 }
 
 if *token_program.key != TOKEN_PROGRAM_ID {
     msg!("Incorrect token program");
-    return Err(ReviewError::IncorrectAccountError.into())
+    return Err(ReviewError::IncorrectAccountError.into());
 }
+```
 
+Finally, use `invoke_signed` to send the `mint_to` instruction to the Token program, sending 5 tokens to the commenter.
+
+```rust
 msg!("Minting 5 tokens to User associated token account");
 invoke_signed(
+    // instruction
     &spl_token::instruction::mint_to(
         token_program.key,
         token_mint.key,
         user_ata.key,
         mint_auth.key,
         &[],
-		// change the amount of tokens to 5
-        5*LAMPORTS_PER_SOL,
+        5 * LAMPORTS_PER_SOL,
     )?,
+    // account_infos
     &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
-    &[&[b"tokens", &[mint_bump]]],
+    // seeds
+    &[&[b"token_mint", &[mint_bump]]],
 )?;
 
 Ok(())
 ```
 
-### 4. Build and deploy
+### 6. Set up the token mint
+
+We've written all the code needed to mint tokens to reviewers and commenters, but all of it assumes that there is a token mint at the PDA derived with the seed "token_mint." For this to work, we're going to set up an additional instruction for initializing the token mint. It will be written such that it can only be called once and it doesn't particularly matter who calls it.
+
+Given that we've already hammered home all of the concepts associated with PDAs and CPIs multiple times throughout this lesson, we're going to walk through this bit with less explanation than the prior steps. Start by adding a fourth instruction variant to the `MovieInstruction` enum in `instruction.rs`.
+
+```rust
+pub enum MovieInstruction {
+    AddMovieReview {
+        title: String,
+        rating: u8,
+        description: String,
+    },
+    UpdateMovieReview {
+        title: String,
+        rating: u8,
+        description: String,
+    },
+    AddComment {
+        comment: String,
+    },
+    InitializeMint,
+}
+```
+
+Be sure to add it to the `match` statement in the `unpack` function in the same file under the variant `3`.
+
+```rust
+impl MovieInstruction {
+    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+        let (&variant, rest) = input
+            .split_first()
+            .ok_or(ProgramError::InvalidInstructionData)?;
+        Ok(match variant {
+            0 => {
+                let payload = MovieReviewPayload::try_from_slice(rest).unwrap();
+                Self::AddMovieReview {
+                    title: payload.title,
+                    rating: payload.rating,
+                    description: payload.description,
+                }
+            }
+            1 => {
+                let payload = MovieReviewPayload::try_from_slice(rest).unwrap();
+                Self::UpdateMovieReview {
+                    title: payload.title,
+                    rating: payload.rating,
+                    description: payload.description,
+                }
+            }
+            2 => {
+                let payload = CommentPayload::try_from_slice(rest).unwrap();
+                Self::AddComment {
+                    comment: payload.comment,
+                }
+            }
+            3 => Self::InitializeMint,
+            _ => return Err(ProgramError::InvalidInstructionData),
+        })
+    }
+}
+```
+
+In the `process_instruction` function in the `processor.rs` file, add the new instruction to the `match` statement and call a function `initialize_token_mint`.
+
+```rust
+pub fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
+) -> ProgramResult {
+    let instruction = MovieInstruction::unpack(instruction_data)?;
+    match instruction {
+        MovieInstruction::AddMovieReview {
+            title,
+            rating,
+            description,
+        } => add_movie_review(program_id, accounts, title, rating, description),
+        MovieInstruction::UpdateMovieReview {
+            title,
+            rating,
+            description,
+        } => update_movie_review(program_id, accounts, title, rating, description),
+        MovieInstruction::AddComment { comment } => add_comment(program_id, accounts, comment),
+        MovieInstruction::InitializeMint => initialize_token_mint(program_id, accounts),
+    }
+}
+```
+
+Lastly, declare and implement the `initialize_token_mint` function. This function will derive the token mint and mint authority PDAs, create the token mint account, and then initialize the token mint. We won't explain all of this in detail, but it's worth reading through the code, especially given that the creation and initialization of the token mint both involve CPIs. Again, if you need a refresher on tokens and mints, have a look at the [Token program lesson](./token-program.md).
+
+```rust
+pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    let account_info_iter = &mut accounts.iter();
+
+    let initializer = next_account_info(account_info_iter)?;
+    let token_mint = next_account_info(account_info_iter)?;
+    let mint_auth = next_account_info(account_info_iter)?;
+    let system_program = next_account_info(account_info_iter)?;
+    let token_program = next_account_info(account_info_iter)?;
+    let sysvar_rent = next_account_info(account_info_iter)?;
+
+    let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
+    let (mint_auth_pda, _mint_auth_bump) =
+        Pubkey::find_program_address(&[b"token_auth"], program_id);
+
+    msg!("Token mint: {:?}", mint_pda);
+    msg!("Mint authority: {:?}", mint_auth_pda);
+
+    if mint_pda != *token_mint.key {
+        msg!("Incorrect token mint account");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
+    if *token_program.key != TOKEN_PROGRAM_ID {
+        msg!("Incorrect token program");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
+    if *mint_auth.key != mint_auth_pda {
+        msg!("Incorrect mint auth account");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
+    let rent = Rent::get()?;
+    let rent_lamports = rent.minimum_balance(82);
+
+    invoke_signed(
+        &system_instruction::create_account(
+            initializer.key,
+            token_mint.key,
+            rent_lamports,
+            82,
+            token_program.key,
+        ),
+        &[
+            initializer.clone(),
+            token_mint.clone(),
+            system_program.clone(),
+        ],
+        &[&[b"token_mint", &[mint_bump]]],
+    )?;
+
+    msg!("Created token mint account");
+
+    invoke_signed(
+        &initialize_mint(
+            token_program.key,
+            token_mint.key,
+            mint_auth.key,
+            Option::None,
+            9,
+        )?,
+        &[token_mint.clone(), sysvar_rent.clone(), mint_auth.clone()],
+        &[&[b"token_mint", &[mint_bump]]],
+    )?;
+
+    msg!("Initialized token mint");
+
+    Ok(())
+}
+```
+
+### 7. Build and deploy
 
 Now we’re ready to build and deploy our program! You can build the program by running `cargo build-bpf` and then running the command that is returned, it should look something like `solana program deploy <PATH>`.
 
-You can test your program by submitting a transaction with the right accounts and data. We have prepared a script for you in the `/ts/movieTest.ts` file of your repository. Be sure to change the `program_id` in the script to match your deployed program's id and change the wallet path to where yours is stored (or you can create a new keypair to pass in the script).
+Before you can start testing whether or not adding a review or comment sends you tokens, you need to initialize the program's token mint. You can use [this script](https://github.com/Unboxed-Software/solana-movie-token-client) to do that. Once you'd cloned that repository, replace the `PROGRAM_ID` in `index.ts` with your program's ID. Then run `npm install` and then `npm start`. The script assumes you're deploying to Devnet so if you're deploying locally make sure to tailor the script accordingly.
 
-Run the command `npx tsc` inside this directory to compile the typescript files, then run the compiled 'movieTest.js' file inside the `/dist` directory with the command `node movieTest.js`.
+Once you've initialized your token mint, you can use the [Movie Review frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-tokens) to test adding reviews and comments. Again, the code assumes you're on Devnet so please act accordingly.
 
-If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code here](https://github.com/ixmorrow/movie-review-tokens).
+After submitting a review, you should see 10 new tokens in your wallet! When you add a comment, you should receive 5 tokens. They won't have a fancy name or image since we didn't add any metadata to the token, but you get the idea.
+
+If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
 
 # Challenge
 
 To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.
 
- A great example would be to build a decentralized Stack Overflow. The program could use tokens to determine a user's overall rating, mint tokens when questions are answered correctly, allow users to upvote answers, etc. All of that is possible and you have the skills and knowledge to go and build something like it on your own now!
+A great example would be to build a decentralized Stack Overflow. The program could use tokens to determine a user's overall rating, mint tokens when questions are answered correctly, allow users to upvote answers, etc. All of that is possible and you now have the skills and knowledge to go and build something like it on your own!
