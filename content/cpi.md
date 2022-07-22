@@ -46,6 +46,7 @@ pub fn invoke_signed(
 CPIs extend the privileges of the caller to the callee. Meaning that any account that is passed into your program as a signer or writable account, if it is then passed into a CPI, will also be considered a signer or writable account inside the program being invoked. For example, if the instruction the callee program is processing contains an account that was marked as a signer or writable when originally passed into the caller program, then it will be considered a signer or writable account in the invoked program as well.
 
 It's important to note that you as the developer decide which accounts to pass into the CPI. You can think of a CPI as building another instruction from scratch with only information that was passed into your program.
+
 ### CPI with `invoke`
 
 ```rust
