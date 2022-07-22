@@ -67,7 +67,7 @@ pub struct Instruction {
 }
 ```
 
-Depending on the program you're making the callcz to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
+Depending on the program you're making the call to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
 
 In all other cases, you'll need to create the `Instruction` instance from scratch.
 
