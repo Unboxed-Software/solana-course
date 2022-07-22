@@ -163,7 +163,7 @@ While PDAs have no private keys of their own, they can be used by a program to i
 
 The Solana runtime will internally call [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) using the seeds provided and the `program_id` of the calling program. It can then compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that indeed the program associated with this address is the caller and thus is authorized to be a signer.
 
-## Best Practices and Common Pitfalls
+## Best Practices and common pitfalls
 
 ### Security checks
 
@@ -192,7 +192,7 @@ Remember, any account whose data may be mutated by the program during execution 
 
 To see this in action, view this [transaction in the explorer](https://explorer.solana.com/tx/ExB9YQJiSzTZDBqx4itPaa4TpT8VK4Adk7GU5pSoGEzNz9fa7PPZsUxssHGrBbJRnCvhoKgLCWnAycFB7VYDbBg?cluster=devnet).
 
-## Why CPIs Matter?
+## Why CPIs matter?
 
 CPIs are a very important feature of the Solana ecosystem and they make all programs deployed interoperable with each other. With CPIs there is no need to re-invent the wheel when it comes to development. This creates the opportunity for building new protocols and applications on top of what’s already been built, just like building blocks or legos. It’s important to remember that CPIs are a two-way street and the same is true for any programs that you deploy! If you build something cool and useful, developers have the ability to build on top of what you’ve done or just plug your protocol into whatever it is that they are building. Composability is a big part of what makes crypto so unique and CPIs are what makes this possible on Solana.
 
