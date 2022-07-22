@@ -22,7 +22,7 @@
 
 A Cross-Program Invocation is a direct call from one program into another within the same instruction. Remember very early in the course when we talked about how all programs are callable from any client? Well, the same is true for programs on chain! Any on-chain program can make calls to any other program’s public instructions, they just need to construct the instruction correctly. You can make CPIs to native programs, other programs you've created, and third party programs. CPIs essentially turn the entire Solana ecosystem into one giant API that is at your disposal as a developer.
 
-CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`, both of which we will cover later in the lesson.
+CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`. We'll be covering both of these later in the lesson.
 
 ## How to make a CPI
 
