@@ -107,7 +107,7 @@ vec![
    AccountMeta::new(account4_pubkey, false),
 ]
 ```
-The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format and write your code to match. Feel free to read up on some of the [features of the vec macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
+The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format and write your code to match. Feel free to read up on some of the [features of the `vec` macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
 
 ```rust
 let mut vec = Vec::with_capacity(3);
