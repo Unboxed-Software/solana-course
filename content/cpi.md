@@ -76,7 +76,7 @@ Depending on the program you're making the CPI to, you may have to construct thi
 
 The process for constructing the instruction manually is similar to how we've done it client-side, except we'll be implementing it in Rust instead of Typescript now! As you can see from the code snippet above, the `Instruction` object contains the same information that we're used to - it still requires a `program_id`, vector of `AccountMeta` objects, and a byte buffer that represents the `instruction_data`.
 
-The `accounts` and `data` arguments will require us to make use of the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro. The vec macro allows us to create a vector using array notation, like so:
+The `accounts` and `data` arguments will require us to make use of the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro. The `vec` macro allows us to create a vector using array notation, like so:
 
 ```rust
 let v = vec![1, 2, 3];
