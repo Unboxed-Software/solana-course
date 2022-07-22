@@ -120,7 +120,7 @@ The [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#me
 
 ### CPI with `invoke_signed`
 
-Using `invoke_signed` is a little different just because there is an additional field that requires the seeds used to derive any PDAs that must sign the transaction. You may recall from previous lessons that PDAs do not lie on the ed25519 curve and, therefore, do not have a corresponding private key. You’ve been told that programs can provide signatures for their PDAs, but have not learned how that actually happens - until now. Programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` field that comes into play here.
+Using `invoke_signed` is a little different just because there is an additional field that requires the seeds used to derive any PDAs that must sign the transaction. You may recall from previous lessons that PDAs do not lie on the Ed25519 curve and, therefore, do not have a corresponding private key. You’ve been told that programs can provide signatures for their PDAs, but have not learned how that actually happens - until now. Programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` field that comes into play here.
 
 ```rust
 invoke_signed(
