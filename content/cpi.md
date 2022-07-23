@@ -198,7 +198,7 @@ Program returned error: "Cross-program invocation with unauthorized signer or wr
 
 This message is a little misleading, because “signer privilege escalated” does not seem like a problem but, in reality, it means that you are incorrectly signing for the address in the message. If you are using `invoke_signed` and receive this error, then it likely means that the seeds you are providing are incorrect. An example transaction that failed with this error can be found [here](https://explorer.solana.com/tx/3mxbShkerH9ZV1rMmvDfaAhLhJJqrmMjcsWzanjkARjBQurhf4dounrDCUkGunH1p9M4jEwef9parueyHVw6r2Et?cluster=devnet).
 
-Another error very similar to the incorrect signature message that often comes up is thrown when an account is not marked as `writable` inside the `AccountMeta` struct that is submitted to the program when it should be.
+Another similar error is thrown when an account that's written to isn't marked as `writable` inside the `AccountMeta` struct.
 
 ```text
 2qoeXa9fo8xVHzd2h9mVcueh6oK3zmAiJxCTySM5rbLZ's writable privilege escalated
@@ -216,10 +216,9 @@ CPIs are a very important feature of the Solana ecosystem and they make all prog
 
 Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate transactions with valid signatures for those addresses. This can be *very* useful for many applications in Web3 (e.g. DeFi, NFTs, etc.) Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs!)
 
-
 # Demo
 
-To get some hands on experience with CPIs, we’ll be making some additions to the Movie Review program again. If you're dropping into this lesson without having gone through prior lessons, the Movie Review program allows users to submit movie reviews and have them stored in PDA accounts.
+Now let's get some hands on experience with CPIs by making some additions to the Movie Review program again. If you're dropping into this lesson without having gone through prior lessons, the Movie Review program allows users to submit movie reviews and have them stored in PDA accounts.
 
 Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to work on having the program mint tokens to the reviewer or commenter anytime a review or comment is submitted.
 
