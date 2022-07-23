@@ -135,7 +135,7 @@ Storing data in PDA accounts is only half of the equation. You also need a way t
 
 One approach to organizing data storage is to store clusters of relevant data in their own PDAs and then to have a separate PDA account that stores a mapping of where all of the data is.
 
-For example, you might have a note-taking app whose backing program uses random seeds to generate PDA accounts and stores one note in each account. The program would also have a single global PDA "map" account that stores a mapping of user's public keys to the list of PDAs where their notes are stored. This map account would be derived using a static seed, e.g. "GLOBAL_MAPPING".
+For example, you might have a note-taking app whose backing program uses random seeds to generate PDA accounts and stores one note in each account. The program would also have a single global PDA "map" account that stores a mapping of users' public keys to the list of PDAs where their notes are stored. This map account would be derived using a static seed, e.g. "GLOBAL_MAPPING".
 
 When it comes time to retrieve a user's notes, you could then look at the map account, see the list of addresses associated with a user's public key, then retrieve the account for each of those addresses.
 
