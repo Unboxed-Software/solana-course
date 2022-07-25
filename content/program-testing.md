@@ -10,14 +10,14 @@
 
 # TL;DR
 
-- Testing is a **key component** of smart contract development, it ensures the code works as intended before releasing it to the public.
+- Testing is a **key component** of smart contract development because it ensures the code works as intended before releasing it to the public.
 - Solana programs support three different types of tests (unit, integration, and client-side) all of which have a specific purpose.
 
 # Overview
 
-Testing in software is very common and there are actually entire careers fields dedicated to just creating and running tests. A robust testing process can minimize the amount of bugs developers introduce into production code by catching them before they pose a real issue. You obviously cannot test *everything*, but it’s important to try to think of all the ways you can try to break your program or cause some unintended actions with your tests. This is especially imperative when developing smart contracts because a single bug can lead to millions of dollars lost or stolen.
+Testing in software is very common and there are actually entire career fields dedicated to just creating and running tests. A robust testing process can minimize the amount of bugs developers introduce into production code by catching them before they pose a real issue. You obviously cannot test *everything*, but it’s important to try to think of all the ways you can try to break your program or cause some unintended actions with your tests. This is especially imperative when developing smart contracts because a single bug can lead to millions of dollars lost or stolen.
 
-Think back to what was discussed in the [Basic Security](./program-security.md) lesson, how can we write tests that determine if the security checks we've implemented actually work as intended and are sufficient? Program security and testing go hand in hand. To write good tests, it's helpful to think like an attacker. To reiterate some of what was discussed in that lesson, the goal is to not just "get the code working", but to ensure it works properly and is robust enough to properly handle malicious input.
+Think back to what was discussed in the [Basic Security](./program-security.md) lesson. How can we write tests that determine if the security checks we've implemented actually work as intended and are sufficient? Program security and testing go hand in hand. To write good tests, it's helpful to think like an attacker. To reiterate some of what was discussed in that lesson, the goal is to not just "get the code working", but to ensure it works properly and is robust enough to properly handle malicious input.
 
 The rust package manager, Cargo, natively has some tools built into it to help developers write their own automated tests. Whenever we make a new library project with `cargo new --lib`, a test module with a test function in it is automatically generated for us. You can run tests with Cargo with either `cargo test` or `cargo test-bpf`.
 
@@ -41,13 +41,13 @@ mod tests {
 }
 ```
 
-The `cfg` attribute stands for *configuration* and tells Rust that the following item should only be included given a certain configuration option. In this case, the `#[cfg(test)]` annotation tells Cargo to compile our test code only if we actively run the tests with `cargo test`, this way the testing code is not run when you call `cargo build` which saves on compile time.
+The `cfg` attribute stands for *configuration* and tells Rust that the following item should only be included given a certain configuration option. In this case, the `#[cfg(test)]` annotation tells Cargo to compile our test code only if we actively run the tests with `cargo test`. This way the testing code is not run when you call `cargo build` which saves on compile time.
 
 Tests are defined in the `tests` module with the `#[test]` attribute. When running `cargo test`, every function inside this module marked as a test will be run. You can also create helper functions that are not tests in the module, just don’t annotate them with the `#[test]` attribute.
 
 ### How to build unit tests
 
-To build integration and unit tests in Rust, you will have to use the [`solana_sdk`](https://docs.rs/solana-sdk/latest/solana_sdk/) crate. This crate is essentially the same thing as the `@solana/web3.js` package that we’ve been using in Typescript and gives us a way to interact with Solana programs in Rust. There is another crate that will be useful and was made specifically for testing Solana programs, [`solana_program_test`](https://docs.rs/solana-program-test/latest/solana_program_test/#) contains a BanksClient-based testing framework.
+To build integration and unit tests in Rust, you will have to use the [`solana_sdk`](https://docs.rs/solana-sdk/latest/solana_sdk/) crate. This crate is essentially the same thing as the `@solana/web3.js` package that we’ve been using in Typescript and gives us a way to interact with Solana programs in Rust. Another crate that will be useful and was made specifically for testing Solana programs is [`solana_program_test`](https://docs.rs/solana-program-test/latest/solana_program_test/#) which contains a BanksClient-based testing framework.
 
 A simple example of a unit test residing inside a `processor.rs` file may look like
 
@@ -160,7 +160,7 @@ If you come across this, try using `cargo test-bpf` instead.
 
 ### What are RPC tests?
 
-Solana programs support unit and integration tests in Rust like we just discussed, but there is also a third way to test your programs that is unique to smart contract development. The alternative method is to test your program is by deploying it to either Devnet or a local validator and sending transactions to it from some client that you created. Deploying to Devnet and then sending transactions to the program is essentially what we have been doing for the entirety of this course so you should be pretty familiar with that already and the first lesson of this module covered deploying to a local validator.
+Solana programs support unit and integration tests in Rust like we just discussed, but there is also a third way to test your programs that is unique to smart contract development. The alternative method is to test your program is by deploying it to either Devnet or a local validator and sending transactions to it from some client that you created. Deploying to Devnet and then sending transactions to the program is essentially what we have been doing for the entirety of this course so you should be pretty familiar with that already. If you'd like a refresher, review the first lesson of this module which covered deploying to a local validator.
 
 As a reminder, the Solana CLI has a command that, when run, will start a full-featured, single-node cluster on the your workstation that you can then deploy programs and submit transactions to. To start the local validator, simply run `solana-test-validator`.
 
@@ -196,11 +196,11 @@ Feel free to read up on the [Solana Test Validator docs](https://docs.solana.com
 
 ### How to build RPC tests
 
-As stated before, you don’t have to write your tests in Rust - you can actually write them in just about any language you want by deploying the program to a cluster and submitting transactions from a client for the program to process. The most common way of conducting tests like this is by deploying to a local validator and writing a client testing script in Typescript using the [Mocha testing framework](https://mochajs.org/) paired with the [Chai assertion library](https://www.chaijs.com/) (it’s important to note that you can use just about any testing framework or any language for these tests, as long as there are Solana SDKs available to use).
+As stated before, you don’t have to write your tests in Rust - you can actually write them in just about any language you want by deploying the program to a cluster and submitting transactions from a client for the program to process. The most common way of conducting tests like this is by deploying to a local validator and writing a client testing script in Typescript using the [Mocha testing framework](https://mochajs.org/) paired with the [Chai assertion library](https://www.chaijs.com/). While these are a couple of the most common right now, it’s important to note that you can use just about any testing framework or any language for these tests as long as there are Solana SDKs available to use!
 
-Install mocha and chai with `npm install mocha chai`
+Install Mocha and Chai with `npm install mocha chai`
 
-Then, you would add the following to the `package.json` file inside your typescript project. This tells the compiler to execute the Typescript file or files inside the `/test` directory when the command `npm run test` is run. You’ll have to make sure the path here is the correct path to where your testing script is located.
+Then, you would add the following to the `package.json` file inside your Typescript project. This tells the compiler to execute the Typescript file or files inside the `/test` directory when the command `npm run test` is run. You’ll have to make sure the path here is the correct path to where your testing script is located.
 
 ```tsx
 // Inside package.json
@@ -226,7 +226,7 @@ Inside the `describe` section, each test is designated with `it`
 
 ```tsx
 describe("begin tests", async () => {
-    // first Mocha test
+    // First Mocha test
     it('first test', async () => {
             ...
         })
@@ -274,19 +274,19 @@ When testing a program, you may run into errors or output that is unexpected, th
 
 ### Error codes
 
-When writing programs in general, it is inevitable that you will spend a good portion of your time debugging. There are program errors that you may come across from time to time and they can be a little confusing. Some program errors have a hexadecimal code associated with them that looks something along the lines of `Program [program_id] failed: custom program error: 0x01` which might not seem to make any sense. This error code is actually a hexadecimal representation of this error’s decimal index inside the error enum of the program that returned it. So, if an error is returned in your program with a hexadecimal code and no message, try converting that hexadecimal number *x* to decimal *y* and looking up the corresponding error at *y* index of the program’s error enum.
+When writing programs in general, it is inevitable that you will spend a good portion of your time debugging. There are program errors that you may come across from time to time and they can be a little confusing. Some program errors have a hexadecimal code associated with them which might not seem to make any sense at first. They look something along the lines of `Program [program_id] failed: custom program error: 0x01`. This error code is actually a hexadecimal representation of the error’s decimal index inside the error enum of the program that returned it. So, if an error is returned in your program with a hexadecimal code and no message, try converting that hexadecimal number *x* to decimal *y* and looking up the corresponding error at *y* index of the program’s error enum.
 
 For example, if you were to receive an error sending a transaction to the SPL Token Program with the error code `0x01`, the decimal equivalent of this is 1. [Looking at the source code of the Token Program](https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/error.rs), we can see that the error located at this index in the program's error enum is `InsufficientFunds`. You'll need to have access to the source code of any program that returns a custom program error code to translate it.
 
 ### Program logs
 
-Another helpful tool when debugging is logging. Solana makes it very easy to create new custom logs with the `msg!()` macro and, as you’ve seen in this course, you can even log data from accounts inside the program. This is probably one of the most helpful tools when it comes to debugging because you can see exactly how your program is interacting with the accounts involved and if it’s doing what is expected by logging data throughout the program.
+Another helpful tool when debugging is logging. Solana makes it very easy to create new custom logs with the `msg!()` macro and, as you’ve seen in this course, you can even log data from accounts inside the program. This is probably one of the most helpful tools when it comes to debugging because you can see exactly how your program is interacting with the accounts involved. You can see if it’s doing what is expected by logging data throughout the program.
 
-When writing unit tests in Rust, you cannot use the `msg!()` macro to log information within the test itself, instead you'll have to use the Rust native `println!()` macro. `msg!()` statements inside the program code will still work, you just can't log within the test with it.
+When writing unit tests in Rust, you cannot use the `msg!()` macro to log information within the test itself. Instead you'll have to use the Rust native `println!()` macro. `msg!()` statements inside the program code will still work, you just can't log within the test with it.
 
 ### Compute budget
 
-Developing on a blockchain comes with some unique constraints, one of those on Solana is the compute budget. All Solana transactions are restricted to a per instruction compute budget (with plans of moving this to a per transaction basis), the compute budget is meant to prevent a program from abusing resources. Every instruction has a budget of 200,000 compute units and different actions consume different amounts of compute units.
+Developing on a blockchain comes with some unique constraints, one of those on Solana is the compute budget. Although there are plans to move to a per transaction basis, all Solana transactions are restricted to a per instruction compute budget. The compute budget is meant to prevent a program from abusing resources. Every instruction has a budget of 200,000 compute units and different actions consume different amounts of compute units.
 
 As an instruction executes and the program performs various actions, it consumes this compute budget by using up computation units. When the program consumes its entire budget or exceeds a bound, the runtime halts the program and returns an error. The function `sol_log_compute_units()` is available to use to print exactly how many compute units are remaining for the program to consume within the current instruction.
 
@@ -336,7 +336,7 @@ if *authority_pubkey != *authority_info.key {
 }
 ```
 
-You simply wrap whatever variables you'd like to remove from the stack in the `Box` struct, and the compiler will allocate memory on the heap and place the value of what's wrapped inside the `Box` there.
+You simply wrap whatever variables you'd like to remove from the stack in the `Box` struct. The compiler will allocate memory on the heap, and place there the value of what's wrapped inside the `Box`.
 
 In this example, the value returned from the `Pubkey::create_program_address`, which is just a public key, will be stored on the heap and the `authority_pubkey` variable will hold a pointer to the location on the heap where the public key is stored. You can read more about this in [the Rust book](https://doc.rust-lang.org/stable/book/ch15-01-box.html).
 
@@ -350,7 +350,7 @@ No worries if you don't already have the code locally, you can [clone the starte
 
 ### 2. Initialize testing framework
 
-Now we’re going to focus on writing some unit tests for this program. Our tests will focus on whether or not the program works as intended when provided the proper data, as well as how it handles unexpected or malicious input. Remember, our goal when testing is to try to catch bugs and ensure security so it’s important to also write tests that are *supposed* to fail. We’re not just focused on testing if the code works, we’re also interested in testing the robustness of our code.
+Now we’re going to focus on writing some unit tests for this program. Our tests will focus on whether or not the program works as intended when provided the proper data. We'll also test how it handles unexpected or malicious input. Remember, our goal when testing is to try to catch bugs and ensure security so it’s important to also write tests that are *supposed* to fail. We’re not just focused on testing if the code works, we’re also interested in testing the robustness of our code.
 
 To get started, we’re going to declare a section of the `processor.rs` file for testing and import the necessary crates.
 
@@ -416,7 +416,7 @@ mod tests {
 
 ### 3. Construct transaction
 
-Our first unit test will test whether or not our program is actually functioning as intended, to test this we’ll need to create a transaction to submit to the program. We'll be making use of the `solana_sdk` crate to help us do this, it may help to think about the steps you would need to go through to build this transaction from a typescript client when doing this.
+Our first unit test will test whether or not our program is actually functioning as intended. To test this we’ll need to create a transaction to submit to the program. We'll be making use of the `solana_sdk` crate to help us do this, it may help to think about the steps you would need to go through to build this transaction from a typescript client when doing this.
 
 The code in the remainder of the demo should go inside the `it_works()` testing function we just created.
 
@@ -450,7 +450,7 @@ let init_mint_ix = initialize_mint(
 
 We use two functions that we've imported from Solana crates to help create the `create_account` and `initialize_mint` instructions.
 
-Next, we need to create/derive the review, comment counter, and user associated token account addresses.
+Next, we need to derive the review, comment counter, and user associated token account addresses.
 
 ```rust
 // Create review PDA
@@ -525,10 +525,10 @@ transaction.sign(&[&payer, &mint_keypair], recent_blockhash);
 assert_matches!(banks_client.process_transaction(transaction).await, Ok(_));
 ```
 
-You can now run this test with `cargo test-bpf` and if it’s successful, you’ll be able to see the program logs and the final test result in the terminal. It may take a while to compile and run the test. Feel free to take a look at the solution code here.
+You can now run this test with `cargo test-bpf`. If it’s successful, you’ll be able to see the program logs and the final test result in the terminal. It may take a while to compile and run the test. Feel free to take a look at the solution code here.
 
 Take a look at the testing script in the `ts` directory and compare it to what we just wrote in Rust. They are doing almost the exact same thing, but seeing how the code differs between Typescript and Rust can be eye-opening sometimes.
 
 # Challenge
 
-We just wrote a single unit test in Rust, but a proper testing architecture is made up of more than just one test. As a challenge, build on top of what we just did and write some unit tests in Rust (or Typescript if you've seen enough Rust for the day) that test the other instructions in the program and also think about how you can write some tests with malicious or inaccurate code that's supposed to return an error from the program.
+We just wrote a single unit test in Rust, but a proper testing architecture is made up of more than just one test. As a challenge, build on top of what we just did and write some unit tests in Rust (or Typescript if you've seen enough Rust for the day) that test the other instructions in the program. Also, think about how you can write some tests with malicious or inaccurate code that's supposed to return an error from the program.
