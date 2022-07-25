@@ -346,8 +346,15 @@ Since we have basically been testing programs via a client or script for this wh
 
 ### 1. Clone starter code
 
-No worries if you don't already have the code locally, you can [clone the starter code from Github](https://github.com/ixmorrow/movie-review-tokens).
+No worries if you don't already have the code locally, you can [clone the starter code from Github](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Make sure to switch to the `solution-add-tokens` branch which is where we'll be starting from.
 
+Once you have the repo cloned, go ahead and add this section to your `Cargo.toml` file.
+```rust
+[dev-dependencies]
+assert_matches = "1.4.0"
+solana-program-test = "~1.10.29"
+solana-sdk = "~1.10.29"
+```
 ### 2. Initialize testing framework
 
 Now we’re going to focus on writing some unit tests for this program. Our tests will focus on whether or not the program works as intended when provided the proper data. We'll also test how it handles unexpected or malicious input. Remember, our goal when testing is to try to catch bugs and ensure security so it’s important to also write tests that are *supposed* to fail. We’re not just focused on testing if the code works, we’re also interested in testing the robustness of our code.
@@ -358,25 +365,25 @@ To get started, we’re going to declare a section of the `processor.rs` file fo
 // At bottom of processor.rs
 #[cfg(test)]
 mod tests {
-    use {
-        super::*,
-        assert_matches::*,
-        solana_program::{
-            instruction::{AccountMeta, Instruction},
-            program_pack::Pack,
-            system_program::ID as SYSTEM_PROGRAM_ID,
-        },
-        solana_program_test::*,
-        solana_sdk::{
-            signature::Signer, signer::keypair::Keypair,
-            system_instruction::create_account, transaction::Transaction,
-        },
-        spl_associated_token_account::{
-            get_associated_token_address,
-            instruction::create_associated_token_account,
-        },
-        spl_token::{instruction::initialize_mint, state::Mint, ID as TOKEN_PROGRAM_ID},
-    };
+  use {
+      super::*,
+      assert_matches::*,
+      solana_program::{
+          instruction::{AccountMeta, Instruction},
+          system_program::ID as SYSTEM_PROGRAM_ID,
+      },
+      solana_program_test::*,
+      solana_sdk::{
+          signature::Signer,
+          transaction::Transaction,
+          sysvar::rent::ID as SYSVAR_RENT_ID
+      },
+      spl_associated_token_account::{
+          get_associated_token_address,
+          instruction::create_associated_token_account,
+      },
+      spl_token:: ID as TOKEN_PROGRAM_ID,
+  };
 }
 ```
 
@@ -385,24 +392,31 @@ Next, we’ll declare our first unit test and initialize the testing environment
 ```rust
 #[cfg(test)]
 mod tests {
-    use {
+  use {
         super::*,
         assert_matches::*,
         solana_program::{
             instruction::{AccountMeta, Instruction},
-            system_program
+            system_program::ID as SYSTEM_PROGRAM_ID,
         },
         solana_program_test::*,
-        solana_sdk::{signature::Signer, transaction::Transaction},
-        spl_token::*,
+        solana_sdk::{
+            signature::Signer,
+            transaction::Transaction,
+            sysvar::rent::ID as SYSVAR_RENT_ID
+        },
+        spl_associated_token_account::{
+            get_associated_token_address,
+            instruction::create_associated_token_account,
+        },
+        spl_token:: ID as TOKEN_PROGRAM_ID,
     };
-
     // First unit test
     #[tokio::test]
     async fn it_works() {
         let program_id = Pubkey::new_unique();
         let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
-            "bpf_program_template",
+            "pda_local",
             program_id,
             processor!(process_instruction),
         )
@@ -420,35 +434,28 @@ Our first unit test will test whether or not our program is actually functioning
 
 The code in the remainder of the demo should go inside the `it_works()` testing function we just created.
 
-First, we are going to create a token mint and assign the mint authority to a PDA of the Movie Review program so that it has the capability of minting tokens to users.
+First, we are going to create an instruction targeting the `initialize_mint` function on the `MovieReview` program.
 
 ```rust
 // Derive PDA for token mint authority
-let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"tokens"], &program_id);
+let (mint, _bump_seed) = Pubkey::find_program_address(&[b"token_mint"], &program_id);
+let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"token_auth"], &program_id);
 
-// Create mint account
-let mint_keypair = Keypair::new();
-let rent = banks_client.get_rent().await.unwrap();
-let mint_rent = rent.minimum_balance(Mint::LEN);
-let create_mint_acct_ix = create_account(
-    &payer.pubkey(),
-    &mint_keypair.pubkey(),
-    mint_rent,
-    Mint::LEN.try_into().unwrap(),
-    &TOKEN_PROGRAM_ID,
-);
-// Create initialize mint instruction
-let init_mint_ix = initialize_mint(
-    &TOKEN_PROGRAM_ID,
-    &mint_keypair.pubkey(),
-    &mint_auth,
-    Some(&mint_auth),
-    9,
-)
-.unwrap();
+let init_mint_ix = Instruction {
+    program_id: program_id,
+    accounts: vec![
+        AccountMeta::new_readonly(payer.pubkey(), true),
+        AccountMeta::new(mint, false),
+        AccountMeta::new(mint_auth, false),
+        AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
+        AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
+        AccountMeta::new_readonly(SYSVAR_RENT_ID, false)
+    ],
+    data: vec![3]
+};
 ```
 
-We use two functions that we've imported from Solana crates to help create the `create_account` and `initialize_mint` instructions.
+We derived the mint and mint authority addresses using the same seeds the program does. After that, all we need to do is manually build our instruction object with the required accounts and data.
 
 Next, we need to derive the review, comment counter, and user associated token account addresses.
 
@@ -468,11 +475,11 @@ let (comment_pda, _bump_seed) =
 let init_ata_ix: Instruction = create_associated_token_account(
     &payer.pubkey(),
     &payer.pubkey(),
-    &mint_keypair.pubkey(),
+    &mint,
 );
 
 let user_ata: Pubkey =
-    get_associated_token_address(&payer.pubkey(), &mint_keypair.pubkey());
+    get_associated_token_address(&payer.pubkey(), &mint);
 ```
 
 Once we have all of the accounts initialized, we can put it all together into a single transaction.
