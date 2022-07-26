@@ -21,7 +21,7 @@ Think back to what was discussed in the [Basic Security](./program-security.md) 
 
 The rust package manager, Cargo, natively has some tools built into it to help developers write their own automated tests. Whenever we make a new library project with `cargo new --lib`, a test module with a test function in it is automatically generated for us. You can run tests with Cargo with either `cargo test` or `cargo test-bpf`.
 
-The Rust community thinks about tests in terms of two main categories: unit tests and integration tests. *Unit tests* are small and more focused, testing one module in isolation at a time, and can test private interfaces. *Integration tests* are entirely external to your library and use your code in the same way any other external code would, using only the public interface and potentially exercising multiple modules per test.
+We'll be covering two types of tests in this lesson: unit tests and integration tests. *Unit tests* are small and more focused, testing one module in isolation at a time, and can test private interfaces. *Integration tests* are entirely external to your library and use your code in the same way any other external code would, using only the public interface and potentially exercising multiple modules per test.
 
 ## Unit tests
 
@@ -47,7 +47,7 @@ Tests are defined in the `tests` module with the `#[test]` attribute. When runni
 
 ### How to build unit tests
 
-To build integration and unit tests in Rust, you will have to use the [`solana_sdk`](https://docs.rs/solana-sdk/latest/solana_sdk/) crate. This crate is essentially the same thing as the `@solana/web3.js` package that we’ve been using in Typescript and gives us a way to interact with Solana programs in Rust. Another crate that will be useful and was made specifically for testing Solana programs is [`solana_program_test`](https://docs.rs/solana-program-test/latest/solana_program_test/#) which contains a BanksClient-based testing framework.
+To build unit tests in Rust, you will have to use the [`solana_sdk`](https://docs.rs/solana-sdk/latest/solana_sdk/) crate. This crate is essentially the same thing as the `@solana/web3.js` package that we’ve been using in Typescript and gives us a way to interact with Solana programs in Rust. Another crate that will be useful and was made specifically for testing Solana programs is [`solana_program_test`](https://docs.rs/solana-program-test/latest/solana_program_test/#) which contains a BanksClient-based testing framework.
 
 A simple example of a unit test residing inside a `processor.rs` file may look like
 
@@ -99,10 +99,11 @@ In the code snippet, we created a public key to use as our `program_id` and then
 
 ## Integration tests
 
-### What are integration tests?
+## What are integration tests?
 
 Integration tests on the other hand, are meant to be entirely external to the code they are testing. These tests are meant to interact with your code via its public interface in the manner that it’s intended to be accessed by others. Their purpose is to test whether many parts of your library work together correctly. Units of code that work correctly on their own could have problems when integrated, so test coverage of the integrated code is important as well.
 
+### How to build integration tests with Rust
 To create integration tests, you first need to create a `tests` directory at the top level of your project’s directory. We can then make as many test files as we want inside this `tests` directory, each file will act as its own integration test.
 
 ```rust
@@ -156,47 +157,11 @@ Account data resizing not supported yet: 0 -> 1000. Consider making this test co
 
 If you come across this, try using `cargo test-bpf` instead.
 
-## RPC tests
+### How to build integration tests with Typescript
 
-### What are RPC tests?
+Solana programs support unit and integration tests in Rust like we just discussed, but you can also write integration tests with just about any language of your choosing. The alternative method is to test your program is by deploying it to either Devnet or a local validator and sending transactions to it from some client that you created. Deploying to Devnet and then sending transactions to the program is essentially what we have been doing for the entirety of this course so you should be pretty familiar with that already. If you'd like a refresher, review the first lesson of this module which covered deploying to a local validator.
 
-Solana programs support unit and integration tests in Rust like we just discussed, but there is also a third way to test your programs that is unique to smart contract development. The alternative method is to test your program is by deploying it to either Devnet or a local validator and sending transactions to it from some client that you created. Deploying to Devnet and then sending transactions to the program is essentially what we have been doing for the entirety of this course so you should be pretty familiar with that already. If you'd like a refresher, review the first lesson of this module which covered deploying to a local validator.
-
-As a reminder, the Solana CLI has a command that, when run, will start a full-featured, single-node cluster on the your workstation that you can then deploy programs and submit transactions to. To start the local validator, simply run `solana-test-validator`.
-
-When running a local validator, you will have to allow it to run in its own terminal window. Once it’s no longer needed, you can stop it with ctrl-c.
-
-![local validator](../assets/local-validator.png)
-
-To interact with a running local validator, you'd have to configure your Solana CLI to target your localhost.
-
-```sh
-solana config set --url localhost
-```
-
-You can even open a third terminal to monitor logs that your program generates by running `solana logs`.
-
-At this point, building and deploying your programs is the same as before, except now they are just deployed to your local computer and not Devnet. To send transactions to programs deployed locally, you’ll have to ensure that whatever client you’re submitting the transaction from is targeting your local cluster.
-
-```tsx
-// In a Typescript client
-// Targeting your local host instead of Devnet
-const RPC_ENDPOINT_URL = "http://127.0.0.1:8899"
-const commitment = 'confirmed'
-const connection = new web3.Connection(RPC_ENDPOINT_URL, commitment)
-```
-
-When you’re done with local host, don’t forget to change the RPC configuration for your CLI and client back to whatever cluster you want to target! Forgetting that you changed these to local host can cause you a lot of pain and frustration down the road.
-
-`solana config set --url devnet`
-
-`const RPC_ENDPOINT_URL = "https://api.devnet.solana.com"`
-
-Feel free to read up on the [Solana Test Validator docs](https://docs.solana.com/developing/test-validator).
-
-### How to build RPC tests
-
-As stated before, you don’t have to write your tests in Rust - you can actually write them in just about any language you want by deploying the program to a cluster and submitting transactions from a client for the program to process. The most common way of conducting tests like this is by deploying to a local validator and writing a client testing script in Typescript using the [Mocha testing framework](https://mochajs.org/) paired with the [Chai assertion library](https://www.chaijs.com/). While these are a couple of the most common right now, it’s important to note that you can use just about any testing framework or any language for these tests as long as there are Solana SDKs available to use!
+The most common way of conducting tests like this is by deploying to a local validator and writing a client testing script in Typescript using the [Mocha testing framework](https://mochajs.org/) paired with the [Chai assertion library](https://www.chaijs.com/). While these are a couple of the most common right now, it’s important to note that you can use just about any testing framework or any language for these tests as long as there are Solana SDKs available to use!
 
 Install Mocha and Chai with `npm install mocha chai`
 
@@ -359,14 +324,14 @@ solana-sdk = "~1.10.29"
 
 Now we’re going to focus on writing some unit tests for this program. Our tests will focus on whether or not the program works as intended when provided the proper data. We'll also test how it handles unexpected or malicious input. Remember, our goal when testing is to try to catch bugs and ensure security so it’s important to also write tests that are *supposed* to fail. We’re not just focused on testing if the code works, we’re also interested in testing the robustness of our code.
 
-To get started, we’re going to declare a section of the `processor.rs` file for testing and import the necessary crates.
+To get started, we’re going to create a new directory called `unit-tests` with a file called `movie-review-test.rs` inside. There we can create a new `tests` module and import the creates we'll need.
 
 ```rust
-// At bottom of processor.rs
+// Inside unit-tests/movie-review-test.rs
 #[cfg(test)]
 mod tests {
   use {
-      super::*,
+      crate::processor::*,
       assert_matches::*,
       solana_program::{
           instruction::{AccountMeta, Instruction},
@@ -505,34 +470,39 @@ data_vec.append(&mut review.into_bytes());
 
 // Create transaction object with instructions, accounts, and input data
 let mut transaction = Transaction::new_with_payer(
-    &[
-      create_mint_acct_ix,
-      init_mint_ix,
-      init_ata_ix,
-      Instruction {
-          program_id: program_id,
-          accounts: vec![
-              AccountMeta::new_readonly(payer.pubkey(), true),
-              AccountMeta::new(review_pda, false),
-              AccountMeta::new(comment_pda, false),
-              AccountMeta::new(mint_keypair.pubkey(), false),
-              AccountMeta::new_readonly(mint_auth, false),
-              AccountMeta::new(user_ata, false),
-              AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
-              AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
-          ],
-          data: data_vec,
-      },
-    ],
-    Some(&payer.pubkey()),
+   &[
+   init_mint_ix,
+   init_ata_ix,
+   Instruction {
+       program_id: program_id,
+       accounts: vec![
+           AccountMeta::new_readonly(payer.pubkey(), true),
+           AccountMeta::new(review_pda, false),
+           AccountMeta::new(comment_pda, false),
+           AccountMeta::new(mint, false),
+           AccountMeta::new_readonly(mint_auth, false),
+           AccountMeta::new(user_ata, false),
+           AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
+           AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
+       ],
+       data: data_vec,
+   },
+   ],
+   Some(&payer.pubkey()),
 );
-transaction.sign(&[&payer, &mint_keypair], recent_blockhash);
+transaction.sign(&[&payer], recent_blockhash);
 
 // Process transaction and compare the result
 assert_matches!(banks_client.process_transaction(transaction).await, Ok(_));
 ```
-
-You can now run this test with `cargo test-bpf`. If it’s successful, you’ll be able to see the program logs and the final test result in the terminal. It may take a while to compile and run the test. Feel free to take a look at the solution code here.
+In order for Cargo to run the tests inside our `tests` module, it needs to be declared inside the file of the code that it's testing. Paste the following code somewhere inside `processor.rs`. You may have to adjust the `path` variable to direct the compiler wherever it is your test file is located.
+```rust
+// Inside processor.rs
+#[cfg(test)]
+#[path = "../unit-tests/movie_review_test.rs"]
+mod movie_review_test;
+```
+You can now run this test with `cargo test-bpf`. If it’s successful, you’ll be able to see the program logs and the final test result in the terminal. It may take a while to compile and run the test. Feel free to take a look at the solution code here. [LINK]
 
 Take a look at the testing script in the `ts` directory and compare it to what we just wrote in Rust. They are doing almost the exact same thing, but seeing how the code differs between Typescript and Rust can be eye-opening sometimes.
 
