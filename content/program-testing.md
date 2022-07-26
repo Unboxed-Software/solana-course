@@ -324,37 +324,65 @@ solana-sdk = "~1.10.29"
 
 Now we’re going to focus on writing some unit tests for this program. Our tests will focus on whether or not the program works as intended when provided the proper data. We'll also test how it handles unexpected or malicious input. Remember, our goal when testing is to try to catch bugs and ensure security so it’s important to also write tests that are *supposed* to fail. We’re not just focused on testing if the code works, we’re also interested in testing the robustness of our code.
 
-To get started, we’re going to create a new directory called `unit-tests` with a file called `movie-review-test.rs` inside. There we can create a new `tests` module and import the creates we'll need.
+To get started, we’re going to add a `tests` module to the bottom of the `processor.rs` file and import the crates we will need.
 
 ```rust
-// Inside unit-tests/movie-review-test.rs
+// Inside processor.rs
 #[cfg(test)]
 mod tests {
   use {
-      crate::processor::*,
-      assert_matches::*,
-      solana_program::{
-          instruction::{AccountMeta, Instruction},
-          system_program::ID as SYSTEM_PROGRAM_ID,
-      },
-      solana_program_test::*,
-      solana_sdk::{
-          signature::Signer,
-          transaction::Transaction,
-          sysvar::rent::ID as SYSVAR_RENT_ID
-      },
-      spl_associated_token_account::{
-          get_associated_token_address,
-          instruction::create_associated_token_account,
-      },
-      spl_token:: ID as TOKEN_PROGRAM_ID,
+    super::*,
+    assert_matches::*,
+    solana_program::{
+        instruction::{AccountMeta, Instruction},
+        system_program::ID as SYSTEM_PROGRAM_ID,
+    },
+    solana_program_test::*,
+    solana_sdk::{
+        signature::Signer,
+        transaction::Transaction,
+        sysvar::rent::ID as SYSVAR_RENT_ID
+    },
+    spl_associated_token_account::{
+        get_associated_token_address,
+        instruction::create_associated_token_account,
+    },
+    spl_token:: ID as TOKEN_PROGRAM_ID,
   };
 }
 ```
 
-### 3. Initialize mint test
-Next, we’ll declare our first unit test and initialize the testing environment. Our first test will focus on the `initialize_token_mint` instruction. To test this we’ll need to create a transaction to submit to the program. We'll be making use of the `solana_sdk` crate to help us do this, it may help to think about the steps you would need to go through to build this transaction from a typescript client when doing this.
+### 3. Helper function
+It's common for unit tests to run in parallel and to keep state contained within their own scope. This means that there is no guarantee one test will run before another. Because of this, there will be some code that will have to be run before every test we write. Instead of writing this code out each time it's needed, we're just going to create a function to help facillitate that process.
 
+Since the state will not be persisted from test to test, we will have to initialize a token mint in every test. The token mint is required in order to create a movie review or leave a comment now. The helper function should go somewhere inside the tests module so that the tests can call on it when needed. We'll be making use of the `solana_sdk` crate to help us do this.
+```rust
+// Inside the the tests modules
+fn create_init_mint_ix(payer: Pubkey, program_id: Pubkey) -> (Pubkey, Pubkey, Instruction) {
+  // Derive PDA for token mint authority
+  let (mint, _bump_seed) = Pubkey::find_program_address(&[b"token_mint"], &program_id);
+  let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"token_auth"], &program_id);
+
+  let init_mint_ix = Instruction {
+      program_id: program_id,
+      accounts: vec![
+          AccountMeta::new_readonly(payer, true),
+          AccountMeta::new(mint, false),
+          AccountMeta::new(mint_auth, false),
+          AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
+          AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
+          AccountMeta::new_readonly(SYSVAR_RENT_ID, false)
+      ],
+      data: vec![3]
+  };
+
+  (mint, mint_auth, init_mint_ix)
+}
+```
+The function derives the token mint and mint authority PDAs, builds an `Instruction` with the appropriate info and returns a tuple containing the `mint` pubkey, `mint_auth` pubkey, and `init_mint_ix` object.
+
+### 4. Initialize mint test
+Next, we’ll declare our first unit test and initialize the testing environment. Our first test will focus on the `initialize_token_mint` instruction. We just wrote a helper function that builds an `Instruction` object for this, we can use that here.
 ```rust
 // First unit test
 #[tokio::test]
@@ -368,23 +396,7 @@ async fn test_initialize_mint_instruction() {
     .start()
     .await;
 
-    // Derive PDA for token mint authority
-    let (mint, _bump_seed) = Pubkey::find_program_address(&[b"token_mint"], &program_id);
-    let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"token_auth"], &program_id);
-
-
-    let init_mint_ix = Instruction {
-        program_id: program_id,
-        accounts: vec![
-            AccountMeta::new_readonly(payer.pubkey(), true),
-            AccountMeta::new(mint, false),
-            AccountMeta::new(mint_auth, false),
-            AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
-            AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
-            AccountMeta::new_readonly(SYSVAR_RENT_ID, false)
-        ],
-        data: vec![3]
-    };
+    let (_mint, _mint_auth, init_mint_ix) = create_init_mint_ix(payer.pubkey(), program_id);
 
     // Create transaction object with instructions, accounts, and input data
     let mut transaction = Transaction::new_with_payer(
@@ -397,44 +409,28 @@ async fn test_initialize_mint_instruction() {
     assert_matches!(banks_client.process_transaction(transaction).await, Ok(_));
 }
 ```
-We derived the mint and mint authority PDAs using the same seeds the program does, then constructed an `Instruction` object with the data and accounts it expects. Once the instruction is put together, we can add it to a `Transaction` and use the `banks_client` generated from the `ProgramTest` constructor to process it.
+Our helper function returns a tuple of the `mint` pubkey, `mint_auth` pubkey, and the `Instruction`. We won't need the `mint` or `mint_auth` pubkeys for this test, so we precede their values with the `_`. This is a Rust feature that tells the compiler we will not be using this variable. Once the instruction is put together, we can add it to a `Transaction` and use the `banks_client` generated from the `ProgramTest` constructor to process it.
 
-### 4. Add movie review test
+We use the `assert_matches!` macro to determine if the test passes or not. If the transaction executes without an error, then the `initialize_token_mint` function in our program should return `Ok(())`. The `assert_matches!` macro makes sure that what is returned by `banks_client.process_transaction(transaction).await` is equal to what we expect.
+
+### 5. Add movie review test
 
 Our next unit test will target the `add_movie_review` instruction.
-
-It's common for unit tests to run in parallel and to keep state contained within their own scope. This means that there is no guarantee the initialize mint test we just wrote will run before the add movie review test. Because the `add_movie_review` instruction requires the token mint to be initialized beforehand, we will have to go through the process of initializing a token mint again in this test.
 
 ```rust
 // Second unit test
 #[tokio::test]
 async fn test_add_movie_review_instruction() {
-let program_id = Pubkey::new_unique();
-let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
-    "pda_local",
-    program_id,
-    processor!(process_instruction),
-)
-.start()
-.await;
+  let program_id = Pubkey::new_unique();
+  let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
+      "pda_local",
+      program_id,
+      processor!(process_instruction),
+  )
+  .start()
+  .await;
 
-// Derive PDA for token mint authority
-let (mint, _bump_seed) = Pubkey::find_program_address(&[b"token_mint"], &program_id);
-let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"token_auth"], &program_id);
-
-let init_mint_ix = Instruction {
-    program_id: program_id,
-    accounts: vec![
-        AccountMeta::new_readonly(payer.pubkey(), true),
-        AccountMeta::new(mint, false),
-        AccountMeta::new(mint_auth, false),
-        AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
-        AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
-        AccountMeta::new_readonly(SYSVAR_RENT_ID, false)
-    ],
-    data: vec![3]
-};
-
+  let (mint, mint_auth, init_mint_ix) = create_init_mint_ix(payer.pubkey(), program_id);
 ```
 Next, we need to derive the review, comment counter, and user associated token account addresses.
 
