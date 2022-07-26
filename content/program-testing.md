@@ -307,7 +307,7 @@ In this example, the value returned from the `Pubkey::create_program_address`, w
 
 # Demo
 
-Since we have basically been testing programs via a client or script for this whole course, this demo is going to focus on writing a unit tests in Rust. We'll be writing some tests for the Movie Review program that we've been working on. If you've been following along then you probably already have the starter code, as we'll just be picking up where we left off with the CPI lesson.
+Since we have basically been testing programs via a client or script for this whole course, this demo is going to focus on writing some unit tests in Rust. We'll be writing some tests for the Movie Review program that we've been working on. If you've been following along then you probably already have the starter code, as we'll just be picking up where we left off with the CPI lesson.
 
 ### 1. Clone starter code
 
@@ -352,56 +352,72 @@ mod tests {
 }
 ```
 
-Next, we’ll declare our first unit test and initialize the testing environment.
+### 3. Initialize mint test
+Next, we’ll declare our first unit test and initialize the testing environment. Our first test will focus on the `initialize_token_mint` instruction. To test this we’ll need to create a transaction to submit to the program. We'll be making use of the `solana_sdk` crate to help us do this, it may help to think about the steps you would need to go through to build this transaction from a typescript client when doing this.
 
 ```rust
-#[cfg(test)]
-mod tests {
-  use {
-        super::*,
-        assert_matches::*,
-        solana_program::{
-            instruction::{AccountMeta, Instruction},
-            system_program::ID as SYSTEM_PROGRAM_ID,
-        },
-        solana_program_test::*,
-        solana_sdk::{
-            signature::Signer,
-            transaction::Transaction,
-            sysvar::rent::ID as SYSVAR_RENT_ID
-        },
-        spl_associated_token_account::{
-            get_associated_token_address,
-            instruction::create_associated_token_account,
-        },
-        spl_token:: ID as TOKEN_PROGRAM_ID,
-    };
-    // First unit test
-    #[tokio::test]
-    async fn it_works() {
-        let program_id = Pubkey::new_unique();
-        let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
-            "pda_local",
-            program_id,
-            processor!(process_instruction),
-        )
-        .start()
-        .await;
+// First unit test
+#[tokio::test]
+async fn test_initialize_mint_instruction() {
+    let program_id = Pubkey::new_unique();
+    let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
+        "pda_local",
+        program_id,
+        processor!(process_instruction),
+    )
+    .start()
+    .await;
 
-        ...
-    }
+    // Derive PDA for token mint authority
+    let (mint, _bump_seed) = Pubkey::find_program_address(&[b"token_mint"], &program_id);
+    let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"token_auth"], &program_id);
+
+
+    let init_mint_ix = Instruction {
+        program_id: program_id,
+        accounts: vec![
+            AccountMeta::new_readonly(payer.pubkey(), true),
+            AccountMeta::new(mint, false),
+            AccountMeta::new(mint_auth, false),
+            AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
+            AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
+            AccountMeta::new_readonly(SYSVAR_RENT_ID, false)
+        ],
+        data: vec![3]
+    };
+
+    // Create transaction object with instructions, accounts, and input data
+    let mut transaction = Transaction::new_with_payer(
+        &[init_mint_ix,],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer], recent_blockhash);
+
+    // Process transaction and compare the result
+    assert_matches!(banks_client.process_transaction(transaction).await, Ok(_));
 }
 ```
+We derived the mint and mint authority PDAs using the same seeds the program does, then constructed an `Instruction` object with the data and accounts it expects. Once the instruction is put together, we can add it to a `Transaction` and use the `banks_client` generated from the `ProgramTest` constructor to process it.
 
-### 3. Construct transaction
+### 4. Add movie review test
 
-Our first unit test will test whether or not our program is actually functioning as intended. To test this we’ll need to create a transaction to submit to the program. We'll be making use of the `solana_sdk` crate to help us do this, it may help to think about the steps you would need to go through to build this transaction from a typescript client when doing this.
+Our next unit test will target the `add_movie_review` instruction.
 
-The code in the remainder of the demo should go inside the `it_works()` testing function we just created.
-
-First, we are going to create an instruction targeting the `initialize_mint` function on the `MovieReview` program.
+It's common for unit tests to run in parallel and to keep state contained within their own scope. This means that there is no guarantee the initialize mint test we just wrote will run before the add movie review test. Because the `add_movie_review` instruction requires the token mint to be initialized beforehand, we will have to go through the process of initializing a token mint again in this test.
 
 ```rust
+// Second unit test
+#[tokio::test]
+async fn test_add_movie_review_instruction() {
+let program_id = Pubkey::new_unique();
+let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
+    "pda_local",
+    program_id,
+    processor!(process_instruction),
+)
+.start()
+.await;
+
 // Derive PDA for token mint authority
 let (mint, _bump_seed) = Pubkey::find_program_address(&[b"token_mint"], &program_id);
 let (mint_auth, _bump_seed) = Pubkey::find_program_address(&[b"token_auth"], &program_id);
@@ -418,10 +434,8 @@ let init_mint_ix = Instruction {
     ],
     data: vec![3]
 };
+
 ```
-
-We derived the mint and mint authority addresses using the same seeds the program does. After that, all we need to do is manually build our instruction object with the required accounts and data.
-
 Next, we need to derive the review, comment counter, and user associated token account addresses.
 
 ```rust
@@ -430,21 +444,21 @@ let title: String = "Captain America".to_owned();
 const RATING: u8 = 3;
 let review: String = "Liked the movie".to_owned();
 let (review_pda, _bump_seed) =
-    Pubkey::find_program_address(&[payer.pubkey().as_ref(), title.as_bytes()], &program_id);
+   Pubkey::find_program_address(&[payer.pubkey().as_ref(), title.as_bytes()], &program_id);
 
 // Create comment PDA
 let (comment_pda, _bump_seed) =
-    Pubkey::find_program_address(&[review_pda.as_ref(), b"comment"], &program_id);
+   Pubkey::find_program_address(&[review_pda.as_ref(), b"comment"], &program_id);
 
 // Create user associate token account of token mint
 let init_ata_ix: Instruction = create_associated_token_account(
-    &payer.pubkey(),
-    &payer.pubkey(),
-    &mint,
+   &payer.pubkey(),
+   &payer.pubkey(),
+   &mint,
 );
 
 let user_ata: Pubkey =
-    get_associated_token_address(&payer.pubkey(), &mint);
+   get_associated_token_address(&payer.pubkey(), &mint);
 ```
 
 Once we have all of the accounts initialized, we can put it all together into a single transaction.
@@ -470,42 +484,33 @@ data_vec.append(&mut review.into_bytes());
 
 // Create transaction object with instructions, accounts, and input data
 let mut transaction = Transaction::new_with_payer(
-   &[
-   init_mint_ix,
-   init_ata_ix,
-   Instruction {
-       program_id: program_id,
-       accounts: vec![
-           AccountMeta::new_readonly(payer.pubkey(), true),
-           AccountMeta::new(review_pda, false),
-           AccountMeta::new(comment_pda, false),
-           AccountMeta::new(mint, false),
-           AccountMeta::new_readonly(mint_auth, false),
-           AccountMeta::new(user_ata, false),
-           AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
-           AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
-       ],
-       data: data_vec,
-   },
-   ],
-   Some(&payer.pubkey()),
+    &[
+    init_mint_ix,
+    init_ata_ix,
+    Instruction {
+        program_id: program_id,
+        accounts: vec![
+            AccountMeta::new_readonly(payer.pubkey(), true),
+            AccountMeta::new(review_pda, false),
+            AccountMeta::new(comment_pda, false),
+            AccountMeta::new(mint, false),
+            AccountMeta::new_readonly(mint_auth, false),
+            AccountMeta::new(user_ata, false),
+            AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
+            AccountMeta::new_readonly(TOKEN_PROGRAM_ID, false),
+        ],
+        data: data_vec,
+    },
+    ],
+    Some(&payer.pubkey()),
 );
 transaction.sign(&[&payer], recent_blockhash);
 
 // Process transaction and compare the result
 assert_matches!(banks_client.process_transaction(transaction).await, Ok(_));
 ```
-In order for Cargo to run the tests inside our `tests` module, it needs to be declared inside the file of the code that it's testing. Paste the following code somewhere inside `processor.rs`. You may have to adjust the `path` variable to direct the compiler wherever it is your test file is located.
-```rust
-// Inside processor.rs
-#[cfg(test)]
-#[path = "../unit-tests/movie_review_test.rs"]
-mod movie_review_test;
-```
-You can now run this test with `cargo test-bpf`. If it’s successful, you’ll be able to see the program logs and the final test result in the terminal. It may take a while to compile and run the test. Feel free to take a look at the solution code here. [LINK]
-
-Take a look at the testing script in the `ts` directory and compare it to what we just wrote in Rust. They are doing almost the exact same thing, but seeing how the code differs between Typescript and Rust can be eye-opening sometimes.
+You can now run these tests with `cargo test-bpf`. If it’s successful, you’ll be able to see the program logs and the final test result in the terminal. It may take a while to compile and run the test. Feel free to take a look at the solution code here. [LINK]
 
 # Challenge
 
-We just wrote a single unit test in Rust, but a proper testing architecture is made up of more than just one test. As a challenge, build on top of what we just did and write some unit tests in Rust (or Typescript if you've seen enough Rust for the day) that test the other instructions in the program. Also, think about how you can write some tests with malicious or inaccurate code that's supposed to return an error from the program.
+As a challenge, build on top of what we just did and write some more unit tests that test the other instructions in the program. Also, think about how you can write some tests with malicious or inaccurate code that's supposed to return an error from the program.
