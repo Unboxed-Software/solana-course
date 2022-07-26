@@ -5,13 +5,13 @@
 *By the end of this lesson, you will be able to:*
 
 - Describe various ways to test Solana programs
-- Explain the difference between unit tests, integration tests, and RPC tests
+- Explain the difference between unit tests and integration tests
 - Debug Solana programs
 
 # TL;DR
 
 - Testing is a **key component** of smart contract development because it ensures the code works as intended before releasing it to the public.
-- Solana programs support three different types of tests (unit, integration, and client-side) all of which have a specific purpose.
+- Solana programs support all different types or tests, the most common being unit and integration tests.
 
 # Overview
 
@@ -26,7 +26,7 @@ We'll be covering two types of tests in this lesson: unit tests and integration 
 ## Unit tests
 
 ### What are unit tests?
-The purpose of unit tests is to test each unit of code in isolation from the rest of the code to quickly pinpoint where code is and isn’t working as expected. Unit tests generally reside in the file with the code they are testing. Unit tests are declared inside a module named `tests` annotated with `cfg(test)`. At its simplest, a test in Rust is a function that’s annotated with the `#[test]` attribute.
+The purpose of unit tests is to test each unit of code in isolation from the rest of the code to quickly pinpoint where code is and isn’t working as expected. Unit tests in Rust generally reside in the file with the code they are testing. Unit tests are declared inside a module named `tests` annotated with `cfg(test)`. At its simplest, a test in Rust is a function that’s annotated with the `#[test]` attribute.
 
 
 ```rust
@@ -159,7 +159,7 @@ If you come across this, try using `cargo test-bpf` instead.
 
 ### How to build integration tests with Typescript
 
-Solana programs support unit and integration tests in Rust like we just discussed, but you can also write integration tests with just about any language of your choosing. The alternative method is to test your program is by deploying it to either Devnet or a local validator and sending transactions to it from some client that you created. Deploying to Devnet and then sending transactions to the program is essentially what we have been doing for the entirety of this course so you should be pretty familiar with that already. If you'd like a refresher, review the first lesson of this module which covered deploying to a local validator.
+Solana programs support unit and integration tests in Rust like we just discussed, but you can also write integration tests with just about any language of your choosing. The alternative method to test your program is by deploying it to either Devnet or a local validator and sending transactions to it from some client that you created. Deploying to Devnet and then sending transactions to the program is essentially what we have been doing for the entirety of this course so you should be pretty familiar with that already. If you'd like a refresher, review the first lesson of this module which covered deploying to a local validator.
 
 The most common way of conducting tests like this is by deploying to a local validator and writing a client testing script in Typescript using the [Mocha testing framework](https://mochajs.org/) paired with the [Chai assertion library](https://www.chaijs.com/). While these are a couple of the most common right now, it’s important to note that you can use just about any testing framework or any language for these tests as long as there are Solana SDKs available to use!
 
@@ -396,6 +396,7 @@ async fn test_initialize_mint_instruction() {
     .start()
     .await;
 
+    // call helper function
     let (_mint, _mint_auth, init_mint_ix) = create_init_mint_ix(payer.pubkey(), program_id);
 
     // Create transaction object with instructions, accounts, and input data
@@ -415,7 +416,7 @@ We use the `assert_matches!` macro to determine if the test passes or not. If th
 
 ### 5. Add movie review test
 
-Our next unit test will target the `add_movie_review` instruction.
+Our next unit test will target the `add_movie_review` instruction. The beginning of this test will look very similar to the previous test.
 
 ```rust
 // Second unit test
