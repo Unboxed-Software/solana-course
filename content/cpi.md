@@ -4,7 +4,6 @@
 
 *By the end of this lesson, you will be able to:*
 
-
 - Explain Cross-Program Invocations (CPIs)
 - Describe how to construct and use CPIs
 - Explain how a program provides a signature for a PDA

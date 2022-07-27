@@ -1,6 +1,8 @@
-# Local Setup
+# Local Program Development
 
 # Lesson Objectives
+
+*By the end of this lesson, you will be able to:*
 
 - Set up a local environment for Solana program development
 - Use basic Solana CLI commands

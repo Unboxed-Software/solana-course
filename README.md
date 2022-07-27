@@ -32,7 +32,10 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    4. [Create a Basic Program, Part 3 - Basic Security and Validation](./content/program-security.md)
 
 ### Module 4 - Intermediate Solana program development
-Coming soon
+   1. [Local Program Development](./content/local-setup.md)
+   2. [Program Derived Addresses](./content/pda.md)
+   3. [Cross Program Invocations](./content/cpi.md)
+   4. Program Testing - Coming Soon
 
 ## Contribute to the Course
 
@@ -45,14 +48,14 @@ The [Course Map](./course-map.md) lists the modules and lessons we plan to creat
 To start work, do the following:
 
 1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
-2. Create a PR to the `rough` branch during or when complete
+2. Create a PR to the `draft` branch during or when complete
 
 ### Editing existing content
 
 If you want to fix a typo or otherwise improve on existing content, follow the same process as with adding content:
 
 1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
-2. Create a PR to the `rough` branch during or when complete
+2. Create a PR to the `draft` branch during or when complete
 
 ### Committing
 
@@ -66,7 +69,7 @@ General flow for making a contribution:
 4. Push your work back up to your fork
 5. Submit a Pull request so that we can review your changes
 
-**NOTE**: Be sure to merge the latest from `upstream/rough` before making a pull request!
+**NOTE**: Be sure to merge the latest from `upstream/draft` before making a pull request!
 
 ### Providing general feedback
 

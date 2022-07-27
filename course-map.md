@@ -92,26 +92,22 @@
 
 # Module 4 - Intermediate Solana Program Development
 1. Set up a local dev environment
-   - Use basic Solana CLI commands
    - Set up a local environment for Solana program development
-   - Use Rust and Solana CLI to deploy a Solana program from your local environment
+   - Use basic Solana CLI commands
+   - Run a local test validator
+   - Use Rust and the Solana CLI to deploy a Solana program from your local development environment
+   - Use the Solana CLI to view program logs
 2. PDAs
-   - Explain PDAs
-   - Explain the Solana runtime policy
-   - Explain how Solana runtime determines whether to accept PDA
-   - Create a PDA using appropriate bumps and seeds
-   - Explain and implement PDA (Program Derived Address) best practices
-   - Explain and avoid PDA pitfalls
-   - Use PDAs to store state about program users
+   - Explain Program Derived Addresses (PDAs)
+   - Explain various use cases of PDAs
+   - Describe how PDAs are derived
+   - Use PDA derivations to locate and retrieve data
 3. CPIs
-   - Explain cross-program invocations
-   - Explain and implement CPI (cross-program invocations) best practices
-   - Explain and avoid CPI pitfalls
-   - Add CPIs to programs using `invoke` and `invoke_signed`
-4. Handling large transactions
-   - Explain what it means that transactions are atomic
-   - Explain transaction size limits
-   - Explain the transaction compute budget
-   - Increase compute budget for high-compute transactions
-   - Break up large transactions into multiple transactions
-   - Sign and send multiple transactions together
+   - Explain Cross-Program Invocations (CPIs)
+   - Describe how to construct and use CPIs
+   - Explain how a program provides a signature for a PDA
+   - Avoid common pitfalls and troubleshoot common errors associated with CPIs
+4. Program Testing
+   - Describe various ways to test Solana programs
+   - Explain the difference between unit tests and integration tests
+   - Debug Solana programs
