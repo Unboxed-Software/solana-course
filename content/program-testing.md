@@ -11,7 +11,7 @@
 # TL;DR
 
 - Testing is a **key component** of smart contract development because it ensures the code works as intended before releasing it to the public.
-- Solana programs support all different types or tests, the most common being unit and integration tests.
+- Solana programs support all different types of doc tests, the most common being unit and integration tests.
 
 # Overview
 
@@ -99,7 +99,7 @@ In the code snippet, we created a public key to use as our `program_id` and then
 
 ## Integration tests
 
-## What are integration tests?
+### What are integration tests?
 
 Integration tests on the other hand, are meant to be entirely external to the code they are testing. These tests are meant to interact with your code via its public interface in the manner that it’s intended to be accessed by others. Their purpose is to test whether many parts of your library work together correctly. Units of code that work correctly on their own could have problems when integrated, so test coverage of the integrated code is important as well.
 
@@ -396,7 +396,7 @@ async fn test_initialize_mint_instruction() {
     .start()
     .await;
 
-    // call helper function
+    // Call helper function
     let (_mint, _mint_auth, init_mint_ix) = create_init_mint_ix(payer.pubkey(), program_id);
 
     // Create transaction object with instructions, accounts, and input data
@@ -431,6 +431,7 @@ async fn test_add_movie_review_instruction() {
   .start()
   .await;
 
+  // Call helper function
   let (mint, mint_auth, init_mint_ix) = create_init_mint_ix(payer.pubkey(), program_id);
 ```
 Next, we need to derive the review, comment counter, and user associated token account addresses.
