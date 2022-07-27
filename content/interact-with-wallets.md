@@ -110,6 +110,7 @@ You can create custom components for this, or you can leverage components provid
 import { NextPage } from 'next'
 import { FC, ReactNode } from "react"
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
+import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import * as web3 from '@solana/web3.js'
 

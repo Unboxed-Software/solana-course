@@ -163,7 +163,7 @@ async function buildCreateTokenAccountTransaction(
     const lamports = await connection.getMinimumBalanceForRentExemption(space);
     const programId = token.TOKEN_PROGRAM_ID
 
-    const transaction = new web3. Transaction().add(
+    const transaction = new web3.Transaction().add(
         web3.SystemProgram.createAccount({
             fromPubkey: payer,
             newAccountPubkey: accountKeypair.publicKey,
