@@ -113,6 +113,31 @@ To install `@solana/web3.js`, set up your project the way you normally would the
 
 `npm install @solana/web3.js`.
 
+Set up your project using create-next-app feature of next.js. Begin by opening your command-line interface (CLI) and running the command below:
+`npx create-next-app next-typescript-example`
+Now we have created a new next.js app. We will be adding a `tsconfig.json` file to use typescript in this project (see below). 
+`{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}`
+
+For more info on creating next.js app, explore more about [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 ### Connect to the Network
 
 Every interaction with the Solana network using `@solana/web3.js` is going to happen through a `Connection` object. This object establishes a JSON-RPC connection with a Solana cluster (more on clusters later). For now, we’re going to use the url for the Devnet cluster rather than Mainnet. As the name suggests, this cluster is designed for developer use and testing.
