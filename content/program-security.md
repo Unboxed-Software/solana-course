@@ -722,4 +722,4 @@ Using what you've learned in this lesson, try applying what you've learned to th
 1. Add an instruction allowing students to update their message
 2. Implement the basic security checks we've learned in this lesson
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62c9120df6273245aca4f5e8). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write.
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62c9120df6273245aca4f5e8). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write. Once you complete Module 3, we'd love to know more about your experience! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%203), so that we can continue to improve the course.
