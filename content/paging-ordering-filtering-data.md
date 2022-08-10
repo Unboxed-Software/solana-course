@@ -238,7 +238,7 @@ useEffect(() => {
 		page,
 		10
 	).then(setMovies)
-}, [page, search])
+}, [page])
 ```
 
 Lastly, we need to add buttons to the bottom of the list for navigating to different pages:
