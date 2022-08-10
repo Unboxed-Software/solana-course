@@ -221,11 +221,12 @@ import { Card } from './Card'
 import { FC, useEffect, useState } from 'react'
 import { Movie } from '../models/Movie'
 import * as web3 from '@solana/web3.js'
+import { useConnection } from "@solana/wallet-adapter-react"
 
 const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN'
 
 export const MovieList: FC = () => {
-	const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
+	const { connection } = useConnection()
 	const [movies, setMovies] = useState<Movie[]>([])
 
 	useEffect(() => {

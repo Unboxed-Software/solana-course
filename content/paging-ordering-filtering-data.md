@@ -228,7 +228,7 @@ static async fetchPage(connection: web3.Connection, page: number, perPage: numbe
 With that done, we can reconfigure `MovieList` to use these methods. In `MovieList.tsx`, add `const [page, setPage] = useState(1)` near the existing `useState` calls. Then, update `useEffect` to call `MovieCoordinator.fetchPage` instead of fetching the accounts inline.
 
 ```tsx
-const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
+const { connection } = useConnection()
 const [movies, setMovies] = useState<Movie[]>([])
 const [page, setPage] = useState(1)
 
@@ -382,7 +382,7 @@ With that in place, let’s update the code in `MovieList` to call this properly
 First, add `const [search, setSearch] = useState('')` near the other `useState` calls. Then update the call to `MovieCoordinator.fetchPage` in the `useEffect` to pass the `search` parameter and to reload when `search !== ''`.
 
 ```tsx
-const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
+const { connection } = useConnection()
 const [movies, setMovies] = useState<Movie[]>([])
 const [page, setPage] = useState(1)
 const [search, setSearch] = useState('')
