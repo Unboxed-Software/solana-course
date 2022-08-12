@@ -93,7 +93,7 @@ const accounts = connection.getProgramAccounts(programId).then(accounts => {
 
 ## Deserializing custom account data
 
-The `data` property on an `AccountInfo` object is a buffer. To use it efficiently, you’ll need to write code that deserializes it into something more usable. This is similar to the serialization process we covered last lesson. Just as before, we’ll use [Borsch](https://borsh.io/) and `@project-serum/borsh`. If you need a refresher on either of these, have a look at the previous lesson.
+The `data` property on an `AccountInfo` object is a buffer. To use it efficiently, you’ll need to write code that deserializes it into something more usable. This is similar to the serialization process we covered last lesson. Just as before, we’ll use [Borsh](https://borsh.io/) and `@project-serum/borsh`. If you need a refresher on either of these, have a look at the previous lesson.
 
 Deserializing requires knowledge of the account layout ahead of time. When creating your own programs, you will define how this is done as part of that process. Many programs also have documentation on how to deserialize the account data. Otherwise, if the program code is available you can look at the source and determine the structure that way.
 
