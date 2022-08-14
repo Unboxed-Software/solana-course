@@ -472,6 +472,8 @@ You can test your program by submitting a transaction with the right instruction
 
 If you need to spend some more time with this demo before moving on, please do! You can also have a look at the program [solution code](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) if you get stuck.
 
+If you want to refer a video tutorial, here's a link [video] (https://www.youtube.com/watch?v=WXutkadkqkE).
+
 # Challenge
 
 For this lesson's challenge, try replicating the Student Intro program from Module 1. Recall that we created a frontend application that lets students introduce themselves! The program takes a user's name and a short message as the `instruction_data` and creates an account to store the data on-chain.

@@ -613,6 +613,8 @@ After submitting a review, you should see 10 new tokens in your wallet! When you
 
 If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
 
+If you want to refer a video tutorial, here's a link [video] (https://www.youtube.com/watch?v=GJUX2lWtETY).
+
 # Challenge
 
 To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.

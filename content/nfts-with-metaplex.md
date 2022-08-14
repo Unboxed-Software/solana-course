@@ -654,6 +654,8 @@ ts-node deprecated-clis/src/candy-machine-v2-cli.ts sign_all \
 
 Awesome work! While Metaplex makes it straightforward to create an NFT collection, it's still difficult to get some of these command line tools working. If you run into any snags, be patient with yourself while you debug the problem.
 
+If you want to refer a video tutorial, here's a link [video] (https://www.youtube.com/watch?v=MNYassnjmOw).
+
 # Challenge
 
 Now it’s your turn to build something independently. Create a new candy machine using your own images, metadata, and configuration.

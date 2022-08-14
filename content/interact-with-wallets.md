@@ -463,6 +463,8 @@ There’s a lot you could do to make the user experience here even better. For e
 
 If you need to spend some time looking at the full source code from this demo to understand all of this in context, check that out [here](https://github.com/Unboxed-Software/solana-ping-frontend).
 
+If you want to refer a video tutorial, here's a [video] (https://www.youtube.com/watch?v=wVPGJ_CZTAw).
+
 # Challenge
 
 Now it’s your turn to build something independently. Create an application that lets a user connect their Phantom wallet and send SOL to another account.

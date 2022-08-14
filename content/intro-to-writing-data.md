@@ -458,6 +458,8 @@ If you want to make it easier to look at Solana Explorer for transactions in the
 console.log(`You can view your transaction on the Solana Explorer at:\nhttps://explorer.solana.com/tx/${sig}?cluster=devnet`)
 ```
 
+If you want to refer a video tutorial, here's a [video] (https://www.youtube.com/watch?v=P6gqPY9UGLo).
+
 And just like that you’re calling programs on the Solana network and writing data to chain!
 
 In the next few lessons you’ll learn how to

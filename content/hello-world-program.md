@@ -279,6 +279,8 @@ Copy the transaction URL printed in the console into your browser. Scroll down t
 
 Congratulations, you’ve just successfully built and deployed a Solana program!
 
+If you want to refer a video tutorial, here's a link [video] (https://www.youtube.com/watch?v=vu05JSdvwmo).
+
 # Challenge
 
 Now it’s your turn to build something independently. Because we're starting with very simple programs, yours will look almost identical to what we just created. It's useful to try and get to the point where you can write it from scratch without referencing prior code, so try not to copy and paste here.

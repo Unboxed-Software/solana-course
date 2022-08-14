@@ -340,6 +340,8 @@ Replace the program ID in `index.ts` with the one from the program you just depl
 
 And that's it! You've just created and deployed your first program from a local development environment.
 
+If you want to refer a video tutorial, here's a link [video] (https://www.youtube.com/watch?v=CsKbzsN7q1o).
+
 # Challenge
 
 Now it’s your turn to build something independently. Try to create a new program to print your own message to the program logs. This time deploy your program to Devnet instead of localhost.

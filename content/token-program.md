@@ -727,6 +727,8 @@ With that, run `npm start`. You should see a series of Solana Explorer links log
 
 If you need a bit more time with this project to feel comfortable, have a look at the complete [solution code](https://github.com/Unboxed-Software/solana-token-client)
 
+If you want to refer a video tutorial, here's a link [video] (https://www.youtube.com/watch?v=1cn-HnG_yns).
+
 # Challenge
 
 Now it’s your turn to build something independently. Create an application that allows a users to create a new mint, create a token account, and mint tokens.

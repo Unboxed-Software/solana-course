@@ -218,6 +218,8 @@ Notice that in the catch block we also cleared out the address and balance to av
 
 We did it! We have a functioning site that reads SOL balances from the Solana network. You’re well on your way to achieving your grand ambitions on Solana. If you need to spend some more time looking at this code to better understand it, have a look at the complete [solution code](https://github.com/Unboxed-Software/solana-intro-frontend). Hang on tight, these lessons will ramp up quickly.
 
+If you want to refer a video tutorial, here's a link [video] (https://www.youtube.com/watch?v=wcCbYbcc0AQ).
+
 # Challenge
 
 Since this is the first challenge, we’ll keep it simple. Go ahead and add on to the frontend we’ve already created by including a line item after “Balance”. Have the line item display whether or not the account is an executable account or not. Hint: there’s a `getAccountInfo` method.
