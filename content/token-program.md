@@ -59,7 +59,7 @@ const tokenMint = await createMint(
 - `freezeAuthority` - an account authorized to freeze the tokens in a token account. If freezing is not a desired attribute, the parameter can be set to null
 - `decimals` - specifies the desired decimal precision of the token
 
-When creating a new mint from a script that has access to your secret key, you can simply use the `createMint` function. However, if you were to build a website to allow users to create a new token mint, you would need to do so with the user's secret key without making them expose it to the browser. In that case, you would want to build and submit a transaction with the right instructions.
+When creating a new mint from a script that has access to your secret key, you can simply use the `createMint` function. You can check out the source code of `createMint` [here](https://github.com/solana-labs/solana-program-library/blob/48fbb5b7/token/js/src/actions/createMint.ts#L29). However, if you were to build a website to allow users to create a new token mint, you would need to do so with the user's secret key without making them expose it to the browser. In that case, you would want to build and submit a transaction with the right instructions.
 
 Under the hood, the `createMint` function is simply creating a transaction that contains two instructions:
 1. Create a new account
@@ -102,6 +102,8 @@ async function buildCreateMintTransaction(
 ```
 
 When manually building the instructions to create a new token mint, make sure you add the instructions for creating the account and initializing the mint to the *same transaction*. If you were to do each step in a separate transaction, it's theoretically possible for somebody else to take the account you create and initialize it for their own mint.
+
+You can refer to `createMint` documentation [here](https://solana-labs.github.io/solana-program-library/token/js/modules.html#createMint).
 
 ### Rent and Rent Exemption
 Note that the first line in the function body of the previous code snippet contains a call to `getMinimumBalanceForRentExemptMint`, the result of which is passed into the `createAccount` function. This is part of account initialization called rent exemption.
@@ -198,6 +200,8 @@ const associatedTokenAccount = await createAssociatedTokenAccount(
 );
 ```
 
+You can refer to `createAssociatedTokenAccount` documentation [here](https://solana-labs.github.io/solana-program-library/token/js/modules.html#createAssociatedTokenAccount).
+
 This function returns the `publicKey` of the new associated token account and requires the following arguments:
 
 - `connection` - the JSON-RPC connection to the cluster
@@ -288,6 +292,8 @@ async function buildMintToTransaction(
 }
 ```
 
+You can refer to `createMintToInstruction` documentation [here](https://solana-labs.github.io/solana-program-library/token/js/modules.html#createMintToInstruction).
+
 ## Transfer Tokens
 
 SPL-Token transfers require both the sender and receiver to have token accounts for the mint of the tokens being transferred. The tokens are transferred from the sender’s token account to the receiver’s token account.
@@ -342,6 +348,8 @@ async function buildTransferTransaction(
 }
 ```
 
+You can refer to `createTransferInstruction` documentation [here](https://solana-labs.github.io/solana-program-library/token/js/modules.html#createTransferInstruction).
+
 ## Burn Tokens
 
 Burning tokens is the process of decreasing the token supply of a given token mint. Burning tokens removes them from the given token account and from broader circulation.
@@ -392,6 +400,8 @@ async function buildBurnTransaction(
     return transaction
 }
 ```
+
+You can refer to `createBurnInstruction` documentation [here](https://solana-labs.github.io/solana-program-library/token/js/modules.html#createBurnInstruction).
 
 # Demo
 
