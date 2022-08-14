@@ -88,6 +88,8 @@ sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 
 You can read more about downloading the Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
 
+If you are setting up Solana CLI and validators on M1 machines, you will face some challenges. For a smooth installation please refer to this [link](https://dev.to/nickgarfield/how-to-install-solana-dev-tools-on-an-m1-mac-kfn)
+
 ## Solana CLI basics
 
 The Solana CLI is a command-line interface tool that provides a collection of commands for interacting with a Solana cluster.
