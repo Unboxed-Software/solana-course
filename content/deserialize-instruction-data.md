@@ -460,7 +460,7 @@ pub fn process_instruction(
             // Make a call to `add_move_review` function
             add_movie_review(program_id, accounts, title, rating, description)
         }
-    }
+    };
 }
 ```
 
