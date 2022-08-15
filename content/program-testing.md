@@ -19,7 +19,7 @@ Testing in software is very common and there are actually entire career fields d
 
 Think back to what was discussed in the [Basic Security](./program-security.md) lesson. How can we write tests that determine if the security checks we've implemented actually work as intended and are sufficient? Program security and testing go hand in hand. To write good tests, it's helpful to think like an attacker. To reiterate some of what was discussed in that lesson, the goal is to not just "get the code working", but to ensure it works properly and is robust enough to properly handle malicious input.
 
-The rust package manager, Cargo, natively has some tools built into it to help developers write their own automated tests. Whenever we make a new library project with `cargo new --lib`, a test module with a test function in it is automatically generated for us. You can run tests with Cargo with either `cargo test` or `cargo test-bpf`.
+The rust package manager, Cargo, natively has some tools built into it to help developers write their own automated tests. Whenever we make a new library project with `cargo new --lib`, a test module with a test function in it is automatically generated for us. You can run tests with Cargo with `cargo test-bpf`.
 
 We'll be covering two types of tests in this lesson: unit tests and integration tests. *Unit tests* are small and more focused, testing one module in isolation at a time, and can test private interfaces. *Integration tests* are entirely external to your library and use your code in the same way any other external code would, using only the public interface and potentially exercising multiple modules per test.
 
@@ -41,9 +41,25 @@ mod tests {
 }
 ```
 
-The `cfg` attribute stands for *configuration* and tells Rust that the following item should only be included given a certain configuration option. In this case, the `#[cfg(test)]` annotation tells Cargo to compile our test code only if we actively run the tests with `cargo test`. This way the testing code is not run when you call `cargo build` which saves on compile time.
+The `cfg` attribute stands for *configuration* and tells Rust that the following item should only be included given a certain configuration option. In this case, the `#[cfg(test)]` annotation tells Cargo to compile our test code only if we actively run the tests with `cargo test-bpf`. This way the testing code is not run when you call `cargo build` which saves on compile time.
 
-Tests are defined in the `tests` module with the `#[test]` attribute. When running `cargo test`, every function inside this module marked as a test will be run. You can also create helper functions that are not tests in the module, just don’t annotate them with the `#[test]` attribute.
+Tests are defined in the `tests` module with the `#[test]` attribute. When running `cargo test-bpf`, every function inside this module marked as a test will be run. You can also create helper functions that are not tests in the module, just don’t annotate them with the `#[test]` attribute.
+
+````rust
+// Example testing module with a single test
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
+    }
+
+    fn helper_function() {
+        doSomething()
+    }
+}
+````
 
 ### How to build unit tests
 
@@ -68,7 +84,7 @@ mod tests {
         let program_id = Pubkey::new_unique();
 
         let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
-            "bpf_program_template",
+            "program_name",
             program_id,
             processor!(process_instruction),
         )
@@ -95,7 +111,9 @@ mod tests {
 }
 ```
 
-In the code snippet, we created a public key to use as our `program_id` and then initialized a `ProgramTest`. Then, we create a second `Keypair` and built our `Transaction` with the appropriate parameters. Finally, we used the `banks_client` that was returned when calling `ProgramTest::new` to process this transaction and check that the return value is equal to `Ok(_)`. This is a very simple test, but from the code snippet you can see how you would go about creating more complex tests that involve more accounts and data similar to how you would client side.
+In the code snippet, we created a public key to use as our `program_id` and then initialized a `ProgramTest`. The `banks_client` returned from the `ProgramTest` will act as our interface into the testing environment and the `payer` variable is a newly generated keypair with SOL that will be used to sign/pay for transactions. Then, we create a second `Keypair` and build our `Transaction` with the appropriate parameters. Finally, we used the `banks_client` that was returned when calling `ProgramTest::new` to process this transaction and check that the return value is equal to `Ok(_)`.
+
+You'll notice the function is annotated with the `#[tokio::test]` attribute. [Tokio](https://docs.rs/tokio/1.7.1/tokio/index.html) is a Rust crate to help with writing asyncronous code. This just denotes our test function as async.
 
 ## Integration tests
 
@@ -118,9 +136,9 @@ fn it_adds_two() {
 
 Each file in the `tests` directory is a separate crate, so we will need to bring our library of code that we want to test into each file’s scope - that’s what the `use example_lib` line is doing.
 
-We don’t need to annotate the tests in the `tests` directory with `#[cfg(test)]` because Cargo will only compile files inside the `tests` directory when we run `cargo test`. Cargo is pretty smart, right?
+We don’t need to annotate the tests in the `tests` directory with `#[cfg(test)]` because Cargo will only compile files inside the `tests` directory when we run `cargo test-bpf`. Cargo is pretty smart, right?
 
-Once you have tests written (either unit, integration, or both), all you need to do is run `cargo test-bpf` or `cargo test` and they will execute. A successful completion of a single unit and single integration test will output something like this to the command line.
+Once you have tests written (either unit, integration, or both), all you need to do is run `cargo test-bpf` and they will execute. A successful completion of a single unit and single integration test will output something like this to the command line.
 
 ```sh
 cargo test
@@ -147,7 +165,7 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 ```
 
-The three sections of output include the unit tests, the integration test, and the doc tests.
+The three sections of output include the unit tests, the integration test, and the doc tests. The doc tests are something that we won't conver in this lesson, but there is additional `Cargo` functionality to execute code examples in any documentation you might have in your code base. You can read more about this feature [here](https://doc.rust-lang.org/rust-by-example/testing/doc_testing.html).
 
 As a side note, if the program you are testing creates a new account at all (i.e. creates a PDA), then the command `cargo test` will not work and the program will fail to complete with an error like the following.
 
@@ -195,10 +213,10 @@ describe("begin tests", async () => {
     it('first test', async () => {
             ...
         })
-        // Second Mocha test
-        it('second test', async () => {
-            ...
-        })
+    // Second Mocha test
+    it('second test', async () => {
+        ...
+    })
         ...
 })
 ```
@@ -251,7 +269,7 @@ When writing unit tests in Rust, you cannot use the `msg!()` macro to log inform
 
 ### Compute budget
 
-Developing on a blockchain comes with some unique constraints, one of those on Solana is the compute budget. Although there are plans to move to a per transaction basis, all Solana transactions are restricted to a per instruction compute budget. The compute budget is meant to prevent a program from abusing resources. Every instruction has a budget of 200,000 compute units and different actions consume different amounts of compute units.
+Developing on a blockchain comes with some unique constraints, one of those on Solana is the compute budget. Solana just recently moved from a per instruction compute budget to a transaction wide compute budget. The compute budget is meant to prevent a program from abusing resources. Every transaction has a budget of 1.4m compute units and different actions consume different amounts of compute units.
 
 As an instruction executes and the program performs various actions, it consumes this compute budget by using up computation units. When the program consumes its entire budget or exceeds a bound, the runtime halts the program and returns an error. The function `sol_log_compute_units()` is available to use to print exactly how many compute units are remaining for the program to consume within the current instruction.
 
@@ -270,7 +288,7 @@ pub fn process_instruction(
 }
 ```
 
-For some more detailed information regarding the compute budget [check out the docs](https://docs.solana.com/developing/programming-model/runtime#compute-budget).
+For some more detailed information regarding the compute budget [check out the docs](https://docs.solana.com/developing/programming-model/runtime#compute-budget) or [this thread about the move from instruction to transaction wide compute budget](https://twitter.com/solana_devs/status/1528196015659966464?s=20&t=ET7_NhzJcjawMcJZKoRl6w).
 
 ### Stack size
 
