@@ -268,6 +268,45 @@ The final step in creating an NFT collection is for the creator to sign the NFTs
 
 You can sign a collection using the Candy Machine v2 CLI `sign_all` command.
 
+*Note - You can also set metadata to metaplex program directly from inside the program. To do so you will have to CPI(Will be explained later what CPI is) to metaplex program. Here's how
+```rust
+use mpl_token_metadata::{instruction::create_metadata_accounts_v2};
+let ix = create_metadata_accounts_v2(
+            *ctx.accounts.metadata_program.to_account_info().key, // program_id,
+            *ctx.accounts.metadata_pda.to_account_info().key, // metadata_account,
+            *ctx.accounts.mint.to_account_info().key, //mint,
+            *ctx.accounts.mint.to_account_info().key, //mint_authority,
+            *ctx.accounts.payer.to_account_info().key, //payer,
+            *ctx.accounts.updauth.to_account_info().key, //update_authority,
+            String::from("Token Name"), // name,
+            String::from("Token Symbol"), // symbol,
+            String::from("https://token-metadat-uri.json"), // uri,
+            None, // creators,
+            0u16, //seller_fee_basis_points,
+            false, // update_authority_is_signer,
+            true, // is_mutable,
+            None, // collection,
+            None, // uses,
+            // for create_metadata_accounts_v3, add:     None, // collection_details
+        );
+        invoke_signed(
+            &ix,
+            &[
+                ctx.accounts.metadata_program.to_account_info().clone(), // Metadata program id
+                ctx.accounts.metadata_pda.to_account_info().clone(), // Metadata account
+                ctx.accounts.mint.to_account_info().clone(), // Mint
+                ctx.accounts.mint.to_account_info().clone(), // Mint Authority
+                ctx.accounts.payer.to_account_info().clone(), // Payer
+                ctx.accounts.updauth.to_account_info().clone(), // Update Authority
+                ctx.accounts.system_program.to_account_info().clone(), // System Program
+                ctx.accounts.rent.to_account_info().clone(), // Rent Sysvar
+            ],
+            &[
+                &[CTRLSEED.as_ref(), &[bump]],
+            ],
+        )?;
+```
+
 # Demo
 
 Let’s put all of this into practice by creating a candy machine and minting our collection using the Candy Machine UI.

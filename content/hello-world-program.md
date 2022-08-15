@@ -177,6 +177,8 @@ Following program execution, the program must return a value of type `ProgramRes
 
 ...and there you have it - you now know all the things you need for the foundations of creating a Solana program using Rust. Let’s practice what we’ve learned so far!
 
+You can refer to [rust docs](https://doc.rust-lang.org/std/index.html#) to know more about any specific keyword. 
+
 # Demo
 
 We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser.
