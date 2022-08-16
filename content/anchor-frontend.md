@@ -51,7 +51,7 @@ Next, let’s go over each item to better understand how everything ties togethe
 
 When an Anchor program is built, Anchor generates a JSON file called an `IDL`. The `IDL` file contains the structure of the program and is used by the client to know how to interact with a specific program.
 
-To use the `IDL` in our frontend, we’ll need to include the `IDL` file our project and then import the file.
+To use the `IDL` in our frontend, we’ll need to include the `IDL` file in our project and then import the file.
 
 ```tsx
 import idl from "./idl.json"
@@ -122,7 +122,7 @@ The `Provider` object represents the encapsulation of two things:
 - `Connection` - the connection to a Solana cluster (i.e. localhost, devnet, mainnet)
 - `Wallet` -  a specified address used to pay for and sign transactions
 
-The `Provider` is then able to send transactions to the Solana blockchain on behalf of a `Wallet` by including the wallet’s signature to outgoing transactions. When using a frontend with aSolana wallet provider, all outgoing transaction must still be approved by prompting the user.
+The `Provider` is then able to send transactions to the Solana blockchain on behalf of a `Wallet` by including the wallet’s signature to outgoing transactions. When using a frontend with a Solana wallet provider, all outgoing transactions must still be approved by the user via their wallet browser extension.
 
 Setting up the `Wallet` and `Connection` would look something like this:
 
@@ -232,7 +232,7 @@ const program = new Program(idl as Idl, programId)
 
 ## Anchor `MethodsBuilder`
 
-Once the `Program` object is set up, we can use the Anchor `MethodsBuilder` to build transactions with instructions from our program. The `MethodsBuilder` uses the `IDL` to provides a simplified format building transaction to invoke program instructions.
+Once the `Program` object is set up, we can use the Anchor `MethodsBuilder` to build transactions with instructions from our program. The `MethodsBuilder` uses the `IDL` to provide a simplified format for building transactions to invoke program instructions. Note that the camel case naming convention is used when interacting with a program from the client, compared to the snake case naming convention used when the writing the program in rust.
 
 The basic `MethodsBuilder` format looks like this:
 
@@ -249,7 +249,7 @@ The basic format includes the following:
 
 - `program` - the program being invoked specified by the `programId` from the `Program` object
 - `methods` -  builder API for all APIs on the program and includes all instructions from the `IDL`
-- `instructionName` - the name of the specific instruction from the `IDL` to invoke
+- `instructionName` - the name of the specific instruction from the `IDL` to invoke.
 - `instructionDataInputs` - include any instruction data required by the instruction within the parentheses after the instruction name
 - `accounts`- list of accounts required by the instruction being invoked
 - `signers` - any additional signers required by the instruction
@@ -305,13 +305,13 @@ import { useWallet } from "@solana/wallet-adapter-react"
 const { sendTransaction } = useWallet()
 ```
 
-If the transaction was build using either `.instruction` or `.transaction` from the Anchor `MethodsBuilder`, you’ll need to send the transaction with `sendTransaction` to prompt a connected wallet for approval.
+If the transaction was built using either `.instruction` or `.transaction` from the Anchor `MethodsBuilder`, you’ll need to send the transaction with `sendTransaction` to prompt a connected wallet for approval.
 
 ```tsx
 sendTransaction(transaction, connection)
 ```
 
-If the instruction requires additionally signatures, you need add the additionally signatures to `sendTransaction` using the following format:
+If the instruction requires additional signatures, you'll need to add them to `sendTransaction` using the following format:
 
 ```tsx
 sendTransaction(transaction, connection, { signers: [] })
@@ -328,7 +328,7 @@ Let’s practice this together by building a frontend for the Counter program fr
 
 Download the starter code for this project [here](https://github.com/ZYJLiu/anchor-solana-ping-frontend/tree/starter). Once you have the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`.
 
-This project is a simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson, the `idl.json` file for the Counter program, and the `Initialize` and `Increment` components we’ll be building throughout this demo. The `programId` of the program we’ll be invoking is also included in the starter code.
+This project is a simple Next.js application. It includes the `WalletContextProvider` we created in the [Wallets lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets.md), the `idl.json` file for the Counter program, and the `Initialize` and `Increment` components we’ll be building throughout this demo. The `programId` of the program we’ll be invoking is also included in the starter code.
 
 ### 2. `Initialize`
 
