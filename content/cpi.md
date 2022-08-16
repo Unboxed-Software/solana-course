@@ -108,10 +108,10 @@ Putting these two pieces together looks like this:
 use solana_program::instruction::AccountMeta;
 
 vec![
-    AccountMeta::new(account1_pubkey, true),
-    AccountMeta::read_only(account2_pubkey, false),
-    AccountMeta::read_only(account3_pubkey, true),
-    AccountMeta::new(account4_pubkey, false),
+    AccountMeta::new(account1_pubkey, true), // metadata for a writable, signer account
+    AccountMeta::read_only(account2_pubkey, false), // metadata for a read-only, non-signer account
+    AccountMeta::read_only(account3_pubkey, true), // metadata for a read-only, signer account
+    AccountMeta::new(account4_pubkey, false), // metadata for a writable, non-signer account
 ]
 ```
 
