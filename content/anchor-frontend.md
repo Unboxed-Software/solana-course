@@ -49,7 +49,7 @@ Next, let’s go over each item to better understand how everything ties togethe
 
 ### IDL (Interface Description Language)
 
-When an Anchor program is built, Anchor generates a JSON file called an `IDL`. The `IDL` file contains the structure of the program and is used by the client to know how to interact with a specific program.
+When an Anchor program is built, Anchor generates a JSON file called an `IDL`. The `IDL` file contains the structure of the program and is used by the client to know how to interact with a specific program. It is also possible to generate an `IDL` from a native Solana program using tools like [shank](https://github.com/metaplex-foundation/shank) by Metaplex. An `IDL` file is required to interact with a program using the `@project-serum/anchor` package.
 
 To use the `IDL` in our frontend, we’ll need to include the `IDL` file in our project and then import the file.
 
