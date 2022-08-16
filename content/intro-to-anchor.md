@@ -12,15 +12,17 @@
 
 - **Anchor** is a framework building Solana programs
 - **Anchor** macros speed up the process of building Solana programs by abstracting away a significant amount of boilerplate code
-- **Anchor** allows you more easily build secure programs by performing certain security checks, requiring account validation, and providing a simply way to implement additional checks.
+- **Anchor** allows you to more easily build secure programs by performing certain security checks, requiring account validation, and providing a simple way to implement additional checks.
 
 # Overview
 
 ## What is Anchor?
 
-Anchor is a framework building Solana programs. The Anchor framework organizes a program in distinct sections that separates the instruction logic from account validation and security check. This separation generally allows for easier readability.
+Anchor is a framework for building Solana programs. The Anchor framework organizes a program into distinct sections that separates the instruction logic from account validation and security checks.
 
-Anchor also enables you to quickly build Solana programs by abstracting away various tasks such as serialization and deserialization of account. This is accomplished by bundling various boilerplate code into macros, allowing you to focus on the business logic of your program. Additionally, Anchor is designed to handling many common security checks while allowing you to easily define additional checks to help you build more secure programs.
+Anchor also enables you to quickly build Solana programs by abstracting away various tasks such as the serialization and deserialization of an account. This is accomplished by bundling boilerplate code into macros, allowing you to focus on the business logic of your program. Additionally, Anchor is designed to inherently handle many common security checks while allowing you to easily define additional checks to help you build more secure programs.
+
+The organization and abstraction capabilities of Anchor, make Solana programs much easier to read and write.
 
 ## Anchor program structure
 
@@ -84,7 +86,7 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 The `#[program]` attribute defines the module containing all the program instructions. This is where you implement the business logic for each instruction in your program. In an Anchor program, account validation and security checks are generally separated from the instruction logic.
 
-If your instructions require instruction data, include arguments to the function after the context argument. Anchor will then automatically deserialize the instruction data.
+If your instructions require instruction data, include additional function parameters after the context argument. Anchor will then automatically deserialize the instruction data.
 
 ```rust
 #[program]
@@ -102,7 +104,7 @@ mod program_module_name {
 
 ### Instruction `Context`
 
-All Anchor instructions require a `Context` type as its first input. The instruction `Context` is used to specify the accounts an instruction requires.
+All Anchor instructions require a `Context` type as the first parameter. The instruction `Context` is used to specify the accounts an instruction requires.
 
 ```rust
 pub struct Context<'a, 'b, 'c, 'info, T> {
@@ -163,7 +165,7 @@ When `instruction_one` is invoked, the program:
 - Checks that the accounts passed into the instruction match the account types specified in the `InstructionAccounts` struct
 - Checks the accounts against any additional constraints specified
 
-If any accounts passed into `instruction_one` fails the account validation or security checks specified in the `InstructionAccounts` struct, then the instruction fails before ever running the instruction logic.
+If any accounts passed into `instruction_one` fail the account validation or security checks specified in the `InstructionAccounts` struct, then the instruction fails before even reaching the program logic.
 
 In the next sections we’ll discuss how basic account validation and additional constraints are implemented in an Anchor program.
 
@@ -245,13 +247,15 @@ For `account_name`, we can see that the `#[account(..)]` attribute specifies th
 ```rust
 #[account(init, payer = user, space = 8 + 8)]
 pub account_name: Account<'info, AccountStruct>,
+#[account(mut)]
+pub user: Signer<'info>,
 ```
 
 - `init` - creates the account via a CPI to the system program and initializes it (sets its account discriminator)
 - `payer` - specifies `payer` for the initialization as the `user` account defined in the struct
 - `space`- specifies the `space` that allocated for the account is 8 + 8 bytes. The first 8 bytes is a discriminator that Anchor automatically adds to identify the account type. The next 8 bytes allocates space for the data stored on the account as defined in the `AccountStruct` type.
 
-For `user` we use the `#[account(..)]` attribute to specify that the given account is mutable. The `user` account must be marked as mutable because lamports will be deducted from the account to payer for the initialization of `account_name`.
+For `user` we use the `#[account(..)]` attribute to specify that the given account is mutable. The `user` account must be marked as mutable because lamports will be deducted from the account to pay for the initialization of `account_name`.
 
 ```rust
 #[account(mut)]
@@ -378,7 +382,7 @@ pub struct Initialize<'info> {
 
 ### 4. Implement `Counter`
 
-Next, use the `#[account]` attribute to define a new `Counter` account type which automatically implement the traits required for serialization and deserialization. The `Counter` struct defines one `count` field of type `u64`. This means that we can expect any new accounts initializes as a `Counter` type to have a matching data structure. The `#[account]` attribute also automatically sets the discriminator for a new account and sets the owner of the account as the `programId` from the `declare_id!` macro.
+Next, use the `#[account]` attribute to define a new `Counter` account type which automatically implements the traits required for serialization and deserialization. The `Counter` struct defines one `count` field of type `u64`. This means that we can expect any new accounts initialized as a `Counter` type to have a matching data structure. The `#[account]` attribute also automatically sets the discriminator for a new account and sets the owner of the account as the `programId` from the `declare_id!` macro.
 
 ```rust
 #[account]
@@ -479,7 +483,7 @@ You are now ready to build and the deploy the program with Solana Playground!
 
 ### 8. Test on Solana Playground
 
-Solana Playground also provides a convenient UI for testing programs build using the Anchor framework.
+Solana Playground also provides a convenient UI for testing programs built using the Anchor framework.
 
 Test the `initialize` instruction by:
 
