@@ -228,7 +228,7 @@ Once you have a wallet, click the settings gear on the bottom right in the Phant
 
 Download the starter code for this project [here](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo.
 
-You can see its current state with the command `npm run dev` in the console.
+Once you run the command `npm install` in the console to install the package dependencies, you can see its current state with the command `npm run dev`.
 
 ### 3. Wrap the app in context providers
 
