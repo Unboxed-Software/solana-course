@@ -17,21 +17,28 @@
 
 - **Accounts** are like the files in Solana’s network ledger. All state data is stored in an account. Accounts can be used for many things, but for now we’ll focus on the aspect of accounts which store SOL.
 - **SOL** is the name of Solana’s native token.
-- **Lamports** are fractional SOL and are named after [Leslie Lamport](https://en.wikipedia.org/wiki/Leslie_Lamport).
+- **Lamports** are fractional SOL and are named after [Leslie Lamport]. (https://en.wikipedia.org/wiki/Leslie_Lamport). 1 Lamport = 0.000000001 SOL.
 - **Public keys**, often referred to as addresses, point to accounts on the Solana network. While you must have a specific secret key to perform certain functions within accounts, anyone can read account data with a public key.
 - **JSON RPC API**: all interactions with the Solana network happens through the [JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api). This is effectively an HTTP POST with a JSON body that represents the method you want to call.
-- **@solana/web3.js** is an abstraction on top of the JSON RPC API. It can be installed with `npm` and allows you to call Solana methods as JavaScript functions. For example, you can use it to query the SOL balance of any account:
+- **@solana/web3.js** is an abstraction on top of the JSON RPC API. It can be installed with `npm` or `yarn` and allows you to call Solana JSON RPC API as JavaScript functions. For example, you can use it to query the SOL balance of any account:
 
     ```tsx
+    import {
+      clusterApiUrl,
+      Connection,
+      PublicKey,
+      LAMPORTS_PER_SOL,
+    } from "@solana/web3.js";
+
     async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
-        const connection = new Connection(clusterApiUrl('devnet'));
+        const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
         return connection.getBalance(address);
     }
 
-    const publicKey = new PublicKey('7C4jsPZpht42Tw6MjXWF56Q5RQUocjBBmciEjDa8HRtp')
+    const publicKey = new PublicKey('7C4jsPZpht42Tw6MjXWF56Q5RQUocjBBmciEjDa8HRtp');
     getBalanceUsingWeb3(publicKey).then(balance => {
-        console.log(balance)
-    })
+        console.log(`${balance/LAMPORTS_PER_SOL} SOL`)
+    });
     ```
 
 # Overview
@@ -44,9 +51,9 @@ In this lesson we won’t consider much about accounts beyond their ability to s
 
 ### Public Keys
 
-Public keys are often referred to as addresses. The addresses point to accounts on the Solana network. If you want to run a specific program or transfer SOL, you’ll need to provide the necessary public key (or keys) to do so.
+Public keys are often referred to as addresses. The addresses point to accounts on the Solana network. If you want to run a specific program a.k.a smart contract or just want to transfer some SOL, you’ll need to provide the necessary public key (or keys) to do so.
 
-Public keys are 256-bit and they are often shown as base-58 encoded strings like `7C4jsPZpht42Tw6MjXWF56Q5RQUocjBBmciEjDa8HRtp`.
+Public keys are 32-bytes and they are often shown as [base-58](https://en.bitcoinwiki.org/wiki/Base58) encoded strings like `7C4jsPZpht42Tw6MjXWF56Q5RQUocjBBmciEjDa8HRtp`.
 
 ## The Solana JSON RPC API
 
@@ -59,11 +66,11 @@ Per the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification)
 > *JSON-RPC is a stateless, light-weight remote procedure call (RPC) protocol. Primarily this specification defines several data structures and the rules around their processing. It is transport agnostic in that the concepts can be used within the same process, over sockets, over http, or in many various message passing environments. It uses [JSON](http://www.json.org/) ([RFC 4627](http://www.ietf.org/rfc/rfc4627.txt)) as data format.*
 >
 
-In practice, this specification simply involves sending a JSON object representing a method you want to call. You can do this with sockets, http, and more.
+In practice, this specification simply involves sending a JSON object representing a method you want to call. You can do this with [websocket](https://en.wikipedia.org/wiki/WebSocket), http, and more.
 
 This JSON object needs four members:
 
-- `jsonrpc` - The JSON RPC version number. This needs to be *exactly* `"2.0"`.
+- `jsonrpc` - The JSON RPC version number. This needs to be *exactly* `&quot;2.0&quot;`.
 - `id` - An identifier that you choose for identifying the call. This can be a string or a whole number.
 - `method` - The name of the method you want to invoke.
 - `params` - An array containing the parameters to use during the method invocation.
@@ -72,7 +79,7 @@ So, if you want to call the `getBalance` method on the Solana network, you could
 
 ```tsx
 async function getBalanceUsingJSONRPC(address: string): Promise<number> {
-    const url = clusterApiUrl('devnet')
+    const url = clusterApiUrl('devnet');
     console.log(url);
     return fetch(url, {
         method: 'POST',
