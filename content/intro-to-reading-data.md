@@ -17,7 +17,7 @@
 
 - **Accounts** are like the files in Solana’s network ledger. All state data is stored in an account. Accounts can be used for many things, but for now we’ll focus on the aspect of accounts which store SOL.
 - **SOL** is the name of Solana’s native token.
-- **Lamports** are fractional SOL and are named after [Leslie Lamport] (https://en.wikipedia.org/wiki/Leslie_Lamport). 1 Lamport = 0.000000001 SOL.
+- **Lamports** are fractional SOL and are named after [Leslie Lamport](https://en.wikipedia.org/wiki/Leslie_Lamport). 1 Lamport = 0.000000001 SOL.
 - **Public keys**, often referred to as addresses, point to accounts on the Solana network. While you must have a specific secret key to perform certain functions within accounts, anyone can read account data with a public key.
 - **JSON RPC API**: all interactions with the Solana network happens through the [JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api). This is effectively an HTTP POST with a JSON body that represents the method you want to call.
 - **@solana/web3.js** is an abstraction on top of the JSON RPC API. It can be installed with `npm` or `yarn` and allows you to call Solana JSON RPC API as JavaScript functions. For example, you can use it to query the SOL balance of any account:
