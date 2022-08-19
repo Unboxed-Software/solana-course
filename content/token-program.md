@@ -5,6 +5,7 @@
 *By the end of this lesson, you will be able to:*
 
 - Create token mints
+- Add metadata to the mint account
 - Create token accounts
 - Mint tokens
 - Transfer tokens
@@ -113,6 +114,95 @@ Until recently, all accounts on Solana were required to do one of the following 
 Recently, the first option was done away with and it became a requirement to deposit enough SOL for rent exemption when initializing a new account.
 
 In this case, we're creating a new account for a token mint so we use `getMinimumBalanceForRentExemptMint` from the `@solana/spl-token` library. However, this concept applies to all accounts and you can use the more generic `getMinimumBalanceForRentExemption` method on `Connection` for other accounts you may need to create.
+
+## Mint Token Metadata
+When you create a token, you want to make sure that the token shows up in user's wallets with a name, ticker, and image. Solana uses the [Token Metadata Program from Metaplex](https://docs.metaplex.com/token-metadata/specification#token-standards) to achieve this.
+The metadata account address is derived from the mint account. The metadata field requires a JSON file to be populated with at least the following:
+
+```tsx
+{
+  "name": "Coin name",
+  "symbol": "Symbol",
+  "image": "Image link"
+}
+```
+
+To create metadata to the mint account, you can use the `@metaplex-foundation/mpl-token-metadata` library's `createCreateMetadataAccountV2Instruction` function to create the metadata of mint token:
+
+```tsx
+const createMetadataInstruction = createCreateMetadataAccountV2Instruction(
+    {
+        metadata,
+        mint,
+        mintAuthority,
+        payer,
+        updateAuthority,
+    },
+    { createMetadataAccountArgsV2: 
+        {
+            data: tokenMetadata, 
+            isMutable: true 
+        } 
+    }
+)
+```
+
+The `createCreateMetadataAccountV2Instruction` function returns the `instruction` of the metadata token account. This function requires the following arguments:
+
+- `metadata` - a new account which will store token metadata.
+- `mint` - the account of the toke mint
+- `mintAuthority` - the account which is mint authority of mint
+- `payer` - the account of the payer for the transaction
+- `updateAuthority` - the account which is update authority of mint
+- `createMetadataAccountArgsV2` - which takes tokenMetadata object populated with above mention field.
+
+Let's create a function to get transaction with instructions `createCreateMetadataAccountV2Instruction`.
+
+```tsx
+import * as web3 from '@solana/web3'
+import { createCreateMetadataAccountV2Instruction, DataV2 } from "@metaplex-foundation/mpl-token-metadata";
+
+async function buildMintTokenMetadataTransaction(
+    connection: web3.Connection,
+    payer: web3.PublicKey,
+    mint: web3.PublicKey,
+    mintAuthority: web3.PublicKey,
+    updateAuthority: web3.PublicKey,
+    tokenName: string,
+    tokenSymbol: string,
+    metadataURI: string,
+): Promise<web3.Transaction> {
+    const metadataPDA = await findMetadataPda(mint);
+    const tokenMetadata = {
+        name: tokenName, 
+        symbol: tokenSymbol,
+        uri: metadataURI,
+        sellerFeeBasisPoints: 0,
+        creators: null,
+        collection: null,
+        uses: null
+    } as DataV2;
+
+    const transaction = new web3.Transaction().add(
+        createCreateMetadataAccountV2Instruction({
+            metadata: metadataPDA,
+            mint: mint,
+            mintAuthority: mintAuthority,
+            payer: payer,
+            updateAuthority: updateAuthority,
+          },
+          { createMetadataAccountArgsV2: 
+            { 
+              data: tokenMetadata, 
+              isMutable: true 
+            } 
+          }
+        )
+    );
+
+    return transaction
+}
+```
 
 ## Token Account
 
@@ -460,7 +550,99 @@ async function main() {
 }
 ```
 
-### 3. Create Token Account
+### 3. Create Token Mint Metadata
+Next, create metadata for our newly minted token, so that token shows up in user's wallets with a name, ticker, and image. Solana uses the [Token Metadata Program from Metaplex](https://docs.metaplex.com/token-metadata/specification#token-standards) to achieve this.
+The metadata account address is derived from the mint account. The metadata field requires a JSON file to be populated with at least the following:
+
+```tsx
+{
+  "name": "Coin name",
+  "symbol": "Symbol",
+  "image": "Image link"
+}
+```
+
+To create metadata to the mint account, you can use the `@metaplex-foundation/mpl-token-metadata` library's `createCreateMetadataAccountV2Instruction` function to create the metadata of mint token:
+
+```tsx
+const createMetadataInstruction = createCreateMetadataAccountV2Instruction(
+    {
+        metadata,
+        mint,
+        mintAuthority,
+        payer,
+        updateAuthority,
+    },
+    { createMetadataAccountArgsV2: 
+        {
+            data: tokenMetadata, 
+            isMutable: true 
+        } 
+    }
+)
+```
+
+The `createCreateMetadataAccountV2Instruction` function returns the `instruction` of the metadata token account. This function requires the following arguments:
+
+- `metadata` - a new account which will store token metadata.
+- `mint` - the account of the toke mint
+- `mintAuthority` - the account which is mint authority of mint
+- `payer` - the account of the payer for the transaction
+- `updateAuthority` - the account which is update authority of mint
+- `createMetadataAccountArgsV2` - which takes tokenMetadata object populated with above mention field.
+
+Let's create a function to get transaction with instructions `createCreateMetadataAccountV2Instruction`.
+
+```tsx
+import * as web3 from '@solana/web3'
+import { createCreateMetadataAccountV2Instruction, DataV2 } from "@metaplex-foundation/mpl-token-metadata";
+
+async function createTokenMetadata(
+    connection: web3.Connection,
+    payer: web3.PublicKey,
+    mint: web3.PublicKey,
+    mintAuthority: web3.PublicKey,
+    updateAuthority: web3.PublicKey,
+    tokenName: string,
+    tokenSymbol: string,
+    metadataURI: string,
+) {
+    const metadataPDA = await findMetadataPda(mint);
+    const tokenMetadata = {
+        name: tokenName, 
+        symbol: tokenSymbol,
+        uri: metadataURI,
+        sellerFeeBasisPoints: 0,
+        creators: null,
+        collection: null,
+        uses: null
+    } as DataV2;
+
+    const transaction = new web3.Transaction().add(
+        createCreateMetadataAccountV2Instruction({
+            metadata: metadataPDA,
+            mint: mint,
+            mintAuthority: mintAuthority,
+            payer: payer,
+            updateAuthority: updateAuthority,
+          },
+          { createMetadataAccountArgsV2: 
+            { 
+              data: tokenMetadata, 
+              isMutable: true 
+            } 
+          }
+        )
+    );
+    const tokenMetadata = await sendTransaction(transaction, connection)
+    console.log(
+        `Token Metadata: https://explorer.solana.com/address/${tokenMetadata}?cluster=devnet`
+    )
+    return tokenMetadata
+}
+```
+
+### 4. Create Token Account
 
 Now that we've created the mint, lets create a new Token Account, specifying the `user` as the `owner`.
 
@@ -516,7 +698,7 @@ async function main() {
 }
 ```
 
-### 4. Mint Tokens
+### 5. Mint Tokens
 
 Now that we have a token mint and a token account, lets mint tokens to the token account. Note that only the `mintAuthority` can mint new tokens to a token account. Recall that we set the `user` as the `mintAuthority` for the `mint` we created.
 
@@ -572,7 +754,7 @@ async function main() {
 }
 ```
 
-### 5. Transfer Tokens
+### 6. Transfer Tokens
 
 Next, lets transfer some of the tokens we just minted using the `spl-token` library's `transfer` function.
 
@@ -647,7 +829,7 @@ async function main() {
 }
 ```
 
-### 6. Burn Tokens
+### 7. Burn Tokens
 
 Finally, let's remove some tokens from circulation by burning them.
 
@@ -721,7 +903,7 @@ async function main() {
     await burnTokens(connection, user, tokenAccount.address, mint, user, 25)
 }
 ```
-### 7. Test it all out
+### 8. Test it all out
 
 With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, transferred half of them, and burned 25 more. You're well on your way to being a token expert.
 
