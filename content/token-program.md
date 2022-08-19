@@ -9,6 +9,9 @@
 - Mint tokens
 - Transfer tokens
 - Burn tokens
+- Freeze tokens
+- Approve tokens
+- Revoke tokens
 
 # TL;DR
 
@@ -393,6 +396,147 @@ async function buildBurnTransaction(
 }
 ```
 
+## Freeze Tokens
+Freezing token is the process of freezing token account so that token account owner can't transfer or burn tokens,by the freezeing authority of the token mint.
+
+To freeze tokens using the `spl-token` library, you use the `freezeAccount` function.
+
+```tsx
+const transactionSignature = await freezeAccount(
+    connection, 
+    payer, 
+    account, 
+    mint, 
+    authority, 
+)
+```
+
+The `freezeAccount` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `freezeAccount` function requires the following arguments:
+
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `account` the token account to freeze
+- `mint` the token account mint 
+- `authority` the account of the freeze authority of the mint account.
+
+
+Under the hood, the `freezeAccount` function simply creates a transaction with the instructions obtained from the `createFreezeAccountInstruction` function:
+
+```tsx
+import * as web3 from '@solana/web3'
+import * as token from '@solana/spl-token'
+
+async function buildFreezeAccountTransaction(
+    account: web3.PublicKey,
+    mint: web3.PublicKey,
+    authority: web3.PublicKey,
+): Promise<web3.Transaction> {
+    const transaction = new web3.Transaction().add(
+        token.createFreezeAccountInstruction(
+            account,
+            mint,
+            authority,
+        )
+    )
+
+    return transaction
+}
+```
+
+## Approve tokens
+Approving tokens is the process of delegating authority to someone over some or all of their token balance. Delegated authorities may transfer or burn up to the amount they've been delegated. 
+
+To delegate some tokens using the `spl-token` library, you use the `approve` function.
+
+```tsx
+const transactionSignature = await approve(
+    connection, 
+    payer, 
+    account, 
+    delegate, 
+    owner, 
+    amount,
+)
+```
+
+The `Approve` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `Approve` function requires the following arguments:
+
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `account` address of the token account
+- `delegate` account authorized to transfer tokens from the account
+- `owner` owner of the account.
+- `amount` maximum number of tokens the delegate may transfer.
+
+
+Under the hood, the `Approve` function simply creates a transaction with the instructions obtained from the `createApproveInstruction` function:
+
+```tsx
+import * as web3 from '@solana/web3'
+import * as token from '@solana/spl-token'
+
+async function buildApproveTransaction(
+    account: web3.PublicKey,
+    delegate: web3.PublicKey,
+    owner: web3.PublicKey,
+    amount: number
+): Promise<web3.Transaction> {
+    const transaction = new web3.Transaction().add(
+        token.createApproveInstruction(
+            account,
+            delegate,
+            owner,
+            amount
+        )
+    )
+
+    return transaction
+}
+```
+
+## Revoke tokens
+Revoking tokens is the process of revoking delegation authority over some or all of their token balance.
+
+To revoking tokens using the `spl-token` library, you use the `revoke` function.
+
+```tsx
+const transactionSignature = await revoke(
+    connection, 
+    payer, 
+    account, 
+    owner, 
+)
+```
+
+The `Revoke` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `Revoke` function requires the following arguments:
+
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `account` address of the token account
+- `owner` owner of the account.
+
+
+Under the hood, the `Approve` function simply creates a transaction with the instructions obtained from the `createApproveInstruction` function:
+
+```tsx
+import * as web3 from '@solana/web3'
+import * as token from '@solana/spl-token'
+
+async function buildRevokeTransaction(
+    account: web3.PublicKey,
+    owner: web3.PublicKey,
+): Promise<web3.Transaction> {
+    const transaction = new web3.Transaction().add(
+        token.createRevokeInstruction(
+            account,
+            owner,
+        )
+    )
+
+    return transaction
+}
+```
+
 # Demo
 
 We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, transfer tokens, and burn tokens.
@@ -721,7 +865,143 @@ async function main() {
     await burnTokens(connection, user, tokenAccount.address, mint, user, 25)
 }
 ```
-### 7. Test it all out
+
+### 7. Freeze Tokens
+We can even freeze token account if we have `Freeze Authority` on the mint. let's freeze one token account using the `spl-token` library's `freezeAccount` function.
+
+```tsx
+const transactionSignature = await freezeAccount(
+    connection, 
+    payer, 
+    account, 
+    mint, 
+    authority, 
+)
+```
+
+The `freezeAccount` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `freezeAccount` function requires the following arguments:
+
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `account` the token account to freeze
+- `mint` the token account mint 
+- `authority` the account of the freeze authority of the mint account.
+
+
+Under the hood, the `freezeAccount` function simply creates a transaction with the instructions obtained from the `createFreezeAccountInstruction` function:
+
+```tsx
+import * as web3 from '@solana/web3'
+import * as token from '@solana/spl-token'
+
+async function buildFreezeAccountTransaction(
+    account: web3.PublicKey,
+    mint: web3.PublicKey,
+    authority: web3.PublicKey,
+): Promise<web3.Transaction> {
+    const transaction = new web3.Transaction().add(
+        token.createFreezeAccountInstruction(
+            account,
+            mint,
+            authority,
+        )
+    )
+
+    return transaction
+}
+```
+
+### 8. Approve tokens
+Account owners may delegate authority over some or all of their token balance using the `Approve` instruction. Delegated authorities may transfer or burn up to the amount they've been delegated. Let's delegate some tokens using the `spl-token` library's `approve` function.
+
+```tsx
+const transactionSignature = await approve(
+    connection, 
+    payer, 
+    account, 
+    delegate, 
+    owner, 
+    amount,
+)
+```
+
+The `Approve` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `Approve` function requires the following arguments:
+
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `account` address of the token account
+- `delegate` account authorized to transfer tokens from the account
+- `owner` owner of the account.
+- `amount` maximum number of tokens the delegate may transfer.
+
+
+Under the hood, the `Approve` function simply creates a transaction with the instructions obtained from the `createApproveInstruction` function:
+
+```tsx
+import * as web3 from '@solana/web3'
+import * as token from '@solana/spl-token'
+
+async function buildApproveTransaction(
+    account: web3.PublicKey,
+    delegate: web3.PublicKey,
+    owner: web3.PublicKey,
+    amount: number
+): Promise<web3.Transaction> {
+    const transaction = new web3.Transaction().add(
+        token.createApproveInstruction(
+            account,
+            delegate,
+            owner,
+            amount
+        )
+    )
+
+    return transaction
+}
+```
+
+### 9. Revoke tokens
+Authority delegation may be revoked by the Account's owner via the `Revoke ` instruction. Let's revoke the authority using the `spl-token` library's `revoke` function.
+
+```tsx
+const transactionSignature = await revoke(
+    connection, 
+    payer, 
+    account, 
+    owner, 
+)
+```
+
+The `Revoke` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `Revoke` function requires the following arguments:
+
+- `connection` the JSON-RPC connection to the cluster
+- `payer` the account of the payer for the transaction
+- `account` address of the token account
+- `owner` owner of the account.
+
+
+Under the hood, the `Approve` function simply creates a transaction with the instructions obtained from the `createApproveInstruction` function:
+
+```tsx
+import * as web3 from '@solana/web3'
+import * as token from '@solana/spl-token'
+
+async function buildRevokeTransaction(
+    account: web3.PublicKey,
+    owner: web3.PublicKey,
+): Promise<web3.Transaction> {
+    const transaction = new web3.Transaction().add(
+        token.createRevokeInstruction(
+            account,
+            owner,
+        )
+    )
+
+    return transaction
+}
+```
+
+### 10. Test it all out
 
 With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, transferred half of them, and burned 25 more. You're well on your way to being a token expert.
 
