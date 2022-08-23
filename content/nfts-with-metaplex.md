@@ -1,6 +1,8 @@
 # Create Solana NFTs With Metaplex
 
 > *__Note:__ this lesson uses the Candy Machine JS CLI. The Candy Machine JS CLI has been deprecated and replaced by the new Sugar CLI. This lesson may be updated at some point in the future to use the most current tooling. In the meantime, it covers the fundamentals and will still function to create and mint NFTs. You can learn more about the Sugar CLI [here](https://docs.metaplex.com/tools/sugar/).*
+> There are also some other great implementations and courses that you might like checking out -> [Buildspace's ](https://buildspace.so/solana-nfts) 
+    and the one by Questbook Folks [here](https://openquest.xyz/quest/create_a_candy_machine_minting_nft_and_minting_website_v2)
 
 # Lesson Objectives
 
