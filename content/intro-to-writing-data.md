@@ -173,13 +173,13 @@ async function callProgram(
         programId
     })
 
-    const sig = await web3.sendAndConfirmTransaction(
+    const signature = await web3.sendAndConfirmTransaction(
         connection,
         new web3.Transaction().add(instruction),
         [payer]
     )
 
-    console.log(sig)
+    console.log(signature)
 }
 ```
 
@@ -407,13 +407,13 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
 
     transaction.add(instruction)
 
-    const sig = await web3.sendAndConfirmTransaction(
+    const signature = await web3.sendAndConfirmTransaction(
         connection,
         transaction,
         [payer]
     )
 
-    console.log(sig)
+    console.log(signature)
 }
 ```
 Finally, let's invoke `pingProgram()` within `main()` using `connection` and `payer`:
