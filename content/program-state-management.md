@@ -355,7 +355,7 @@ msg!("PDA created: {}", pda);
 
 ### 8. Update account data
 
-Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We first deserialize the the account data from `pda_account` using `try_from_slice_unchecked`, then set the values of each field.
+Now that we’ve created a new account, we are ready to update the data field of the new account using the format of the `MovieAccountState` struct from our `state.rs` file. We first deserialize the account data from `pda_account` using `try_from_slice_unchecked`, then set the values of each field.
 
 ```rust
 msg!("unpacking state account");

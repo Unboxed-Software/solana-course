@@ -136,7 +136,7 @@ export type TransactionInstructionCtorFields = {
 };
 ```
 
-Per the definition above, the the object passed to the `TransactionInstruction` constructor requires:
+Per the definition above, the object passed to the `TransactionInstruction` constructor requires:
 
 - an array of keys of type `AccountMeta`
 - the public key for the program being called

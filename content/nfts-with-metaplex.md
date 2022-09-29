@@ -228,7 +228,7 @@ At that point, you can simply use `yarn start` or `npm start` to run the fronten
 
 ### Mint using CAPTCHA
 
-There are a few things you can do to customize the minting process. One of them is adding CAPTCHA verification. For this, simply open the the candy machine's configuration file and update the `gatekeeper` field to the following:
+There are a few things you can do to customize the minting process. One of them is adding CAPTCHA verification. For this, simply open the candy machine's configuration file and update the `gatekeeper` field to the following:
 
 ```json
     "gatekeeper": {
