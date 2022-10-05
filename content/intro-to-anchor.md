@@ -50,7 +50,7 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 mod program_module_name {
     use super::*;
     pub fn instruction_one(ctx: Context<InstructionAccounts>, instruction_data: u64) -> Result<()> {
-		ctx.accounts.account_name.data = instruction_data;
+        ctx.accounts.account_name.data = instruction_data;
         Ok(())
     }
 }
@@ -58,9 +58,9 @@ mod program_module_name {
 // Validate incoming accounts for instructions
 #[derive(Accounts)]
 pub struct InstructionAccounts<'info> {
-	#[account(init, payer = user, space = 8 + 8)]
+    #[account(init, payer = user, space = 8 + 8)]
     pub account_name: Account<'info, AccountStruct>,
-	#[account(mut)]
+    #[account(mut)]
     pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
 
@@ -69,7 +69,7 @@ pub struct InstructionAccounts<'info> {
 // Define custom program account type
 #[account]
 pub struct AccountStruct {
-	data: u64
+    data: u64
 }
 
 ```
@@ -151,9 +151,9 @@ mod program_module_name {
 
 #[derive(Accounts)]
 pub struct InstructionAccounts {
-	#[account(init, payer = user, space = 8 + 8)]
+    #[account(init, payer = user, space = 8 + 8)]
     pub account_name: Account<'info, AccountStruct>,
-	#[account(mut)]
+    #[account(mut)]
     pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
 
@@ -287,7 +287,7 @@ For example, the `#[account]` attribute to define a `AccountStruct` type that ha
 ```rust
 #[account]
 pub struct AccountStruct {
-	data: u64
+    data: u64
 }
 ```
 
@@ -302,14 +302,14 @@ When the `account_name` account is initialized:
 ```rust
 #[derive(Accounts)]
 pub struct InstructionAccounts {
-	#[account(init, payer = user, space = 8 + 8)]
+    #[account(init, payer = user, space = 8 + 8)]
     pub account_name: Account<'info, AccountStruct>,
-	...
+    ...
 }
 
 #[account]
 pub struct AccountStruct {
-		data: u64
+    data: u64
 }
 ```
 
