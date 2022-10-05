@@ -2,7 +2,7 @@
 
 # Lesson Objectives
 
-*By the end of this lesson, you will be able to:*
+_By the end of this lesson, you will be able to:_
 
 - Use the Anchor framework to build a basic program
 - Describe the basic structure of an Anchor program
@@ -50,7 +50,7 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 mod program_module_name {
     use super::*;
     pub fn instruction_one(ctx: Context<InstructionAccounts>, instruction_data: u64) -> Result<()> {
-				ctx.accounts.account_name.data = instruction_data;
+		ctx.accounts.account_name.data = instruction_data;
         Ok(())
     }
 }
@@ -58,9 +58,9 @@ mod program_module_name {
 // Validate incoming accounts for instructions
 #[derive(Accounts)]
 pub struct InstructionAccounts<'info> {
-		#[account(init, payer = user, space = 8 + 8)]
+	#[account(init, payer = user, space = 8 + 8)]
     pub account_name: Account<'info, AccountStruct>,
-		#[account(mut)]
+	#[account(mut)]
     pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
 
@@ -69,7 +69,7 @@ pub struct InstructionAccounts<'info> {
 // Define custom program account type
 #[account]
 pub struct AccountStruct {
-		data: u64
+	data: u64
 }
 
 ```
@@ -94,7 +94,7 @@ mod program_module_name {
     use super::*;
 
     pub fn instruction_one(ctx: Context<InstructionAccounts>, instruction_data: u64) -> Result<()> {
-				ctx.accounts.account_name.data = instruction_data;
+		ctx.accounts.account_name.data = instruction_data;
         Ok(())
     }
 }
@@ -151,9 +151,9 @@ mod program_module_name {
 
 #[derive(Accounts)]
 pub struct InstructionAccounts {
-		#[account(init, payer = user, space = 8 + 8)]
+	#[account(init, payer = user, space = 8 + 8)]
     pub account_name: Account<'info, AccountStruct>,
-		#[account(mut)]
+	#[account(mut)]
     pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
 
@@ -234,9 +234,7 @@ account_info.key == expected_program
 account_info.executable == true
 ```
 
-Next, we’ll discuss how to provide further functionality through the use of the
-
-`#[account(..)]` attribute.
+Next, we’ll discuss how to provide further functionality through the use of the `#[account(..)]` attribute.
 
 ## `#[account(...)]`
 
@@ -289,7 +287,7 @@ For example, the `#[account]` attribute to define a `AccountStruct` type that ha
 ```rust
 #[account]
 pub struct AccountStruct {
-		data: u64
+	data: u64
 }
 ```
 
@@ -304,9 +302,9 @@ When the `account_name` account is initialized:
 ```rust
 #[derive(Accounts)]
 pub struct InstructionAccounts {
-		#[account(init, payer = user, space = 8 + 8)]
+	#[account(init, payer = user, space = 8 + 8)]
     pub account_name: Account<'info, AccountStruct>,
-		...
+	...
 }
 
 #[account]
@@ -351,12 +349,12 @@ First, let’s implement the `initialize` instruction within `#[program]`. This 
 
 ```rust
 pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        let counter = &mut ctx.accounts.counter;
-        counter.count = 0;
-        msg!("Counter Account Created");
-        msg!("Current Count: { }", counter.count);
-        Ok(())
-    }
+    let counter = &mut ctx.accounts.counter;
+    counter.count = 0;
+    msg!("Counter Account Created");
+    msg!("Current Count: { }", counter.count);
+    Ok(())
+}
 ```
 
 ### 3. Implement `Context` type `Initialize`
@@ -397,13 +395,13 @@ Within `#[program]`, let’s implement an `increment` instruction to increment t
 
 ```rust
 pub fn increment(ctx: Context<Update>) -> Result<()> {
-        let counter = &mut ctx.accounts.counter;
-        msg!("Previous Count: { }", counter.count);
-        counter.count += 1;
-        msg!("Counter Incremented");
-        msg!("Current Count: { }", counter.count);
-        Ok(())
-    }
+    let counter = &mut ctx.accounts.counter;
+    msg!("Previous Count: { }", counter.count);
+    counter.count += 1;
+    msg!("Counter Incremented");
+    msg!("Current Count: { }", counter.count);
+    Ok(())
+}
 ```
 
 ### 6. Implement `Context` type `Update`
