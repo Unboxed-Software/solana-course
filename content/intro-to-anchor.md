@@ -12,7 +12,7 @@ _By the end of this lesson, you will be able to:_
 
 - **Anchor** is a framework building Solana programs
 - **Anchor** macros speed up the process of building Solana programs by abstracting away a significant amount of boilerplate code
-- **Anchor** allows you to more easily build secure programs by performing certain security checks, requiring account validation, and providing a simple way to implement additional checks.
+- **Anchor** allows you to build secure programs more easily by performing certain security checks, requiring account validation, and providing a simple way to implement additional checks.
 
 # Overview
 
@@ -20,9 +20,7 @@ _By the end of this lesson, you will be able to:_
 
 Anchor is a framework for building Solana programs. The Anchor framework organizes a program into distinct sections that separates the instruction logic from account validation and security checks.
 
-Anchor also enables you to quickly build Solana programs by abstracting away various tasks such as the serialization and deserialization of an account. This is accomplished by bundling boilerplate code into macros, allowing you to focus on the business logic of your program. Additionally, Anchor is designed to inherently handle many common security checks while allowing you to easily define additional checks to help you build more secure programs.
-
-The organization and abstraction capabilities of Anchor, make Solana programs much easier to read and write.
+Anchor also enables you to quickly build Solana programs by abstracting away various tasks such as the serialization and deserialization accounts and instruction data. This is accomplished by bundling boilerplate code into macros, allowing you to focus on the business logic of your program. Additionally, Anchor is designed to inherently handle many common security checks while allowing you to easily define additional checks to help you build more secure programs.
 
 ## Anchor program structure
 
@@ -76,7 +74,7 @@ pub struct AccountStruct {
 
 ## `declare_id!`
 
-The `declare_id!` macro is used to specify the on-chain address of the program (i.e. the `programId`). A new keypair is generated when an Anchor program is built for the first time. This keypair will be the default keypair used to deploy the program. The corresponding publickey is used as the `programId` specified in the `declare_id!` macro.
+The `declare_id!` macro is used to specify the on-chain address of the program (i.e. the `programId`). A new keypair is generated when an Anchor program is built for the first time. This keypair will be the default keypair used to deploy the program unless specified otherwise. The corresponding publickey is used as the `programId` specified in the `declare_id!` macro.
 
 ```rust
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
@@ -144,7 +142,7 @@ For example, `instruction_one` requires a `Context` argument of type `Instructio
 mod program_module_name {
     use super::*;
     pub fn instruction_one(ctx: Context<InstructionAccounts>, instruction_data: u64) -> Result<()> {
-				...
+		...
         Ok(())
     }
 }
@@ -191,7 +189,12 @@ pub struct AccountInfo<'a> {
 }
 ```
 
-For the `account_name` account, the `Account` wrapper deserializes the `data` in the format of type `AccountStruct` and check the program owner of the account also matches the specified account type. When the account type specified in the `Account` wrapper is defined within the same crate using the `#[account]` macro, the program ownership check is against the `programId` defined in the `declare_id!` macro.
+For the `account_name` account, the `Account` wrapper:
+
+- Deserializes the account `data` in the format of type `AccountStruct`
+- Checks the program owner of the account matches the program owner specified for the `AccountStruct` type.
+
+When the account type specified in the `Account` wrapper is defined within the same crate using the `#[account]` macro, the program ownership check is against the `programId` defined in the `declare_id!` macro.
 
 ```rust
 pub account_name: Account<'info, AccountStruct>,
@@ -205,7 +208,7 @@ Account.info.owner == T::owner()
 
 ### `Signer`
 
-The `Signer` type validates that an account signed the transaction. No other ownership or type checks are done. The `Signer` type is used if underlying account data is not required in the instruction.
+The `Signer` type validates that an account signed the transaction. No other ownership or type checks are done. The `Signer` type is used if the underlying account data is not required in the instruction.
 
 For the `user` account, the `Signer` type is used to specify that the `user` account must be a signer of the instruction.
 
@@ -251,7 +254,7 @@ pub user: Signer<'info>,
 
 - `init` - creates the account via a CPI to the system program and initializes it (sets its account discriminator)
 - `payer` - specifies `payer` for the initialization as the `user` account defined in the struct
-- `space`- specifies the `space` that allocated for the account is 8 + 8 bytes. The first 8 bytes is a discriminator that Anchor automatically adds to identify the account type. The next 8 bytes allocates space for the data stored on the account as defined in the `AccountStruct` type.
+- `space`- specifies the `space` allocated for the account is 8 + 8 bytes. The first 8 bytes is a discriminator that Anchor automatically adds to identify the account type. The next 8 bytes allocates space for the data stored on the account as defined in the `AccountStruct` type.
 
 For `user` we use the `#[account(..)]` attribute to specify that the given account is mutable. The `user` account must be marked as mutable because lamports will be deducted from the account to pay for the initialization of `account_name`.
 
@@ -276,7 +279,7 @@ The `#[account]` attribute is used to represent the data structure of a Solana a
 
 You can read more about the details of each trait [here](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). In summary, the `#[account]` attribute enables serialization and deserialization, and implements the discriminator and owner traits for an account.
 
-The discriminator is an 8 byte unique identifier for an account type and derived from first 8 bytes of the SHA256 of the account’s Rust ident. When implementing account serialization traits the first 8 bytes are reserved for the account discriminator.
+The discriminator is an 8 byte unique identifier for an account type and derived from first 8 bytes of the SHA256 hash of the account type's name. When implementing account serialization traits the first 8 bytes are reserved for the account discriminator.
 
 As a result, any calls to `AccountDeserialize`’s `try_deserialize` will check this discriminator. If it doesn’t match, an invalid account was given, and the account deserialization will exit with an error.
 
@@ -291,7 +294,7 @@ pub struct AccountStruct {
 }
 ```
 
-Together with `InstructionAccounts` struct, we specify that we are initializing an account with data type of `AccountStruct`.
+Together with `InstructionAccounts` struct, we specify that we are initializing an account of type `AccountStruct`.
 
 When the `account_name` account is initialized:
 
@@ -317,31 +320,64 @@ You are now ready to build your own Solana program using the Anchor framework!
 
 # Demo
 
-We're going to build a simple Anchor program using Solana Playground. The Solana Playground is a tool that allows you to write and deploy Solana programs from the browser.
-
-We’ll be creating a simple program with two instructions:
+For this demo we'll be creating a simple counter program with two instructions:
 
 - The first instruction will initialize a counter account
 - The second instruction will increment the count stored on a counter account
 
 ### 1. Setup
 
-Click [here](https://beta.solpg.io/62f120cbf6273245aca4f635) to open Solana Playground. You should see the following starter code:
+Create a new project called `anchor-counter` by running `anchor init`:
+
+```bash
+anchor init anchor-counter
+```
+
+Next, run `anchor-build`
+
+```bash
+anchor-build
+```
+
+Then, run `anchor keys list`
+
+```bash
+anchor keys list
+```
+
+Copy the programID output from `anchor keys list`
+
+```
+anchor_counter: BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
+```
+
+Update `declare_id!` in `lib.rs`
+
+```rust
+declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
+```
+
+Update `Anchor.toml`
+
+```
+[programs.localnet]
+anchor_counter = "BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr"
+```
+
+Finally, delete the default code in `lib.rs` until all that is left is the following:
 
 ```rust
 use anchor_lang::prelude::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
 
 #[program]
-pub mod counter {
+pub mod anchor_counter {
     use super::*;
 
 
 }
 ```
-
-The `programId` in `declare_id!` will automatically be updated when you build the program.
 
 ### 2. Add `initialize` instruction
 
@@ -396,10 +432,9 @@ Within `#[program]`, let’s implement an `increment` instruction to increment t
 ```rust
 pub fn increment(ctx: Context<Update>) -> Result<()> {
     let counter = &mut ctx.accounts.counter;
-    msg!("Previous Count: { }", counter.count);
-    counter.count += 1;
-    msg!("Counter Incremented");
-    msg!("Current Count: { }", counter.count);
+    msg!("Previous counter: {}", counter.count);
+    counter.count = counter.count.checked_add(1).unwrap();
+    msg!("Counter incremented. Current count: {}", counter.count);
     Ok(())
 }
 ```
@@ -429,26 +464,24 @@ All together, the complete program will look like this:
 ```rust
 use anchor_lang::prelude::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
 
 #[program]
-pub mod counter {
+pub mod anchor_counter {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         let counter = &mut ctx.accounts.counter;
         counter.count = 0;
-        msg!("Counter Account Created");
-        msg!("Current Count: { }", counter.count);
+        msg!("Counter account created. Current count: {}", counter.count);
         Ok(())
     }
 
     pub fn increment(ctx: Context<Update>) -> Result<()> {
         let counter = &mut ctx.accounts.counter;
-        msg!("Previous Count: { }", counter.count);
-        counter.count += 1;
-        msg!("Counter Incremented");
-        msg!("Current Count: { }", counter.count);
+        msg!("Previous counter: {}", counter.count);
+        counter.count = counter.count.checked_add(1).unwrap();
+        msg!("Counter incremented. Current count: {}", counter.count);
         Ok(())
     }
 }
@@ -475,29 +508,66 @@ pub struct Counter {
 }
 ```
 
-You are now ready to build and the deploy the program with Solana Playground!
+### 8. Test
 
-![Gif of Solana Playground Build and Deploy](../assets/intro-anchor-solpg-deploy.gif)
+Navigate to `anchor-counter.ts` and remove the default test code.
 
-### 8. Test on Solana Playground
+Next, generate a new keypair for the `counter` account we will be initializing.
 
-Solana Playground also provides a convenient UI for testing programs built using the Anchor framework.
+```ts
+import * as anchor from "@project-serum/anchor"
+import { Program } from "@project-serum/anchor"
+import { expect } from "chai"
+import { AnchorCounter } from "../target/types/anchor_counter"
 
-Test the `initialize` instruction by:
+describe("anchor-counter", () => {
+  // Configure the client to use the local cluster.
+  const provider = anchor.AnchorProvider.env()
+  anchor.setProvider(provider)
 
-- Creating a random `publickey` for the `counter` account
-- Select `My address` for the `user` account
+  const program = anchor.workspace.AnchorCounter as Program<AnchorCounter>
 
-Test the `increment` instruction by:
+  const counter = anchor.web3.Keypair.generate()
 
-- Copy and pasting the `counter` account address from the `initialize` instruction
-- Select `My address` for the `user` account
+  it("Is initialized!", async () => {})
 
-Feel free to check the program logs on Solana Explorer after invoking each instruction!
+  it("Incremented the count", async () => {})
+})
+```
 
-![Gif of Solana Playground Test](../assets/intro-anchor-solpg-test.gif)
+Next, create the first test for the `initialize` instruction.
 
-Congratulations, you just deployed a Solana program using the Anchor framework! Feel free to look at the [solution code](https://beta.solpg.io/62efe772f6273245aca4f631).
+```ts
+it("Is initialized!", async () => {
+  // Add your test here.
+  const tx = await program.methods
+    .initialize()
+    .accounts({ counter: counter.publicKey })
+    .signers([counter])
+    .rpc()
+
+  const account = await program.account.counter.fetch(counter.publicKey)
+  expect(account.count.toNumber() === 0)
+})
+```
+
+Next, create the second test for the `increment` instruction.
+
+```ts
+it("Incremented the count", async () => {
+  const tx = await program.methods
+    .increment()
+    .accounts({ counter: counter.publicKey, user: provider.wallet.publicKey })
+    .rpc()
+
+  const account = await program.account.counter.fetch(counter.publicKey)
+  expect(account.count.toNumber() === 1)
+})
+```
+
+Lastly, run `anchor test`.
+
+Congratulations, you just deployed a Solana program using the Anchor framework! Feel free to look at the [solution code](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-increment).
 
 # Challenge
 
@@ -510,4 +580,4 @@ Now it’s your turn to build something independently. Because we're starting wi
 
 As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62f14c6df6273245aca4f636).
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
