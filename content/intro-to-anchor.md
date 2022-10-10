@@ -320,7 +320,9 @@ You are now ready to build your own Solana program using the Anchor framework!
 
 # Demo
 
-For this demo we'll be creating a simple counter program with two instructions:
+Before we begin, install Anchor by following the steps [here](https://www.anchor-lang.com/docs/installation).
+
+For this demo we'll create a simple counter program with two instructions:
 
 - The first instruction will initialize a counter account
 - The second instruction will increment the count stored on a counter account
@@ -329,35 +331,35 @@ For this demo we'll be creating a simple counter program with two instructions:
 
 Create a new project called `anchor-counter` by running `anchor init`:
 
-```bash
+```console
 anchor init anchor-counter
 ```
 
 Next, run `anchor-build`
 
-```bash
+```console
 anchor-build
 ```
 
 Then, run `anchor keys list`
 
-```bash
+```console
 anchor keys list
 ```
 
-Copy the programID output from `anchor keys list`
+Copy the program ID output from `anchor keys list`
 
 ```
 anchor_counter: BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
 ```
 
-Update `declare_id!` in `lib.rs`
+Then update `declare_id!` in `lib.rs`
 
 ```rust
 declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
 ```
 
-Update `Anchor.toml`
+And also update `Anchor.toml`
 
 ```
 [programs.localnet]
@@ -508,11 +510,11 @@ pub struct Counter {
 }
 ```
 
-### 8. Test
+### 8. Testing
 
-Navigate to `anchor-counter.ts` and remove the default test code.
-
-Next, generate a new keypair for the `counter` account we will be initializing.
+Navigate to `anchor-counter.ts` and replace the default test code with the following.
+Here we generate a new keypair for the `counter` account we'll be initializing and create placeholders for the two tests.
+By default, Anchor uses the mocha test framework which reflects how a client would interact with the program.
 
 ```ts
 import * as anchor from "@project-serum/anchor"
@@ -565,9 +567,18 @@ it("Incremented the count", async () => {
 })
 ```
 
-Lastly, run `anchor test`.
+Lastly, run `anchor test` and you should see the following output.
 
-Congratulations, you just deployed a Solana program using the Anchor framework! Feel free to look at the [solution code](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-increment).
+```console
+anchor-counter
+✔ Is initialized! (290ms)
+✔ Incremented the count (403ms)
+
+
+2 passing (696ms)
+```
+
+Congratulations, you just built a Solana program using the Anchor framework! Feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-increment).
 
 # Challenge
 
