@@ -1,8 +1,8 @@
-# Basic Anchor Program
+# PDAs in Anchor and Account Constraints
 
 # Lesson Objectives
 
-*By the end of this lesson, you will be able to:*
+_By the end of this lesson, you will be able to:_
 
 - Use the `seeds` and `bump` constraints to work with PDAs in Anchor
 - Use the `realloc` constraint to reallocate space on an existing account
@@ -139,7 +139,7 @@ The `realloc` constraint provides a simply way to reallocate space for existing 
 The `realloc` constraint must be used in combination with:
 
 - `mut` - the account must be set as mutable
-- `realloc::payer`  - the account to subtract or add lamports to depending on whether the reallocation is decreasing or increasing account space
+- `realloc::payer` - the account to subtract or add lamports to depending on whether the reallocation is decreasing or increasing account space
 - `realloc::zero` - boolean to specify if new memory should be zero initialized
 - `system_program` - the `realloc` constraint requires `system_program` to exist in the account validation struct
 
@@ -212,7 +212,7 @@ This program will allow users to:
 To begin, let’s create a new project using `anchor init`.
 
 ```bash
-anchor init movie-review
+anchor init anchor-movie-review-program
 ```
 
 Next, navigate to the `lib.rs` file within the `programs` folder and you should see the following starter code.
@@ -223,7 +223,7 @@ use anchor_lang::prelude::*;
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
-pub mod movie_review {
+pub mod anchor_movie_review_program {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
@@ -243,7 +243,7 @@ use anchor_lang::prelude::*;
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
-pub mod movie_review {
+pub mod anchor_movie_review_program {
     use super::*;
 
 }
@@ -266,7 +266,7 @@ use anchor_lang::prelude::*;
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
-pub mod movie_review {
+pub mod anchor_movie_review_program {
     use super::*;
 
 }
@@ -288,7 +288,7 @@ The instruction will require three additional arguments as instruction data prov
 
 - `title` - title of the movie
 - `description` - details of the review
-- `rating` -  rating for the movie
+- `rating` - rating for the movie
 
 Within the instruction logic, we’ll populate the data of the new `movie_review` account with the instruction data. We’ll also set the `reviewer` field as the `initializer` account from the instruction `Context`.
 
@@ -330,7 +330,7 @@ As a reminder,
 
 ```rust
 #[program]
-pub mod movie_review {
+pub mod anchor_movie_review_program {
     use super::*;
 
 		...
@@ -370,13 +370,13 @@ Just as before, the instruction will require three additional arguments as instr
 
 - `title` - title of the movie
 - `description` - details of the review
-- `rating` -  rating for the movie
+- `rating` - rating for the movie
 
 The `title` is required for account validation to derive the PDA used for the `movie_review` account. Within the instruction logic we’ll update the `rating` and `description` stored on the `movie_review` account.
 
 ```rust
 #[program]
-pub mod movie_review {
+pub mod anchor_movie_review_program {
     use super::*;
 
 		...
@@ -387,7 +387,7 @@ pub mod movie_review {
         description: String,
         rating: u8,
     ) -> Result<()> {
-        msg!("Updating Movie Review Account");
+        msg!("Movie review account space reallocated");
         msg!("Title: {}", title);
         msg!("Description: {}", description);
         msg!("Rating: {}", rating);
@@ -408,7 +408,7 @@ Next, let’s implement the `UpdateMovieReview` `Context` type that lists the ac
 
 ```rust
 #[program]
-pub mod movie_review {
+pub mod anchor_movie_review_program {
     use super::*;
 
 		...
@@ -442,20 +442,21 @@ The `realloc::payer` constraint specifies that any additional lamports required 
 
 The `realloc::zero` constraint is set to `true` because the `movie_review` account may be updated multiple times either shrinking or expanding the space allocated to the account.
 
-### 5. Close Movie Review
+### 5. Delete Movie Review
 
-Lastly, let’s implement the `close` instruction to close an existing `movie_review` account.
+Lastly, let’s implement the `delete_movie_review` instruction to close an existing `movie_review` account.
 
-The instruction will require an `Context` type of `Close` with no additional instruction data. Since we are only closing an account, we will not need any additional instruction logic.
+The instruction will require an `Context` type of `DeleteMovieReview` with no additional instruction data. Since we are only closing an account, we will not need any additional instruction logic.
 
 ```rust
 #[program]
-pub mod movie_review {
+pub mod anchor_movie_review_program {
     use super::*;
 
 		...
 
-    pub fn close(_ctx: Context<Close>) -> Result<()> {
+    pub fn delete_movie_review(_ctx: Context<DeleteMovieReview>, title: String) -> Result<()> {
+        msg!("Movie review for {} deleted", title);
         Ok(())
     }
 
@@ -464,44 +465,146 @@ pub mod movie_review {
 ...
 ```
 
-Next, let’s implement the `Close` `Context` type.
+Next, let’s implement the `DeleteMovieReview` `Context` type.
 
 ```rust
 #[program]
-pub mod movie_review {
+pub mod anchor_movie_review_program {
     use super::*;
 
 		...
 }
 
 #[derive(Accounts)]
-pub struct Close<'info> {
-    #[account(mut, close = user)]
-    movie_review: Account<'info, MovieAccountState>,
+#[instruction(title: String)]
+pub struct DeleteMovieReview<'info> {
+    #[account(
+        mut,
+        seeds=[title.as_bytes(), initializer.key().as_ref()],
+        bump,
+        close=initializer
+    )]
+    pub movie_review: Account<'info, MovieAccountState>,
     #[account(mut)]
-    user: Signer<'info>,
+    pub initializer: Signer<'info>,
+    pub system_program: Program<'info, System>
 }
 
 ...
 ```
 
-Here we use the `close` constraint to specify we are closing the `movie_review` account and that the rent should be refunded to the `user` account. Anchor then handles the additional logic required to securely close the account. Note that the currently implementation allows anyone to close a `movie_review` account by invoking the `close` instruction. We’ll go over how we can use additional constraints to limit who can close an account in a later lesson.
+Here we use the `close` constraint to specify we are closing the `movie_review` account and that the rent should be refunded to the `initializer` account. We also include the seed constraints for the the `movie_review` account for validation. Anchor then handles the additional logic required to securely close the account.
 
-### 6. Build and deploy
+### 6. Testing
 
-Next, build the program using the `anchor build` command.
+Navigate to `anchor-movie-review-program.ts` and replace the default test code with the following.
 
-```rust
-anchor build
+Here we:
+
+- Create some default values for instruction data
+- Derive the movie review account PDA
+- Set up placeholders for tests
+
+```ts
+import * as anchor from "@project-serum/anchor"
+import { Program } from "@project-serum/anchor"
+import { assert, expect } from "chai"
+import { AnchorMovieReviewProgram } from "../target/types/anchor_movie_review_program"
+
+describe("anchor-movie-review-program", () => {
+  // Configure the client to use the local cluster.
+  const provider = anchor.AnchorProvider.env()
+  anchor.setProvider(provider)
+
+  const program = anchor.workspace
+    .AnchorMovieReviewProgram as Program<AnchorMovieReviewProgram>
+
+  const movie = {
+    title: "Just a test movie",
+    description: "Wow what a good movie it was real great",
+    rating: 5,
+  }
+  const [movie_pda] = anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from(movie.title), provider.wallet.publicKey.toBuffer()],
+    program.programId
+  )
+
+  it("Movie review is added`", async () => {})
+
+  it("Movie review is updated`", async () => {})
+
+  it("Deletes a movie review", async () => {})
+})
 ```
 
-The output of `anchor build` includes the command to deploy the program. Go ahead and run that command.
+Next, create the first test for the `addMovieReview` instruction. Note that we only include the `movieReview` account in the list of `accounts`. This is because the `Wallet` from `AnchorProvider` is automatically included as a signer and Anchor can infer accounts such as `SystemProgram`.
 
-```rust
-solana program deploy <PATH>
+Once the instruction runs, we then fetch the `movieReview` account and check that the data stored on the account match the expected values.
+
+```ts
+it("Movie review is added`", async () => {
+  // Add your test here.
+  const tx = await program.methods
+    .addMovieReview(movie.title, movie.description, movie.rating)
+    .accounts({
+      movieReview: movie_pda,
+    })
+    .rpc()
+
+  const account = await program.account.movieAccountState.fetch(movie_pda)
+  expect(movie.title === account.title)
+  expect(movie.rating === account.rating)
+  expect(movie.description === account.description)
+  expect(account.reviewer === provider.wallet.publicKey)
+})
 ```
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://github.com/ZYJLiu/anchor-movie-review/blob/pda-solution/programs/movie-review/src/lib.rs) before continuing.
+Next, create the test for the `updateMovieReview` instruction following the same process as before.
+
+```ts
+it("Movie review is updated`", async () => {
+  const newDescription = "Wow this is new"
+  const newRating = 4
+
+  const tx = await program.methods
+    .updateMovieReview(movie.title, newDescription, newRating)
+    .accounts({
+      movieReview: movie_pda,
+    })
+    .rpc()
+
+  const account = await program.account.movieAccountState.fetch(movie_pda)
+  expect(movie.title === account.title)
+  expect(newRating === account.rating)
+  expect(newDescription === account.description)
+  expect(account.reviewer === provider.wallet.publicKey)
+})
+```
+
+Next, create the test for the `deleteMovieReview` instruction
+
+```ts
+it("Deletes a movie review", async () => {
+  const tx = await program.methods
+    .deleteMovieReview(movie.title)
+    .accounts({ movieReview: movie_pda })
+    .rpc()
+})
+```
+
+Lastly, run anchor test and you should see the following output.
+
+```console
+  anchor-movie-review-program
+    ✔ Movie review is added` (139ms)
+    ✔ Movie review is updated` (404ms)
+    ✔ Deletes a movie review (403ms)
+
+
+  3 passing (950ms)
+```
+
+If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas) before continuing.
 
 # Challenge
 
@@ -515,4 +618,4 @@ Using what you've learned in this lesson, build out this program. The program sh
 2. Update the message on an existing account
 3. Close an existing account
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/ZYJLiu/anchor-student-intro/blob/pda-challenge/programs/student-intro/src/lib.rs).
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program).
