@@ -1,10 +1,10 @@
-# Invoke Anchor Program from Frontend
+# Anchor Program from the Client
 
 # Lesson Objectives
 
 _By the end of this lesson, you will be able to:_
 
-- Explain `IDL`
+- Use an `IDL` to interact with a Solana program from the client
 - Explain an Anchor `Provider` object
 - Explain an Anchor `Program` object
 - Use the Anchor `MethodsBuilder` to build transactions
@@ -31,11 +31,13 @@ await program.methods
   .rpc()
 ```
 
-In this lesson we will go over how to invoke an Anchor program from a frontend. We’ll use `@project-serum/anchor`, a TypeScript client for Anchor programs, which includes everything we’ll need to interact with a program from the client.
+In the previous lesson we used the Anchor `MethodsBuilder` to test the program. You can interact with your program through a frontend the same way as in the tests. This means once you've written your tests, you can reference them when setting up a frontend.
+
+In this lesson we will go over how to invoke an Anchor program from the client. We’ll use `@project-serum/anchor`, a TypeScript client for Anchor programs, which includes everything we’ll need to interact with a program from the client.
 
 ## Anchor Setup
 
-Before we can interact with a program using a frontend, we’ll need to create an Anchor `Program` object. The `Program` object provides a custom API to interact with a specific program by combining a program `IDL` and `Provider`.
+Before we can interact with a program using a frontend, we’ll need to create an Anchor `Program` object. The `Program` object provides a custom API to interact with a specific program by combining a program `IDL` and `Provider`. Note that in the tests, Anchor completes this setup by default.
 
 To create the `Program` object, we’ll need the following:
 
@@ -342,7 +344,7 @@ Let’s practice this together by building a frontend for the Counter program fr
 
 ### 1. Download the starter code
 
-Download the starter code for this project [here](https://github.com/ZYJLiu/anchor-solana-ping-frontend/tree/starter). Once you have the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`.
+Download the starter code for this project [here](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/starter). Once you have the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`.
 
 This project is a simple Next.js application. It includes the `WalletContextProvider` we created in the [Wallets lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets.md), the `idl.json` file for the Counter program, and the `Initialize` and `Increment` components we’ll be building throughout this demo. The `programId` of the program we’ll be invoking is also included in the starter code.
 
@@ -614,7 +616,7 @@ Feel free to click the links to inspect the program logs from each transaction!
 
 Congratulations, you now know how to set up a frontend to invoke a Solana program using an `IDL` generated with Anchor.
 
-If you need more time with this project to feel comfortable with these concepts, feel free to have a look at the [solution code](https://github.com/ZYJLiu/anchor-solana-ping-frontend) before continuing.
+If you need more time with this project to feel comfortable with these concepts, feel free to have a look at the [solution code](https://github.com/Unboxed-Software/anchor-ping-frontend) before continuing.
 
 # Challenge
 
@@ -628,4 +630,4 @@ Before building the component in the frontend, you’ll first need to:
 
 If you need some help, feel free to reference this program [here](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/ZYJLiu/anchor-solana-ping-frontend/tree/challenge).
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/challenge).
