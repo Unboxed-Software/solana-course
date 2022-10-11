@@ -10,7 +10,7 @@ _By the end of this lesson, you will be able to:_
 
 # TL;DR
 
-- **Anchor** is a framework building Solana programs
+- **Anchor** is a framework for building Solana programs
 - **Anchor** macros speed up the process of building Solana programs by abstracting away a significant amount of boilerplate code
 - **Anchor** allows you to build secure programs more easily by performing certain security checks, requiring account validation, and providing a simple way to implement additional checks.
 
@@ -459,7 +459,7 @@ pub struct Update<'info> {
 }
 ```
 
-### 7. Build and deploy on Solana Playground
+### 7. Build
 
 All together, the complete program will look like this:
 
@@ -509,6 +509,8 @@ pub struct Counter {
     pub count: u64,
 }
 ```
+
+Run `anchor build` to build the program.
 
 ### 8. Testing
 
