@@ -68,19 +68,19 @@ When using the `#[instruction(...)]` attribute, the instruction data must be in 
 
 ```rust
 pub fn example_instruction(
-        ctx: Context<Example>,
-        input_one: String,
-        input_two: String,
-        input_three: String,
-    ) -> Result<()> {
-				...
-				Ok(())
+    ctx: Context<Example>,
+    input_one: String,
+    input_two: String,
+    input_three: String,
+) -> Result<()> {
+    ...
+    Ok(())
 }
 
 #[derive(Accounts)]
 #[instruction(input_one:String, input_two:String)]
 pub struct Example<'info> {
-			...
+    ...
 }
 ```
 
@@ -90,7 +90,7 @@ An error would result if the inputs were listed in a different order:
 #[derive(Accounts)]
 #[instruction(input_three:String, input_one:String)]
 pub struct Example<'info> {
-			...
+    ...
 }
 ```
 
@@ -186,7 +186,7 @@ In the example below, we are closing the `data_account` and sending the lamports
 ```rust
 pub fn close(ctx: Context<Close>) -> Result<()> {
         Ok(())
-    }
+}
 
 #[derive(Accounts)]
 pub struct Close<'info> {
