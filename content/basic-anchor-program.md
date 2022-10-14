@@ -10,9 +10,9 @@ _By the end of this lesson, you will be able to:_
 
 # TL;DR
 
-- The `seeds` and `bump` constraints provide a simple way to initialize and validate PDAs in Anchor
-- The `realloc` constraint provides a simple way to reallocate space on an existing account
-- The `close` constraint provides simple and secure way to close an account and refund its rent
+- The `seeds` and `bump` constraints are used to initialize and validate PDAs in Anchor
+- The `realloc` constraint is used to reallocate space on an existing account
+- The `close` constraint is used to close an account and refund its rent
 
 # Overview
 
@@ -185,15 +185,15 @@ In the example below, we are closing the `data_account` and sending the lamports
 
 ```rust
 pub fn close(ctx: Context<Close>) -> Result<()> {
-        Ok(())
+    Ok(())
 }
 
 #[derive(Accounts)]
 pub struct Close<'info> {
-		#[account(mut, close = receiver)]
-		pub data_account: Account<'info, AccountType>,
-		#[account(mut)]
-		pub receiver: Signer<'info>
+    #[account(mut, close = receiver)]
+    pub data_account: Account<'info, AccountType>,
+    #[account(mut)]
+    pub receiver: Signer<'info>
 }
 ```
 
