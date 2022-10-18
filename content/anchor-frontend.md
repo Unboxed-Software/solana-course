@@ -4,23 +4,23 @@
 
 _By the end of this lesson, you will be able to:_
 
-- Use an `IDL` to interact with a Solana program from the client
+- Use an IDL to interact with a Solana program from the client
 - Explain an Anchor `Provider` object
 - Explain an Anchor `Program` object
-- Use the Anchor `MethodsBuilder` to build transactions
-- Set up a frontend to invoke instructions from a Solana program built using Anchor
+- Use the Anchor `MethodsBuilder` to build instructions and transactions
+- Set up a frontend to invoke instructions using Anchor and an IDL
 
 # TL;DR
 
-- An `IDL` is a file representing the structure of a Solana program that Anchor generates automatically when the program is built
-- An Anchor `Provider` object combines a `connection` to a cluster and a specified `wallet` to sign transactions
-- An Anchor `Program` object provides a custom API to interact with a specific program by combining a program `IDL` and `Provider`.
-- The Anchor `MethodsBuilder` provides a simplified format for building transactions with instructions from a `Program`
-- `@project-serum/anchor` is a TypeScript client that includes everything you’ll need to interact with Anchor programs
+- An **IDL** is a file representing the structure of a Solana program. Programs written and built using Anchor automatically generate a corresponding IDL. IDL stands for Interface Description Language.
+- `@project-serum/anchor` is a Typescript client that includes everything you’ll need to interact with Anchor programs
+- An **Anchor `Provider`** object combines a `connection` to a cluster and a specified `wallet` to enable transaction signing
+- An **Anchor `Program`** object provides a custom API to interact with a specific program. You create a `Program` instance using a program's IDL and `Provider`.
+- The **Anchor `MethodsBuilder`** provides a simple interface through `Program` for building instructions and transactions
 
 # Overview
 
-Anchor simplifies the process of interacting with Solana programs from the client by providing an `IDL` that reflects the structure of a program. Using the `IDL` along with the Anchor `MethodsBuilder` provides a simplified format for building transactions.
+Anchor simplifies the process of interacting with Solana programs from the client by providing an Interface Description Language (IDL) file that reflects the structure of a program. Using the IDL in conjunction with Anchor's Typescript library (`@project-serum/anchor`) provides a simplified format for building instructions and transactions.
 
 ```tsx
 // sends transaction
@@ -31,35 +31,31 @@ await program.methods
   .rpc()
 ```
 
-In the previous lesson we used the Anchor `MethodsBuilder` to test the program. You can interact with your program through a frontend the same way as in the tests. This means once you've written your tests, you can reference them when setting up a frontend.
+This works from any Typescript client, whether it's a frontend or integration tests. In this lesson we'll go over how to use `@project-serum/anchor` to simplify your client-side program interaction.
 
-In this lesson we will go over how to invoke an Anchor program from the client. We’ll use `@project-serum/anchor`, a TypeScript client for Anchor programs, which includes everything we’ll need to interact with a program from the client.
+## Anchor client-side structure
 
-## Anchor Setup
+Let's start by going over the basic structure of Anchor's Typescript library. The primary object you'll be using is the `Program` object. A `Program` instance represents a specific Solana program and provides a custom API for reading and writing to the program.
 
-Before we can interact with a program using a frontend, we’ll need to create an Anchor `Program` object. The `Program` object provides a custom API to interact with a specific program by combining a program `IDL` and `Provider`. Note that in default Anchor test file, Anchor completes this setup by automatically. However, in a frontend, you'll needed to complete the setup manually.
+To create an instance of `Program`, you'll need the following:
 
-To create the `Program` object, we’ll need the following:
-
-- `IDL` - file representing the structure of a program
+- IDL - file representing the structure of a program
 - `Connection` - the cluster connection
 - `Wallet` - default keypair used to pay for and sign transactions
 - `Provider` - encapsulates the `Connection` to a Solana cluster and a `Wallet`
 - `ProgramId` - the program’s on-chain address
 
-Next, let’s go over each item to better understand how everything ties together.
+![Anchor structure](../assets/anchor-client-structure.png)
 
-### IDL (Interface Description Language)
+The above image shows how each of these pieces are combined to create a `Program` instance. We'll go over each of them individually to get a better idea of how everything ties together.
 
-When an Anchor program is built, Anchor generates a JSON file called an `IDL` (Anchor also generates a Typescript version of the IDL). The `IDL` file contains the structure of the program and is used by the client to know how to interact with a specific program. It is also possible to generate an `IDL` from a native Solana program using tools like [shank](https://github.com/metaplex-foundation/shank) by Metaplex. An `IDL` file is required to interact with a program using the `@project-serum/anchor` package.
+### Interface Description Language (IDL)
 
-To use the `IDL` in our frontend, we’ll need to include the `IDL` file in our project and then import the file.
+When you build an Anchor program, Anchor generates both a JSON and Typescript file representing your program's IDL. The IDL represents the structure of the program and can be used by a client to infer how to interact with a specific program.
 
-```tsx
-import idl from "./idl.json"
-```
+While it isn't automatic, you can also generate an IDL from a native Solana program using tools like [shank](https://github.com/metaplex-foundation/shank) by Metaplex. 
 
-For example, here is the `IDL` for the counter program we built in the previous lesson.
+To get an idea of the information an IDL provides, here is the IDL for the counter program you built previously:
 
 ```json
 {
@@ -96,9 +92,9 @@ For example, here is the `IDL` for the counter program we built in the previous 
 }
 ```
 
-Inspecting the `IDL`, we can see that this program contains two instructions (`initialize` and `increment`).
+Inspecting the IDL, you can see that this program contains two instructions (`initialize` and `increment`).
 
-As a reminder, the `initialize` instruction requires three accounts:
+Notice that in addition to specifying the instructions, it species the accounts and inputs for each instruction. The `initialize` instruction requires three accounts:
 
 1. `counter` - the new account being initialized in the instruction
 2. `user` - the payer for the transaction and initialization
@@ -109,17 +105,23 @@ And the `increment` instruction requires two accounts:
 1. `counter` - an existing account to increment the count field
 2. `user` - the payer from the transaction
 
-Looking at the `IDL`, we can see that in both instructions the `user` is required as a signer because the `isSigner` flag is marked as `true`. Additionally, neither instructions require any additional instruction data since the `args` section is blank for both.
+Looking at the IDL, you can see that in both instructions the `user` is required as a signer because the `isSigner` flag is marked as `true`. Additionally, neither instructions require any additional instruction data since the `args` section is blank for both.
 
-Looking further down at the `accounts` section, we can see that the program contains one account type named `Counter` with a single `count` field of type `u64`.
+Looking further down at the `accounts` section, you can see that the program contains one account type named `Counter` with a single `count` field of type `u64`.
 
-Although the `IDL` does not provide the details of the instruction logic, we can get a basic idea of how the on-chain program expects instructions to be constructed and see the structure of the program accounts.
+Although the IDL does not provide the implementation details for each instruction, we can get a basic idea of how the on-chain program expects instructions to be constructed and see the structure of the program accounts.
+
+Regardless of how you get it, you *need* an IDL file to interact with a program using the `@project-serum/anchor` package. To use the IDL, you'll need to include the IDL file in your project and then import the file.
+
+```tsx
+import idl from "./idl.json"
+```
 
 ### Provider
 
-Before we can create a `Program` object using the `IDL`, we first need to create an Anchor `Provider` object.
+Before you can create a `Program` object using the IDL, you first need to create an Anchor `Provider` object.
 
-The `Provider` object represents the encapsulation of two things:
+The `Provider` object combines two things:
 
 - `Connection` - the connection to a Solana cluster (i.e. localhost, devnet, mainnet)
 - `Wallet` - a specified address used to pay for and sign transactions
@@ -135,7 +137,7 @@ const { connection } = useConnection()
 const wallet = useAnchorWallet()
 ```
 
-To set up the connection, we can use the `useConnection` hook from `@solana/wallet-adapter-react` to get the `Connection` to a Solana cluster.
+To set up the connection, you can use the `useConnection` hook from `@solana/wallet-adapter-react` to get the `Connection` to a Solana cluster.
 
 Note that the `Wallet` object provided by the `useWallet` hook from `@solana/wallet-adapter-react` is not compatible with the `Wallet` object that the Anchor `Provider` expects. However, `@solana/wallet-adapter-react` also provides a `useAnchorWallet` hook.
 
@@ -178,7 +180,7 @@ export interface WalletContextState {
 
 The `WalletContextState` provides much more functionality compared to the `AnchorWallet`, but the `AnchorWallet` is required to set up the `Provider` object.
 
-To create the `Provider` object we use `AnchorProvider` from `@project-serum/anchor`.
+To create the `Provider` object you use `AnchorProvider` from `@project-serum/anchor`.
 
 The `AnchorProvider` constructor takes three parameters:
 
@@ -186,7 +188,7 @@ The `AnchorProvider` constructor takes three parameters:
 - `wallet` - the `Wallet` object
 - `opts` - optional parameter that specifies the confirmation options, using a default setting if one is not provided
 
-Once we’ve create the `Provider` object, we then set it as the default provider using `setProvider`.
+Once you’ve create the `Provider` object, you then set it as the default provider using `setProvider`.
 
 ```tsx
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react"
@@ -200,31 +202,17 @@ setProvider(provider)
 
 ### Program
 
-The last step is to create a `Program` object that requires three parameters:
+Once you have the IDL and a provider, you can create an instance of `Program`. The constructor requires three parameters:
 
-- `IDL` - representing the structure of a program
-- `programId` - the on-chain address of the program with the structure of the `IDL`
-- `Provider` - establishing the `Connection` to a cluster and a `Wallet` for signing
+- `idl` - the IDL as type `Idl`
+- `programId` - the on-chain address of the program as a `string` or `PublicKey`
+- `Provider` - the provider discussed in the previous section
 
-The `Program` object creates a custom API we can use to interact with a Solana program. This API is the one stop shop for all things related to communicating with on-chain programs. Among other things, one can send transactions, fetch deserialized accounts, decode instruction data, subscribe to account changes, and listen to events. You can learn more about the `Program` class [here](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
+The `Program` object creates a custom API you can use to interact with a Solana program. This API is the one stop shop for all things related to communicating with on-chain programs. Among other things, you can send transactions, fetch deserialized accounts, decode instruction data, subscribe to account changes, and listen to events. You can learn more about the `Program` class [here](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
 
-To create the `Program` object, first import `Program` and `Idl` from `@project-serum/anchor`. The `Idl` type is used when working with Typescript.
+To create the `Program` object, first import `Program` and `Idl` from `@project-serum/anchor`. `Idl` is a type you can used when working with Typescript.
 
-```tsx
-import {
-  Program,
-  Idl,
-  AnchorProvider,
-  setProvider,
-} from "@project-serum/anchor"
-```
-
-Next, specify the `programId` of the program. We have to explicitly state the `programId` since there can be multiple programs with the same `IDL` structure (i.e. if the same program is deployed multiple times using different addresses). When creating the `Program` object, the default `Provider` is used if one is not explicitly specified.
-
-```tsx
-const programId = new PublicKey("PROGRAM_ADDRESS")
-const program = new Program(idl as Idl, programId)
-```
+Next, specify the `programId` of the program. We have to explicitly state the `programId` since there can be multiple programs with the same IDL structure (i.e. if the same program is deployed multiple times using different addresses). When creating the `Program` object, the default `Provider` is used if one is not explicitly specified.
 
 All together, the final setup looks something like this:
 
@@ -244,13 +232,15 @@ const wallet = useAnchorWallet()
 const provider = new AnchorProvider(connection, wallet, {})
 setProvider(provider)
 
-const programId = new PublicKey("PROGRAM_ADDRESS")
+const programId = new PublicKey("JPLockxtkngHkaQT5AuRYow3HyUv5qWzmhwsCPd653n")
 const program = new Program(idl as Idl, programId)
 ```
 
 ## Anchor `MethodsBuilder`
 
-Once the `Program` object is set up, we can use the Anchor `MethodsBuilder` to build transactions with instructions from our program. The `MethodsBuilder` uses the `IDL` to provide a simplified format for building transactions to invoke program instructions. Note that the camel case naming convention is used when interacting with a program from the client, compared to the snake case naming convention used when the writing the program in rust.
+Once the `Program` object is set up, you can use the Anchor Methods Builder to build instructions and transactions related to the program. The `MethodsBuilder` uses the IDL to provide a simplified format for building transactions that invoke program instructions.
+
+Note that the camel case naming convention is used when interacting with a program from the client, compared to the snake case naming convention used when the writing the program in rust.
 
 The basic `MethodsBuilder` format looks like this:
 
@@ -263,15 +253,13 @@ await program.methods
   .rpc()
 ```
 
-The basic format includes the following:
+Going step by step, you:
 
-- `program` - the program being invoked specified by the `programId` from the `Program` object
-- `methods` - builder API for all APIs on the program and includes all instructions from the `IDL`
-- `instructionName` - the name of the specific instruction from the `IDL` to invoke.
-- `instructionDataInputs` - include any instruction data required by the instruction within the parentheses after the instruction name
-- `accounts`- list of accounts required by the instruction being invoked
-- `signers` - any additional signers required by the instruction
-- `rpc` - creates and sends a signed transaction with the specified instruction and returns a `TransactionSignature`. When using `.rpc`, the `Wallet` from the `Provider` is automatically included as a signer and does not have to be listed explicitly stated.
+1. Call `methods` on `program` - this is the builder API for creating instruction calls related to the program's IDL
+2. Call the instruction name as `.instructionName(instructionDataInputs)` - simply call the instruction using dot syntax and the instruction's name, passing in any instruction arguments as comma-separated values
+3. Call `accounts` - using dot syntax, call `.accounts`, passing in an object with each account the instruction expects based on the IDL
+4. Optionally call `signers` - using dot syntax, call `.signers`, passing in an array of additional signers required by the instruction
+5. Call `rpc` - this method creates and sends a signed transaction with the specified instruction and returns a `TransactionSignature`. When using `.rpc`, the `Wallet` from the `Provider` is automatically included as a signer and does not have to be listed explicitly.
 
 Note that if no additional signers are required by the instruction other than the `Wallet` specified with the `Provider`, the `.signer([])` line can be excluded.
 
@@ -310,30 +298,6 @@ await sendTransaction(transaction, connection)
 ```
 
 In summary, the Anchor `MethodsBuilder` provides a simplified and more flexible way to interact with on-chain programs. You can build an instruction, a transaction, or build and send a transaction using basically the same format without having to manually serialize or deserialize the accounts or instruction data.
-
-## Send Transactions
-
-As a refresher, we use the `sendTransaction` method from the `useWallet()` hook provided by `@solana/wallet-adapter-react` to send transactions with a wallet adapter.
-
-The `sendTransaction` method prompts a user to approve and sign a transaction before sending.
-
-```tsx
-import { useWallet } from "@solana/wallet-adapter-react"
-
-const { sendTransaction } = useWallet()
-```
-
-If the transaction was built using either `.instruction` or `.transaction` from the Anchor `MethodsBuilder`, you’ll need to send the transaction with `sendTransaction` to prompt a connected wallet for approval.
-
-```tsx
-sendTransaction(transaction, connection)
-```
-
-If the instruction requires additional signatures, you'll need to add them to `sendTransaction` using the following format:
-
-```tsx
-sendTransaction(transaction, connection, { signers: [] })
-```
 
 # Demo
 
@@ -614,7 +578,7 @@ Feel free to click the links to inspect the program logs from each transaction!
 
 ![Screenshot of Increment Program Log](../assets/anchor-frontend-increment.png)
 
-Congratulations, you now know how to set up a frontend to invoke a Solana program using an `IDL` generated with Anchor.
+Congratulations, you now know how to set up a frontend to invoke a Solana program using an IDL generated with Anchor.
 
 If you need more time with this project to feel comfortable with these concepts, feel free to have a look at the [solution code](https://github.com/Unboxed-Software/anchor-ping-frontend) before continuing.
 
@@ -625,7 +589,7 @@ Now it’s your turn to build something independently. Building on top of what w
 Before building the component in the frontend, you’ll first need to:
 
 1. Build and deploy a new program that implements a `decrement` instruction
-2. Update the `IDL` file in the frontend with the one from your new program
+2. Update the IDL file in the frontend with the one from your new program
 3. Update the `programId` with the one from your new program
 
 If you need some help, feel free to reference this program [here](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
