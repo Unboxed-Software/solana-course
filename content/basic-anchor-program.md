@@ -16,7 +16,7 @@ _By the end of this lesson, you will be able to:_
 
 # Overview
 
-In this lesson we’ll go over how use the `#[account(...)]` attribute with the following constraints:
+In this lesson we’ll go over how use the `#[account(...)]` attribute macro with the following constraints:
 
 - `seeds` and `bump` - to initialize and validate PDAs
 - `realloc` - to reallocate space on an account
@@ -24,11 +24,11 @@ In this lesson we’ll go over how use the `#[account(...)]` attribute with the 
 
 As a refresher, the instruction logic and account validation are separated into distinct sections within an Anchor program.
 
-The `#[derive(Accounts)]` macro is used to implement the `Accounts` deserializer which deserializes a list of accounts and checks the accounts against any additional constraints. Additional constraints are implementing using the `#[account(...)]` attribute.
+The `#[derive(Accounts)]` macro is used to apply the `Accounts` trait to structs representing the list of accounts required for an instruction. Additional account constraints are implementing using the `#[account(...)]` attribute macro.
 
 ### PDAs with Anchor
 
-Recall that [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda.md) are derived using a list of optional seeds, a bump seed, and a `programId`. Anchor provides a convenient way to validate a PDA with the `seeds` and `bump` constraints.
+Recall that [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda.md) are derived using a list of optional seeds, a bump seed, and a program ID. Anchor provides a convenient way to validate a PDA with the `seeds` and `bump` constraints.
 
 ```rust
 #[account(
@@ -48,7 +48,7 @@ The `seeds` used derive the PDA include:
 
 - `example_seed` - a hardcoded string value
 - `user.key()` - the public key of the account passed in as the `user`
-- `instruction_data` - the instruction data passed into the instruction. You can access instruction data using the `#[instruction(...)]` attribute.
+- `instruction_data` - the instruction data passed into the instruction. You can access instruction data using the `#[instruction(...)]` attribute macro.
 
 ```rust
 #[derive(Accounts)]
@@ -64,7 +64,7 @@ pub struct Example<'info> {
 }
 ```
 
-When using the `#[instruction(...)]` attribute, the instruction data must be in the order that was passed into the instruction. You can omit all arguments after the last one you need.
+When using the `#[instruction(...)]` attribute macro, the instruction data must be in the order that was passed into the instruction. You can omit all arguments after the last one you need.
 
 ```rust
 pub fn example_instruction(
@@ -124,9 +124,9 @@ pub struct AccountType {
 }
 ```
 
-By default `init` sets the owner of the created account to the currently executing program.
+By default `init` sets the owner of the initialized account as the program currently executing the instruction.
 
-When using `init` with `seeds` and `bump` to initialize an account using a PDA, the owner must be the executing program. This is because creating an account requires a signature for which only the PDAs of the executing program can provide (i.e. the signature verification for the initialization of the PDA account would fail if the `programId` used to derive the PDA did not match the `programId` of the executing program).
+However, when using `init`, `seeds`, and `bump` to initialize an account with a PDA, the owner must be the executing program. This is because creating an account requires a signature for which only the PDAs of the executing program can provide (i.e. the signature verification for the initialization of the PDA account would fail if the program ID used to derive the PDA did not match the program ID of the executing program).
 
 The `bump` value does not need to be specified since `init` uses `find_program_address` to derive the PDA. This means that the PDA will be derived using the canonical bump.
 
@@ -171,15 +171,15 @@ pub struct AccountType {
 
 When using `String` types, an addition 4 bytes of space is used to store the length of the `String` in addition to the space allocated for the `String` itself.
 
-If the change in account data length is additive, lamports will be transferred from the `realloc::payer` into the program account in order to maintain rent exemption. Likewise, if the change is subtractive, lamports will be transferred from the program account back into the `realloc::payer`.
+If the change in account data length is additive, lamports will be transferred from the `realloc::payer` to the account in order to maintain rent exemption. Likewise, if the change is subtractive, lamports will be transferred from the account back to the `realloc::payer`.
 
-The `realloc::zero` constraint is required in order to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where you are expanding the space on an account that has previously been reduced.
+The `realloc::zero` constraint is required in order to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where the memory of an account is expected to be shrunk and expanded multiple times.
 
 ### Close
 
 The `close` constraint provides a simple and secure way to close an existing account.
 
-The `close` constraint marks the account as closed at the end of the instruction’s execution by setting its discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR` and sends its lamports to a specified account. Setting the discriminator to a special variant makes account revival attacks (where a subsequent instruction adds the rent exemption lamports again) impossible.
+The `close` constraint marks the account as closed at the end of the instruction’s execution by setting its discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR` and sends its lamports to a specified account. Setting the discriminator to a special variant makes account revival attacks (where a subsequent instruction adds the rent exemption lamports again) impossible. If the account is reinitialized by another user, it would fail the discriminator check and be considered invalid by the program.
 
 In the example below, we are closing the `data_account` and sending the lamports allocated for rent to the `receiver` account.
 
@@ -251,7 +251,7 @@ pub mod anchor_movie_review_program {
 
 ### 2. `MovieAccountState`
 
-First, let’s use the `#[account]` attribute to define the `MovieAccountState` that will represent the data structure of the movie review accounts. As a reminder, the `#[account]` attribute implements various traits that helps to handle the serialization and deserialization of the account, sets the discriminator for the account, and sets the owner of a new account as the `programId` of our program.
+First, let’s use the `#[account]` attribute macro to define the `MovieAccountState` that will represent the data structure of the movie review accounts. As a reminder, the `#[account]` attribute macro implements various traits that helps to handle the serialization and deserialization of the account, sets the discriminator for the account, and sets the owner of a new account as the program ID defined in the `declare_id!` macro.
 
 Within each movie review account, we’ll store the:
 
@@ -325,8 +325,8 @@ Next, let’s implement the `AddMovieReview` `Context` type that lists the accou
 As a reminder,
 
 - The `#[derive(Accounts)]` macro is used to deserialize and validate the list of accounts specified within the struct
-- The `#[instruction(...)]` attribute is used to access the instruction data passed into the instruction
-- The `#[account(...)]` attribute then specifies additional constraints on the accounts
+- The `#[instruction(...)]` attribute macro is used to access the instruction data passed into the instruction
+- The `#[account(...)]` attribute macro then specifies additional constraints on the accounts
 
 ```rust
 #[program]
@@ -501,7 +501,7 @@ Navigate to `anchor-movie-review-program.ts` and replace the default test code w
 
 Here we:
 
-- Create some default values for instruction data
+- Create default values for the movie review instruction data
 - Derive the movie review account PDA
 - Set up placeholders for tests
 
