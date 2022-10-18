@@ -11,7 +11,7 @@ _By the end of this lesson, you will be able to:_
 # TL;DR
 
 - Anchor provides a simplified way to create CPIs using a `CpiContext`
-- Use the **`error_code`** attribute to create custom AnchorErrors in your program
+- The `error_code` attribute macro is used to create custom Anchor Errors
 - The `init-if-needed` constraint is used to conditionally initialize a new account
 
 # Overview
@@ -24,11 +24,9 @@ In this lesson we’ll go over:
 
 ### Cross Program Invocations (CPIs) with Anchor
 
-As a refresher, CPIs allow programs to invoke instructions on other programs with the use of `invoke` and `invoke_signed`. This allows for the composability of Solana programs.
+As a refresher, CPIs allow programs to invoke instructions on other programs using the `invoke` or `invoke_signed` functions. This allows for the composability of Solana programs.
 
-While making CPIs directly using `invoke` or `invoke_signed` is still an option, Anchor also provides a simplified way to make CPIs.
-
-Making CPIs the Anchor way requires the equivalent of a `cpi` module which includes functions that support making CPIs using a `CpiContext`. Some programs have a crate which includes the `cpi` module. Alternatively, you can create the `cpi` module for a program you intend to invoke if:
+While making CPIs directly using `invoke` or `invoke_signed` is still an option, Anchor also provides a simplified way to make CPIs. Making CPIs the Anchor way requires the equivalent of a `cpi` module which includes functions that support making CPIs using a `CpiContext`. Some programs have a crate which includes the `cpi` module. Alternatively, you can create the `cpi` module for a program you intend to invoke if:
 
 - You have access to the IDL of the program
 - You have access to the source code of the program
@@ -154,7 +152,7 @@ pub fn mint_to<'a, 'b, 'c, 'info>(
 All together, making a CPI to the `mint_to` instruction with a PDA as the mint authority would require the steps:
 
 - Use the seeds and bump of the mint authority as the signer for the CPI
-- Specify the program being invoked
+- Specify the token program as the program being invoked
 - Specify the list of accounts required by the instruction
 - Create the `CpiContext`
 - Use the CPI helper function, the `CpiContext`, and any additional required instruction data to make the CPI
@@ -214,7 +212,7 @@ token::mint_to(
 Next, let’s go over how to create custom Anchor Errors for a program. Ultimately, all programs return the same Error: The [ProgramError](https://docs.rs/solana-program/latest/solana_program/program_error/enum.ProgramError.html). However, Anchor Errors provide a range of information including:
 
 - The error name and number
-- Location in the code where the anchor was thrown
+- Location in the code where the error was thrown
 - The account that violated a constraint
 
 ```rust
@@ -327,9 +325,9 @@ pub struct Initialize<'info> {
 }
 ```
 
-When the `initilize` instruction is invoked, Anchor will check if the account exists and initialize it if it does not. If it already exists, then the instruction continues. Note that in the example below, the accounts not listed in `program.methods.initialize().accounts()` are ones that Anchor can infer (ex. system program).
+When the `initilize` instruction is invoked, Anchor will check if the `token_account` exists and initialize it if it does not. If it already exists, then the instruction continues. Note that in the example below, the accounts not listed in `program.methods.initialize().accounts()` are ones that Anchor can infer (ex. system program).
 
-```tsx
+```ts
 const mint = new PublicKey("MINT_ADDRESS_HERE")
 const tokenAccountAddress = await getAssociatedTokenAddress(
   mint,
@@ -370,7 +368,7 @@ anchor-spl = "0.25.0"
 
 ### 3. Create Token
 
-Next, navigate to `[lib.rs](http://lib.rs)` and create an instruction to initialize a new token mint. This will be the token that is minted each time a user leaves a review or comment. This instruction will only be invoked once.
+Next, navigate to `lib.rs` and create an instruction to initialize a new token mint. This will be the token that is minted each time a user leaves a review or comment. This instruction will only be invoked once.
 
 ```rust
 pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
@@ -571,7 +569,7 @@ Next, let’s implement the `AddComment` context type. We’ll need add the foll
 
 - `movie_comment` - initializing a new comment account
 - `movie_review` - using the address as a seed for the `movie_comment` account PDA
-- `movie_comment_counter` - using the `count` as a seed to for the `movie_comment` account PDA
+- `movie_comment_counter` - using the `count` as a seed for the `movie_comment` account PDA
 - `mint` - the `Mint` account for the token that the instruction mints
 - `token_account` - the associated token account of the `initializer` for the `mint`
 - `initializer` - the user submitting the comment
@@ -671,7 +669,7 @@ Next, let’s update the tests for the program.
 
 Complete the following setup and derive the PDAs that we’ll use for the test.
 
-```rust
+```ts
 import * as anchor from "@project-serum/anchor"
 import { Program } from "@project-serum/anchor"
 import { expect } from "chai"
@@ -721,67 +719,67 @@ describe("anchor-movie-review-program", () => {
 
 First, test the `initializeTokenMint` instruction
 
-```rust
+```ts
 it("Initializes the reward token", async () => {
-    const tx = await program.methods
-        .initializeTokenMint()
-        .accounts({
-        mint: mint,
-        })
-        .rpc()
+  const tx = await program.methods
+    .initializeTokenMint()
+    .accounts({
+      mint: mint,
+    })
+    .rpc()
 })
 ```
 
 Next, update the test for the `addMovieReview` instruction. We’ll first need to get the `tokenAccount` address.
 
-```rust
+```ts
 it("Movie review is added", async () => {
-    // Add your test here.
-    const tokenAccount = await getAssociatedTokenAddress(
-        mint,
-        provider.wallet.publicKey
-    )
+  // Add your test here.
+  const tokenAccount = await getAssociatedTokenAddress(
+    mint,
+    provider.wallet.publicKey
+  )
 
-    const tx = await program.methods
-        .addMovieReview(movie.title, movie.description, movie.rating)
-        .accounts({
-        movieReview: movie_pda,
-        mint: mint,
-        tokenAccount: tokenAccount,
-        movieCommentCounter: commentCounterPda,
-        })
-        .rpc()
+  const tx = await program.methods
+    .addMovieReview(movie.title, movie.description, movie.rating)
+    .accounts({
+      movieReview: movie_pda,
+      mint: mint,
+      tokenAccount: tokenAccount,
+      movieCommentCounter: commentCounterPda,
+    })
+    .rpc()
 
-    const account = await program.account.movieAccountState.fetch(movie_pda)
-    expect(movie.title === account.title)
-    expect(movie.rating === account.rating)
-    expect(movie.description === account.description)
-    expect(account.reviewer === provider.wallet.publicKey)
+  const account = await program.account.movieAccountState.fetch(movie_pda)
+  expect(movie.title === account.title)
+  expect(movie.rating === account.rating)
+  expect(movie.description === account.description)
+  expect(account.reviewer === provider.wallet.publicKey)
 
-    const userAta = await getAccount(provider.connection, tokenAccount)
-    expect(Number(userAta.amount)).to.equal((10 * 10) ^ 6)
+  const userAta = await getAccount(provider.connection, tokenAccount)
+  expect(Number(userAta.amount)).to.equal((10 * 10) ^ 6)
 })
 ```
 
 The test for `updateMovieReview` instruction remains the same.
 
-```rust
+```ts
 it("Movie review is updated", async () => {
-    const newDescription = "Wow this is new"
-    const newRating = 4
+  const newDescription = "Wow this is new"
+  const newRating = 4
 
-    const tx = await program.methods
-        .updateMovieReview(movie.title, newDescription, newRating)
-        .accounts({
-        movieReview: movie_pda,
-        })
-        .rpc()
+  const tx = await program.methods
+    .updateMovieReview(movie.title, newDescription, newRating)
+    .accounts({
+      movieReview: movie_pda,
+    })
+    .rpc()
 
-    const account = await program.account.movieAccountState.fetch(movie_pda)
-    expect(movie.title === account.title)
-    expect(newRating === account.rating)
-    expect(newDescription === account.description)
-    expect(account.reviewer === provider.wallet.publicKey)
+  const account = await program.account.movieAccountState.fetch(movie_pda)
+  expect(movie.title === account.title)
+  expect(newRating === account.rating)
+  expect(newDescription === account.description)
+  expect(account.reviewer === provider.wallet.publicKey)
 })
 ```
 
@@ -791,52 +789,49 @@ Next, test the `addComment` instruction. We’ll need to complete the following:
 - Fetch the `commentCounter` account
 - Derive the `comment` account PDA using the `movieReview` account address and the `count` on the `commentCounter` account as seeds
 
-```rust
+```ts
 it("Adds a comment to a movie review", async () => {
-    const tokenAccount = await getAssociatedTokenAddress(
-        mint,
-        provider.wallet.publicKey
-    )
+  const tokenAccount = await getAssociatedTokenAddress(
+    mint,
+    provider.wallet.publicKey
+  )
 
-    const commentCounter = await program.account.movieCommentCounter.fetch(
-        commentCounterPda
-    )
+  const commentCounter = await program.account.movieCommentCounter.fetch(
+    commentCounterPda
+  )
 
-    const [commentPda] = anchor.web3.PublicKey.findProgramAddressSync(
-        [
-        movie_pda.toBuffer(),
-        commentCounter.counter.toArrayLike(Buffer, "le", 8),
-        ],
-        program.programId
-    )
+  const [commentPda] = anchor.web3.PublicKey.findProgramAddressSync(
+    [movie_pda.toBuffer(), commentCounter.counter.toArrayLike(Buffer, "le", 8)],
+    program.programId
+  )
 
-    const tx = await program.methods
-        .addComment("Just a test comment")
-        .accounts({
-        movieReview: movie_pda,
-        mint: mint,
-        tokenAccount: tokenAccount,
-        movieCommentCounter: commentCounterPda,
-        movieComment: commentPda,
-        })
-        .rpc()
+  const tx = await program.methods
+    .addComment("Just a test comment")
+    .accounts({
+      movieReview: movie_pda,
+      mint: mint,
+      tokenAccount: tokenAccount,
+      movieCommentCounter: commentCounterPda,
+      movieComment: commentPda,
+    })
+    .rpc()
 })
 ```
 
 The test for `deleteMovieReview` instruction also remains the same.
 
-```rust
+```ts
 it("Deletes a movie review", async () => {
-    const tx = await program.methods
-        .deleteMovieReview(movie.title)
-        .accounts({ movieReview: movie_pda })
-        .rpc()
+  const tx = await program.methods
+    .deleteMovieReview(movie.title)
+    .accounts({ movieReview: movie_pda })
+    .rpc()
 })
 ```
 
 Finally, run `anchor test` and you should see the following output
 
-```rust
+```console
 anchor-movie-review-program
     ✔ Initializes the reward token (458ms)
     ✔ Movie review is added (410ms)
@@ -853,5 +848,5 @@ If you need more time with the concepts from this lesson or got stuck along the 
 
 To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves.
 
-Try to do this independently if you can! But if you get stuck, feel free to reference this [solution code](https://github.com/ZYJLiu/anchor-student-intro/tree/cpi-challenge)
+Try to do this independently if you can! But if you get stuck, feel free to reference this [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge)
 Note that your code may look slightly different than the solution code depending on your implementation.
