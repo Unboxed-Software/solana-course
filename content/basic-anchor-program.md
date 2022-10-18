@@ -16,15 +16,13 @@ _By the end of this lesson, you will be able to:_
 
 # Overview
 
-In this lesson we’ll go over how use the `#[account(...)]` attribute macro with the following constraints:
+In this lesson you will learn how to use the following constraints with the `#[account(...)]` attribute macro:
 
 - `seeds` and `bump` - to initialize and validate PDAs
 - `realloc` - to reallocate space on an account
 - `close` - to close an account
 
-As a refresher, the instruction logic and account validation are separated into distinct sections within an Anchor program.
-
-The `#[derive(Accounts)]` macro is used to apply the `Accounts` trait to structs representing the list of accounts required for an instruction. Additional account constraints are implementing using the `#[account(...)]` attribute macro.
+As a refresher, the instruction logic and account validation are separated into distinct sections within an Anchor program. The `#[derive(Accounts)]` macro is used to apply the `Accounts` trait to structs representing the list of accounts required for an instruction. Additional account constraints are then implemented using the `#[account(...)]` attribute macro.
 
 ### PDAs with Anchor
 
@@ -99,7 +97,7 @@ You can combine the `init` constraint with the `seeds` and `bump` constraints to
 The `init` constraint must be used in combination with:
 
 - `payer` - account specified to pay for the initialization
-- `space` - space allocated to new account
+- `space` - space allocated to the new account
 - `system_program` - the `init` constraint requires `system_program` to exist in the account validation struct
 
 ```rust
@@ -130,11 +128,11 @@ However, when using `init`, `seeds`, and `bump` to initialize an account with a 
 
 The `bump` value does not need to be specified since `init` uses `find_program_address` to derive the PDA. This means that the PDA will be derived using the canonical bump.
 
-When allocating `space` for an account initialized and owned by the executing Anchor program, remember that the first 8 bytes are reserved for a unique account discriminator that Anchor calculates and uses to identify the program account types.
+When allocating `space` for an account initialized and owned by the executing Anchor program, remember that the first 8 bytes are reserved for a unique account discriminator that Anchor calculates and uses to identify the program account types. You can use this [reference](https://www.anchor-lang.com/docs/space) to calculate how much space you should allocate for an account.
 
 ### Realloc
 
-The `realloc` constraint provides a simply way to reallocate space for existing accounts.
+The `realloc` constraint provides a simple way to reallocate space for existing accounts.
 
 The `realloc` constraint must be used in combination with:
 
@@ -173,15 +171,15 @@ When using `String` types, an addition 4 bytes of space is used to store the len
 
 If the change in account data length is additive, lamports will be transferred from the `realloc::payer` to the account in order to maintain rent exemption. Likewise, if the change is subtractive, lamports will be transferred from the account back to the `realloc::payer`.
 
-The `realloc::zero` constraint is required in order to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where the memory of an account is expected to be shrunk and expanded multiple times.
+The `realloc::zero` constraint is required in order to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where the memory of an account is expected shrink and expand multiple times.
 
 ### Close
 
 The `close` constraint provides a simple and secure way to close an existing account.
 
-The `close` constraint marks the account as closed at the end of the instruction’s execution by setting its discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR` and sends its lamports to a specified account. Setting the discriminator to a special variant makes account revival attacks (where a subsequent instruction adds the rent exemption lamports again) impossible. If the account is reinitialized by another user, it would fail the discriminator check and be considered invalid by the program.
+The `close` constraint marks the account as closed at the end of the instruction’s execution by setting its discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR` and sends its lamports to a specified account. Setting the discriminator to a special variant makes account revival attacks (where a subsequent instruction adds the rent exemption lamports again) impossible. If the account was reinitialized, it would fail the discriminator check and be considered invalid by the program.
 
-In the example below, we are closing the `data_account` and sending the lamports allocated for rent to the `receiver` account.
+The example below uses the `close` constraint to close the `data_account` and sending the lamports allocated for rent to the `receiver` account.
 
 ```rust
 pub fn close(ctx: Context<Close>) -> Result<()> {
@@ -203,15 +201,15 @@ Let’s practice the concepts we’ve gone over in this lesson by creating a Mov
 
 This program will allow users to:
 
-- Use a PDA to initialize a new Movie Review account to store the review
-- Update the content of an existing Movie Review account
-- Close an existing Movie Review account
+- Use a PDA to initialize a new movie review account to store the review
+- Update the content of an existing movie review account
+- Close an existing movie review account
 
 ### 1. Create a new Anchor project
 
 To begin, let’s create a new project using `anchor init`.
 
-```bash
+```console
 anchor init anchor-movie-review-program
 ```
 
@@ -360,7 +358,7 @@ Here we are initializing a new `movie_review` account with a PDA derived using t
 - `title` - the title of the movie from the instruction data
 - `initializer.key()` - the public key of the `initializer` creating the movie review
 
-We are then allocating `space` to the new account based on the structure of the `MovieAccountState` account type and the length of the `title` and `description` from the instruction data. The first 8 bytes are allocated for the discriminator Anchor includes to uniquely identify `MovieAccountState` account types.
+We are then allocating `space` to the new account based on the structure of the `MovieAccountState` account type and the length of the `title` and `description` from the instruction data. The first 8 bytes are allocated for the discriminator Anchor uses to identify `MovieAccountState` account types.
 
 ### 4. Update Movie Review
 
@@ -446,7 +444,7 @@ The `realloc::zero` constraint is set to `true` because the `movie_review` accou
 
 Lastly, let’s implement the `delete_movie_review` instruction to close an existing `movie_review` account.
 
-The instruction will require an `Context` type of `DeleteMovieReview` with no additional instruction data. Since we are only closing an account, we will not need any additional instruction logic.
+The instruction will require a `Context` type of `DeleteMovieReview` with no additional instruction data. Since we are only closing an account, we will not need any additional instruction logic.
 
 ```rust
 #[program]
@@ -503,7 +501,7 @@ Here we:
 
 - Create default values for the movie review instruction data
 - Derive the movie review account PDA
-- Set up placeholders for tests
+- Create placeholders for tests
 
 ```ts
 import * as anchor from "@project-serum/anchor"
@@ -524,6 +522,7 @@ describe("anchor-movie-review-program", () => {
     description: "Wow what a good movie it was real great",
     rating: 5,
   }
+
   const [movie_pda] = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from(movie.title), provider.wallet.publicKey.toBuffer()],
     program.programId
@@ -537,7 +536,7 @@ describe("anchor-movie-review-program", () => {
 })
 ```
 
-Next, create the first test for the `addMovieReview` instruction. Note that we only include the `movieReview` account in the list of `accounts`. This is because the `Wallet` from `AnchorProvider` is automatically included as a signer and Anchor can infer accounts such as `SystemProgram`.
+Next, let's create the first test for the `addMovieReview` instruction. Note that we only include the `movieReview` account in the list of `accounts`. This is because the `Wallet` from `AnchorProvider` is automatically included as a signer and Anchor can infer accounts such as `SystemProgram`.
 
 Once the instruction runs, we then fetch the `movieReview` account and check that the data stored on the account match the expected values.
 
@@ -559,7 +558,7 @@ it("Movie review is added`", async () => {
 })
 ```
 
-Next, create the test for the `updateMovieReview` instruction following the same process as before.
+Next, let's create the test for the `updateMovieReview` instruction following the same process as before.
 
 ```ts
 it("Movie review is updated`", async () => {
@@ -592,7 +591,7 @@ it("Deletes a movie review", async () => {
 })
 ```
 
-Lastly, run anchor test and you should see the following output.
+Lastly, run `anchor test` and you should see the following output.
 
 ```console
   anchor-movie-review-program
@@ -604,7 +603,7 @@ Lastly, run anchor test and you should see the following output.
   3 passing (950ms)
 ```
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas) before continuing.
+If you need more time with this project to feel comfortable with these concepts, feel free to have a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas) before continuing.
 
 # Challenge
 
