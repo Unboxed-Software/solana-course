@@ -15,7 +15,7 @@ _By the end of this lesson, you will be able to:_
 - An `IDL` is a file representing the structure of a Solana program that Anchor generates automatically when the program is built
 - An Anchor `Provider` object combines a `connection` to a cluster and a specified `wallet` to sign transactions
 - An Anchor `Program` object provides a custom API to interact with a specific program by combining a program `IDL` and `Provider`.
-- The Anchor `MethodsBuilder` provides a simplified format for building transactions with instructions from a `Program`.
+- The Anchor `MethodsBuilder` provides a simplified format for building transactions with instructions from a `Program`
 - `@project-serum/anchor` is a TypeScript client that includes everything you’ll need to interact with Anchor programs
 
 # Overview
@@ -37,7 +37,7 @@ In this lesson we will go over how to invoke an Anchor program from the client. 
 
 ## Anchor Setup
 
-Before we can interact with a program using a frontend, we’ll need to create an Anchor `Program` object. The `Program` object provides a custom API to interact with a specific program by combining a program `IDL` and `Provider`. Note that in the tests, Anchor completes this setup by default.
+Before we can interact with a program using a frontend, we’ll need to create an Anchor `Program` object. The `Program` object provides a custom API to interact with a specific program by combining a program `IDL` and `Provider`. Note that in default Anchor test file, Anchor completes this setup by automatically. However, in a frontend, you'll needed to complete the setup manually.
 
 To create the `Program` object, we’ll need the following:
 
@@ -137,7 +137,7 @@ const wallet = useAnchorWallet()
 
 To set up the connection, we can use the `useConnection` hook from `@solana/wallet-adapter-react` to get the `Connection` to a Solana cluster.
 
-Note that the `Wallet` object provided by the `useWallet` hook from `@solana/wallet-adapter-react` is not compatible with the `Wallet` object that the Anchor `Provider` expects. Luckily, `@solana/wallet-adapter-react` also provides a `useAnchorWallet` hook.
+Note that the `Wallet` object provided by the `useWallet` hook from `@solana/wallet-adapter-react` is not compatible with the `Wallet` object that the Anchor `Provider` expects. However, `@solana/wallet-adapter-react` also provides a `useAnchorWallet` hook.
 
 For comparison, here is the `AnchorWallet` from `useAnchorWallet`:
 
