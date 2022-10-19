@@ -4,7 +4,7 @@
 
 _By the end of this lesson, you will be able to:_
 
-- Make CPIs (Cross Program Invocations) within an Anchor program
+- Make Cross Program Invocations (CPIs) within an Anchor program
 - Create and return custom Anchor Errors
 - Enable and use the `init-if-needed` constraint
 
@@ -16,22 +16,19 @@ _By the end of this lesson, you will be able to:_
 
 # Overview
 
-In this lesson we’ll go over:
+In this lesson you'll learn how to:
 
-- How to make Cross Program Invocations (CPIs) in Anchor
-- How to create and use custom Anchor Errors
-- How to use the `init-if-needed` constraint
+- Make Cross Program Invocations (CPIs) in Anchor
+- Create and use custom Anchor Errors
+- Use the `init-if-needed` constraint
 
 ### Cross Program Invocations (CPIs) with Anchor
 
 As a refresher, CPIs allow programs to invoke instructions on other programs using the `invoke` or `invoke_signed` functions. This allows for the composability of Solana programs.
 
-While making CPIs directly using `invoke` or `invoke_signed` is still an option, Anchor also provides a simplified way to make CPIs. Making CPIs the Anchor way requires the equivalent of a `cpi` module which includes functions that support making CPIs using a `CpiContext`. Some programs have a crate which includes the `cpi` module. Alternatively, you can create the `cpi` module for a program you intend to invoke if:
+While making CPIs directly using `invoke` or `invoke_signed` is still an option, Anchor also provides a simplified way to make CPIs by using a `CpiContext`.
 
-- You have access to the IDL of the program
-- You have access to the source code of the program
-
-In this lesson, we will go over CPIs in Anchor using the `anchor_spl` crate which includes module required to make CPIs to the SPL Token Program. You can explore the `anchor_spl` crate [here](https://docs.rs/anchor-spl/latest/anchor_spl/#).
+In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token Program. You can explore the `anchor_spl` crate [here](https://docs.rs/anchor-spl/latest/anchor_spl/#).
 
 ### `CpiContext`
 
@@ -41,7 +38,7 @@ The `CpiContext` specifies non-argument inputs for cross program invocations:
 
 - `accounts` - the list of accounts required for the instruction being invoked
 - `remaining_accounts` - any remaining accounts
-- `program` - the program being invoked
+- `program` - the program ID of the program being invoked
 - `signer_seeds` - if a PDA is signing, include the seeds required to derived the PDA
 
 ```rust
@@ -99,7 +96,7 @@ pub fn new_with_signer(
 
 ### CPI Example
 
-Let’s go over an example of how to make a CPI to the `mint_to` instruction on the Token Program using the `anchor_spl` crate.
+This section will walk through an example of making a CPI to the `mint_to` instruction on the Token Program using the `anchor_spl` crate.
 
 The `anchor_spl` crate has a `token` [module](https://docs.rs/anchor-spl/latest/anchor_spl/token/index.html) which includes:
 
@@ -209,7 +206,7 @@ token::mint_to(
 
 ### `AnchorError`
 
-Next, let’s go over how to create custom Anchor Errors for a program. Ultimately, all programs return the same Error: The [ProgramError](https://docs.rs/solana-program/latest/solana_program/program_error/enum.ProgramError.html). However, Anchor Errors provide a range of information including:
+Next, you'll learn how to create and return custom Anchor Errors. Ultimately, all programs return the same Error: The [ProgramError](https://docs.rs/solana-program/latest/solana_program/program_error/enum.ProgramError.html). However, Anchor Errors provide a range of information including:
 
 - The error name and number
 - Location in the code where the error was thrown
@@ -295,7 +292,7 @@ To use `init_if_needed`, you must first enable the feature in `Cargo.toml`.
 anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
 ```
 
-Once you’ve enabled the feature, you can include the constraint in the `#[account(…)]` attribute. The example below demonstrates using the `init_if_needed` constraint to initialize a new associated token account if one does not already exist.
+Once you’ve enabled the feature, you can include the constraint in the `#[account(…)]` attribute macro. The example below demonstrates using the `init_if_needed` constraint to initialize a new associated token account if one does not already exist.
 
 ```rust
 #[program]
@@ -377,7 +374,7 @@ pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
     }
 ```
 
-Next, implement the `InitializeMint` context type and list the accounts and constraints the instruction requires. Here we initialize a new `Mint` using a PDA with the seed `mint`. Note that we use the same PDA for both the address of the `Mint` account and the mint authority. Using a PDA as the mint authority enables our program to sign for the minting of the tokens.
+Next, implement the `InitializeMint` context type and list the accounts and constraints the instruction requires. Here we initialize a new `Mint` account using a PDA with the string `mint` as a seed. Note that we can use the same PDA for both the address of the `Mint` account and the mint authority. Using a PDA as the mint authority enables our program to sign for the minting of the tokens.
 
 ```rust
 #[derive(Accounts)]
@@ -401,7 +398,7 @@ pub struct InitializeMint<'info> {
 
 ### 4. Anchor Error
 
-Next, let’s create an Anchor Error that we’ll use when checking the `rating`. We’ll use this error in the `add_movie_review` and `update_movie_review` instructions.
+Next, let’s create an Anchor Error that we’ll use when validating the `rating`. We’ll use this error in the `add_movie_review` and `update_movie_review` instructions.
 
 ```rust
 #[error_code]
@@ -426,12 +423,12 @@ pub struct MovieCommentCounter {
 
 Next, update the `AddMovieReview` context type. We’ll need add the following accounts:
 
-- `token_program` - required since we are using `Mint` and `TokenAccount` types.
+- `token_program` - required because we are using `Mint` and `TokenAccount` types from the Token Program.
 - `movie_comment_counter` - initializing the a new `MovieCommentCounter` account
 - `mint` - the `Mint` account for the token that the instruction mints
 - `token_account` - the associated token account of the `initializer` for the `mint`
-- `associated_token_program` - required since we are using the `associated_token` constraint in the `token_account`
-- `rent` - required since we are using the `init-if-needed` feature in the `token_account`
+- `associated_token_program` - required because we are using the `associated_token` constraint in the `token_account`
+- `rent` - required because we are using the `init-if-needed` feature in the `token_account`
 
 ```rust
 #[derive(Accounts)]
@@ -569,14 +566,14 @@ Next, let’s implement the `AddComment` context type. We’ll need add the foll
 
 - `movie_comment` - initializing a new comment account
 - `movie_review` - using the address as a seed for the `movie_comment` account PDA
-- `movie_comment_counter` - using the `count` as a seed for the `movie_comment` account PDA
+- `movie_comment_counter` - using the value of the `count` field as a seed for the `movie_comment` account PDA
 - `mint` - the `Mint` account for the token that the instruction mints
 - `token_account` - the associated token account of the `initializer` for the `mint`
 - `initializer` - the user submitting the comment
-- `token_program` - required since we are using `Mint` and `TokenAccount` types
-- `associated_token_program` - required since we are using the `associated_token` constraint in the `token_account`
-- `rent` - required since we are using the `init-if-needed` feature in the `token_account`
-- `system_program` - required since we are initializing new accounts
+- `token_program` - required because we are using `Mint` and `TokenAccount` types
+- `associated_token_program` - required because we are using the `associated_token` constraint in the `token_account`
+- `rent` - required because we are using the `init-if-needed` feature in the `token_account`
+- `system_program` - required because we are initializing new accounts
 
 ```rust
 #[derive(Accounts)]
@@ -730,7 +727,7 @@ it("Initializes the reward token", async () => {
 })
 ```
 
-Next, update the test for the `addMovieReview` instruction. We’ll first need to get the `tokenAccount` address.
+Next, update the test for the `addMovieReview` instruction. We’ll first need to get the `tokenAccount` address using `getAssociatedTokenAddress`.
 
 ```ts
 it("Movie review is added", async () => {
