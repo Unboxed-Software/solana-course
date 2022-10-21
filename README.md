@@ -36,7 +36,7 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    2. [Program Derived Addresses](./content/pda.md)
    3. [Cross Program Invocations](./content/cpi.md)
    4. Program Testing - Coming Soon
-### Module 5 - Anchor Program Development
+### Module 5 - Anchor program development
    1. [Intro to Anchor development](./content/intro-to-anchor.md)
    2. [Intro to client-side Anchor development](./content/anchor-frontend.md)
    3. Anchor PDAs - Coming Soon
