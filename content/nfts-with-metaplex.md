@@ -669,4 +669,4 @@ Recall that the sequence of steps are as follows:
 7. Close the candy machine account and withdraw the rent
 8. Sign collection
 
-Have some fun with this! This will be your first independently created NFT collection!
+Have some fun with this! This will be your first independently created NFT collection! With this you'll complete Module 2; hope you're feeling the process! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202), so that we can continue to improve the course!
