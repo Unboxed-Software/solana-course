@@ -37,6 +37,12 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    3. [Cross Program Invocations](./content/cpi.md)
    4. Program Testing - Coming Soon
 
+### Module 5 - Anchor program development
+   1. [Intro to Anchor development](./content/intro-to-anchor.md)
+   2. [Intro to client-side Anchor development](./content/anchor-frontend.md)
+   3. Anchor PDAs - Coming Soon
+   4. Anchor CPIs - Coming Soon
+
 ## Contribute to the Course
 
 We plan for this course to be perpetually open-source and we'd love for anyone and everyone to contribute!
