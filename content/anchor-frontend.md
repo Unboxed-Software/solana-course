@@ -1,4 +1,4 @@
-# Anchor Program from the Client
+# Intro to client-side Anchor development
 
 # Lesson Objectives
 
@@ -8,6 +8,7 @@ _By the end of this lesson, you will be able to:_
 - Explain an Anchor `Provider` object
 - Explain an Anchor `Program` object
 - Use the Anchor `MethodsBuilder` to build instructions and transactions
+- Use Anchor to fetch accounts
 - Set up a frontend to invoke instructions using Anchor and an IDL
 
 # TL;DR

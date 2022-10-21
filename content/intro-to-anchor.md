@@ -1,4 +1,4 @@
-# Anchor Program Structure
+# Intro to Anchor development
 
 # Lesson Objectives
 
