@@ -299,6 +299,43 @@ await sendTransaction(transaction, connection)
 
 In summary, the Anchor `MethodsBuilder` provides a simplified and more flexible way to interact with on-chain programs. You can build an instruction, a transaction, or build and send a transaction using basically the same format without having to manually serialize or deserialize the accounts or instruction data.
 
+## Fetch program accounts
+
+The `Program` object also allows you to easily fetch and filter program accounts. Simply call `account` on `program` and then specify the name of the account type as reflected on the IDL. Anchor then deserializes and returns all accounts as specified.
+
+The example below shows how you can fetch all existing `counter` accounts for the Counter program.
+
+```tsx
+const accounts = await program.account.counter.all()
+```
+
+You can also apply a filter by using `memcmp` and then specifying an `offset` and the `bytes` to filter for. 
+
+The example below fetches all `counter` accounts with a `count` of 0. Note that the `offset` of 8 is for the 8 byte discriminator Anchor uses to identify account types. The 9th byte is where the `count` field begins. You can refer to the IDL to see that the next byte stores the `count` field of type `u64`. Anchor then filters for and returns all accounts with matching bytes in the same position.
+
+```tsx
+const accounts = await program.account.counter.all([
+    {
+        memcmp: {
+            offset: 8,
+            bytes: bs58.encode((new BN(0, 'le')).toArray()),
+        },
+    },
+])
+```
+
+Alternatively, you can also get the deserialized account data for a specific account using `fetch` if you know the address of the account you're looking for. 
+
+```tsx
+const account = await program.account.counter.fetch(ACCOUNT_ADDRESS)
+```
+
+Similarly, you can fetch for multiple accounts using `fetchMultiple`.
+
+```tsx
+const accounts = await program.account.counter.fetchMultiple([ACCOUNT_ADDRESS_ONE, ACCOUNT_ADDRESS_TWO])
+```
+
 # Demo
 
 Let’s practice this together by building a frontend for the Counter program from last lesson. As a reminder, the Counter program has two instructions:
@@ -314,261 +351,141 @@ This project is a simple Next.js application. It includes the `WalletContextProv
 
 ### 2. `Initialize`
 
-To begin, let’s complete the set up to create the `Program` object in `Initialize.tsx` component. As a refresher, we’ll need the `Program` object in order to use the Anchor `MethodsBuilder` to invoke the instructions on our program.
+To begin, let’s complete the setup to create the `Program` object in `Initialize.tsx` component.
 
-Within the `Initialize.tsx` component, add the following code for the initial set up:
+Remember, we’ll need an instance of `Program` to use the Anchor `MethodsBuilder` to invoke the instructions on our program. For that, we'll need an Anchor wallet and a connection, which we can get from the `useAnchorWallet` and `useConnection` hooks. Let's also create a `useState` to capture the program instance.
 
 ```tsx
 export const Initialize: FC<Props> = ({ setCounter }) => {
-  ...
+  const [program, setProgram] = useState("")
 
   const { connection } = useConnection()
   const wallet = useAnchorWallet()
 
-  const provider = new anchor.AnchorProvider(connection, wallet, {})
-  anchor.setProvider(provider)
-
-  const programId = new anchor.web3.PublicKey(PROGRAM_ID)
-  const program = new anchor.Program(idl as anchor.Idl, programId)
-
   ...
 }
 ```
 
-Here we are establishing the `connection` and `wallet` to set the `provider`, and then using the `programId` and `idl` to construct the `Program`.
+With that, we can work on creating the actual `Program` instance. Let's do this in a `useEffect`.
 
-Next, we’ll need to generate a new `Keypair` for the new `Counter` account since we are initializing an account for the first time.
+First we need to either get the default provider if it already exists, or create it if it doesn't. We can do that by calling `getProvider` inside a try/catch block. If an error is thrown, that means there is no default provider and we need to create one.
 
-Add the following to generate a new `Keypair` for the `Counter` account:
+Once we have a provider, we can construct a `Program` instance.
 
 ```tsx
-export const Initialize: FC<Props> = ({ setCounter }) => {
-	...
+useEffect(() => {
+  let provider: anchor.Provider
 
-	const newAccount = anchor.web3.Keypair.generate()
+  try {
+    provider = anchor.getProvider()
+  } catch {
+    provider = new anchor.AnchorProvider(connection, wallet, {})
+    anchor.setProvider(provider)
+  }
 
-  ...
-}
+  const program = new anchor.Program(idl as anchor.Idl, PROGRAM_ID)
+  setProgram(program)
+}, [])
 ```
 
-Next, let’s use the Anchor `MethodsBuilder` to build a new transaction to invoke the `initialize` instruction using `.transaction()`.
+Now that we've finished the Anchor setup, we can actually invoke the program's `initialize` instruction. We'll do this inside the `onClick` function.
 
-Within `onClick` add the following to build the transaction:
+First, we’ll need to generate a new `Keypair` for the new `Counter` account since we are initializing an account for the first time.
+
+Then we can use the Anchor `MethodsBuilder` to create and send a new transaction. Remember, Anchor can infer some of the accounts required, like the `user` and `systemAccount` accounts. However, it can't infer the `counter` account because we generate that dynamically, so you'll need to add it with `.accounts`. You'll also need to add that keypair as a sign with `.signers`. Lastly, you can use `.rpc()` to submit the transaction to the user's wallet.
+
+Once the transaction goes through, call `setUrl` with the explorer URL and then call `setCounter`, passing in the counter account.
 
 ```tsx
 const onClick = async () => {
-    const transaction = await program.methods
-      .initialize()
-      .accounts({
-        counter: newAccount.publicKey,
-        user: wallet.publicKey,
-        systemAccount: anchor.web3.SystemProgram.programId,
-      })
-      .transaction()
+  const sig = await program.methods
+    .initialize()
+    .accounts({
+      counter: newAccount.publicKey,
+      user: wallet.publicKey,
+      systemAccount: anchor.web3.SystemProgram.programId,
+    })
+    .signers([newAccount])
+    .rpc()
 
-    ...
-  }
-```
-
-Now that we have the transaction, let’s use `sendTransaction` to send the transaction. We’ll need to include the `newAccount` as a signer. When initializing an account for the first time using a `Keypair`, it must also be included as a signer.
-
-Add `sendTransaction` within `onClick` following the transaction we’ve just built:
-
-```tsx
-export const Initialize: FC<Props> = ({ setCounter }) => {
-
-  const { sendTransaction } = useWallet()
-
-  ...
-  const onClick = async () => {
-    ...
-
-   sendTransaction(transaction, connection, { signers: [newAccount] })
-  }
-
-...
+    setTransactionUrl(`https://explorer.solana.com/tx/${sig}?cluster=devnet`)
+    setCounter(newAccount.publicKey)
 }
-```
-
-Let’s also use the `TransactionSignature` returned by `sendTransaction` to display a link to Solana Explorer URL on the frontend. We’ll also keep track of the `newAccount` publicKey to use with the `increment` instruction that we’ll implement next.
-
-Update `sendTransaction` with the following:
-
-```tsx
-const onClick = async () => {
-    ...
-
-    sendTransaction(transaction, connection, { signers: [newAccount] }).then(
-      (sig) => {
-        console.log(
-          `Transaction: https://explorer.solana.com/tx/${sig}?cluster=devnet`
-        )
-        setUrl(`https://explorer.solana.com/tx/${sig}?cluster=devnet`)
-        setCounter(newAccount.publicKey)
-      }
-    )
-  }
-```
-
-All together the updated `Initialize.tsx` component looks like this:
-
-```tsx
-export const Initialize: FC<Props> = ({ setCounter }) => {
-  const [url, setUrl] = useState("")
-  const { sendTransaction } = useWallet()
-
-  const { connection } = useConnection()
-  const wallet = useAnchorWallet()
-
-  const provider = new anchor.AnchorProvider(connection, wallet, {})
-  anchor.setProvider(provider)
-
-  const programId = new anchor.web3.PublicKey(PROGRAM_ID)
-  const program = new anchor.Program(idl as anchor.Idl, programId)
-
-  const newAccount = anchor.web3.Keypair.generate()
-
-  const onClick = async () => {
-    const transaction = await program.methods
-      .initialize()
-      .accounts({
-        counter: newAccount.publicKey,
-        user: wallet.publicKey,
-        systemAccount: anchor.web3.SystemProgram.programId,
-      })
-      .transaction()
-
-    sendTransaction(transaction, connection, { signers: [newAccount] }).then(
-      (sig) => {
-        console.log(
-          `Transaction: https://explorer.solana.com/tx/${sig}?cluster=devnet`
-        )
-        setUrl(`https://explorer.solana.com/tx/${sig}?cluster=devnet`)
-        setCounter(newAccount.publicKey)
-      }
-    )
-  }
-
-...
 ```
 
 ### 3. `Increment`
 
-Next, let’s move on the the `Increment.tsx` component. Just as before, complete the set up to create the `Program` object.
+Next, let’s move on the the `Increment.tsx` component. Just as before, complete the setup to create the `Program` object. In addition to calling `setProgram`, the `useEffect` should call `refreshCount`.
 
 Add the following code for the initial set up:
 
 ```tsx
-export const Increment: FC<Props> = ({ counter }) => {
-  ...
-
+export const Increment: FC<Props> = ({ counter, setTransactionUrl }) => {
+  const [count, setCount] = useState(0)
+  const [program, setProgram] = useState<anchor.Program>()
   const { connection } = useConnection()
   const wallet = useAnchorWallet()
 
-  const provider = new anchor.AnchorProvider(connection, wallet, {})
-  anchor.setProvider(provider)
+  useEffect(() => {
+    let provider: anchor.Provider
 
-  const programId = new anchor.web3.PublicKey(PROGRAM_ID)
-  const program = new anchor.Program(idl as anchor.Idl, programId)
+    try {
+      provider = anchor.getProvider()
+    } catch {
+      provider = new anchor.AnchorProvider(connection, wallet, {})
+      anchor.setProvider(provider)
+    }
 
+    const program = new anchor.Program(idl as anchor.Idl, PROGRAM_ID)
+    setProgram(program)
+    refreshCount(program)
+  }, [])
   ...
 }
 ```
 
-Next, let’s use the Anchor `MethodsBuilder` to build a new instruction to invoke the `increment` instruction. This time we will use `.instruction()` and add the instruction to a new transaction.
-
-Within `onClick` add the following:
+Next, let’s use the Anchor `MethodsBuilder` to build a new instruction to invoke the `increment` instruction. Again, Anchor can infer the `user` account from the wallet so we only need to include the `counter` account.
 
 ```tsx
 const onClick = async () => {
-    const transaction = new anchor.web3.Transaction()
-    const instruction = await program.methods
-      .increment()
-      .accounts({
-        counter: counter,
-        user: wallet.publicKey,
-      })
-      .instruction()
-
-    transaction.add(instruction)
-
-    ...
-  }
-```
-
-Just as before, let’s also use the `TransactionSignature` returned by `sendTransaction` to display the Solana Explorer URL on the frontend.
-
-Add `sendTransaction` within `onClick` following the transaction we’ve just built:
-
-```tsx
-export const Increment: FC<Props> = ({ counter }) => {
-
-  const { sendTransaction } = useWallet()
-
-  ...
-  const onClick = async () => {
-    ...
-
-    sendTransaction(transaction, connection).then((sig) => {
-      console.log(
-        `Transaction: https://explorer.solana.com/tx/${sig}?cluster=devnet`
-      )
-      setUrl(`https://explorer.solana.com/tx/${sig}?cluster=devnet`)
+  const sig = await program.methods
+    .increment()
+    .accounts({
+      counter: counter,
+      user: wallet.publicKey,
     })
-  }
+    .rpc()
 
-...
+  setTransactionUrl(`https://explorer.solana.com/tx/${sig}?cluster=devnet`)
 }
 ```
 
-All together the updated `Increment.tsx` component looks like this:
+### 5. Display the correct count
+
+Now that we can initialize the counter program and increment the count, we need to get our UI to show the count stored in the counter account.
+
+We'll show how to observe account changes in a future lesson, but for now we just have a button that calls `refreshCount` so you can click it to show the new count after each `increment` invocation.
+
+Inside `refreshCount`, let's use `program` to fetch the counter account, then use `setCount` to set the count to the number stored on the program:
 
 ```tsx
-export const Increment: FC<Props> = ({ counter }) => {
-  const [url, setUrl] = useState("")
-
-  const { connection } = useConnection()
-  const { sendTransaction } = useWallet()
-  const wallet = useAnchorWallet()
-
-  const provider = new anchor.AnchorProvider(connection, wallet, {})
-  anchor.setProvider(provider)
-
-  const programId = new anchor.web3.PublicKey(PROGRAM_ID)
-  const program = new anchor.Program(idl as anchor.Idl, programId)
-
-  const onClick = async () => {
-    const transaction = new anchor.web3.Transaction()
-    const instruction = await program.methods
-      .increment()
-      .accounts({
-        counter: counter,
-        user: wallet.publicKey,
-      })
-      .instruction()
-
-    transaction.add(instruction)
-
-    sendTransaction(transaction, connection).then((sig) => {
-      console.log(
-        `Transaction: https://explorer.solana.com/tx/${sig}?cluster=devnet`
-      )
-      setUrl(`https://explorer.solana.com/tx/${sig}?cluster=devnet`)
-    })
-  }
-
-...
+const refreshCount = async (program) => {
+  const counterAccount = await program.account.counter.fetch(counter)
+  setCount(counterAccount.count.toNumber())
+}
 ```
 
-### 4. Test the frontend
+Super simple with Anchor!
 
-You can test the frontend by running `npm run dev`.
+### 5. Test the frontend
 
-1. Connect you wallet and you should see the `Initialize Counter` button
+At this point, everything should work! You can test the frontend by running `npm run dev`.
+
+1. Connect your wallet and you should see the `Initialize Counter` button
 2. Click the `Initialize Counter` button, and then approve the transaction
-3. You should then see a link to Solana Explorer for the `initialize` transaction and the `Increment Counter` button should also appear
+3. You should then see a link at the bottom of the screen to Solana Explorer for the `initialize` transaction. The `Increment Counter` button, `Refresh Count` button, and the count should also all appear.
 4. Click the `Increment Counter` button, and then approve the transaction
-5. You should see another link to Solana Explorer for the `increment` transaction
+5. Wait a few seconds and click `Refresh Count`. The count should increment on the screen.
 
 ![Gif of Anchor Frontend Demo](../assets/anchor-frontend-demo.gif)
 
@@ -578,9 +495,9 @@ Feel free to click the links to inspect the program logs from each transaction!
 
 ![Screenshot of Increment Program Log](../assets/anchor-frontend-increment.png)
 
-Congratulations, you now know how to set up a frontend to invoke a Solana program using an IDL generated with Anchor.
+Congratulations, you now know how to set up a frontend to invoke a Solana program using an Anchor IDL.
 
-If you need more time with this project to feel comfortable with these concepts, feel free to have a look at the [solution code](https://github.com/Unboxed-Software/anchor-ping-frontend) before continuing.
+If you need more time with this project to feel comfortable with these concepts, feel free to have a look at the [solution code on the `solution-increment` branch](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/solution-increment) before continuing.
 
 # Challenge
 
@@ -594,4 +511,4 @@ Before building the component in the frontend, you’ll first need to:
 
 If you need some help, feel free to reference this program [here](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/challenge).
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/solution-decrement).
