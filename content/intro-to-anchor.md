@@ -580,7 +580,7 @@ Congratulations, you just built a Solana program using the Anchor framework! Fee
 
 Now it’s your turn to build something independently. Because we're starting with very simple programs, yours will look almost identical to what we just created. It's useful to try and get to the point where you can write it from scratch without referencing prior code, so try not to copy and paste here.
 
-1. Write a new program that initializes a `counter` account and set the `count` field using the an instruction data argument passed into the instruction
+1. Write a new program that initializes a `counter` account
 2. Implement both an `increment` and `decrement` instruction
 3. Build and deploy your program like we did in the demo
 4. Test your newly deployed program and use Solana Explorer to check the program logs
