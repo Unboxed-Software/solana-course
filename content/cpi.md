@@ -618,3 +618,5 @@ If you need more time with the concepts from this lesson or got stuck along the 
 To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.
 
 A great example would be to build a decentralized Stack Overflow. The program could use tokens to determine a user's overall rating, mint tokens when questions are answered correctly, allow users to upvote answers, etc. All of that is possible and you now have the skills and knowledge to go and build something like it on your own!
+
+Congratulations on reaching the end of Module 4! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%204), so that we can continue to improve the course.

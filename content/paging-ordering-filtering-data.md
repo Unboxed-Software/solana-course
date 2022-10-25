@@ -436,6 +436,6 @@ Now it’s your turn to try and do this on your own. Using the Student Intros ap
 3. Order the accounts displayed in the app alphabetically by name.
 4. Add the ability to search through introductions by a student’s name.
 
-This is challenging. If you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-paging-account-data).
+This is challenging. If you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-paging-account-data). With this you complete Module 1! How was your experience? Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%201), so that we can continue to improve the course!
 
-As always, get creative with these challenges and take them beyond the instructions if you want!
+As always, get creative with these challenges and take them beyond the instructions if you want! 
