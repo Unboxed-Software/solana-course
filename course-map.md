@@ -111,3 +111,24 @@
    - Describe various ways to test Solana programs
    - Explain the difference between unit tests and integration tests
    - Debug Solana programs
+
+# Module 5 - Anchor Program Development
+1. Intro to Anchor development
+   - Use the Anchor framework to build a basic program
+   - Describe the basic structure of an Anchor program
+   - Explain how to implement basic account validation and security checks with Anchor
+2. Intro to client-side Anchor development
+   - Use an IDL to interact with a Solana program from the client
+   - Explain an Anchor `Provider` object
+   - Explain an Anchor `Program` object
+   - Use the Anchor `MethodsBuilder` to build instructions and transactions
+   - Use Anchor to fetch accounts
+   - Set up a frontend to invoke instructions using Anchor and an IDL
+3. Anchor PDAs and accounts
+   - Use the `seeds` and `bump` constraints to work with PDAs in Anchor
+   - Use the `realloc` constraint to reallocate space on an existing account
+   - Use the `close` constraint to close an existing account
+4. Anchor CPIs
+   - Make Cross Program Invocations (CPIs) within an Anchor program
+   - Create and return custom Anchor Errors
+   - Enable and use the `init-if-needed` constraint

@@ -148,7 +148,7 @@ In the interest of staying on topic, we won’t be working entirely from scratch
 
 ### 1. Get oriented
 
-Once you’ve got the starter code, take a look around. Run the app with `npm run dev`. Notice that no matter what you put into the address field, when you click “Check SOL Balance” the balance will be a placeholder value of 1000.
+Once you’ve got the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`. Notice that no matter what you put into the address field, when you click “Check SOL Balance” the balance will be a placeholder value of 1000.
 
 Structurally, the app is composed of `index.tsx` and `AddressForm.tsx`. When a user submits the form, the `addressSubmittedHandler` in `index.tsx` gets called. That’s where we’ll be adding the logic to update the rest of the UI.
 
