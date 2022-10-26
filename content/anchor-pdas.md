@@ -97,6 +97,21 @@ However, when using `init` in combination with `seeds` and `bump`, the owner *mu
 
 When determining the value of `space` for an account initialized and owned by the executing Anchor program, remember that the first 8 bytes are reserved for the account discriminator. This is an 8-byte value that Anchor calculates and uses to identify the program account types. You can use this [reference](https://www.anchor-lang.com/docs/space) to calculate how much space you should allocate for an account.
 
+### Seed inference
+
+The account list for an instruction can get really long for some programs. To simplify the client-side experience when invoking an Anchor program instruction, we can turn on seed inference.
+
+Seed inference adds information about PDA seeds to the IDL so that Anchor can infer PDA seeds from existing call-site information. In the previous example, the seeds are `b"example_seed"` and `user.key()`. The first is static and therefore known, and the second is known because `user` is the transaction signer.
+
+If you use seed inference when building your program, then as long as you're calling the program using Anchor, you don't need to explicitly derive and pass in the PDA. Instead, the Anchor library will do it for you.
+
+You can turn on seed inference in the `Anchor.toml` file with `seeds = true` under `[features]`.
+
+```
+[features]
+seeds = true
+```
+
 ### Use the `#[instruction(...)]` attribute macro
 
 Let's briefly look at the `#[instruction(...)]` attribute macro before moving on. When using `#[instruction(...)]`, the instruction data you provide in the list of arguments must match and be in the same order as the instruction arguments. You can omit unused arguments at the end of the list, but you must include all arguments up until the last one you will be using.
@@ -180,7 +195,7 @@ If the change in account data length is additive, lamports will be transferred f
 
 The `realloc::zero` constraint is required in order to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where you expect the memory of an account to shrink and expand multiple times. That way you zero out space that would otherwise show as stale data.
 
-### Close
+## Close
 
 The `close` constraint provides a simple and secure way to close an existing account.
 
@@ -498,7 +513,7 @@ describe("anchor-movie-review-program", () => {
     rating: 5,
   }
 
-  const [movie_pda] = anchor.web3.PublicKey.findProgramAddressSync(
+  const [moviePda] = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from(movie.title), provider.wallet.publicKey.toBuffer()],
     program.programId
   )
@@ -511,7 +526,7 @@ describe("anchor-movie-review-program", () => {
 })
 ```
 
-Next, let's create the first test for the `addMovieReview` instruction. Note that we only include the `movieReview` account in the list of `accounts`. This is because the `Wallet` from `AnchorProvider` is automatically included as a signer and Anchor can infer certain accounts like `SystemProgram`.
+Next, let's create the first test for the `addMovieReview` instruction. Note that we don't explicitly add `.accounts`. This is because the `Wallet` from `AnchorProvider` is automatically included as a signer, Anchor can infer certain accounts like `SystemProgram`, and Anchor can also infer the `movieReview` PDA from the `title` instruction argument and the signer's public key.
 
 Once the instruction runs, we then fetch the `movieReview` account and check that the data stored on the account match the expected values.
 
@@ -520,12 +535,9 @@ it("Movie review is added`", async () => {
   // Add your test here.
   const tx = await program.methods
     .addMovieReview(movie.title, movie.description, movie.rating)
-    .accounts({
-      movieReview: movie_pda,
-    })
     .rpc()
 
-  const account = await program.account.movieAccountState.fetch(movie_pda)
+  const account = await program.account.movieAccountState.fetch(moviePda)
   expect(movie.title === account.title)
   expect(movie.rating === account.rating)
   expect(movie.description === account.description)
@@ -542,12 +554,9 @@ it("Movie review is updated`", async () => {
 
   const tx = await program.methods
     .updateMovieReview(movie.title, newDescription, newRating)
-    .accounts({
-      movieReview: movie_pda,
-    })
     .rpc()
 
-  const account = await program.account.movieAccountState.fetch(movie_pda)
+  const account = await program.account.movieAccountState.fetch(moviePda)
   expect(movie.title === account.title)
   expect(newRating === account.rating)
   expect(newDescription === account.description)
@@ -561,7 +570,6 @@ Next, create the test for the `deleteMovieReview` instruction
 it("Deletes a movie review", async () => {
   const tx = await program.methods
     .deleteMovieReview(movie.title)
-    .accounts({ movieReview: movie_pda })
     .rpc()
 })
 ```
