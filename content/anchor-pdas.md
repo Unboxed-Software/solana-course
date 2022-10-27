@@ -1,4 +1,4 @@
-# Anchor PDA and Account Constraints
+# Anchor PDAs and Accounts
 
 # Lesson Objectives
 
@@ -170,9 +170,9 @@ pub struct ReallocExample<'info> {
         mut,
         seeds = [b"example_seed", user.key().as_ref()],
         bump,
-				realloc = 8 + 4 + instruction_data.len(),
+        realloc = 8 + 4 + instruction_data.len(),
         realloc::payer = user,
-				realloc::zero = false,
+        realloc::zero = false,
     )]
     pub pda_account: Account<'info, AccountType>,
     #[account(mut)]
