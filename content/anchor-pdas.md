@@ -5,12 +5,14 @@
 _By the end of this lesson, you will be able to:_
 
 - Use the `seeds` and `bump` constraints to work with PDA accounts in Anchor
+- Enable and use the `init_if_needed` constraint
 - Use the `realloc` constraint to reallocate space on an existing account
 - Use the `close` constraint to close an existing account
 
 # TL;DR
 
 - The `seeds` and `bump` constraints are used to initialize and validate PDA accounts in Anchor
+- The `init_if_needed` constraint is used to conditionally initialize a new account
 - The `realloc` constraint is used to reallocate space on an existing account
 - The `close` constraint is used to close an account and refund its rent
 
@@ -147,6 +149,53 @@ pub struct Example<'info> {
     ...
 }
 ```
+
+## Init-if-needed
+
+Anchor provides an `init_if_needed` constraint that can be used to initialize an account if the account has not already been initialized.
+
+This feature is gated behind a feature flag to make sure you are intentional about using it. For security reasons, it's smart to avoid having one instruction branch into multiple logic paths. And as the name suggests, `init_if_needed` executes one of two possible code paths depending on the state of the account in question.
+
+When using `init_if_needed`, you need to make sure to properly protect your program against re-initialization attacks. You need to include checks in your code that check that the initialized account cannot be reset to its initial settings after the first time it was initialized.
+
+To use `init_if_needed`, you must first enable the feature in `Cargo.toml`.
+
+```rust
+[dependencies]
+anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
+```
+
+Once you’ve enabled the feature, you can include the constraint in the `#[account(…)]` attribute macro. The example below demonstrates using the `init_if_needed` constraint to initialize a new associated token account if one does not already exist.
+
+```rust
+#[program]
+mod example {
+    use super::*;
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(
+        init_if_needed,
+        payer = payer,
+        associated_token::mint = mint,
+        associated_token::authority = payer
+    )]
+    pub token_account: Account<'info, TokenAccount>,
+    pub mint: Account<'info, Mint>,
+     #[account(mut)]
+    pub payer: Signer<'info>,
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub rent: Sysvar<'info, Rent>,
+}
+```
+
+When the `initialize` instruction is invoked in the previous example, Anchor will check if the `token_account` exists and initialize it if it does not. If it already exists, then the instruction will continue without initializing the account. Just as with the `init` constraint, you can use `init_if_needed` in conjunction with `seeds` and `bump` if the account is a PDA.
 
 ## Realloc
 
