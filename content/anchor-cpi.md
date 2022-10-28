@@ -1,40 +1,36 @@
-# CPI and AnchorError
+# Anchor CPIs and Errors
 
 # Lesson Objectives
 
 _By the end of this lesson, you will be able to:_
 
 - Make Cross Program Invocations (CPIs) within an Anchor program
-- Create and return custom Anchor Errors
-- Enable and use the `init-if-needed` constraint
+- Create and return custom Anchor errors
 
 # TL;DR
 
 - Anchor provides a simplified way to create CPIs using a `CpiContext`
 - The `error_code` attribute macro is used to create custom Anchor Errors
-- The `init-if-needed` constraint is used to conditionally initialize a new account
 
 # Overview
 
-In this lesson you'll learn how to:
+If you think back to the [first CPI lesson](cpi.md), you'll remember that constructing CPIs can get tricky with vanilla Rust. Anchor makes it a bit simpler though, especially if the program you're invoking is also an Anchor program and has published made their Anchor crate available.
 
-- Make Cross Program Invocations (CPIs) in Anchor
-- Create and use custom Anchor Errors
-- Use the `init-if-needed` constraint
+In this lesson, you'll learn how to construct an Anchor CPI. You'll also learn how to throw custom errors from an Anchor program so that you can start to write more sophisticated Anchor programs.
 
-### Cross Program Invocations (CPIs) with Anchor
+## Cross Program Invocations (CPIs) with Anchor
 
-As a refresher, CPIs allow programs to invoke instructions on other programs using the `invoke` or `invoke_signed` functions. This allows for the composability of Solana programs.
+As a refresher, CPIs allow programs to invoke instructions on other programs using the `invoke` or `invoke_signed` functions. This allows new programs to build on top of existing programs (we call that composability).
 
 While making CPIs directly using `invoke` or `invoke_signed` is still an option, Anchor also provides a simplified way to make CPIs by using a `CpiContext`.
 
-In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token Program. You can explore the `anchor_spl` crate [here](https://docs.rs/anchor-spl/latest/anchor_spl/#).
+In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token Program. You can explore what's available in the `anchor_spl` crate [here](https://docs.rs/anchor-spl/latest/anchor_spl/#).
 
 ### `CpiContext`
 
-The first step in making a CPI is to create the `CpiContext`.
+The first step in making a CPI is to create an instance of `CpiContext`.
 
-The `CpiContext` specifies non-argument inputs for cross program invocations:
+The `CpiContext` type specifies non-argument inputs for cross program invocations:
 
 - `accounts` - the list of accounts required for the instruction being invoked
 - `remaining_accounts` - any remaining accounts
@@ -53,7 +49,7 @@ where
 }
 ```
 
-`CpiContext::new` is used when a regular keypair is the signer for the CPI.
+You use `CpiContext::new` to construct a new instance when passing along the original transaction signature.
 
 ```rust
 CpiContext::new(cpi_program, cpi_accounts)
@@ -73,7 +69,7 @@ pub fn new(
 }
 ```
 
-`CpiContext::new_with_signer` is used when a PDA is the signer for the CPI.
+You use `CpiContext::new_with_signer` to construct a new instance when signing on behalf of a PDA for the CPI.
 
 ```rust
 CpiContext::new_with_signer(cpi_program, cpi_accounts, seeds)
@@ -93,6 +89,8 @@ pub fn new_with_signer(
     }
 }
 ```
+
+Note that the information contained by the context is the same information you provide when using `invoke` and `invoke_signed`. However, the `accounts` field is a generic type that gives some flexibility in how you pass in the accounts. This can make the overall process much simpler.
 
 ### CPI Example
 
@@ -204,9 +202,11 @@ token::mint_to(
 )?;
 ```
 
-### `AnchorError`
+## `AnchorError`
 
-Next, you'll learn how to create and return custom Anchor Errors. Ultimately, all programs return the same Error: The [ProgramError](https://docs.rs/solana-program/latest/solana_program/program_error/enum.ProgramError.html). However, Anchor Errors provide a range of information including:
+We're deep enough into Anchor at this point that it's important to know how to create custom errors.
+
+Ultimately, all programs return the same error type: [`ProgramError`](https://docs.rs/solana-program/latest/solana_program/program_error/enum.ProgramError.html). However, when writing a program using Anchor you can use `AnchorError` as an abstraction on top of `ProgramError`. This abstraction provides additional information when a program fails, including:
 
 - The error name and number
 - Location in the code where the error was thrown
@@ -225,9 +225,9 @@ pub struct AnchorError {
 Anchor Errors can be divided into:
 
 - Anchor Internal Errors that the framework returns from inside its own code
-- Custom errors which the user (you!) can return
+- Custom errors that you the developer can create
 
-You can add errors unique to your program by using the `error_code` attribute. Simply add the error to an `enum` with a name of your choice. You can then use the variants of the `enum` as errors in your program. Additionally, you can add a message attribute to the individual variants. Clients will then display this error message if the error occurs.
+You can add errors unique to your program by using the `error_code` attribute. Simply add this attribute to a custom `enum` type. You can then use the variants of the `enum` as errors in your program. Additionally, you can add an error message to each variant using the `msg` attribute. Clients can then display this error message if the error occurs.
 
 ```rust
 #[error_code]
@@ -237,7 +237,7 @@ pub enum MyError {
 }
 ```
 
-Return an error using the [err!](https://docs.rs/anchor-lang/latest/anchor_lang/macro.err.html) or the [error!](https://docs.rs/anchor-lang/latest/anchor_lang/prelude/macro.error.html) macro within an instruction. These add file and line information to the error that is then logged by Anchor.
+To return a custom error you can use the [err](https://docs.rs/anchor-lang/latest/anchor_lang/macro.err.html) or the [error](https://docs.rs/anchor-lang/latest/anchor_lang/prelude/macro.error.html) macro from an instruction function. These add file and line information to the error that is then logged by Anchor to help you with debugging.
 
 ```rust
 #[program]
@@ -259,7 +259,7 @@ pub enum MyError {
 }
 ```
 
-Alternatively, you can use the [require](https://docs.rs/anchor-lang/latest/anchor_lang/macro.require.html) macro to simplify writing errors. The code above can be refactored to the following:
+Alternatively, you can use the [require](https://docs.rs/anchor-lang/latest/anchor_lang/macro.require.html) macro to simplify returning errors. The code above can be refactored to the following:
 
 ```rust
 #[program]
@@ -277,67 +277,6 @@ pub enum MyError {
     #[msg("MyAccount may only hold data below 100")]
     DataTooLarge
 }
-```
-
-### `init_if_needed` constraint
-
-Anchor provides an `init_if_needed` constraint that can be used to initialize an account if it does not already exist.
-
-This feature should be used with care and is therefore behind a feature flag. You need to make sure you properly protect yourself against re-initialization attacks. You need to include checks in your code that check that the initialized account cannot be reset to its initial settings after the first time it was initialized.
-
-To use `init_if_needed`, you must first enable the feature in `Cargo.toml`.
-
-```rust
-[dependencies]
-anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
-```
-
-Once you’ve enabled the feature, you can include the constraint in the `#[account(…)]` attribute macro. The example below demonstrates using the `init_if_needed` constraint to initialize a new associated token account if one does not already exist.
-
-```rust
-#[program]
-mod example {
-    use super::*;
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        Ok(())
-    }
-}
-
-#[derive(Accounts)]
-pub struct Initialize<'info> {
-    #[account(
-        init_if_needed,
-        payer = payer,
-        associated_token::mint = mint,
-        associated_token::authority = payer
-    )]
-    pub token_account: Account<'info, TokenAccount>,
-    pub mint: Account<'info, Mint>,
-     #[account(mut)]
-    pub payer: Signer<'info>,
-    pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
-    pub rent: Sysvar<'info, Rent>,
-}
-```
-
-When the `initilize` instruction is invoked, Anchor will check if the `token_account` exists and initialize it if it does not. If it already exists, then the instruction continues. Note that in the example below, the accounts not listed in `program.methods.initialize().accounts()` are ones that Anchor can infer (ex. system program).
-
-```ts
-const mint = new PublicKey("MINT_ADDRESS_HERE")
-const tokenAccountAddress = await getAssociatedTokenAddress(
-  mint,
-  user.publicKey
-)
-
-await program.methods
-  .initialize()
-  .accounts({
-    tokenAccount: tokenAccountAddress,
-    mint: mint,
-  })
-  .rpc()
 ```
 
 # Demo
