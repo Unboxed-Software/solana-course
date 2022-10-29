@@ -4,17 +4,21 @@
 
 _By the end of this lesson, you will be able to:_
 
-- Make Cross Program Invocations (CPIs) within an Anchor program
+- Make Cross Program Invocations (CPIs) from an Anchor program
+- Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs
+- Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable
 - Create and return custom Anchor errors
 
 # TL;DR
 
-- Anchor provides a simplified way to create CPIs using a `CpiContext`
-- The `error_code` attribute macro is used to create custom Anchor Errors
+- Anchor provides a simplified way to create CPIs using a **`CpiContext`**
+- Anchor's **`cpi`** feature generates CPI helper functions for invoking instructions on existing Anchor programs
+- If you do not have access to CPI helper functions, you can still use `invoke` and `invoke_signed` directly
+- The **`error_code`** attribute macro is used to create custom Anchor Errors
 
 # Overview
 
-If you think back to the [first CPI lesson](cpi.md), you'll remember that constructing CPIs can get tricky with vanilla Rust. Anchor makes it a bit simpler though, especially if the program you're invoking is also an Anchor program and has published made their Anchor crate available.
+If you think back to the [first CPI lesson](cpi.md), you'll remember that constructing CPIs can get tricky with vanilla Rust. Anchor makes it a bit simpler though, especially if the program you're invoking is also an Anchor program whose crate you can access.
 
 In this lesson, you'll learn how to construct an Anchor CPI. You'll also learn how to throw custom errors from an Anchor program so that you can start to write more sophisticated Anchor programs.
 
@@ -28,7 +32,7 @@ In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token 
 
 ### `CpiContext`
 
-The first step in making a CPI is to create an instance of `CpiContext`.
+The first step in making a CPI is to create an instance of `CpiContext`. `CpiContext` is very similar to `Context`, the first argument type required by Anchor instruction functions. They are both declared in the same module and share similar functionality.
 
 The `CpiContext` type specifies non-argument inputs for cross program invocations:
 
@@ -90,117 +94,103 @@ pub fn new_with_signer(
 }
 ```
 
-Note that the information contained by the context is the same information you provide when using `invoke` and `invoke_signed`. However, the `accounts` field is a generic type that gives some flexibility in how you pass in the accounts. This can make the overall process much simpler.
+### CPI accounts
 
-### CPI Example
+One of the main things about `CpiContext` that simplifies cross-program invocations is that the `accounts` argument is a generic type that lets you pass in any object that adopts the `ToAccountMetas` and `ToAccountInfos<'info>` traits.
 
-This section will walk through an example of making a CPI to the `mint_to` instruction on the Token Program using the `anchor_spl` crate.
+These traits are added by the `#[derive(Accounts)]` attribute macro that you've used before when creating structs to represent instruction accounts. That means you can use similar structs with `CpiContext`.
 
-The `anchor_spl` crate has a `token` [module](https://docs.rs/anchor-spl/latest/anchor_spl/token/index.html) which includes:
+This helps with code organization and type safety.
 
-- Structs that list the accounts required for Token Program instructions
-- Functions used to make CPIs to each respective instruction.
+### Invoke an instruction on another Anchor program
 
-For example, the `MintTo` [struct](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.MintTo.html) includes the following accounts:
+When the program you're calling is an Anchor program with a published crate, Anchor can generate instruction builders and CPI helper functions for you.
 
-- `mint` - the token mint account
-- `to` - the token account minting tokens to
-- `authority` - the mint authority for the mint specified
+Simply declare your program's dependency on the program you're calling in your program's `Cargo.toml` file as follows:
 
-```rust
-#[derive(Accounts)]
-pub struct MintTo<'info> {
-    pub mint: AccountInfo<'info>,
-    pub to: AccountInfo<'info>,
-    pub authority: AccountInfo<'info>,
-}
+```
+[dependencies]
+callee = { path = "../callee", features = ["cpi"]}
 ```
 
-The `mint_to` [function](https://docs.rs/anchor-spl/latest/src/anchor_spl/token.rs.html#36-58) is then used to build the instruction for the CPI. Note that under the hood, the function takes the `CpiContext` of type `MintTo` and an `amount` as parameters and uses `invoke_signed` to make the CPI.
+By adding `features = ["cpi"]`, you enable the `cpi` feature and your program gains access to the `callee::cpi` module.
+
+The `cpi` module exposes `callee`'s instructions as a Rust function that takes as arguments a `CpiContext` and any additional instruction data. These functions use the same format as the instruction functions in your Anchor programs, only with `CpiContext` instead of `Context`. The `cpi` module also exposes the accounts structs required for calling the instructions.
+
+For example, if `callee` has the instruction `do_something` that requires the accounts defined in the `DoSomething` struct, you could invoke `do_something` as follows:
 
 ```rust
-pub fn mint_to<'a, 'b, 'c, 'info>(
-    ctx: CpiContext<'a, 'b, 'c, 'info, MintTo<'info>>,
-    amount: u64,
-) -> Result<()> {
-    let ix = spl_token::instruction::mint_to(
-        &spl_token::ID,
-        ctx.accounts.mint.key,
-        ctx.accounts.to.key,
-        ctx.accounts.authority.key,
-        &[],
+use anchor_lang::prelude::*;
+use callee;
+...
+
+#[program]
+pub mod lootbox_program {
+    use super::*;
+
+    pub fn call_another_program(ctx: Context<CallAnotherProgram>, params: InitUserParams) -> Result<()> {
+        callee::cpi::do_something(
+            CpiContext::new(
+                ctx.accounts.callee.to_account_info(),
+                callee::DoSomething {
+                    user: ctx.accounts.user.to_account_info()
+                }
+            )
+        )
+        Ok(())
+    }
+}
+...
+```
+
+### Invoke an instruction on a non-Anchor program
+
+When the program you're calling is *not* an Anchor program, there are two possible options:
+
+1. It's possible that the program maintainers have published a crate with their own helper functions for calling into their program. For example, the `anchor_spl` crate provides helper functions that are virtually identical from a call-site perspective to what you would get with the `cpi` module of an Anchor program. E.g. you can mint using the [`mint_to` helper function](https://docs.rs/anchor-spl/latest/src/anchor_spl/token.rs.html#36-58) and use the [`MintTo` accounts struct](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.MintTo.html).
+    ```rust
+    token::mint_to(
+        CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            token::MintTo {
+                mint: ctx.accounts.mint_account.to_account_info(),
+                to: ctx.accounts.token_account.to_account_info(),
+                authority: ctx.accounts.mint_authority.to_account_info(),
+            },
+            &[&[
+                b"mint",
+                &[*ctx.bumps.get("mint_authority").unwrap()],
+            ]]
+        ),
         amount,
     )?;
-    solana_program::program::invoke_signed(
-        &ix,
-        &[
-            ctx.accounts.to.clone(),
-            ctx.accounts.mint.clone(),
-            ctx.accounts.authority.clone(),
-        ],
-        ctx.signer_seeds,
-    )
-    .map_err(Into::into)
-}
-```
-
-All together, making a CPI to the `mint_to` instruction with a PDA as the mint authority would require the steps:
-
-- Use the seeds and bump of the mint authority as the signer for the CPI
-- Specify the token program as the program being invoked
-- Specify the list of accounts required by the instruction
-- Create the `CpiContext`
-- Use the CPI helper function, the `CpiContext`, and any additional required instruction data to make the CPI
-
-```rust
-// get the mint authority bump
-let auth_bump = *ctx.bumps.get("mint_authority").unwrap();
-
-// list seeds used for signing
-let seeds = &[
-    b"mint".as_ref(),
-    &[auth_bump],
-];
-
-// specify signer as list of seeds
-let signer = &[&seeds[..]];
-
-// specify cpi_program as token program
-let cpi_program = ctx.accounts.token_program.to_account_info();
-
-// specify cpi_accounts using MintTo struct
-let cpi_accounts = MintTo {
-    mint: ctx.accounts.token_mint.to_account_info(),
-    to: ctx.accounts.token_account.to_account_info(),
-    authority: ctx.accounts.mint_authority.to_account_info()
-};
-
-// create the CpiContext using new_with_signer
-let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-
-// make the CPI using the mint_to function
-token::mint_to(cpi_ctx, amount)?;
-```
-
-The CPI example above can also be refactored to the following:
-
-```rust
-token::mint_to(
-    CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(),
-        token::MintTo {
-            mint: ctx.accounts.mint_account.to_account_info(),
-            to: ctx.accounts.token_account.to_account_info(),
-            authority: ctx.accounts.mint_authority.to_account_info(),
-        },
-        &[&[
-            b"mint",
-            &[*ctx.bumps.get("mint_authority").unwrap()],
-        ]]
-    ),
-    amount,
-)?;
-```
+    ```
+2. If there is no helper module for the program whose instruction(s) you need to invoke, you can fall back to using `invoke` and `invoke_signed`. In fact, the source code of the `mint_to` helper function referenced above shows an example us using `invoke_signed` when given a `CpiContext`. You can follow a similar pattern if you decide to use an accounts struct and `CpiContext` to organize and prepare your CPI.
+    ```rust
+    pub fn mint_to<'a, 'b, 'c, 'info>(
+        ctx: CpiContext<'a, 'b, 'c, 'info, MintTo<'info>>,
+        amount: u64,
+    ) -> Result<()> {
+        let ix = spl_token::instruction::mint_to(
+            &spl_token::ID,
+            ctx.accounts.mint.key,
+            ctx.accounts.to.key,
+            ctx.accounts.authority.key,
+            &[],
+            amount,
+        )?;
+        solana_program::program::invoke_signed(
+            &ix,
+            &[
+                ctx.accounts.to.clone(),
+                ctx.accounts.mint.clone(),
+                ctx.accounts.authority.clone(),
+            ],
+            ctx.signer_seeds,
+        )
+        .map_err(Into::into)
+    }
+    ```
 
 ## `AnchorError`
 
@@ -281,7 +271,7 @@ pub enum MyError {
 
 # Demo
 
-Let’s practice the concepts we’ve gone over in this lesson by building on top of the Movie Review program from the previous lesson.
+Let’s practice the concepts we’ve gone over in this lesson by building on top of the Movie Review program from previous lessons.
 
 In this demo we’ll update the program to:
 
