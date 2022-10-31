@@ -61,68 +61,76 @@
    - Use Candy Machine UI to mint NFTs from a candy machine
 
 # Module 3 - Basic Solana Program Development
-1. High-level view of the network
-   - Explain Solana's Proof of History model
-   - Explan Solana's Proof of Stake model
-   - Explain Solana Validators
-   - Explain Solana's Network model
-   - Explan Solana Clusters
-   - Explain Solana Nodes
-   - Explain Solana Epochs
-   - Explain Solana Slots
-   - Explain Solana Blocks
-   - Explain the Solana runtime (this differentiates Solana from other chains)
-2. Hello World from scratch
-   - Explain Solana programs and how they fit into the broader Solana architecture
-   - Install the Solana CLI
-   - Use CLI (help, airdrop, key pair, program, deploy,  balance, test validator)
-   - Set up a local environment for Solana program development
-   - Explain basic program project architecture (setup, layout, entry point, cargo, crates, lib, config)
-   - Deploy basic program locally
-3. Rust primer
-   - Split code into multiple crates
-   - Use Rust primitives
-   - Create and use Enums
-   - Create functions
-   - Create structs
-   - Create associated functions and methods (`impl`)
-   - Use basic control flow (if/else, match)
-   - Use variable binding
-   - Define traits
-   - Explain ownership
-   - Explain borrowing
-4. Debugging
-   - Interpret program error codes
-   - Write program logs
-   - Read program logs
-   - Log remaining compute units
-   - Create and run Solana unit tests using solana-program-test
+1. Hello World
+   - Use the Rust module system
+   - Define a function in Rust
+   - Explain the `Result` type
+   - Explain the entry point to a Solana program
+   - Build and deploy a basic Solana program
+   - Submit a transaction to invoke our “Hello, world!” program
+2. Create a Basic Program, Part 1 - Handle Instruction Data
+   - Assign mutable and immutable variables in Rust
+   - Create and use Rust structs and enums
+   - Use Rust match statements
+   - Add implementations to Rust types
+   - Deserialize instruction data into Rust data types
+   - Execute different program logic for different types of instructions
+   - Explain the structure of a smart contract on Solana
+3. Create a Basic Program, Part 2 - State Management
+   - Describe the process of creating a new account using a Program Derived Address (PDA)
+   - Use seeds to derive a PDA
+   - Use the space required by an account to calculate the amount of rent (in lamports) a user must allocate
+   - Use a Cross Program Invocation (CPI) to initialize an account with a PDA as the address of the new  account
+   - Explain how to update the data stored on a new account
+4. Create a Basic Program, Part 3 - Basic Security and Validation
+   - Explain the importance of "thinking like an attacker"
+   - Understand basic security practices
+   - Perform owner checks
+   - Perform signer checks
+   - Validate accounts passed into the program
+   - Perform basic data validation
 
-# Module 4 - Advanced Solana Program Development
-1. A more advanced program...
-   - Explain Solana program state management
-   - Add instruction-based matching in Rust
-   - Deserialize data
-   - Serialize data
-   - Use common Solana data structures
-   - Account size limit
+# Module 4 - Intermediate Solana Program Development
+1. Set up a local dev environment
+   - Set up a local environment for Solana program development
+   - Use basic Solana CLI commands
+   - Run a local test validator
+   - Use Rust and the Solana CLI to deploy a Solana program from your local development environment
+   - Use the Solana CLI to view program logs
 2. PDAs
-   - Explain PDAs
-   - Explain the Solana runtime policy
-   - Explain how Solana runtime determines whether to accept PDA
-   - Create a PDA using appropriate bumps and seeds
-   - Explain and implement PDA (Program Derived Address) best practices
-   - Explain and avoid PDA pitfalls
-   - Use PDAs to store state about program users
+   - Explain Program Derived Addresses (PDAs)
+   - Explain various use cases of PDAs
+   - Describe how PDAs are derived
+   - Use PDA derivations to locate and retrieve data
 3. CPIs
-   - Explain cross-program invocations
-   - Explain and implement CPI (cross-program invocations) best practices
-   - Explain and avoid CPI pitfalls
-   - Add CPIs to programs using `invoke` and `invoke_signed`
-4. Handling large transactions
-   - Explain what it means that transactions are atomic
-   - Explain transaction size limits
-   - Explain the transaction compute budget
-   - Increase compute budget for high-compute transactions
-   - Break up large transactions into multiple transactions
-   - Sign and send multiple transactions together
+   - Explain Cross-Program Invocations (CPIs)
+   - Describe how to construct and use CPIs
+   - Explain how a program provides a signature for a PDA
+   - Avoid common pitfalls and troubleshoot common errors associated with CPIs
+4. Program Testing
+   - Describe various ways to test Solana programs
+   - Explain the difference between unit tests and integration tests
+   - Debug Solana programs
+
+# Module 5 - Anchor Program Development
+1. Intro to Anchor development
+   - Use the Anchor framework to build a basic program
+   - Describe the basic structure of an Anchor program
+   - Explain how to implement basic account validation and security checks with Anchor
+2. Intro to client-side Anchor development
+   - Use an IDL to interact with a Solana program from the client
+   - Explain an Anchor `Provider` object
+   - Explain an Anchor `Program` object
+   - Use the Anchor `MethodsBuilder` to build instructions and transactions
+   - Use Anchor to fetch accounts
+   - Set up a frontend to invoke instructions using Anchor and an IDL
+3. Anchor PDAs and accounts
+   - Use the `seeds` and `bump` constraints to work with PDA accounts in Anchor
+   - Enable and use the `init_if_needed` constraint
+   - Use the `realloc` constraint to reallocate space on an existing account
+   - Use the `close` constraint to close an existing account
+4. Anchor CPIs
+   - Make Cross Program Invocations (CPIs) from an Anchor program
+   - Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs
+   - Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable
+   - Create and return custom Anchor errors

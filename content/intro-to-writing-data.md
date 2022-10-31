@@ -210,7 +210,7 @@ We’re going to create a script to ping a simple program that increments a coun
 
 ### 1. Basic scaffolding
 
-Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate, but we’ll be using a simple TypeScript project with a dependency on the @solana/web3.js package. If you want to use our scaffolding, you can use the following commands in the command line:
+Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate, but we’ll be using a simple Typescript project with a dependency on the @solana/web3.js package. If you want to use our scaffolding, you can use the following commands in the command line:
 
 ```bash
 mkdir -p solana-ping-client/src && \
