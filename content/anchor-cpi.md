@@ -431,7 +431,7 @@ pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description
 }
 ```
 
-### 5. Update `update_movie_review` instruction
+### 6. Update `update_movie_review` instruction
 
 Here we are only adding the check that `rating` is valid.
 
@@ -452,7 +452,7 @@ pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, descr
 }
 ```
 
-### 5. Test
+### 7. Test
 
 Those are all of the changes we need to make to the program! Now, let’s update our tests.
 
