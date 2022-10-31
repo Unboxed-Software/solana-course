@@ -41,7 +41,7 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    1. [Intro to Anchor development](./content/intro-to-anchor.md)
    2. [Intro to client-side Anchor development](./content/intro-to-anchor-frontend.md)
    3. [Anchor PDAs and accounts](./content/anchor-pdas.md)
-   4. Anchor CPIs - Coming Soon
+   4. [Anchor CPIs and errors](./content/anchor-cpi.md)
 
 ## Contribute to the Course
 

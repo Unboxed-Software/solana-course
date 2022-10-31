@@ -125,10 +125,12 @@
    - Use Anchor to fetch accounts
    - Set up a frontend to invoke instructions using Anchor and an IDL
 3. Anchor PDAs and accounts
-   - Use the `seeds` and `bump` constraints to work with PDAs in Anchor
+   - Use the `seeds` and `bump` constraints to work with PDA accounts in Anchor
+   - Enable and use the `init_if_needed` constraint
    - Use the `realloc` constraint to reallocate space on an existing account
    - Use the `close` constraint to close an existing account
 4. Anchor CPIs
-   - Make Cross Program Invocations (CPIs) within an Anchor program
-   - Create and return custom Anchor Errors
-   - Enable and use the `init-if-needed` constraint
+   - Make Cross Program Invocations (CPIs) from an Anchor program
+   - Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs
+   - Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable
+   - Create and return custom Anchor errors
