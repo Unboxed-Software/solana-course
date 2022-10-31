@@ -158,7 +158,7 @@ When the program you're calling is *not* an Anchor program, there are two possib
                 authority: ctx.accounts.mint_authority.to_account_info(),
             },
             &[&[
-                b"mint",
+                "mint".as_bytes(),
                 &[*ctx.bumps.get("mint_authority").unwrap()],
             ]]
         ),
@@ -192,7 +192,7 @@ When the program you're calling is *not* an Anchor program, there are two possib
     }
     ```
 
-## `AnchorError`
+## Throw errors in Anchor
 
 We're deep enough into Anchor at this point that it's important to know how to create custom errors.
 
@@ -273,10 +273,7 @@ pub enum MyError {
 
 Let’s practice the concepts we’ve gone over in this lesson by building on top of the Movie Review program from previous lessons.
 
-In this demo we’ll update the program to:
-
-- Enable commenting
-- Mint tokens each time a user submits a review or comment
+In this demo we’ll update the program to mint tokens to users when they submit a new movie review.
 
 ### 1. Starter
 
@@ -284,7 +281,7 @@ To get started, we will be using the final state of the Anchor Movie Review prog
 
 ### 2. Add dependencies to `Cargo.toml`
 
-Before we get started we need enable the `init-if-needed` feature and add the `anchor-spl` crate to the dependencies in `Cargo.toml`.
+Before we get started we need enable the `init-if-needed` feature and add the `anchor-spl` crate to the dependencies in `Cargo.toml`. If you need to brush up on the `init-if-needed` feature take a look at the [Anchor PDAs and Accounts lesson](anchor-pdas.md).
 
 ```rust
 [dependencies]
@@ -292,25 +289,27 @@ anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
 anchor-spl = "0.25.0"
 ```
 
-### 3. Create Token
+### 3. Initialize reward token
 
-Next, navigate to `lib.rs` and create an instruction to initialize a new token mint. This will be the token that is minted each time a user leaves a review or comment. This instruction will only be invoked once.
+Next, navigate to `lib.rs` and create an instruction to initialize a new token mint. This will be the token that is minted each time a user leaves a review. Note that we don't need to include any custom instruction logic since the initialization can be handled entirely through Anchor constraints.
 
 ```rust
 pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
-        msg!("Token mint initialized");
-        Ok(())
-    }
+    msg!("Token mint initialized");
+    Ok(())
+}
 ```
 
-Next, implement the `InitializeMint` context type and list the accounts and constraints the instruction requires. Here we initialize a new `Mint` account using a PDA with the string `mint` as a seed. Note that we can use the same PDA for both the address of the `Mint` account and the mint authority. Using a PDA as the mint authority enables our program to sign for the minting of the tokens.
+Now, implement the `InitializeMint` context type and list the accounts and constraints the instruction requires. Here we initialize a new `Mint` account using a PDA with the string "mint" as a seed. Note that we can use the same PDA for both the address of the `Mint` account and the mint authority. Using a PDA as the mint authority enables our program to sign for the minting of the tokens.
+
+In order to initialize the `Mint` account, we'll need to include the `token_program`, `rent`, and `system_program` in the list of accounts.
 
 ```rust
 #[derive(Accounts)]
 pub struct InitializeMint<'info> {
     #[account(
         init,
-        seeds = [b"mint"],
+        seeds = ["mint".as_bytes()],
         bump,
         payer = user,
         mint::decimals = 6,
@@ -325,9 +324,11 @@ pub struct InitializeMint<'info> {
 }
 ```
 
+There may be some constraints above that you haven't seen yet. Adding `mint::decimals` and `mint::authority` along with `init` ensures that the account is initialized as a new token mint with the appropriate decimals and mint authority set.
+
 ### 4. Anchor Error
 
-Next, let’s create an Anchor Error that we’ll use when validating the `rating`. We’ll use this error in the `add_movie_review` and `update_movie_review` instructions.
+Next, let’s create an Anchor Error that we’ll use when validating the `rating` passed to either the `add_movie_review` or `update_movie_review` instruction.
 
 ```rust
 #[error_code]
@@ -339,25 +340,15 @@ enum MovieReviewError {
 
 ### 5. Update `add_movie_review` instruction
 
-Next, let’s update the `add_movie_review` instruction and `AddMovieReview` context type. We’ll also create a new `MovieReviewCounter` account type to keep track of the number of comments for a specific review.
+Now that we've done some setup, let’s update the `add_movie_review` instruction and `AddMovieReview` context type to mint tokens to the reviewer.
 
-First, implement the `MovieCommentCounter` account type. This account will simply have a counter field that stores the number of comments.
+Next, update the `AddMovieReview` context type to add the following accounts:
 
-```rust
-#[account]
-pub struct MovieCommentCounter {
-    pub counter: u64,
-}
-```
-
-Next, update the `AddMovieReview` context type. We’ll need add the following accounts:
-
-- `token_program` - required because we are using `Mint` and `TokenAccount` types from the Token Program.
-- `movie_comment_counter` - initializing the a new `MovieCommentCounter` account
-- `mint` - the `Mint` account for the token that the instruction mints
-- `token_account` - the associated token account of the `initializer` for the `mint`
-- `associated_token_program` - required because we are using the `associated_token` constraint in the `token_account`
-- `rent` - required because we are using the `init-if-needed` feature in the `token_account`
+- `token_program` - we'll be using the Token Program to mint tokens
+- `mint` - the mint account for the tokens that we'll mint to users when they add a movie review
+- `token_account` - the associated token account for the afforementioned `mint` and reviewer
+- `associated_token_program` - required because we'll be using the `associated_token` constraint on the `token_account`
+- `rent` - required because we are using the `init-if-needed` constraint on the `token_account`
 
 ```rust
 #[derive(Accounts)]
@@ -374,17 +365,10 @@ pub struct AddMovieReview<'info> {
     #[account(mut)]
     pub initializer: Signer<'info>,
     pub system_program: Program<'info, System>,
+    // ADDED ACCOUNTS BELOW
     pub token_program: Program<'info, Token>,
     #[account(
-        init,
-        seeds = [b"counter", movie_review.key().as_ref()],
-        bump,
-        payer = initializer,
-        space = 8 + 8
-    )]
-    pub movie_comment_counter: Account<'info, MovieCommentCounter>,
-    #[account(
-        seeds=[b"mint"],
+        seeds = ["mint".as_bytes()]
         bump,
         mut
     )]
@@ -401,11 +385,14 @@ pub struct AddMovieReview<'info> {
 }
 ```
 
-Next, let’s update the `add_movie_review` instruction. Here we make the following updates:
+Again, some of the above constraints may be unfamiliar to you. The `associated_token::mint` and `associated_token::authority` constraints along with the `init_if_needed` constraint ensures that if the account has not already been initialized, it will be initialized as an associated token account for the specified mint and authority.
 
-- Add a check for the `rating` using the `InvalidRating` error
-- Set the `movie_comment_counter` account’s `counter` field to 0
-- Make a CPI to the token program’s `mint_to` instruction using the mint authority PDA as a signer. Note that the we are minting 10 tokens and the `10*10^6` is to adjust for the decimals of the `Mint` account.
+Next, let’s update the `add_movie_review` instruction to do the following:
+
+- Check that `rating` is valid. If it is not a valid rating, return the `InvalidRating` error.
+- Make a CPI to the token program’s `mint_to` instruction using the mint authority PDA as a signer. Note that we'll mint 10 tokens to the user but need to adjust for the mint decimals by making it `10*10^6`.
+
+Fortunately, we can use the `anchor_spl` crate to access helper functions and types like `mint_to` and `MintTo` for constructing our CPI to the Token Program. `mint_to` takes a `CpiContext` and integer as arguments, where the integer represents the number of tokens to mint. `MintTo` can be used for the list of accounts that the mint instruction needs.
 
 ```rust
 pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description: String, rating: u8) -> Result<()> {
@@ -422,11 +409,6 @@ pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description
     movie_review.description = description;
     movie_review.rating = rating;
 
-    msg!("Movie Comment Counter Account Created");
-    let movie_comment_counter = &mut ctx.accounts.movie_comment_counter;
-    movie_comment_counter.counter = 0;
-    msg!("Counter: {}", movie_comment_counter.counter);
-
     mint_to(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -436,7 +418,7 @@ pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description
                 mint: ctx.accounts.mint.to_account_info()
             },
             &[&[
-                b"mint",
+                "mint".as_bytes(),
                 &[*ctx.bumps.get("mint").unwrap()]
             ]]
         ),
@@ -451,7 +433,7 @@ pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description
 
 ### 5. Update `update_movie_review` instruction
 
-Here we are only adding the check for the `rating`.
+Here we are only adding the check that `rating` is valid.
 
 ```rust
 pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, description: String, rating: u8) -> Result<()> {
@@ -470,130 +452,11 @@ pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, descr
 }
 ```
 
-### 6. Add Comments
-
-Next, let’s implement the `add_comment` instruction, `AddComment` context type, and `MovieComment` account type.
-
-Let’s start with the `MovieComment` account type. This account will include the following fields:
-
-- `review` - the address of the movie review
-- `commenter` - public key of the user leaving the comment
-- `comment` - the comment itself
-- `count` - the count of the comment for the movie review
-
-```rust
-#[account]
-pub struct MovieComment {
-    pub review: Pubkey,    // 32
-    pub commenter: Pubkey, // 32
-    pub comment: String,   // 4 + len()
-    pub count: u64,        // 8
-}
-```
-
-Next, let’s implement the `AddComment` context type. We’ll need add the following accounts:
-
-- `movie_comment` - initializing a new comment account
-- `movie_review` - using the address as a seed for the `movie_comment` account PDA
-- `movie_comment_counter` - using the value of the `count` field as a seed for the `movie_comment` account PDA
-- `mint` - the `Mint` account for the token that the instruction mints
-- `token_account` - the associated token account of the `initializer` for the `mint`
-- `initializer` - the user submitting the comment
-- `token_program` - required because we are using `Mint` and `TokenAccount` types
-- `associated_token_program` - required because we are using the `associated_token` constraint in the `token_account`
-- `rent` - required because we are using the `init-if-needed` feature in the `token_account`
-- `system_program` - required because we are initializing new accounts
-
-```rust
-#[derive(Accounts)]
-#[instruction(comment:String)]
-pub struct AddComment<'info> {
-    #[account(
-        init,
-        seeds = [movie_review.key().as_ref(), &movie_comment_counter.counter.to_le_bytes()],
-        bump,
-        payer = initializer,
-        space = 8 + 32 + 32 + 4 + comment.len() + 8
-    )]
-    pub movie_comment: Account<'info, MovieComment>,
-    pub movie_review: Account<'info, MovieAccountState>,
-    #[account(
-        mut,
-        seeds = [b"counter", movie_review.key().as_ref()],
-        bump,
-    )]
-    pub movie_comment_counter: Account<'info, MovieCommentCounter>,
-    #[account(
-        mut,
-        seeds = [b"mint"],
-        bump
-    )]
-    pub mint: Account<'info, Mint>,
-    #[account(
-        init_if_needed,
-        payer = initializer,
-        associated_token::mint = mint,
-        associated_token::authority = initializer
-    )]
-    pub token_account: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub initializer: Signer<'info>,
-    pub token_program: Program<'info, Token>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-}
-```
-
-Next, let’s implement the `add_comment`instruction. Within the instruction we:
-
-- Update the fields on the new `movie_comment` account
-- Increment the `count` on the `movie_comment_counter` account by 1
-- Make a CPI to the token program `mint_to` instruction to mint 5 tokens
-
-```rust
-pub fn add_comment(ctx: Context<AddComment>, comment: String) -> Result<()> {
-    msg!("Comment Account Created");
-    msg!("Comment: {}", comment);
-
-    let movie_comment = &mut ctx.accounts.movie_comment;
-    let movie_comment_counter = &mut ctx.accounts.movie_comment_counter;
-
-    movie_comment.review = ctx.accounts.movie_review.key();
-    movie_comment.commenter = ctx.accounts.initializer.key();
-    movie_comment.comment = comment;
-    movie_comment.count = movie_comment_counter.counter;
-
-    movie_comment_counter.counter += 1;
-
-    mint_to(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            MintTo {
-                mint: ctx.accounts.mint.to_account_info(),
-                to: ctx.accounts.token_account.to_account_info(),
-                authority: ctx.accounts.mint.to_account_info(),
-            },
-            &[&[
-                b"mint",
-                &[*ctx.bumps.get("mint").unwrap()]
-            ]]
-        ),
-        5*10^6
-    )?;
-    msg!("Minted Tokens");
-
-    Ok(())
-}
-```
-
-Lastly, run `anchor build` to check that the program builds.
-
 ### 5. Test
 
-Next, let’s update the tests for the program.
+Those are all of the changes we need to make to the program! Now, let’s update our tests.
 
-Complete the following setup and derive the PDAs that we’ll use for the test.
+Start by making sure your imports nad `describe` function look like this:
 
 ```ts
 import * as anchor from "@project-serum/anchor"
@@ -603,79 +466,60 @@ import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token"
 import { AnchorMovieReviewProgram } from "../target/types/anchor_movie_review_program"
 
 describe("anchor-movie-review-program", () => {
-    // Configure the client to use the local cluster.
-    const provider = anchor.AnchorProvider.env()
-    anchor.setProvider(provider)
+  // Configure the client to use the local cluster.
+  const provider = anchor.AnchorProvider.env()
+  anchor.setProvider(provider)
 
-    const program = anchor.workspace
+  const program = anchor.workspace
     .AnchorMovieReviewProgram as Program<AnchorMovieReviewProgram>
 
-    const movie = {
+  const movie = {
     title: "Just a test movie",
     description: "Wow what a good movie it was real great",
     rating: 5,
-    }
+  }
 
-    const [movie_pda] = anchor.web3.PublicKey.findProgramAddressSync(
+  const [movie_pda] = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from(movie.title), provider.wallet.publicKey.toBuffer()],
     program.programId
-    )
+  )
 
-    const [mint] = anchor.web3.PublicKey.findProgramAddressSync(
+  const [mint] = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("mint")],
     program.programId
-    )
-
-    const [commentCounterPda] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("counter"), movie_pda.toBuffer()],
-    program.programId
-    )
-
-    it("Initializes the reward token", async () => {})
-
-    it("Movie review is added", async () => {})
-
-    it("Movie review is updated", async () => {})
-
-    it("Adds a comment to a movie review", async () => {})
-
-    it("Deletes a movie review", async () => {})
+  )
+...
 }
 ```
 
-First, test the `initializeTokenMint` instruction
+With that done, add a test for the `initializeTokenMint` instruction:
 
 ```ts
 it("Initializes the reward token", async () => {
-  const tx = await program.methods
-    .initializeTokenMint()
-    .accounts({
-      mint: mint,
-    })
-    .rpc()
+    const tx = await program.methods.initializeTokenMint().rpc()
 })
 ```
 
-Next, update the test for the `addMovieReview` instruction. We’ll first need to get the `tokenAccount` address using `getAssociatedTokenAddress`.
+Notice that we didn't have to add `.accounts` because they call be inferred, including the `mint` account (assuming you have seed inference enabled).
+
+Next, update the test for the `addMovieReview` instruction. The primary additions are:
+1. To get the associated token address that needs to be passed into the instruction as an account that cannot be inferred
+2. Check at the end of the test that the associated token account has 10 tokens
 
 ```ts
-it("Movie review is added", async () => {
-  // Add your test here.
+it("Movie review is added`", async () => {
   const tokenAccount = await getAssociatedTokenAddress(
     mint,
     provider.wallet.publicKey
   )
-
+  
   const tx = await program.methods
     .addMovieReview(movie.title, movie.description, movie.rating)
     .accounts({
-      movieReview: movie_pda,
-      mint: mint,
       tokenAccount: tokenAccount,
-      movieCommentCounter: commentCounterPda,
     })
     .rpc()
-
+  
   const account = await program.account.movieAccountState.fetch(movie_pda)
   expect(movie.title === account.title)
   expect(movie.rating === account.rating)
@@ -687,92 +531,24 @@ it("Movie review is added", async () => {
 })
 ```
 
-The test for `updateMovieReview` instruction remains the same.
+After that, neither the test for `updateMovieReview` nor the test for `deleteMovieReview` need any changes.
 
-```ts
-it("Movie review is updated", async () => {
-  const newDescription = "Wow this is new"
-  const newRating = 4
-
-  const tx = await program.methods
-    .updateMovieReview(movie.title, newDescription, newRating)
-    .accounts({
-      movieReview: movie_pda,
-    })
-    .rpc()
-
-  const account = await program.account.movieAccountState.fetch(movie_pda)
-  expect(movie.title === account.title)
-  expect(newRating === account.rating)
-  expect(newDescription === account.description)
-  expect(account.reviewer === provider.wallet.publicKey)
-})
-```
-
-Next, test the `addComment` instruction. We’ll need to complete the following:
-
-- Get the `tokenAccount` address
-- Fetch the `commentCounter` account
-- Derive the `comment` account PDA using the `movieReview` account address and the `count` on the `commentCounter` account as seeds
-
-```ts
-it("Adds a comment to a movie review", async () => {
-  const tokenAccount = await getAssociatedTokenAddress(
-    mint,
-    provider.wallet.publicKey
-  )
-
-  const commentCounter = await program.account.movieCommentCounter.fetch(
-    commentCounterPda
-  )
-
-  const [commentPda] = anchor.web3.PublicKey.findProgramAddressSync(
-    [movie_pda.toBuffer(), commentCounter.counter.toArrayLike(Buffer, "le", 8)],
-    program.programId
-  )
-
-  const tx = await program.methods
-    .addComment("Just a test comment")
-    .accounts({
-      movieReview: movie_pda,
-      mint: mint,
-      tokenAccount: tokenAccount,
-      movieCommentCounter: commentCounterPda,
-      movieComment: commentPda,
-    })
-    .rpc()
-})
-```
-
-The test for `deleteMovieReview` instruction also remains the same.
-
-```ts
-it("Deletes a movie review", async () => {
-  const tx = await program.methods
-    .deleteMovieReview(movie.title)
-    .accounts({ movieReview: movie_pda })
-    .rpc()
-})
-```
-
-Finally, run `anchor test` and you should see the following output
+At this point, run `anchor test` and you should see the following output
 
 ```console
 anchor-movie-review-program
     ✔ Initializes the reward token (458ms)
     ✔ Movie review is added (410ms)
     ✔ Movie review is updated (402ms)
-    ✔ Adds a comment to a movie review (405ms)
     ✔ Deletes a movie review (405ms)
 
   5 passing (2s)
 ```
 
-If you need more time with the concepts from this lesson or got stuck along the way, feel free to take a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-add-comments). Note that the solution to this demo is on the `solution-add-comments` branch.
+If you need more time with the concepts from this lesson or got stuck along the way, feel free to take a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
 
 # Challenge
 
 To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves.
 
-Try to do this independently if you can! But if you get stuck, feel free to reference this [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge)
-Note that your code may look slightly different than the solution code depending on your implementation.
+Try to do this independently if you can! But if you get stuck, feel free to reference this [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge). Note that your code may look slightly different than the solution code depending on your implementation.
