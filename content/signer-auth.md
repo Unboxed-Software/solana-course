@@ -16,11 +16,11 @@ _By the end of this lesson, you will be able to:_
     
     ```rust
     if !ctx.accounts.authority.is_signer {
-    		return Err(ProgramError::MissingRequiredSignature.into());
+    	return Err(ProgramError::MissingRequiredSignature.into());
     }
     ```
     
-- In Anchor, you can use the `**Signer**` account type in your account validation struct to have Anchor automatically perform a signer check on a given account
+- In Anchor, you can use the **`Signer`** account type in your account validation struct to have Anchor automatically perform a signer check on a given account
 - Anchor also has an account constraint that will automatically verify that a given account has signed a transaction
 
 # Overview
@@ -45,8 +45,8 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod insecure_update{
     use super::*;
-		...
-		pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
+        ...
+        pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
         ctx.accounts.vault.authority = ctx.accounts.new_authority.key();
         Ok(())
     }
@@ -76,7 +76,7 @@ All you need to do to validate that the `authority` account signed is to add a s
 
 ```tsx
 if !ctx.accounts.authority.is_signer {
-		return Err(ProgramError::MissingRequiredSignature.into());
+    return Err(ProgramError::MissingRequiredSignature.into());
 }
 ```
 
@@ -90,11 +90,12 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod secure_update{
     use super::*;
-		...
-		pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
-				if !ctx.accounts.authority.is_signer {
+        ...
+        pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
+            if !ctx.accounts.authority.is_signer {
             return Err(ProgramError::MissingRequiredSignature.into());
         }
+
         ctx.accounts.vault.authority = ctx.accounts.new_authority.key();
         Ok(())
     }
@@ -134,8 +135,8 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod secure_update{
     use super::*;
-		...
-		pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
+        ...
+        pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
         ctx.accounts.vault.authority = ctx.accounts.new_authority.key();
         Ok(())
     }
@@ -179,12 +180,12 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod secure_update{
     use super::*;
-		...
-		pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
+        ...
+        pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
         ctx.accounts.vault.authority = ctx.accounts.new_authority.key();
 
-				// access the data stored in authority
-				msg!("Total number of depositors: {}", ctx.accounts.authority.num_depositors);
+        // access the data stored in authority
+        msg!("Total number of depositors: {}", ctx.accounts.authority.num_depositors);
         Ok(())
     }
 }
@@ -197,7 +198,7 @@ pub struct UpdateAuthority<'info> {
     )]
     pub vault: Account<'info, Vault>,
     pub new_authority: AccountInfo<'info>,
-		#[account(signer)]
+    #[account(signer)]
     pub authority: Account<'info, AuthState>
 }
 
@@ -329,8 +330,8 @@ In the test, we’ll still use the public key of `wallet` as the `authority` acc
 
 ```tsx
 describe("signer-authorization", () => {
-	...
-	it("Insecure withdraw", async () => {
+    ...
+    it("Insecure withdraw", async () => {
     const tx = await program.methods
       .insecureWithdraw()
       .accounts({
@@ -374,8 +375,8 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod signer_authorization {
     use super::*;
-		...
-	  pub fn secure_withdraw(ctx: Context<SecureWithdraw>) -> Result<()> {
+    ...
+    pub fn secure_withdraw(ctx: Context<SecureWithdraw>) -> Result<()> {
         let amount = ctx.accounts.token_account.amount;
 
         let seeds = &[b"vault".as_ref(), &[*ctx.bumps.get("vault").unwrap()]];
@@ -420,7 +421,7 @@ With the instruction in place, return to the test file to test the `secure_withd
 
 ```tsx
 describe("signer-authorization", () => {
-	...
+    ...
 	it("Secure withdraw", async () => {
     try {
       const tx = await program.methods
