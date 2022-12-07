@@ -41,7 +41,7 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod data_validation {
     use super::*;
-		...
+    ...
     pub fn update_admin(ctx: Context<UpdateAdmin>) -> Result<()> {
         ctx.accounts.admin_config.admin = ctx.accounts.new_admin.key();
         Ok(())
@@ -83,9 +83,9 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod data_validation {
     use super::*;
-		...
+    ...
     pub fn update_admin(ctx: Context<UpdateAdmin>) -> Result<()> {
-				if ctx.accounts.admin.key() != ctx.accounts.admin_config.admin {
+      if ctx.accounts.admin.key() != ctx.accounts.admin_config.admin {
             return Err(ProgramError::InvalidAccountData.into());
         }
         ctx.accounts.admin_config.admin = ctx.accounts.new_admin.key();
@@ -122,7 +122,7 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod data_validation {
     use super::*;
-		...
+    ...
     pub fn update_admin(ctx: Context<UpdateAdmin>) -> Result<()> {
         ctx.accounts.admin_config.admin = ctx.accounts.new_admin.key();
         Ok(())
@@ -284,8 +284,8 @@ Since there are no checks the verify the `authority` account passed into the ins
 
 ```tsx
 describe("account-data-matching", () => {
-	...
-	it("Insecure withdraw", async () => {
+  ...
+  it("Insecure withdraw", async () => {
     const tx = await program.methods
       .insecureWithdraw()
       .accounts({
@@ -327,7 +327,7 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod account_data_matching {
     use super::*;
-		...
+    ...
     pub fn secure_withdraw(ctx: Context<SecureWithdraw>) -> Result<()> {
         let amount = ctx.accounts.token_account.amount;
 
@@ -379,8 +379,8 @@ Now let’s test the `secure_withdraw` instruction with two tests: one that uses
 
 ```tsx
 describe("account-data-matching", () => {
-	...
-	it("Secure withdraw, expect error", async () => {
+  ...
+  it("Secure withdraw, expect error", async () => {
     try {
       const tx = await program.methods
         .secureWithdraw()
