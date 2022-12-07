@@ -134,3 +134,19 @@
    - Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs
    - Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable
    - Create and return custom Anchor errors
+
+# Module 6 - Advanced Solana Development
+COMING SOON
+
+# Module 7 - Solana Program Security
+1. Signer authorization
+2. Owner checks
+3. Account data matching
+4. Reinitialization attacks
+5. Duplicate mutable accounts
+6. PDA sharing
+7. Type cosplay
+8. Bump seed canonicalization
+9. Arbitrary CPIs
+10. Closing accounts
+11. Sysvar address checking

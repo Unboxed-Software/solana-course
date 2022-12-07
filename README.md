@@ -43,6 +43,23 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    3. [Anchor PDAs and accounts](./content/anchor-pdas.md)
    4. [Anchor CPIs and errors](./content/anchor-cpi.md)
 
+### Module 6 - Advanced Solana Development
+COMING SOON
+
+### Module 7 - Solana Program Security
+1. [How to approach the Program Security module](./content/security-intro.md)
+2. [Signer authorization](./content/signer-auth.md)
+3. [Owner checks](./content/owner-checks.md)
+4. [Account data matching](./content/account-data-matching.md)
+5. Reinitialization attacks - COMING SOON
+6. Duplicate mutable accounts - COMING SOON
+7. PDA sharing - COMING SOON
+8. Type cosplay - COMING SOON
+9. Bump seed canonicalization - COMING SOON
+10. Arbitrary CPIs - COMING SOON
+11. Closing accounts - COMING SOON
+12. Sysvar address checking - COMING SOON
+
 ## Contribute to the Course
 
 We plan for this course to be perpetually open-source and we'd love for anyone and everyone to contribute!
