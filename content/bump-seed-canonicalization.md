@@ -210,29 +210,29 @@ pub mod bump_seed_canonicalization_recommended {
 #[derive(Accounts)]
 #[instruction(key: u64)]
 pub struct BumpSeed<'info> {
-    #[account(mut)]
-    payer: Signer<'info>,
-    #[account(
-        init,
-        seeds = [key.to_le_bytes().as_ref()],
-        // derives the PDA using the canonical bump
-		bump,
-        payer = payer,
-        space = 8 + 8 + 1
+	#[account(mut)]
+    	payer: Signer<'info>,
+    	#[account(
+            init,
+            seeds = [key.to_le_bytes().as_ref()],
+            // derives the PDA using the canonical bump
+	    bump,
+            payer = payer,
+            space = 8 + 8 + 1
 	)]
-    data: Account<'info, Data>,
-    system_program: Program<'info, System>
+    	data: Account<'info, Data>,
+    	system_program: Program<'info, System>
 }
 
 #[derive(Accounts)]
 #[instruction(key: u64)]
 pub struct VerifyAddress<'info> {
-    #[account(
-		seeds = [key.to_le_bytes().as_ref()],
-        // guranteed to be the canonical bump every time
-		bump = data.bump
+	#[account(
+	    seeds = [key.to_le_bytes().as_ref()],
+            // guranteed to be the canonical bump every time
+	    bump = data.bump
 	)]
-    data: Account<'info, Data>,
+    	data: Account<'info, Data>,
 }
 
 #[account]
@@ -254,29 +254,29 @@ On the other hand, if you only need to verify the address of a PDA passed in wit
 #[derive(Accounts)]
 #[instruction(key: u64)]
 pub struct BumpSeed<'info> {
-    #[account(mut)]
-    payer: Signer<'info>,
-    #[account(
-        init,
-        seeds = [key.to_le_bytes().as_ref()],
-        // derives the PDA using the canonical bump
-		bump,
-        payer = payer,
-        space = 8 + 8 + 1
+	#[account(mut)]
+    	payer: Signer<'info>,
+    	#[account(
+            init,
+            seeds = [key.to_le_bytes().as_ref()],
+            // derives the PDA using the canonical bump
+	    bump,
+            payer = payer,
+            space = 8 + 8 + 1
 	)]
-    data: Account<'info, Data>,
-    system_program: Program<'info, System>
+    	data: Account<'info, Data>,
+    	system_program: Program<'info, System>
 }
 
 #[derive(Accounts)]
 #[instruction(key: u64)]
 pub struct VerifyAddress<'info> {
-    #[account(
-		seeds = [key.to_le_bytes().as_ref()],
-        // Anchor will derive the canonical bump again here
-		bump
+	#[account(
+	    seeds = [key.to_le_bytes().as_ref()],
+            // Anchor will derive the canonical bump again here
+	    bump
 	)]
-    data: Account<'info, Data>
+	data: Account<'info, Data>
 }
 
 ```
@@ -447,12 +447,12 @@ pub struct InitializeAnchor<'info> {
 
 #[derive(Accounts)]
 pub struct VerifyAddress<'info> {
-    #[account(
-		seeds = [DATA_PDA_SEED.as_bytes()],
-        // guranteed to be the canonical bump every time
-		bump = data.bump
+   	#[account(
+	    seeds = [DATA_PDA_SEED.as_bytes()],
+            // guranteed to be the canonical bump every time
+	    bump = data.bump
 	)]
-    data: Account<'info, Data>,
+    	data: Account<'info, Data>,
 }
 ```
 
@@ -491,12 +491,12 @@ Lastly, the new `verify_address` instruction does not have an instruction parame
 ```rust
 #[derive(Accounts)]
 pub struct VerifyAddress<'info> {
-    #[account(
+    	#[account(
 	    seeds = [DATA_PDA_SEED.as_bytes()],
-        // guranteed to be the canonical bump every time
-		bump = data.bump
+            // guranteed to be the canonical bump every time
+	    bump = data.bump
 	)]
-    data: Account<'info, Data>,
+    	data: Account<'info, Data>,
 }
 ```
 
