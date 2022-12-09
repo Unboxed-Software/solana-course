@@ -34,11 +34,11 @@ pub struct InitializeAnchor<'info> {
 ```rust
 #[derive(Accounts)]
 pub struct VerifyAddress<'info> {
-    #[account(
-        seeds = [DATA_PDA_SEED.as_bytes()],
-        bump = data.bump
+	#[account(
+    	    seeds = [DATA_PDA_SEED.as_bytes()],
+	    bump = data.bump
 	)]
-    data: Account<'info, Data>,
+	data: Account<'info, Data>,
 }
 
 ```
@@ -160,18 +160,18 @@ pub mod bump_seed_canonicalization_recommended {
 #[derive(Accounts)]
 #[instruction(key: u64)]
 pub struct BumpSeed<'info> {
-    #[account(mut)]
-    payer: Signer<'info>,
-    #[account(
-        init,
-        seeds = [key.to_le_bytes().as_ref()],
-        // derives the PDA using the canonical bump
+    	#[account(mut)]
+    	payer: Signer<'info>,
+    	#[account(
+		init,
+		seeds = [key.to_le_bytes().as_ref()],
+		// derives the PDA using the canonical bump
 		bump,
-        payer = payer,
-        space = 8 + 8
+		payer = payer,
+		space = 8 + 8
 	)]
-    data: Account<'info, Data>,
-    system_program: Program<'info, System>
+	data: Account<'info, Data>,
+	system_program: Program<'info, System>
 }
 
 #[account]
