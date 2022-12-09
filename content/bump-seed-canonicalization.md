@@ -163,12 +163,12 @@ pub struct BumpSeed<'info> {
     	#[account(mut)]
     	payer: Signer<'info>,
     	#[account(
-		init,
-		seeds = [key.to_le_bytes().as_ref()],
-		// derives the PDA using the canonical bump
-		bump,
-		payer = payer,
-		space = 8 + 8
+	    init,
+	    seeds = [key.to_le_bytes().as_ref()],
+	    // derives the PDA using the canonical bump
+	    bump,
+	    payer = payer,
+	    space = 8 + 8
 	)]
 	data: Account<'info, Data>,
 	system_program: Program<'info, System>
