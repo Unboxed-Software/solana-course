@@ -289,10 +289,10 @@ In the second `VerifyAddress` account struct above, Anchor will use the canonica
 
 Clone this repo and move to the `bump-seed-canonicalization` directory:
 
- [Bump Canonicalization Repo](https://github.com/ixmorrow/common-sealevel-attacks.git)
+ [Bump Canonicalization Repo](https://github.com/Unboxed-Software/solana-bump-seed-canonicalization)
 
 ```bash
-git clone https://github.com/ixmorrow/common-sealevel-attacks.git
+git clone https://github.com/Unboxed-Software/solana-bump-seed-canonicalization
 ```
 
 ```bash
