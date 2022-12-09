@@ -1,6 +1,6 @@
 # How to approach the Program Security module
 
-The goal of this module is to expose you to a wide variety of common security exploits that are unique to Solana development. We’ve heavily modeled this module off a public GitHub repository call Sealevel Attacks created by the great Armani Ferrante.
+The goal of this module is to expose you to a wide variety of common security exploits that are unique to Solana development. We’ve heavily modeled this module off a public GitHub repository called Sealevel Attacks created by the great Armani Ferrante.
 
 You might be thinking: “didn’t we have a security lesson in module 3?” Yes, we most certainly did. We wanted to make sure that anyone deploying programs to Mainnet right out of the gates had at least a basic understanding of security. And if that’s you then hopefully the fundamental principles you learned in that lesson have led to you avoiding some common Solana exploits on your own.
 
