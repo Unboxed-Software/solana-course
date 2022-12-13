@@ -262,8 +262,8 @@ Next, let’s create our `MovieAccountState` struct. This struct will define the
 pub struct MovieAccountState {
     pub is_initialized: bool,
     pub rating: u8,
-    pub description: String,
-    pub title: String
+    pub title: String,
+    pub description: String  
 }
 ```
 
@@ -321,7 +321,7 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), 
 
 Next, let’s calculate the rent that our new account will need. Recall that rent is the amount of lamports a user must allocate to an account for storing data on the Solana network. To calculate rent, we must first calculate the amount of space our new account requires.
 
-The `MovieAccountState` struct has three fields. We will allocate 1 byte each for `rating` and `is_initialized`. For both `title` and `description` we will allocate space equal to 4 bytes plus the length of the string.
+The `MovieAccountState` struct has four fields. We will allocate 1 byte each for `rating` and `is_initialized`. For both `title` and `description` we will allocate space equal to 4 bytes plus the length of the string.
 
 ```rust
 // Calculate account size required
