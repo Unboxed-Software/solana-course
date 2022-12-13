@@ -78,7 +78,7 @@ To see how this is done in action, we’re going to write a program that creates
 Clone this repo to your local machine.
 
 ```bash
-git clone <repo URL>
+git clone https://github.com/Unboxed-Software/solana-arbitrary-cpi.git
 ```
 
 ### 2. Implement `initialize_metadata` instruction
