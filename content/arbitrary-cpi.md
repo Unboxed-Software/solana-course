@@ -75,7 +75,7 @@ To see how this is done in action, we’re going to write a program that creates
 
 ### 1. Setup
 
-Clone this repo to your local machine.
+Clone [this repo](https://github.com/Unboxed-Software/solana-arbitrary-cpi.git) to your local machine.
 
 ```bash
 git clone https://github.com/Unboxed-Software/solana-arbitrary-cpi.git
