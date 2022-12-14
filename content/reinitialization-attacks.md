@@ -173,9 +173,9 @@ For this demo we’ll create a simple program that does nothing but initialize a
 
 ### 1. Starter
 
-To get started, download the starter code [here](https://github.com/ZYJLiu/initialization). The starter code includes a program with two instructions and the boilerplate setup for the test file. 
+To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/starter). The starter code includes a program with one instruction and the boilerplate setup for the test file. 
 
-The `insecure_initialization` instruction initializes a new `user` account that stores the public key of an `authority`. In this instruction there are no checks to see if the `user` account has already been initialized. This means the same account can be reinitialized to override the `authority` stored on an existing `user` account. 
+The `insecure_initialization` instruction initializes a new `user` account that stores the public key of an `authority`. In this instruction, the account is expected to be allocated client-side, then passed into the program instruction. Once passed into the program, there are no checks to see if the `user` account's initial state has already been set. This means the same account can be passed in a second time to override the `authority` stored on an existing `user` account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -188,7 +188,7 @@ pub mod initialization {
     use super::*;
 
     pub fn insecure_initialization(ctx: Context<Unchecked>) -> Result<()> {
-        let mut user = UserInsecure::try_from_slice(&ctx.accounts.user.data.borrow()).unwrap();
+        let mut user = User::try_from_slice(&ctx.accounts.user.data.borrow()).unwrap();
         user.authority = ctx.accounts.authority.key();
         user.serialize(&mut *ctx.accounts.user.data.borrow_mut())?;
         Ok(())
@@ -204,7 +204,7 @@ pub struct Unchecked<'info> {
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
-pub struct UserInsecure {
+pub struct User {
     authority: Pubkey,
 }
 ```
@@ -213,7 +213,7 @@ pub struct UserInsecure {
 
 The test file includes the setup to create an account by invoking the system program and then invokes the `insecure_initialization` instruction twice using the same account. 
 
-Since there are no checks the verify that the account data has not already been initialized, the `insecure_initialization` instruction will complete successfully both times. 
+Since there are no checks the verify that the account data has not already been initialized, the `insecure_initialization` instruction will complete successfully both times, despite the second invocation providing a *different* authority account.
 
 ```tsx
 import * as anchor from "@project-serum/anchor"
@@ -260,7 +260,7 @@ describe("initialization", () => {
     )
   })
 
-  it("Initialize insecure", async () => {
+  it("Insecure init", async () => {
     await program.methods
       .insecureInitialization()
       .accounts({
@@ -269,7 +269,7 @@ describe("initialization", () => {
       .rpc()
   })
 
-  it("Initialize insecure again", async () => {
+  it("Re-invoke insecure init with different auth", async () => {
     const tx = await program.methods
       .insecureInitialization()
       .accounts({
@@ -288,13 +288,17 @@ Run `anchor test` to see that both transactions will complete successfully.
 
 ```bash
 initialization
-  ✔ Initialize insecure (403ms)
-  ✔ Initialize insecure again (405ms)
+  ✔ Insecure init (478ms)
+  ✔ Re-invoke insecure init with different auth (464ms)
 ```
 
 ### 3. Add `recommended_initialization` instruction
 
-Next, let’s add a `recommended_initialization` instruction that creates and initializes an account using Anchor’s `init` constraint. This will automatically create the account via a CPI to the system program and set the account discriminator. 
+Let's create a new instruction called `recommended_initialization` that fixes this problem. Unlike the previous insecure instruction, this instruction should handle both the creation and initialization of the user's account using Anchor's `init` constraint.
+
+This constraint instructs the program to create the account via a CPI to the system program, so the account no longer needs to be created client-side. The constraint also sets the account discriminator. Your instruction logic can then set the account's initial state.
+
+By doing this, you ensure that any subsequent invocation of the same instruction with the same user account will fail rather than reset the account's initial state.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -315,26 +319,21 @@ pub mod initialization {
 #[derive(Accounts)]
 pub struct Checked<'info> {
     #[account(init, payer = authority, space = 8+32)]
-    user: Account<'info, UserRecommended>,
+    user: Account<'info, User>,
     #[account(mut)]
     authority: Signer<'info>,
     system_program: Program<'info, System>,
-}
-
-#[account]
-pub struct UserRecommended {
-    authority: Pubkey,
 }
 ```
 
 ### 4. Test `recommended_initialization` instruction
 
-To test the `insecure_initialization` instruction, we’ll invoke the instruction twice just like before. This time, we expect the transaction to fail when we try to initialize the same account twice. 
+To test the `recommended_initialization` instruction, we’ll invoke the instruction twice just like before. This time, we expect the transaction to fail when we try to initialize the same account a second time. 
 
 ```tsx
 describe("initialization", () => {
   ...
-  it("Initialize recommended", async () => {
+  it("Recommended init", async () => {
     await program.methods
       .recommendedInitialization()
       .accounts({
@@ -344,7 +343,7 @@ describe("initialization", () => {
       .rpc()
   })
 
-  it("Initialize recommended, expect error", async () => {
+  it("Re-invoke recommended init with different auth, expect error", async () => {
     try {
       // Add your test here.
       const tx = await program.methods
@@ -368,12 +367,24 @@ describe("initialization", () => {
 
 Run `anchor test` and to see that the second transaction which tries to initialize the same account twice will now return an error stating the account address is already in use.
 
-```tsx
-'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]',
+```bash
+'Program CpozUgSwe9FPLy9BLNhY2LTGqLUk1nirUkMMA5RmDw6t invoke [1]',
 'Program log: Instruction: RecommendedInitialization',
 'Program 11111111111111111111111111111111 invoke [2]',
-'Allocate: account Address { address: 9fc48CpQnUCqDkUSibNnQrEGKBXDszaZFk4jt2MFHHuv, base: None } already in use',
+'Allocate: account Address { address: EMvbwzrs4VTR7G1sNUJuQtvRX1EuvLhqs4PFqrtDcCGV, base: None } already in use',
 'Program 11111111111111111111111111111111 failed: custom program error: 0x0',
-'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4018 of 200000 compute units',
-'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x0'
+'Program CpozUgSwe9FPLy9BLNhY2LTGqLUk1nirUkMMA5RmDw6t consumed 4018 of 200000 compute units',
+'Program CpozUgSwe9FPLy9BLNhY2LTGqLUk1nirUkMMA5RmDw6t failed: custom program error: 0x0'
 ```
+
+If you use Anchor's `init` constraint, that's usually all you need to protect against reinitialization attacks! Remember, just because the fix for these security exploits is simple doesn't mean it isn't important. Every time your initialize an account, make sure you're either using the `init` constraint or have some other check in place to avoid resetting an existing account's initial state.
+
+If you want to take a look at the final solution code you can find it on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/solution).
+
+# Challenge
+
+Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+
+Take some time to review at least one program and ensure that instructions are properly protected against reinitialization attacks.
+
+Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
