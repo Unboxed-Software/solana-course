@@ -51,7 +51,7 @@ COMING SOON
 2. [Signer authorization](./content/signer-auth.md)
 3. [Owner checks](./content/owner-checks.md)
 4. [Account data matching](./content/account-data-matching.md)
-5. Reinitialization attacks - COMING SOON
+5. [Reinitialization attacks](./content/reinitialization-attacks.md)
 6. Duplicate mutable accounts - COMING SOON
 7. PDA sharing - COMING SOON
 8. Type cosplay - COMING SOON
