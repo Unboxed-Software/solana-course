@@ -2,34 +2,33 @@
 
 # Lesson Objectives
 
-- Explain the security risks associated with not checking duplicate account types
-- Implement a check for duplicate account types using long-form Rust
-- Implement a check for duplicate account types using Anchor constraints
+- Explain the security risks associated with instructions that require two mutable accounts of the same type and how to avoid them
+- Implement a check for duplicate mutable accounts using long-form Rust
+- Implement a check for duplicate mutable accounts using Anchor constraints
 
 # TL;DR
 
-- Implement checks for duplicate account types to ensure the same account is not unintentionally used as two accounts in an instruction
-- To check for duplicate account types in Rust, simply compare the public keys of two accounts.
+- When an instruction requires two mutable accounts of the same type, an attacker can pass in the same account twice, causing the account to be mutated in unintended ways.
+- To check for duplicate mutable accounts in Rust, simply compare the public keys of the two accounts and throw an error if they are the same.
     
     ```rust
     if ctx.accounts.account_one.key() == ctx.accounts.account_two.key() {
         return Err(ProgramError::InvalidArgument)
     }
     ```
-    
-- In Anchor, you can use `constraint` to checks whether the given expression evaluates to true.
+- In Anchor, you can use `constraint` to add an explicit constraint to an account checking that it is not the same as another account.
 
 # Overview
 
-Duplicate Mutable Accounts refers to an instruction that requires two accounts of the same type. When this occurs, you should validate that two accounts are different to prevent the same account from being passed into the instruction.
+Duplicate Mutable Accounts refers to an instruction that requires two mutable accounts of the same type. When this occurs, you should validate that two accounts are different to prevent the same account from being passed into the instruction twice.
 
-If an instruction expects two accounts of the same type and mutates the data on each one, passing the same account in for each could have unintended consequences. Without verifying that each of these accounts are unique, the program could mutate the data in an account twice inadvertently. This could result in very minor issues, or catastrophic ones - it really depends on what data the code changes and how these accounts are used. Regardless, this is a vulnerability all developers should be aware of.
+Since the program treats each account as separate, passing in the same account twice could result in the second account being mutated in unintended ways. This could result in very minor issues, or catastrophic ones - it really depends on what data the code changes and how these accounts are used. Regardless, this is a vulnerability all developers should be aware of.
 
 ### No check
 
-In the example below, `user_a` and `user_b` are both of type `User`. The `update` instruction then updates the `data` field of each respective account using the instruction data `a` and `b`. 
+For example, imagine a program that updates a `data` field for `user_a` and `user_b` in a single instruction. The value that the instruction sets for `user_a` is different from `user_b`. Without verifying that `user_a` and `user_b` are different, the program would update the `data` field on the `user_a` account, then update the `data` field a second time with a different value under the assumption that `user_b` is a separate account.
 
-However, there is no check to verify that `user_a` and `user_b` are not the same account. This means the same account can be passed into the instruction as both `user_a` and `user_b`.
+You can see this example in the code below.Tthere is no check to verify that `user_a` and `user_b` are not the same account. Passing in the same account for `user_a` and `user_b` will result in the `data` field for the account being set to `b` even though the intent is to set both values `a` and `b` on separate accounts. Depending on what `data` represents, this could be a minor unintended side-effect, or it could mean a severe security risk. allowing `user_a` and `user_b` to be the same account could result in 
 
 ```rust
 use anchor_lang::prelude::*;
@@ -64,7 +63,7 @@ pub struct User {
 
 ### Add check in instruction
 
-One approach is to add a check within the instruction to verify that the public key of `user_a` account differs from the public key of `user_b` account.   
+To fix this problem with plan Rust, simply add a check in the instruction logic to verify that the public key of `user_a` isn't the same as the public key of `user_b`, returning an error if they are the same.
 
 ```rust
 if ctx.accounts.user_a.key() == ctx.accounts.user_b.key() {
@@ -110,9 +109,11 @@ pub struct User {
 
 ### Use Anchor `constraint`
 
-The `#[account(..)]` attribute macro can then be used to apply additional constraints to an account. You can use the `constraint` keyword within the `#[account(..)]` attribute to check whether a given expression evaluates to true.
+An even better solution if you're using Anchor is to add the check to the account validation struct instead of the instruction logic. 
 
-The example below moves the check from the instruction to the account validation struct by adding a `contraint` to the `#[account(..)]` attribute. 
+You can use the `#[account(..)]` attribute macro and the `constraint` keyword to add a manual constraint to an account. The `constraint` keyword will check whether the expression that follows evaluates to true or false, returning an error if the expression evaluates to false.
+
+The example below moves the check from the instruction logic to the account validation struct by adding a `constraint` to the `#[account(..)]` attribute. 
 
 ```rust
 use anchor_lang::prelude::*;
@@ -154,15 +155,15 @@ This program will initialize “player” accounts and have a separate instructi
 
 - An `initialize` instruction to initialize `PlayerState` account
 - An `insecure_start_game` instruction that requires two `PlayerState` accounts, but does not check that the accounts passed into the instruction are different
-- A `secure_start_game` instruction that use the `#[account(...)]` macro to add an additional `constraint` to check that the two accounts are different
+- A `secure_start_game` instruction that is the same as the `insecure_start_game` instruction but adds a constraint that ensures the two player accounts are different
 
 ### 1. Starter
 
-To get started, download the starter code [here](https://github.com/ZYJLiu/duplicate-mutable-accounts). The starter code includes a program with two instructions and the boilerplate setup for the test file. 
+To get started, download the starter code on the `starter` branch of [this repository](https://github.com/unboxed-software/solana-duplicate-mutable-accounts/tree/starter). The starter code includes a program with two instructions and the boilerplate setup for the test file. 
 
 The `initialize` instruction initializes a new `PlayerState` account that stores the public key of a player and a count of games played.
 
-The `insecure_start_game` instruction requires two `PlayerState` accounts and increment the games played for each account, but does not check that the accounts passed into the instruction are different. This means a single account can be used for both `PlayerState` accounts in the instruction.
+The `insecure_start_game` instruction requires two `PlayerState` accounts and increments the games played for each account, but does not check that the accounts passed into the instruction are different. This means a single account can be used for both `PlayerState` accounts in the instruction.
 
 ```rust
 use anchor_lang::prelude::*;
