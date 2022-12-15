@@ -10,12 +10,13 @@
 
 - When an instruction requires two mutable accounts of the same type, an attacker can pass in the same account twice, causing the account to be mutated in unintended ways.
 - To check for duplicate mutable accounts in Rust, simply compare the public keys of the two accounts and throw an error if they are the same.
-    
-    ```rust
-    if ctx.accounts.account_one.key() == ctx.accounts.account_two.key() {
-        return Err(ProgramError::InvalidArgument)
-    }
-    ```
+
+  ```rust
+  if ctx.accounts.account_one.key() == ctx.accounts.account_two.key() {
+      return Err(ProgramError::InvalidArgument)
+  }
+  ```
+
 - In Anchor, you can use `constraint` to add an explicit constraint to an account checking that it is not the same as another account.
 
 # Overview
@@ -28,7 +29,7 @@ Since the program treats each account as separate, passing in the same account t
 
 For example, imagine a program that updates a `data` field for `user_a` and `user_b` in a single instruction. The value that the instruction sets for `user_a` is different from `user_b`. Without verifying that `user_a` and `user_b` are different, the program would update the `data` field on the `user_a` account, then update the `data` field a second time with a different value under the assumption that `user_b` is a separate account.
 
-You can see this example in the code below.Tthere is no check to verify that `user_a` and `user_b` are not the same account. Passing in the same account for `user_a` and `user_b` will result in the `data` field for the account being set to `b` even though the intent is to set both values `a` and `b` on separate accounts. Depending on what `data` represents, this could be a minor unintended side-effect, or it could mean a severe security risk. allowing `user_a` and `user_b` to be the same account could result in 
+You can see this example in the code below.Tthere is no check to verify that `user_a` and `user_b` are not the same account. Passing in the same account for `user_a` and `user_b` will result in the `data` field for the account being set to `b` even though the intent is to set both values `a` and `b` on separate accounts. Depending on what `data` represents, this could be a minor unintended side-effect, or it could mean a severe security risk. allowing `user_a` and `user_b` to be the same account could result in
 
 ```rust
 use anchor_lang::prelude::*;
@@ -109,11 +110,11 @@ pub struct User {
 
 ### Use Anchor `constraint`
 
-An even better solution if you're using Anchor is to add the check to the account validation struct instead of the instruction logic. 
+An even better solution if you're using Anchor is to add the check to the account validation struct instead of the instruction logic.
 
 You can use the `#[account(..)]` attribute macro and the `constraint` keyword to add a manual constraint to an account. The `constraint` keyword will check whether the expression that follows evaluates to true or false, returning an error if the expression evaluates to false.
 
-The example below moves the check from the instruction logic to the account validation struct by adding a `constraint` to the `#[account(..)]` attribute. 
+The example below moves the check from the instruction logic to the account validation struct by adding a `constraint` to the `#[account(..)]` attribute.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -151,22 +152,23 @@ pub struct User {
 
 Let’s practice by creating a simple program to demonstrate how failing to check for duplicate mutable accounts can allow an instruction to be used in an unintended way.
 
-This program will initialize “player” accounts and have a separate instruction that requires two player accounts to represent starting a game.
+This program will initialize “player” accounts and have a separate instruction that requires two player accounts to represent starting a game of rock paper scissors.
 
 - An `initialize` instruction to initialize `PlayerState` account
-- An `insecure_start_game` instruction that requires two `PlayerState` accounts, but does not check that the accounts passed into the instruction are different
-- A `secure_start_game` instruction that is the same as the `insecure_start_game` instruction but adds a constraint that ensures the two player accounts are different
+- A `rock_paper_scissors_shoot_insecure` instruction that requires two `PlayerState` accounts, but does not check that the accounts passed into the instruction are different
+- A `rock_paper_scissors_shoot_secure` instruction that is the same as the `rock_paper_scissors_shoot_insecure` instruction but adds a constraint that ensures the two player accounts are different
 
 ### 1. Starter
 
-To get started, download the starter code on the `starter` branch of [this repository](https://github.com/unboxed-software/solana-duplicate-mutable-accounts/tree/starter). The starter code includes a program with two instructions and the boilerplate setup for the test file. 
+To get started, download the starter code on the `starter` branch of [this repository](https://github.com/unboxed-software/solana-duplicate-mutable-accounts/tree/starter). The starter code includes a program with two instructions and the boilerplate setup for the test file.
 
-The `initialize` instruction initializes a new `PlayerState` account that stores the public key of a player and a count of games played.
+The `initialize` instruction initializes a new `PlayerState` account that stores the public key of a player and a `choice` field that is set to `None`.
 
-The `insecure_start_game` instruction requires two `PlayerState` accounts and increments the games played for each account, but does not check that the accounts passed into the instruction are different. This means a single account can be used for both `PlayerState` accounts in the instruction.
+The `rock_paper_scissors_shoot_insecure` instruction requires two `PlayerState` accounts and requires a choice from the `RockPaperScissors` enum for each player, but does not check that the accounts passed into the instruction are different. This means a single account can be used for both `PlayerState` accounts in the instruction.
 
 ```rust
 use anchor_lang::prelude::*;
+use borsh::{BorshDeserialize, BorshSerialize};
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
@@ -176,16 +178,18 @@ pub mod duplicate_mutable_accounts {
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         ctx.accounts.new_player.player = ctx.accounts.payer.key();
-        ctx.accounts.new_player.games_played = 0;
+        ctx.accounts.new_player.choice = None;
         Ok(())
     }
 
-    pub fn insecure_start_game(ctx: Context<InsecureGameStart>) -> Result<()> {
-        ctx.accounts.player_one.games_played =
-            ctx.accounts.player_one.games_played.checked_add(1).unwrap();
+    pub fn rock_paper_scissors_shoot_insecure(
+        ctx: Context<RockPaperScissorsInsecure>,
+        player_one_choice: RockPaperScissors,
+        player_two_choice: RockPaperScissors,
+    ) -> Result<()> {
+        ctx.accounts.player_one.choice = Some(player_one_choice);
 
-        ctx.accounts.player_two.games_played =
-            ctx.accounts.player_two.games_played.checked_add(1).unwrap();
+        ctx.accounts.player_two.choice = Some(player_two_choice);
         Ok(())
     }
 }
@@ -204,7 +208,7 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-pub struct InsecureGameStart<'info> {
+pub struct RockPaperScissorsInsecure<'info> {
     #[account(mut)]
     pub player_one: Account<'info, PlayerState>,
     #[account(mut)]
@@ -214,32 +218,43 @@ pub struct InsecureGameStart<'info> {
 #[account]
 pub struct PlayerState {
     player: Pubkey,
-    games_played: u64,
+    choice: Option<RockPaperScissors>,
+}
+
+#[derive(Clone, Copy, BorshDeserialize, BorshSerialize)]
+pub enum RockPaperScissors {
+    Rock,
+    Paper,
+    Scissors,
 }
 ```
 
-### 2. Test `insecure_start_game` instruction
+### 2. Test `rock_paper_scissors_shoot_insecure` instruction
 
 The test file includes the code to invoke the `initialize` instruction twice to create two player accounts.
 
-Add a test to invoke the `insecure_start_game` instruction by passing in the `playerOne.publicKey` for as both `playerOne` and `playerTwo`.
+Add a test to invoke the `rock_paper_scissors_shoot_insecure` instruction by passing in the `playerOne.publicKey` for as both `playerOne` and `playerTwo`.
 
-```rust
+```ts
 describe("duplicate-mutable-accounts", () => {
 	...
 	it("Invoke insecure instruction", async () => {
-    await program.methods
-      .insecureStartGame()
-      .accounts({
-        playerOne: playerOne.publicKey,
-        playerTwo: playerOne.publicKey,
-      })
-      .rpc()
-  })
+        await program.methods
+        .rockPaperScissorsShootInsecure({ rock: {} }, { scissors: {} })
+        .accounts({
+            playerOne: playerOne.publicKey,
+            playerTwo: playerOne.publicKey,
+        })
+        .rpc()
+
+        const p1 = await program.account.playerState.fetch(playerOne.publicKey)
+        assert.equal(JSON.stringify(p1.choice), JSON.stringify({ scissors: {} }))
+        assert.notEqual(JSON.stringify(p1.choice), JSON.stringify({ rock: {} }))
+    })
 })
 ```
 
-Run `anchor test` to see that the transactions completes successfully, even though the same account is used as two accounts in the instruction.
+Run `anchor test` to see that the transactions completes successfully, even though the same account is used as two accounts in the instruction. Since the `playerOne` account is used as both players in the instruction, note the `choice` stored on the `playerOne` account is also overridden and set incorrectly as `scissors`.
 
 ```bash
 duplicate-mutable-accounts
@@ -248,82 +263,84 @@ duplicate-mutable-accounts
   ✔ Invoke insecure instruction (406ms)
 ```
 
-### 3. Add `secure_start_game` instruction
+### 3. Add `rock_paper_scissors_shoot_secure` instruction
 
-Next, return to `lib.rs` and add a `secure_start_game` instruction that use the `#[account(...)]` macro to add an additional `constraint` to check that `player_one` and `player_two` are different accounts.
+Next, return to `lib.rs` and add a `rock_paper_scissors_shoot_secure` instruction that use the `#[account(...)]` macro to add an additional `constraint` to check that `player_one` and `player_two` are different accounts.
 
 ```rust
 #[program]
 pub mod duplicate_mutable_accounts {
     use super::*;
 		...
-		pub fn secure_start_game(ctx: Context<SecureGameStart>) -> Result<()> {
-        ctx.accounts.player_one.games_played =
-            ctx.accounts.player_one.games_played.checked_add(1).unwrap();
+        pub fn rock_paper_scissors_shoot_secure(
+            ctx: Context<RockPaperScissorsSecure>,
+            player_one_choice: RockPaperScissors,
+            player_two_choice: RockPaperScissors,
+        ) -> Result<()> {
+            ctx.accounts.player_one.choice = Some(player_one_choice);
 
-        ctx.accounts.player_two.games_played =
-            ctx.accounts.player_two.games_played.checked_add(1).unwrap();
-        Ok(())
-    }
+            ctx.accounts.player_two.choice = Some(player_two_choice);
+            Ok(())
+        }
 }
 
 #[derive(Accounts)]
-pub struct SecureGameStart<'info> {
+pub struct RockPaperScissorsSecure<'info> {
     #[account(
         mut,
-        constraint = player_one.key() != player_two.key())]
+        constraint = player_one.key() != player_two.key()
+    )]
     pub player_one: Account<'info, PlayerState>,
     #[account(mut)]
     pub player_two: Account<'info, PlayerState>,
 }
 ```
 
-### 7. Test `secure_start_game` instruction
+### 7. Test `rock_paper_scissors_shoot_secure` instruction
 
-To test the `secure_start_game` instruction, we’ll invoke the instruction twice. First, we’ll invoke the instruction using the `playerOne.publicKey` as both player accounts, which we expect to fail. Then, we’ll invoke the instruction using two different player accounts to check that the instruction works as intended.
+To test the `rock_paper_scissors_shoot_secure` instruction, we’ll invoke the instruction twice. First, we’ll invoke the instruction using two different player accounts to check that the instruction works as intended. Then, we’ll invoke the instruction using the `playerOne.publicKey` as both player accounts, which we expect to fail.
 
-```rust
+```ts
 describe("duplicate-mutable-accounts", () => {
 	...
-
-	it("Invoke secure instruction, expect error", async () => {
-    try {
-      await program.methods
-        .secureStartGame()
+    it("Invoke secure instruction", async () => {
+        await program.methods
+        .rockPaperScissorsShootSecure({ rock: {} }, { scissors: {} })
         .accounts({
-          playerOne: playerOne.publicKey,
-          playerTwo: playerOne.publicKey,
+            playerOne: playerOne.publicKey,
+            playerTwo: playerTwo.publicKey,
         })
         .rpc()
-    } catch (err) {
-      expect(err)
-      console.log(err)
-    }
-  })
 
-  it("Invoke secure instruction", async () => {
-    await program.methods
-      .secureStartGame()
-      .accounts({
-        playerOne: playerOne.publicKey,
-        playerTwo: playerTwo.publicKey,
-      })
-      .rpc()
-  })
+        const p1 = await program.account.playerState.fetch(playerOne.publicKey)
+        const p2 = await program.account.playerState.fetch(playerTwo.publicKey)
+        assert.equal(JSON.stringify(p1.choice), JSON.stringify({ rock: {} }))
+        assert.equal(JSON.stringify(p2.choice), JSON.stringify({ scissors: {} }))
+    })
+
+    it("Invoke secure instruction - expect error", async () => {
+        try {
+        await program.methods
+            .rockPaperScissorsShootSecure({ rock: {} }, { scissors: {} })
+            .accounts({
+                playerOne: playerOne.publicKey,
+                playerTwo: playerOne.publicKey,
+            })
+            .rpc()
+        } catch (err) {
+            expect(err)
+            console.log(err)
+        }
+    })
 })
 ```
 
-Run `anchor test` to see that the instruction using the `playerOne` twice returns the expected error.
+Run `anchor test` to see that the instruction works as intended and using the `playerOne` account twice returns the expected error.
 
 ```bash
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]',
-'Program log: Instruction: SecureStartGame',
+'Program log: Instruction: RockPaperScissorsShootSecure',
 'Program log: AnchorError caused by account: player_one. Error Code: ConstraintRaw. Error Number: 2003. Error Message: A raw constraint was violated.',
-'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4795 of 200000 compute units',
-'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d3'g6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument'
-```
-
-```rust
-✔ Invoke secure instruction, expect error
-✔ Invoke secure instruction (373ms)
+'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 5104 of 200000 compute units',
+'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d3'
 ```
