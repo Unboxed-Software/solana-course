@@ -8,7 +8,7 @@
 
 # TL;DR
 
-- When closing a program account the lamports stored in the account for rent are transferred out to another account of your choosing. Once an account is no longer rent exempt, the Solana runtime will garbarge collect it effectively deleting it.
+- When closing a program account the lamports stored in the account for rent are transferred out to another account of your choosing. Once an account is no longer rent exempt, the Solana runtime will garbage collect it effectively deleting it.
 - Closing an account creates an opportunity for reinitialization/revival attacks if not done properly.
 - The Anchor `#[account(close = <address_to_send_lamports>)]` constraint securely closes accounts by setting the account discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR`
 
@@ -21,13 +21,13 @@ pub receiver: SystemAccount<'info>
 
 # Overview
 
-Account closing is done by transferring lamports out of a program owned account to trigger the runtime to garbage collect it, resetting the owner from the program to the system program immediately after the transaction completes successfully. The garbarge collection doesn’t occur until the entire transaction completes. This creates an opportunity for a subsequent instruction within that same transaction to refund the closed account with lamports for rent. In so doing, the second instruction effectively cancels out the first insruction that closed the account becuase the account will not be garbage collected.
+Account closing is done by transferring lamports out of a program owned account to trigger the runtime to garbage collect it, resetting the owner from the program to the system program immediately after the transaction completes successfully. The garbage collection doesn’t occur until the entire transaction completes. This creates an opportunity for a subsequent instruction within that same transaction to refund the closed account with lamports for rent. In so doing, the second instruction effectively cancels out the first instruction that closed the account because the account will not be garbage collected.
 
 To combat this, you can zero out the data stored on an account before transferring its lamports so that it can’t be used again. Now, even if a subsequent instruction were to refund the account, there’s no data stored on the account so it’s effectively useless. This is not entirely true, there are many different program architectures that require a 1-to-1 mapping of program accounts to users (like associated token accounts). This scenario would break that rule and could create potential issues if a program expected an account to not exist when, in fact, it did. Not only that, but even zeroing out the account does not prevent someone from re-initializing the account with different data.
 
 To get a better understanding of these attack vectors, let’s explore each of these scenarios in depth.
 
-## Transferring Lamports (test example code)
+## Transferring Lamports
 
 What happens if in a single transaction you have two instructions:
 
@@ -78,13 +78,11 @@ pub struct Data {
 
 Because the garbage collection does not take place until the entire transaction is processed, there is a chance that another instruction in the same transaction refunds the closed account. As we discussed before, this prevents the runtime garbage collector from deleting the account. So, simply transferring an account’s lamports is not enough to securely close an account.
 
-## Zeroing Out Account Data (test example code)
+## Zeroing Out Account Data
 
 Instead of just transferring an account’s lamports, one can also zero out the account data to prevent the account data from being used/accessed by your program again. This is a roundabout solution, as it does not ensure that the account is actually deleted. The opportunity to refund a closed account within the same transaction is still there, this method is just meant to try to limit what that account can be used for if it is refunded.
 
 At first glance, this seems like it could be a viable option even if it does not directly resolve the issue at hand. Upon further inspection, though, it doesn’t hold up. After an account has been refunded, even if the data is removed, one can simply re-initialize the same account with new data.
-
-### Insecure
 
 ```rust
 use anchor_lang::prelude::*;
@@ -134,13 +132,13 @@ pub struct Data {
 }
 ```
 
-This program transfers the lamports out of an account and zeroes out the account data in a single instruction in hopes of preventing a subsequent instruction from utilizing this account again before it has been garbage collected. This does not completely solve the program, as it it still possible to refund and re-initialize the account data in a subsequent instruction.
+This program transfers the lamports out of an account and zeroes out the account data in a single instruction in hopes of preventing a subsequent instruction from utilizing this account again before it has been garbage collected. This does not completely solve the problem, as it is still possible to refund and re-initialize the account data in a subsequent instruction.
 
 ## Using an Account Discriminator
 
 Another step we can take is to utilize Anchor’s account discriminator. We’ve already learned about how account discriminators are used to determine what program owns an account and the account type that the data should be deserialized to. Well, it turns out that this discriminator can also be used to mark an account as ‘Closed’. Anchor has a specific `CLOSED_ACCOUNT_DISCRIMINATOR` variant for this exact purpose.
 
-Any accounts passed in to an Anchor instruction with its discriminator set to the `CLOSED_ACCOUNT_DISCRIMINATOR` variant will not pass the discriminator check and thus will not be considered valid by the program (since its discriminator was reset). Because Anchor instructions check an account’s discriminator every time one is passed in, this can be used as a way to make sure a closed account cannot be re-initialized before it is garbage collected. You still have to transfer the account’s lamports and zero out its data, but this can protect your program from revival attacks.
+Any accounts passed in to an Anchor instruction with its discriminator set to the `CLOSED_ACCOUNT_DISCRIMINATOR` variant will not pass the discriminator check and thus will not be considered valid by the program (since its discriminator was reset). Because Anchor instructions check an account’s discriminator every time one is passed in, this can be used as a way to make sure a closed account cannot be used again if it's refunded before it can be garbage collected. You still have to transfer the account’s lamports and zero out its data, but this can help protect your program from revival attacks.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -272,9 +270,9 @@ pub struct Data {
 }
 ```
 
-The purpose of the `force_defund` instruction is to essentially reclaim accounts that have been cast off into limbo by an attempted revival attack. Let’s say we close an account by transferring its lamports, zeroing out the account data, and setting the tombstone discriminant. Suppose in a subsequent instruction within that same transaction someone refunds the closed account with enough lamports to remain rent exempt, the account will not be garbage collected and it has now entered that limbo state where it can’t really be used for anyting again.
+The purpose of the `force_defund` instruction is to essentially reclaim accounts that have been cast off into limbo by an attempted revival attack. Let’s say we close an account by transferring its lamports, zeroing out the account data, and setting the tombstone discriminant. Suppose, in a subsequent instruction within that same transaction, someone refunds the closed account with enough lamports to remain rent exempt - the account will not be garbage collected and it has now entered that limbo state where it can’t really be used for anything again.
 
-Instead of throwing in the towel and forcing the user to interact with the contract with a different wallet, the lost account can be passed into this `force_defund` instruction. The instruction takes two `AccountInfo` types as input, so it doesn’t automatically reject an account with the tombstone discriminator (like the account currently stuck in limbo).  The logic of the instruction actually verifies the discriminator is set to the `CLOSED_ACCOUNT_DISCRIMINATOR` and attempts to close the account again by transferring its lamports to another account. Clearly, someone could backrun this instruction and refund the account *again* in the same transaction, but this would not be economically viable for the attacker to continue. Continuously refunding the account would be akin to just throwing money down the drain in this scenario because all of the lamports the user is using to refund the closed account would be siphoned off to another user once `force_defund` is called.
+Instead of throwing in the towel and forcing the user to interact with the contract with a different wallet, the lost account can be passed into this `force_defund` instruction. The instruction takes two `AccountInfo` types as input, so it doesn’t automatically reject an account with the tombstone discriminator (like the account currently stuck in limbo).  The logic of the instruction actually verifies the discriminator is set to the `CLOSED_ACCOUNT_DISCRIMINATOR` and attempts to close the account again by transferring its lamports to another account. Clearly, someone could backrun this instruction and refund the account *again* in the same transaction, but this would not be economically viable for the attacker to continue. Continuously refunding the account would be akin to just throwing money down the drain in this scenario because all of the lamports the attacker would be using to refund the closed account would be siphoned off to another user once `force_defund` is called.
 
 ### Using the `#[account(close = <target_account>)]` constraint
 
@@ -299,10 +297,10 @@ For this lesson’s demo, we’ll take a look at a program that initializes an a
 
 ## 1. Setup
 
-Clone the following repo to get the starter code.
+Clone the [following repo](https://github.com/Unboxed-Software/solana-closing-accounts/tree/main) to get the starter code.
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/Unboxed-Software/solana-closing-accounts/tree/main
 ```
 
 ## 2. Add Instructions
@@ -332,9 +330,9 @@ pub fn do_something(ctx: Context<Update>) -> Result<()> {
 
 `initialize` initializes the program account and sets its data.
 
-`close_acct` will close the the account, we’ll implement that next using Anchor constraints.
+`close_acct` will close the account, we’ll implement that next using Anchor constraints.
 
-`do_something` just attemptes to update the data stored in the account.
+`do_something` just attempts to update the data stored in the account.
 
 ## 3. Add Account Structs
 
@@ -359,10 +357,9 @@ pub struct Initialize<'info> {
 
 #[derive(Accounts)]
 pub struct Close<'info> {
-    #[account(mut, close = receiver,)]
+    #[account(mut, close = receiver)]
     pub data_account: Account<'info, DataAccount>,
-    ///CHECK: Safe
-    pub receiver: AccountInfo<'info>
+    pub receiver: SystemAccount<'info>
 }
 
 #[derive(Accounts)]
@@ -383,9 +380,9 @@ Take a look at the test written for this program, it’s very procedural. The te
     1. ix1: Closes the `data_account` using the `close_acct` instruction
     2. ix2: Attacker refunds the closed `data_account` preventing it from being garbage collected
 3. Test tries to fetch and deserialize the data on the refunded `data_account`, this fails because the Anchor SDK sees that the account discriminator has been changed
-4. Attacker attempts to pass the refunded account into the `do_something` instruction to potentiallhy update the account’s data
+4. Attacker attempts to pass the refunded account into the `do_something` instruction to potentially update the account’s data
     1. this fails also because Anchor can tell the account discriminator is invalid
-5. Original user calls the `force_defund` instruction to claim the attack’s lamports and attempt to close the account again
+5. Original user calls the `force_defund` instruction to claim the attacker’s lamports and attempt to close the account again
 6. Test tries to fetch the account data for `data_account` but it has been successfully closed and does not exist anymore
 
 The output from the running `anchor test` should look like this:
