@@ -4,8 +4,8 @@
 
 - Explain the security risks associated with not checking account types
 - Implement an account type discriminator using long-form Rust
-- Use Anchor to initialize account which automatically include a unique 8 byte discriminator
-- Use Anchor to automatically check the discriminator of an account passed into an instruction
+- Use Anchor's `init` constraint to initialize accounts
+- Use Anchor's `Account` type for account validation
 
 # TL;DR
 
@@ -34,20 +34,20 @@
     }
     ```
 
-- In Anchor, program account types implement the `Discriminator` trait which creates an 8 byte unique identifier for a type.
+- In Anchor, program account types automatically implement the `Discriminator` trait which creates an 8 byte unique identifier for a type
 - Use Anchor’s `Account<'info, T>` type to automatically check the discriminator of the account when deserializing the account data
 
 # Overview
 
-A “type cosplay” is when an unexpected account is used in place of an expected account type. Note that account data is simply an array of bytes that a program deserializes into a custom account type. Without implementing a way to distinguish between account types, account data from an unexpected account could result in an instruction being used in unintended ways.
+“Type cosplay” refers to an unexpected account type being used in place of an expected account type. Under the hood, account data is simply stored as an array of bytes that a program deserializes into a custom account type. Without implementing a way to explicitly distinguish between account types, account data from an unexpected account could result in an instruction being used in unintended ways.
 
 ### Unchecked account
 
 In the example below, both the `AdminConfig` and `UserConfig` account types store a single public key. The `admin_instruction` instruction deserializes the `admin_config` account as an `AdminConfig` type and then performs a owner check and data validation check.
 
-However, the `AdminConfig` and `UserConfig` account types have the same data structure. This means a `UserConfig` account type could be passed in as the `admin_config` account. As long as the public key stored on the account data matches the `admin` signing the transaction, the `admin_instruction` instruction would continue to process.
+However, the `AdminConfig` and `UserConfig` account types have the same data structure. This means a `UserConfig` account type could be passed in as the `admin_config` account. As long as the public key stored on the account data matches the `admin` signing the transaction, the `admin_instruction` instruction would continue to process, even if the signer isn't actually an admin.
 
-Note that the names of the fields stored on the account types (`admin` and `user`) makes no difference when deserializing account data.
+Note that the names of the fields stored on the account types (`admin` and `user`) make no difference when deserializing account data. The data is serialized and deserialized based on the order of fields rather than their names.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -92,9 +92,7 @@ pub struct UserConfig {
 
 ### Add account discriminator
 
-Let’s start by working through how to solve this in a long-form manner so you can understand it.
-
-One way to distinguish between account types is to add a discriminant field for each account type and set the discriminant when initializing an account.
+To solve this, you can add a discriminant field for each account type and set the discriminant when initializing an account.
 
 The example below updates the `AdminConfig` and `UserConfig` account types with a `discriminant` field. The `admin_instruction` instruction includes an additional data validation check for the `discriminant` field.
 
@@ -104,7 +102,7 @@ if account_data.discriminant != AccountDiscriminant::Admin {
 }
 ```
 
-If the `discriminant` field of the account passed into the instruction as the `admin_config` account does not match the expected `AccountDiscriminant`, then the transaction will fail. Note that the instructions to required to initialize new accounts are not included in the example below.
+If the `discriminant` field of the account passed into the instruction as the `admin_config` account does not match the expected `AccountDiscriminant`, then the transaction will fail. Simply make sure to set the appropriate value for `discriminant` when you initialize each account (not shown in the example), and then you can include these discriminant checks in every subsequent instruction.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -160,9 +158,11 @@ pub enum AccountDiscriminant {
 
 ### Use Anchor’s `Account` wrapper
 
-Anchor’s **`#[account]`** attribute is used to implement various traits for a struct representing the data structure of a program account. When initializing a new program account, the first 8 bytes are reserved for a discriminator unique to the account type. When deserializing the account data, Anchor automatically checks if the discriminator on the account matches the expected account type.
+Implementing these checks for every account needed for every instruction can be tedious. Fortunately, Anchor provides a `#[account]` attribute macro for automatically implementing traits that every account should have.
 
-In the example below, `Account<'info, AdminConfig>` specifies that the `admin_config` account should be an `AdminConfig` type. Anchor then automatically checks that the first 8 bytes of account data matches the discriminator of the`AdminConfig` type.
+Structs marked with `#[account]` can then be used with `Account` to validate that the passed in account is indeed the type you expect it to be. When initializing an account whose struct representation has the `#[account]` attribute, the first 8 bytes are automatically reserved for a discriminator unique to the account type. When deserializing the account data, Anchor will automatically check if the discriminator on the account matches the expected account type and throw and error if it does not match.
+
+In the example below, `Account<'info, AdminConfig>` specifies that the `admin_config` account should be of type `AdminConfig`. Anchor then automatically checks that the first 8 bytes of account data match the discriminator of the `AdminConfig` type.
 
 The data validation check for the `admin` field is also moved from the instruction logic to the account validation struct using the `has_one` constraint. `#[account(has_one = admin)]` specifies that the `admin_config` account’s `admin` field must match the `admin` account passed into the instruction. Note that for the `has_one` constraint to work, the naming of the account in the struct must match the naming of field on the account you are validating.
 
