@@ -52,13 +52,12 @@ COMING SOON
 3. [Owner checks](./content/owner-checks.md)
 4. [Account data matching](./content/account-data-matching.md)
 5. [Reinitialization attacks](./content/reinitialization-attacks.md)
-6. Duplicate mutable accounts - COMING SOON
+6. [Duplicate mutable accounts](./content/duplicate-mutable-accounts.md)
 7. PDA sharing - COMING SOON
 8. [Type cosplay](./content/type-cosplay.md)
 9. [Bump seed canonicalization](./content/bump-seed-canonicalization.md)
 10. [Arbitrary CPIs](./content/arbitrary-cpi.md)
-11. Closing accounts - COMING SOON
-12. Sysvar address checking - COMING SOON
+11. [Closing accounts](./content/closing-accounts.md)
 
 ## Contribute to the Course
 

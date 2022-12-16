@@ -150,11 +150,11 @@ pub struct User {
 
 # Demo
 
-Let’s practice by creating a simple program to demonstrate how failing to check for duplicate mutable accounts can allow an instruction to be used in an unintended way.
+Let’s practice by creating a simple Rock Paper Scissors program to demonstrate how failing to check for duplicate mutable accounts can cause undefined behavior within your program.
 
 This program will initialize “player” accounts and have a separate instruction that requires two player accounts to represent starting a game of rock paper scissors.
 
-- An `initialize` instruction to initialize `PlayerState` account
+- An `initialize` instruction to initialize a `PlayerState` account
 - A `rock_paper_scissors_shoot_insecure` instruction that requires two `PlayerState` accounts, but does not check that the accounts passed into the instruction are different
 - A `rock_paper_scissors_shoot_secure` instruction that is the same as the `rock_paper_scissors_shoot_insecure` instruction but adds a constraint that ensures the two player accounts are different
 
@@ -263,9 +263,11 @@ duplicate-mutable-accounts
   ✔ Invoke insecure instruction (406ms)
 ```
 
+Not only does allowing duplicate accounts not make a whole lot of sense for the game, it also causes undefined behavior. If we were to build out this program further, the program only has one chosen option and therefore can't compare against a second option. The game would end in a draw every time. It's also unclear to a human whether `playerOne`'s choice should be rock or scissors, so the program behavior is strange.
+
 ### 3. Add `rock_paper_scissors_shoot_secure` instruction
 
-Next, return to `lib.rs` and add a `rock_paper_scissors_shoot_secure` instruction that use the `#[account(...)]` macro to add an additional `constraint` to check that `player_one` and `player_two` are different accounts.
+Next, return to `lib.rs` and add a `rock_paper_scissors_shoot_secure` instruction that uses the `#[account(...)]` macro to add an additional `constraint` to check that `player_one` and `player_two` are different accounts.
 
 ```rust
 #[program]
@@ -344,3 +346,15 @@ Run `anchor test` to see that the instruction works as intended and using the `p
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 5104 of 200000 compute units',
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d3'
 ```
+
+The simple constraint is all it takes to close this loophole. While somewhat contrived, this example illustrates the odd behavior that can occur if you write your program under the assumption that two same-typed accounts will be different instances of an account but don't explicitly write that constraint into your program. Always think about the behavior you're expecting from the program and whether that is explicit.
+
+If you want to take a look at the final solution code you can find it on the `solution` branch of [the repository](https://github.com/Unboxed-Software/solana-duplicate-mutable-accounts/tree/solution).
+
+# Challenge
+
+Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+
+Take some time to review at least one program and ensure that any instructions with two same-typed mutable accounts are properly constrained to avoid duplicates.
+
+Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
