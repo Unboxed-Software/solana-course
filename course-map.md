@@ -149,4 +149,3 @@ COMING SOON
 8. Bump seed canonicalization
 9. Arbitrary CPIs
 10. Closing accounts
-11. Sysvar address checking
