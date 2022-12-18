@@ -209,46 +209,53 @@ For this demo we’ll create two programs to demonstrate a type cosplay vulnerab
 - The first program will initialize program accounts without a discriminator
 - The second program will initialize program accounts using Anchor’s `init` constraint which automatically sets an account discriminator
 
-### 1. Setup
+### 1. Starter
 
-Create a new project called `type-cosplay` by running `anchor init`:
+To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-type-cosplay/tree/starter). The starter code includes a program with three instructions and some tests.
 
-```bash
-anchor init type-cosplay
-```
+The three instructions are:
 
-Navigate to the new `type-cosplay` project directory and create a second `type-checked` program by running the following command:
+1. `initialize_admin` - initializes an admin account and sets the admin authority of the program
+2. `initialize_user` - intializes a standard user account
+3. `update_admin` - allows the existing admin to update the admin authority of the program
 
-```bash
-anchor new type-checked
-```
+Take a look at these three instructions in the `lib.rs` file. The last instruction should only be callable by the account matching the `admin` field on the admin account initialized using the `initialize_admin` instruction.
 
-Now in your `programs` folder you will have two programs. Run `anchor keys list` and you should see the program IDs output for both programs.
+### 2. Test insecure `update_admin` instruction
 
-```rust
-anchor keys list
-```
-
-```bash
-type_checked: FZLRa6vX64QL6Vj2JkqY1Uzyzjgi2PYjCABcDabMo8U7
-type_cosplay: 4kaRTFx13ME6zVRiQxefhBuWZd4NurEn9p6K8SSw9fLQ
-```
-
-Next, update the program ID in the `declare_id!` macro for each respective program.
+However, both accounts have the same fields and field types:
 
 ```rust
-declare_id!("4kaRTFx13ME6zVRiQxefhBuWZd4NurEn9p6K8SSw9fLQ");
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct AdminConfig {
+    admin: Pubkey,
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct User {
+    user: Pubkey,
+}
 ```
 
-Additionally, update `Anchor.toml` with the program ID for all programs.
+Because of this, it's possible to pass in a `User` account in place of the `admin` account in the `update_admin` instruction, thereby bypassing the requirement that one be an admin to call this instruction.
 
-```toml
-[programs.localnet]
-type_cosplay = "4kaRTFx13ME6zVRiQxefhBuWZd4NurEn9p6K8SSw9fLQ"
-type_checked = "FZLRa6vX64QL6Vj2JkqY1Uzyzjgi2PYjCABcDabMo8U7"
+Take a look at the `solana-type-cosplay.ts` file in the `tests` directory. It contains some basic setup and two tests. One test initializes a user account, and the other invokes `update_admin` and passes in the user account in place of an admin account.
+
+Run `anchor test` to see that invoking `update_admin` will complete successfully.
+
+```bash
+  type-cosplay
+    ✔ Initialize User Account (233ms)
+    ✔ Invoke update admin instruction with user account (487ms)
 ```
 
-Next, update the test file to include both programs and generate keypairs for the accounts we’ll be initializing for each program.
+### 3. Create `type-checked` program
+
+Now we'll create a new program called `type-checked` by running `anchor new type-checked` from the root of the existing anchor program.
+
+Now in your `programs` folder you will have two programs. Run `anchor keys list` and you should see the program ID for the new program. Add it to the `lib.rs` file of the `type-checked` program and to the `type_checked` program in the `Anchor.toml` file.
+
+Next, update the test file's setup to include the new program and two new keypairs for the accounts we'll be initializing for the new program.
 
 ```tsx
 import * as anchor from "@project-serum/anchor"
@@ -267,168 +274,14 @@ describe("type-cosplay", () => {
   const userAccount = anchor.web3.Keypair.generate()
   const newAdmin = anchor.web3.Keypair.generate()
 
-  const userAccountType = anchor.web3.Keypair.generate()
-  const adminAccountType = anchor.web3.Keypair.generate()
+  const userAccountChecked = anchor.web3.Keypair.generate()
+  const adminAccountChecked = anchor.web3.Keypair.generate()
 })
 ```
 
-### 2. Create accounts with no discriminator
+### 4. Implement the `type-checked` program
 
-In the `type_cosplay` program, add an `initialize_admin` instruction and an `initialize_user` instruction to initialize two different account types. To create an accounts without discriminators, we manually create the account via a CPI to the system program and then initialize the account data.
-
-We’ll also add an `update_admin` instruction that requires an unchecked `admin_config` account and deserializes the account as an `AdminConfig` account type. Since there is no way to distinguish between account types, either `AdminConfig` or `User` accounts can be passed into the instruction as the `admin_config` account.
-
-```rust
-use anchor_lang::prelude::*;
-use borsh::{BorshDeserialize, BorshSerialize};
-
-declare_id!("4kaRTFx13ME6zVRiQxefhBuWZd4NurEn9p6K8SSw9fLQ");
-
-#[program]
-pub mod type_cosplay {
-    use super::*;
-
-    pub fn initialize_admin(ctx: Context<Initialize>) -> Result<()> {
-        let space = 32;
-        let lamports = Rent::get()?.minimum_balance(space as usize);
-
-        let ix = anchor_lang::solana_program::system_instruction::create_account(
-            &ctx.accounts.payer.key(),
-            &ctx.accounts.new_account.key(),
-            lamports,
-            space,
-            &ctx.program_id,
-        );
-
-        anchor_lang::solana_program::program::invoke(
-            &ix,
-            &[
-                ctx.accounts.payer.to_account_info(),
-                ctx.accounts.new_account.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-        )?;
-
-        let mut account =
-            AdminConfig::try_from_slice(&ctx.accounts.new_account.data.borrow()).unwrap();
-
-        account.admin = ctx.accounts.payer.key();
-        account.serialize(&mut *ctx.accounts.new_account.data.borrow_mut())?;
-
-        msg!("Admin: {}", account.admin.to_string());
-        Ok(())
-    }
-
-    pub fn initialize_user(ctx: Context<Initialize>) -> Result<()> {
-        let space = 32;
-        let lamports = Rent::get()?.minimum_balance(space as usize);
-
-        let ix = anchor_lang::solana_program::system_instruction::create_account(
-            &ctx.accounts.payer.key(),
-            &ctx.accounts.new_account.key(),
-            lamports,
-            space,
-            &ctx.program_id,
-        );
-
-        anchor_lang::solana_program::program::invoke(
-            &ix,
-            &[
-                ctx.accounts.payer.to_account_info(),
-                ctx.accounts.new_account.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-        )?;
-
-        let mut account = User::try_from_slice(&ctx.accounts.new_account.data.borrow()).unwrap();
-
-        account.user = ctx.accounts.payer.key();
-        account.serialize(&mut *ctx.accounts.new_account.data.borrow_mut())?;
-
-        msg!("User: {}", account.user.to_string());
-        Ok(())
-    }
-
-    pub fn update_admin(ctx: Context<UpdateAdmin>) -> Result<()> {
-        let mut account =
-            AdminConfig::try_from_slice(&ctx.accounts.admin_config.data.borrow()).unwrap();
-
-        if ctx.accounts.admin.key() != account.admin {
-            return Err(ProgramError::InvalidAccountData.into());
-        }
-
-        account.admin = ctx.accounts.new_admin.key();
-        account.serialize(&mut *ctx.accounts.admin_config.data.borrow_mut())?;
-
-        msg!("New Admin: {}", account.admin.to_string());
-        Ok(())
-    }
-}
-
-#[derive(Accounts)]
-pub struct Initialize<'info> {
-    #[account(mut)]
-    pub new_account: Signer<'info>,
-    #[account(mut)]
-    pub payer: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateAdmin<'info> {
-    #[account(mut)]
-    /// CHECK:
-    admin_config: AccountInfo<'info>,
-    new_admin: SystemAccount<'info>,
-    admin: Signer<'info>,
-}
-
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct AdminConfig {
-    admin: Pubkey,
-}
-
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct User {
-    user: Pubkey,
-}
-```
-
-### 3. Test insecure `update_admin` instruction
-
-In the test file, we’ll invoke `initializeUser` to initialize a new user account. Then we’ll invoke the `updateAdmin` instruction passing in the user account as the `adminConfig` account.
-
-```rust
-describe("type-cosplay", () => {
-	...
-
-	it("Initialize User Account", async () => {
-    await program.methods
-      .initializeUser()
-      .accounts({
-        newAccount: userAccount.publicKey,
-      })
-      .signers([userAccount])
-      .rpc()
-  })
-
-  it("Invoke update admin instruction with user account", async () => {
-    await program.methods
-      .updateAdmin()
-      .accounts({
-        adminConfig: userAccount.publicKey,
-        newAdmin: newAdmin.publicKey,
-      })
-      .rpc()
-  })
-})
-```
-
-Run `anchor test` and to see that the `updateAdmin` transaction completes successfully, even though we pass in a `User` account type as the `adminConfig` account.
-
-### 4. Create accounts using Anchor `init` constraint
-
-In the `type_checked`program, add two instructions using the `init` constraint to initialize an `AdminConfig` account and a `User` account. When using the `init` constraint to initialize new program accounts, Anchor will automatically set the first 8 bytes of account data as a unique discriminator for the account type.
+In the `type_checked` program, add two instructions using the `init` constraint to initialize an `AdminConfig` account and a `User` account. When using the `init` constraint to initialize new program accounts, Anchor will automatically set the first 8 bytes of account data as a unique discriminator for the account type.
 
 We’ll also add an `update_admin` instruction that validates the `admin_config` account as a `AdminConfig` account type using Anchor’s `Account` wrapper. For any account passed in as the `admin_config` account, Anchor will automatically check that the account discriminator matches the expected account type.
 
@@ -506,15 +359,15 @@ pub struct User {
 }
 ```
 
-### 3. Test `recommended` instruction
+### 5. Test secure `update_admin` instruction
 
-In the test file, we’ll initialize a `AdminConfig` account and a `User` account from the `type_checked` program. Then we’ll invoke the `updateAdmin` instruction twice passing in the newly created accounts.
+In the test file, we’ll initialize an `AdminConfig` account and a `User` account from the `type_checked` program. Then we’ll invoke the `updateAdmin` instruction twice passing in the newly created accounts.
 
 ```rust
 describe("type-cosplay", () => {
 	...
 
-	it("Initialize AdminConfig Account", async () => {
+	it("Initialize type checked AdminConfig Account", async () => {
     await programChecked.methods
       .initializeAdmin()
       .accounts({
@@ -524,7 +377,7 @@ describe("type-cosplay", () => {
       .rpc()
   })
 
-  it("Initialize User Account", async () => {
+  it("Initialize type checked User Account", async () => {
     await programChecked.methods
       .initializeUser()
       .accounts({
@@ -564,12 +417,24 @@ describe("type-cosplay", () => {
 })
 ```
 
-Run `anchor test`. For the transaction where we pass in the `User` account type, we expect the instruction and return an Anchor Error.
+Run `anchor test`. For the transaction where we pass in the `User` account type, we expect the instruction and return an Anchor Error for the account not being of type `AdminConfig`.
 
-```rust
-'Program FZLRa6vX64QL6Vj2JkqY1Uzyzjgi2PYjCABcDabMo8U7 invoke [1]',
+```bash
+'Program EU66XDppFCf2Bg7QQr59nyykj9ejWaoW93TSkk1ufXh3 invoke [1]',
 'Program log: Instruction: UpdateAdmin',
 'Program log: AnchorError caused by account: admin_config. Error Code: AccountDiscriminatorMismatch. Error Number: 3002. Error Message: 8 byte discriminator did not match what was expected.',
-'Program FZLRa6vX64QL6Vj2JkqY1Uzyzjgi2PYjCABcDabMo8U7 consumed 4765 of 200000 compute units',
-'Program FZLRa6vX64QL6Vj2JkqY1Uzyzjgi2PYjCABcDabMo8U7 failed: custom program error: 0xbba'
+'Program EU66XDppFCf2Bg7QQr59nyykj9ejWaoW93TSkk1ufXh3 consumed 4765 of 200000 compute units',
+'Program EU66XDppFCf2Bg7QQr59nyykj9ejWaoW93TSkk1ufXh3 failed: custom program error: 0xbba'
 ```
+
+Following Anchor best practices and using Anchor types will ensure that your programs avoid this vulnerability. Always use the `#[account]` attribute when creating account structs, use the `init` constraint when initializing accounts, and use the `Account` type in your account validation structs.
+
+If you want to take a look at the final solution code you can find it on the `solution` branch of [the repository](https://github.com/Unboxed-Software/solana-type-cosplay/tree/solution).
+
+# Challenge
+
+Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+
+Take some time to review at least one program and ensure that account types have a discriminator and that those are checked for each account and instruction. Since standard Anchor types handle this check automatically, you're more likely to find a vulnerability in a native program.
+
+Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
