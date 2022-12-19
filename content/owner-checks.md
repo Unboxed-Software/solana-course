@@ -13,13 +13,13 @@ _By the end of this lesson, you will be able to:_
 
 - Use **Owner Checks** to verify that accounts are owned by the expected program. Without appropriate owner checks, accounts owned by unexpected programs could be used in an instruction.
 - To implement an owner check in Rust, simply check that an account’s owner matches an expected program ID
-    
-    ```rust
-    if ctx.accounts.account.owner != ctx.program_id {
-        return Err(ProgramError::IncorrectProgramId.into());
-    }
-    ```
-    
+
+```rust
+if ctx.accounts.account.owner != ctx.program_id {
+    return Err(ProgramError::IncorrectProgramId.into());
+}
+```
+
 - Anchor program account types implement the `Owner` trait which allows the `Account<'info, T>` wrapper to automatically verify program ownership
 - Anchor gives you the option to explicitly define the owner of an account if it should be anything other than the currently executing program
 
@@ -70,8 +70,9 @@ declare_id!("Cft4eTTrt4sJU4Ar35rUQHx6PSXfJju3dixmvApzhWws");
 #[program]
 pub mod owner_check {
     use super::*;
-		...
-		pub fn admin_instruction(ctx: Context<Unchecked>) -> Result<()> {
+	...
+
+    pub fn admin_instruction(ctx: Context<Unchecked>) -> Result<()> {
         let account_data = ctx.accounts.admin_config.try_borrow_data()?;
         let mut account_data_slice: &[u8] = &account_data;
         let account_state = AdminConfig::try_deserialize(&mut account_data_slice)?;
@@ -116,12 +117,13 @@ declare_id!("Cft4eTTrt4sJU4Ar35rUQHx6PSXfJju3dixmvApzhWws");
 #[program]
 pub mod owner_check {
     use super::*;
-		...
-		pub fn admin_instruction(ctx: Context<Unchecked>) -> Result<()> {
-				if ctx.accounts.admin_config.owner != ctx.program_id {
-				    return Err(ProgramError::IncorrectProgramId.into());
-				}
-				let account_data = ctx.accounts.admin_config.try_borrow_data()?;
+    ...
+    pub fn admin_instruction(ctx: Context<Unchecked>) -> Result<()> {
+        if ctx.accounts.admin_config.owner != ctx.program_id {
+            return Err(ProgramError::IncorrectProgramId.into());
+        }
+
+        let account_data = ctx.accounts.admin_config.try_borrow_data()?;
         let mut account_data_slice: &[u8] = &account_data;
         let account_state = AdminConfig::try_deserialize(&mut account_data_slice)?;
 
@@ -165,11 +167,11 @@ declare_id!("Cft4eTTrt4sJU4Ar35rUQHx6PSXfJju3dixmvApzhWws");
 #[program]
 pub mod owner_check {
     use super::*;
-		...
-		pub fn admin_instruction(ctx: Context<Unchecked>) -> Result<()> {
-				msg!("Admin: {}", ctx.accounts.admin_config.admin.to_string());
-		    Ok(())
-		}
+	...
+    pub fn admin_instruction(ctx: Context<Checked>) -> Result<()> {
+        msg!("Admin: {}", ctx.accounts.admin_config.admin.to_string());
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -201,11 +203,11 @@ declare_id!("Cft4eTTrt4sJU4Ar35rUQHx6PSXfJju3dixmvApzhWws");
 #[program]
 pub mod owner_check {
     use super::*;
-		...
-		pub fn admin_instruction(ctx: Context<Unchecked>) -> Result<()> {
-				msg!("Admin: {}", ctx.accounts.admin_config.admin.to_string());
-		    Ok(())
-		}
+    ...
+    pub fn admin_instruction(ctx: Context<Checked>) -> Result<()> {
+        msg!("Admin: {}", ctx.accounts.admin_config.admin.to_string());
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -215,13 +217,13 @@ pub struct Checked<'info> {
     )]
     admin_config: Account<'info, AdminConfig>,
     admin: Signer<'info>,
-		#[account(
-				seeds = b"test-seed",
-				bump,
-				owner = token_program.key()
-		)]
-		pda_derived_from_another_program: AccountInfo<'info>,
-		token_program: Program<'info, Token>
+    #[account(
+            seeds = b"test-seed",
+            bump,
+            owner = token_program.key()
+    )]
+    pda_derived_from_another_program: AccountInfo<'info>,
+    token_program: Program<'info, Token>
 }
 
 #[account]
@@ -398,23 +400,23 @@ Let’s add a test to invoke the `insecure_withdraw` instruction. This test shou
 ```tsx
 describe("owner-check", () => {
 	...
-  it("Insecure withdraw", async () => {
+    it("Insecure withdraw", async () => {
     const tx = await program.methods
-      .insecureWithdraw()
-      .accounts({
-        vault: vaultClone.publicKey,
-        tokenAccount: tokenPDA,
-        withdrawDestination: withdrawDestinationFake,
-        authority: walletFake.publicKey,
-      })
-      .transaction()
+        .insecureWithdraw()
+        .accounts({
+            vault: vaultClone.publicKey,
+            tokenAccount: tokenPDA,
+            withdrawDestination: withdrawDestinationFake,
+            authority: walletFake.publicKey,
+        })
+        .transaction()
 
-    await anchor.web3.sendAndConfirmTransaction(connection, tx, [walletFake])
+        await anchor.web3.sendAndConfirmTransaction(connection, tx, [walletFake])
 
-    const balance = await connection.getTokenAccountBalance(tokenPDA)
-    expect(balance.value.uiAmount).to.eq(0)
-  })
-  
+        const balance = await connection.getTokenAccountBalance(tokenPDA)
+        expect(balance.value.uiAmount).to.eq(0)
+    })
+
 })
 ```
 
@@ -451,9 +453,9 @@ In the `SecureWithdraw` struct, let’s use `Account<'info, Vault>` to ensure th
 #[program]
 pub mod owner_check {
     use super::*;
-		...
+	...
 
-	   pub fn secure_withdraw(ctx: Context<SecureWithdraw>) -> Result<()> {
+	pub fn secure_withdraw(ctx: Context<SecureWithdraw>) -> Result<()> {
         let amount = ctx.accounts.token_account.amount;
 
         let seeds = &[
@@ -506,47 +508,47 @@ To test the `secure_withdraw` instruction, we’ll invoke the instruction twice.
 describe("owner-check", () => {
 	...
 	it("Secure withdraw, expect error", async () => {
-    try {
-      const tx = await program.methods
+        try {
+            const tx = await program.methods
+                .secureWithdraw()
+                .accounts({
+                    vault: vaultClone.publicKey,
+                    tokenAccount: tokenPDA,
+                    withdrawDestination: withdrawDestinationFake,
+                    authority: walletFake.publicKey,
+                })
+                .transaction()
+
+            await anchor.web3.sendAndConfirmTransaction(connection, tx, [walletFake])
+        } catch (err) {
+            expect(err)
+            console.log(err)
+        }
+    })
+
+    it("Secure withdraw", async () => {
+        await spl.mintTo(
+            connection,
+            wallet.payer,
+            mint,
+            tokenPDA,
+            wallet.payer,
+            100
+        )
+
+        await program.methods
         .secureWithdraw()
         .accounts({
-          vault: vaultClone.publicKey,
-          tokenAccount: tokenPDA,
-          withdrawDestination: withdrawDestinationFake,
-          authority: walletFake.publicKey,
+            vault: vault.publicKey,
+            tokenAccount: tokenPDA,
+            withdrawDestination: withdrawDestination,
+            authority: wallet.publicKey,
         })
-        .transaction()
+        .rpc()
 
-      await anchor.web3.sendAndConfirmTransaction(connection, tx, [walletFake])
-    } catch (err) {
-      expect(err)
-      console.log(err)
-    }
-  })
-
-  it("Secure withdraw", async () => {
-    await spl.mintTo(
-      connection,
-      wallet.payer,
-      mint,
-      tokenPDA,
-      wallet.payer,
-      100
-    )
-
-    await program.methods
-      .secureWithdraw()
-      .accounts({
-        vault: vault.publicKey,
-        tokenAccount: tokenPDA,
-        withdrawDestination: withdrawDestination,
-        authority: wallet.publicKey,
-      })
-      .rpc()
-
-    const balance = await connection.getTokenAccountBalance(tokenPDA)
-    expect(balance.value.uiAmount).to.eq(0)
-  })
+        const balance = await connection.getTokenAccountBalance(tokenPDA)
+        expect(balance.value.uiAmount).to.eq(0)
+    })
 })
 ```
 
