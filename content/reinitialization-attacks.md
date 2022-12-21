@@ -2,6 +2,8 @@
 
 # Lesson Objectives
 
+*By the end of this lesson, you will be able to:*
+
 - Explain security risks associated with a reinitialization vulnerability
 - Use long-form Rust check if an account has already been initialized
 - Using Anchor’s `init` constraint to initialize accounts, which automatically sets an account discriminator that is checked to prevent the reinitialization of an account
@@ -10,13 +12,11 @@
 
 - Use an account discriminator or initialization flag to check whether an account has already been initialized to prevent an account from being reinitialized and overriding existing account data.
 - To prevent account reinitialization in plain Rust, initialize accounts with an `is_initialized` flag and check if it has already been set to true when initializing an account
-    
-    ```rust
-    if !account.is_initialized {
-        return Err(ProgramError::AccountAlreadyInitialized.into());
-    }
-    ```
-    
+  ```rust
+  if account.is_initialized {
+      return Err(ProgramError::AccountAlreadyInitialized.into());
+  }
+  ```
 - To simplify this, use Anchor’s `init` constraint to create an account via a CPI to the system program and sets its discriminator
 
 # Overview
@@ -68,7 +68,7 @@ pub struct User {
 One approach to fix this is to add an additional `is_initialized` field to the `User` account type and use it as a flag to check if an account has already been initialized.
 
 ```jsx
-if !user.is_initialized {
+if user.is_initialized {
     return Err(ProgramError::AccountAlreadyInitialized.into());
 }
 ```
@@ -87,7 +87,7 @@ pub mod initialization_secure {
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         let mut user = User::try_from_slice(&ctx.accounts.user.data.borrow()).unwrap();
-        if !user.is_initialized {
+        if user.is_initialized {
             return Err(ProgramError::AccountAlreadyInitialized.into());
         }
 

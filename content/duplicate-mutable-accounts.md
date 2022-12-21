@@ -2,6 +2,8 @@
 
 # Lesson Objectives
 
+*By the end of this lesson, you will be able to:*
+
 - Explain the security risks associated with instructions that require two mutable accounts of the same type and how to avoid them
 - Implement a check for duplicate mutable accounts using long-form Rust
 - Implement a check for duplicate mutable accounts using Anchor constraints
