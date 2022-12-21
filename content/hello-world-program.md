@@ -255,15 +255,15 @@ Finally, let's invoke our program from the client side. Download the code [here]
 
 The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
 
-Open the `index.ts` file you should see a variable named `programId`. Go ahead and update this with the program Id of the “Hello, world!" program you just deployed using Solana Playground.
+Open the `index.ts` file you should see a variable named `programId`. Go ahead and update this with the program ID of the “Hello, world!" program you just deployed using Solana Playground.
 
 ```tsx
 let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
 ```
 
-You can locate the program Id on Solana Playground referencing the image below.
+You can locate the program ID on Solana Playground referencing the image below.
 
-![Gif Solana Playground Program Id](../assets/hello-world-program-id.gif)
+![Gif Solana Playground Program ID](../assets/hello-world-program-id.gif)
 
 Next, install the Node modules with `npm i`.
 

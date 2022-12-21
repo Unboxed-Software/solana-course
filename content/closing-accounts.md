@@ -2,22 +2,23 @@
 
 # Lesson Objectives
 
-- Learn how program accounts are closed and the benefits of closing accounts when they are no longer needed.
-- Explain the different vulnerabilities that closing program accounts incorrectly can expose a program to.
-- Use Anchor to safely and securely close program accounts.
+*By the end of this lesson, you will be able to:*
+
+- Explain the various security vulnerabilities associated with closing program accounts incorrectly
+- Close program accounts safely and securely using native Rust
+- Close program accounts safely and securely using Anchor constraints
 
 # TL;DR
 
-- When closing a program account the lamports stored in the account for rent are transferred out to another account of your choosing. Once an account is no longer rent exempt, the Solana runtime will garbage collect it effectively deleting it.
-- Closing an account creates an opportunity for reinitialization/revival attacks if not done properly.
-- The Anchor `#[account(close = <address_to_send_lamports>)]` constraint securely closes accounts by setting the account discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR`
-
-```rust
-#[account(mut, close = receiver)]
-pub data_account: Account<'info, MyData>,
-#[account(mut)]
-pub receiver: SystemAccount<'info>
-```
+- Closing an account improperly creates an opportunity for reinitialization/revival attacks
+- When closing a program account the lamports stored in the account for rent are transferred out to another account of your choosing. Once an account is no longer rent exempt, the Solana runtime will garbage collect it. This effectively deletes the account.
+- You can use the Anchor `#[account(close = <address_to_send_lamports>)]` constraint to securely close accounts and set the account discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR`
+    ```rust
+    #[account(mut, close = receiver)]
+    pub data_account: Account<'info, MyData>,
+    #[account(mut)]
+    pub receiver: SystemAccount<'info>
+    ```
 
 # Overview
 

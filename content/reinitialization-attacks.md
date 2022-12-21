@@ -2,6 +2,8 @@
 
 # Lesson Objectives
 
+*By the end of this lesson, you will be able to:*
+
 - Explain security risks associated with a reinitialization vulnerability
 - Use long-form Rust check if an account has already been initialized
 - Using Anchor’s `init` constraint to initialize accounts, which automatically sets an account discriminator that is checked to prevent the reinitialization of an account

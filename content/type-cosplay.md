@@ -2,6 +2,8 @@
 
 # Lesson Objectives
 
+*By the end of this lesson, you will be able to:*
+
 - Explain the security risks associated with not checking account types
 - Implement an account type discriminator using long-form Rust
 - Use Anchor's `init` constraint to initialize accounts
