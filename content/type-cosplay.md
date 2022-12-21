@@ -369,7 +369,7 @@ In the test file, we’ll initialize an `AdminConfig` account and a `User` accou
 describe("type-cosplay", () => {
 	...
 
-	it("Initialize type checked AdminConfig Account", async () => {
+  it("Initialize type checked AdminConfig Account", async () => {
     await programChecked.methods
       .initializeAdmin()
       .accounts({
