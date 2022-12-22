@@ -294,7 +294,14 @@ The `force_defund` instruction is an optional addition that you’ll have to imp
 
 # Demo
 
-For this lesson’s demo, we’ll take a look at a program that initializes an account at a PDA associated with a user to store some state. Then, in sequential instructions, we’ll close the account and use a potential malicious user to refund the account. Once the account has been refunded, we’ll show what happens if the attacker tries to use the account again. Lastly, we’ll show how the `force_defund` instruction works to claim the lost account back.
+For this lesson’s demo, we’ll take a look at a simple example of a lottery program. The program will have two main instructions:
+- `enter_lottery`
+- `redeem_rewards_insecure`
+
+When a user calls `enter_lottery`, the program will initialize an account to store some state about the user's lottery entry. This isn't a real lottery program, so once a user has entered the lottery by calling this instruction, they can call the `redeem_rewards_insecure` instruction at any time. This instruction will mint the user an amount of Reward tokens proportional to the amount of time the user has been in the lottery. After minting the rewards, the program closes the user's lottery entry.
+
+The point of this is that once a user claims rewards, their lottery entry should be nullified. To showcase the vulnerability that closing accounts incorrectly can expose, we've written the program so that it currently closes the account without using Anchor. The testing script takes advantage of this vulnerability by calling the `redeem_rewards_insecure` instruction and refunding the lottery account before it can be garbage collected by the runtime. Because we don't use Anchor to close the account securely, this allows the user to repeatedly call `redeem_rewards_insecure` allowing them to claim more rewards than they are owed.
+
 
 ## 1. Setup
 
@@ -304,94 +311,235 @@ Clone the [following repo](https://github.com/Unboxed-Software/solana-closing-ac
 git clone https://github.com/Unboxed-Software/solana-closing-accounts/tree/main
 ```
 
-## 2. Add Instructions
+Take a look at the program code. `enter_lottery` simply creates an account at a PDA and initializes some state on it. `redeem_rewards_insecure` performs some validation checks on all of the accounts passed in and the lottery account's data, then mints tokens to the given token account, and attempts to close the lottery account by removing its lamports.
 
-Add the following instruction code to the program.
+Notice that the `redeem_rewards_insecure` does not use the `init` constraint on the `lottery_entry` account. This means the program expects this account to already exist and will not execute if it has not been created via the `enter_lottery` instruction first. So, if the `redeem_rewards_insecure` instruction were successful in closing the lottery account, the user could not repeatedly call the redeem instruction without re-initializing the lottery account each time.
 
-```rust
-pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-    ctx.accounts.data_account.data = 1;
-    msg!("Account data initialized: {}", ctx.accounts.data_account.data);
-    Ok(())
-}
+## 2. Test Insecure Program
 
-pub fn close_acct(ctx: Context<Close>) -> Result<()> {
-    msg!("Account closed!");
-    msg!("Data account data: {}", ctx.accounts.data_account.data);
-    Ok(())
-}
+A test has already been written that showcases this vulnerability. Let's take a look at it and walk through each step.
 
-pub fn do_something(ctx: Context<Update>) -> Result<()> {
-    // update data account
-    ctx.accounts.data_account.data = 5;
-    msg!("Updated data: {}", ctx.accounts.data_account.data);
-    Ok(())
-}
+```typescript
+it("Enter lottery", async () => {
+    const [lotteryEntry, bump] = await PublicKey.findProgramAddressSync(
+      [Buffer.from("test-seed"), authority.publicKey.toBuffer()],
+      program.programId
+    )
+    const [mint, mintBump] = await PublicKey.findProgramAddressSync(
+      [Buffer.from("mint-seed")],
+      program.programId
+    )
+    mintAuth = mint
+
+    await safeAirdrop(authority.publicKey, provider.connection)
+
+    rewardMint = await createMint(
+      provider.connection,
+      authority,
+      mintAuth,
+      null,
+      6
+    )
+
+    const associatedAcct = await getOrCreateAssociatedTokenAccount(
+      provider.connection,
+      authority,
+      rewardMint,
+      authority.publicKey
+    )
+    userAta = associatedAcct.address
+
+
+    // tx to enter lottery
+    await program.methods.enterLottery()
+    .accounts({
+      lotteryEntry: lotteryEntry,
+      user: authority.publicKey,
+      userAta: userAta,
+      systemProgram: SystemProgram.programId
+    })
+    .signers([authority])
+    .rpc()
+  })
+
+  it("close + refund lottery acct to continuously claim rewards", async () => {
+
+    const [lotteryEntry, bump] = await PublicKey.findProgramAddressSync(
+      [Buffer.from("test-seed"), authority.publicKey.toBuffer()],
+      program.programId
+    )
+
+    // log rewards minted
+    let tokenAcct = await getAccount(
+      provider.connection,
+      userAta
+    )
+    console.log("User balance before reward redemption: ", tokenAcct.amount.toString())
+
+    const tx = new Transaction()
+
+    // instruction claims rewards, program will try to close account
+    tx.add(
+      await program.methods.redeemWinningsInsecure()
+      .accounts({
+        lotteryEntry: lotteryEntry,
+        user: authority.publicKey,
+        userAta: userAta,
+        rewardMint: rewardMint,
+        mintAuth: mintAuth,
+        tokenProgram: TOKEN_PROGRAM_ID
+      })
+      .instruction()
+    )
+
+    // user adds instruction to refund dataAccount lamports
+    const rentExemptLamports = await provider.connection.getMinimumBalanceForRentExemption(82, "confirmed")
+    tx.add(
+      SystemProgram.transfer({
+          fromPubkey: authority.publicKey,
+          toPubkey: lotteryEntry,
+          lamports: rentExemptLamports,
+      })
+    )
+    // tx is sent
+    const txSig = await provider.connection.sendTransaction(tx, [authority])
+    await provider.connection.confirmTransaction(txSig)
+
+    // log rewards minted
+    tokenAcct = await getAccount(
+      provider.connection,
+      userAta
+    )
+    console.log("User balance after first redemption: ", tokenAcct.amount.toString())
+
+    try {
+      // claim rewards for a 2nd time
+      await program.methods.redeemWinningsInsecure()
+        .accounts({
+          lotteryEntry: lotteryEntry,
+          user: authority.publicKey,
+          userAta: userAta,
+          rewardMint: rewardMint,
+          mintAuth: mintAuth,
+          tokenProgram: TOKEN_PROGRAM_ID
+        })
+        .signers([authority])
+        .rpc()
+    } catch (e) {
+      console.log(e.message)
+      expect(e.message).to.eq("AnchorError caused by account: lottery_entry. Error Code: AccountDiscriminatorMismatch. Error Number: 3002. Error Message: 8 byte discriminator did not match what was expected.")
+    }
+
+    tokenAcct = await getAccount(
+      provider.connection,
+      userAta
+    )
+
+    // log rewards minted
+    console.log("User balance after second redemption: ", tokenAcct.amount.toString())
+
+  })
 ```
+There is essentially 4 steps to the test:
+1. Enter the lottery by calling `enter_lottery` and initializing a `lottery_entry`
+2. Call `redeem_rewards_insecure` and redeem the user's rewards
+3. In the same transaction, add an instruction to refund the user's `lottery_entry` before it can actually be closed
+4. In a different transaction, call `redeem_rewards_insecure` again and redeem rewards for a second time.
 
-`initialize` initializes the program account and sets its data.
+You can theoretically repeat steps 2-4 infinitely until either a) there are no more rewards to redeem or b) someone notices and does something. This would obviously be a severe problem in any real program as it allows a malicious attacker to drain an entire pool.
 
-`close_acct` will close the account, we’ll implement that next using Anchor constraints.
+## 3. Create a `redeem_rewards_secure` instruction
 
-`do_something` just attempts to update the data stored in the account.
+To prevent this from happening we're going to create a new instruction that closes the lottery account seucrely by using Anchor constraints. Feel free to try this out on your own if you'd like.
 
-## 3. Add Account Structs
-
-Add the corresponding account structs for each instruction.
-
-```rust
+The new account validation struct called `RedeemWinningsSecure` should look like:
+```Rust
 #[derive(Accounts)]
-pub struct Initialize<'info> {
+pub struct RedeemWinningsSecure<'info> {
+    // program expects this account to be initialized
     #[account(
-        init,
-        payer = authority,
-        space = 8 + 8,
-        // pda associated with user
-        seeds = [DATA_PDA_SEED.as_bytes(), authority.key().as_ref()],
+        mut,
+        seeds = [DATA_PDA_SEED.as_bytes(), user.key().as_ref()],
+        bump = lottery_entry.bump,
+        has_one = user,
+        close = user
+    )]
+    pub lottery_entry: Account<'info, LotteryAccount>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    #[account(
+        mut,
+        constraint = user_ata.key() == lottery_entry.user_ata
+    )]
+    pub user_ata: Account<'info, TokenAccount>,
+    #[account(
+        mut,
+        constraint = reward_mint.key() == user_ata.mint
+    )]
+    pub reward_mint: Account<'info, Mint>,
+    ///CHECK: mint authority
+    #[account(
+        seeds = [MINT_SEED.as_bytes()],
         bump
     )]
-    pub data_account: Account<'info, DataAccount>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>
+    pub mint_auth: AccountInfo<'info>,
+    pub token_program: Program<'info, Token>
 }
+```
+It should be the exact same as the original `RedeemWinnings` account validation struct, except there is an additional `close = <account_to_receive_lamports>` constraint on the `lottery_entry` account. This will tell Anchor to close the account by zeroing out the data, transferring its lamports to the given `<account_to_receive_lamports>`, and setting the account discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR`. This last step is what will prevent the account from being used again if the program has attempted to close it already.
 
-#[derive(Accounts)]
-pub struct Close<'info> {
-    #[account(mut, close = receiver)]
-    pub data_account: Account<'info, DataAccount>,
-    pub receiver: SystemAccount<'info>
-}
+Then, we can implement the `mint_ctx` method on the new `RedeemWinningsSecure` struct to help with the CPI to the token program.
+```Rust
+impl<'info> RedeemWinningsSecure <'info> {
+    pub fn mint_ctx(&self) -> CpiContext<'_, '_, '_, 'info, MintTo<'info>> {
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = MintTo {
+            mint: self.reward_mint.to_account_info(),
+            to: self.user_ata.to_account_info(),
+            authority: self.mint_auth.to_account_info()
+        };
 
-#[derive(Accounts)]
-pub struct Update<'info> {
-    #[account(mut)]
-    pub data_account: Account<'info, DataAccount>,
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
 }
 ```
 
-We’re using the `#[account(close = <destination>])` constraint the close the `data_account`.
+Next, the logic for the new secure instruction should look like this:
+
+```rust
+    pub fn redeem_winnings_secure(ctx: Context<RedeemWinningsSecure>) -> Result<()> {
+
+        msg!("Calculating winnings");
+        let amount = ctx.accounts.lottery_entry.timestamp as u64 * 10;
+
+        msg!("Minting {} tokens in rewards", amount);
+         // program signer seeds
+        let auth_bump = *ctx.bumps.get("mint_auth").unwrap();
+        let auth_seeds = &[MINT_SEED.as_bytes(), &[auth_bump]];
+        let signer = &[&auth_seeds[..]];
+
+        // redeem rewards by minting to user
+        mint_to(ctx.accounts.mint_ctx().with_signer(signer), amount)?;
+
+        Ok(())
+    }
+```
+
+This is also the same, just without the additional logic to close the account manually.
 
 ## 4. Test the Program
 
-Take a look at the test written for this program, it’s very procedural. The test executes the following:
+To test our new secure instruction, we're just going to change the two calls to `redeemRewardsInsecure` to call `redeemRewardsSecure` instead. This way, after the `lottery_entry` account has been refunded, the new instruction should not accept it and return an error instead of allowing the attacker to drain the funds.
 
-1. Transaction initializes a `data_account` uisng the `initialize` instruction
-2. Transaction is created with two sequential instructions
-    1. ix1: Closes the `data_account` using the `close_acct` instruction
-    2. ix2: Attacker refunds the closed `data_account` preventing it from being garbage collected
-3. Test tries to fetch and deserialize the data on the refunded `data_account`, this fails because the Anchor SDK sees that the account discriminator has been changed
-4. Attacker attempts to pass the refunded account into the `do_something` instruction to potentially update the account’s data
-    1. this fails also because Anchor can tell the account discriminator is invalid
-5. Original user calls the `force_defund` instruction to claim the attacker’s lamports and attempt to close the account again
-6. Test tries to fetch the account data for `data_account` but it has been successfully closed and does not exist anymore
-
-The output from the running `anchor test` should look like this:
-
-```bash
+The output of the test should be something along these lines:
+```powershell
 closing-accounts
-Invalid account discriminator
-AnchorError caused by account: data_account. Error Code: AccountDiscriminatorMismatch. Error Number: 3002. Error Message: 8 byte discriminator did not match what was expected.
-Account does not exist J7WdJdwB723e2fuvDWPrc3xCz6mF7RSmAdKon7WnkBVf
-    ✔ Initialize and Close Data Account (2874ms)
+    ✔ Enter lottery (1643ms)
+User balance before reward redemption:  0
+User balance after first redemption:  16716840430
+AnchorError caused by account: lottery_entry. Error Code: AccountDiscriminatorMismatch. Error Number: 3002. Error Message: 8 byte discriminator did not match what was expected.
+User balance after second redemption:  16716840430
+    ✔ close + refund lottery acct to continuously claim rewards (886ms)
 ```
+
+Note, this does not prevent the malicious user from refunding their account altogether - it just protects our program from accidentally re-using the account when it should be closed. We haven't done anything with the `force_defund` instruction so far, but it's there to use to punish bad actors like this. Anyone can pass in a refunded account that has the `CLOSED_ACCOUNT_DISCRIMINATOR` set and the instruction will transfer the attackers lamports out of the account. Write a test for this instruction yourself and give it a try.
