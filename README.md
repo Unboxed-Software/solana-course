@@ -55,9 +55,9 @@ COMING SOON
 6. [Duplicate mutable accounts](./content/duplicate-mutable-accounts.md)
 7. [Type cosplay](./content/type-cosplay.md)
 8. [Arbitrary CPIs](./content/arbitrary-cpi.md)
-9. PDA sharing - COMING SOON
-10. Bump seed canonicalization - COMING SOON
-11. Closing accounts - COMING SOON
+9. [Bump seed canonicalization](./content/bump-seed-canonicalization.md)
+10. [Closing accounts and revival attacks](./content/closing-accounts.md)
+11. [PDA sharing](./content/pda-sharing.md)
 
 ## Contribute to the Course
 
