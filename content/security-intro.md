@@ -11,8 +11,8 @@ This module is meant to build on top of that lesson with two goals in mind:
 
 If you went through the Basic Security lesson, the first few lessons should seem familiar. They largely cover topics we discussed in that lesson. After that, some of the attacks may seem new. We encourage you to go through all of them.
 
-The last thing to call out is that the structure of this module is slightly different. Every lesson in this course allows you to choose whether to quickly go through the TL;DR or go through the entire lesson in-depth. As such, the lessons tend to be decently long so that readers can go deep on the material if they so choose. 
+The last thing to call out is that there are a lot more lessons in this module than in prior modules. And the lessons aren't dependent on each other in the same ways, so you can bounce around a bit more if you'd like.
 
-In this module, lessons are much shorter but there are more of them. And within each lesson, there is less prose and more code snippets. We’re hoping this makes it easy for you to skim all of them and really dive into the code on the ones that you don’t fully understand afterward.
+Originally, we were going to have more, shorter lessons in this module. And while they might be shorter than average, they aren't much shorter. It turns out that even though each of the security vulnerabilities is "simple," there's a lot to discuss. So each lesson may have a little bit less prose and more code snippets, making it easy for readers to choose how in depth to go. But, ultimately, each lesson is still as fully-fledged as they have been before so that you can really get a solid grasp on each of the discussed security risks.
 
 As always, we appreciate feedback. Good luck digging in!
