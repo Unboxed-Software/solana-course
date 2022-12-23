@@ -11,7 +11,7 @@
 # TL;DR
 
 - Closing an account improperly creates an opportunity for reinitialization/revival attacks
-- When closing a program account the lamports stored in the account for rent are transferred out to another account of your choosing. Once an account is no longer rent exempt, the Solana runtime will garbage collect it. This effectively deletes the account.
+- When closing a program account, the lamports stored in the account for rent are transferred out to another account of your choosing. Once an account is no longer rent exempt, the Solana runtime will garbage collect it. This effectively deletes the account.
 - You can use the Anchor `#[account(close = <address_to_send_lamports>)]` constraint to securely close accounts and set the account discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR`
     ```rust
     #[account(mut, close = receiver)]
@@ -24,7 +24,7 @@
 
 Account closing is done by transferring lamports out of a program owned account to trigger the runtime to garbage collect it, resetting the owner from the program to the system program immediately after the transaction completes successfully. The garbage collection doesn’t occur until the entire transaction completes. This creates an opportunity for a subsequent instruction within that same transaction to refund the closed account with lamports for rent. In so doing, the second instruction effectively cancels out the first instruction that closed the account because the account will not be garbage collected.
 
-To combat this, you can zero out the data stored on an account before transferring its lamports so that it can’t be used again. Now, even if a subsequent instruction were to refund the account, there’s no data stored on the account so it’s effectively useless. This is not entirely true, there are many different program architectures that require a 1-to-1 mapping of program accounts to users (like associated token accounts). This scenario would break that rule and could create potential issues if a program expected an account to not exist when, in fact, it did. Not only that, but even zeroing out the account does not prevent someone from re-initializing the account with different data.
+To combat this, you can zero out the data stored on an account before transferring its lamports. Now, even if a subsequent instruction were to refund the account, there’s no data stored on the account so it’s effectively useless. This is not entirely true, there are many different program architectures where just the existence of an account can be manipulated in a malicious way.
 
 To get a better understanding of these attack vectors, let’s explore each of these scenarios in depth.
 
@@ -81,9 +81,9 @@ Because the garbage collection does not take place until the entire transaction 
 
 ## Zeroing Out Account Data
 
-Instead of just transferring an account’s lamports, one can also zero out the account data to prevent the account data from being used/accessed by your program again. This is a roundabout solution, as it does not ensure that the account is actually deleted. The opportunity to refund a closed account within the same transaction is still there, this method is just meant to try to limit what that account can be used for if it is refunded.
+Instead of just transferring an account’s lamports, one can also zero out the account data to prevent the account data from being used/accessed by your program again. The opportunity to refund a closed account within the same transaction is still there, this method is just meant to try to limit what that account can be used for if it is refunded.
 
-At first glance, this seems like it could be a viable option even if it does not directly resolve the issue at hand. Upon further inspection, though, it doesn’t hold up. After an account has been refunded, even if the data is removed, one can simply re-initialize the same account with new data.
+At first glance, this seems like it could be a viable option even if it does not directly resolve the issue at hand. Upon further inspection, though, it doesn’t hold up. After an account has been refunded, even if the data is removed, one can simply re-initialize the same account with new data. In addition, if a program relies on the existence of an account being a source of proof of something, then this can be manipulated by a malicious user to "prove" to the program this account exists when it should have actually been deleted.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -189,9 +189,9 @@ pub struct Data {
 }
 ```
 
-This program transfers an account’s lamports allocated for rent, zeroes out its data, and then sets the account discriminator to the  `CLOSED_ACCOUNT_DISCRIMINATOR`.
+This program transfers an account’s lamports allocated for rent, zeroes out its data, and then sets the account discriminator to the  `CLOSED_ACCOUNT_DISCRIMINATOR`. The discriminator will also protect our program from being spoofed into thinking this account is still a valid proof of something. Anchor programs will return an error and reject any instructions containing an account with the `CLOSED_ACCOUNT_DISCRIMINATOR` set.
 
-However, this still does not completely solve our problem. A malicious user could still refund a closed account in the same transaction that it was closed in, meaning that the runtime would not garbage collect it and the account would still exist. Although the new discriminator would prevent the malicious user from re-initializing the account data, the original user would most likely lose access to this account for good - essentially leaving the account in limbo. This could be very bad in any scenario where a program’s design is centered around the idea of PDA accounts being associated with users. If something like this were to happen on a program with this design, this would effectively mean that the user could no longer use the contract with a previously used wallet.
+However, this still does not completely solve our problem. A malicious user could still refund a closed account in the same transaction that it was closed in, meaning that the runtime would not garbage collect it and the account would still exist. Although the new discriminator would prevent the malicious user from re-using the refunded account, the account has now entered a limbo state since it's funded with lamports but essentially can't be used again given the account discriminator.
 
 ## Manual Force Defund
 
@@ -271,9 +271,9 @@ pub struct Data {
 }
 ```
 
-The purpose of the `force_defund` instruction is to essentially reclaim accounts that have been cast off into limbo by an attempted revival attack. Let’s say we close an account by transferring its lamports, zeroing out the account data, and setting the tombstone discriminant. Suppose, in a subsequent instruction within that same transaction, someone refunds the closed account with enough lamports to remain rent exempt - the account will not be garbage collected and it has now entered that limbo state where it can’t really be used for anything again.
+The purpose of the `force_defund` instruction is to essentially reclaim accounts that have been cast off into limbo by an attempted revival attack. Let’s say a user submits an instruction that closes an account by transferring its lamports, zeroing out the account data, and setting the tombstone discriminant. Suppose, in a subsequent instruction within that same transaction, the user refunds the closed account with enough lamports to remain rent exempt - the account will not be garbage collected and it has now entered that limbo state where it can’t really be used for anything again.
 
-Instead of throwing in the towel and forcing the user to interact with the contract with a different wallet, the lost account can be passed into this `force_defund` instruction. The instruction takes two `AccountInfo` types as input, so it doesn’t automatically reject an account with the tombstone discriminator (like the account currently stuck in limbo).  The logic of the instruction actually verifies the discriminator is set to the `CLOSED_ACCOUNT_DISCRIMINATOR` and attempts to close the account again by transferring its lamports to another account. Clearly, someone could backrun this instruction and refund the account *again* in the same transaction, but this would not be economically viable for the attacker to continue. Continuously refunding the account would be akin to just throwing money down the drain in this scenario because all of the lamports the attacker would be using to refund the closed account would be siphoned off to another user once `force_defund` is called.
+Anyone can pass the refunded account into the `force_defund` instruction. The instruction takes two `AccountInfo` types as input, so it doesn’t automatically reject an account with the tombstone discriminator (like the account currently stuck in limbo).  The logic of the instruction actually verifies the discriminator is set to the `CLOSED_ACCOUNT_DISCRIMINATOR` and attempts to close the account again by transferring its lamports to another account. Since anyone can call this instruction, this can act as a deterrent to this type of attack because it essentially allows anyone to claim the lamports in a refunded account for themselves! This instruction will only defund accounts with the `CLOSED_ACCOUNT_DISCRIMINATOR`.
 
 ### Using the `#[account(close = <target_account>)]` constraint
 
@@ -313,7 +313,7 @@ git clone https://github.com/Unboxed-Software/solana-closing-accounts/tree/main
 
 Take a look at the program code. `enter_lottery` simply creates an account at a PDA and initializes some state on it. `redeem_rewards_insecure` performs some validation checks on all of the accounts passed in and the lottery account's data, then mints tokens to the given token account, and attempts to close the lottery account by removing its lamports.
 
-Notice that the `redeem_rewards_insecure` does not use the `init` constraint on the `lottery_entry` account. This means the program expects this account to already exist and will not execute if it has not been created via the `enter_lottery` instruction first. So, if the `redeem_rewards_insecure` instruction were successful in closing the lottery account, the user could not repeatedly call the redeem instruction without re-initializing the lottery account each time.
+Notice that the `redeem_rewards_insecure` instruction does not use the `init` constraint on the `lottery_entry` account. This means the program expects this account to already exist and will not execute if it has not been created via the `enter_lottery` instruction first. So, if the `redeem_rewards_insecure` instruction were successful in closing the lottery account, the user would not be able to repeatedly call the redeem instruction without first re-initializing the lottery account each time.
 
 ## 2. Test Insecure Program
 
@@ -441,10 +441,10 @@ it("Enter lottery", async () => {
   })
 ```
 There is essentially 4 steps to the test:
-1. Enter the lottery by calling `enter_lottery` and initializing a `lottery_entry`
+1. Enter the lottery by calling `enter_lottery` and initializing a `lottery_entry` account
 2. Call `redeem_rewards_insecure` and redeem the user's rewards
 3. In the same transaction, add an instruction to refund the user's `lottery_entry` before it can actually be closed
-4. In a different transaction, call `redeem_rewards_insecure` again and redeem rewards for a second time.
+4. In a different transaction, call `redeem_rewards_insecure` again and redeem rewards for a second time
 
 You can theoretically repeat steps 2-4 infinitely until either a) there are no more rewards to redeem or b) someone notices and does something. This would obviously be a severe problem in any real program as it allows a malicious attacker to drain an entire pool.
 
@@ -529,7 +529,7 @@ This is also the same, just without the additional logic to close the account ma
 
 ## 4. Test the Program
 
-To test our new secure instruction, we're just going to change the two calls to `redeemRewardsInsecure` to call `redeemRewardsSecure` instead. This way, after the `lottery_entry` account has been refunded, the new instruction should not accept it and return an error instead of allowing the attacker to drain the funds.
+To test our new secure instruction, we're just going to change the two calls to `redeemWinningsInsecure` to call `redeemWinningsSecure` instead. This way, after the `lottery_entry` account has been refunded, the new instruction should not accept it and return an error instead of allowing the attacker to drain the funds.
 
 The output of the test should be something along these lines:
 ```powershell
