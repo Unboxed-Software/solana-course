@@ -57,7 +57,7 @@ COMING SOON
 8. [Arbitrary CPIs](./content/arbitrary-cpi.md)
 9. [Bump seed canonicalization](./content/bump-seed-canonicalization.md)
 10. [Closing accounts and revival attacks](./content/closing-accounts.md)
-11. PDA sharing - COMING SOON
+11. [PDA sharing](./content/pda-sharing.md)
 
 ## Contribute to the Course
 
