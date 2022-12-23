@@ -16,7 +16,7 @@
 
 # Overview
 
-A cross program invocation (CPI) is when one program invokes an instruction on another program. An “arbitrary CPI” is when a program is structured to issues a CPI to whatever program is passed into the instruction rather than expecting to perform a CPI to one specific program. Given that the callers of your program's instruction can pass any program they'd like into the instruction's list of accounts, failing to verify the address of a passed-in program results in your program performing CPIs to arbitrary programs.
+A cross program invocation (CPI) is when one program invokes an instruction on another program. An “arbitrary CPI” is when a program is structured to issue a CPI to whatever program is passed into the instruction rather than expecting to perform a CPI to one specific program. Given that the callers of your program's instruction can pass any program they'd like into the instruction's list of accounts, failing to verify the address of a passed-in program results in your program performing CPIs to arbitrary programs.
 
 This lack of program checks creates an opportunity for a malicious user to pass in a different program than expected, causing the original program to call an instruction on this mystery program. There’s no telling what the consequences of this CPI could be. It depends on the program logic (both that of the original program and the unexpected program), as well as what other accounts are passed into the original instruction.
 
@@ -157,7 +157,7 @@ use other_program::program::OtherProgram;
 
 # Demo
 
-To show the importance of checking with program you use for CPIs, we're going to work with a simplified and somewhat contrived game. This game represents characters with PDA accounts, and uses a separate "metadata" program to manage character metadata and attributes like halth and power.
+To show the importance of checking with program you use for CPIs, we're going to work with a simplified and somewhat contrived game. This game represents characters with PDA accounts, and uses a separate "metadata" program to manage character metadata and attributes like health and power.
 
 While this example is somewhat contrived, it's actually almost identical architecture to how NFTs on Solana work: the SPL Token Program manages the token mints, distribution, and transfers, and a separate metadata program is used to assign metadata to tokens. So the vulnerability we go through here could also be applied to real tokens.
 
@@ -178,7 +178,7 @@ The first program, `gameplay`, is the one that our test directly uses. Take a lo
 1. `create_character_insecure` - creates a new character and CPI's into the metadata program to set up the character's initial attributes
 2. `battle_insecure` - pits two characters against each other, assigning a "win" to the character with the highest attributes
 
-The second program, `character-metadata`, is meant to be the "approved" program for handling character metadata. Have a look at this program. It has a single instruction for `create_metadata` that creates a new PDA and assigns a pseudo-random value between 0 and 20 to for the character's health and power.
+The second program, `character-metadata`, is meant to be the "approved" program for handling character metadata. Have a look at this program. It has a single instruction for `create_metadata` that creates a new PDA and assigns a pseudo-random value between 0 and 20 for the character's health and power.
 
 The last program, `fake-metadata` is a "fake" metadata program meant to illustrate what an attacker might make to exploit our `gameplay` program. This program is almost identical to the `character-metadata` program, only it assigns a character's initial health and power to be the max allowed: 255.
 
@@ -239,7 +239,7 @@ it("Insecure instructions allow attacker to win every time", async () => {
 })
 ```
 
-This test effectively walks through the scenario where a regular play and an attacker both create their characters. Only the attacker passes in the program ID of the fake metadata program rather than the actual metadata program. And since the `create_character_insecure` instruction has no program checks, it still executes. 
+This test effectively walks through the scenario where a regular player and an attacker both create their characters. Only the attacker passes in the program ID of the fake metadata program rather than the actual metadata program. And since the `create_character_insecure` instruction has no program checks, it still executes.
 
 The result is that the regular character has the appropriate amount of health and power: each a value between 0 and 20. But the attacker's health and power are each 255, making the attacker unbeatable.
 
@@ -255,8 +255,8 @@ We'll start by updating our `use` statement at the top of the `gameplay` program
 
 ```rust
 use character_metadata::{
-    cpi::accounts::CreateMetadata, 
-    cpi::create_metadata, 
+    cpi::accounts::CreateMetadata,
+    cpi::create_metadata,
     program::CharacterMetadata,
 };
 ```
