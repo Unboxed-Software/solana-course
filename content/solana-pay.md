@@ -5,7 +5,7 @@
 _By the end of this lesson, you will be able to:_
 
 -   Use the Solana Pay specification to build payment requests and initiate transactions using URLs encoded as QR codes
--   Use the `@solana/pay` library to help with the creation of Solana Pay payment requests
+-   Use the `@solana/pay` library to help with the creation of Solana Pay transaction requests
 -   Partially sign transactions and implement transaction gating based on certain conditions
 
 # TL;DR
@@ -154,7 +154,7 @@ async function post(
 
 When the wallet makes a POST request to the API endpoint, this function checks that the request body contains an `account` field and the request query contains a `reference` field. If either of these fields is missing, it sends an error response. If both fields are present, it calls the `buildTransaction` helper function with the `account` and `reference` as arguments.
 
-In each transaction, a unique `reference` is generated and added. This `reference` is a public key used to confirm the transaction after it has been sent by the user. Since the transaction request is built in advance and sent later by a wallet, the application does not receive a transaction signature to confirm that it has been sent. To determine if a transaction has been sent and confirmed by the network, the application checks for the presence of a transaction with the added `reference`.
+For each transaction, a unique `reference` is generated and added to the transaction. This `reference` is a public key used to confirm the transaction after it has been sent by the user. Since the transaction request is built in advance and sent later by a wallet, the application does not receive a transaction signature to confirm that it has been sent. To determine if a transaction has been sent and confirmed by the network, the application checks for the presence of a transaction with the added `reference`.
 
 When creating a custom transaction, the client can provide any additional information needed to construct the transaction as part of the request query parameters.
 
@@ -291,7 +291,7 @@ useEffect(() => {
 
 ### Confirm transaction
 
-Use a `checkTransaction` helper function to check if a transaction that includes the given `reference` public key has been confirmed on the Solana network using the `findReference` function from `@solana/pay`, which sends a request to the Solana network and looks for a transaction that includes the `reference` public key. If such a transaction is found, the function generates a new `reference` public key using the `Keypair.generate` function and displays an alert to the user.
+To check if a transaction has been confirmed on the Solana network, you can implement a `checkTransaction` helper function. This function uses the `findReference` function from the `@solana/pay` library to send a request to the Solana network and search for a transaction that includes the specified `reference` public key. If the transaction is found, the function will generate a new reference public key using the `Keypair.generate` function and display an alert to the user.
 
 The `useEffect` hook is used to set up an interval to continuously call the `checkTransaction` function every 1.5 seconds. When the component unmounts, the interval is cleared using the `clearInterval` function. This allows the component to continually check for confirmed transactions and display an alert to the user if one is found.
 
@@ -337,10 +337,7 @@ The public key provided in the request body can be used to perform any additiona
 
 ```tsx
 // retrieve array of nfts owned by the given wallet
-const nfts = await metaplex
-    .nfts()
-    .findAllByOwner({ owner: wallet.publicKey })
-    .run();
+const nfts = await metaplex.nfts().findAllByOwner({ owner: account }).run();
 
 // iterate over the nfts array
 for (let i = 0; i < nfts.length; i++) {
@@ -376,13 +373,11 @@ const transaction = new Transaction({
 transaction.partialSign(Keypair)
 ```
 
-The `partialSign` function is used to add a signature to a transaction without overriding any previous signatures on the transaction. Note that the `partialSign` function is not available in the newer `VersionedTransaction`, which only has a `sign` function.
-
-If you are building a transaction with multiple signers, it is important to remember that if you don't specify a Transaction `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
+The `partialSign` function is used to add a signature to a transaction without overriding any previous signatures on the transaction. If you are building a transaction with multiple signers, it is important to remember that if you don't specify a Transaction `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
 
 # Demo
 
-For this demonstration, we will use Solana Pay to generate a series of QR codes for a scavenger hunt in which participants must visit specific locations in a particular order.
+For this demo, we will use Solana Pay to generate a series of QR codes for a scavenger hunt in which participants must visit specific locations in a particular order.
 
 ### 1. Starter
 
@@ -478,7 +473,7 @@ Forwarding                    https://7761-24-28-107-82.ngrok.io -> http://local
 
 Next, rename the `.env.example` file in the frontend directory to `.env`. This file contains a keypair that will be used in this demo to partially sign transactions.
 
-Then run `yarn dev` and open the forwarding URL in your web browser. From the reference above it would be (yours will be different):
+In a separate terminal, run `yarn dev` and open the forwarding URL in your web browser. From the reference above it would be (yours will be different):
 
 ```bash
 https://7761-24-28-107-82.ngrok.io
@@ -486,7 +481,7 @@ https://7761-24-28-107-82.ngrok.io
 
 This will allow you to use Solana Pay while testing locally.
 
-On your mobile device, download the Solflare wallet if you haven't already. This demo works best with Solflare (the Phantom wallet will display a warning message when scanning a Solana Pay QR code). Once Solflare is set up, switch to the devnet network and scan the QR code on the home page labeled “SOL Transfer”. This QR code is a reference implementation for a transaction request that performs a simple SOL transfer and also calls the `requestAirdrop` function to fund the mobile wallet with devnet SOL.
+On your mobile device, download the Solflare wallet if you haven't already. This demo works best with Solflare (Phantom wallet will display a warning message when scanning a Solana Pay QR code). Once Solflare is set up, switch to devnet in the wallet and scan the QR code on the home page labeled “SOL Transfer”. This QR code is a reference implementation for a transaction request that performs a simple SOL transfer and also calls the `requestAirdrop` function to fund the mobile wallet with devnet SOL.
 
 ### 3. Location check-in API
 
@@ -564,7 +559,7 @@ async function post(
 ) {}
 ```
 
-### 4. `get` function
+### 4. Update `get` function
 
 Next, update the `get` function for handling GET requests. When it is called, it sends a response with a "Scavenger Hunt!" label and a Solana logo icon.
 
@@ -579,7 +574,7 @@ function get(res: NextApiResponse<GetResponse>) {
 }
 ```
 
-### 5. `post` function
+### 5. Update `post` function
 
 Next, update the `post` function for handling POST requests. This function gets the `account` from the request body and the `reference` and `id` parameters from the request query string. If any of these required parameters are missing, it returns an error message.
 
@@ -620,7 +615,7 @@ async function post(
 }
 ```
 
-### 6. `buildTransaction` function
+### 6. Implement `buildTransaction` function
 
 Next, let’s implement the `buildTransaction` function which builds and partially signs a check-in transaction for the scavenger hunt game. This function:
 
@@ -705,7 +700,7 @@ async function buildTransaction(
 
 ```
 
-### 7. `fetchOrInitializeUserState` function
+### 7. Implement `fetchOrInitializeUserState` function
 
 Next, let’s implement the `fetchOrInitializeUserState` helper function. This function fetches an account's user state for the scavenger hunt game, or adds an instruction to initialize the account if it doesn't exist.
 
@@ -735,7 +730,7 @@ async function fetchOrInitializeUserState(
 }
 ```
 
-### 8. `verifyCorrectLocation` function
+### 8. Implement `verifyCorrectLocation` function
 
 Next, let’s implement the `verifyCorrectLocation` helper function. This function is used to verify that a user is at the correct location in a scavenger hunt game.
 
@@ -788,9 +783,11 @@ function verifyCorrectLocation(
 
 ### 9. Scan QR Code
 
-To test the demo for creating a scavenger hunt using Solana Pay, use your Solflare wallet to scan the QR code on the 'location 1' page. Make sure the frontend is running and open from the ngrok URL. After scanning the QR code, you should see a message indicating that you have arrived at location 1.
+To test the demo for creating a scavenger hunt using Solana Pay, use your Solflare wallet to scan the QR code on the 'location 1' page. Make sure the frontend is running and open from the ngrok URL. After scanning the QR code, you should see a message indicating that you are at location 1.
 
-Next, scan the QR code on the 'location 2' page. You may need to wait a few seconds for the previous transaction to be completed before continuing. Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay!
+Next, scan the QR code on the 'location 2' page. You may need to wait a few seconds for the previous transaction to finalize before continuing. Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay!
+
+If you want to take a look at the final solution code you can find it on the solution branch of [the same repository](https://github.com/ZYJLiu/anchor-solana-pay-demo/tree/solution).
 
 # Challenge
 
