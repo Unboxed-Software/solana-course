@@ -4,35 +4,30 @@
 
 _By the end of this lesson, you will be able to:_
 
--   Describe the composability of Solana transactions and how it can be leveraged using Solana Pay
--   Explain the Solana Pay specification for building transaction requests
--   Use the Solana Pay specification to build transaction requests with instructions from an Anchor program
--   Using a server to build and partially sign transaction requests
--   Implement gating for certain transactions based on certain conditions
+-   Use the Solana Pay specification to build payment requests and initiate transactions using URLs encoded as QR codes
+-   Use the `@solana/pay` library to help with the creation of Solana Pay payment requests
+-   Partially sign transactions and implement transaction gating based on certain conditions
 
 # TL;DR
 
--   Composability of Solana transactions allows for the ability to combine multiple instructions from various programs in a single transaction
--   **Solana Pay** is a specification for encoding Solana transaction requests withing URLs
+-   **Solana Pay** is a specification for encoding Solana transaction requests within URLs, enabling standardized transaction requests across different Solana apps and wallets
+-   **Partial signing** of transactions allows for the creation of transactions that require multiple signatures before they are submitted to the network
+-   **Transaction gating** involves implementing rules that determine whether certain transactions are allowed to be processed or not, based on certain conditions or the presence of specific data in the transaction
 
 # Overview
 
-Client-side development is a key aspect of creating Solana apps that provide a great user experience. Solana's composable instructions allow developers to construct complex transactions using instructions from various programs.
-
-In this lesson, we will explore how developers can use the Solana Pay specification to creatively incorporate unique features into their app through client-side development. The Solana Pay specification enables the encoding of transactions in URLs for various use cases, allowing developers to leverage the composability of transactions in innovative ways.
+In this lesson, you will learn how to create transaction requests with the Solana Pay specification and how to encode the request as a QR code. You will also be introduced to partial transaction signing and transaction gating, which allows you to set rules for processing transactions based on specific conditions. The overview and demonstration will show you how to do this using Nextjs.
 
 ## Solana Pay
 
-reference - [https://github.com/ZYJLiu/solana-pay-basic-setup](https://github.com/ZYJLiu/anchor-solana-pay-demo)
-
-Solana Pay is a set of standards that enables users to request payments and execute transactions using URLs in a consistent manner across various Solana apps and wallets.
+The Solana Pay specification is a set standards that allow users to request payments and initiate transactions using URLs in a uniform way across various Solana apps and wallets.
 
 There are two types of requests defined by the Solana Pay specification:
 
-1. Transfer Request: used for non-interactive SOL or SPL Token transfers.
-2. Transaction Request: used for interactive requests for any type of Solana transaction.
+1. Transfer Request: used for simple SOL or SPL Token transfers.
+2. Transaction Request: used to requests any type of Solana transaction.
 
-In this lesson, we will focus on the Transaction Request, which enables developers to build a wide range of transactions.
+In this lesson, we will focus on Transaction Requests which enables developers to build a wide range of transactions.
 
 ### Solana Pay transaction request
 
@@ -41,13 +36,15 @@ The Solana Pay transaction request allows a wallet to request and execute any ty
 When a wallet receives a Transaction Request URL:
 
 -   The wallet sends a GET request to the URL to retrieve a label and icon image to display to the user.
--   The wallet then sends a POST request with the public key of the account that will sign the transaction.
--   The application responds with a base64-encoded serialized transaction.
--   The wallet decodes and deserializes the transaction, signs it with the provided account, and submits it to the Solana network.
+-   The wallet then sends a POST request with the public key of the account.
+-   The application then builds a transaction and responds with a base64-encoded serialized transaction.
+-   The wallet decodes and deserializes the transaction, signs it and submits it to the Solana network.
 
-### Define API responses
+### Define API request and response
 
-To set up an API for a Solana Pay transaction request, the first step is to define the possible responses of the API endpoint and the request body for the POST request.
+To set up an API for a Solana Pay transaction request, you first need to define the information that will be sent in the request and received in the response.
+
+Here is an example of how this can be done:
 
 ```jsx
 type InputData = {
@@ -59,29 +56,29 @@ type GetResponse = {
   icon: string
 }
 
-export type PostResponse = {
+type PostResponse = {
   transaction: string
   message: string
 }
 
-export type PostError = {
+type PostError = {
   error: string
 }
 ```
 
-InputData is an object that represents the request body for the POST request. It has a single field called "account", which is a string representing the public key returned by the wallet scanning a QR code.
+The `InputData` type represents the information that will be sent in a request. It includes an `account` field, which is a string containing a public key. This public key is returned by a wallet when interacting with the transaction request, such as scanning a QR code
 
-GetResponse is an object that represents the response to the GET request. It has two fields: "label", a string describing the source of the transaction request, and "icon", a string representing an absolute HTTP or HTTPS URL of an icon image.
+The `GetResponse` type represents the information that will be received in a response to a GET request. It includes a `label` field, which describes the source of the transaction request (ex. name of a store), and an `icon` field, which is a URL for an image.
 
-PostResponse is an object that represents the response to the POST request. It has two fields: "transaction", a string representing a base64-encoded serialized transaction, and "message", a string containing any additional information about the transaction.
+The `PostResponse` type represents the information that will be received in a response to a POST request. It includes a `transaction` field, which is a string containing an encoded transaction, and a `message` field, which provides additional information about the transaction.
 
-PostError is an object that represents the response to the POST request when an error occurs. It has a single field called "error", which is a string containing an error message.
+The `PostError` type represents the information that will be received in a response when there is an error in a POST request. It includes an `error` field, which is a string containing an error message.
 
 ### Define API endpoint
 
-To set up an API endpoint for a Solana Pay transaction request, you need to define a function that handles requests from a wallet. This function will have two parameters: a request object and a response object. The request object contains information about the request made by the wallet, such as the HTTP method (GET or POST) and the request body (for POST requests). The response object is used to send a response back to the wallet.
+Next, you need to create a function that can handle requests made by a wallet. This function has two parameters: a request object and a response object. The request object includes information about the request made by the wallet, such as the type of request (GET or POST) and any data included in the request (for POST requests). The response object is used to send a response back to the wallet.
 
-The API endpoint function will check the HTTP method of the request. If it is a GET request, it will call a separate function called **`get`** to handle the request and send a response containing a label and icon image. If it is a POST request, it will call another function called **`post`** to handle the request and send a response with a base64-encoded serialized transaction.
+Here is an example of how the API endpoint function could be defined:
 
 ```jsx
 // API endpoint
@@ -99,16 +96,15 @@ export default async function handler(
 }
 ```
 
+This `handler` function is the API endpoint that handles GET and POST requests.
+
 ### GET requests
 
-To handle GET requests to the API endpoint, define a function called **`get`** which takes in a **`NextApiResponse`** object and returns a JSON object with two fields: "label" and "icon".
+The `get` function is used to handle GET requests to the API endpoint. It returns a JSON object with two fields: `label` and `icon`. The `label` field is a string that describes the source of the transaction request and the `icon` field is a URL to an image
 
-The "label" field is a string that describes the source of the transaction request, and the "icon" field is a string representing an absolute URL of an image file.
-
-When the wallet makes a GET request to the API endpoint, this function is called and sends a response with a 200 status code and the JSON object containing the label and icon to be displayed to the user.
+Here is an example of how the `get` function could be defined:
 
 ```jsx
-// "res" is Text and Image that displays when wallet first scans
 function get(res: NextApiResponse<GetResponse>) {
     res.status(200).json({
         label: "Store Name",
@@ -117,15 +113,13 @@ function get(res: NextApiResponse<GetResponse>) {
 }
 ```
 
+When the wallet makes a GET request to the API endpoint, this function is called and sends a response with a status code of 200 and the JSON object containing the `label` and `icon` to be displayed to the user.
+
 ### POST requests
 
-To set up the function that handles POST requests to the API endpoint, you need to define a function called **`post`**. This function takes in two parameters: a **`NextApiRequest`** object and a **`NextApiResponse`** object. It returns a JSON object with either a "transaction" field or an "error" field.
+The `post` function is used to handle POST requests to the API endpoint. It takes in two parameters: a request object and a response object.
 
-The function starts by destructuring the "account" field from the request body and storing it in a constant called "account". This "account" field represents the public key of the wallet that is interacting with the transaction request.
-
-The function then destructures the "reference" field from the query string and stores it in a constant called "reference". This "reference" field is a random public key that is generated to uniquely identify each transaction.
-
-After destructuring these fields, the function calls an async helper function called **`buildTransaction`** with "account" and "reference" as arguments. This helper function is responsible for building the transaction using the provided account and reference. We'll discuss this helper function in more detail in the next step.
+Here is an example of how the `post` function could be defined:
 
 ```jsx
 async function post(
@@ -158,16 +152,21 @@ async function post(
 }
 ```
 
+When the wallet makes a POST request to the API endpoint, this function checks that the request body contains an `account` field and the request query contains a `reference` field. If either of these fields is missing, it sends an error response. If both fields are present, it calls the `buildTransaction` helper function with the `account` and `reference` as arguments.
+
+In each transaction, a unique `reference` is generated and added. This `reference` is a public key used to confirm the transaction after it has been sent by the user. Since the transaction request is built in advance and sent later by a wallet, the application does not receive a transaction signature to confirm that it has been sent. To determine if a transaction has been sent and confirmed by the network, the application checks for the presence of a transaction with the added `reference`.
+
+When creating a custom transaction, the client can provide any additional information needed to construct the transaction as part of the request query parameters.
+
 ### Build transaction
 
-The **`buildTransaction`** function creates a Solana transaction using the provided **`account`** and **`reference`** public keys. It does this by:
+You can use a `buildTransaction` helper function creates a Solana transaction using the provided `account` and `reference` public keys.
 
--   Connecting to the Solana network and getting the latest blockhash.
--   Creating a new transaction using the blockhash.
--   Adding instructions to the transaction, including the **`reference`** public key as a non-signer key to uniquely identify the transaction.
--   Serializing the transaction and returning it in a **`PostResponse`** object along with a message for the user.
-
-This function is responsible for constructing and returning a Solana transaction as a **`PostResponse`**. It follows the usual process for building a Solana transaction.
+-   Connect to the Solana network and getting the latest `blockhash`.
+-   Create a new transaction using the `blockhash`.
+-   Add instructions to the transaction
+-   Add the `reference` public key as a non-signer key to uniquely identify the transaction.
+-   Serialize the transaction and returning it in a `PostResponse` object along with a message for the user.
 
 ```jsx
 // build the transaction
@@ -212,64 +211,18 @@ async function buildTransaction(
 }
 ```
 
-### Gated transactions
+This function is responsible for constructing and returning a Solana transaction as a `PostResponse`. It follows the usual process for building a Solana transaction.
 
-The public key provided in the request body can be used to perform any necessary checks. For example, you could use this key to determine if the account owns a specific NFT from a particular collection, or if it is on a predetermined white list of accounts. This information can be used to gate transactions, allowing only certain accounts to perform certain actions.
+### QR code setup
 
-### Partial Signing
+Once you have the API endpoint set up, you can use it to generate a QR code in your frontend component.
 
-Partially signing a multi-signature transaction allows signers to add their signature before the transaction is broadcast on the network.
-
-This can be useful in the following situations:
-
--   Approving transactions that require the signature of multiple parties, such as a merchant and a buyer who need to confirm the details of a payment.
--   Invoking custom programs that require the signatures of both a user and an administrator. This can help to limit access to the program instructions and ensure that only authorized parties can execute them.
-
-Partially signing a transaction can be a useful way to manage the process of completing a multi-signature transaction, as it allows different parties to contribute their signatures as needed.
-
-```jsx
-const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash()
-
-const transaction = new Transaction({
-  feePayer: account,
-  blockhash,
-  lastValidBlockHeight,
-})
-
-...
-
-transaction.partialSign(Keypair)
-```
-
-If you are building a transaction with multiple signers, it is important to remember that if you don't specify a Transaction `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
-
-### Create Solana Pay transaction request encoded QR code
-
-To generate a QR code for a Solana Pay Transaction Request:
-
-Use the Solana Pay API
-
-In your component:
-
--   Generate a new keypair to use as the reference public key for the transaction
+-   Generate a new `reference` public key that is used to identify a transaction
 -   Establish a connection to a Solana cluster
--   Create a reference to a div element to store the QR code
--   Return the div element with the qrRef reference
-
-Note: A new reference is generated each time a new transaction is created. The reference public key is added to the transaction to uniquely identify it.
+-   Create a reference to a container element to store the QR code.
+-   Return the container element with the QR code reference.
 
 ```jsx
-import {
-  createQR,
-  encodeURL,
-  findReference,
-  FindReferenceError,
-  TransactionRequestURLFields,
-} from "@solana/pay"
-import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js"
-import { useEffect, useRef, useState } from "react"
-
 export default function Home() {
   const [reference, setReference] = useState(Keypair.generate().publicKey)
   const connection = new Connection(clusterApiUrl("devnet"))
@@ -281,16 +234,18 @@ export default function Home() {
 }
 ```
 
-### Create Solana Pay transaction request encoded QR code
+Note that a new `reference` is generated for each transaction and added to the transaction to uniquely identify it.
 
-The **`updateQRCode`** function generates a QR code for a Solana Pay Transaction Request. It does this by:
+### Solana Pay transaction request QR code
 
--   Getting the current URL of the webpage and creating a **`URLSearchParams`** object to store query parameters
--   Appending the provided **`reference`** public key as a query parameter to the search parameters and adding it to the end of the API URL
--   Creating a **`TransactionRequestURLFields`** object with the API URL as the **`link`** field and using the **`encodeURL`** function to encode it into a Solana Pay URL
--   Using the **`createQR`** function to create a QR code from the Solana Pay URL
+Next, generate a QR code for a Solana Pay Transaction Request using the `encodeURL` and `createQR` functions, and `TransactionRequestURLFields` interface are from `@solana/pay`.
 
-The **`useEffect`** hook updates the QR code every time the **`reference`** public key changes by calling the **`updateQRCode`** function and passing in the **`reference`** public key as an argument. The QR code is then set on the **`qrRef`** element by clearing its inner HTML and appending the new QR code to it.
+-   Obtain the current URL of the webpage and create a `URLSearchParams` object to store query parameters.
+-   Append the provided `reference` public key as a query parameter to the search parameters and add it to the end of the API URL.
+-   Create a `TransactionRequestURLFields` object with the API URL as the `link` field and use the `encodeURL` function to encode it into a Solana Pay URL.
+-   Use the `createQR` function to create a QR code from the Solana Pay URL.
+
+Use the `useEffect` hook to updates the QR code every time the `reference` public key changes by calling the `updateQRCode` function and passing in the `reference` public key as an argument. The QR code is then set on the `qrRef` element by clearing its inner HTML and appending the new QR code to it.
 
 ```jsx
 const updateQRCode = (reference: PublicKey) => {
@@ -302,9 +257,8 @@ const updateQRCode = (reference: PublicKey) => {
 
     // Append "reference" publickey, used to identify transaction for confirmation
     params.append("reference", reference.toString());
-    console.log(reference.toString(), "new reference");
 
-    // Custom Transaction Request API GetResponse
+    // Custom Transaction Request API
     // Included params to end of URL
     const apiUrl = `${location.protocol}//${
         location.host
@@ -335,11 +289,11 @@ useEffect(() => {
 }, [reference]);
 ```
 
-### Create Solana Pay transaction request encoded QR code
+### Confirm transaction
 
-The **`checkTransaction`** function checks if a transaction that includes the given **`reference`** public key has been confirmed on the Solana network. It does this by calling the **`findReference`** function, which sends a request to the Solana network and looks for a transaction that includes the **`reference`** public key and has a finality of "confirmed". If such a transaction is found, the function generates a new **`reference`** public key using the **`Keypair.generate`** function and displays an alert to the user.
+Use a `checkTransaction` helper function to check if a transaction that includes the given `reference` public key has been confirmed on the Solana network using the `findReference` function from `@solana/pay`, which sends a request to the Solana network and looks for a transaction that includes the `reference` public key. If such a transaction is found, the function generates a new `reference` public key using the `Keypair.generate` function and displays an alert to the user.
 
-The **`useEffect`** hook is used to set up an interval to continuously call the **`checkTransaction`** function every 1.5 seconds. When the component unmounts, the interval is cleared using the **`clearInterval`** function. This allows the component to continually check for confirmed transactions and display an alert to the user if one is found.
+The `useEffect` hook is used to set up an interval to continuously call the `checkTransaction` function every 1.5 seconds. When the component unmounts, the interval is cleared using the `clearInterval` function. This allows the component to continually check for confirmed transactions and display an alert to the user if one is found.
 
 ```jsx
 const checkTransaction = async () => {
@@ -377,109 +331,168 @@ useEffect(() => {
 }, [reference]);
 ```
 
+### Gated transactions
+
+The public key provided in the request body can be used to perform any additional checks. For example, you could use this public key to determine if the account owns a specific NFT from a particular collection, or if it is on a predetermined white list of accounts. This information can be used to gate transactions, allowing only certain accounts to perform certain actions.
+
+```tsx
+// retrieve array of nfts owned by the given wallet
+const nfts = await metaplex
+    .nfts()
+    .findAllByOwner({ owner: wallet.publicKey })
+    .run();
+
+// iterate over the nfts array
+for (let i = 0; i < nfts.length; i++) {
+    // check if the current nft has a collection field with the desired value
+    if (nfts[i].collection?.address.toString() == collection.toString()) {
+        // do something if wallet contains nft from collection
+    } else {
+        // do something if wallet does not contain nft from collection
+    }
+}
+```
+
+### Partial Signing
+
+Partially signing a multi-signature transaction allows signers to add their signature before the transaction is broadcast on the network. Partially signing a transaction can be a useful way to manage the process of completing a multi-signature transaction, as it allows different parties to contribute their signatures as needed.
+
+This can be useful in the following situations:
+
+-   Approving transactions that require the signature of multiple parties, such as a merchant and a buyer who need to confirm the details of a payment.
+-   Invoking custom programs that require the signatures of both a user and an administrator. This can help to limit access to the program instructions and ensure that only authorized parties can execute them.
+
+```jsx
+const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+
+const transaction = new Transaction({
+  feePayer: account,
+  blockhash,
+  lastValidBlockHeight,
+})
+
+...
+
+transaction.partialSign(Keypair)
+```
+
+The `partialSign` function is used to add a signature to a transaction without overriding any previous signatures on the transaction. Note that the `partialSign` function is not available in the newer `VersionedTransaction`, which only has a `sign` function.
+
+If you are building a transaction with multiple signers, it is important to remember that if you don't specify a Transaction `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
+
 # Demo
 
-draft - [https://github.com/ZYJLiu/anchor-solana-pay-demo](https://github.com/ZYJLiu/anchor-solana-pay-demo)
-
-Scavenger hunt or other event where participants need to visit a series of locations in a specific order.
+For this demonstration, we will use Solana Pay to generate a series of QR codes for a scavenger hunt in which participants must visit specific locations in a particular order.
 
 ### 1. Starter
 
--   “scavenger hunt” anchor program given
--   explain frontend starter
--   starter includes simple SOL transfer as for reference (also includes requestAirdrop to fund a mobile wallet)
--   go over utils (anchor setup, checktransaction, generate location list)
+To get started, download the starter code on the `starter` branch of this [repository](https://github.com/ZYJLiu/anchor-solana-pay-demo). The starter code includes a scavenger hunt program and the Nextjs frontend that we’ll be using. All the boilerplate code is included in the starter code. For this demo we’ll just be completing the API for the Solana Pay transaction request.
 
-### 2. location page
+The scavenger hunt program has two instructions: `initialize` and `check_in`. The `initialize` instruction is used to set up the user's state, while the `check_in` instruction is used to record a check-in at a location in the scavenger hunt. The `EVENT_ORGANIZER` is a public key that is hardcoded as a constant and is required as an additional signer for the `check-in` instruction. The keypair for this account can be found in the `.env.example` file in the frontend for demonstration purposes.
 
-```jsx
-import { Flex, Heading, VStack } from "@chakra-ui/react"
-import { useRouter } from "next/router"
-import { Keypair } from "@solana/web3.js"
-import { useEffect, useRef, useState } from "react"
-import { createQRCode } from "../../utils/createQrCode/checkIn"
-import { checkTransaction } from "../../utils/checkTransaction"
+```rust
+use anchor_lang::{prelude::*, solana_program::pubkey};
 
-const QrCodePage = () => {
-  // Get the `id` parameter from the URL
-  const router = useRouter()
-  const { id } = router.query
+declare_id!("9gQfxMKfELeAjLmAoriLpkVPSHd7xb36cBfYXDXX27xE");
 
-  // Create a ref to the QR code element and a state variable for the reference
-  const qrRef = useRef<HTMLDivElement>(null)
-  const [reference, setReference] = useState(Keypair.generate().publicKey)
+#[constant]
+pub const EVENT_ORGANIZER: Pubkey = pubkey!("fun8eenPrVMJtiQNE7q1iBVDNuY2Lbnc3x8FFgCt43N");
 
-  // Create the QR code when the `id` parameter or `reference` changes
-  useEffect(() => {
-    createQRCode(qrRef, reference, id as string)
-  }, [reference])
+#[program]
+pub mod scavenger_hunt {
+    use super::*;
 
-  // Periodically check the transaction status and reset the `reference` state variable once confirmed
-  useEffect(() => {
-    // Set an interval to check the transaction status every 1.5 seconds
-    const interval = setInterval(() => {
-      checkTransaction(reference, setReference)
-    }, 1500)
-
-    // Clear the interval when the component unmounts
-    return () => {
-      clearInterval(interval)
+    pub fn initialize(ctx: Context<Initialize>, game_id: Pubkey) -> Result<()> {
+        ctx.accounts.user_state.user = ctx.accounts.user.key();
+        ctx.accounts.user_state.game_id = game_id;
+        Ok(())
     }
-  }, [reference])
 
-  return (
-    <VStack justifyContent="center">
-      <Heading>Location {id}</Heading>
-      <Flex ref={qrRef} />
-    </VStack>
-  )
+    pub fn check_in(ctx: Context<CheckIn>, _game_id: Pubkey, location: Pubkey) -> Result<()> {
+        ctx.accounts.user_state.last_location = location;
+        Ok(())
+    }
 }
 
-export default QrCodePage
+#[derive(Accounts)]
+#[instruction(game_id: Pubkey)]
+pub struct Initialize<'info> {
+    #[account(
+        init,
+        seeds = [game_id.key().as_ref(), user.key().as_ref()],
+        bump,
+        payer = user,
+        space = 8 + 32 + 32 + 32
+
+    )]
+    pub user_state: Account<'info, UserState>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+#[instruction(game_id: Pubkey)]
+pub struct CheckIn<'info> {
+    #[account(
+        mut,
+        seeds = [game_id.key().as_ref(), user.key().as_ref()],
+        bump,
+    )]
+    pub user_state: Account<'info, UserState>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    #[account(address = EVENT_ORGANIZER)]
+    pub event_organizer: Signer<'info>,
+}
+
+#[account]
+pub struct UserState {
+    pub user: Pubkey,
+    pub game_id: Pubkey,
+    pub last_location: Pubkey,
+}
 ```
 
-### 3. Generate location check-in QRCode
+### 2. Setup
 
-```jsx
-import { createQR, encodeURL, TransactionRequestURLFields } from "@solana/pay";
-import { PublicKey } from "@solana/web3.js";
-import { RefObject } from "react";
+To use Solana Pay, you will need to use a https URL. One option is to use ngrok, which you can set up [here](https://ngrok.com/). Once ngrok is installed, run the following command in your terminal:
 
-export const createQRCode = (
-    qrRef: RefObject<HTMLDivElement>,
-    reference: PublicKey,
-    id: string,
-) => {
-    // Create a new URLSearchParams object with the `reference` and `id` parameters
-    const searchParams = new URLSearchParams([
-        ["reference", reference.toString()],
-        ["id", id],
-    ]);
-
-    // Create a new URL object using the current origin and the API URL with search parameters
-    const apiUrl = new URL(
-        `/api/checkIn?${searchParams.toString()}`,
-        location.origin,
-    );
-
-    // Encode the API URL into a QR code
-    const urlFields: TransactionRequestURLFields = {
-        link: apiUrl,
-    };
-    const url = encodeURL(urlFields);
-    const qr = createQR(url, 400, "transparent");
-
-    // Append the QR code to the element specified by the `qrRef` ref object
-    if (qrRef.current) {
-        qrRef.current.innerHTML = "";
-        qr.append(qrRef.current);
-    }
-};
+```bash
+ngrok http 3000
 ```
 
-### 2. Location check-in API
+This will provide you with a unique URL that you can use to access your local server remotely. The output will look like this:
 
-setup
+```bash
+Session Status                online
+Account                       your_email@gmail.com (Plan: Free)
+Update                        update available (version 3.1.0, Ctrl-U to update)
+Version                       3.0.6
+Region                        United States (us)
+Latency                       45ms
+Web Interface                 http://127.0.0.1:4040
+Forwarding                    https://7761-24-28-107-82.ngrok.io -> http://localhost:3000
+```
+
+Next, rename the `.env.example` file in the frontend directory to `.env`. This file contains a keypair that will be used in this demo to partially sign transactions.
+
+Then run `yarn dev` and open the forwarding URL in your web browser. From the reference above it would be (yours will be different):
+
+```bash
+https://7761-24-28-107-82.ngrok.io
+```
+
+This will allow you to use Solana Pay while testing locally.
+
+On your mobile device, download the Solflare wallet if you haven't already. This demo works best with Solflare (the Phantom wallet will display a warning message when scanning a Solana Pay QR code). Once Solflare is set up, switch to the devnet network and scan the QR code on the home page labeled “SOL Transfer”. This QR code is a reference implementation for a transaction request that performs a simple SOL transfer and also calls the `requestAirdrop` function to fund the mobile wallet with devnet SOL.
+
+### 3. Location check-in API
+
+Next, navigate to `pages/api/checkIn.ts` in the frontend directory where we’ll define an API endpoint for the Solana Pay transaction request.
+
+You should see the following starter code:
 
 ```jsx
 import { ScavengerHunt } from "../../idl/scavenger_hunt"
@@ -540,9 +553,20 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" })
   }
 }
+
+// Handle a "GET" request
+function get(res: NextApiResponse<GetResponse>) {}
+
+// Handle a "POST" request
+async function post(
+  req: NextApiRequest,
+  res: NextApiResponse<PostResponse | PostError>
+) {}
 ```
 
-get request
+### 4. `get` function
+
+Next, update the `get` function for handling GET requests. When it is called, it sends a response with a "Scavenger Hunt!" label and a Solana logo icon.
 
 ```jsx
 // Handle a "GET" request
@@ -555,7 +579,11 @@ function get(res: NextApiResponse<GetResponse>) {
 }
 ```
 
-post request
+### 5. `post` function
+
+Next, update the `post` function for handling POST requests. This function gets the `account` from the request body and the `reference` and `id` parameters from the request query string. If any of these required parameters are missing, it returns an error message.
+
+If all required parameters are present, it attempts to build a transaction with the `buildTransation` helper function that we’ll implement next. If the transaction is built successfully, it sends a response with the transaction details. If an error occurs while building the transaction, it returns an error message.
 
 ```jsx
 // Handle a "POST" request
@@ -592,7 +620,19 @@ async function post(
 }
 ```
 
-buildTransaction helper function
+### 6. `buildTransaction` function
+
+Next, let’s implement the `buildTransaction` function which builds and partially signs a check-in transaction for the scavenger hunt game. This function:
+
+-   Gets the current blockhash and last valid block height from the connection
+-   Creates a new transaction object
+-   Fetches or initializes the user state
+-   Verifies that the user is at the correct location
+-   Adds a check-in instruction to the transaction
+-   Adds the `reference` public key to the instruction and signs the transaction with the event organizer's keypair.
+-   Serializes the transaction and returns the base64 encoded serialized transaction and a message in the API response.
+
+It uses two additional helper functions `fetchOrInitializeUserState` and `verifyCorrectLocation` that we’ll implement shortly.
 
 ```jsx
 // Build and sign a check-in transaction for the scavenger hunt game
@@ -665,7 +705,9 @@ async function buildTransaction(
 
 ```
 
-fetchOrInitializeUserState helper function
+### 7. `fetchOrInitializeUserState` function
+
+Next, let’s implement the `fetchOrInitializeUserState` helper function. This function fetches an account's user state for the scavenger hunt game, or adds an instruction to initialize the account if it doesn't exist.
 
 ```jsx
 // Fetch the user state or add the "initialize" instruction if necessary
@@ -693,7 +735,11 @@ async function fetchOrInitializeUserState(
 }
 ```
 
-verifyCorrectLocation helper function
+### 8. `verifyCorrectLocation` function
+
+Next, let’s implement the `verifyCorrectLocation` helper function. This function is used to verify that a user is at the correct location in a scavenger hunt game.
+
+It takes in a user’s state for the game and the current location, and returns either an error message or undefined. If the user state is undefined, it checks if the current location is the first location in the game. If it is not, it returns an error message. If the user state is defined, it retrieves the last location recorded in the user state and compares it to the current location. If the current location is not immediately following the last location, it returns an error message. If all checks pass, it returns undefined which allows the transaction to continue being built.
 
 ```jsx
 // Verify that the user is at the correct location
@@ -739,6 +785,12 @@ function verifyCorrectLocation(
     }
 }
 ```
+
+### 9. Scan QR Code
+
+To test the demo for creating a scavenger hunt using Solana Pay, use your Solflare wallet to scan the QR code on the 'location 1' page. Make sure the frontend is running and open from the ngrok URL. After scanning the QR code, you should see a message indicating that you have arrived at location 1.
+
+Next, scan the QR code on the 'location 2' page. You may need to wait a few seconds for the previous transaction to be completed before continuing. Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay!
 
 # Challenge
 
