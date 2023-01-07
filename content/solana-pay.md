@@ -381,7 +381,7 @@ For this demo, we will use Solana Pay to generate a series of QR codes for a sca
 
 ### 1. Starter
 
-To get started, download the starter code on the `starter` branch of this [repository](https://github.com/ZYJLiu/anchor-solana-pay-demo). The starter code includes a scavenger hunt program and the Nextjs frontend that we’ll be using. All the boilerplate code is included in the starter code. For this demo we’ll just be completing the API for the Solana Pay transaction request.
+To get started, download the starter code on the `master` branch of this [repository](https://github.com/Unboxed-Software/solana-pay/). The starter code includes a scavenger hunt program and the Nextjs frontend that we’ll be using. All the boilerplate code is included in the starter code. For this demo we’ll just be completing the API for the Solana Pay transaction request.
 
 The scavenger hunt program has two instructions: `initialize` and `check_in`. The `initialize` instruction is used to set up the user's state, while the `check_in` instruction is used to record a check-in at a location in the scavenger hunt. The `EVENT_ORGANIZER` is a public key that is hardcoded as a constant and is required as an additional signer for the `check-in` instruction. The keypair for this account can be found in the `.env.example` file in the frontend for demonstration purposes.
 
@@ -787,7 +787,7 @@ To test the demo for creating a scavenger hunt using Solana Pay, use your Solfla
 
 Next, scan the QR code on the 'location 2' page. You may need to wait a few seconds for the previous transaction to finalize before continuing. Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay!
 
-If you want to take a look at the final solution code you can find it on the solution branch of [the same repository](https://github.com/ZYJLiu/anchor-solana-pay-demo/tree/solution).
+If you want to take a look at the final solution code you can find it on the solution branch of [the same repository](https://github.com/Unboxed-Software/solana-pay/tree/solution).
 
 # Challenge
 
