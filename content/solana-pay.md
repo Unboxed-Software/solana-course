@@ -16,16 +16,16 @@ _By the end of this lesson, you will be able to:_
 
 # Overview
 
-In this lesson, you will learn how to create transaction requests with the Solana Pay specification and how to encode the request as a QR code. You will also be introduced to partial transaction signing and transaction gating, which allows you to set rules for processing transactions based on specific conditions. The overview and demonstration will show you how to do this using Nextjs.
+In this lesson, you will learn how to create transaction requests with the Solana Pay specification and how to encode the request as a QR code. You will also be introduced to partial transaction signing and transaction gating, which allows you to set rules for processing transactions based on specific conditions. The overview and demonstration will show you how to do this using [Nextjs](https://nextjs.org/).
 
 ## Solana Pay
 
-The Solana Pay specification is a set standards that allow users to request payments and initiate transactions using URLs in a uniform way across various Solana apps and wallets.
+The Solana Pay specification is a set of standards that allow users to request payments and initiate transactions using URLs in a uniform way across various Solana apps and wallets.
 
 There are two types of requests defined by the Solana Pay specification:
 
 1. Transfer Request: used for simple SOL or SPL Token transfers.
-2. Transaction Request: used to requests any type of Solana transaction.
+2. Transaction Request: used to request any type of Solana transaction.
 
 In this lesson, we will focus on Transaction Requests which enables developers to build a wide range of transactions.
 
@@ -66,7 +66,7 @@ type PostError = {
 }
 ```
 
-The `InputData` type represents the information that will be sent in a request. It includes an `account` field, which is a string containing a public key. This public key is returned by a wallet when interacting with the transaction request, such as scanning a QR code
+The `InputData` type represents the information that will be sent in a request. It includes an `account` field, which is a string containing a public key. This public key is returned by a wallet when interacting with the transaction request, such as scanning a QR code.
 
 The `GetResponse` type represents the information that will be received in a response to a GET request. It includes a `label` field, which describes the source of the transaction request (ex. name of a store), and an `icon` field, which is a URL for an image.
 
@@ -100,7 +100,7 @@ This `handler` function is the API endpoint that handles GET and POST requests.
 
 ### GET requests
 
-The `get` function is used to handle GET requests to the API endpoint. It returns a JSON object with two fields: `label` and `icon`. The `label` field is a string that describes the source of the transaction request and the `icon` field is a URL to an image
+The `get` function is used to handle GET requests to the API endpoint. It returns a JSON object with two fields: `label` and `icon`. The `label` field is a string that describes the source of the transaction request and the `icon` field is a URL to an image.
 
 Here is an example of how the `get` function could be defined:
 
@@ -160,13 +160,13 @@ When creating a custom transaction, the client can provide any additional inform
 
 ### Build transaction
 
-You can use a `buildTransaction` helper function creates a Solana transaction using the provided `account` and `reference` public keys.
+You can use a `buildTransaction` helper function to create a Solana transaction using the provided `account` and `reference` public keys.
 
--   Connect to the Solana network and getting the latest `blockhash`.
+-   Connect to the Solana network and get the latest `blockhash`.
 -   Create a new transaction using the `blockhash`.
--   Add instructions to the transaction
+-   Add instructions to the transaction.
 -   Add the `reference` public key as a non-signer key to uniquely identify the transaction.
--   Serialize the transaction and returning it in a `PostResponse` object along with a message for the user.
+-   Serialize the transaction and return it in a `PostResponse` object along with a message for the user.
 
 ```jsx
 // build the transaction
@@ -217,8 +217,8 @@ This function is responsible for constructing and returning a Solana transaction
 
 Once you have the API endpoint set up, you can use it to generate a QR code in your frontend component.
 
--   Generate a new `reference` public key that is used to identify a transaction
--   Establish a connection to a Solana cluster
+-   Generate a new `reference` public key that is used to identify a transaction.
+-   Establish a connection to a Solana cluster.
 -   Create a reference to a container element to store the QR code.
 -   Return the container element with the QR code reference.
 
