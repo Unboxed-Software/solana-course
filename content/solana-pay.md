@@ -238,14 +238,14 @@ Note that a new `reference` is generated for each transaction and added to the t
 
 ### Solana Pay transaction request QR code
 
-Next, generate a QR code for a Solana Pay Transaction Request using the `encodeURL` and `createQR` functions, and `TransactionRequestURLFields` interface are from `@solana/pay`.
+Next, generate a QR code for a Solana Pay Transaction Request using the `encodeURL` and `createQR` functions, and `TransactionRequestURLFields` interface are from `@solana/pay`. (unclear about the wording here)
 
 -   Obtain the current URL of the webpage and create a `URLSearchParams` object to store query parameters.
 -   Append the provided `reference` public key as a query parameter to the search parameters and add it to the end of the API URL.
 -   Create a `TransactionRequestURLFields` object with the API URL as the `link` field and use the `encodeURL` function to encode it into a Solana Pay URL.
 -   Use the `createQR` function to create a QR code from the Solana Pay URL.
 
-Use the `useEffect` hook to updates the QR code every time the `reference` public key changes by calling the `updateQRCode` function and passing in the `reference` public key as an argument. The QR code is then set on the `qrRef` element by clearing its inner HTML and appending the new QR code to it.
+Use the `useEffect` hook to update the QR code every time the `reference` public key changes by calling the `updateQRCode` function and passing in the `reference` public key as an argument. The QR code is then set on the `qrRef` element by clearing its inner HTML and appending the new QR code to it.
 
 ```jsx
 const updateQRCode = (reference: PublicKey) => {
@@ -373,7 +373,7 @@ const transaction = new Transaction({
 transaction.partialSign(Keypair)
 ```
 
-The `partialSign` function is used to add a signature to a transaction without overriding any previous signatures on the transaction. If you are building a transaction with multiple signers, it is important to remember that if you don't specify a Transaction `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
+The `partialSign` function is used to add a signature to a transaction without overriding any previous signatures on the transaction. If you are building a transaction with multiple signers, it is important to remember that if you don't specify a transaction `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
 
 # Demo
 
@@ -452,7 +452,7 @@ pub struct UserState {
 
 ### 2. Setup
 
-To use Solana Pay, you will need to use a https URL. One option is to use ngrok, which you can set up [here](https://ngrok.com/). Once ngrok is installed, run the following command in your terminal:
+To use Solana Pay, you will need to use an https URL. One option is to use ngrok, which you can set up [here](https://ngrok.com/). Once ngrok is installed, run the following command in your terminal:
 
 ```bash
 ngrok http 3000
@@ -473,7 +473,7 @@ Forwarding                    https://7761-24-28-107-82.ngrok.io -> http://local
 
 Next, rename the `.env.example` file in the frontend directory to `.env`. This file contains a keypair that will be used in this demo to partially sign transactions.
 
-In a separate terminal, run `yarn dev` and open the forwarding URL in your web browser. From the reference above it would be (yours will be different):
+In a separate terminal, run `yarn dev` and open the forwarding URL in your web browser. Using the reference above it would be (yours will be different):
 
 ```bash
 https://7761-24-28-107-82.ngrok.io
@@ -619,11 +619,11 @@ async function post(
 
 Next, let’s implement the `buildTransaction` function which builds and partially signs a check-in transaction for the scavenger hunt game. This function:
 
--   Gets the current blockhash and last valid block height from the connection
--   Creates a new transaction object
--   Fetches or initializes the user state
--   Verifies that the user is at the correct location
--   Adds a check-in instruction to the transaction
+-   Gets the current blockhash and last valid block height from the connection.
+-   Creates a new transaction object.
+-   Fetches or initializes the user state.
+-   Verifies that the user is at the correct location.
+-   Adds a check-in instruction to the transaction.
 -   Adds the `reference` public key to the instruction and signs the transaction with the event organizer's keypair.
 -   Serializes the transaction and returns the base64 encoded serialized transaction and a message in the API response.
 
@@ -791,7 +791,7 @@ If you want to take a look at the final solution code you can find it on the sol
 
 # Challenge
 
-_Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently._
+Now that we've worked through the demo together, you're ready to try something on your own. 
 
-1. Challenge instruction one
-2. Challenge instruction two
+1. Familiarize yourself with the [Solana Pay docs](https://docs.solanapay.com/).
+2. Find the *Create a transfer request* tutorial in the docs and try and complete it using the instructions provided. 
