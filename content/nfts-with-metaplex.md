@@ -389,6 +389,8 @@ You can also view the NFTs in the Phantom wallet by importing the `PRIVATE_KEY` 
 
 Congratulations! You have successfully learned how to use the Metaplex SDK to create and update NFTs. Now you can use this knowledge to create and update your own NFTs.
 
+If you want to take a look at the final solution code you can find it on the solution branch of the same [repository](https://github.com/ZYJLiu/metaplex-nft-client/tree/solution).
+
 # Challenge
 
 To deepen your understanding of the Metaplex tools, dive into the Metaplex documentation and familiarize yourself with the various programs and tools offered by Metaplex. For instance, you can delve into learning about the Candy Machine program to understand its functionality. Once you have an understanding how the the Candy Machine program works, put your knowledge to the test by using the Sugar CLI to create a Candy Machine for your own collection. This hands-on experience will not only reinforce your understanding of the tools, but also boost your confidence in your ability to use them effectively in the future.
