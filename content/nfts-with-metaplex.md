@@ -155,7 +155,7 @@ In this demonstration, we will go through the steps of creating an NFT using the
 
 ### 1. Starter
 
-To begin, download the start code [here](https://github.com/ZYJLiu/metaplex-nft-client).
+To begin, download the start code [here](https://github.com/Unboxed-Software/solana-metaplex).
 
 The file contains two images that we will be using for the NFTs. In the `index.ts` file, you will find the following code snippet which includes sample data for the NFT we’ll be creating and updating.
 
@@ -389,7 +389,7 @@ You can also view the NFTs in the Phantom wallet by importing the `PRIVATE_KEY` 
 
 Congratulations! You have successfully learned how to use the Metaplex SDK to create and update NFTs. Now you can use this knowledge to create and update your own NFTs.
 
-If you want to take a look at the final solution code you can find it on the solution branch of the same [repository](https://github.com/ZYJLiu/metaplex-nft-client/tree/solution).
+If you want to take a look at the final solution code you can find it on the solution branch of the same [repository](https://github.com/Unboxed-Software/solana-metaplex/tree/solution).
 
 # Challenge
 
