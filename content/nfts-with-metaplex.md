@@ -13,16 +13,16 @@ _By the end of this lesson, you will be able to:_
 
 -   **Non-Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a maximum supply of 1
 -   **Metaplex** offers a collection of tools that simplify the creation and distribution of NFTs on the Solana blockchain
--   The **Token Metadata** program standardizes the process of attaching metadata to NFTs
--   The **Candy Machine program** is an NFT distribution tool used to create and mint NFTs from a collection
+-   The **Token Metadata** program standardizes the process of attaching metadata to SPL Tokens
+-   The **Candy Machine** program is an NFT distribution tool used to create and mint NFTs from a collection
 -   **Sugar CLI** is a tool that simplifies the process of uploading media/metadata files and creating a Candy Machine for a collection
 -   The **Metaplex SDK** is a tool that offers user-friendly APIs to assist developers in utilizing the on-chain tools provided by Metaplex.
 
 # Overview
 
-Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token Program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art.
+Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art.
 
-In this lesson, we will focus on the basics of creating NFTs on the Solana blockchain. We will cover the basics of how NFTs are represented on Solana and how to create and update them using the Metaplex SDK. Additionally, we will briefly introduce programs and tools such as Token Metadata, Candy Machine, and Sugar CLI that assist in creating and distributing NFTs on Solana. Note that this lesson will not extensively cover or demonstrate their use in the demo.
+In this lesson, we will focus on the basics of creating NFTs on the Solana blockchain. We will cover the basics of how NFTs are represented on Solana and how to create and update them using the Metaplex SDK. Additionally, we will briefly introduce tools such as Token Metadata program, Candy Machine program, and Sugar CLI that assist in creating and distributing NFTs on Solana. Note that this lesson will not extensively cover or demonstrate their use in the demo.
 
 ## NFTs on Solana
 
@@ -45,7 +45,7 @@ Below is an example of the relationship between on-chain and off-chain metadata.
 
 Metaplex is an organization that provides a suite of tools that simplify the creation and distribution of NFTs on the Solana blockchain. These tools cater to a wide range of use cases and allow you to easily manage the entire NFT process of creating and minting an NFT collection.
 
-One of the essential programs offered by Metaplex is the Token Metadata program, which standardizes the process of attaching metadata to NFTs. When creating an NFT with Metaplex, the Token Metadata program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint. To learn more about the Token Metadata program, you can refer to the Metaplex [documentation](https://docs.metaplex.com/programs/token-metadata/).
+One of the essential programs offered by Metaplex is the Token Metadata program, which standardizes the process of attaching metadata to SPL Tokens. When creating an NFT with Metaplex, the Token Metadata program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint. To learn more about the Token Metadata program, you can refer to the Metaplex [documentation](https://docs.metaplex.com/programs/token-metadata/).
 
 Another essential program offered by Metaplex is the Candy Machine program, which is the leading minting and distribution program for NFT collection launches on Solana. You can learn more about the current version of the Candy Machine program by visiting the Metaplex [documentation](https://docs.metaplex.com/programs/candy-machine/overview).
 
@@ -59,7 +59,9 @@ The Metaplex SDK is designed to assist developers in utilizing the on-chain tool
 
 ### Metaplex instance
 
-A `Metaplex` instance serves as the entry point for accessing the Metaplex SDK APIs. This instance accepts a connection used to communicate with the cluster. Additionally, developers can customize the SDK's interactions by specifying an "Identity Driver" for the SDK to act on behalf of and a "Storage Driver" for uploading assets. The `bundlrStorage` driver is the default option and it uploads assets to the Arweave.
+A `Metaplex` instance serves as the entry point for accessing the Metaplex SDK APIs. This instance accepts a connection used to communicate with the cluster. Additionally, developers can customize the SDK's interactions by specifying an "Identity Driver" for the SDK to act on behalf of and a "Storage Driver" for uploading assets. The `bundlrStorage` driver is the default option and it uploads assets to Arweave.
+
+Below is an example of how you can set up the `Metaplex` instance for devnet.
 
 ```tsx
 import {
@@ -87,7 +89,7 @@ const metaplex = Metaplex.make(connection)
 
 Before creating an NFT, the initial step is to upload the image for the NFT. This process involves converting the image to a buffer, then converting it to a `Metaplex` file, and finally uploading it to the designated "Storage Driver".
 
-The Metaplex SDK supports the creation of `MetaplexFile` from either files present on your local computer or those uploaded by a user through a browser. You can do the former by using `fs.readFileSync` to read the image file, convert it into a `MetaplexFile` using `toMetaplexFile`.
+The Metaplex SDK supports the creation of a `MetaplexFile` from either files present on your local computer or those uploaded by a user through a browser. You can do the former by using `fs.readFileSync` to read the image file, convert it into a `MetaplexFile` using `toMetaplexFile`.
 
 ```tsx
 const buffer = fs.readFileSync("/path/to/image.png");
@@ -114,7 +116,7 @@ const { uri } = await metaplex.nfts().uploadMetadata({
 
 ### Create NFT
 
-After uploading metadata, the next step is to create a new NFT. The SDK's `create` method allows you to create a new NFT with minimal configuration. This method will handle the creation of the mint account, token account, metadata account, and the master edition account for you. The data provided to this method will represent the on-chain portion of the NFT metadata. You can explore the SDK to see all the other input that can be optionally provided to this method.
+After uploading the NFT's metadata, the next step is to create a new NFT. The SDK's `create` method allows you to create a new NFT with minimal configuration. This method will handle the creation of the mint account, token account, metadata account, and the master edition account for you. The data provided to this method will represent the on-chain portion of the NFT metadata. You can explore the SDK to see all the other input that can be optionally provided to this method.
 
 ```tsx
 const { nft } = await metaplex.nfts().create(
@@ -131,7 +133,7 @@ The method returns an object containing information about the newly created NFT.
 
 ### Update NFT
 
-Once you have created an NFT, you may want to update its metadata. The SDK's `update` method allows you to update the information of an existing NFT. This method allows you to change both the on-chain and off-chain portions of the NFT's metadata. To update the off-chain metadata, you will need to repeat the steps of uploading a new image and metadata URI as outlined in the previous steps and provide the new metadata URI to this method. This will change the URI that the on-chain metadata points to, effectively updating the off-chain metadata as well.
+Once you have created an NFT, you may want to update its metadata. The SDK's `update` method allows you to update the metadata of an existing NFT. This method allows you to change both the on-chain and off-chain portions of the NFT's metadata. To update the off-chain metadata, you will need to repeat the steps of uploading a new image and metadata URI as outlined in the previous steps and provide the new metadata URI to this method. This will change the URI that the on-chain metadata points to, effectively updating the off-chain metadata as well.
 
 ```tsx
 const nft = await metaplex.nfts().findByMint({ mintAddress });
@@ -160,6 +162,14 @@ To begin, download the start code [here](https://github.com/Unboxed-Software/sol
 The file contains two images that we will be using for the NFTs. In the `index.ts` file, you will find the following code snippet which includes sample data for the NFT we’ll be creating and updating.
 
 ```tsx
+interface NftData {
+    name: string;
+    symbol: string;
+    description: string;
+    sellerFeeBasisPoints: number;
+    imageFile: string;
+}
+
 // example data for a new NFT
 const nftData = {
     name: "Name",
@@ -265,7 +275,7 @@ This function will read an image file, convert it to a buffer, then upload it to
 
 ### 5. `createNft` helper function
 
-Next, let's create a helper function to handle creating the NFT. This function takes in the Metaplex instance, metadata URI and NFT data as inputs. It uses the `create` method of the SDK to create the NFT, passing in the metadata URI, name, seller fee and symbol as parameters.
+Next, let's create a helper function to handle creating the NFT. This function takes in the Metaplex instance, metadata URI and NFT data as inputs. It uses the `create` method of the SDK to create the NFT, passing in the metadata URI, name, seller fee, and symbol as parameters.
 
 ```tsx
 // helper function create NFT
@@ -292,11 +302,11 @@ async function createNft(
 }
 ```
 
-The function `createNft` logs the token mint URL and returns the created NFT object. The NFT will be minted to the user set as the "Identity Driver" in the Metaplex instance.
+The function `createNft` logs the token mint URL and returns the an `nft` object containing information about the newly created NFT. The NFT will be minted to the user set as the "Identity Driver" in the Metaplex instance.
 
 ### 6. Create NFT
 
-Now that we have set up the Metaplex instance and created helper functions for uploading metadata and creating NFTs, we can test these functions by creating an NFT. In the `main()` function, call the `uploadMetadata` function to upload the NFT data and get the URI for the metadata. Then, use the `createNft` function and the URI from the metadata to create an NFT.
+Now that we have set up the Metaplex instance and created helper functions for uploading metadata and creating NFTs, we can test these functions by creating an NFT. In the `main()` function, call the `uploadMetadata` function to upload the NFT data and get the URI for the metadata. Then, use the `createNft` function and metadata URI to create an NFT.
 
 ```tsx
 async function main() {
@@ -385,7 +395,7 @@ Transaction: https://explorer.solana.com/tx/5VkG47iGmECrqD11zbF7psaVqFkA4tz3iZar
 Finished successfully
 ```
 
-You can also view the NFTs in the Phantom wallet by importing the `PRIVATE_KEY` from the .env file.
+You can also view the NFTs in Phantom wallet by importing the `PRIVATE_KEY` from the .env file.
 
 Congratulations! You have successfully learned how to use the Metaplex SDK to create and update NFTs. Now you can use this knowledge to create and update your own NFTs.
 
