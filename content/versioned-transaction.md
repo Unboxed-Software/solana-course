@@ -22,13 +22,13 @@ In this lesson, we will cover how to use of versioned transactions and lookup ta
 -   Create and manage lookup tables
 -   Utilize lookup tables with versioned transactions
 
-Solana transactions are limited to 1232 bytes. To increase the number of accounts that can be included in a single transaction, Address Lookup Tables (LUTs) are used. LUT accounts store addresses and allow them to be referenced in a transaction using a 1 byte index instead of the full 32 bytes per address, enabling the creation of more complex transactions.
+Solana transactions are limited to 1232 bytes. To increase the number of accounts that can be included in a single transaction, Address Lookup Tables (LUTs) are used. LUT accounts store addresses and allow them to be referenced in a transaction using a 1 byte index instead of the full 32 bytes per address.
 
 Everything you need to work with versioned transactions and lookup tables is included in the `@solana/web3.js` library.
 
 ## Versioned Transaction
 
-"Versioned Transactions" refer to a new transaction format that supports the use of LUTs. Transactions using this format are identified as version `0`, while transactions using the older format are referred to as `legacy` transactions.
+Versioned Transactions refer to a new transaction format that supports the use of LUTs. Transactions using this format are identified as version `0`, while transactions using the older format are referred to as `legacy` transactions.
 
 ### Create versioned transaction
 
@@ -123,7 +123,7 @@ The function returns both the instruction to create the lookup table and the add
 // Get the current slot
 const slot = await connection.getSlot();
 
-// Create a transaction instruction for creating a lookup table
+// Create an instruction for creating a lookup table
 // and retrieve the address of the new lookup table
 const [lookupTableInst, lookupTableAddress] =
     web3.AddressLookupTableProgram.createLookupTable({
@@ -168,7 +168,7 @@ const addresses = [
     // add more addresses
 ];
 
-// Create a transaction instruction to extend a lookup table with the provided addresses
+// Create an instruction to extend a lookup table with the provided addresses
 const extendInstruction = web3.AddressLookupTableProgram.extendLookupTable({
     payer: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
     authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
@@ -204,7 +204,7 @@ transaction.sign([payer]);
 const transactionSignature = await connection.sendTransaction(transaction);
 ```
 
-Note that when new addresses are added to a lookup table, they need to "warm up" for one slot before they can be used in lookups in transactions. As a result, lookup tables can only be used to access addresses added before the current block slot.
+Note that when a lookup table is first created or when it is extended, it needs to "warm up" for one slot before the LUT or new addresses can be used in transactions. Therefore, lookup tables can only be used to access addresses that were added prior to the current slot.
 
 ```tsx
 SendTransactionError: failed to send transaction: invalid transaction: Transaction address table lookup uses an invalid index
@@ -214,7 +214,7 @@ If you are unable to access addresses in a lookup table immediately after extend
 
 ### Deactivate Lookup Table
 
-When an Address Lookup Table (LUT) is no longer needed, it can be deactivated and closed to reclaim its rent balance. Address lookup tables can be deactivated at any time, but they can continue to be used by transactions until the deactivation slot is no longer present in the slot hashes sysvar. This cool-down period ensures that in-flight transactions cannot be censored and that LUTs cannot be closed and recreated for the same slot.
+When an Address Lookup Table (LUT) is no longer needed, it can be deactivated and closed to reclaim its rent balance. Address lookup tables can be deactivated at any time, but they can continue to be used by transactions until a specified "deactivation" slot is no longer "recent". This cool-down period ensures that in-flight transactions cannot be censored and that LUTs cannot be closed and recreated for the same slot.
 
 To deactivate a LUT, use the `deactivateLookupTable` method and pass in the following parameters:
 
@@ -224,8 +224,8 @@ To deactivate a LUT, use the `deactivateLookupTable` method and pass in the foll
 ```tsx
 const deactivateInstruction =
     web3.AddressLookupTableProgram.deactivateLookupTable({
-        lookupTable: lookupTableAddress,
-        authority: user.publicKey,
+        lookupTable: lookupTableAddress, // The address of the lookup table to deactivate
+        authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
     });
 ```
 
@@ -239,9 +239,9 @@ The `closeLookupTable` method can be used to create an instruction to close a de
 
 ```tsx
 const closeInstruction = web3.AddressLookupTableProgram.closeLookupTable({
-    lookupTable: lookupTableAddress,
-    authority: user.publicKey,
-    recipient: user.publicKey,
+    lookupTable: lookupTableAddress, // The address of the lookup table to close
+    authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
+    recipient: user.publicKey, // The recipient of closed account lamports
 });
 ```
 
@@ -264,7 +264,7 @@ The `freezeLookupTable` method can be used to create an instruction to freeze a 
 
 ```tsx
 const freezeInstruction = web3.AddressLookupTableProgram.freezeLookupTable({
-    lookupTable: lookupTableAddress, // The address of the lookup table to close
+    lookupTable: lookupTableAddress, // The address of the lookup table to freeze
     authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
 });
 ```
@@ -287,14 +287,14 @@ const lookupTableAccount = (
 ).value;
 ```
 
-You can then create a list of instructions to include in an transaction as usual. When creating the `TransactionMessage`, include any lookup table accounts used by passing them as an array to the `compileToV0Message()` method. You can provide multiple lookup table accounts.
+You can then create a list of instructions to include in an transaction as usual. When creating the `TransactionMessage`, you can include any lookup table accounts by passing them as an array to the `compileToV0Message()` method. Multiple lookup table accounts can be provided.
 
 ```tsx
 const message = new web3.TransactionMessage({
     payerKey: payer.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
     recentBlockhash: blockhash, // The blockhash of the most recent block
     instructions: instructions, // The instructions to include in the transaction
-}).compileToV0Message([lookupTableAccount]);
+}).compileToV0Message([lookupTableAccount]); // Include lookup table accounts
 
 // Create the versioned transaction using the message
 const transaction = new web3.VersionedTransaction(message);
@@ -312,9 +312,9 @@ This demo will guide you through the steps of creating and extending a lookup ta
 
 ### 1. Setup
 
-To begin, you can use `npx create-solana-client [name] --initialize-keypair` command in the command line to clone the starter template from the repository. Alternatively, you can manually clone the `with-keypair-env` branch of the template [here](https://github.com/Unboxed-Software/solana-npx-client-template/tree/with-keypair-env).
+To begin, use the `npx create-solana-client [name] --initialize-keypair` command in the command line to clone the starter template. Alternatively, you can manually clone the `with-keypair-env` branch of the template [here](https://github.com/Unboxed-Software/solana-npx-client-template/tree/with-keypair-env).
 
-You can find the following starter code in the `index.ts` file:
+The following starter code can be found in the `index.ts` file.
 
 ```tsx
 import { initializeKeypair } from "./initializeKeypair";
@@ -330,7 +330,7 @@ async function main() {
 }
 ```
 
-To install the required dependencies, use the command `npm install` in the terminal. Then, execute the code by running `npm start`. This will create a new keypair, write it to the `.env` file, and airdrop devnet SOL to the keypair.
+To install the required dependencies, run `npm install` in the terminal. Then, execute the code by running `npm start`. This will create a new keypair, write it to the `.env` file, and airdrop devnet SOL to the keypair.
 
 ```tsx
 Current balance is 0
@@ -354,7 +354,7 @@ async function createLookupTableHelper(
     // Get the current slot
     const slot = await connection.getSlot();
 
-    // Create a transaction instruction for creating a lookup table
+    // Create an instruction for creating a lookup table
     // and retrieve the address of the new lookup table
     const [lookupTableInst, lookupTableAddress] =
         web3.AddressLookupTableProgram.createLookupTable({
@@ -371,7 +371,7 @@ Note that `recentSlot: slot - 1` is used to try and avoid an error that can occu
 
 ### 3. `extendLookupTableHelper` function
 
-Next, we will create the `extendLookupTableHelper` function. This function accepts a user's keypair, the address of an existing lookup table and an array of addresses as input parameters.
+Next, let's create the `extendLookupTableHelper` function. This function accepts a user's keypair, the address of an existing lookup table, and an array of addresses as input parameters.
 
 The function generates an instruction to extends the specified lookup table with the provided addresses.
 
@@ -381,7 +381,7 @@ async function extendLookupTableHelper(
     lookupTableAddress: web3.PublicKey,
     addresses: web3.PublicKey[],
 ): Promise<web3.TransactionInstruction> {
-    // Create a transaction instruction to extend a lookup table with the provided addresses
+    // Create an instruction to extend a lookup table with the provided addresses
     const extendInstruction = web3.AddressLookupTableProgram.extendLookupTable({
         payer: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
         authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
@@ -571,7 +571,7 @@ async function getAddressLookupTableHelper(
 
 ### 8. `createTransferInstructionsHelper` function
 
-Next, let’s create a `createTransferInstructionsHelper` function that can be used to create transfer instructions for all the addresses in a lookup table.
+Next, let’s create a `createTransferInstructionsHelper` function that can be used to create transfer instructions for all the addresses in a lookup table. This is simply to demonstrate the number of addresses that can be included in a single transaction using lookup tables.
 
 The function takes in a connection, a lookup table account, and a user keypair as inputs and returns an array of transfer instructions.
 
