@@ -116,7 +116,7 @@ In this case, we're creating a new account for a token mint so we use `getMinimu
 
 ## Token Account
 
-Before you can mint tokens (issue new supply), you need a Token Account to hold the newly issues tokens.
+Before you can mint tokens (issue new supply), you need a Token Account to hold the newly issued tokens.
 
 A Token Account holds tokens of a specific "mint" and has a specified "owner" of the account. Only the owner is authorized to decrease the Token Account balance (transfer, burn, etc.) while anyone can send tokens to the Token Account to increase its balance.
 
