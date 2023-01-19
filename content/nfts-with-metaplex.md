@@ -19,7 +19,7 @@ _By the end of this lesson, you will be able to:_
 -   The **Metaplex SDK** is a tool that offers user-friendly APIs to assist developers in utilizing the on-chain tools provided by Metaplex.
 
 # Overview
-
+<!-- Provide example here of NFT/Metadata -->
 Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art.
 
 In this lesson, we will focus on the basics of creating NFTs on the Solana blockchain. We will cover the basics of how NFTs are represented on Solana and how to create and update them using the Metaplex SDK. Additionally, we will briefly introduce tools such as Token Metadata program, Candy Machine program, and Sugar CLI that assist in creating and distributing NFTs on Solana. Note that this lesson will not extensively cover or demonstrate their use in the demo.
@@ -43,8 +43,8 @@ Below is an example of the relationship between on-chain and off-chain metadata.
 
 ## **Metaplex**
 
-[Metaplex](https://www.metaplex.com/) is an organization that provides a suite of tools, called the [Metaplex SDK](https://docs.metaplex.com/sdks/js/), that simplify the creation and distribution of NFTs on the Solana blockchain. These tools cater to a wide range of use cases and allow you to easily manage the entire NFT process of creating and minting an NFT collection.
-
+[Metaplex](https://www.metaplex.com/) is an organization that provides a suite of tools, like [Metaplex SDK](https://docs.metaplex.com/sdks/js/), that simplify the creation and distribution of NFTs on the Solana blockchain. These tools cater to a wide range of use cases and allow you to easily manage the entire NFT process of creating and minting an NFT collection.
+<!-- Reword? Provide example of popular call like create/update -->
 More specifically, the Metaplex SDK is designed to assist developers in utilizing the on-chain tools offered by Metaplex. It offers a user-friendly API that focuses on popular use cases and allows for easy integration with third-party plugins. To learn more about the capabilities of the Metaplex SDK, you can refer to the [README](https://github.com/metaplex-foundation/js#readme).
 
 One of the essential programs offered by Metaplex is the Token Metadata program, which standardizes the process of attaching metadata to SPL Tokens. When creating an NFT with Metaplex, the Token Metadata program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint. To learn more about the Token Metadata program, you can refer to the Metaplex [documentation](https://docs.metaplex.com/programs/token-metadata/).
@@ -152,7 +152,7 @@ The `update` method returns a response object containing the transaction signatu
 
 <!-- Candy Machine subset here. What is it? Why use it? Show an example with solanaeyes -->
 ### Candy Machine 
-
+<!-- Rephrase to recap and expand on what was mentioned for Candy Machine earlier, include example like a linke to a CM on solanaeyes -->
 Another essential program offered by Metaplex is the Candy Machine program, which is the leading minting and distribution program for NFT collection launches on Solana. You can learn more about the current version of the Candy Machine program by visiting the Metaplex [documentation](https://docs.metaplex.com/programs/candy-machine/overview).
 
 Metaplex also provides a tool called Sugar, a CLI used to simplify the process of uploading media/metadata files and deploying a Candy Machine. You can learn more about how to use Sugar by visiting the Metaplex [documentation](https://docs.metaplex.com/developer-tools/sugar/).
@@ -163,7 +163,7 @@ In this demonstration, we will go through the steps of creating an NFT using the
 
 ### 1. Starter
 
-To begin, download the start code [here](https://github.com/Unboxed-Software/solana-metaplex).
+To begin, download the starter code [here](https://github.com/Unboxed-Software/solana-metaplex).
 
 The file contains two images that we will be using for the NFTs. In the `index.ts` file, you will find the following code snippet which includes sample data for the NFT we’ll be creating and updating.
 
@@ -311,7 +311,7 @@ async function createNft(
 The function `createNft` logs the token mint URL and returns the an `nft` object containing information about the newly created NFT. The NFT will be minted to the user set as the "Identity Driver" in the Metaplex instance.
 
 ### 6. Create NFT
-
+<!-- Show screenshot of the URI to then compare w/ update -->
 Now that we have set up the Metaplex instance and created helper functions for uploading metadata and creating NFTs, we can test these functions by creating an NFT. In the `main()` function, call the `uploadMetadata` function to upload the NFT data and get the URI for the metadata. Then, use the `createNft` function and metadata URI to create an NFT.
 
 ```tsx
@@ -340,7 +340,7 @@ Finished successfully
 Feel free to inspect the generated URIs for the image and metadata, as well as view the NFT on the Solana explorer by visiting the URL provided in the output.
 
 ### 7. `updateNft` helper function
-
+<!-- Breakdown what is being updated here/from where -->
 Next, let's create a helper function to handle updating an existing NFT. This function will take in the Metaplex instance, metadata URI, mint address of the NFT, and updated NFT data as inputs. It uses the `findByMint` method of the SDK to fetch the existing NFT data using the mint address, and then uses the `update` method to update the metadata with the provided URI and NFT data. Finally, it will log the token mint URL and transaction signature for reference.
 
 ```tsx
@@ -377,7 +377,7 @@ async function updateNft(
 ```
 
 ### 8. Update NFT
-
+<!-- Show updated screenshot of URI -->
 To update an existing NFT, we will first need to upload new metadata for the NFT and get the new URI. In the `main()` function, call the `uploadMetadata` function again to upload the updated NFT data and get the new URI for the metadata. Then, we can use the `updateNft` helper function, passing in the Metaplex instance, the new URI from the metadata, the mint address of the NFT, and the updated NFT data to update the NFT. The `nft.address` is from the output of the `createNft` function.
 
 ```tsx
@@ -405,13 +405,15 @@ You can also view the NFTs in Phantom wallet by importing the `PRIVATE_KEY` from
 
 ### 9. Add NFT to a Collection
 <!-- **** details here **** -->
+<!--  Breakdown what a collection is/give example. Show code snippet/output-->
+
 
 Congratulations! You have successfully learned how to use the Metaplex SDK to create and update NFTs. Now you can use this knowledge to create and update your own NFTs.
 
 If you want to take a look at the final solution code you can find it on the solution branch of the same [repository](https://github.com/Unboxed-Software/solana-metaplex/tree/solution).
 
 # Challenge
-
+<!-- Recap what was accomplished and how it can be utilized outside of just JPEGS, the utility behind it -->
 To deepen your understanding of the Metaplex tools, dive into the Metaplex documentation and familiarize yourself with the various programs and tools offered by Metaplex. For instance, you can delve into learning about the Candy Machine program to understand its functionality. Once you have an understanding how the the Candy Machine program works, put your knowledge to the test by using the Sugar CLI to create a Candy Machine for your own collection. This hands-on experience will not only reinforce your understanding of the tools, but also boost your confidence in your ability to use them effectively in the future.
 
 Have some fun with this! This will be your first independently created NFT collection! With this you'll complete Module 2; hope you're feeling the process! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202), so that we can continue to improve the course!
