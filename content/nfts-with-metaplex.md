@@ -47,13 +47,15 @@ Metaplex is an organization that provides a suite of tools that simplify the cre
 
 One of the essential programs offered by Metaplex is the Token Metadata program, which standardizes the process of attaching metadata to SPL Tokens. When creating an NFT with Metaplex, the Token Metadata program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint. To learn more about the Token Metadata program, you can refer to the Metaplex [documentation](https://docs.metaplex.com/programs/token-metadata/).
 
+<!-- Relocate to a new 'Candy Machine' sub set -->
 Another essential program offered by Metaplex is the Candy Machine program, which is the leading minting and distribution program for NFT collection launches on Solana. You can learn more about the current version of the Candy Machine program by visiting the Metaplex [documentation](https://docs.metaplex.com/programs/candy-machine/overview).
 
 Metaplex also provides a tool called Sugar, a CLI used to simplify the process of uploading media/metadata files and deploying a Candy Machine. You can learn more about how to use Sugar by visiting the Metaplex [documentation](https://docs.metaplex.com/developer-tools/sugar/).
 
 To explore the full range of tools offered by Metaplex, you can view the [Metaplex repository](https://github.com/metaplex-foundation/metaplex) on GitHub. In the following sections, we will cover the basics of creating an NFT using the Metaplex SDK and demonstrate how to execute the process in the demo.
 
-## Metaplex SDK
+<!-- Consolidate into above 'Metaplex section -->
+## Metaplex SDK 
 
 The Metaplex SDK is designed to assist developers in utilizing the on-chain tools offered by Metaplex. It offers a user-friendly API that focuses on popular use cases and allows for easy integration with third-party plugins. To learn more about the capabilities of the Metaplex SDK, you can refer to the [README](https://github.com/metaplex-foundation/js#readme).
 
@@ -130,6 +132,10 @@ const { nft } = await metaplex.nfts().create(
 ```
 
 The method returns an object containing information about the newly created NFT. By default, the SDK sets the `isMutable` property to true, allowing for updates to be made to the NFT's metadata. However, you can choose to set `isMutable` to false, making the NFT's metadata immutable.
+
+<!-- Add section for 'Adding NFT to Collection -->
+### Create/Add NFT to Collection
+
 
 ### Update NFT
 
