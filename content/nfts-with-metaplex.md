@@ -147,27 +147,25 @@ const { response } = await metaplex.nfts().update(
 
 The `update` method returns a response object containing the transaction signature of the update transaction.
 
-<!-- ****NEED TO DOUBLE CHECK***** -->
 ### Add NFT to Collection
 
 A [Certified Collection](https://docs.metaplex.com/programs/token-metadata/certified-collections#introduction) is a NFT that individual NFT's can belong to. Think of a large NFT collection like Solana Monkey Business, if you look at an individual NFT's Metadata within [there](https://explorer.solana.com/address/C18YQWbfwjpCMeCm2MPGTgfcxGeEDPvNaGpVjwYv33q1/metadata) you will see a `collection` field with a `key` that point's to the `Certified Collection` [NFT](https://explorer.solana.com/address/SMBH3wF6baUj6JWtzYvqcKuj2XCKWDqQxzspY12xPND/). Simply put, NFT's can "belong to" another NFT which is a Collection.
 
-In order to add an NFT to a collection, first the Collection NFT has to be created. The process is the same as before, except we will include two additional fields on our NFT Metadata: `isCollection` and `collectionAuthority`. These fields tell our program that this NFT is a Collection NFT and the `PublicKey` we provide as the `collectionAuthority` is who signs off on an NFT being a part of the collection.
+In order to add an NFT to a collection, first the Collection NFT has to be created. The process is the same as before, except we will include one additional field on our NFT Metadata: `isCollection`. This field tells the token program that this NFT is a Collection NFT.
 
 ```tsx
-const { nft } = await metaplex.nfts().create(
+const { collectionNft } = await metaplex.nfts().create(
     {
         uri: uri,
         name: "My NFT Collection",
         sellerFeeBasisPoints: 0,
-        isCollection: true,
-        collectionAuthority: PublicKey
+        isCollection: true
     },
     { commitment: "finalized" },
 );
 ```
 
-After creating the Collection NFT you can add NFT's into the collection by including the `collection` field in the NFT Metadata and pointing to the Collection NFT's Mint Address.
+We then list the Collection's Mint Address as the reference for the `collection` field in our new Nft.
 
 ```tsx
 const { nft } = await metaplex.nfts().create(
@@ -175,8 +173,7 @@ const { nft } = await metaplex.nfts().create(
         uri: uri,
         name: "My NFT",
         sellerFeeBasisPoints: 0,
-        collection: Collection_Addresss
-        collectionAuthority: PublicKey
+        collection: collectionNft.mintAddress
     },
     { commitment: "finalized" },
 );
@@ -441,10 +438,10 @@ Finished successfully
 You can also view the NFTs in Phantom wallet by importing the `PRIVATE_KEY` from the .env file.
 
 ### 9. Add NFT to a Collection
-<!-- **** DOUBLE CHECK **** -->
-Awesome, you now know how to create a single NFT and update it on the Solana blockchain! But, now you're probably thinking "is that how a Solana Monkey Business created a 5k collection?" And the short answer is no, but what they did do was assign their NFT's to a collection so let's walk through how that's done.
 
-First we need a Collection NFT, let's update our `interface` and then adjust our `nftData`.
+Awesome, you now know how to create a single NFT and update it on the Solana blockchain! But, now you're probably thinking "is that how a Solana Monkey Business created a NFT collection with a 5k supply?" And the short answer is no, they most likely used a CandyMachine Program and CLI that assigned the 5k supply to the same collection. So let's walk through how to add an NFT to a Collection.
+
+First we need a Collection NFT, let's create an Collection `interface` and then  `collectionNftData`.
 
 ```tsx
 interface NftData {
@@ -458,13 +455,10 @@ interface NftData {
 }
 ```
 
-Before we adjust our `nftData` let's relocate it to inside of our `main()` function, right below where we define `user`. Then, we'll list the `user` as the `collectionAuthority`.
+Next, let's create our `NftData` :
+
 
 ```tsx
-async function main() {
-    ...
-const user = await initializeKeypair(connection)
-
 const nftData = {
     name: "TestCollectionNFT",
     symbol: "TEST",
@@ -474,54 +468,61 @@ const nftData = {
     isCollection: true,
     collectionAuthority: user,
 }
+```
+Now, let's dive back into the `main()` function and below where we define `metaplex` let's create our `collectionUri` and `collectionNft`:
+
+```tsx
+async function main() {
     ...
+    const collectionUri = await uploadMetadata(metaplex, collectionNftData)
+
+    const collectionNft = await metaplex.nfts().create(
+        {
+            uri: collectionUri,
+            name: collectionNftData.name,
+            sellerFeeBasisPoints: collectionNftData.sellerFeeBasisPoints,
+            symbol: collectionNftData.symbol,
+            isCollection: true,
+        },
+        { commitment: "finalized" },
+    )
+
+    ...
+}
 ```
 
-This allows us to use the `Keypair` we initialized as the Authority on the Collection. Now, when you run `npm start` again you should see a similar output as before, and what you want to do next is grab your Token Mint Address, which you can see on the Explorer page.
+This will return our Collection NFT Mint Address needed to assign the new Regular NFT, like below:
 
 ```tsx
-Current balance is 1.770520342
-PublicKey: GdLEz23xEonLtbmXdoWGStMst6C9o3kBhb7nf7A1Fp6F
-image uri: https://arweave.net/j5HcSX8qttSgJ_ZDLmbuKA7VGUo7ZLX-xODFU4LFYew
-metadata uri: https://arweave.net/ac5fwNfRckuVMXiQW_EAHc-xKFCv_9zXJ-1caY08GFE
-Token Mint: https://explorer.solana.com/address/HU5mWuKTpaFpvNCY33Etc2P7oPHHSEhio7f11wjU2yqQ?cluster=devnet
-Finished successfully
-```
+async function main() {
+    ...
+    const uri = await uploadMetadata(metaplex, nftData)
 
-From there, we can repeat the original steps of creating an NFT, except this time use the `collection` field to point to our newly created Collection NFT. Update your `interface` and `nftData` to the following.
+    const newNft = await metaplex.nfts().create(
+        {
+            uri: uri,
+            name: "TestCollectionNFT",
+            sellerFeeBasisPoints: 100,
+            symbol: "TEST",
+            collection: collectionNft.mintAddress, //use the mintAddress from the collectionNft
+        },
+        { commitment: "finalized" },
+    )
 
-```tsx
-interface NftData {
-  name: string
-  symbol: string
-  description: string
-  sellerFeeBasisPoints: number
-  imageFile: string
-  collection: PublicKey
-  collectionAuthority: Signer
+    
+    const response = await metaplex.nfts().verifyCollection({ //this is what verifies our collection as a Certified Collection
+      mintAddress: newNft.mintAddress,
+      collectionMintAddress: collectionNft.mintAddress,
+      isSizedCollection: true
+    })
+    console.log('collection nft', `https://explorer.solana.com/address/${collectionNft.mintAddress.toString()}?cluster=devnet`)
+    console.log('new nft', `https://explorer.solana.com/address/${newNft.mintAddress.toString()}?cluster=devnet`)
+    ...
 }
 
-//replace this string with your Collection NFT Token Address
-const collectionAddress = new PublicKey("Fw5iQf1DDpDZKJmTuQRSSe8Q3uP6yBL6KDFWe2X679rp") 
-
-async function main() {
-
-    ...
-
-    const nftData = {
-      name: "TestCollectionNFT",
-      symbol: "TEST",
-      description: "Test Description Collection",
-      sellerFeeBasisPoints: 100,
-      imageFile: "success.png",
-      collection: collectionAddress,
-      collectionAuthority: user,
-    }
-
-    ...
 ```
 
-Run `npm start` and checkout that metadata, you should see a `collection` field with your Collection NFT Token Address listed.
+You can comment out the remaining functions in `main()` for the time being. Now, run `npm start` and voila! If you follow the new nft link and checkout the 'Metadata' tab you will see a `collection` field with your Collection NFT Token Address listed.
 
 Congratulations! You have successfully learned how to use the Metaplex SDK to create and update NFTs. Now you can use this knowledge to create and update your own NFTs.
 
