@@ -417,7 +417,6 @@ async function updateNftUri(
     metaplex: Metaplex,
     uri: string,
     mintAddress: PublicKey,
-    nftData: NftData,
 ) {
     // fetch NFT data using mint address
     const nft = await metaplex.nfts().findByMint({ mintAddress });
