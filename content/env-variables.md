@@ -24,6 +24,8 @@ The global state PDA account can be made accessible only by the program upgrade 
 
 By using a global state PDA account in this way, a program can maintain the ability to modify certain values after deployment, while still maintaining security and control over those values.
 
+<!-- Recap what we are doing in this lesson/building with demo -->
+
 ## Rust features flag and `cfg` attribute
 
 In Rust, the `cfg` attribute can be used to conditionally compile code based on the value of a configuration flag. This allows you to include or exclude certain code from your program.
@@ -120,7 +122,7 @@ pub struct Initialize<'info> {
 
 In this example, the `cfg` attribute is used to conditionally compile two different implementations of the `constants` ****module. This allows the program to use different values for the `USDC_MINT_PUBKEY` constant depending on whether the `local-testing` feature is enabled or not. This could be useful, for example, if the program needs to use different mint accounts for testing and production environments.
 
-## Rust features flag and `**cfg!**` macro
+## Rust features flag and `cfg!` macro
 
 The `cfg!` macro in Rust allows you to check the values of certain configuration flags at runtime. This can be useful if you want to execute different code paths depending on the values of certain configuration flags. For example, you could use the `cfg!` macro to bypass or adjust time-based constraints required in an instruction during testing.
 
@@ -246,6 +248,8 @@ pub struct AdminSettings {
 
 You can read more about the relationship between the program account and program data account [here](https://www.notion.so/29780c48794c47308d5f138074dd9838).
 
+<!-- Review/Complete -->
+<!-- add comments in code snippets -->
 # Demo
 
 draft - [https://github.com/ZYJLiu/admin-test](https://github.com/ZYJLiu/admin-test)
