@@ -24,7 +24,8 @@ The global state PDA account can be made accessible only by the program upgrade 
 
 By using a global state PDA account in this way, a program can maintain the ability to modify certain values after deployment, while still maintaining security and control over those values.
 
-<!-- Recap what we are doing in this lesson/building with demo -->
+<!-- Review/Revise after completing demo -->
+In the end, we will demo an Anchor program that will allow us to test the payment processing of a deployed program based on the admin instructions we provide.
 
 ## Rust features flag and `cfg` attribute
 
@@ -70,7 +71,7 @@ anchor test -- --features "my-feature", "another-feature"
 
 The **`cfg`** attribute can be used in an Anchor program to conditionally compile code based on the value of a configuration flag, allowing you to adapt the program to different environments. 
 
-During testing, the program can be configured to use a test address, while in production, it can use the Mainnet address. This allows the program to easily switch between different environments without requiring any changes to the code itself.
+This means we can configure the program to use a Devnet Address for testing and a Mainnet Address while in production. This allows the program to easily switch between different environments without requiring any changes to the code itself.
 
 Here is an example of how you might use the `cfg` attribute to set up environment variables in your Anchor program:
 
@@ -120,10 +121,10 @@ pub struct Initialize<'info> {
 }
 ```
 
-In this example, the `cfg` attribute is used to conditionally compile two different implementations of the `constants` ****module. This allows the program to use different values for the `USDC_MINT_PUBKEY` constant depending on whether the `local-testing` feature is enabled or not. This could be useful, for example, if the program needs to use different mint accounts for testing and production environments.
+In this example, the `cfg` attribute is used to conditionally compile two different implementations of the `constants` module. This allows the program to use different values for the `USDC_MINT_PUBKEY` constant depending on whether the `local-testing` feature is enabled or not. This could be useful, for example, if the program needs to use different mint accounts for testing and production environments.
 
 ## Rust features flag and `cfg!` macro
-
+<!-- Give Example, like staking time -->
 The `cfg!` macro in Rust allows you to check the values of certain configuration flags at runtime. This can be useful if you want to execute different code paths depending on the values of certain configuration flags. For example, you could use the `cfg!` macro to bypass or adjust time-based constraints required in an instruction during testing.
 
 To use the **`cfg!`** macro in an Anchor program, you can add a `cfg!` macro call to the body of the function you want to conditionally execute code. For example, you could use the `cfg!` macro like this:
@@ -148,12 +149,12 @@ pub mod my_program {
 }
 ```
 
-In this example, the `test_function` function uses the `cfg!` ****macro to check the value of the `local-testing` feature at runtime. If the `local-testing` feature is enabled, the first code path is executed. If the `local-testing` feature is not enabled, the second code path is executed instead.
+In this example, the `test_function` function uses the `cfg!` **macro** to check the value of the `local-testing` feature at runtime. If the `local-testing` feature is enabled, the first code path is executed. If the `local-testing` feature is not enabled, the second code path is executed instead.
 
 ## Admin Instruction
 
 Next, let’s discuss creating an admin instruction to initialize a global state PDA used to store modifiable program configurations. 
-
+<!-- Break this down in simpler terms -->
 One approach is to restrict access of an admin instruction to the program’s upgrade authority. Alternatively, you can hardcode the administrator public key as a constant in the program and include a constraint to check against the value. 
 
 Here is an example of the account constraints used to ensure the `authority` signing a transaction matches the program’s `upgrade_authority_address`.
@@ -187,7 +188,7 @@ pub program: Program<'info, MyProgram>,
 pub program_data: Account<'info, ProgramData>,
 pub authority: Signer<'info>,
 ```
-
+<!-- Revise flow here -->
 The `constraint` on the `program` account specifies that the `program_data.key()` must match the `programdata_address` of the program itself.
 
 ```rust
@@ -245,7 +246,7 @@ pub struct AdminSettings {
    admin_data: u64,
 }
 ```
-
+<!-- RECAP and then segue into demo build -->
 You can read more about the relationship between the program account and program data account [here](https://www.notion.so/29780c48794c47308d5f138074dd9838).
 
 <!-- Review/Complete -->
