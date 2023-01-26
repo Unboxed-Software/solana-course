@@ -148,7 +148,7 @@ pub mod my_program {
 }
 ```
 
-In this example, the `test_function` function uses the `cfg!` **macro** to check the value of the `local-testing` feature at runtime. If the `local-testing` feature is enabled, the first code path is executed. If the `local-testing` feature is not enabled, the second code path is executed instead.
+In this example, the `test_function` uses the `cfg!` **macro** to check the value of the `local-testing` feature at runtime. If the `local-testing` feature is enabled, the first code path is executed. If the `local-testing` feature is not enabled, the second code path is executed instead.
 
 ## Admin Instruction
 
@@ -252,8 +252,8 @@ You can read more about the relationship between the program account and program
 
 Let's pull all of this together now by creating and testing a Solana program that will run 4 tests:
 
-1) Txn on local validator
-2) Simulated txn on Mainnet
+1) Txn with correct amounts
+2) Txn with inccorect amounts
 3) An Admin Config Update - as Admin
 4) An Admin Config Update - not as Admin
 
@@ -262,6 +262,14 @@ Based on the `cfg` attributes and feature flags we will provide, all 4 tests sho
 ### 1. Starter
 
 First thing to do is grab the starter code here [https://github.com/maweiche/admin-test/tree/starter](https://github.com/maweiche/admin-test/tree/starter). Make sure you clone the code from the `starter` branch and not `master`.
+
+```sh
+git clone https://github.com/maweiche/admin-test.git
+cd admin-test
+git checkout -b starter
+git pull origin starter
+npm install
+```
 
 Once you've cloned the starter code, let's configure Solana in the terminal. We'll be deploying and testing on localhost, so switch the Solana RPC in your terminal to localhost with:
 
@@ -272,12 +280,16 @@ solana config set --url localhost
 If you see an output like this, then you're set.
 
 ```sh
-RPC URL: http://localhost:8899
+Config File: /Users/matt/.config/solana/cli/config.yml
+RPC URL: http://localhost:8899 
+WebSocket URL: ws://localhost:8900/ (computed)
+Keypair Path: /Users/matt/.config/solana/id.json 
+Commitment: confirmed
 ```
 
 ### 2. Admin Instruction
 
-Now that we are set up, let's open our `state.rs` located in your `/programs/config/src` directory and define the structure expected for our `AdminConfig`
+Now that we are set up, let's open our code and head to the `state.rs` located in your `/programs/config/src` directory and define the structure expected for our `AdminConfig`
 
 ```rust
 use anchor_lang::prelude::*;
@@ -379,7 +391,7 @@ pub struct Payment<'info> {
 }
 ```
 
-Once we've defined the structure for our `Payment` let's write the function to handle it:
+Once we've defined the structure for our `Payment` let's write the function to handle it right below it:
 
 ```rust
 pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
@@ -597,7 +609,7 @@ Program Id: 3cye9aV3D7qdoAp2a8QBs6wF6CvS2PYPWhxYhunAc4dS
 Deploy success
 ```
 
-Awesome! Now copy that `Program Id` and let's update our program in 2 places: `Anchor.toml` and `lib.rs`
+Awesome! Now stop your `solana-test-validator` and copy that `Program Id`. Let's update our program in 2 places: `Anchor.toml` and `lib.rs`
 
 `Anchor.toml`
 ```
@@ -608,6 +620,13 @@ config = "3cye9aV3D7qdoAp2a8QBs6wF6CvS2PYPWhxYhunAc4dS"
 `lib.rs`
 ```rust
 declare_id!("3cye9aV3D7qdoAp2a8QBs6wF6CvS2PYPWhxYhunAc4dS");
+```
+
+Also, while you have your `lib.rs` open let's update the `ADMIN_PUBKEY` to the Wallet Address of your CLI (you can get that by running `solana address` in your terminal)
+
+```rust
+#[constant]
+pub const ADMIN_PUBKEY: Pubkey = pubkey!("YOUR_WALLET_ADDRESS_HERE");
 ```
 
 To recap what we did here:
