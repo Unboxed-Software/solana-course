@@ -1,78 +1,79 @@
-# Environment Variables on Solana
+# Environment Variables in Solana Programs
 
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
 
-- Use Rust `cfg` attribute and feature flags to set up environment variables in an Anchor program
-- Create an admin only instruction to set up a global state PDA used for storing config values
+- Define program features in the `Cargo.toml` file
+- Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
+- Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
+- Create an admin-only instruction to set up a program account that can be used to store program configuration values
 
 # TL;DR
 
-- Use the `cfg` attribute with Rust features (`#[cfg(feature = ...)]`) to implement environment variables that differ between testing and production
-- Use Anchor constraints to create admin instructions accessible only by the executing program’s upgrade authority
+- There are no "out of the box" solutions for creating distinct environments in an on-chain program, but you can achieve something similar to environment variables if you get creative.
+- You can use the `cfg` attribute with **Rust features** (`#[cfg(feature = ...)]`) to run different code or provide different variable values based on the Rust feature provided. *This happens at compile-time and doesn't allow you to swap values after a program has been deployed*.
+- Similarly, you can use the `cfg!` **macro** to compile different code paths based on the features that are enabled.
+- Alternatively, you can achieve something similar to environment variables that can be modified after deployment by creating accounts and instructions that are only accessible by the program’s upgrade authority.
 
 # Overview
 
-In the context of Solana program development, environment variables can be used to store default settings and known addresses that a program can reference during execution.
+One of the difficulties engineers face across all types of software development is that of writing testable code and creating distinct environments for local development, testing, production, etc.
 
-Once a program is deployed, constants cannot be changed without redeploying the program. This can be a limitation for programs that require the ability to modify certain values after deployment. 
+This can be particularly difficult in Solana program development. For example, imagine creating an NFT staking program that rewards each staked NFT with 10 reward tokens per day. How do you test the ability to claim rewards when tests run in a few hundred milliseconds, not nearly long enough to earn rewards?
 
-To address this issue, one solution is to create a global state PDA (program derived account) immediately after deploying the program. This account can be used to store values that may need to be modified after deployment.
+Traditional web development solves some of this with environment variables whose values can differ in each distinct "environment." Currently, there's no formal concept of environment variables in a Solana program. If there were, you could just make it so that rewards in your test environment are 10,000,000 tokens per day and it would be easier to test the ability to claim rewards.
 
-The global state PDA account can be made accessible only by the program upgrade authority or an address that is hardcoded as a constant in the program. This ensures that only authorized parties can modify the values in the account, and helps prevent unauthorized changes.
+Fortunately, you can achieve similar functionality if you get creative. The best approach is probably a combination of two things:
 
-By using a global state PDA account in this way, a program can maintain the ability to modify certain values after deployment, while still maintaining security and control over those values.
+1. Rust feature flags that allow you to specify in your build command the "environment" of the build, coupled with code that adjusts specific values accordingly
+2. Program "admin-only" accounts and instructions that are only accessible by the program's upgrade authority
 
-In the end, we will build and deploy an Anchor program on Localhost. Then, run 4 tests to verify our program is properly set up with it's `cfg` attributes and feature flags.
+## Rust feature flags
 
-## Rust features flag and `cfg` attribute
-
-In Rust, the `cfg` attribute can be used to conditionally compile code based on the value of a configuration flag. This allows you to include or exclude certain code from your program.
-
-The `cfg` attribute can be used in a Anchor program in a similar way to how it is used in other Rust programs.
-
-```rust
-#[cfg(feature = "testing")]
-fn my_function() {
-    // code that will be included only if the "testing" feature flag is enabled
-}
-
-#[cfg(not(feature = "testing"))]
-fn my_function() {
-    // code that will be included only if the "testing" feature flag is not enabled
-}
-```
-
-In this example, the `cfg` attribute is used to conditionally compile `my_function()` based on the presence of the `testing` feature. This allows you to enable or disable certain functionality in your Anchor program at compile time by enabling or disabling the feature.
-
-Features flags are defined in the `[features]` table of the program’s `Cargo.toml` file. You may define multiple features for different use cases.
+One of the simplest ways to create environments is to use Rust features. Features are defined in the `[features]` table of the program’s `Cargo.toml` file. You may define multiple features for different use cases.
 
 ```toml
 [features]
-my-feature = []
-another-feature = []
+feature-one = []
+feature-two = []
 ```
 
-To enable a feature when testing your program, you can use the `--features` flag with the `anchor test` command. 
+It's important to note that the above simply defines a feature. To enable a feature when testing your program, you can use the `--features` flag with the `anchor test` command. 
 
 ```bash
-anchor test -- --features "my-feature"
+anchor test -- --features "feature-one"
 ```
 
 You can also specify multiple features by separating them with a comma.
 
 ```bash
-anchor test -- --features "my-feature", "another-feature"
+anchor test -- --features "feature-one", "feature-two"
 ```
 
-### Environment variable example
+### Make code conditional using the `cfg` attribute
 
-The **`cfg`** attribute can be used in an Anchor program to conditionally compile code based on the value of a configuration flag, allowing you to adapt the program to different environments. 
+With a feature defined, you can then use the `cfg` attribute within your code to conditionally compile code based on the whether or not a given feature is enabled. This allows you to include or exclude certain code from your program.
 
-This means we can configure the program to use a Devnet Address for testing and a Mainnet Address while in production. This allows the program to easily switch between different environments without requiring any changes to the code itself.
+The syntax for using the `cfg` attribute is like any other attribute macro: `#[cfg(feature=[FEATURE_HERE])]`. For example, the following code compiles the function `function_for_testing` when the `testing` feature is enabled and the `function_when_not_testing` otherwise:
 
-Here is an example of how you might use the `cfg` attribute to set up environment variables in your Anchor program:
+```rust
+#[cfg(feature = "testing")]
+fn function_for_testing() {
+    // code that will be included only if the "testing" feature flag is enabled
+}
+
+#[cfg(not(feature = "testing"))]
+fn function_when_not_testing() {
+    // code that will be included only if the "testing" feature flag is not enabled
+}
+```
+
+This allows you to enable or disable certain functionality in your Anchor program at compile time by enabling or disabling the feature.
+
+It's not a stretch to imagine wanting to use this to create distinct "environments" for different program deployments. For example, not all tokens have deployments across both Mainnet and Devnet. So you might hard-code one token address for Mainnet deployments but hard-code a different address for Devnet and Localnet deployments. That way you can quickly switch between between different environments without requiring any changes to the code itself.
+
+The code below shows an example of an Anchor program that uses the `cfg` attribute to include different token addresses for local testing compared to other deployments:
 
 ```rust
 use anchor_lang::prelude::*;
@@ -120,13 +121,15 @@ pub struct Initialize<'info> {
 }
 ```
 
-In this example, the `cfg` attribute is used to conditionally compile two different implementations of the `constants` module. This allows the program to use different values for the `USDC_MINT_PUBKEY` constant depending on whether the `local-testing` feature is enabled or not. This could be useful, for example, if the program needs to use different mint accounts for testing and production environments.
+In this example, the `cfg` attribute is used to conditionally compile two different implementations of the `constants` module. This allows the program to use different values for the `USDC_MINT_PUBKEY` constant depending on whether or not the `local-testing` feature is enabled.
 
-## Rust features flag and `cfg!` macro
+### Make code conditional using the `cfg!` macro
 
-The `cfg!` macro in Rust allows you to check the values of certain configuration flags at runtime. This can be useful if you want to execute different code paths depending on the values of certain configuration flags. For example, you could use the `cfg!` macro to bypass or adjust time-based constraints required in an instruction during testing. Think about testing a staking program where you must wait 24 hours to receive staking rewards. With out being able to adjust the staking time frame testing would take at least 24 hours.
+Similar to the `cfg` attribute, the `cfg!` **macro** in Rust allows you to check the values of certain configuration flags at runtime. This can be useful if you want to execute different code paths depending on the values of certain configuration flags.
 
-To use the **`cfg!`** macro in an Anchor program, you can add a `cfg!` macro call to the body of the function you want to conditionally execute code. For example, you could use the `cfg!` macro like this:
+You could use this to bypass or adjust the time-based constraints required in the NFT staking app we mentioned previously. When running a test, you can execute code that provides far higher staking rewards when compared to running a production build.
+
+To use the `cfg!` macro in an Anchor program, you simply add a `cfg!` macro call to the conditional statement in question:
 
 ```rust
 #[program]
@@ -148,112 +151,111 @@ pub mod my_program {
 }
 ```
 
-In this example, the `test_function` uses the `cfg!` **macro** to check the value of the `local-testing` feature at runtime. If the `local-testing` feature is enabled, the first code path is executed. If the `local-testing` feature is not enabled, the second code path is executed instead.
+In this example, the `test_function` uses the `cfg!` macro to check the value of the `local-testing` feature at runtime. If the `local-testing` feature is enabled, the first code path is executed. If the `local-testing` feature is not enabled, the second code path is executed instead.
 
-## Admin Instruction
+## Admin-only instructions
 
-Next, let’s discuss creating an admin instruction to initialize a global state PDA used to store modifiable program configurations. 
+Feature flags are great for adjusting values and code paths at compilation, but they don't help much if you end up needing to adjust something after you've already deployed your program.
 
-One approach is to restrict access of an admin instruction to the program’s upgrade authority. Alternatively, you can hardcode the administrator public key as a constant in the program and include a constraint to check against the value. 
+For example, if your NFT staking program has to pivot and use a different rewards token, there'd be no way to update the program without redeploying. If only there were a way for program admins to update certain program values...
 
-Here is an example of the account constraints used to ensure the `authority` signing a transaction matches the program’s `upgrade_authority_address`.
+Well, it's possible! First, you need to structure your program to store the values you anticipate changing in an account rather than hard-coding them into the program code. Next, you need to ensure that this account can only be updated by some known program authority, or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction.
+
+### Create the config account
+
+The first step is adding what we'll call a "config" account to your program. You can customize this to best suit your needs, but we suggest a single global PDA. In Anchor, that simply means creating an account struct and using a single seed to derive the account's address.
 
 ```rust
-#[derive(Accounts)]
-pub struct SetAdminSettings<'info> {
-    #[account(mut, seeds = [b"admin"], bump)]
-    pub admin_settings: Account<'info, AdminSettings>,
-    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
-    pub program: Program<'info, MyProgram>,
-    #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
-    pub program_data: Account<'info, ProgramData>,
-    pub authority: Signer<'info>,
+pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
+
+#[account]
+pub struct ProgramConfig {
+    reward_token: Pubkey,
+    rewards_per_day: u64,
 }
 ```
 
-In this example the `admin_setting` account stores state intended to be updatable only by the admin. The `admin_setting` account is a PDA derived using the hardcoded value of `admin`. This means only one `AdminSettings` account can exist for this program.
+The example above shows a hypothetical config account for the NFT staking program example we've referenced throughout the lesson. It stores data representing the token that should be used for rewards and the amount of tokens to give out for each day of staking.
+
+With the config account defined, simply ensure that the rest of your code references this account when using these values. That way, if the data in the account changes, the program adapts accordingly.
+
+### Constrain config updates to admins
+
+The next thing to do is create one or more admin-only instructions for updating the program's config account. This sounds fairly straightforward in theory, but there is one main issues: how does the program know who is an authorized admin?
+
+Well, there are two simple solutions:
+
+1. Hard-code an admin public key that can be used in the admin-only instruction constraints.
+2. Make the program's upgrade authority the admin.
+
+In Anchor, constraining an `update_program_config` instruction to only be usable by a hard-coded admin might look like this: 
 
 ```rust
-#[account(mut, seeds = [b"admin"], bump)]
-pub admin_settings: Account<'info, AdminSettings>,
-```
-
-The following accounts and constraints ensure that the `authority` signing the instruction must match the program’s upgrade authority.
-
-```rust
-#[account(constraint = program.programdata_address()? == Some(program_data.key()))]
-pub program: Program<'info, MyProgram>,
-#[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
-pub program_data: Account<'info, ProgramData>,
-pub authority: Signer<'info>,
-```
-<!-- Revise flow here -->
-Let's break this down a little more. The `constraint` on the `program` account specifies that the `program_data.key()` must match the `programdata_address` of the program itself.
-
-```rust
-#[account(constraint = program.programdata_address()? == Some(program_data.key()))]
-pub program: Program<'info, MyProgram>,
-```
-
-The `constraint` on the `program_data` account specifies that the `authority.key()` must match the `upgrade_authority_address` of the `program_data` account.
-
-```rust
-#[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
-pub program_data: Account<'info, ProgramData>,
-```
-
-The `Signer` type specifies the `authority` must be a signer on the transaction
-
-```rust
-pub authority: Signer<'info>,
-```
-
-These series of constraints together ensures that only the upgrade authority of the executing program can sign as the `authority` for the intended admin instruction.
-
-All together a simple `set_admin_settings` instruction would look like the following. 
-
-```rust
-use anchor_lang::prelude::*;
-use crate::program::MyProgram;
-
-declare_id!("29KLUpcQ1EHYqN3wqBkmo7o2T7xfhESpTKy6eEp9krNU");
-
 #[program]
 mod my_program {
     pub fn set_admin_settings(
-        ctx: Context<SetAdminSettings>,
-        admin_data: u64,
+        ctx: Context<UpdateProgramConfig>,
+        reward_token: Pubkey,
+        rewards_per_day: u64
     ) -> Result<()> {
-        ctx.accounts.admin_config.admin_data = admin_data;   
+        ctx.accounts.program_config.reward_token = reward_token;
+        ctx.accounts.program_config.rewards_per_day = rewards_per_day;
+
         Ok(())
     }
 }
 
+pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
+
+#[constant]
+pub const ADMIN_PUBKEY: Pubkey = pubkey!("ADMIN_WALLET_ADDRESS_HERE");
+
 #[derive(Accounts)]
-pub struct SetAdminSettings<'info> {
-    #[account(mut, seeds = [b"admin"], bump)]
-    pub admin_settings: Account<'info, AdminSettings>,
+pub struct UpdateProgramConfig<'info> {
+    #[account(mut, seeds = SEED_PROGRAM_CONFIG, bump)]
+    pub program_config: Account<'info, ProgramConfig>,
+    #[account(constraint = authority.key() == ADMIN_PUBKEY)]
+    pub authority: Signer<'info>,
+}
+```
+
+Before instruction logic even executes, a check will be performed to make sure the instruction's signer matches the hard-coded `ADMIN_PUBKEY`.
+
+While this approach works, it also means keeping track of an admin wallet on top of keeping track of a program's upgrade authority. With a few more lines of code, you could simply restrict an instruction to only be callable by the upgrade authority. The only tricky part is getting a program's upgrade authority to compare against.
+
+Fortunately, every program has a program data account that translates to the Anchor `ProgramData` account type and has the `upgrade_authority_address` field. The program itself stores this account's address in its data in the field `programdata_address`.
+
+So in addition to the two accounts required by the instruction in the hard-coded admin example, this instruction requires the `program` and the `program_data` accounts.
+
+The accounts then need the following constraints:
+1. A constraint on `program` ensuring that the provided `program_data` account matches the program's `programdata_address` field
+2. A constraint on the `program_data` account ensuring that the instruction's signer matches the `program_data` account's `upgrade_authority_address` field.
+
+When completed, that looks like this:
+
+```rust
+...
+
+#[derive(Accounts)]
+pub struct UpdateProgramConfig<'info> {
+    #[account(mut, seeds = SEED_PROGRAM_CONFIG, bump)]
+    pub program_config: Account<'info, ProgramConfig>,
     #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
     pub program: Program<'info, MyProgram>,
     #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
     pub program_data: Account<'info, ProgramData>,
     pub authority: Signer<'info>,
 }
-
-#[account]
-pub struct AdminSettings {
-   admin_data: u64,
-}
 ```
 
-You can read more about the relationship between the program account and program data account [here](https://www.notion.so/29780c48794c47308d5f138074dd9838).
+If this is the first time you've heard about the program data account, it's worth reading through [this Notion doc](https://www.notion.so/29780c48794c47308d5f138074dd9838) about program deploys.
 
 # Demo
 
 Let's pull all of this together now by creating and testing a Solana program that will run 4 tests:
 
 1) Txn with correct amounts
-2) Txn with inccorect amounts
+2) Txn with incorrect amounts
 3) An Admin Config Update - as Admin
 4) An Admin Config Update - not as Admin
 
