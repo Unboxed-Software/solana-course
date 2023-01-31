@@ -157,9 +157,17 @@ In this example, the `test_function` uses the `cfg!` macro to check the value of
 
 Feature flags are great for adjusting values and code paths at compilation, but they don't help much if you end up needing to adjust something after you've already deployed your program.
 
-For example, if your NFT staking program has to pivot and use a different rewards token, there'd be no way to update the program without redeploying. If only there were a way for program admins to update certain program values...
+For example, if your NFT staking program has to pivot and use a different rewards token, there'd be no way to update the program without redeploying. If only there were a way for program admins to update certain program values... Well, it's possible!
 
-Well, it's possible! First, you need to structure your program to store the values you anticipate changing in an account rather than hard-coding them into the program code. Next, you need to ensure that this account can only be updated by some known program authority, or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction.
+First, you need to structure your program to store the values you anticipate changing in an account rather than hard-coding them into the program code. 
+
+Next, you need to ensure that this account can only be updated by some known program authority, or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction. This sounds fairly straightforward in theory, but there is one main issues: how does the program know who is an authorized admin?
+
+Well, there are a few solutions, each with their own benefits and drawbacks:
+
+1. Hard-code an admin public key that can be used in the admin-only instruction constraints.
+2. Make the program's upgrade authority the admin.
+3. Store the admin in the config account and set the first admin in an `initialize` instruction.
 
 ### Create the config account
 
@@ -179,14 +187,9 @@ The example above shows a hypothetical config account for the NFT staking progra
 
 With the config account defined, simply ensure that the rest of your code references this account when using these values. That way, if the data in the account changes, the program adapts accordingly.
 
-### Constrain config updates to admins
+### Constrain config updates to hard-coded admins
 
-The next thing to do is create one or more admin-only instructions for updating the program's config account. This sounds fairly straightforward in theory, but there is one main issues: how does the program know who is an authorized admin?
-
-Well, there are two simple solutions:
-
-1. Hard-code an admin public key that can be used in the admin-only instruction constraints.
-2. Make the program's upgrade authority the admin.
+You'll need a way to initialize and update the config account data. That means you need to have one or more instructions that only an admin can invoke. The simplest way to do this is to hard-code an admin's public key in your code and then add a simple signer check into your instruction's account validation comparing the signer to this public key.
 
 In Anchor, constraining an `update_program_config` instruction to only be usable by a hard-coded admin might look like this: 
 
@@ -219,9 +222,11 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
-Before instruction logic even executes, a check will be performed to make sure the instruction's signer matches the hard-coded `ADMIN_PUBKEY`.
+Before instruction logic even executes, a check will be performed to make sure the instruction's signer matches the hard-coded `ADMIN_PUBKEY`. Notice that the example above doesn't show the instruction that initializes the config account, but it should have similar constraints to ensure that an attacker can't initialize the account with unexpected values.
 
 While this approach works, it also means keeping track of an admin wallet on top of keeping track of a program's upgrade authority. With a few more lines of code, you could simply restrict an instruction to only be callable by the upgrade authority. The only tricky part is getting a program's upgrade authority to compare against.
+
+### Constrain config updates to the program's upgrade authority
 
 Fortunately, every program has a program data account that translates to the Anchor `ProgramData` account type and has the `upgrade_authority_address` field. The program itself stores this account's address in its data in the field `programdata_address`.
 
@@ -248,9 +253,47 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
+Again, the example above doesn't show the instruction that initializes the config account, but it should have the same constraints to ensure that an attacker can't initialize the account with unexpected values.
+
 If this is the first time you've heard about the program data account, it's worth reading through [this Notion doc](https://www.notion.so/29780c48794c47308d5f138074dd9838) about program deploys.
 
+### Constrain config updates to a provided admin
+
+Both of the previous options are fairly secure but also inflexible. What if you want to update the admin to be someone else? For that, you can store the admin on the config account.
+
+```rust
+pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
+
+#[account]
+pub struct ProgramConfig {
+    admin: Pubkey,
+    reward_token: Pubkey,
+    rewards_per_day: u64,
+}
+```
+
+Then you can constrain your "update" instructions with a signer check matching against the config account's `admin` field.
+
+```rust
+...
+
+pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
+
+#[derive(Accounts)]
+pub struct UpdateProgramConfig<'info> {
+    #[account(mut, seeds = SEED_PROGRAM_CONFIG, bump)]
+    pub program_config: Account<'info, ProgramConfig>,
+    #[account(constraint = authority.key() == program_config.admin)]
+    pub authority: Signer<'info>,
+}
+```
+
+There's one catch here: in the time between deploying a program and initializing the config account, *there is no admin*. Which means that the instruction for initializing the config account can't be constrained to only allow admins as callers. That means it could be called by an attacker looking to set themselves as the admin.
+
+While this sounds bad, it really just means that you shouldn't treat your program as "initialized" until you've initialized the config account yourself and verified that the admin listed on the account is who you expect. If your deploy script deploys and then immediately calls `initialize`, it's very unlikely that an attacker is even aware of your program's existence much less trying to make themselves the admin. If by some crazy stroke of bad luck someone "intercepts" your program, you can close the program with the upgrade authority and redeploy.
+
 # Demo
+
 
 Let's pull all of this together now by creating and testing a Solana program that will run 4 tests:
 
@@ -263,31 +306,9 @@ Based on the `cfg` attributes and feature flags we will provide, all 4 tests sho
 
 ### 1. Starter
 
-First thing to do is grab the starter code here [https://github.com/maweiche/admin-test/tree/starter](https://github.com/maweiche/admin-test/tree/starter). Make sure you clone the code from the `starter` branch and not `master`.
+To get started, download the starter code on the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). 
 
-```sh
-git clone https://github.com/maweiche/admin-test.git
-cd admin-test
-git checkout -b starter
-git pull origin starter
-npm install
-```
 
-Once you've cloned the starter code, let's configure Solana in the terminal. We'll be deploying and testing on localhost, so switch the Solana RPC in your terminal to localhost with:
-
-```sh
-solana config set --url localhost
-```
-
-If you see an output like this, then you're set.
-
-```sh
-Config File: /Users/matt/.config/solana/cli/config.yml
-RPC URL: http://localhost:8899 
-WebSocket URL: ws://localhost:8900/ (computed)
-Keypair Path: /Users/matt/.config/solana/id.json 
-Commitment: confirmed
-```
 
 ### 2. Admin Instruction
 
@@ -649,7 +670,7 @@ If everything executes correctly your response should look like the following:
 
 ![Screenshot of Test Success](../assets/env-variables-test-success.png)
 
-If needed, you can compare with the solution code here: [https://github.com/maweiche/admin-test/tree/starter](https://github.com/maweiche/admin-test/tree/solution).
+If needed, you can compare with the solution code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/solution).
 
 Nice job, you now know how to create `env` type variables within a Solana Program!
 
