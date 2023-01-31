@@ -815,7 +815,6 @@ If you want to take a look at the final solution code you can find it on the `s
 
 # Challenge
 
-_Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently._
+As a challenge, try adding a new feature flag to set an `Admin` constant. Additionally, create an instruction to update the admin stored on the program config account with the new value of the `Admin` constant. Remember to add the new feature to the `Cargo.toml` file within the `/program` directory.
 
-1. Challenge instruction one
-2. Challenge instruction two
+You're implementation will likely look different, but feel free to reference the `challenge` branch of [the same repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/challenge)
