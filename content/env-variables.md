@@ -157,9 +157,17 @@ In this example, the `test_function` uses the `cfg!` macro to check the value of
 
 Feature flags are great for adjusting values and code paths at compilation, but they don't help much if you end up needing to adjust something after you've already deployed your program.
 
-For example, if your NFT staking program has to pivot and use a different rewards token, there'd be no way to update the program without redeploying. If only there were a way for program admins to update certain program values...
+For example, if your NFT staking program has to pivot and use a different rewards token, there'd be no way to update the program without redeploying. If only there were a way for program admins to update certain program values... Well, it's possible!
 
-Well, it's possible! First, you need to structure your program to store the values you anticipate changing in an account rather than hard-coding them into the program code. Next, you need to ensure that this account can only be updated by some known program authority, or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction.
+First, you need to structure your program to store the values you anticipate changing in an account rather than hard-coding them into the program code.
+
+Next, you need to ensure that this account can only be updated by some known program authority, or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction. This sounds fairly straightforward in theory, but there is one main issues: how does the program know who is an authorized admin?
+
+Well, there are a few solutions, each with their own benefits and drawbacks:
+
+1. Hard-code an admin public key that can be used in the admin-only instruction constraints.
+2. Make the program's upgrade authority the admin.
+3. Store the admin in the config account and set the first admin in an `initialize` instruction.
 
 ### Create the config account
 
@@ -179,14 +187,9 @@ The example above shows a hypothetical config account for the NFT staking progra
 
 With the config account defined, simply ensure that the rest of your code references this account when using these values. That way, if the data in the account changes, the program adapts accordingly.
 
-### Constrain config updates to admins
+### Constrain config updates to hard-coded admins
 
-The next thing to do is create one or more admin-only instructions for updating the program's config account. This sounds fairly straightforward in theory, but there is one main issues: how does the program know who is an authorized admin?
-
-Well, there are two simple solutions:
-
-1. Hard-code an admin public key that can be used in the admin-only instruction constraints.
-2. Make the program's upgrade authority the admin.
+You'll need a way to initialize and update the config account data. That means you need to have one or more instructions that only an admin can invoke. The simplest way to do this is to hard-code an admin's public key in your code and then add a simple signer check into your instruction's account validation comparing the signer to this public key.
 
 In Anchor, constraining an `update_program_config` instruction to only be usable by a hard-coded admin might look like this:
 
@@ -219,9 +222,11 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
-Before instruction logic even executes, a check will be performed to make sure the instruction's signer matches the hard-coded `ADMIN_PUBKEY`.
+Before instruction logic even executes, a check will be performed to make sure the instruction's signer matches the hard-coded `ADMIN_PUBKEY`. Notice that the example above doesn't show the instruction that initializes the config account, but it should have similar constraints to ensure that an attacker can't initialize the account with unexpected values.
 
 While this approach works, it also means keeping track of an admin wallet on top of keeping track of a program's upgrade authority. With a few more lines of code, you could simply restrict an instruction to only be callable by the upgrade authority. The only tricky part is getting a program's upgrade authority to compare against.
+
+### Constrain config updates to the program's upgrade authority
 
 Fortunately, every program has a program data account that translates to the Anchor `ProgramData` account type and has the `upgrade_authority_address` field. The program itself stores this account's address in its data in the field `programdata_address`.
 
@@ -249,100 +254,66 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
+Again, the example above doesn't show the instruction that initializes the config account, but it should have the same constraints to ensure that an attacker can't initialize the account with unexpected values.
+
 If this is the first time you've heard about the program data account, it's worth reading through [this Notion doc](https://www.notion.so/29780c48794c47308d5f138074dd9838) about program deploys.
+
+### Constrain config updates to a provided admin
+
+Both of the previous options are fairly secure but also inflexible. What if you want to update the admin to be someone else? For that, you can store the admin on the config account.
+
+```rust
+pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
+
+#[account]
+pub struct ProgramConfig {
+    admin: Pubkey,
+    reward_token: Pubkey,
+    rewards_per_day: u64,
+}
+```
+
+Then you can constrain your "update" instructions with a signer check matching against the config account's `admin` field.
+
+```rust
+...
+
+pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
+
+#[derive(Accounts)]
+pub struct UpdateProgramConfig<'info> {
+    #[account(mut, seeds = SEED_PROGRAM_CONFIG, bump)]
+    pub program_config: Account<'info, ProgramConfig>,
+    #[account(constraint = authority.key() == program_config.admin)]
+    pub authority: Signer<'info>,
+}
+```
+
+There's one catch here: in the time between deploying a program and initializing the config account, _there is no admin_. Which means that the instruction for initializing the config account can't be constrained to only allow admins as callers. That means it could be called by an attacker looking to set themselves as the admin.
+
+While this sounds bad, it really just means that you shouldn't treat your program as "initialized" until you've initialized the config account yourself and verified that the admin listed on the account is who you expect. If your deploy script deploys and then immediately calls `initialize`, it's very unlikely that an attacker is even aware of your program's existence much less trying to make themselves the admin. If by some crazy stroke of bad luck someone "intercepts" your program, you can close the program with the upgrade authority and redeploy.
 
 # Demo
 
-For this demo, we will create a program that enables USDC transfers while collecting a fee based on the amount of the transfer. A program config account will be set up to store details such as the token account to receive the fee, the fee percentage, and the admin who will be able to make updates to the account. For local testing, we will use a placeholder to represent USDC, which will be accessible with a feature flag.
+Now let's go ahead and try this out together. For this demo, we'll be working with a simple program that enables USDC payments. The program collects a small fee for facilitating the transfer. Note that this this is somewhat contrived since direct transfers are simple enough, but simulates how some complex DeFi programs work.
+
+We'll quickly learn while testing our program that it could benefit from the flexibility provided by an admin-controlled configuration account and some feature flags.
 
 ### 1. Starter
 
-Download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). The code contains a program with a single instruction and the boilerplate setup for the test file. The `lib.rs` file includes a placeholder for the USDC address and the `payment` instruction.
+Download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). The code contains a program with a single instruction and a single test in the `tests` directory.
 
-```rust
-use anchor_lang::prelude::*;
-use solana_program::{pubkey, pubkey::Pubkey};
-mod instructions;
-use instructions::*;
+Let's quickly walk through how the program works.
 
-declare_id!("DWiwuFozPXHW4KA5ijwcDgY88kJeXZ7WNUjfxZ6L4pJU");
+The `lib.rs` file includes a constant for the USDC address and a single `payment` instruction. The `payment` instruction simply called the `payment_handler` function in the `instructions/payment.rs` file where the instruction logic is contained.
 
-pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("envgiPXWwmpkHFKdy4QLv2cypgAWmVTVEm71YbNpYRu");
+The `instructions/payment.rs` file contains both the `payment_handler` function as well as the `Payment` account validation struct representing the accounts required by the `payment` instruction. The `payment_handler` function calculates a 1% fee from the payment amount, transfers the fee to a designated token account, and transfers the remaining amount to the payment recipient.
 
-#[program]
-pub mod config {
-    use super::*;
+Finally, the `tests` directory has a single test file, `config.ts` that simply invokes the `payment` instruction and asserts that the corresponding token account balances have been debited and credited accordingly.
 
-    pub fn payment(ctx: Context<Payment>, amount: u64) -> Result<()> {
-        instructions::payment_handler(ctx, amount)
-    }
-}
-```
+Before we continue, take a few minutes to familiarize yourself with these files and their contents.
 
-The `payment_handler` function in the `payments.rs` file calculates a 1% fee from the payment amount. It then transfers this fee to a designated token account and the remaining amount to the recipient. To ensure that the token account is for the correct mint, the placeholder USDC is used as a constraint.
-
-```rust
-use crate::USDC_MINT_PUBKEY;
-use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount};
-
-#[derive(Accounts)]
-pub struct Payment<'info> {
-    #[account(
-        mut,
-        token::mint = USDC_MINT_PUBKEY
-    )]
-    pub fee_destination: Account<'info, TokenAccount>,
-    #[account(
-        mut,
-        token::mint = USDC_MINT_PUBKEY
-    )]
-    pub sender_token_account: Account<'info, TokenAccount>,
-    #[account(
-        mut,
-        token::mint = USDC_MINT_PUBKEY
-    )]
-    pub receiver_token_account: Account<'info, TokenAccount>,
-    pub token_program: Program<'info, Token>,
-    #[account(mut)]
-    pub sender: Signer<'info>,
-}
-
-pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
-    let fee_amount = amount.checked_mul(100).unwrap().checked_div(10000).unwrap();
-    let remaining_amount = amount.checked_sub(fee_amount).unwrap();
-
-    msg!("Amount: {}", amount);
-    msg!("Fee Amount: {}", fee_amount);
-    msg!("Remaining Transfer Amount: {}", remaining_amount);
-
-    token::transfer(
-        CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            token::Transfer {
-                from: ctx.accounts.sender_token_account.to_account_info(),
-                authority: ctx.accounts.sender.to_account_info(),
-                to: ctx.accounts.fee_destination.to_account_info(),
-            },
-        ),
-        fee_amount,
-    )?;
-
-    token::transfer(
-        CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            token::Transfer {
-                from: ctx.accounts.sender_token_account.to_account_info(),
-                authority: ctx.accounts.sender.to_account_info(),
-                to: ctx.accounts.receiver_token_account.to_account_info(),
-            },
-        ),
-        remaining_amount,
-    )?;
-
-    Ok(())
-}
-```
+THIS NEXT PART NEEDS TO BE MOVED SOMEWHERE ELSE
 
 The placeholder USDC mint address keypair is stored in the `tests/keys` folder. To prevent having to create a new mint address for each test, the same mint address is reused each time the tests are run.
 
@@ -815,6 +786,7 @@ If you want to take a look at the final solution code you can find it on the `s
 
 # Challenge
 
-As a challenge, try adding a new feature flag to set an `Admin` constant. Additionally, create an instruction to update the admin stored on the program config account with the new value of the `Admin` constant. Remember to add the new feature to the `Cargo.toml` file within the `/program` directory.
+_Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently._
 
-You're implementation will likely look different, but feel free to reference the `challenge` branch of [the same repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/challenge)
+1. Challenge instruction one
+2. Challenge instruction two
