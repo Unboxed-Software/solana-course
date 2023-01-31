@@ -4,17 +4,17 @@
 
 _By the end of this lesson, you will be able to:_
 
--   Define program features in the `Cargo.toml` file
--   Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
--   Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
--   Create an admin-only instruction to set up a program account that can be used to store program configuration values
+- Define program features in the `Cargo.toml` file
+- Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
+- Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
+- Create an admin-only instruction to set up a program account that can be used to store program configuration values
 
 # TL;DR
 
--   There are no "out of the box" solutions for creating distinct environments in an on-chain program, but you can achieve something similar to environment variables if you get creative.
--   You can use the `cfg` attribute with **Rust features** (`#[cfg(feature = ...)]`) to run different code or provide different variable values based on the Rust feature provided. _This happens at compile-time and doesn't allow you to swap values after a program has been deployed_.
--   Similarly, you can use the `cfg!` **macro** to compile different code paths based on the features that are enabled.
--   Alternatively, you can achieve something similar to environment variables that can be modified after deployment by creating accounts and instructions that are only accessible by the program’s upgrade authority.
+- There are no "out of the box" solutions for creating distinct environments in an on-chain program, but you can achieve something similar to environment variables if you get creative.
+- You can use the `cfg` attribute with **Rust features** (`#[cfg(feature = ...)]`) to run different code or provide different variable values based on the Rust feature provided. _This happens at compile-time and doesn't allow you to swap values after a program has been deployed_.
+- Similarly, you can use the `cfg!` **macro** to compile different code paths based on the features that are enabled.
+- Alternatively, you can achieve something similar to environment variables that can be modified after deployment by creating accounts and instructions that are only accessible by the program’s upgrade authority.
 
 # Overview
 
@@ -295,96 +295,25 @@ While this sounds bad, it really just means that you shouldn't treat your progra
 
 # Demo
 
-For this demo, we will create a program that enables USDC transfers while collecting a fee based on the amount of the transfer. A program config account will be set up to store details such as the token account to receive the fee, the fee percentage, and the admin who will be able to make updates to the account. For local testing, we will use a placeholder to represent USDC, which will be accessible with a feature flag.
+Now let's go ahead and try this out together. For this demo, we'll be working with a simple program that enables USDC payments. The program collects a small fee for facilitating the transfer. Note that this this is somewhat contrived since direct transfers are simple enough, but simulates how some complex DeFi programs work.
+
+We'll quickly learn while testing our program that it could benefit from the flexibility provided by an admin-controlled configuration account and some feature flags.
 
 ### 1. Starter
 
-Download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). The code contains a program with a single instruction and the boilerplate setup for the test file. The `lib.rs` file includes a placeholder for the USDC address and the `payment` instruction.
+Download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). The code contains a program with a single instruction and a single test in the `tests` directory.
 
-```rust
-use anchor_lang::prelude::*;
-use solana_program::{pubkey, pubkey::Pubkey};
-mod instructions;
-use instructions::*;
+Let's quickly walk through how the program works.
 
-declare_id!("DWiwuFozPXHW4KA5ijwcDgY88kJeXZ7WNUjfxZ6L4pJU");
+The `lib.rs` file includes a constant for the USDC address and a single `payment` instruction. The `payment` instruction simply called the `payment_handler` function in the `instructions/payment.rs` file where the instruction logic is contained.
 
-pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("envgiPXWwmpkHFKdy4QLv2cypgAWmVTVEm71YbNpYRu");
+The `instructions/payment.rs` file contains both the `payment_handler` function as well as the `Payment` account validation struct representing the accounts required by the `payment` instruction. The `payment_handler` function calculates a 1% fee from the payment amount, transfers the fee to a designated token account, and transfers the remaining amount to the payment recipient.
 
-#[program]
-pub mod config {
-    use super::*;
+Finally, the `tests` directory has a single test file, `config.ts` that simply invokes the `payment` instruction and asserts that the corresponding token account balances have been debited and credited accordingly.
 
-    pub fn payment(ctx: Context<Payment>, amount: u64) -> Result<()> {
-        instructions::payment_handler(ctx, amount)
-    }
-}
-```
+Before we continue, take a few minutes to familiarize yourself with these files and their contents.
 
-The `payment_handler` function in the `payments.rs` file calculates a 1% fee from the payment amount. It then transfers this fee to a designated token account and the remaining amount to the recipient. To ensure that the token account is for the correct mint, the placeholder USDC is used as a constraint.
-
-```rust
-use crate::USDC_MINT_PUBKEY;
-use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount};
-
-#[derive(Accounts)]
-pub struct Payment<'info> {
-    #[account(
-        mut,
-        token::mint = USDC_MINT_PUBKEY
-    )]
-    pub fee_destination: Account<'info, TokenAccount>,
-    #[account(
-        mut,
-        token::mint = USDC_MINT_PUBKEY
-    )]
-    pub sender_token_account: Account<'info, TokenAccount>,
-    #[account(
-        mut,
-        token::mint = USDC_MINT_PUBKEY
-    )]
-    pub receiver_token_account: Account<'info, TokenAccount>,
-    pub token_program: Program<'info, Token>,
-    #[account(mut)]
-    pub sender: Signer<'info>,
-}
-
-pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
-    let fee_amount = amount.checked_mul(100).unwrap().checked_div(10000).unwrap();
-    let remaining_amount = amount.checked_sub(fee_amount).unwrap();
-
-    msg!("Amount: {}", amount);
-    msg!("Fee Amount: {}", fee_amount);
-    msg!("Remaining Transfer Amount: {}", remaining_amount);
-
-    token::transfer(
-        CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            token::Transfer {
-                from: ctx.accounts.sender_token_account.to_account_info(),
-                authority: ctx.accounts.sender.to_account_info(),
-                to: ctx.accounts.fee_destination.to_account_info(),
-            },
-        ),
-        fee_amount,
-    )?;
-
-    token::transfer(
-        CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            token::Transfer {
-                from: ctx.accounts.sender_token_account.to_account_info(),
-                authority: ctx.accounts.sender.to_account_info(),
-                to: ctx.accounts.receiver_token_account.to_account_info(),
-            },
-        ),
-        remaining_amount,
-    )?;
-
-    Ok(())
-}
-```
+THIS NEXT PART NEEDS TO BE MOVED SOMEWHERE ELSE
 
 The placeholder USDC mint address keypair is stored in the `tests/keys` folder. To prevent having to create a new mint address for each test, the same mint address is reused each time the tests are run.
 
