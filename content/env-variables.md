@@ -2,19 +2,19 @@
 
 # Lesson Objectives
 
-*By the end of this lesson, you will be able to:*
+_By the end of this lesson, you will be able to:_
 
-- Define program features in the `Cargo.toml` file
-- Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
-- Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
-- Create an admin-only instruction to set up a program account that can be used to store program configuration values
+-   Define program features in the `Cargo.toml` file
+-   Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
+-   Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
+-   Create an admin-only instruction to set up a program account that can be used to store program configuration values
 
 # TL;DR
 
-- There are no "out of the box" solutions for creating distinct environments in an on-chain program, but you can achieve something similar to environment variables if you get creative.
-- You can use the `cfg` attribute with **Rust features** (`#[cfg(feature = ...)]`) to run different code or provide different variable values based on the Rust feature provided. *This happens at compile-time and doesn't allow you to swap values after a program has been deployed*.
-- Similarly, you can use the `cfg!` **macro** to compile different code paths based on the features that are enabled.
-- Alternatively, you can achieve something similar to environment variables that can be modified after deployment by creating accounts and instructions that are only accessible by the program’s upgrade authority.
+-   There are no "out of the box" solutions for creating distinct environments in an on-chain program, but you can achieve something similar to environment variables if you get creative.
+-   You can use the `cfg` attribute with **Rust features** (`#[cfg(feature = ...)]`) to run different code or provide different variable values based on the Rust feature provided. _This happens at compile-time and doesn't allow you to swap values after a program has been deployed_.
+-   Similarly, you can use the `cfg!` **macro** to compile different code paths based on the features that are enabled.
+-   Alternatively, you can achieve something similar to environment variables that can be modified after deployment by creating accounts and instructions that are only accessible by the program’s upgrade authority.
 
 # Overview
 
@@ -39,7 +39,7 @@ feature-one = []
 feature-two = []
 ```
 
-It's important to note that the above simply defines a feature. To enable a feature when testing your program, you can use the `--features` flag with the `anchor test` command. 
+It's important to note that the above simply defines a feature. To enable a feature when testing your program, you can use the `--features` flag with the `anchor test` command.
 
 ```bash
 anchor test -- --features "feature-one"
@@ -97,7 +97,7 @@ pub mod constants {
 pub mod test_program {
     use super::*;
 
-		pub fn initialize_usdc_token_account(ctx: Context<Initialize>) -> Result<()> {
+    pub fn initialize_usdc_token_account(ctx: Context<Initialize>) -> Result<()> {
         Ok(())
     }
 }
@@ -144,9 +144,9 @@ pub mod my_program {
             // This code will be executed only if the "local-testing" feature is not enabled
             // ...
         }
-				// Code that should always be included goes here
-				...
-				Ok(())
+        // Code that should always be included goes here
+        ...
+        Ok(())
     }
 }
 ```
@@ -191,7 +191,7 @@ With the config account defined, simply ensure that the rest of your code refere
 
 You'll need a way to initialize and update the config account data. That means you need to have one or more instructions that only an admin can invoke. The simplest way to do this is to hard-code an admin's public key in your code and then add a simple signer check into your instruction's account validation comparing the signer to this public key.
 
-In Anchor, constraining an `update_program_config` instruction to only be usable by a hard-coded admin might look like this: 
+In Anchor, constraining an `update_program_config` instruction to only be usable by a hard-coded admin might look like this:
 
 ```rust
 #[program]
@@ -233,6 +233,7 @@ Fortunately, every program has a program data account that translates to the Anc
 So in addition to the two accounts required by the instruction in the hard-coded admin example, this instruction requires the `program` and the `program_data` accounts.
 
 The accounts then need the following constraints:
+
 1. A constraint on `program` ensuring that the provided `program_data` account matches the program's `programdata_address` field
 2. A constraint on the `program_data` account ensuring that the instruction's signer matches the `program_data` account's `upgrade_authority_address` field.
 
@@ -294,105 +295,41 @@ While this sounds bad, it really just means that you shouldn't treat your progra
 
 # Demo
 
-
-Let's pull all of this together now by creating and testing a Solana program that will run 4 tests:
-
-1) Txn with correct amounts
-2) Txn with incorrect amounts
-3) An Admin Config Update - as Admin
-4) An Admin Config Update - not as Admin
-
-Based on the `cfg` attributes and feature flags we will provide, all 4 tests should pass.
+For this demo, we will create a program that enables USDC transfers while collecting a fee based on the amount of the transfer. A program config account will be set up to store details such as the token account to receive the fee, the fee percentage, and the admin who will be able to make updates to the account. For local testing, we will use a placeholder to represent USDC, which will be accessible with a feature flag.
 
 ### 1. Starter
 
-To get started, download the starter code on the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). 
-
-
-
-### 2. Admin Instruction
-
-Now that we are set up, let's open our code and head to the `state.rs` located in your `/programs/config/src` directory and define the structure expected for our `AdminConfig`
+Download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). The code contains a program with a single instruction and the boilerplate setup for the test file. The `lib.rs` file includes a placeholder for the USDC address and the `payment` instruction.
 
 ```rust
 use anchor_lang::prelude::*;
+use solana_program::{pubkey, pubkey::Pubkey};
+mod instructions;
+use instructions::*;
 
-#[account]
-pub struct AdminConfig {
-    pub admin: Pubkey,
-    pub fee_destination: Pubkey,
-    pub fee_basis_points: u64,
-}
+declare_id!("DWiwuFozPXHW4KA5ijwcDgY88kJeXZ7WNUjfxZ6L4pJU");
 
-impl AdminConfig {
-    pub const LEN: usize = 8 + 32 + 32 + 8;
-}
-```
+pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("envgiPXWwmpkHFKdy4QLv2cypgAWmVTVEm71YbNpYRu");
 
-The structure is pretty straightforward, we are telling the program which "types" to expect for the three fields in `AdminConfig`, and then how many bytes are required to store this structure.
+#[program]
+pub mod config {
+    use super::*;
 
-Next, let's edit the programs instructions starting with `initialize_admin_config.rs` located in the `/programs/config/src/instructions/admin` :
-
-```rust
-use crate::program::Config;
-use crate::state::AdminConfig;
-use anchor_lang::prelude::*;
-use anchor_spl::token::TokenAccount;
-
-#[derive(Accounts)]
-pub struct InitializeAdminConfig<'info> {
-    #[account(init, seeds = [b"admin"], bump, payer = authority, space = AdminConfig::LEN)]
-    pub admin_config: Account<'info, AdminConfig>,
-    #[account()]
-    pub fee_destination: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
-    pub program: Program<'info, Config>,
-    #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
-    pub program_data: Account<'info, ProgramData>,
-    pub system_program: Program<'info, System>,
-}
-
-pub fn initialize_admin_config_handler(ctx: Context<InitializeAdminConfig>) -> Result<()> {
-    ctx.accounts.admin_config.admin = ctx.accounts.authority.key();
-    ctx.accounts.admin_config.fee_destination = ctx.accounts.fee_destination.key();
-    ctx.accounts.admin_config.fee_basis_points = 100;
-    Ok(())
+    pub fn payment(ctx: Context<Payment>, amount: u64) -> Result<()> {
+        instructions::payment_handler(ctx, amount)
+    }
 }
 ```
 
-What we are doing here is setting up the instructions for how to initialize the `AdminConfig` and what values to set to it's fields. To be more specific, when the program is deployed it will take the `Signer` of the deployment and set it as the `Authority` because of these 2 lines :
+The `payment_handler` function in the `payments.rs` file calculates a 1% fee from the payment amount. It then transfers this fee to a designated token account and the remaining amount to the recipient. To ensure that the token account is for the correct mint, the placeholder USDC is used as a constraint.
 
 ```rust
-pub authority: Signer<'info>,
-```
-
-```rust
-ctx.accounts.admin_config.admin = ctx.accounts.authority.key();
-```
-
-
-### 3. Payment Instruction
-
-Now that we have the `AdminConfig` set up, let's dig into the `payment.rs` located in the `programs/config/src/instructions` directory.
-
-Here we'll breakdown the instructions for how our program will handle a payment, starting with updating the imports and payment structure.
-
-```rust
-use crate::state::AdminConfig;
 use crate::USDC_MINT_PUBKEY;
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Mint, Token, TokenAccount};
+use anchor_spl::token::{self, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Payment<'info> {
-    #[account(
-        seeds = [b"admin"],
-        bump,
-        has_one = fee_destination
-    )]
-    pub admin_config: Account<'info, AdminConfig>,
     #[account(
         mut,
         token::mint = USDC_MINT_PUBKEY
@@ -412,22 +349,14 @@ pub struct Payment<'info> {
     #[account(mut)]
     pub sender: Signer<'info>,
 }
-```
 
-Once we've defined the structure for our `Payment` let's write the function to handle it right below it:
-
-```rust
 pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
-    let fee_amount = amount
-        .checked_mul(ctx.accounts.admin_config.fee_basis_points)
-        .unwrap()
-        .checked_div(10000)
-        .unwrap();
+    let fee_amount = amount.checked_mul(100).unwrap().checked_div(10000).unwrap();
     let remaining_amount = amount.checked_sub(fee_amount).unwrap();
 
     msg!("Amount: {}", amount);
     msg!("Fee Amount: {}", fee_amount);
-    msg!("Remaining Amount: {}", remaining_amount);
+    msg!("Remaining Transfer Amount: {}", remaining_amount);
 
     token::transfer(
         CpiContext::new(
@@ -457,226 +386,478 @@ pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
 }
 ```
 
-Nothing too special here, just a standard token transfer from one account to another using the token address defined by `USDC_MINT_PUBKEY` in our structure.
+The placeholder USDC mint address keypair is stored in the `tests/keys` folder. To prevent having to create a new mint address for each test, the same mint address is reused each time the tests are run.
 
-### 4. Write Tests
+```rust
+before(async () => {
+  let rawdata = fs.readFileSync(
+    "tests/keys/envgiPXWwmpkHFKdy4QLv2cypgAWmVTVEm71YbNpYRu.json"
+  )
+  let keyData = JSON.parse(rawdata)
+  let key = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData))
 
-Ok, now that we have completed the instructions for our two test subjects, the `Payment` and `AdminConfig`, let's set up the tests.
+  mint = await spl.createMint(
+    connection,
+    wallet.payer,
+    wallet.publicKey,
+    null,
+    0,
+    key
+  )
+...
+```
 
-Open up your `/tests/config.ts` , the first thing we want to set up is initializing the `AdminConfig`:
+The placeholder keypair was created with `solana-keygen grind`
 
-```tsx
-it("Initialize Admin", async () => {
+```rust
+solana-keygen grind --starts-with env:1
+```
+
+Note that the `anchor test` command, when run on a local network, starts a new test validator using `solana-test-validator`. This test validator uses a non-upgradeable loader, causing in the program's `program_data` account to not be initialized when the validator starts.
+
+To work around this, the test file has a `deploy` function that runs the deploy command for the program. To use it, we run `anchor test --skip-deploy`, and then call the `deploy` function within the test to run the deploy command after the test validator has started.
+
+```rust
+const deploy = () => {
+  const deployCmd = `solana program deploy --url localhost -v --program-id $(pwd)/target/deploy/config-keypair.json $(pwd)/target/deploy/config.so`
+  execSync(deployCmd)
+}
+```
+
+### 2. Setup
+
+To complete the setup, run `yarn` to install the necessary dependencies.
+
+Then, build the program with the following command:
+
+```rust
+anchor-build
+```
+
+Next, run the following command to get the program ID:
+
+```rust
+anchor keys list
+```
+
+Copy the program ID output:
+
+```rust
+config: BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei
+```
+
+Update `declare_id!` in `lib.rs`:
+
+```rust
+declare_id!("BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei");
+```
+
+Also update the `Anchor.toml`:
+
+```rust
+[programs.localnet]
+config = "BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei"
+```
+
+Finally, run the following command to start the test:
+
+```rust
+anchor test --skip-deploy
+```
+
+The test file should run and generate the following output:
+
+```rust
+config
+  ✔ Payment completes successfully (382ms)
+
+1 passing (7s)
+```
+
+### 3. Update `lib.rs`
+
+Now that we’ve completed the setup, let's modify the `lib.rs` file:
+
+-   Use the `cfg` attribute to define the `USDC_MINT_PUBKEY` constant depending on whether the `local-testing` feature is enabled or disabled.
+-   Include a `SEED_PROGRAM_CONFIG` constant, which will be used to generate the PDA for the program config account.
+-   Add the `initialize_program_config` and `update_program_config_fee` instructions, which will be implemented soon.
+
+```rust
+use anchor_lang::prelude::*;
+use solana_program::{pubkey, pubkey::Pubkey};
+mod instructions;
+mod state;
+use instructions::*;
+
+declare_id!("BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei");
+
+#[cfg(feature = "local-testing")]
+#[constant]
+pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("envgiPXWwmpkHFKdy4QLv2cypgAWmVTVEm71YbNpYRu");
+
+#[cfg(not(feature = "local-testing"))]
+#[constant]
+pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+
+pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
+
+#[program]
+pub mod config {
+    use super::*;
+
+    pub fn initialize_program_config(ctx: Context<InitializeProgramConfig>) -> Result<()> {
+        instructions::initialize_program_config_handler(ctx)
+    }
+
+    pub fn update_program_config_fee(
+        ctx: Context<UpdateProgramConfigFee>,
+        updated_fee: u64,
+    ) -> Result<()> {
+        instructions::update_program_config_fee_handler(ctx, updated_fee)
+    }
+
+    pub fn payment(ctx: Context<Payment>, amount: u64) -> Result<()> {
+        instructions::payment_handler(ctx, amount)
+    }
+}
+```
+
+### 4. Program Config State
+
+Now, let's define the structure for the `ProgramConfig` state. This account will store the admin, the token account where fees are sent, and the fee rate. We'll also specify the number of bytes required to store this structure.
+
+Create a new file called `state.rs` in the `/src` directory and add the following code.
+
+```rust
+use anchor_lang::prelude::*;
+
+#[account]
+pub struct ProgramConfig {
+    pub admin: Pubkey,
+    pub fee_destination: Pubkey,
+    pub fee_basis_points: u64,
+}
+
+impl ProgramConfig {
+    pub const LEN: usize = 8 + 32 + 32 + 8;
+}
+```
+
+### 5. Add Initialize Program Config Account Instruction
+
+In this step, we will create an instruction to initialize the program config account with the following values:
+
+-   `admin` set to the program’s upgrade authority
+-   `fee_destination` set to to a designated token account
+-   `fee_basis_points` set to 100
+
+Create a folder called `program_config` at the path `/src/instructions/program_config`. This folder will store all instructions related to the program config account and only accessible by the admin.
+
+Within the `program_config` folder, create a file called `initialize_program_config.rs` and add the following code.
+
+```rust
+use crate::program::Config;
+use crate::state::ProgramConfig;
+use crate::SEED_PROGRAM_CONFIG;
+use crate::USDC_MINT_PUBKEY;
+use anchor_lang::prelude::*;
+use anchor_spl::token::TokenAccount;
+
+#[derive(Accounts)]
+pub struct InitializeProgramConfig<'info> {
+    #[account(init, seeds = [SEED_PROGRAM_CONFIG], bump, payer = authority, space = ProgramConfig::LEN)]
+    pub program_config: Account<'info, ProgramConfig>,
+    #[account( token::mint = USDC_MINT_PUBKEY)]
+    pub fee_destination: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
+    pub program: Program<'info, Config>,
+    #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
+    pub program_data: Account<'info, ProgramData>,
+    pub system_program: Program<'info, System>,
+}
+
+pub fn initialize_program_config_handler(ctx: Context<InitializeProgramConfig>) -> Result<()> {
+    ctx.accounts.program_config.admin = ctx.accounts.authority.key();
+    ctx.accounts.program_config.fee_destination = ctx.accounts.fee_destination.key();
+    ctx.accounts.program_config.fee_basis_points = 100;
+    Ok(())
+}
+```
+
+### 6. Add Update Program Config Fee Instruction
+
+In this step, we will implement an instruction that updates the `fee_basis_points` field of the program config account. The instruction requires that the signer matches the `admin` stored in the `program_config` account.
+
+Within the `program_config` folder, create a file called `update_program_config_fee.rs` and add the following code.
+
+```rust
+use crate::state::ProgramConfig;
+use crate::SEED_PROGRAM_CONFIG;
+use anchor_lang::prelude::*;
+#[derive(Accounts)]
+pub struct UpdateProgramConfigFee<'info> {
+    #[account(mut, seeds = [SEED_PROGRAM_CONFIG], bump)]
+    pub program_config: Account<'info, ProgramConfig>,
+    #[account(
+        mut,
+        address = program_config.admin,
+    )]
+    pub admin: Signer<'info>,
+}
+
+pub fn update_program_config_fee_handler(
+    ctx: Context<UpdateProgramConfigFee>,
+    updated_fee: u64,
+) -> Result<()> {
+    ctx.accounts.program_config.fee_basis_points = updated_fee;
+    Ok(())
+}
+```
+
+### 7. Add mod.rs and update instructions.rs
+
+Create a file named `mod.rs` in the `program_config` folder. Add the code below to make the two modules, `initialize_program_config` and `update_program_config_fee` accessible.
+
+```rust
+mod initialize_program_config;
+pub use initialize_program_config::*;
+
+mod update_program_config_fee;
+pub use update_program_config_fee::*;
+```
+
+Next, update `instructions.rs` at the path `/src/instructions.rs`. Add the code below to make the two modules, `program_config` and `payment` accessible.
+
+```rust
+mod program_config;
+pub use program_config::*;
+
+mod payment;
+pub use payment::*;
+```
+
+### 8. Update Payment Instruction
+
+Next, update the payment instruction to validate the `fee_destination` account in the instruction against the `fee_destination` stored in the program config account. The instruction's fee calculation will also be based on the `fee_basis_point` stored in the program config account.
+
+```rust
+use crate::state::ProgramConfig;
+use crate::SEED_PROGRAM_CONFIG;
+use crate::USDC_MINT_PUBKEY;
+use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Token, TokenAccount};
+
+#[derive(Accounts)]
+pub struct Payment<'info> {
+    #[account(
+        seeds = [SEED_PROGRAM_CONFIG],
+        bump,
+        has_one = fee_destination
+    )]
+    pub program_config: Account<'info, ProgramConfig>,
+    #[account(
+        mut,
+        token::mint = USDC_MINT_PUBKEY
+    )]
+    pub fee_destination: Account<'info, TokenAccount>,
+    #[account(
+        mut,
+        token::mint = USDC_MINT_PUBKEY
+    )]
+    pub sender_token_account: Account<'info, TokenAccount>,
+    #[account(
+        mut,
+        token::mint = USDC_MINT_PUBKEY
+    )]
+    pub receiver_token_account: Account<'info, TokenAccount>,
+    pub token_program: Program<'info, Token>,
+    #[account(mut)]
+    pub sender: Signer<'info>,
+}
+
+pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
+    let fee_amount = amount
+        .checked_mul(ctx.accounts.program_config.fee_basis_points)
+        .unwrap()
+        .checked_div(10000)
+        .unwrap();
+    let remaining_amount = amount.checked_sub(fee_amount).unwrap();
+
+    msg!("Amount: {}", amount);
+    msg!("Fee Amount: {}", fee_amount);
+    msg!("Remaining Transfer Amount: {}", remaining_amount);
+
+    token::transfer(
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            token::Transfer {
+                from: ctx.accounts.sender_token_account.to_account_info(),
+                authority: ctx.accounts.sender.to_account_info(),
+                to: ctx.accounts.fee_destination.to_account_info(),
+            },
+        ),
+        fee_amount,
+    )?;
+
+    token::transfer(
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            token::Transfer {
+                from: ctx.accounts.sender_token_account.to_account_info(),
+                authority: ctx.accounts.sender.to_account_info(),
+                to: ctx.accounts.receiver_token_account.to_account_info(),
+            },
+        ),
+        remaining_amount,
+    )?;
+
+    Ok(())
+}
+```
+
+### 9. Test
+
+Next, update the test file with the following tests to ensure that the program config account is initialized correctly, the payment instruction is functioning as intended, and that fees can be updated successfully by the admin.
+
+The first test initializes the program config account and verifies that the correct fee is set and that the correct admin is stored on the program config account.
+
+```rust
+it("Initialize Program Config Account", async () => {
+  const tx = await program.methods
+    .initializeProgramConfig()
+    .accounts({
+      programConfig: programConfig,
+      feeDestination: feeDestination,
+      authority: wallet.publicKey,
+      program: program.programId,
+      programData: programDataAddress,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    })
+    .rpc()
+
+  assert.strictEqual(
+    (
+      await program.account.programConfig.fetch(programConfig)
+    ).feeBasisPoints.toNumber(),
+    100
+  )
+  assert.strictEqual(
+    (
+      await program.account.programConfig.fetch(programConfig)
+    ).admin.toString(),
+    wallet.publicKey.toString()
+  )
+})
+```
+
+The second test verifies that the payment instruction is working correctly, with the fee being sent to the fee destination and the remaining balance being transferred to the receiver.
+
+```rust
+it("Payment completes successfully", async () => {
+  try {
     const tx = await program.methods
-      .initializeAdminConfig()
+      .payment(new anchor.BN(10000))
       .accounts({
-        adminConfig: adminConfig,
+        programConfig: programConfig,
         feeDestination: feeDestination,
-        authority: wallet.publicKey,
-        program: program.programId,
-        programData: programDataAddress,
-        systemProgram: anchor.web3.SystemProgram.programId,
+        senderTokenAccount: senderTokenAccount,
+        receiverTokenAccount: receiverTokenAccount,
+        sender: sender.publicKey,
       })
-      .rpc()
+      .transaction()
+
+    await anchor.web3.sendAndConfirmTransaction(connection, tx, [sender])
 
     assert.strictEqual(
-      (
-        await program.account.adminConfig.fetch(adminConfig)
-      ).feeBasisPoints.toNumber(),
+      (await connection.getTokenAccountBalance(senderTokenAccount)).value
+        .uiAmount,
+      0
+    )
+
+    assert.strictEqual(
+      (await connection.getTokenAccountBalance(feeDestination)).value
+        .uiAmount,
       100
     )
+
     assert.strictEqual(
-      (await program.account.adminConfig.fetch(adminConfig)).admin.toString(),
-      wallet.publicKey.toString()
+      (await connection.getTokenAccountBalance(receiverTokenAccount)).value
+        .uiAmount,
+      9900
     )
-  })
+  } catch (err) {
+    console.log(err)
+  }
+})
 ```
 
-Again, pretty straightforward. We are setting the intial states of the `AdminConfig` and the program that we have provided in our `Anchor.toml` (more on that in a minute).
+The third test attempts to update the fee on the program config account, which should be successful.
 
-Next, let's set up the `Payment` test instruction:
+```rust
+it("Update Program Config Account Fee", async () => {
+  const tx = await program.methods
+    .updateProgramConfigFee(new anchor.BN(200))
+    .accounts({
+      programConfig: programConfig,
+      admin: wallet.publicKey,
+    })
+    .rpc()
 
-```tsx
-it("Payment", async () => {
-    try {
-      const tx = await program.methods
-        .payment(new anchor.BN(10000))
-        .accounts({
-          adminConfig: adminConfig,
-          feeDestination: feeDestination,
-          senderTokenAccount: senderTokenAccount,
-          receiverTokenAccount: receiverTokenAccount,
-          sender: sender.publicKey,
-        })
-        .transaction()
-
-      await anchor.web3.sendAndConfirmTransaction(connection, tx, [sender])
-
-      assert.strictEqual(
-        (await connection.getTokenAccountBalance(senderTokenAccount)).value
-          .uiAmount,
-        0
-      )
-
-      assert.strictEqual(
-        (await connection.getTokenAccountBalance(feeDestination)).value
-          .uiAmount,
-        100
-      )
-
-      assert.strictEqual(
-        (await connection.getTokenAccountBalance(receiverTokenAccount)).value
-          .uiAmount,
-        9900
-      )
-    } catch (err) {
-      console.log(err)
-    }
-  })
+  assert.strictEqual(
+    (
+      await program.account.programConfig.fetch(programConfig)
+    ).feeBasisPoints.toNumber(),
+    200
+  )
+})
 ```
 
-So for our test what the `Payment` instruction is doing here is creating a payment of `10000` from the `senderTokenAccount` to the `receiverTokenAccount`. It is then checking the balance of 3 accounts (`sender`, `receiver`, `feeDestination`). IF the program executes as expected then the following should be true:
+The fourth test tries to update the fee on the program config account, where the admin is not the one stored on the program config account, and this should fail.
 
-- the `senderTokenAccount` should have `0` tokens remaining (because it sent them all)
-- the `feeDestination` should have `100` tokens (because we set the `fee_basis_points` to .1%)
-- the `receiverTokenAccount` should have `9900` (the original amount - the fee)
-
-
-Ok cool, we are half way there with 2/4 tests complete, let's write the last two. The first one will attmempt to `Update Admin Config` using the `Admin` credentials, and the second will do the same except with the wrong credentials (for this test to pass, we expect the update to fail).
-
-Let's dig in to the `Update Admin Config`:
-
-```tsx
-  it("Update Admin Config", async () => {
+```rust
+it("Update Program Config Account Fee with unauthorized admin (expect fail)", async () => {
+  try {
     const tx = await program.methods
-      .updateAdminConfig(new anchor.BN(200))
+      .updateProgramConfigFee(new anchor.BN(300))
       .accounts({
-        adminConfig: adminConfig,
-        admin: wallet.publicKey,
+        programConfig: programConfig,
+        admin: sender.publicKey,
       })
-      .rpc()
+      .transaction()
 
-    assert.strictEqual(
-      (
-        await program.account.adminConfig.fetch(adminConfig)
-      ).feeBasisPoints.toNumber(),
-      200
-    )
-  })
-```
-Here we are updating the `feeBasisPoints` to `200` in the `AdminConfig` with the `admin` set to the `publickey` from the `wallet` provided in the `Anchor.toml` (we'll still get to that, hang tight).
-
-If it executes as expected, after the update the program should have a new `feeBasisPoints` of `200`.
-
-Now for the final test `Update Admin Config - expect fail` :
-
-```tsx
-  it("Update Admin Config - expect fail", async () => {
-    try {
-      const tx = await program.methods
-        .updateAdminConfig(new anchor.BN(300))
-        .accounts({
-          adminConfig: adminConfig,
-          admin: sender.publicKey,
-        })
-        .transaction()
-
-      await anchor.web3.sendAndConfirmTransaction(connection, tx, [sender])
-    } catch (err) {
-      expect(err)
-      // console.log(err)
-    }
-  })
-```
-With this final test, we are trying to update the `AdminConfig` just like before, but this time using `sender.publicKey`. Our program should not allow this, so if it "fails" then our test will "Pass".
-
-### Build and Deploy
-
-Ok great job! You have now written all of the necessary instructions and tests, but it's not quite ready to test. First we need to use Anchor to build and deploy the program, then we'll have to update the program id listed in two places.
-
-First, let's go to that `Anchor.toml` we talked about earlier and set our wallet to the right location. Inside the `Anchor.toml` you should see:
-
-```
-wallet = "YOUR_WALLET_PATH_HERE"
+    await anchor.web3.sendAndConfirmTransaction(connection, tx, [sender])
+  } catch (err) {
+    expect(err)
+    // console.log(err)
+  }
+})
 ```
 
-Use `solana config get` to get the location of your `Keypair Path` and inject that where "YOUR_WALLET_PATH_HERE" is. Mine looks like:
-
-```
-wallet = "/home/matt/.config/solana/id.json"
-```
-
-Next, head back to the terminal. Make sure you are in your project directory and run:
-
-```sh
-anchor build
-```
-
-Once you see `Finished` you are ready to deploy! So to deploy on localhost, let's open up a 2nd tab in our terminal and start our local solana validator using:
-
-```sh
-solana-test-validator
-```
-
-You should see the validator turn on (make sure to turn off with `ctrl + c` when finished), head back to your first tab and now run:
-
-```sh
-anchor deploy
-```
-
-If you see you receive a `Error: RPC request error` it's most likely because your `solana-test-validator` isn't running, double check that. If successful you should see something like:
-
-```sh
-Program Id: 3cye9aV3D7qdoAp2a8QBs6wF6CvS2PYPWhxYhunAc4dS
-
-Deploy success
-```
-
-Awesome! Now stop your `solana-test-validator` and copy that `Program Id`. Let's update our program in 2 places: `Anchor.toml` and `lib.rs`
-
-`Anchor.toml`
-```
-[programs.localnet]
-config = "3cye9aV3D7qdoAp2a8QBs6wF6CvS2PYPWhxYhunAc4dS"
-```
-
-`lib.rs`
-```rust
-declare_id!("3cye9aV3D7qdoAp2a8QBs6wF6CvS2PYPWhxYhunAc4dS");
-```
-
-Also, while you have your `lib.rs` open let's update the `ADMIN_PUBKEY` to the Wallet Address of your CLI (you can get that by running `solana address` in your terminal)
+Finally, run the test using the following command:
 
 ```rust
-#[constant]
-pub const ADMIN_PUBKEY: Pubkey = pubkey!("YOUR_WALLET_ADDRESS_HERE");
-```
-
-To recap what we did here:
-
--We built and deployed the program with Anchor
--Took the deployed program Id
--Updated our program id referenced by our code so the test reads the right program (the one with `AdminConfig` set to our local wallet)
-
-### Test
-
-Final step! Let's test! To do this we'll use this command that skips the deploy command and uses the feature flag "local-testing":
-
-```sh
 anchor test --skip-deploy -- --features "local-testing"
 ```
 
-If everything executes correctly your response should look like the following:
+You should see the following output:
 
-![Screenshot of Test Success](../assets/env-variables-test-success.png)
+```rust
+config
+  ✔ Initialize Program Config Account (199ms)
+  ✔ Payment completes successfully (405ms)
+  ✔ Update Program Config Account Fee (403ms)
+  ✔ Update Program Config Account Fee with unauthorized admin (expect fail)
 
-If needed, you can compare with the solution code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/solution).
+4 passing (8s)
+```
 
-Nice job, you now know how to create `env` type variables within a Solana Program!
+If you want to take a look at the final solution code you can find it on the `solution` branch of [the same repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/solution).
 
 # Challenge
 
-*Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently.*
+_Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently._
 
 1. Challenge instruction one
 2. Challenge instruction two
