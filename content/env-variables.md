@@ -313,65 +313,25 @@ Finally, the `tests` directory has a single test file, `config.ts` that simply i
 
 Before we continue, take a few minutes to familiarize yourself with these files and their contents.
 
-THIS NEXT PART NEEDS TO BE MOVED SOMEWHERE ELSE
-
-The placeholder USDC mint address keypair is stored in the `tests/keys` folder. To prevent having to create a new mint address for each test, the same mint address is reused each time the tests are run.
-
-```rust
-before(async () => {
-  let rawdata = fs.readFileSync(
-    "tests/keys/envgiPXWwmpkHFKdy4QLv2cypgAWmVTVEm71YbNpYRu.json"
-  )
-  let keyData = JSON.parse(rawdata)
-  let key = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData))
-
-  mint = await spl.createMint(
-    connection,
-    wallet.payer,
-    wallet.publicKey,
-    null,
-    0,
-    key
-  )
-...
-```
-
-The placeholder keypair was created with `solana-keygen grind`
-
-```rust
-solana-keygen grind --starts-with env:1
-```
-
-Note that the `anchor test` command, when run on a local network, starts a new test validator using `solana-test-validator`. This test validator uses a non-upgradeable loader, causing in the program's `program_data` account to not be initialized when the validator starts.
-
-To work around this, the test file has a `deploy` function that runs the deploy command for the program. To use it, we run `anchor test --skip-deploy`, and then call the `deploy` function within the test to run the deploy command after the test validator has started.
-
-```rust
-const deploy = () => {
-  const deployCmd = `solana program deploy --url localhost -v --program-id $(pwd)/target/deploy/config-keypair.json $(pwd)/target/deploy/config.so`
-  execSync(deployCmd)
-}
-```
-
 ### 2. Setup
 
 To complete the setup, run `yarn` to install the necessary dependencies.
 
 Then, build the program with the following command:
 
-```rust
+```
 anchor-build
 ```
 
 Next, run the following command to get the program ID:
 
-```rust
+```
 anchor keys list
 ```
 
 Copy the program ID output:
 
-```rust
+```
 config: BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei
 ```
 
@@ -383,39 +343,47 @@ declare_id!("BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei");
 
 Also update the `Anchor.toml`:
 
-```rust
+```
 [programs.localnet]
 config = "BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei"
 ```
 
-Finally, run the following command to start the test:
+Run the following command to start the test:
 
-```rust
-anchor test --skip-deploy
+```
+anchor test
 ```
 
-The test file should run and generate the following output:
+The test should fail with the following output:
 
-```rust
-config
-  ✔ Payment completes successfully (382ms)
-
-1 passing (7s)
+```
+Error: failed to send transaction: Transaction simulation failed: Error processing Instruction 0: incorrect program id for instruction
 ```
 
-### 3. Update `lib.rs`
+The reason for this error is that we are attempting to use the mainnet USDC mint address in our local tests, but the mint does not exist in the local environment.
 
-Now that we’ve completed the setup, let's modify the `lib.rs` file:
+### 3. Adding a `local-testing` feature
 
--   Use the `cfg` attribute to define the `USDC_MINT_PUBKEY` constant depending on whether the `local-testing` feature is enabled or disabled.
--   Include a `SEED_PROGRAM_CONFIG` constant, which will be used to generate the PDA for the program config account.
--   Add the `initialize_program_config` and `update_program_config_fee` instructions, which will be implemented soon.
+To address this issue, let's create a new keypair that we'll use to represent USDC for local testing.
+
+Generate a new keypair by running `solana-keygen grind`. The following example will produce a keypair with a public key that begins with "env".
+
+```
+solana-keygen grind --starts-with env:1
+```
+
+Once a keypair is found, you should see an output similar to the following:
+
+```
+Wrote keypair to env9Y3szLdqMLU9rXpEGPqkjdvVn8YNHtxYNvCKXmHe.json
+```
+
+Now that we’ve have a placeholder USDC address, let's modify the `lib.rs` file. Use the `cfg` attribute to define the `USDC_MINT_PUBKEY` constant depending on whether the `local-testing` feature is enabled or disabled.
 
 ```rust
 use anchor_lang::prelude::*;
 use solana_program::{pubkey, pubkey::Pubkey};
 mod instructions;
-mod state;
 use instructions::*;
 
 declare_id!("BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei");
@@ -428,27 +396,70 @@ pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("envgiPXWwmpkHFKdy4QLv2cypgAWmVTVEm
 #[constant]
 pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 
-pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
-
 #[program]
 pub mod config {
     use super::*;
-
-    pub fn initialize_program_config(ctx: Context<InitializeProgramConfig>) -> Result<()> {
-        instructions::initialize_program_config_handler(ctx)
-    }
-
-    pub fn update_program_config_fee(
-        ctx: Context<UpdateProgramConfigFee>,
-        updated_fee: u64,
-    ) -> Result<()> {
-        instructions::update_program_config_fee_handler(ctx, updated_fee)
-    }
 
     pub fn payment(ctx: Context<Payment>, amount: u64) -> Result<()> {
         instructions::payment_handler(ctx, amount)
     }
 }
+```
+
+Next, add the `local-testing` feature to the `Cargo.toml` file located in `/programs`.
+
+```
+[features]
+...
+local-testing = []
+```
+
+Next, modify the test to create a mint using the generated keypair. Start by deleting the `mint` constant.
+
+```ts
+const mint = new anchor.web3.PublicKey(
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+);
+```
+
+The next, update the test to create a mint using the keypair, which will enable us to reuse the same mint address each time the tests are run.
+
+```ts
+let mint: anchor.web3.PublicKey
+
+before(async () => {
+  let data = fs.readFileSync(
+    "env9Y3szLdqMLU9rXpEGPqkjdvVn8YNHtxYNvCKXmHe.json"
+  )
+  let keypair = anchor.web3.Keypair.fromSecretKey(
+    new Uint8Array(JSON.parse(data))
+  )
+
+  mint = await spl.createMint(
+    connection,
+    wallet.payer,
+    wallet.publicKey,
+    null,
+    0,
+    keypair
+  )
+...
+```
+
+Lastly, run the test with the `local-testing` feature enabled.
+
+```
+anchor test -- --features "local-testing"
+```
+
+You should see the following output:
+
+```
+config
+  ✔ Payment completes successfully (406ms)
+
+
+1 passing (3s)
 ```
 
 ### 4. Program Config State
