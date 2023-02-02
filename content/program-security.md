@@ -335,7 +335,7 @@ if rating > 5 || rating < 1 {
 Next, let’s check that the content of the review does not exceed the 1000 bytes we’ve allocated for the account. If the size exceeds 1000 bytes, we’ll return our custom `InvalidDataLength` error.
 
 ```rust
-let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len())
+let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 if total_len > 1000 {
     msg!("Data length is larger than 1000 bytes");
     return Err(ReviewError::InvalidDataLength.into())
