@@ -100,7 +100,7 @@ While these won't comprehensively secure your program, there are a few security 
 
 An ownership check verifies that an account is owned by the expected public key. Let's use the note-taking app example that we've referenced in previous lessons. In this app, users can create, update, and delete notes that are stored by the program in PDA accounts.
 
-When a user invokes the `update` instruction, they also provide a `pda_account`. We presume the provided `pda_account` is for the particular movie review they want to update, but the user can input any instruction data they want. They could even potentially send data which matches the data format of a note account but was not also created by the note-taking program. This security vulnerability is one potential way to introduce malicious code.
+When a user invokes the `update` instruction, they also provide a `pda_account`. We presume the provided `pda_account` is for the particular note they want to update, but the user can input any instruction data they want. They could even potentially send data which matches the data format of a note account but was not also created by the note-taking program. This security vulnerability is one potential way to introduce malicious code.
 
 The simplest way to avoid this problem is to always check that the owner of an account is the public key you expect it to be. In this case, we expect the note account to be a PDA account owned by the program itself. When this is not the case, we can report it as an error accordingly.
 
