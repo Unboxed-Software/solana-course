@@ -154,7 +154,7 @@ if character.agility + new_agility > 100 {
 Or, the character may have an allowance of attribute points they can allocate and you want to make sure they don't exceed that allowance.
 
 ```rust
-if attribute_allowance > new_agility {
+if attribute_allowance < new_agility {
     msg!("Trying to allocate more points than allowed");
     return Err(AttributeError::ExceedsAllowance.into())
 }
