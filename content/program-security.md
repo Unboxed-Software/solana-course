@@ -100,7 +100,7 @@ While these won't comprehensively secure your program, there are a few security 
 
 An ownership check verifies that an account is owned by the expected public key. Let's use the note-taking app example that we've referenced in previous lessons. In this app, users can create, update, and delete notes that are stored by the program in PDA accounts.
 
-When a user invokes the `update` instruction, they also provide a `pda_account`. We presume the provided `pda_account` is for the particular movie review they want to update, but the user can input any instruction data they want. They could even potentially send data which matches the data format of a note account but was not also created by the note-taking program. This security vulnerability is one potential way to introduce malicious code.
+When a user invokes the `update` instruction, they also provide a `pda_account`. We presume the provided `pda_account` is for the particular note they want to update, but the user can input any instruction data they want. They could even potentially send data which matches the data format of a note account but was not also created by the note-taking program. This security vulnerability is one potential way to introduce malicious code.
 
 The simplest way to avoid this problem is to always check that the owner of an account is the public key you expect it to be. In this case, we expect the note account to be a PDA account owned by the program itself. When this is not the case, we can report it as an error accordingly.
 
@@ -127,10 +127,10 @@ if !initializer.is_signer {
 
 In addition to checking the signers and owners of accounts, it's important to ensure that the provided accounts are what your code expects them to be. For example, you would want to validate that a provided PDA account's address can be derived with the expected seeds. This ensures that it is the account you expect it to be.
 
-In the note-taking app example, that would mean ensuring that you can derive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
+In the note-taking app example, that would mean ensuring that you can derive a matching PDA using the note creator's public key and the ID as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
 
 ```rust
-let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
+let (pda, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
 
 if pda != *note_pda.key {
     msg!("Invalid seeds for PDA");
@@ -154,7 +154,7 @@ if character.agility + new_agility > 100 {
 Or, the character may have an allowance of attribute points they can allocate and you want to make sure they don't exceed that allowance.
 
 ```rust
-if attribute_allowance > new_agility {
+if attribute_allowance < new_agility {
     msg!("Trying to allocate more points than allowed");
     return Err(AttributeError::ExceedsAllowance.into())
 }
@@ -335,7 +335,7 @@ if rating > 5 || rating < 1 {
 Next, let’s check that the content of the review does not exceed the 1000 bytes we’ve allocated for the account. If the size exceeds 1000 bytes, we’ll return our custom `InvalidDataLength` error.
 
 ```rust
-let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len())
+let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 if total_len > 1000 {
     msg!("Data length is larger than 1000 bytes");
     return Err(ReviewError::InvalidDataLength.into())
