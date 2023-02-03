@@ -78,7 +78,7 @@ Once you’ve fetched accounts with the given data slice, you can use the `sort`
 const accounts = await connection.getProgramAccounts(
 	programId,
 	{
-		dataSlice: { offset: 9, length: 15 }
+		dataSlice: { offset: 13, length: 15 }
 	}
 )
 
@@ -118,7 +118,7 @@ async function fetchMatchingContactAccounts(connection: web3.Connection, search:
 				{
 					memcmp:
 						{
-							offset: 9,
+							offset: 13,
 							bytes: bs58.encode(Buffer.from(search))
 						}
 				}
@@ -130,7 +130,7 @@ async function fetchMatchingContactAccounts(connection: web3.Connection, search:
 
 Two things to note in the example above:
 
-1. We’re setting the offset to 9 because that’s what we determined previously is the offset for where `firstName` starts in the data layout.
+1. We’re setting the offset to 13 because we determined previously that the offset for `firstName` in the data layout is 9 and we want to additionally skip the first 4 bytes indicating the length of the string.
 2. We’re using a third party library `bs58` to perform base-58 encoding on the search term. You can install it using `npm install bs58`.
 
 # Demo
