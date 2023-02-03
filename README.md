@@ -37,6 +37,28 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    3. [Cross Program Invocations](./content/cpi.md)
    4. Program Testing - Coming Soon
 
+### Module 5 - Anchor program development
+   1. [Intro to Anchor development](./content/intro-to-anchor.md)
+   2. [Intro to client-side Anchor development](./content/intro-to-anchor-frontend.md)
+   3. [Anchor PDAs and accounts](./content/anchor-pdas.md)
+   4. [Anchor CPIs and errors](./content/anchor-cpi.md)
+
+### Module 6 - Advanced Solana Development
+COMING SOON
+
+### Module 7 - Solana Program Security
+1. [How to approach the Program Security module](./content/security-intro.md)
+2. [Signer authorization](./content/signer-auth.md)
+3. [Owner checks](./content/owner-checks.md)
+4. [Account data matching](./content/account-data-matching.md)
+5. [Reinitialization attacks](./content/reinitialization-attacks.md)
+6. [Duplicate mutable accounts](./content/duplicate-mutable-accounts.md)
+7. [Type cosplay](./content/type-cosplay.md)
+8. [Arbitrary CPIs](./content/arbitrary-cpi.md)
+9. [Bump seed canonicalization](./content/bump-seed-canonicalization.md)
+10. [Closing accounts and revival attacks](./content/closing-accounts.md)
+11. [PDA sharing](./content/pda-sharing.md)
+
 ## Contribute to the Course
 
 We plan for this course to be perpetually open-source and we'd love for anyone and everyone to contribute!
