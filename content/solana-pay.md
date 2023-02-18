@@ -16,7 +16,7 @@ _By the end of this lesson, you will be able to:_
 
 # Overview
 
-The Solana community is continually improving and expanding the network's functionality. But that doesn't always mean developing brand new technology. Sometimes it means leveraging the network's existing features in new and interesting ways. 
+The Solana community is continually improving and expanding the network's functionality. But that doesn't always mean developing brand new technology. Sometimes it means leveraging the network's existing features in new and interesting ways.
 
 Solana Pay is a great example of this. Rather than add new functionality to the network, Solana Pay uses the network's existing signing features in a unique way to enable merchants and applications to request transactions and build gating mechanisms for specific transaction types.
 
@@ -167,7 +167,7 @@ async function post(
     res: PublicKey,
 ) {
     const { account, reference } = req.body
-    
+
     const connection = new Connection(clusterApiUrl("devnet"));
 
     const { blockhash } = await connection.getLatestBlockhash();
@@ -300,7 +300,7 @@ Before moving on, make sure you get familiar with the starter code for the Scave
 
 ### 2. Setup
 
-Before we move forward, let's make sure you can run the app locally. Start by renaming the `.env.example` file in the frontend directory to `.env`. This file contains a keypair that will be used in this demo to partially sign transactions. 
+Before we move forward, let's make sure you can run the app locally. Start by renaming the `.env.example` file in the frontend directory to `.env`. This file contains a keypair that will be used in this demo to partially sign transactions.
 
 Next, install dependencies with `yarn`, then use `yarn dev` and open your browser `localhost:3000` (or the port indicated in the console if 3000 was already in use).
 
@@ -367,7 +367,7 @@ async function post(req: NextApiRequest, res: NextApiResponse) {}
 Remember, the first request from a wallet will be a GET request expecting the endpoint to return a label and icon. Update the `get` function to send a response with a "Scavenger Hunt!" label and a Solana logo icon.
 
 ```jsx
-function get(res: NextApiResponse<GetResponse>) {
+function get(res: NextApiResponse) {
     res.status(200).json({
         label: "Scavenger Hunt!",
         icon: "https://solana.com/src/img/branding/solanaLogoMark.svg",
@@ -451,7 +451,7 @@ We'll also add the following imports:
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next"
 import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js"
-import { locationAtIndex, Location } from "../../utils/locations"
+import { locationAtIndex, Location, locations } from "../../utils/locations"
 import { connection, gameId, program } from "../../utils/programSetup"
 ```
 
@@ -586,7 +586,7 @@ function verifyCorrectLocation(
 
 ### 9. Implement the instruction creation functions
 
-Lastly, let's implement `createInitUserInstruction` and `createCheckInInstruction`. These can use Anchor to generate and return the corresponding instructions. The only catch is that `createCheckInInstruction` needs to add add `reference` to the instructions list of keys.
+Lastly, let's implement `createInitUserInstruction` and `createCheckInInstruction`. These can use Anchor to generate and return the corresponding instructions. The only catch is that `createCheckInInstruction` needs to add `reference` to the instructions list of keys.
 
 ```typescript
 async function createInitUserInstruction(
@@ -627,7 +627,7 @@ async function createCheckInInstruction(
 
 At this point your app should be working! Go ahead and test it using your mobile wallet. Start by scanning the QR code for `Location 1`. Remember to make sure your frontend is running using the ngrok URL rather than `localhost`.
 
-After scanning the QR code, you should see a message indicating that you are at location 1. From there, scan the QR code on the `Location 2` page. You may need to wait a few seconds for the previous transaction to finalize before continuing. 
+After scanning the QR code, you should see a message indicating that you are at location 1. From there, scan the QR code on the `Location 2` page. You may need to wait a few seconds for the previous transaction to finalize before continuing.
 
 Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay! Depending on your background, this may not feel intuitive or straightforward. If that's the case, feel free to go through the demo again or make something on your own. Solana Pay opens a lot of doors for bridging the gap between real life and on-chain interaction.
 
