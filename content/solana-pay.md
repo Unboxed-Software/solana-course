@@ -419,9 +419,9 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
         console.log(err)
         let error = err as any
         if (error.message) {
-          res.status(400).json({ error: error.message })
+            res.status(200).json({ transaction: "", message: error.message })
         } else {
-          res.status(500).json({ error: "error creating transaction" })
+            res.status(500).json({ error: "error creating transaction" })
         }
     }
 }
@@ -465,80 +465,79 @@ Using the empty helper functions and the new imports, we can fill in the `buildT
 
 ```typescript
 async function buildTransaction(
-  account: PublicKey,
-  reference: PublicKey,
-  id: string
+    account: PublicKey,
+    reference: PublicKey,
+    id: string
 ): Promise<string> {
-  const userState = await fetchUserState(account)
+    const userState = await fetchUserState(account)
 
-  const currentLocation = locationAtIndex(new Number(id).valueOf())
+    const currentLocation = locationAtIndex(new Number(id).valueOf())
 
-  if (!currentLocation) {
-    throw { message: "Invalid location id" }
-  }
+    if (!currentLocation) {
+        throw { message: "Invalid location id" }
+    }
 
-  if (!verifyCorrectLocation(userState, currentLocation)) {
-    throw { message: "You must visit each location in order!" }
-  }
+    if (!verifyCorrectLocation(userState, currentLocation)) {
+        throw { message: "You must visit each location in order!" }
+    }
 
-  const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash()
+    const { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash()
 
-  // Create a new transaction object
-  const transaction = new Transaction({
-    feePayer: account,
-    blockhash,
-    lastValidBlockHeight,
-  })
+    const transaction = new Transaction({
+        feePayer: account,
+        blockhash,
+        lastValidBlockHeight,
+    })
 
-  if (!userState) {
-    transaction.add(await createInitUserInstruction(account))
-  }
+    if (!userState) {
+        transaction.add(await createInitUserInstruction(account))
+    }
 
-  transaction.add(
-    await createCheckInInstruction(account, reference, currentLocation)
-  )
+    transaction.add(
+        await createCheckInInstruction(account, reference, currentLocation)
+    )
 
-  transaction.partialSign(eventOrganizer)
+    transaction.partialSign(eventOrganizer)
 
-  const serializedTransaction = transaction.serialize({
-    requireAllSignatures: false,
-  })
+    const serializedTransaction = transaction.serialize({
+        requireAllSignatures: false,
+    })
 
-  const base64 = serializedTransaction.toString("base64")
+    const base64 = serializedTransaction.toString("base64")
 
-  return base64
+    return base64
 }
 
 interface UserState {
-  user: PublicKey
-  gameId: PublicKey
-  lastLocation: PublicKey
+    user: PublicKey
+    gameId: PublicKey
+    lastLocation: PublicKey
 }
 
 async function fetchUserState(account: PublicKey): Promise<UserState | null> {
-  return null
+    return null
 }
 
 function verifyCorrectLocation(
-  userState: UserState | null,
-  currentLocation: Location
+    userState: UserState | null,
+    currentLocation: Location
 ): boolean {
-  return false
+    return false
 }
 
 async function createInitUserInstruction(
-  account: PublicKey
+    account: PublicKey
 ): Promise<TransactionInstruction> {
-  throw ""
+    throw ""
 }
 
 async function createCheckInInstruction(
-  account: PublicKey,
-  reference: PublicKey,
-  location: Location
+    account: PublicKey,
+    reference: PublicKey,
+    location: Location
 ): Promise<TransactionInstruction> {
-  throw ""
+    throw ""
 }
 ```
 
@@ -548,16 +547,16 @@ With the `buildTransaction` function finished, we can start implementing the emp
 
 ```typescript
 async function fetchUserState(account: PublicKey): Promise<UserState | null> {
-  const userStatePDA = PublicKey.findProgramAddressSync(
-    [gameId.toBuffer(), account.toBuffer()],
-    program.programId
-  )[0]
+    const userStatePDA = PublicKey.findProgramAddressSync(
+        [gameId.toBuffer(), account.toBuffer()],
+        program.programId
+    )[0]
 
-  try {
-    return await program.account.userState.fetch(userStatePDA)
-  } catch {
-    return null
-  }
+    try {
+        return await program.account.userState.fetch(userStatePDA)
+    } catch {
+        return null
+    }
 }
 ```
 
@@ -571,22 +570,22 @@ If these conditions are satisfied, the function will return true. Otherwise, it'
 
 ```typescript
 function verifyCorrectLocation(
-  userState: UserState | null,
-  currentLocation: Location
+    userState: UserState | null,
+    currentLocation: Location
 ): boolean {
-  if (!userState) {
-    return currentLocation.index === 1
-  }
+    if (!userState) {
+        return currentLocation.index === 1
+    }
 
-  const lastLocation = locations.find(
-    (location) => location.key.toString() === userState.lastLocation.toString()
-  )
+    const lastLocation = locations.find(
+        (location) => location.key.toString() === userState.lastLocation.toString()
+    )
 
-  if (!lastLocation || currentLocation.index !== lastLocation.index + 1) {
-    return false
-  } else {
-    return true
-  }
+    if (!lastLocation || currentLocation.index !== lastLocation.index + 1) {
+        return false
+    } else {
+        return true
+    }
 }
 ```
 
@@ -596,36 +595,36 @@ Lastly, let's implement `createInitUserInstruction` and `createCheckInInstructio
 
 ```typescript
 async function createInitUserInstruction(
-  account: PublicKey
+    account: PublicKey
 ): Promise<TransactionInstruction> {
-  const initializeInstruction = await program.methods
-    .initialize(gameId)
-    .accounts({ user: account })
-    .instruction()
+    const initializeInstruction = await program.methods
+        .initialize(gameId)
+        .accounts({ user: account })
+        .instruction()
 
-  return initializeInstruction
+    return initializeInstruction
 }
 
 async function createCheckInInstruction(
-  account: PublicKey,
-  reference: PublicKey,
-  location: Location
+    account: PublicKey,
+    reference: PublicKey,
+    location: Location
 ): Promise<TransactionInstruction> {
-  const checkInInstruction = await program.methods
-    .checkIn(gameId, location.key)
-    .accounts({
-      user: account,
-      eventOrganizer: eventOrganizer.publicKey,
+    const checkInInstruction = await program.methods
+        .checkIn(gameId, location.key)
+        .accounts({
+            user: account,
+            eventOrganizer: eventOrganizer.publicKey,
+        })
+        .instruction()
+
+    checkInInstruction.keys.push({
+        pubkey: reference,
+        isSigner: false,
+        isWritable: false,
     })
-    .instruction()
 
-  checkInInstruction.keys.push({
-    pubkey: reference,
-    isSigner: false,
-    isWritable: false,
-  })
-
-  return checkInInstruction
+    return checkInInstruction
 }
 ```
 
