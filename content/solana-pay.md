@@ -265,7 +265,7 @@ const transaction = new Transaction({
 transaction.partialSign(adminKeypair)
 ```
 
-The `partialSign` function is used to add a signature to a transaction without overriding any previous signatures on the transaction. If you are building a transaction with multiple signers, it is important to remember that if you don't specify a Transaction's `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
+The `partialSign` function is used to add a signature to a transaction without overriding any previous signatures on the transaction. If you are building a transaction with multiple signers, it is important to remember that if you don't specify a transaction's `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
 
 In our example of only allowing a transaction request to go through when the end user has a specific NFT, you would simply add your admin signature to the transaction using `partialSign` before encoding the transaction as a base64-encoded string and issuing the HTTP response.
 
