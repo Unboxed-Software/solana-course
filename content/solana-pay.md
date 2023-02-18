@@ -636,11 +636,12 @@ After scanning the QR code, you should see a message indicating that you are at 
 
 Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay! Depending on your background, this may not feel intuitive or straightforward. If that's the case, feel free to go through the demo again or make something on your own. Solana Pay opens a lot of doors for bridging the gap between real life and on-chain interaction.
 
-If you want to take a look at the final solution code you can find it on the solution branch of [the same repository](https://github.com/Unboxed-Software/solana-pay/tree/solution).
+If you want to take a look at the final solution code you can find it on the solution branch of [the same repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/solution).
 
 # Challenge
 
-_Short, numbered instructions for readers to do a project similar to the demo, only this time independently. Gives them a chance to know for sure that they feel solid about the lesson. We can provide starter and solution code but the expectation is the solution code is for reference and comparison after they’ve done the challenge independently._
+It's time to try this out on your own. Feel free to build out an idea of your own using Solana Pay. Or, if you need some inspiration, you can use the prompt below.
 
-1. Challenge instruction one
-2. Challenge instruction two
+Build out an app using Solana Pay (or modify the one from the demo) to mint an NFT to users. To take it up a notch, only make the transaction possible if the user meets one or more conditions (e.g. holds an NFT from a specific collection, is already on a pre-determined list, etc.).
+
+Get creative with this! The Solana pay spec opens up a lot of doors for unique use cases.
