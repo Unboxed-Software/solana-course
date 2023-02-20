@@ -330,10 +330,11 @@ Create a new project called `anchor-counter` by running `anchor init`:
 anchor init anchor-counter
 ```
 
-Next, run `anchor-build`
+Change directory, then run `anchor build`
 
 ```console
-anchor-build
+cd anchor-counter
+anchor build
 ```
 
 Then, run `anchor keys list`
