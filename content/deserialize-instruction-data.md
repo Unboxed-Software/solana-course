@@ -210,7 +210,7 @@ Instruction data is passed to the program as a byte array, so you need a way to 
 
 In previous modules, we used Borsh for client-side serialization and deserialization. To use Borsh program-side, we use the `borsh` crate. This crate provides traits for `BorshDeserialize` and `BorshSerialize` that you can apply to your types using the `derive` attribute.
 
-To make deserializing instruction data simple, you can create a struct representing the data and use the `derive` attribute to apply the `BorshDeserialize` trait to the struct. This implements the methods defined in `BorshDeserialize`, including the the `try_from_slice` method that we'll be using to deserialize the instruction data.
+To make deserializing instruction data simple, you can create a struct representing the data and use the `derive` attribute to apply the `BorshDeserialize` trait to the struct. This implements the methods defined in `BorshDeserialize`, including the `try_from_slice` method that we'll be using to deserialize the instruction data.
 
 Remember, the struct itself needs to match the structure of the data in the byte array.
 

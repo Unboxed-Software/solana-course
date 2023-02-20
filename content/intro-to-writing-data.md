@@ -136,7 +136,7 @@ export type TransactionInstructionCtorFields = {
 };
 ```
 
-Per the definition above, the the object passed to the `TransactionInstruction` constructor requires:
+Per the definition above, the object passed to the `TransactionInstruction` constructor requires:
 
 - an array of keys of type `AccountMeta`
 - the public key for the program being called
@@ -173,13 +173,13 @@ async function callProgram(
         programId
     })
 
-    const sig = await web3.sendAndConfirmTransaction(
+    const signature = await web3.sendAndConfirmTransaction(
         connection,
         new web3.Transaction().add(instruction),
         [payer]
     )
 
-    console.log(sig)
+    console.log(signature)
 }
 ```
 
@@ -281,7 +281,7 @@ import Dotenv from 'dotenv'
 Dotenv.config()
 
 async function main() {
-    const newKeypair = await web3.Keypair.generate()
+    const newKeypair = web3.Keypair.generate()
     console.log(newKeypair.secretKey.toString())
 }
 
@@ -299,7 +299,7 @@ Run `npm start` after saving this file and you should see an array of numbers pr
 Copy the secret key array from the console log and paste it into the `.env` file as an environment variable called, `PRIVATE_KEY`. This way we can reuse this keypair in future development instead of generating a new keypair every time we run something. It should look something like this but with different numbers:
 
 ```
-PRIVATE_KEY="[56,83,31,62,66,154,33,74,106,59,111,224,176,237,89,224,10,220,28,222,128,36,138,89,30,252,100,209,206,155,154,65,98,194,97,182,98,162,107,238,61,183,163,215,44,6,10,49,218,156,5,131,125,253,247,190,181,196,0,249,40,149,119,246]"
+PRIVATE_KEY=[56,83,31,62,66,154,33,74,106,59,111,224,176,237,89,224,10,220,28,222,128,36,138,89,30,252,100,209,206,155,154,65,98,194,97,182,98,162,107,238,61,183,163,215,44,6,10,49,218,156,5,131,125,253,247,190,181,196,0,249,40,149,119,246]
 ```
 
 ### 3. Initialize Keypair from secret
@@ -407,13 +407,13 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
 
     transaction.add(instruction)
 
-    const sig = await web3.sendAndConfirmTransaction(
+    const signature = await web3.sendAndConfirmTransaction(
         connection,
         transaction,
         [payer]
     )
 
-    console.log(sig)
+    console.log(signature)
 }
 ```
 Finally, let's invoke `pingProgram()` within `main()` using `connection` and `payer`:
