@@ -13,7 +13,7 @@ _By the end of this lesson, you will be able to:_
 -   A **Token** is the smallest unit of source code that can be parsed by the compiler in Rust.
 -   An **Item** is a declaration that defines something that can be used in a Rust program, such as a struct, an enum, a trait, a function, or a method.
 -   A **TokenStream** is a sequence of tokens that represents a piece of source code, and can be passed to a procedural macro to allow it to access and manipulate the individual tokens in the code.
--   In the context of proc macros in Rust, an **Abstract Syntax Tree (AST)** is a representation of the syntax and structure of the input code that is passed to a procedural macro.
+-   An **Abstract Syntax Tree (AST)** is a representation of the syntax and structure of the input code that is passed to a procedural macro.
 -   **Procedural macros** are a special kind of Rust macro that allow the programmer to generate code at compile time based on custom input.
 -   In the Anchor framework, procedural macros are used to generate code that reduces the amount of boilerplate required when writing Solana programs.
 
@@ -24,7 +24,7 @@ In Rust, a macro is a piece of code that you can write once and then "expand" to
 There are two different types of macros: declarative macros and procedural macros.
 
 -   Declarative macros are defined using the `macro_rules!` macro, which allows you to match against patterns of code and generate code based on the matching pattern.
--   Procedural macros, on the other hand, are defined using Rust code and have access to the Rust abstract syntax tree (AST), allowing them to manipulate and generate code at a finer level of detail.
+-   Procedural macros in Rust are defined using Rust code and operate on the abstract syntax tree (AST) of the input TokenStream, which allows them to manipulate and generate code at a finer level of detail.
 
 In this lesson, we'll focus on procedural macros, which are commonly used in the Anchor framework.
 
@@ -85,11 +85,13 @@ When a proc macro is invoked in a Rust program, the Rust compiler passes the inp
 
 Here is an example of how a proc macro can parse the input tokens of a proc macro call into an abstract syntax tree (AST) in Rust.
 
+The proc macro is invoked using `my_macro!`, with a string literal argument (`"hello, world"`) as input.
+
 ```rust
 my_macro!("hello, world");
 ```
 
-The proc macro is invoked using the `my_macro!`, with a string literal argument (`"hello, world"`). The Rust compiler then passes the input tokens of the proc macro call as a `TokenStream` to the `my_macro` proc macro.
+The Rust compiler then passes the input tokens of the proc macro call as a `TokenStream` to the `my_macro` proc macro.
 
 ```rust
 use proc_macro::TokenStream;
@@ -159,7 +161,7 @@ Proc macros in Rust are a powerful way to extend the language and create custom 
 -   Derive macros - `#[derive(CustomDerive)]`
 -   Attribute macros - `#[CustomAttribute]`
 
-This section will explain the three types of proc macros and provide an example of writing one. The mechanics of writing a proc macro are the same for all three types, so the example can be applied to any of them.
+This section will discuss the three types of procedural macros and provide an example implementation of one. The process of writing a procedural macro is consistent across all three types, so the example we provide can be adapted to the other types.
 
 ### Function-like macros
 
@@ -209,7 +211,7 @@ fn my_function() {
 }
 ```
 
-For example, an attribute macro could process the arguments passed to the attribute to enable or disable certain features, and then use the second token stream to modify the original item in some way. This allows attribute macros to provide more flexibility and functionality than if they only had access to a single token stream.
+For example, an attribute macro could process the arguments passed to the attribute to enable or disable certain features, and then use the second token stream to modify the original item in some way. By having access to both token streams, attribute macros can provide greater flexibility and functionality compared to using only a single token stream.
 
 ### Derive marcos
 
@@ -250,7 +252,7 @@ struct Input {
 }
 ```
 
-For example, a derive macro could define a helper attribute that specifies the name of a field in a struct, and then use that field name to generate code that accesses or manipulates the value of that field. This allows developers to further extend the functionality of derive macros and customize the code they generate in a more flexible way.
+For example, a derive macro could define a helper attribute to perform additional operations depending on the presence of the attribute. This allows developers to further extend the functionality of derive macros and customize the code they generate in a more flexible way.
 
 ### Example
 
@@ -296,7 +298,7 @@ The first `match` has two arms: one for the `syn::Data::Struct` variant, and one
 
 The second `match` has two arms as well: one for the `syn::Fields::Named` variant, and one for the "catch-all" `_` arm that handles all other variants of `syn::Fields`.
 
-The `#(#idents), *` syntax inside the quotation specifies that the `idents` iterator will be "expanded" to create a comma-separated list of the elements in the iterator.
+The `#(#idents), *` syntax specifies that the `idents` iterator will be "expanded" to create a comma-separated list of the elements in the iterator.
 
 ```rust
 use proc_macro::{self, TokenStream};
@@ -421,7 +423,7 @@ pub fn declare_id(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 }
 ```
 
-The `declare_id` proc macro returns the new `TokenStream` as its output, using the `into()` method. This `TokenStream` replaces the original proc macro call in the source code.
+The `declare_id` proc macro returns the new `TokenStream` as its output. This `TokenStream` replaces the original proc macro call in the source code. You can find the source for `id::Id` [here](https://docs.rs/anchor-attribute-account/0.26.0/src/anchor_attribute_account/id.rs.html#100-108).
 
 ### Derive macro
 
@@ -443,7 +445,7 @@ pub struct Initialize<'info> {
 }
 ```
 
-This macro is defined using the `proc_macro_derive` attribute, which allows it to be used as a derive macro that can be applied to a struct. `#[proc_macro_derive(Accounts, attributes(account, instruction))]` indicates that this is a derive macro that processes `account` and `instruction` attributes.
+This macro is defined using the `proc_macro_derive` attribute, which allows it to be used as a derive macro that can be applied to a struct. `#[proc_macro_derive(Accounts, attributes(account, instruction))]` indicates that this is a derive macro that processes `account` and `instruction` helper attributes.
 
 ```rust
 #[proc_macro_derive(Accounts, attributes(account, instruction))]
@@ -454,11 +456,11 @@ pub fn derive_anchor_deserialize(item: TokenStream) -> TokenStream {
 }
 ```
 
-The macro takes in a `TokenStream` containing the struct to be processed, and uses the `parse_macro_input!` macro to parse it into an `anchor_syn::AccountsStruct` instance. The `to_token_stream()` method is then called on this instance to generate the code that implements the `Accounts` trait for the struct. This generated code is then returned as a `TokenStream`.
+The macro takes in a `TokenStream` containing the struct to be processed, and uses the `parse_macro_input!` macro to parse it into an `anchor_syn::AccountsStruct` instance. The `to_token_stream()` method is then called on this instance to generate the code that implements the `Accounts` trait for the struct. This generated code is then returned as a `TokenStream`. You can find the source for `anchor_syn::AccountsStruct` [here](https://docs.rs/anchor-syn/0.26.0/src/anchor_syn/lib.rs.html#114-123).
 
 ### Attribute macro `#[program]`
 
-The `#[program]` attribute macros an example of is used in the Anchor to define the module containing instruction handlers for a Solana program.
+The `#[program]` attribute macro is an example of an attribute macro used in the Anchor to define the module containing instruction handlers for a Solana program.
 
 ```rust
 #[program]
@@ -485,9 +487,9 @@ pub fn program(
 }
 ```
 
-This macro takes two arguments: `_args` and `input`. The `_args` argument is not used in this particular macro, but it is a placeholder for any additional arguments that may be passed to the macro. The `input` argument is the token stream representing the module where the `#[program]` attribute is applied.
+This macro takes two arguments: `_args` and `input`. The `_args` argument is not used in this particular macro. The `input` argument is the token stream representing the module where the `#[program]` attribute is applied.
 
-The body of the macro uses the `parse_macro_input!` macro to parse the input token stream as a `Program` struct from the `anchor_syn` crate. The `to_token_stream()` method is then called on the `Program` to convert it into a new token stream, which is returned by the macro.
+The body of the macro uses the `parse_macro_input!` macro to parse the input token stream as a `Program` struct from the `anchor_syn` crate. The `to_token_stream()` method is then called on the `Program` to convert it into a new token stream, which is returned by the macro. You can find the source for `anchor_syn::Program` [here](https://docs.rs/anchor-syn/0.26.0/src/anchor_syn/lib.rs.html#31-38).
 
 ### Attribute macro `#[account]`
 
@@ -512,7 +514,7 @@ pub fn account(
 }
 ```
 
-Using the **`account`** attribute allows developers to easily create structs that can be used as Solana accounts in their Anchor programs, without having to write the trait implementations manually.
+Using the `account` attribute allows developers to easily create structs that can be used as Solana accounts in their Anchor programs, without having to write the trait implementations manually. You can find the source for `account` attribute macro [here](https://docs.rs/anchor-attribute-account/0.26.0/src/anchor_attribute_account/lib.rs.html#63-219).
 
 Overall, the use of proc macros in Anchor greatly reduces the amount of repetitive code that must be written. By reducing the amount of boilerplate code, developers are able to focus on the core functionality of their application. This ultimately results in a faster and more efficient development process.
 
