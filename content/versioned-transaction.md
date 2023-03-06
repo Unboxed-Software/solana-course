@@ -323,24 +323,21 @@ async function main() {
     console.log("PublicKey:", user.publicKey.toBase58());
 
     // Generate 22 addresses
-    const addresses = [];
+    const recipients = [];
     for (let i = 0; i < 22; i++) {
-        addresses.push(web3.Keypair.generate().publicKey);
+        recipients.push(web3.Keypair.generate().publicKey);
     }
-
-    // Get the minimum balance required to be exempt from rent
-    const minRent = await connection.getMinimumBalanceForRentExemption(0);
 
     // Create an array of transfer instructions
     const transferInstructions = [];
 
     // Add a transfer instruction for each address
-    for (const address of addresses) {
+    for (const address of recipients) {
         transferInstructions.push(
             web3.SystemProgram.transfer({
                 fromPubkey: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
                 toPubkey: address, // The destination account for the transfer
-                lamports: minRent, // The amount of lamports to transfer
+                lamports: web3.LAMPORTS_PER_SOL * 0.01, // The amount of lamports to transfer
             }),
         );
     }
@@ -392,9 +389,9 @@ async function main() {
     console.log("PublicKey:", user.publicKey.toBase58());
 
     // Generate 22 addresses
-    const addresses = []
+    const addresses = [];
     for (let i = 0; i < 22; i++) {
-        addresses.push(web3.Keypair.generate().publicKey)
+        addresses.push(web3.Keypair.generate().publicKey);
     }
 }
 ```
@@ -503,20 +500,20 @@ Now that we have some helper functions ready to go, declare a function named `in
 async function initializeLookupTable(
     user: web3.Keypair,
     connection: web3.Connection,
-    addresses: web3.PublicKey[]
+    addresses: web3.PublicKey[],
 ): Promise<web3.PublicKey> {
     // Get the current slot
-    const slot = await connection.getSlot()
+    const slot = await connection.getSlot();
 
     // Create an instruction for creating a lookup table
     // and retrieve the address of the new lookup table
     const [lookupTableInst, lookupTableAddress] =
         web3.AddressLookupTableProgram.createLookupTable({
-        authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
-        payer: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
-        recentSlot: slot, // The recent slot to derive lookup table's address
-    })
-    console.log("lookup table address:", lookupTableAddress.toBase58())
+            authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
+            payer: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
+            recentSlot: slot - 1, // The recent slot to derive lookup table's address
+        });
+    console.log("lookup table address:", lookupTableAddress.toBase58());
 
     // Create an instruction to extend a lookup table with the provided addresses
     const extendInstruction = web3.AddressLookupTableProgram.extendLookupTable({
@@ -524,14 +521,14 @@ async function initializeLookupTable(
         authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
         lookupTable: lookupTableAddress, // The address of the lookup table to extend
         addresses: addresses.slice(0, 30), // The addresses to add to the lookup table
-    })
+    });
 
     await sendV0Transaction(connection, user, [
         lookupTableInst,
         extendInstruction,
-    ])
+    ]);
 
-    return lookupTableAddress
+    return lookupTableAddress;
 }
 ```
 
@@ -548,32 +545,32 @@ Now that we can initialize a lookup table with all of the recipients' addresses,
 ```ts
 async function main() {
     // Connect to the devnet cluster
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
 
     // Initialize the user's keypair
-    const user = await initializeKeypair(connection)
-    console.log("PublicKey:", user.publicKey.toBase58())
+    const user = await initializeKeypair(connection);
+    console.log("PublicKey:", user.publicKey.toBase58());
 
     // Generate 22 addresses
-    const recipients = []
+    const recipients = [];
     for (let i = 0; i < 22; i++) {
-        recipients.push(web3.Keypair.generate().publicKey)
+        recipients.push(web3.Keypair.generate().publicKey);
     }
 
     const lookupTableAddress = await initializeLookupTable(
         user,
         connection,
-        recipients
-    )
+        recipients,
+    );
 
-    await waitForNewBlock(connection, 1)
+    await waitForNewBlock(connection, 1);
 
     const lookupTableAccount = (
         await connection.getAddressLookupTable(lookupTableAddress)
-    ).value
+    ).value;
 
     if (!lookupTableAccount) {
-        throw new Error("Lookup table not found")
+        throw new Error("Lookup table not found");
     }
 
     const transferInstructions = recipients.map((recipient) => {
@@ -581,12 +578,12 @@ async function main() {
             fromPubkey: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
             toPubkey: recipient, // The destination account for the transfer
             lamports: web3.LAMPORTS_PER_SOL * 0.01, // The amount of lamports to transfer
-        })
-    })
+        });
+    });
 
     await sendV0Transaction(connection, user, transferInstructions, [
         lookupTableAccount,
-    ])
+    ]);
 }
 ```
 
@@ -613,6 +610,7 @@ Remember, this same transaction was failing when you first downloaded the starte
 Keep in mind that the solution we've come up with so far only supports transfers to up to 30 accounts since we only extend the lookup table once. When you factor in the transfer instruction size, it's actually possible to extend the lookup table with an additional 27 addresses and complete an atomic transfer to up to 57 recipients. Let's go ahead and add support for this now!
 
 All we need to do is go into `initializeLookupTable` and do two things:
+
 1. Modify the existing call to `extendLookupTable` to only add the first 30 addressess (any more than that and the transaction will be too large)
 2. Add a loop that will keep extending a lookup table 30 addresses at a time until all addresses have been added
 
@@ -620,10 +618,10 @@ All we need to do is go into `initializeLookupTable` and do two things:
 async function initializeLookupTable(
     user: web3.Keypair,
     connection: web3.Connection,
-    addresses: web3.PublicKey[]
+    addresses: web3.PublicKey[],
 ): Promise<web3.PublicKey> {
     // Get the current slot
-    const slot = await connection.getSlot()
+    const slot = await connection.getSlot();
 
     // Create an instruction for creating a lookup table
     // and retrieve the address of the new lookup table
@@ -632,8 +630,8 @@ async function initializeLookupTable(
             authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
             payer: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
             recentSlot: slot - 1, // The recent slot to derive lookup table's address
-        })
-    console.log("lookup table address:", lookupTableAddress.toBase58())
+        });
+    console.log("lookup table address:", lookupTableAddress.toBase58());
 
     // Create an instruction to extend a lookup table with the provided addresses
     const extendInstruction = web3.AddressLookupTableProgram.extendLookupTable({
@@ -641,29 +639,30 @@ async function initializeLookupTable(
         authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
         lookupTable: lookupTableAddress, // The address of the lookup table to extend
         addresses: addresses.slice(0, 30), // The addresses to add to the lookup table
-    })
+    });
 
     await sendV0Transaction(connection, user, [
         lookupTableInst,
         extendInstruction,
-    ])
+    ]);
 
-    var remaining = addresses.slice(30)
+    var remaining = addresses.slice(30);
 
     while (remaining.length > 0) {
-        const toAdd = remaining.slice(0, 30)
-        remaining = remaining.slice(30)
-        const extendInstruction = web3.AddressLookupTableProgram.extendLookupTable({
-            payer: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
-            authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
-            lookupTable: lookupTableAddress, // The address of the lookup table to extend
-            addresses: toAdd, // The addresses to add to the lookup table
-        })
+        const toAdd = remaining.slice(0, 30);
+        remaining = remaining.slice(30);
+        const extendInstruction =
+            web3.AddressLookupTableProgram.extendLookupTable({
+                payer: user.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
+                authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
+                lookupTable: lookupTableAddress, // The address of the lookup table to extend
+                addresses: toAdd, // The addresses to add to the lookup table
+            });
 
-        await sendV0Transaction(connection, user, [extendInstruction])
+        await sendV0Transaction(connection, user, [extendInstruction]);
     }
 
-    return lookupTableAddress
+    return lookupTableAddress;
 }
 ```
 
