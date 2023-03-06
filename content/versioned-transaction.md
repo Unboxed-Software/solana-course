@@ -302,7 +302,7 @@ This demo will guide you through the steps of creating, extending, and then usin
 
 ### 1. Get the starter code
 
-To begin, download the starter code from the starter branch of this [repository](https://github.com/Unboxed-Software/versioned-transaction/tree/starter). Once you have the starter code, run `npm install` in the terminal to install the required dependencies.
+To begin, download the starter code from the starter branch of this [repository](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/starter). Once you have the starter code, run `npm install` in the terminal to install the required dependencies.
 
 The starter code includes an example of creating a legacy transaction that intends to atomically transfer SOL to 22 recipients. The transaction contains 22 instructions where each instruction transfers SOL from the signer to a different recipient.
 
@@ -667,7 +667,7 @@ async function initializeLookupTable(
 }
 ```
 
-Congratulations! If you feel good about this demo, you're probably ready to work with lookup tables and versioned transactions on your own. If you want to take a look at the final solution code you can find it on the solution branch [here](https://github.com/Unboxed-Software/versioned-transaction/tree/solution).
+Congratulations! If you feel good about this demo, you're probably ready to work with lookup tables and versioned transactions on your own. If you want to take a look at the final solution code you can find it on the solution branch [here](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/solution).
 
 # Challenge
 
