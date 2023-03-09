@@ -68,9 +68,9 @@ For example, you might have an account that stores contact information like so:
 - `firstName` as a string
 - `secondName` as a string
 
-If you want to order all of the account keys alphabetically based on the user’s first name, you need to find out the offset where the name starts. The first field, `initialized`, takes the first byte, then `phoneNumber` takes another 8, so the `firstName` field starts at offset `1 + 8 = 9`.
+If you want to order all of the account keys alphabetically based on the user’s first name, you need to find out the offset where the name starts. The first field, `initialized`, takes the first byte, then `phoneNumber` takes another 8, so the `firstName` field starts at offset `1 + 8 = 9`. However, dynamic data fields in borsh use the first 4 bytes to record the length of the data, so we can skip an additional 4 bytes, making the offset 13.
 
-You then need to determine the length to make the data slice. Since the length is variable, we can’t know for sure, but you can choose a length that is large enough to cover most cases and short enough to not be too much of a burden to fetch. 15 bytes is plenty for most first names, but would result in a small enough download even with a million users.
+You then need to determine the length to make the data slice. Since the length is variable, we can’t know for sure before fetching the data. But you can choose a length that is large enough to cover most cases and short enough to not be too much of a burden to fetch. 15 bytes is plenty for most first names, but would result in a small enough download even with a million users.
 
 Once you’ve fetched accounts with the given data slice, you can use the `sort` method to sort the array before mapping it to an array of public keys.
 
@@ -78,7 +78,7 @@ Once you’ve fetched accounts with the given data slice, you can use the `sort`
 const accounts = await connection.getProgramAccounts(
 	programId,
 	{
-		dataSlice: { offset: 9, length: 15 }
+		dataSlice: { offset: 13, length: 15 }
 	}
 )
 
@@ -118,7 +118,7 @@ async function fetchMatchingContactAccounts(connection: web3.Connection, search:
 				{
 					memcmp:
 						{
-							offset: 9,
+							offset: 13,
 							bytes: bs58.encode(Buffer.from(search))
 						}
 				}
@@ -130,7 +130,7 @@ async function fetchMatchingContactAccounts(connection: web3.Connection, search:
 
 Two things to note in the example above:
 
-1. We’re setting the offset to 9 because that’s what we determined previously is the offset for where `firstName` starts in the data layout.
+1. We’re setting the offset to 13 because we determined previously that the offset for `firstName` in the data layout is 9 and we want to additionally skip the first 4 bytes indicating the length of the string.
 2. We’re using a third party library `bs58` to perform base-58 encoding on the search term. You can install it using `npm install bs58`.
 
 # Demo
