@@ -1,15 +1,13 @@
-# Page, Order, and Filter Custom Account Data
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Page, Order, and Filter Custom Account Data
+objectives:
 - Page, order, and filter accounts
 - Prefetch accounts without data
 - Determine where in an account’s buffer layout specific data is stored
 - Prefetch accounts with a subset of data that can be used to order accounts
 - Fetch only accounts whose data matches specific criteria
 - Fetch a subset of total accounts using `getMultipleAccounts`
+---
 
 # TL;DR
 

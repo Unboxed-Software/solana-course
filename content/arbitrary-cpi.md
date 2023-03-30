@@ -1,12 +1,10 @@
-# Arbitrary CPI
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Arbitrary CPI
+objectives:
 - Explain the security risks associated with invoking a CPI to an unknown program
 - Showcase how Anchor’s CPI module prevents this from happening when making a CPI from one Anchor program to another
 - Safely and securely make a CPI from an Anchor program to an arbitrary non-anchor program
+---
 
 # TL;DR
 

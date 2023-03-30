@@ -1,9 +1,6 @@
-# Read Data From The Solana Network
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Data From The Solana Network
+objectives:
 - Explain accounts
 - Explain SOL and lamports
 - Explain public keys
@@ -12,6 +9,7 @@
 - Install web3.js
 - Use web3.js to create a connection to a Solana node
 - Use web3.js to read data from the blockchain (balance, account info, etc.)
+---
 
 ## TL;DR
 

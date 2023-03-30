@@ -1,14 +1,12 @@
-# Create Tokens With The Token Program
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Create Tokens With The Token Program
+objectives:
 - Create token mints
 - Create token accounts
 - Mint tokens
 - Transfer tokens
 - Burn tokens
+---
 
 # TL;DR
 

@@ -1,13 +1,11 @@
-# Deserialize Custom Account Data
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Deserialize Custom Account Data
+objectives:
 - Explain Program Derived Accounts
 - Derive PDAs given specific seeds
 - Fetch a program’s accounts
 - Use Borsh to deserialize custom data
+---
 
 # TL;DR
 

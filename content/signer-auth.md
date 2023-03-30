@@ -1,13 +1,11 @@
-# Signer Authorization
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Signer Authorization
+objectives:
 - Explain the security risks associated with not performing appropriate signer checks
 - Implement signer checks using long-form Rust
 - Implement signer checks using Anchor’s `Signer` type
 - Implement signer checks using Anchor’s `#[account(signer)]` constraint
+---
 
 # TL;DR
 

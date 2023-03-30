@@ -1,12 +1,10 @@
-# Solana Pay
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
--   Use the Solana Pay specification to build payment requests and initiate transactions using URLs encoded as QR codes
--   Use the `@solana/pay` library to help with the creation of Solana Pay transaction requests
--   Partially sign transactions and implement transaction gating based on certain conditions
+---
+title: Solana Pay
+objectives:
+- Use the Solana Pay specification to build payment requests and initiate transactions using URLs encoded as QR codes
+- Use the `@solana/pay` library to help with the creation of Solana Pay transaction requests
+- Partially sign transactions and implement transaction gating based on certain conditions
+---
 
 # TL;DR
 

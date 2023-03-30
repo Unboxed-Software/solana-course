@@ -1,13 +1,11 @@
-# Versioned Transactions and Lookup Tables
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
--   Create versioned transactions
--   Create lookup tables
--   Extend lookup tables
--   Use lookup tables with versioned transactions
+---
+title: Versioned Transactions and Lookup Tables
+objectives:
+- Create versioned transactions
+- Create lookup tables
+- Extend lookup tables
+- Use lookup tables with versioned transactions
+---
 
 # TL;DR
 

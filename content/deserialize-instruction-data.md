@@ -1,9 +1,6 @@
-# Create a Basic Program, Part 1 - Handle Instruction Data
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Create a Basic Program, Part 1 - Handle Instruction Data
+objectives:
 - Assign mutable and immutable variables in Rust
 - Create and use Rust structs and enums
 - Use Rust match statements
@@ -11,6 +8,7 @@ _By the end of this lesson, you will be able to:_
 - Deserialize instruction data into Rust data types
 - Execute different program logic for different types of instructions
 - Explain the structure of a smart contract on Solana
+---
 
 # TL;DR
 
