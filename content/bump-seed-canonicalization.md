@@ -1,10 +1,10 @@
-# Bump Seed Canonicalization
-
-# Lesson Objectives
-
+---
+title: Bump Seed Canonicalization
+objectives:
 - Explain the vulnerabilities associated with using PDAs derived without the canonical bump
 - Initialize a PDA using Anchor’s `seeds` and `bump` constraints to automatically use the canonical bump
 - Use Anchor's `seeds` and `bump` constraints to ensure the canonical bump is always used in future instructions when deriving a PDA
+---
 
 # TL;DR
 

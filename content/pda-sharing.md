@@ -1,12 +1,10 @@
-# PDA Sharing
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: PDA Sharing
+objectives:
 - Explain the security risks associated with PDA sharing
 - Derive PDAs that have discrete authority domains
 - Use Anchor’s `seeds` and `bump` constraints to validate PDA accounts
+---
 
 # TL;DR
 

@@ -1,4 +1,8 @@
-# How to approach the Program Security module
+---
+title: How to approach the Program Security module
+objectives:
+- understand how to approach the Program Security Module
+---
 
 The goal of this module is to expose you to a wide variety of common security exploits that are unique to Solana development. We’ve heavily modeled this module off a public GitHub repository call Sealevel Attacks created by the great Armani Ferrante.
 

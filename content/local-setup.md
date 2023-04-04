@@ -1,14 +1,12 @@
-# Local Program Development
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Local Program Development
+objectives:
 - Set up a local environment for Solana program development
 - Use basic Solana CLI commands
 - Run a local test validator
 - Use Rust and the Solana CLI to deploy a Solana program from your local development environment
 - Use the Solana CLI to view program logs
+---
 
 # TL;DR
 

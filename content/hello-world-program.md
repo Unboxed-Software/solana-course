@@ -1,15 +1,13 @@
-# Hello World
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Hello World
+objectives:
 - Use the Rust module system
 - Define a function in Rust
 - Explain the `Result` type
 - Explain the entry point to a Solana program
 - Build and deploy a basic Solana program
 - Submit a transaction to invoke our “Hello, world!” program
+---
 
 # TL;DR
 

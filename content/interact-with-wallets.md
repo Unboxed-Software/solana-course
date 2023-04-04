@@ -1,13 +1,11 @@
-# Interact With Wallets
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Interact With Wallets
+objectives:
 - Explain Wallets
 - Install Phantom extension
 - Set Phantom wallet to [Devnet](https://api.devnet.solana.com/)
 - Use wallet-adapter to have users sign transactions
+---
 
 # TL;DR
 

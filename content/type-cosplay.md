@@ -1,13 +1,11 @@
-# Type Cosplay
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Type Cosplay
+objectives:
 - Explain the security risks associated with not checking account types
 - Implement an account type discriminator using long-form Rust
 - Use Anchor's `init` constraint to initialize accounts
 - Use Anchor's `Account` type for account validation
+---
 
 # TL;DR
 

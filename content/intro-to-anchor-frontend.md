@@ -1,15 +1,13 @@
-# Intro to client-side Anchor development
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Intro to client-side Anchor development
+objectives:
 - Use an IDL to interact with a Solana program from the client
 - Explain an Anchor `Provider` object
 - Explain an Anchor `Program` object
 - Use the Anchor `MethodsBuilder` to build instructions and transactions
 - Use Anchor to fetch accounts
 - Set up a frontend to invoke instructions using Anchor and an IDL
+---
 
 # TL;DR
 

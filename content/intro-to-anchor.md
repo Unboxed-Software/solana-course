@@ -1,12 +1,10 @@
-# Intro to Anchor development
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Intro to Anchor development
+objectives:
 - Use the Anchor framework to build a basic program
 - Describe the basic structure of an Anchor program
 - Explain how to implement basic account validation and security checks with Anchor
+---
 
 # TL;DR
 

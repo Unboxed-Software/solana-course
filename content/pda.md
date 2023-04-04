@@ -1,13 +1,12 @@
-# PDAs
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: PDAs
+objectives:
 - Explain Program Derived Addresses (PDAs)
 - Explain various use cases of PDAs
 - Describe how PDAs are derived
 - Use PDA derivations to locate and retrieve data
+---
+
 
 # TL;DR
 

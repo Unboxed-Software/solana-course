@@ -1,0 +1,225 @@
+[
+    {
+        "title": "Client Interaction with the Solana Network",
+        "number": 1,
+        "lessons": [
+            {
+                "title": "Read data from the network",
+                "slug": "intro-to-reading-data",
+                "number": 1
+            },
+            {
+                "title": "Write data to the network",
+                "slug": "intro-to-writing-data",
+                "number": 2
+            },
+            {
+                "title": "Interact with wallets",
+                "slug": "interact-with-wallets",
+                "number": 3
+            },
+            {
+                "title": "Serialize custom instruction data",
+                "slug": "serialize-instruction-data",
+                "number": 4
+            },
+            {
+                "title": "Deserialize custom account data",
+                "slug": "deserialize-custom-data",
+                "number": 5
+            },
+            {
+                "title": "Page, Order, and Filter custom account data",
+                "slug": "paging-ordering-filtering-data",
+                "number": 6
+            }
+        ]
+    },
+    {
+        "title": "Client Interaction with Common Solana Programs",
+        "number": 2,
+        "lessons": [
+            {
+                "title": "Create tokens with the Token Program",
+                "slug": "token-program",
+                "number": 1
+            },
+            {
+                "title": "Swap tokens with the Token Swap Program",
+                "slug": "token-swap",
+                "number": 2
+            },
+            {
+                "title": "Create Solana NFTs With Metaplex",
+                "slug": "nfts-with-metaplex",
+                "number": 3
+            }
+        ]
+    },
+    {
+        "title": "Basic Solana Program Development",
+        "number": 3,
+        "lessons": [
+            {
+                "title": "Hello World",
+                "slug": "hello-world-program",
+                "number": 1
+            },
+            {
+                "title": "Create a Basic Program, Part 1 - Handle Instruction Data",
+                "slug": "deserialize-instruction-data",
+                "number": 2
+            },
+            {
+                "title": "Create a Basic Program, Part 2 - State Management",
+                "slug": "program-state-management",
+                "number": 3
+            },
+            {
+                "title": "Create a Basic Program, Part 3 - Basic Security and Validation",
+                "slug": "program-security",
+                "number": 4
+            }
+        ]
+    },
+    {
+        "title": "Intermediate Solana Program Development",
+        "number": 4,
+        "lessons": [
+            {
+                "title": "Local Program Development",
+                "slug": "local-setup",
+                "number": 1
+            },
+            {
+                "title": "Program Derived Addresses",
+                "slug": "pda",
+                "number": 2
+            },
+            {
+                "title": "Cross Program Invocations",
+                "slug": "cpi",
+                "number": 3
+            },
+            {
+                "title": "Program Testing - COMING SOON",
+                "slug": "",
+                "hidden": true,
+                "number": 4
+            }
+        ]
+    },
+    {
+        "title": "Anchor Program Development",
+        "number": 5,
+        "lessons": [
+            {
+                "title": "Intro to Anchor development",
+                "slug": "intro-to-anchor",
+                "number": 1
+            },
+            {
+                "title": "Intro to client-side Anchor development",
+                "slug": "intro-to-anchor-frontend",
+                "number": 2
+            },
+            {
+                "title": "Anchor PDAs and accounts",
+                "slug": "anchor-pdas",
+                "number": 3
+            },
+            {
+                "title": "Anchor CPIs and errors",
+                "slug": "anchor-cpi",
+                "number": 4
+            }
+        ]
+    },
+    {
+        "title": "Beyond the Basics",
+        "number": 6,
+        "lessons": [
+            {
+                "title": "Environment variables in Solana programs",
+                "slug": "env-variables",
+                "number": 1
+            },
+            {
+                "title": "Solana Pay",
+                "slug": "solana-pay",
+                "number": 2
+            },
+            {
+                "title": "Versioned transactions and lookup tables",
+                "slug": "versioned-transaction",
+                "number": 3
+            },
+            {
+                "title": "Rust procedural macros",
+                "slug": "rust-macros",
+                "number": 4
+            }
+        ]
+    },
+    {
+        "title": "Solana Program Security",
+        "number": 7,
+        "lessons": [
+            {
+                "title": "How to approach the Program Security module",
+                "slug": "security-intro",
+                "number": 1
+            },
+            {
+                "title": "Signer authorization",
+                "slug": "signer-auth",
+                "number": 2
+            },
+            {
+                "title": "Owner checks",
+                "slug": "owner-checks",
+                "number": 3
+            },
+            {
+                "title": "Account data matching",
+                "slug": "account-data-matching",
+                "number": 4
+            },
+            {
+                "title": "Reinitialization attacks",
+                "slug": "reinitialization-attacks",
+                "number": 5
+            },
+            {
+                "title": "Duplicate mutable accounts",
+                "slug": "duplicate-mutable-accounts",
+                "number": 6
+            },
+            {
+                "title": "Type cosplay",
+                "slug": "type-cosplay",
+                "number": 7
+            },
+            {
+                "title": "Arbitrary CPIs",
+                "slug": "arbitrary-cpi",
+                "number": 8
+            },
+            {
+                "title": "Bump seed canonicalization",
+                "slug": "bump-seed-canonicalization",
+                "number": 9
+            },
+            {
+                "title": "Closing accounts and revival attacks",
+                "slug": "closing-accounts",
+                "number": 10
+            },
+            {
+                "title": "PDA sharing",
+                "slug": "pda-sharing",
+                "number": 11
+            }
+        ]
+    }
+]

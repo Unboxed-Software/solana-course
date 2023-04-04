@@ -1,13 +1,11 @@
-# Swap Tokens With The Token Swap Program
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Swap Tokens With The Token Swap Program
+objectives:
 - Create a token swap pool
 - Deposit liquidity
 - Withdraw liquidity
 - Swap tokens
+---
 
 # TL;DR
 
