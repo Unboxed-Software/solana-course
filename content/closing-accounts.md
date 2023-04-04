@@ -1,12 +1,10 @@
-# Closing Accounts and Revival Attacks
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Closing Accounts and Revival Attacks
+objectives:
 - Explain the various security vulnerabilities associated with closing program accounts incorrectly
 - Close program accounts safely and securely using native Rust
 - Close program accounts safely and securely using the Anchor `close` constraint
+---
 
 # TL;DR
 

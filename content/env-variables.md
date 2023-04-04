@@ -1,13 +1,11 @@
-# Environment Variables in Solana Programs
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
--   Define program features in the `Cargo.toml` file
--   Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
--   Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
--   Create an admin-only instruction to set up a program account that can be used to store program configuration values
+---
+title: Environment Variables in Solana Programs
+objectives:
+- Define program features in the `Cargo.toml` file
+- Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
+- Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
+- Create an admin-only instruction to set up a program account that can be used to store program configuration values
+---
 
 # TL;DR
 

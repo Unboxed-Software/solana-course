@@ -1,4 +1,8 @@
-# Course Guide
+---
+title: Course Guide
+objectives:
+- explain how this Solana course is structured
+---
 
 ## How is this course structured?
 

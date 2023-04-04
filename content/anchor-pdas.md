@@ -1,13 +1,11 @@
-# Anchor PDAs and Accounts
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Anchor PDAs and Accounts
+objectives:
 - Use the `seeds` and `bump` constraints to work with PDA accounts in Anchor
 - Enable and use the `init_if_needed` constraint
 - Use the `realloc` constraint to reallocate space on an existing account
 - Use the `close` constraint to close an existing account
+---
 
 # TL;DR
 
