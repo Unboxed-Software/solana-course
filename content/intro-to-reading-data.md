@@ -1,5 +1,5 @@
 ---
-title: Data From The Solana Network
+title: Read Data From The Solana Network
 objectives:
 - Explain accounts
 - Explain SOL and lamports
