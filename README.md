@@ -43,21 +43,24 @@ While you can absolutely just jump into the lessons below, we suggest you start 
    3. [Anchor PDAs and accounts](./content/anchor-pdas.md)
    4. [Anchor CPIs and errors](./content/anchor-cpi.md)
 
-### Module 6 - Advanced Solana Development
-COMING SOON
+### Module 6 - Beyond the Basics
+   1. [Environment variables in Solana programs](./content/env-variables.md)
+   2. [Solana Pay](./content/solana-pay.md)
+   3. [Versioned transactions and lookup tables](./content/versioned-transaction.md)
+   4. [Rust procedural macros](./content/rust-macros.md)
 
 ### Module 7 - Solana Program Security
-1. [How to approach the Program Security module](./content/security-intro.md)
-2. [Signer authorization](./content/signer-auth.md)
-3. [Owner checks](./content/owner-checks.md)
-4. [Account data matching](./content/account-data-matching.md)
-5. [Reinitialization attacks](./content/reinitialization-attacks.md)
-6. [Duplicate mutable accounts](./content/duplicate-mutable-accounts.md)
-7. [Type cosplay](./content/type-cosplay.md)
-8. [Arbitrary CPIs](./content/arbitrary-cpi.md)
-9. [Bump seed canonicalization](./content/bump-seed-canonicalization.md)
-10. [Closing accounts and revival attacks](./content/closing-accounts.md)
-11. [PDA sharing](./content/pda-sharing.md)
+   1. [How to approach the Program Security module](./content/security-intro.md)
+   2. [Signer authorization](./content/signer-auth.md)
+   3. [Owner checks](./content/owner-checks.md)
+   4. [Account data matching](./content/account-data-matching.md)
+   5. [Reinitialization attacks](./content/reinitialization-attacks.md)
+   6. [Duplicate mutable accounts](./content/duplicate-mutable-accounts.md)
+   7. [Type cosplay](./content/type-cosplay.md)
+   8. [Arbitrary CPIs](./content/arbitrary-cpi.md)
+   9. [Bump seed canonicalization](./content/bump-seed-canonicalization.md)
+   10. [Closing accounts and revival attacks](./content/closing-accounts.md)
+   11. [PDA sharing](./content/pda-sharing.md)
 
 ## Contribute to the Course
 
