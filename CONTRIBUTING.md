@@ -6,16 +6,13 @@ Hey, thanks for contributing!
 
 ### Adding Content
 
-The [Course Map](./course-map.md) lists the modules and lessons we plan to create. 
+If you'd like to add content, please start by [creating an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and tagging @jamesrp13 to discuss your reasoning, plan, and timeline.
 
-To start work, do the following:
-
-1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
-2. Create a PR to the `draft` branch during or when complete
+Once a plan has been discussed and agreed to, you can start working on content. When you're done, create a PR to the `draft` branch.
 
 ### Editing Existing Content
 
-If you want to fix a typo or otherwise improve on existing content, follow the same process as with adding content:
+If you want to fix a typo or otherwise improve on existing content, follow a similar process as with adding content:
 
 1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
 2. Create a PR to the `draft` branch during or when complete
