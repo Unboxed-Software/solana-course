@@ -4,9 +4,9 @@
 
 This course is designed to be the absolute best starting point for Web Developers looking to learn Web3 Development. Solana is the ideal network for starting your Web3 journey because of its high speed, low cost, energy efficiency, and more.
 
-This course is being made publicly available upon completion of the first of four planned modules. We'll update the list of available lessons in the [Get Started](#get-started) section below as they're completed. If you'd like to help out, have a look [how you can contribute](#contribute-to-the-course).
+This repository represents an ongoing project. We'll update the list of available lessons in the [Get Started](#get-started) section below as they're completed. If you'd like to help out, have a look [how you can contribute](#contribute-to-the-course).
 
-The first two modules will primarily focus on client-side Solana development whereas the second two modules will focus on developing programs on the Solana network. Dive into the available lessons in the [Get Started](#get-started) section below, or have a look at the full [Course Map](./course-map.md) for details about what's to come.
+At the time of writing, the first five modules represent what we consider the core of Solana development. Modules 1-2 primarily focus on client-side Solana development and Modules 3-4 focus on developing native programs on the Solana network. Module 5 takes everything you learn in Modules 1-4 and shows you how to do it using the Anchor framework. Subsequent modules represent more advanced and/or niche content, so you can pick and choose lessons a bit more at that point. However, we strongly recommend you make sure you understand the security exploits described in Module 7.
 
 ## Get Started
 
@@ -68,16 +68,13 @@ We plan for this course to be perpetually open-source and we'd love for anyone a
 
 ### Adding content
 
-The [Course Map](./course-map.md) lists the modules and lessons we plan to create.
+If you'd like to add content, please start by [creating an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and tagging @jamesrp13 to discuss your reasoning, plan, and timeline.
 
-To start work, do the following:
+Once a plan has been discussed and agreed to, you can start working on content. When you're done, create a PR to the `draft` branch.
 
-1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
-2. Create a PR to the `draft` branch during or when complete
+### Editing Existing Content
 
-### Editing existing content
-
-If you want to fix a typo or otherwise improve on existing content, follow the same process as with adding content:
+If you want to fix a typo or otherwise improve on existing content, follow a similar process as with adding content:
 
 1. [Create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and/or comment on an existing issue to state you've started working
 2. Create a PR to the `draft` branch during or when complete
