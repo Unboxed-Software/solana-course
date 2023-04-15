@@ -28,7 +28,7 @@ When an LP is ready to withdraw their deposited liquidity, their LP-tokens are b
 
 The purpose of swap pools is to facilitate decentralized trade between users. In traditional finance, users execute trades like this through a centralized exchange on a central limit [order book](https://www.investopedia.com/terms/o/order-book.asp). Generally, this requires a trusted third-party intermediary.
 
-Due to the decentralized nature of cryptocurrency, however, we now have a new way to facilitate trades. Many protocols decentralized exchanges have been built to take advantage of this. [Project Serum](https://www.projectserum.com/) is an example of such a decentralized central limit order book built on Solana.
+Due to the decentralized nature of cryptocurrency, however, we now have a new way to facilitate trades. Many protocols decentralized exchanges have been built to take advantage of this. [Project Serum](https://portal.projectserum.com/) is an example of such a decentralized central limit order book built on Solana.
 
 Since swap pools are completely decentralized, anybody can issue instructions to the swap program to create a new swap pool between any SPL tokens they wish. This is a massive lift beyond traditional finance. Swap pools and Automated Market Makers (AMMs) are one of DeFi's most fascinating and complex topics. The nitty-gritty details of how they work are outside the scope of this lesson, but there is a ton of material out there available to you if you’re interested in learning more. For example, the Solana Token Swap Program was heavily inspired by [Uniswap](https://uniswap.org/) and [Balancer](https://balancer.fi/), each of which provide excellent documentation that you can read through.
 
