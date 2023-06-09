@@ -9,55 +9,55 @@ objectives:
 
 # TL;DR
 
-- **Non-Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a maximum supply of 1
--   **Metaplex** offers a collection of tools that simplify the creation and distribution of NFTs on the Solana blockchain
-- The **Token Metadata** program standardizes the process of attaching metadata to SPL Tokens
-- The **Metaplex SDK** is a tool that offers user-friendly APIs to assist developers in utilizing the on-chain tools provided by Metaplex
-- The **Candy Machine** program is an NFT distribution tool used to create and mint NFTs from a collection
-- **Sugar CLI** is a tool that simplifies the process of uploading media/metadata files and creating a Candy Machine for a collection
+- Ang **Non-Fungible Token (NFTs)** ay kinakatawan sa Solana bilang SPL Token na may nauugnay na metadata account, 0 decimal, at maximum na supply na 1
+- Nag-aalok ang **Metaplex** ng koleksyon ng mga tool na nagpapasimple sa paglikha at pamamahagi ng mga NFT sa Solana blockchain
+- Ang **Token Metadata** program ay nagsa-standardize sa proseso ng pag-attach ng metadata sa SPL Token
+- Ang **Metaplex SDK** ay isang tool na nag-aalok ng mga user-friendly na API upang tulungan ang mga developer sa paggamit ng mga on-chain na tool na ibinigay ng Metaplex
+- Ang programang **Candy Machine** ay isang tool sa pamamahagi ng NFT na ginagamit upang lumikha at mag-mint ng mga NFT mula sa isang koleksyon
+- **Ang Sugar CLI** ay isang tool na nagpapasimple sa proseso ng pag-upload ng mga media/metadata file at paggawa ng Candy Machine para sa isang koleksyon
 
-# Overview
+# Pangkalahatang-ideya
 
-Solana Non-Fungible Tokens (NFTs) are SPL tokens created using the Token program. These tokens, however, also have an additional metadata account associated with each token mint. This allows for a wide variety of use cases for tokens. You can effectively tokenize anything, from game inventory to art.
+Ang Solana Non-Fungible Token (NFTs) ay mga SPL token na ginawa gamit ang Token program. Ang mga token na ito, gayunpaman, ay mayroon ding karagdagang metadata account na nauugnay sa bawat token mint. Nagbibigay-daan ito para sa isang malawak na iba't ibang mga kaso ng paggamit para sa mga token. Maaari mong epektibong i-tokenize ang anumang bagay, mula sa imbentaryo ng laro hanggang sa sining.
 
-In this lesson, we'll cover the basics of how NFTs are represented on Solana, how to create and update them using the Metaplex SDK, and provide a brief introduction to tools that can assist you in creating and distributing NFTs on Solana at scale.
+Sa araling ito, sasakupin namin ang mga pangunahing kaalaman sa kung paano kinakatawan ang mga NFT sa Solana, kung paano gawin at i-update ang mga ito gamit ang Metaplex SDK, at magbigay ng maikling panimula sa mga tool na makakatulong sa iyo sa paggawa at pamamahagi ng mga NFT sa Solana sa sukat.
 
-## NFTs on Solana
+## NFT sa Solana
 
-A Solana NFT is a non-divisible token with associated metadata. Further, the token's mint has a maximum supply of 1. 
+Ang Solana NFT ay isang hindi mahahati na token na may nauugnay na metadata. Dagdag pa, ang mint ng token ay may pinakamataas na supply na 1.
 
-In other words, an NFT is a standard token from the Token Program but differs from what you might think of as "standard tokens" in that it:
+Sa madaling salita, ang isang NFT ay isang karaniwang token mula sa Token Program ngunit naiiba sa kung ano ang maaari mong isipin bilang "mga karaniwang token" dahil ito ay:
 
-1. Has 0 decimals so that it cannot be divided into parts
-2. Comes from a token mint with supply of 1 so that only 1 of these tokens exists
-3. Comes from a token mint whose authority is set to `null` (to ensure that the supply never changes)
-4. Has an associated account that stores metadata
+1. May 0 decimal upang hindi ito mahahati sa mga bahagi
+2. Galing sa isang token mint na may supply na 1 para 1 lang sa mga token na ito ang umiiral
+3. Nagmula sa isang token mint na ang awtoridad ay nakatakda sa `null` (upang matiyak na hindi kailanman magbabago ang supply)
+4. May nauugnay na account na nag-iimbak ng metadata
 
-While the first three points are features that can be achieved with the SPL Token Program, the associated metadata requires some additional functionality.
+Habang ang unang tatlong puntos ay mga tampok na maaaring makamit gamit ang SPL Token Program, ang nauugnay na metadata ay nangangailangan ng ilang karagdagang paggana.
 
-Typically, an NFT’s metadata has both an on-chain and off-chain component. The on-chain metadata is stored in an account associated with the token mint. One of its fields is URI that typically points to an off-chain JSON file (see [this link](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6n4x0GanLnSbeoT1EVvNuw) as an example). The off-chain component stores additional data and a link to the image. Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.
+Karaniwan, ang metadata ng isang NFT ay may parehong on-chain at off-chain na bahagi. Ang on-chain metadata ay iniimbak sa isang account na nauugnay sa token mint. Ang isa sa mga field nito ay ang URI na karaniwang tumuturo sa isang off-chain na JSON file (tingnan ang [link na ito](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6Ln4x0ex) Ang off-chain na bahagi ay nag-iimbak ng karagdagang data at isang link sa larawan. Ang mga permanenteng sistema ng pag-iimbak ng data tulad ng Arweave ay kadalasang ginagamit upang iimbak ang off-chain na bahagi ng NFT metadata.
 
-Below is an example of the relationship between on-chain and off-chain metadata. The on-chain metadata contains a URI field that points to an off-chain `.json` file that stores the link to the image of the NFT and additional metadata.
+Nasa ibaba ang isang halimbawa ng ugnayan sa pagitan ng on-chain at off-chain metadata. Ang on-chain metadata ay naglalaman ng isang URI field na tumuturo sa isang off-chain na `.json` file na nag-iimbak ng link sa larawan ng NFT at karagdagang metadata.
 
 ![Screenshot of Metadata](../assets/solana-nft-metaplex-metadata.png)
 
 ## **Metaplex**
 
-[Metaplex](https://www.metaplex.com/) is an organization that provides a suite of tools, like the [Metaplex SDK](https://docs.metaplex.com/sdks/js/), that simplify the creation and distribution of NFTs on the Solana blockchain. These tools cater to a wide range of use cases and allow you to easily manage the entire NFT process of creating and minting an NFT collection.
+Ang [Metaplex](https://www.metaplex.com/) ay isang organisasyong nagbibigay ng hanay ng mga tool, tulad ng [Metaplex SDK](https://docs.metaplex.com/sdks/js/), na nagpapasimple ang paglikha at pamamahagi ng mga NFT sa Solana blockchain. Ang mga tool na ito ay tumutugon sa isang malawak na hanay ng mga kaso ng paggamit at nagbibigay-daan sa iyong madaling pamahalaan ang buong proseso ng NFT sa paglikha at pag-print ng isang koleksyon ng NFT.
 
-More specifically, the Metaplex SDK is designed to assist developers in utilizing the on-chain tools offered by Metaplex. It offers a user-friendly API that focuses on popular use cases and allows for easy integration with third-party plugins. To learn more about the capabilities of the Metaplex SDK, you can refer to the [README](https://github.com/metaplex-foundation/js#readme).
+Higit na partikular, ang Metaplex SDK ay idinisenyo upang tulungan ang mga developer sa paggamit ng mga on-chain na tool na inaalok ng Metaplex. Nag-aalok ito ng user-friendly na API na nakatuon sa mga sikat na kaso ng paggamit at nagbibigay-daan para sa madaling pagsasama sa mga third-party na plugin. Upang matuto nang higit pa tungkol sa mga kakayahan ng Metaplex SDK, maaari kang sumangguni sa [README](https://github.com/metaplex-foundation/js#readme).
 
-One of the essential programs offered by Metaplex is the Token Metadata program. The Token Metadata program standardizes the process of attaching metadata to SPL Tokens. When creating an NFT with Metaplex, the Token Metadata program creates a metadata account using a Program Derived Address (PDA) with the token mint as a seed. This allows the metadata account for any NFT to be located deterministically using the address of the token mint. To learn more about the Token Metadata program, you can refer to the Metaplex [documentation](https://docs.metaplex.com/programs/token-metadata/).
+Isa sa mga mahahalagang programa na inaalok ng Metaplex ay ang Token Metadata program. Ang Token Metadata program ay nag-standardize sa proseso ng pag-attach ng metadata sa SPL Token. Kapag gumagawa ng NFT gamit ang Metaplex, ang Token Metadata program ay gumagawa ng metadata account gamit ang Program Derived Address (PDA) na may token mint bilang isang binhi. Nagbibigay-daan ito sa metadata account para sa anumang NFT na matukoy nang deterministiko gamit ang address ng token mint. Upang matuto nang higit pa tungkol sa Token Metadata program, maaari kang sumangguni sa Metaplex [dokumentasyon](https://docs.metaplex.com/programs/token-metadata/).
 
-In the following sections, we'll cover the basics of using the Metaplex SDK to prepare assets, create NFTs, update NFTs, and associate an NFT with a broader collection.
+Sa mga sumusunod na seksyon, sasakupin namin ang mga pangunahing kaalaman sa paggamit ng Metaplex SDK upang maghanda ng mga asset, gumawa ng mga NFT, mag-update ng mga NFT, at mag-ugnay ng isang NFT sa isang mas malawak na koleksyon.
 
 ### Metaplex instance
 
-A `Metaplex` instance serves as the entry point for accessing the Metaplex SDK APIs. This instance accepts a connection used to communicate with the cluster. Additionally, developers can customize the SDK's interactions by specifying an "Identity Driver" and a "Storage Driver".
+Ang isang `Metaplex` instance ay nagsisilbing entry point para sa pag-access sa Metaplex SDK API. Ang pagkakataong ito ay tumatanggap ng koneksyon na ginagamit upang makipag-ugnayan sa cluster. Bukod pa rito, maaaring i-customize ng mga developer ang mga pakikipag-ugnayan ng SDK sa pamamagitan ng pagtukoy ng "Identity Driver" at "Storage Driver."
 
-The Identity Driver is effectively a keypair that can be used to sign transactions, a requirement when creating an NFT. The Storage Driver is used to specify the storage service you want to use for uploading assets. The `bundlrStorage` driver is the default option and it uploads assets to Arweave, a permanent and decentralized storage service.
+Ang Identity Driver ay epektibong isang keypair na maaaring magamit upang pumirma ng mga transaksyon, isang kinakailangan kapag lumilikha ng isang NFT. Ginagamit ang Storage Driver para tukuyin ang storage service na gusto mong gamitin para sa pag-upload ng mga asset. Ang driver ng `bundlrStorage` ay ang default na opsyon at nag-a-upload ito ng mga asset sa Arweave, isang permanenteng at desentralisadong serbisyo ng storage.
 
-Below is an example of how you can set up the `Metaplex` instance for devnet.
+Nasa ibaba ang isang halimbawa kung paano mo mase-set up ang instance ng `Metaplex` para sa devnet.
 
 ```tsx
 import {
@@ -81,13 +81,13 @@ const metaplex = Metaplex.make(connection)
     );
 ```
 
-### Upload assets
+### Mag-upload ng mga asset
 
-Before you can create an NFT, you need to prepare and upload any assets you plan to associate with the NFT. While this doesn't have to be an image, most NFTs have an image associated with them.
+Bago ka makagawa ng NFT, kailangan mong maghanda at mag-upload ng anumang asset na pinaplano mong iugnay sa NFT. Bagama't hindi ito kailangang isang imahe, karamihan sa mga NFT ay may larawang nauugnay sa kanila.
 
-Preparing and uploading an image involves converting the image to a buffer, converting it to the Metaplex format using the `toMetaplexFile` function,, and finally uploading it to the designated Storage Driver.
+Ang paghahanda at pag-upload ng isang imahe ay kinabibilangan ng pag-convert ng imahe sa isang buffer, pag-convert nito sa Metaplex na format gamit ang `toMetaplexFile` function, at sa wakas ay pag-upload nito sa itinalagang Storage Driver.
 
-The Metaplex SDK supports the creation of a new Metaplex file from either files present on your local computer or those uploaded by a user through a browser. You can do the former by using `fs.readFileSync` to read the image file, then convert it into a Metaplex file using `toMetaplexFile`. Finally, use your `Metaplex` instance to call `storage().upload(file)` to upload the file. The function's return value will be the URI where the image was stored.
+Sinusuportahan ng Metaplex SDK ang paglikha ng isang bagong Metaplex file mula sa alinman sa mga file na nasa iyong lokal na computer o sa mga na-upload ng isang user sa pamamagitan ng isang browser. Magagawa mo ang una sa pamamagitan ng paggamit ng `fs.readFileSync` upang basahin ang file ng imahe, pagkatapos ay i-convert ito sa isang Metaplex file gamit ang `toMetaplexFile`. Panghuli, gamitin ang iyong instance ng `Metaplex` para tawagan ang `storage().upload(file)` para i-upload ang file. Ang return value ng function ay ang URI kung saan iniimbak ang larawan.
 
 ```tsx
 const buffer = fs.readFileSync("/path/to/image.png");
@@ -96,13 +96,13 @@ const file = toMetaplexFile(buffer, "image.png");
 const imageUri = await metaplex.storage().upload(file);
 ```
 
-### Upload metadata
+### Mag-upload ng metadata
 
-After uploading an image, it's time to upload the off-chain JSON metadata using the `nfts().uploadMetadata` function. This will return a URI where the JSON metadata is stored.
+Pagkatapos mag-upload ng larawan, oras na para i-upload ang off-chain na JSON metadata gamit ang `nfts().uploadMetadata` function. Magbabalik ito ng URI kung saan naka-store ang JSON metadata.
 
-Remember, the off-chain portion of the metadata includes things like the image URI as well as additional information like the name and description of the NFT. While you can technically include anything you'd like in this JSON object, in most cases you should follow the [NFT standard](https://docs.metaplex.com/programs/token-metadata/token-standard#the-non-fungible-standard) to ensure compatibility with wallets, programs, and applications.
+Tandaan, kasama sa off-chain na bahagi ng metadata ang mga bagay tulad ng URI ng larawan pati na rin ang karagdagang impormasyon tulad ng pangalan at paglalarawan ng NFT. Bagama't maaari mong teknikal na isama ang anumang gusto mo sa object na ito ng JSON, sa karamihan ng mga kaso dapat mong sundin ang [NFT standard](https://docs.metaplex.com/programs/token-metadata/token-standard#the-non -fungible-standard) para matiyak ang pagiging tugma sa mga wallet, program, at application.
 
-To create the metadata, use the `uploadMetadata` method provided by the SDK. This method accepts a metadata object and returns a URI that points to the uploaded metadata.
+Upang gawin ang metadata, gamitin ang paraang `uploadMetadata` na ibinigay ng SDK. Ang pamamaraang ito ay tumatanggap ng isang metadata object at nagbabalik ng isang URI na tumuturo sa na-upload na metadata.
 
 ```tsx
 const { uri } = await metaplex.nfts().uploadMetadata({
@@ -112,9 +112,9 @@ const { uri } = await metaplex.nfts().uploadMetadata({
 });
 ```
 
-### Create NFT
+### Lumikha ng NFT
 
-After uploading the NFT's metadata, you can finally create the NFT on the network. The Metaplex SDK's `create` method allows you to create a new NFT with minimal configuration. This method will handle the creation of the mint account, token account, metadata account, and the master edition account for you. The data provided to this method will represent the on-chain portion of the NFT metadata. You can explore the SDK to see all the other input that can be optionally provided to this method.
+Pagkatapos i-upload ang metadata ng NFT, maaari mo nang gawin ang NFT sa network. Nagbibigay-daan sa iyo ang `create` method ng Metaplex SDK na lumikha ng bagong NFT na may kaunting configuration. Hahawakan ng paraang ito ang paggawa ng mint account, token account, metadata account, at master edition account para sa iyo. Ang data na ibinigay sa paraang ito ay kumakatawan sa on-chain na bahagi ng NFT metadata. Maaari mong i-explore ang SDK upang makita ang lahat ng iba pang input na maaaring opsyonal na ibigay sa paraang ito.
 
 ```tsx
 const { nft } = await metaplex.nfts().create(
@@ -127,11 +127,11 @@ const { nft } = await metaplex.nfts().create(
 );
 ```
 
-This method returns an object containing information about the newly created NFT. By default, the SDK sets the `isMutable` property to true, allowing for updates to be made to the NFT's metadata. However, you can choose to set `isMutable` to false, making the NFT's metadata immutable.
+Ang pamamaraang ito ay nagbabalik ng isang bagay na naglalaman ng impormasyon tungkol sa bagong likhang NFT. Bilang default, itinatakda ng SDK ang property na `isMutable` sa true, na nagbibigay-daan sa mga update na gawin sa metadata ng NFT. Gayunpaman, maaari mong piliing itakda ang `isMutable` sa false, na ginagawang hindi nababago ang metadata ng NFT.
 
-### Update NFT
+### I-update ang NFT
 
-If you've left `isMutable` as true, you may end up having a reason to update your NFT's metadata. The SDK's `update` method allows you to update both the on-chain and off-chain portions of the NFT's metadata. To update the off-chain metadata, you'll need to repeat the steps of uploading a new image and metadata URI as outlined in the previous steps, then provide the new metadata URI to this method. This will change the URI that the on-chain metadata points to, effectively updating the off-chain metadata as well.
+Kung iniwan mong totoo ang `isMutable`, maaaring magkaroon ka ng dahilan para i-update ang metadata ng iyong NFT. Nagbibigay-daan sa iyo ang paraang `update` ng SDK na i-update ang parehong on-chain at off-chain na bahagi ng metadata ng NFT. Upang i-update ang off-chain metadata, kakailanganin mong ulitin ang mga hakbang sa pag-upload ng bagong larawan at metadata URI gaya ng nakabalangkas sa mga nakaraang hakbang, pagkatapos ay ibigay ang bagong metadata URI sa paraang ito. Babaguhin nito ang URI kung saan itinuturo ng on-chain metadata, na epektibong ina-update din ang off-chain metadata.
 
 ```tsx
 const nft = await metaplex.nfts().findByMint({ mintAddress });
@@ -147,13 +147,13 @@ const { response } = await metaplex.nfts().update(
 );
 ```
 
-Note that any fields you don't include in the call to `update` will stay the same, by design.
+Tandaan na ang anumang mga field na hindi mo isasama sa tawag sa `update` ay mananatiling pareho, ayon sa disenyo.
 
-### Add NFT to Collection
+### Magdagdag ng NFT sa Koleksyon
 
-A [Certified Collection](https://docs.metaplex.com/programs/token-metadata/certified-collections#introduction) is a NFT that individual NFT's can belong to. Think of a large NFT collection like Solana Monkey Business. If you look at an individual NFT's [Metadata](https://explorer.solana.com/address/C18YQWbfwjpCMeCm2MPGTgfcxGeEDPvNaGpVjwYv33q1/metadata) you will see a `collection` field with a `key` that point's to the `Certified Collection` [NFT](https://explorer.solana.com/address/SMBH3wF6baUj6JWtzYvqcKuj2XCKWDqQxzspY12xPND/). Simply put, NFTs that are part of a collection are associated with another NFT that represents the collection itself.
+Ang [Certified Collection](https://docs.metaplex.com/programs/token-metadata/certified-collections#introduction) ay isang NFT na maaaring pag-aari ng mga indibidwal na NFT. Mag-isip ng malaking koleksyon ng NFT tulad ng Solana Monkey Business. Kung titingnan mo ang [Metadata] ng isang indibidwal na NFT(https://explorer.solana.com/address/C18YQWbfwjpCMeCm2MPGTgfcxGeEDPvNaGpVjwYv33q1/metadata) makakakita ka ng field ng `collection` na may `key` na nakaturo sa `CV. ](https://explorer.solana.com/address/SMBH3wF6baUj6JWtzYvqcKuj2XCKWDqQxzspY12xPND/). Sa madaling salita, ang mga NFT na bahagi ng isang koleksyon ay nauugnay sa isa pang NFT na kumakatawan sa koleksyon mismo.
 
-In order to add an NFT to a collection, first the Collection NFT has to be created. The process is the same as before, except you'll include one additional field on our NFT Metadata: `isCollection`. This field tells the token program that this NFT is a Collection NFT.
+Upang makapagdagdag ng NFT sa isang koleksyon, kailangan munang gawin ang Collection NFT. Ang proseso ay kapareho ng dati, maliban kung magsasama ka ng isang karagdagang field sa aming NFT Metadata: `isCollection`. Ang field na ito ay nagsasabi sa token program na ang NFT na ito ay isang Collection NFT.
 
 ```tsx
 const { collectionNft } = await metaplex.nfts().create(
@@ -167,7 +167,7 @@ const { collectionNft } = await metaplex.nfts().create(
 );
 ```
 
-You then list the collection's Mint Address as the reference for the `collection` field in our new Nft.
+Pagkatapos ay ilista mo ang Mint Address ng koleksyon bilang reference para sa field ng `collection` sa aming bagong Nft.
 
 ```tsx
 const { nft } = await metaplex.nfts().create(
@@ -181,7 +181,7 @@ const { nft } = await metaplex.nfts().create(
 );
 ```
 
-When you checkout the metadata on your newly created NFT, you should now see a `collection` field like so:
+Kapag nag-checkout ka ng metadata sa iyong bagong likhang NFT, dapat ka na ngayong makakita ng field na `collection` tulad nito:
 
 ```JSON
 "collection":{
@@ -190,7 +190,7 @@ When you checkout the metadata on your newly created NFT, you should now see a `
 }
 ```
 
-The last thing you need to do is verify the NFT. This effectively just flips the `verified` field above to true, but it's incredibly important. This is what lets consuming programs and apps know that your NFT is in fact part of the collection. You can do this using the `verifyCollection` function:
+Ang huling bagay na kailangan mong gawin ay i-verify ang NFT. Ito ay epektibong i-flip ang `na-verify' na field sa itaas sa true, ngunit ito ay hindi kapani-paniwalang mahalaga. Ito ang nagpapaalam sa mga gumagamit ng programa at app na ang iyong NFT ay sa katunayan bahagi ng koleksyon. Magagawa mo ito gamit ang function na `verifyCollection`:
 
 ```tsx
 await metaplex.nfts().verifyCollection({
@@ -200,28 +200,28 @@ await metaplex.nfts().verifyCollection({
 })
 ```
 
-### Candy Machine 
+### Makina ng Candy
 
-When creating and distributing a bulk supply of NFT's, Metaplex makes it easy with their [Candy Machine](https://docs.metaplex.com/programs/candy-machine/overview) program and [Sugar CLI](https://docs.metaplex.com/developer-tools/sugar/).
+Kapag gumagawa at namamahagi ng maramihang supply ng NFT's, ginagawang madali ng Metaplex gamit ang kanilang [Candy Machine](https://docs.metaplex.com/programs/candy-machine/overview) program at [Sugar CLI](https:// docs.metaplex.com/developer-tools/sugar/).
 
-Candy Machine is effectively a minting and distribution program to help launch NFT collections. Sugar is a command line interface that helps you create a candy machine, prepare assets, and create NFTs at scale. The steps covered above for creating an NFT would be incredibly tedious to execute for thousands of NFTs in one go. Candy Machine and Sugar solve this and help ensure a fair launch by offering a number of safeguards.
+Ang Candy Machine ay isang epektibong programa sa pagmimina at pamamahagi upang makatulong sa paglunsad ng mga koleksyon ng NFT. Ang Sugar ay isang command line interface na tumutulong sa iyong gumawa ng candy machine, maghanda ng mga asset, at gumawa ng mga NFT sa sukat. Ang mga hakbang na sakop sa itaas para sa paglikha ng isang NFT ay hindi kapani-paniwalang nakakapagod na isagawa para sa libu-libong NFT nang sabay-sabay. Ang Candy Machine at Sugar ay malulutas ito at tumulong na matiyak ang isang patas na paglulunsad sa pamamagitan ng pag-aalok ng ilang mga pananggalang.
 
-We won't cover these tools in-depth, but definitely check out how they work together [here](https://docs.metaplex.com/developer-tools/sugar/overview/introduction).
+Hindi namin tatalakayin nang malalim ang mga tool na ito, ngunit tiyak na tingnan kung paano gumagana ang mga ito nang magkasama [dito](https://docs.metaplex.com/developer-tools/sugar/overview/introduction).
 
-To explore the full range of tools offered by Metaplex, you can view the [Metaplex repository](https://github.com/metaplex-foundation/metaplex) on GitHub. 
+Upang i-explore ang buong hanay ng mga tool na inaalok ng Metaplex, maaari mong tingnan ang [Repository ng Metaplex](https://github.com/metaplex-foundation/metaplex) sa GitHub.
 
 
 # Demo
 
-In this demo, we'll go through the steps to create an NFT using the Metaplex SDK, update the NFT's metadata after the fact, then associate the NFT with a collection. By the end, you will have a basic understanding of how to use the Metaplex SDK interact with NFTs on Solana.
+Sa demo na ito, dadaan tayo sa mga hakbang upang lumikha ng isang NFT gamit ang Metaplex SDK, i-update ang metadata ng NFT pagkatapos ng katotohanan, pagkatapos ay iugnay ang NFT sa isang koleksyon. Sa pagtatapos, magkakaroon ka ng pangunahing pag-unawa sa kung paano gamitin ang Metaplex SDK na nakikipag-ugnayan sa mga NFT sa Solana.
 
-### 1. Starter
+### 1. Panimula
 
-To begin, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-metaplex/tree/starter).
+Upang magsimula, i-download ang starter code mula sa `starter` branch ng [repository na ito](https://github.com/Unboxed-Software/solana-metaplex/tree/starter).
 
-The project contains two images in the `src` directory that we will be using for the NFTs.
+Ang proyekto ay naglalaman ng dalawang larawan sa `src` na direktoryo na aming gagamitin para sa mga NFT.
 
-Additionally, in the `index.ts` file, you will find the following code snippet which includes sample data for the NFT we’ll be creating and updating.
+Bukod pa rito, sa `index.ts` file, makikita mo ang sumusunod na snippet ng code na may kasamang sample na data para sa NFT na gagawin at ia-update namin.
 
 ```tsx
 interface NftData {
@@ -271,9 +271,9 @@ async function main() {
 }
 ```
 
-To install the necessary dependencies, run `npm install` in the command line.
+Upang i-install ang mga kinakailangang dependency, patakbuhin ang `npm install` sa command line.
 
-Next, execute the code by running `npm start`. This will create a new keypair, write it to the `.env` file, and airdrop devnet SOL to the keypair.
+Susunod, i-execute ang code sa pamamagitan ng pagpapatakbo ng `npm start`. Gagawa ito ng bagong keypair, isulat ito sa `.env` file, at airdrop devnet SOL sa keypair.
 
 ```
 Current balance is 0
@@ -283,9 +283,9 @@ PublicKey: GdLEz23xEonLtbmXdoWGStMst6C9o3kBhb7nf7A1Fp6F
 Finished successfully
 ```
 
-### 2. Set up Metaplex
+### 2. I-set up ang Metaplex
 
-Before we start creating and updating NFTs, we need to set up the Metaplex instance. Update the `main()` function with the following:
+Bago tayo magsimulang gumawa at mag-update ng mga NFT, kailangan nating i-set up ang instance ng Metaplex. I-update ang function na `main()` gamit ang sumusunod:
 
 ```tsx
 async function main() {
@@ -312,7 +312,7 @@ async function main() {
 
 ### 3. `uploadMetadata` helper function
 
-Next, lets create a helper function to handle the process of uploading an image and metadata, and returning the metadata URI. This function will take in the Metaplex instance and NFT data as input, and return the metadata URI as output.
+Susunod, hayaang lumikha ng isang helper function upang pangasiwaan ang proseso ng pag-upload ng larawan at metadata, at pagbabalik ng metadata URI. Ang function na ito ay kukuha sa Metaplex instance at NFT data bilang input, at ibabalik ang metadata URI bilang output.
 
 ```tsx
 // helper function to upload image and metadata
@@ -343,11 +343,11 @@ async function uploadMetadata(
 }
 ```
 
-This function will read an image file, convert it to a buffer, then upload it to get an image URI. It will then upload the NFT metadata, which includes the name, symbol, description, and image URI, and get a metadata URI. This URI is the off-chain metadata. This function will also log the image URI and metadata URI for reference.
+Ang function na ito ay magbabasa ng isang file ng imahe, i-convert ito sa isang buffer, pagkatapos ay i-upload ito upang makakuha ng isang URI ng imahe. Pagkatapos ay ia-upload nito ang NFT metadata, na kinabibilangan ng pangalan, simbolo, paglalarawan, at URI ng larawan, at makakakuha ng URI ng metadata. Ang URI na ito ay ang off-chain metadata. Ila-log din ng function na ito ang URI ng imahe at URI ng metadata para sa sanggunian.
 
 ### 5. `createNft` helper function
 
-Next, let's create a helper function to handle creating the NFT. This function takes in the Metaplex instance, metadata URI and NFT data as inputs. It uses the `create` method of the SDK to create the NFT, passing in the metadata URI, name, seller fee, and symbol as parameters.
+Susunod, gumawa tayo ng function ng helper upang mahawakan ang paglikha ng NFT. Kinukuha ng function na ito ang instance ng Metaplex, metadata URI at NFT data bilang mga input. Ginagamit nito ang paraan ng `create` ng SDK upang gawin ang NFT, na ipinapasa ang metadata URI, pangalan, bayad sa nagbebenta, at simbolo bilang mga parameter.
 
 ```tsx
 // helper function create NFT
@@ -374,11 +374,11 @@ async function createNft(
 }
 ```
 
-The function `createNft` logs the token mint URL and returns the an `nft` object containing information about the newly created NFT. The NFT will be minted to the public key corresponding to the `user` used as the Identity Driver when setting up the Metaplex instance.
+Nila-log ng function na `createNft` ang token mint URL at ibinabalik ang isang `nft` object na naglalaman ng impormasyon tungkol sa bagong likhang NFT. Ang NFT ay ilalagay sa pampublikong key na naaayon sa `user` na ginamit bilang Identity Driver kapag nagse-set up ng Metaplex instance.
 
-### 6. Create NFT
+### 6. Lumikha ng NFT
 
-Now that we have set up the Metaplex instance and created helper functions for uploading metadata and creating NFTs, we can test these functions by creating an NFT. In the `main()` function, call the `uploadMetadata` function to upload the NFT data and get the URI for the metadata. Then, use the `createNft` function and metadata URI to create an NFT.
+Ngayong na-set up na namin ang instance ng Metaplex at gumawa ng mga function ng helper para sa pag-upload ng metadata at paggawa ng mga NFT, maaari naming subukan ang mga function na ito sa pamamagitan ng paggawa ng NFT. Sa `main()` function, tawagan ang `uploadMetadata` function para i-upload ang NFT data at makuha ang URI para sa metadata. Pagkatapos, gamitin ang function na `createNft` at metadata URI para gumawa ng NFT.
 
 ```tsx
 async function main() {
@@ -392,7 +392,7 @@ async function main() {
 }
 ```
 
-Run `npm start` in the command line to execute the `main` function. You should see output similar to the following:
+Patakbuhin ang `npm start` sa command line para i-execute ang `main` function. Dapat mong makita ang output na katulad ng sumusunod:
 
 ```tsx
 Current balance is 1.770520342
@@ -403,11 +403,11 @@ Token Mint: https://explorer.solana.com/address/QdK4oCUZ1zMroCd4vqndnTH7aPAsr8Ap
 Finished successfully
 ```
 
-Feel free to inspect the generated URIs for the image and metadata, as well as view the NFT on the Solana explorer by visiting the URL provided in the output.
+Huwag mag-atubiling suriin ang mga nabuong URI para sa larawan at metadata, pati na rin tingnan ang NFT sa Solana explorer sa pamamagitan ng pagbisita sa URL na ibinigay sa output.
 
 ### 7. `updateNftUri` helper function
 
-Next, let's create a helper function to handle updating an existing NFT's URI. This function will take in the Metaplex instance, metadata URI, and mint address of the NFT. It uses the `findByMint` method of the SDK to fetch the existing NFT data using the mint address, and then uses the `update` method to update the metadata with the new URI. Finally, it will log the token mint URL and transaction signature for reference.
+Susunod, gumawa tayo ng function na helper upang mahawakan ang pag-update ng isang umiiral nang URI ng NFT. Ang function na ito ay kukuha sa Metaplex instance, metadata URI, at mint address ng NFT. Ginagamit nito ang paraan ng `findByMint` ng SDK para kunin ang kasalukuyang data ng NFT gamit ang mint address, at pagkatapos ay ginagamit ang paraan ng `update` para i-update ang metadata gamit ang bagong URI. Sa wakas, itatala nito ang token mint URL at lagda ng transaksyon para sa sanggunian.
 
 ```tsx
 // helper function update NFT
@@ -438,9 +438,9 @@ async function updateNftUri(
 }
 ```
 
-### 8. Update NFT
+### 8. I-update ang NFT
 
-To update an existing NFT, we first need to upload new metadata for the NFT and get the new URI. In the `main()` function, call the `uploadMetadata` function again to upload the updated NFT data and get the new URI for the metadata. Then, we can use the `updateNftUri` helper function, passing in the Metaplex instance, the new URI from the metadata, and the mint address of the NFT. The `nft.address` is from the output of the `createNft` function.
+Upang i-update ang isang umiiral nang NFT, kailangan muna naming mag-upload ng bagong metadata para sa NFT at kunin ang bagong URI. Sa function na `main()`, tawagan muli ang function na `uploadMetadata` upang i-upload ang na-update na data ng NFT at makuha ang bagong URI para sa metadata. Pagkatapos, maaari naming gamitin ang function ng helper na `updateNftUri`, na ipinapasa ang instance ng Metaplex, ang bagong URI mula sa metadata, at ang mint address ng NFT. Ang `nft.address` ay mula sa output ng `createNft` function.
 
 ```tsx
 async function main() {
@@ -454,7 +454,7 @@ async function main() {
 }
 ```
 
-Run `npm start` in the command line to execute the `main` function. You should see additional output similar to the following:
+Patakbuhin ang `npm start` sa command line para i-execute ang `main` function. Dapat kang makakita ng karagdagang output na katulad ng sumusunod:
 
 ```tsx
 ...
@@ -463,13 +463,13 @@ Transaction: https://explorer.solana.com/tx/5VkG47iGmECrqD11zbF7psaVqFkA4tz3iZar
 Finished successfully
 ```
 
-You can also view the NFTs in Phantom wallet by importing the `PRIVATE_KEY` from the .env file.
+Maaari mo ring tingnan ang mga NFT sa Phantom wallet sa pamamagitan ng pag-import ng `PRIVATE_KEY` mula sa .env file.
 
-### 9. Create an NFT collection
+### 9. Gumawa ng koleksyon ng NFT
 
-Awesome, you now know how to create a single NFT and update it on the Solana blockchain! But, how do you add it to a collection?
+Kahanga-hanga, alam mo na ngayon kung paano lumikha ng isang NFT at i-update ito sa Solana blockchain! Ngunit, paano mo ito idadagdag sa isang koleksyon?
 
-First, let's create a helper function called `createCollectionNft`. Note that it's very similar to `createNft`, but ensures that `isCollection` is set to true and that the data matches the requirements for a collection.
+Una, gumawa tayo ng helper function na tinatawag na `createCollectionNft`. Tandaan na ito ay halos kapareho sa `createNft`, ngunit tinitiyak na ang `isCollection` ay nakatakda sa true at ang data ay tumutugma sa mga kinakailangan para sa isang koleksyon.
 
 ```tsx
 async function createCollectionNft(
@@ -496,7 +496,7 @@ async function createCollectionNft(
 }
 ```
 
-Next, we need to create the off-chain data for the collection. In `main` *before* the existing calls to `createNft`, add the following `collectionNftData`:
+Susunod, kailangan nating gawin ang off-chain na data para sa koleksyon. Sa `pangunahing` *bago* ang mga kasalukuyang tawag sa `createNft`, idagdag ang sumusunod na `collectionNftData`:
 
 ```tsx
 const collectionNftData = {
@@ -510,7 +510,7 @@ const collectionNftData = {
 }
 ```
 
-Now, let's call `uploadMetadata` with the `collectionNftData` and then call `createCollectionNft`. Again, do this *before* the code that creates an NFT. 
+Ngayon, tawagan natin ang `uploadMetadata` gamit ang `collectionNftData` at pagkatapos ay tawagan ang `createCollectionNft`. Muli, gawin ito *bago* ang code na lumilikha ng isang NFT.
 
 ```tsx
 async function main() {
@@ -528,11 +528,11 @@ async function main() {
 }
 ```
 
-This will return our collection's mint address so we can use it to assign NFTs to the collection.
+Ibabalik nito ang mint address ng aming koleksyon upang magamit namin ito upang magtalaga ng mga NFT sa koleksyon.
 
-### 10. Assign an NFT to a collection
+### 10. Magtalaga ng NFT sa isang koleksyon
 
-Now that we have a collection, let's change our existing code so that newly created NFTs get added to the collection. First, let's modify our `createNft` function so that the call to `nfts().create` includes the `collection` field. Then, add code that calls `verifyCollection` to make it so the `verified` field in the on-chain metadata is set to true. This is how consuming programs and apps can know for sure that the NFT in fact belongs to the collection.
+Ngayong mayroon na tayong koleksyon, baguhin natin ang ating umiiral na code upang ang mga bagong likhang NFT ay maidagdag sa koleksyon. Una, baguhin natin ang ating function na `createNft` upang ang tawag sa `nfts().create` ay kasama ang field na `collection`. Pagkatapos, magdagdag ng code na tumatawag sa `verifyCollection` para gawin ito upang ang field na `verify` sa on-chain metadata ay nakatakda sa true. Sa ganitong paraan malalaman ng mga nakakatuwang programa at app na ang NFT sa katunayan ay kabilang sa koleksyon.
 
 ```tsx
 async function createNft(
@@ -565,16 +565,16 @@ async function createNft(
 }
 ```
 
-Now, run `npm start` and voila! If you follow the new nft link and look at the Metadata tab you will see a `collection` field with your collection's mint address listed.
+Ngayon, patakbuhin ang `npm start` at voila! Kung susundin mo ang bagong link ng nft at titingnan ang tab na Metadata makakakita ka ng field na `collection` kung saan nakalista ang mint address ng iyong koleksyon.
 
-Congratulations! You've successfully learned how to use the Metaplex SDK to create, update, and verify NFTs as part of a collection. That's everything you need to build out your own collection for just about any use case. You could build a TicketMaster competitor, revamp Costco's Membership Program, or even digitize your school's Student ID system. The possibilities are endless!
+Binabati kita! Matagumpay mong natutunan kung paano gamitin ang Metaplex SDK upang gumawa, mag-update, at mag-verify ng mga NFT bilang bahagi ng isang koleksyon. Iyan ang lahat ng kailangan mo upang bumuo ng iyong sariling koleksyon para sa halos anumang kaso ng paggamit. Maaari kang bumuo ng isang katunggali sa TicketMaster, baguhin ang Membership Program ng Costco, o i-digitize ang Student ID system ng iyong paaralan. Ang mga posibilidad ay walang hanggan!
 
-If you want to take a look at the final solution code you can find it on the solution branch of the same [repository](https://github.com/Unboxed-Software/solana-metaplex/tree/solution).
+Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa sangay ng solusyon ng parehong [repository](https://github.com/Unboxed-Software/solana-metaplex/tree/solution).
 
-# Challenge
+# Hamon
 
-To deepen your understanding of the Metaplex tools, dive into the Metaplex documentation and familiarize yourself with the various programs and tools offered by Metaplex. For instance, you can delve into learning about the Candy Machine program to understand its functionality.
+Upang palalimin ang iyong pag-unawa sa mga tool ng Metaplex, sumisid sa dokumentasyon ng Metaplex at gawing pamilyar ang iyong sarili sa iba't ibang mga programa at tool na inaalok ng Metaplex. Halimbawa, maaari mong pag-aralan ang tungkol sa programa ng Candy Machine upang maunawaan ang pagpapagana nito.
 
-Once you have an understanding of how the the Candy Machine program works, put your knowledge to the test by using the Sugar CLI to create a Candy Machine for your own collection. This hands-on experience will not only reinforce your understanding of the tools, but also boost your confidence in your ability to use them effectively in the future.
+Kapag naunawaan mo na kung paano gumagana ang programa ng Candy Machine, subukan ang iyong kaalaman sa pamamagitan ng paggamit ng Sugar CLI upang lumikha ng Candy Machine para sa sarili mong koleksyon. Ang hands-on na karanasang ito ay hindi lamang magpapatibay sa iyong pag-unawa sa mga tool, ngunit magpapalakas din ng iyong kumpiyansa sa iyong kakayahang magamit ang mga ito nang epektibo sa hinaharap.
 
-Have some fun with this! This will be your first independently created NFT collection! With this, you'll complete Module 2. Hope you're feeling the process! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202) so that we can continue to improve the course!
+Magsaya ka dito! Ito ang iyong unang independiyenteng ginawang koleksyon ng NFT! Sa pamamagitan nito, makukumpleto mo ang Modyul 2. Sana ay nararamdaman mo ang proseso! Huwag mag-atubiling magbahagi ng ilang mabilis na feedback [dito](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202) nang sa gayon ay patuloy nating pagbutihin ang kurso!

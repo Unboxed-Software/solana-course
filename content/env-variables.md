@@ -9,27 +9,27 @@ objectives:
 
 # TL;DR
 
--   There are no "out of the box" solutions for creating distinct environments in an on-chain program, but you can achieve something similar to environment variables if you get creative.
--   You can use the `cfg` attribute with **Rust features** (`#[cfg(feature = ...)]`) to run different code or provide different variable values based on the Rust feature provided. _This happens at compile-time and doesn't allow you to swap values after a program has been deployed_.
--   Similarly, you can use the `cfg!` **macro** to compile different code paths based on the features that are enabled.
--   Alternatively, you can achieve something similar to environment variables that can be modified after deployment by creating accounts and instructions that are only accessible by the program’s upgrade authority.
+- Walang mga "out of the box" na solusyon para sa paglikha ng mga natatanging kapaligiran sa isang on-chain na programa, ngunit makakamit mo ang isang bagay na katulad ng mga variable ng kapaligiran kung magiging malikhain ka.
+- Maaari mong gamitin ang attribute na `cfg` na may **Mga tampok na Rust** (`#[cfg(feature = ...)]`) upang magpatakbo ng ibang code o magbigay ng iba't ibang mga value ng variable batay sa ibinigay na feature na Rust. _Nangyayari ito sa oras ng pag-compile at hindi ka pinapayagang magpalit ng mga halaga pagkatapos ma-deploy ang isang programa_.
+- Katulad nito, maaari mong gamitin ang `cfg!` **macro** upang mag-compile ng iba't ibang mga path ng code batay sa mga feature na pinagana.
+- Bilang kahalili, makakamit mo ang isang bagay na katulad ng mga variable ng kapaligiran na maaaring mabago pagkatapos ng pag-deploy sa pamamagitan ng paggawa ng mga account at tagubilin na maa-access lamang ng awtoridad sa pag-upgrade ng programa.
 
-# Overview
+# Pangkalahatang-ideya
 
-One of the difficulties engineers face across all types of software development is that of writing testable code and creating distinct environments for local development, testing, production, etc.
+Ang isa sa mga paghihirap na kinakaharap ng mga inhinyero sa lahat ng uri ng software development ay ang pagsulat ng masusubok na code at paglikha ng mga natatanging kapaligiran para sa lokal na pag-unlad, pagsubok, produksyon, atbp.
 
-This can be particularly difficult in Solana program development. For example, imagine creating an NFT staking program that rewards each staked NFT with 10 reward tokens per day. How do you test the ability to claim rewards when tests run in a few hundred milliseconds, not nearly long enough to earn rewards?
+Maaari itong maging partikular na mahirap sa pagbuo ng programa ng Solana. Halimbawa, isipin ang paggawa ng NFT staking program na nagbibigay ng reward sa bawat staked NFT ng 10 reward token bawat araw. Paano mo masusubok ang kakayahang mag-claim ng mga reward kapag tumatakbo ang mga pagsubok sa loob ng ilang daang millisecond, na halos hindi sapat ang haba para makakuha ng mga reward?
 
-Traditional web development solves some of this with environment variables whose values can differ in each distinct "environment." Currently, there's no formal concept of environment variables in a Solana program. If there were, you could just make it so that rewards in your test environment are 10,000,000 tokens per day and it would be easier to test the ability to claim rewards.
+Niresolba ng tradisyunal na web development ang ilan dito gamit ang mga variable ng kapaligiran na ang mga halaga ay maaaring mag-iba sa bawat natatanging "kapaligiran." Sa kasalukuyan, walang pormal na konsepto ng mga variable ng kapaligiran sa isang programa ng Solana. Kung mayroon, magagawa mo lang ito upang ang mga reward sa iyong kapaligiran sa pagsubok ay 10,000,000 token bawat araw at magiging mas madaling subukan ang kakayahang mag-claim ng mga reward.
 
-Fortunately, you can achieve similar functionality if you get creative. The best approach is probably a combination of two things:
+Sa kabutihang palad, makakamit mo ang katulad na paggana kung magiging malikhain ka. Ang pinakamahusay na diskarte ay marahil isang kumbinasyon ng dalawang bagay:
 
-1. Rust feature flags that allow you to specify in your build command the "environment" of the build, coupled with code that adjusts specific values accordingly
-2. Program "admin-only" accounts and instructions that are only accessible by the program's upgrade authority
+1. Rust feature flag na nagbibigay-daan sa iyong tukuyin sa iyong build command ang "environment" ng build, kasama ng code na nag-aayos ng mga partikular na value nang naaayon.
+2. Mga account at tagubiling "admin-only" ng program na maa-access lang ng awtoridad sa pag-upgrade ng programa
 
-## Rust feature flags
+## Mga flag ng tampok na kalawang
 
-One of the simplest ways to create environments is to use Rust features. Features are defined in the `[features]` table of the program’s `Cargo.toml` file. You may define multiple features for different use cases.
+Ang isa sa mga pinakasimpleng paraan upang lumikha ng mga kapaligiran ay ang paggamit ng mga tampok na Rust. Tinutukoy ang mga feature sa `[features]` table ng file ng `Cargo.toml` ng program. Maaari kang tumukoy ng maraming feature para sa iba't ibang sitwasyon ng paggamit.
 
 ```toml
 [features]
@@ -37,23 +37,23 @@ feature-one = []
 feature-two = []
 ```
 
-It's important to note that the above simply defines a feature. To enable a feature when testing your program, you can use the `--features` flag with the `anchor test` command.
+Mahalagang tandaan na ang nasa itaas ay tumutukoy lamang sa isang tampok. Upang paganahin ang isang tampok kapag sinusubukan ang iyong programa, maaari mong gamitin ang `--features` na flag gamit ang command na `anchor test`.
 
 ```bash
 anchor test -- --features "feature-one"
 ```
 
-You can also specify multiple features by separating them with a comma.
+Maaari ka ring tumukoy ng maraming feature sa pamamagitan ng paghihiwalay sa mga ito gamit ang kuwit.
 
 ```bash
 anchor test -- --features "feature-one", "feature-two"
 ```
 
-### Make code conditional using the `cfg` attribute
+### Gawing conditional ang code gamit ang attribute na `cfg`
 
-With a feature defined, you can then use the `cfg` attribute within your code to conditionally compile code based on the whether or not a given feature is enabled. This allows you to include or exclude certain code from your program.
+Sa tinukoy na feature, maaari mong gamitin ang attribute na `cfg` sa loob ng iyong code para may kundisyon na mag-compile ng code batay sa kung pinagana o hindi ang isang partikular na feature. Nagbibigay-daan ito sa iyo na isama o ibukod ang ilang partikular na code mula sa iyong programa.
 
-The syntax for using the `cfg` attribute is like any other attribute macro: `#[cfg(feature=[FEATURE_HERE])]`. For example, the following code compiles the function `function_for_testing` when the `testing` feature is enabled and the `function_when_not_testing` otherwise:
+Ang syntax para sa paggamit ng attribute na `cfg` ay katulad ng iba pang macro ng attribute: `#[cfg(feature=[FEATURE_HERE])]`. Halimbawa, pinagsama-sama ng sumusunod na code ang function na `function_for_testing` kapag pinagana ang feature na `testing` at ang `function_when_not_testing` kung hindi:
 
 ```rust
 #[cfg(feature = "testing")]
@@ -67,11 +67,11 @@ fn function_when_not_testing() {
 }
 ```
 
-This allows you to enable or disable certain functionality in your Anchor program at compile time by enabling or disabling the feature.
+Nagbibigay-daan ito sa iyo na paganahin o huwag paganahin ang ilang partikular na pagpapagana sa iyong Anchor program sa oras ng pag-compile sa pamamagitan ng pagpapagana o hindi pagpapagana sa feature.
 
-It's not a stretch to imagine wanting to use this to create distinct "environments" for different program deployments. For example, not all tokens have deployments across both Mainnet and Devnet. So you might hard-code one token address for Mainnet deployments but hard-code a different address for Devnet and Localnet deployments. That way you can quickly switch between between different environments without requiring any changes to the code itself.
+Ito ay hindi isang kahabaan upang isipin na gustong gamitin ito upang lumikha ng natatanging "mga kapaligiran" para sa iba't ibang mga deployment ng programa. Halimbawa, hindi lahat ng token ay may mga deployment sa parehong Mainnet at Devnet. Kaya maaari mong i-hard-code ang isang token address para sa mga deployment ng Mainnet ngunit hard-code ang ibang address para sa mga deployment ng Devnet at Localnet. Sa ganoong paraan maaari kang mabilis na lumipat sa pagitan ng iba't ibang mga kapaligiran nang hindi nangangailangan ng anumang mga pagbabago sa code mismo.
 
-The code below shows an example of an Anchor program that uses the `cfg` attribute to include different token addresses for local testing compared to other deployments:
+Ang code sa ibaba ay nagpapakita ng isang halimbawa ng isang Anchor program na gumagamit ng `cfg` attribute para magsama ng iba't ibang token address para sa lokal na pagsubok kumpara sa iba pang deployment:
 
 ```rust
 use anchor_lang::prelude::*;
@@ -119,15 +119,15 @@ pub struct Initialize<'info> {
 }
 ```
 
-In this example, the `cfg` attribute is used to conditionally compile two different implementations of the `constants` module. This allows the program to use different values for the `USDC_MINT_PUBKEY` constant depending on whether or not the `local-testing` feature is enabled.
+Sa halimbawang ito, ginagamit ang attribute na `cfg` para may kundisyon na mag-compile ng dalawang magkaibang pagpapatupad ng module na `constants`. Nagbibigay-daan ito sa program na gumamit ng iba't ibang mga halaga para sa pare-parehong `USDC_MINT_PUBKEY` depende kung pinagana o hindi ang feature na `local-testing`.
 
-### Make code conditional using the `cfg!` macro
+### Gawing kondisyonal ang code gamit ang `cfg!` na macro
 
-Similar to the `cfg` attribute, the `cfg!` **macro** in Rust allows you to check the values of certain configuration flags at runtime. This can be useful if you want to execute different code paths depending on the values of certain configuration flags.
+Katulad ng attribute na `cfg`, binibigyang-daan ka ng `cfg!` **macro** sa Rust na suriin ang mga value ng ilang mga flag ng configuration sa runtime. Maaari itong maging kapaki-pakinabang kung gusto mong magsagawa ng iba't ibang mga path ng code depende sa mga halaga ng ilang mga flag ng configuration.
 
-You could use this to bypass or adjust the time-based constraints required in the NFT staking app we mentioned previously. When running a test, you can execute code that provides far higher staking rewards when compared to running a production build.
+Magagamit mo ito para i-bypass o isaayos ang mga hadlang batay sa oras na kinakailangan sa NFT staking app na binanggit namin dati. Kapag nagpapatakbo ng pagsubok, maaari kang magsagawa ng code na nagbibigay ng mas mataas na staking reward kung ihahambing sa pagpapatakbo ng production build.
 
-To use the `cfg!` macro in an Anchor program, you simply add a `cfg!` macro call to the conditional statement in question:
+Upang gamitin ang `cfg!` na macro sa isang Anchor program, magdagdag ka lang ng `cfg!` na macro call sa conditional statement na pinag-uusapan:
 
 ```rust
 #[program]
@@ -149,27 +149,27 @@ pub mod my_program {
 }
 ```
 
-In this example, the `test_function` uses the `cfg!` macro to check the value of the `local-testing` feature at runtime. If the `local-testing` feature is enabled, the first code path is executed. If the `local-testing` feature is not enabled, the second code path is executed instead.
+Sa halimbawang ito, ginagamit ng `test_function` ang `cfg!` na macro upang suriin ang halaga ng feature na `local-testing` sa runtime. Kung ang feature na `local-testing` ay pinagana, ang unang code path ay isasagawa. Kung ang feature na `local-testing` ay hindi pinagana, ang pangalawang code path ang ipapatupad sa halip.
 
-## Admin-only instructions
+## Mga tagubilin para sa admin lamang
 
-Feature flags are great for adjusting values and code paths at compilation, but they don't help much if you end up needing to adjust something after you've already deployed your program.
+Ang mga feature na flag ay mahusay para sa pagsasaayos ng mga value at path ng code sa compilation, ngunit hindi ito nakakatulong nang malaki kung kailangan mong ayusin ang isang bagay pagkatapos mong i-deploy ang iyong program.
 
-For example, if your NFT staking program has to pivot and use a different rewards token, there'd be no way to update the program without redeploying. If only there were a way for program admins to update certain program values... Well, it's possible!
+Halimbawa, kung ang iyong NFT staking program ay kailangang mag-pivot at gumamit ng ibang rewards token, walang paraan upang i-update ang program nang hindi muling i-deploy. Kung may paraan lang para sa mga admin ng programa na mag-update ng ilang partikular na value ng program... Well, posible!
 
-First, you need to structure your program to store the values you anticipate changing in an account rather than hard-coding them into the program code.
+Una, kailangan mong buuin ang iyong program upang iimbak ang mga halagang inaasahan mong pagbabago sa isang account sa halip na i-hard-coding ang mga ito sa program code.
 
-Next, you need to ensure that this account can only be updated by some known program authority, or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction. This sounds fairly straightforward in theory, but there is one main issues: how does the program know who is an authorized admin?
+Susunod, kailangan mong tiyakin na ang account na ito ay maa-update lang ng ilang kilalang awtoridad sa programa, o kung ano ang tinatawag naming admin. Nangangahulugan iyon na ang anumang mga tagubilin na nagbabago sa data sa account na ito ay kailangang may mga hadlang na naglilimita kung sino ang maaaring pumirma para sa pagtuturo. Ito ay medyo diretso sa teorya, ngunit may isang pangunahing isyu: paano malalaman ng programa kung sino ang isang awtorisadong admin?
 
-Well, there are a few solutions, each with their own benefits and drawbacks:
+Buweno, may ilang mga solusyon, bawat isa ay may sariling mga pakinabang at kawalan:
 
-1. Hard-code an admin public key that can be used in the admin-only instruction constraints.
-2. Make the program's upgrade authority the admin.
-3. Store the admin in the config account and set the first admin in an `initialize` instruction.
+1. Hard-code ang isang admin na pampublikong key na maaaring magamit sa mga hadlang sa pagtuturo lamang ng admin.
+2. Gawing admin ang awtoridad sa pag-upgrade ng programa.
+3. I-store ang admin sa config account at itakda ang unang admin sa isang `initialize` na pagtuturo.
 
-### Create the config account
+### Lumikha ng config account
 
-The first step is adding what we'll call a "config" account to your program. You can customize this to best suit your needs, but we suggest a single global PDA. In Anchor, that simply means creating an account struct and using a single seed to derive the account's address.
+Ang unang hakbang ay ang pagdaragdag ng tatawagin naming "config" na account sa iyong programa. Maaari mong i-customize ito upang pinakaangkop sa iyong mga pangangailangan, ngunit iminumungkahi namin ang isang pandaigdigang PDA. Sa Anchor, nangangahulugan lang iyon ng paggawa ng struct ng account at paggamit ng iisang binhi para makuha ang address ng account.
 
 ```rust
 pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
@@ -181,15 +181,15 @@ pub struct ProgramConfig {
 }
 ```
 
-The example above shows a hypothetical config account for the NFT staking program example we've referenced throughout the lesson. It stores data representing the token that should be used for rewards and the amount of tokens to give out for each day of staking.
+Ang halimbawa sa itaas ay nagpapakita ng hypothetical config account para sa halimbawa ng NFT staking program na binanggit namin sa buong aralin. Nag-iimbak ito ng data na kumakatawan sa token na dapat gamitin para sa mga reward at ang halaga ng mga token na ibibigay para sa bawat araw ng staking.
 
-With the config account defined, simply ensure that the rest of your code references this account when using these values. That way, if the data in the account changes, the program adapts accordingly.
+Gamit ang tinukoy na config account, siguraduhin lang na ang natitirang bahagi ng iyong code ay tumutukoy sa account na ito kapag ginagamit ang mga halagang ito. Sa ganoong paraan, kung ang data sa account ay nagbabago, ang programa ay umaangkop nang naaayon.
 
-### Constrain config updates to hard-coded admins
+### Limitahan ang mga update sa config sa mga hard-coded na admin
 
-You'll need a way to initialize and update the config account data. That means you need to have one or more instructions that only an admin can invoke. The simplest way to do this is to hard-code an admin's public key in your code and then add a simple signer check into your instruction's account validation comparing the signer to this public key.
+Kakailanganin mo ng paraan para masimulan at i-update ang data ng config account. Nangangahulugan iyon na kailangan mong magkaroon ng isa o higit pang mga tagubilin na ang isang admin lang ang makakatawag. Ang pinakasimpleng paraan upang gawin ito ay ang pag-hard-code ng pampublikong susi ng admin sa iyong code at pagkatapos ay magdagdag ng simpleng pag-check ng signer sa pagpapatunay ng account ng iyong pagtuturo na naghahambing ng lumagda sa pampublikong key na ito.
 
-In Anchor, constraining an `update_program_config` instruction to only be usable by a hard-coded admin might look like this:
+Sa Anchor, ang pagpigil sa isang `update_program_config` na pagtuturo upang magamit lamang ng isang hard-coded na admin ay maaaring magmukhang ganito:
 
 ```rust
 #[program]
@@ -220,22 +220,22 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
-Before instruction logic even executes, a check will be performed to make sure the instruction's signer matches the hard-coded `ADMIN_PUBKEY`. Notice that the example above doesn't show the instruction that initializes the config account, but it should have similar constraints to ensure that an attacker can't initialize the account with unexpected values.
+Bago pa man isagawa ang logic ng pagtuturo, isasagawa ang pagsusuri upang matiyak na tumutugma ang signer ng pagtuturo sa hard-coded na `ADMIN_PUBKEY`. Pansinin na ang halimbawa sa itaas ay hindi nagpapakita ng tagubilin na nagpapasimula sa config account, ngunit dapat itong magkaroon ng katulad na mga hadlang upang matiyak na hindi masimulan ng isang attacker ang account na may mga hindi inaasahang halaga.
 
-While this approach works, it also means keeping track of an admin wallet on top of keeping track of a program's upgrade authority. With a few more lines of code, you could simply restrict an instruction to only be callable by the upgrade authority. The only tricky part is getting a program's upgrade authority to compare against.
+Habang gumagana ang diskarteng ito, nangangahulugan din ito ng pagsubaybay sa isang admin wallet bukod pa sa pagsubaybay sa awtoridad sa pag-upgrade ng isang programa. Sa ilang higit pang mga linya ng code, maaari mo lamang paghigpitan ang isang pagtuturo na matatawag lamang ng awtoridad sa pag-upgrade. Ang tanging nakakalito na bahagi ay ang pagkuha ng awtoridad sa pag-upgrade ng isang programa upang ihambing.
 
-### Constrain config updates to the program's upgrade authority
+### Limitahan ang mga update sa config sa awtoridad sa pag-upgrade ng program
 
-Fortunately, every program has a program data account that translates to the Anchor `ProgramData` account type and has the `upgrade_authority_address` field. The program itself stores this account's address in its data in the field `programdata_address`.
+Sa kabutihang palad, ang bawat programa ay may program data account na nagsasalin sa uri ng Anchor `ProgramData` account at mayroong field na `upgrade_authority_address`. Iniimbak mismo ng program ang address ng account na ito sa data nito sa field na `programdata_address`.
 
-So in addition to the two accounts required by the instruction in the hard-coded admin example, this instruction requires the `program` and the `program_data` accounts.
+Kaya bilang karagdagan sa dalawang account na kinakailangan ng pagtuturo sa hard-coded na halimbawa ng admin, ang tagubiling ito ay nangangailangan ng `program` at ang `program_data` na mga account.
 
-The accounts then need the following constraints:
+Pagkatapos ay kailangan ng mga account ang mga sumusunod na limitasyon:
 
-1. A constraint on `program` ensuring that the provided `program_data` account matches the program's `programdata_address` field
-2. A constraint on the `program_data` account ensuring that the instruction's signer matches the `program_data` account's `upgrade_authority_address` field.
+1. Isang hadlang sa `program` na tinitiyak na ang ibinigay na `program_data` account ay tumutugma sa field ng `programdata_address` ng program
+2. Isang hadlang sa `program_data` na account na tinitiyak na tumutugma ang signer ng pagtuturo sa field ng `upgrade_authority_address` ng `program_data` account.
 
-When completed, that looks like this:
+Kapag nakumpleto, ganito ang hitsura:
 
 ```rust
 ...
@@ -252,13 +252,13 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
-Again, the example above doesn't show the instruction that initializes the config account, but it should have the same constraints to ensure that an attacker can't initialize the account with unexpected values.
+Muli, hindi ipinapakita ng halimbawa sa itaas ang pagtuturo na nagpapasimula sa config account, ngunit dapat itong magkaroon ng parehong mga hadlang upang matiyak na hindi masimulan ng isang attacker ang account na may mga hindi inaasahang halaga.
 
-If this is the first time you've heard about the program data account, it's worth reading through [this Notion doc](https://www.notion.so/29780c48794c47308d5f138074dd9838) about program deploys.
+Kung ito ang unang pagkakataon na narinig mo ang tungkol sa program data account, sulit na basahin ang [doc na ito ng Notion](https://www.notion.so/29780c48794c47308d5f138074dd9838) tungkol sa mga pag-deploy ng program.
 
-### Constrain config updates to a provided admin
+### Limitahan ang mga update sa config sa isang ibinigay na admin
 
-Both of the previous options are fairly secure but also inflexible. What if you want to update the admin to be someone else? For that, you can store the admin on the config account.
+Pareho sa mga nakaraang opsyon ay medyo secure ngunit hindi rin nababaluktot. Paano kung gusto mong i-update ang admin upang maging ibang tao? Para doon, maaari mong iimbak ang admin sa config account.
 
 ```rust
 pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
@@ -271,7 +271,7 @@ pub struct ProgramConfig {
 }
 ```
 
-Then you can constrain your "update" instructions with a signer check matching against the config account's `admin` field.
+Pagkatapos ay maaari mong hadlangan ang iyong mga tagubilin sa "pag-update" gamit ang isang signer check na tumutugma sa field ng `admin` ng config account.
 
 ```rust
 ...
@@ -287,63 +287,63 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
-There's one catch here: in the time between deploying a program and initializing the config account, _there is no admin_. Which means that the instruction for initializing the config account can't be constrained to only allow admins as callers. That means it could be called by an attacker looking to set themselves as the admin.
+Mayroong isang catch dito: sa oras sa pagitan ng pag-deploy ng program at pagsisimula ng config account, _walang admin_. Nangangahulugan ito na ang pagtuturo para sa pagsisimula ng config account ay hindi mapipigilan na payagan lamang ang mga admin bilang mga tumatawag. Nangangahulugan iyon na maaari itong tawagan ng isang umaatake na naghahanap upang itakda ang kanilang sarili bilang admin.
 
-While this sounds bad, it really just means that you shouldn't treat your program as "initialized" until you've initialized the config account yourself and verified that the admin listed on the account is who you expect. If your deploy script deploys and then immediately calls `initialize`, it's very unlikely that an attacker is even aware of your program's existence much less trying to make themselves the admin. If by some crazy stroke of bad luck someone "intercepts" your program, you can close the program with the upgrade authority and redeploy.
+Bagama't mukhang masama ito, nangangahulugan lang ito na hindi mo dapat ituring ang iyong programa bilang "na-initialize" hanggang sa ikaw mismo ang mag-initialize ng config account at ma-verify na ang admin na nakalista sa account ay kung sino ang iyong inaasahan. Kung ang iyong deployment script ay nag-deploy at pagkatapos ay agad na tatawagin ang `initialize`, napaka-malas na alam ng isang attacker ang pag-iral ng iyong program nang hindi gaanong sinusubukang gawin ang kanilang sarili bilang admin. Kung sa pamamagitan ng ilang nakakabaliw na stroke ng malas ay may isang "harang" sa iyong programa, maaari mong isara ang programa gamit ang awtoridad sa pag-upgrade at muling i-deploy.
 
 # Demo
 
-Now let's go ahead and try this out together. For this demo, we'll be working with a simple program that enables USDC payments. The program collects a small fee for facilitating the transfer. Note that this is somewhat contrived since you can do direct transfers without an intermediary contract, but it simulates how some complex DeFi programs work.
+Ngayon, sige at subukan natin ito nang magkasama. Para sa demo na ito, gagawa kami ng isang simpleng programa na nagbibigay-daan sa mga pagbabayad sa USDC. Nangongolekta ang programa ng maliit na bayad para sa pagpapadali sa paglipat. Tandaan na ito ay medyo ginawa dahil maaari kang gumawa ng mga direktang paglilipat nang walang intermediary na kontrata, ngunit ginagaya nito kung paano gumagana ang ilang kumplikadong DeFi program.
 
-We'll quickly learn while testing our program that it could benefit from the flexibility provided by an admin-controlled configuration account and some feature flags.
+Mabilis naming malalaman habang sinusubok ang aming programa na maaari itong makinabang mula sa kakayahang umangkop na ibinigay ng isang account sa pagsasaayos na kontrolado ng admin at ilang mga flag ng tampok.
 
-### 1. Starter
+### 1. Panimula
 
-Download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). The code contains a program with a single instruction and a single test in the `tests` directory.
+I-download ang starter code mula sa `starter` branch ng [repository na ito](https://github.com/Unboxed-Software/solana-admin-instructions/tree/starter). Ang code ay naglalaman ng isang programa na may iisang pagtuturo at isang pagsubok sa direktoryo ng `mga pagsubok.'
 
-Let's quickly walk through how the program works.
+Mabilis nating talakayin kung paano gumagana ang programa.
 
-The `lib.rs` file includes a constant for the USDC address and a single `payment` instruction. The `payment` instruction simply called the `payment_handler` function in the `instructions/payment.rs` file where the instruction logic is contained.
+Ang `lib.rs` file ay may kasamang constant para sa USDC address at isang iisang `payment` na pagtuturo. Ang tagubiling `payment` ay tinatawag na function na `payment_handler` sa file na `instructions/payment.rs` kung saan nakapaloob ang logic ng pagtuturo.
 
-The `instructions/payment.rs` file contains both the `payment_handler` function as well as the `Payment` account validation struct representing the accounts required by the `payment` instruction. The `payment_handler` function calculates a 1% fee from the payment amount, transfers the fee to a designated token account, and transfers the remaining amount to the payment recipient.
+Ang file na `instructions/payment.rs` ay naglalaman ng parehong function na `payment_handler` pati na rin ang struct ng validation ng account na `Payment` na kumakatawan sa mga account na kinakailangan ng tagubiling `payment`. Kinakalkula ng function na `payment_handler` ang isang 1% na bayarin mula sa halaga ng pagbabayad, inililipat ang bayad sa isang itinalagang token account, at inililipat ang natitirang halaga sa tatanggap ng pagbabayad.
 
-Finally, the `tests` directory has a single test file, `config.ts` that simply invokes the `payment` instruction and asserts that the corresponding token account balances have been debited and credited accordingly.
+Sa wakas, ang direktoryo ng `pagsusulit` ay may iisang test file, ang `config.ts` na nag-i-invoke lang ng tagubiling `pagbabayad` at iginiit na ang kaukulang balanse ng token account ay na-debit at na-kredito nang naaayon.
 
-Before we continue, take a few minutes to familiarize yourself with these files and their contents.
+Bago tayo magpatuloy, maglaan ng ilang minuto upang maging pamilyar sa mga file na ito at sa mga nilalaman nito.
 
-### 2. Run the existing test
+### 2. Patakbuhin ang kasalukuyang pagsubok
 
-Let's start by running the existing test.
+Magsimula tayo sa pagpapatakbo ng kasalukuyang pagsubok.
 
-Make sure you use `yarn` or `npm install` to install the dependencies laid out in the `package.json` file. Then be sure to run `anchor keys list` to get the public key for your program printed to the console. This differs based on the keypair you have locally, so you need to update `lib.rs` and `Anchor.toml` to use *your* key.
+Tiyaking gumagamit ka ng `yarn` o `npm install` para i-install ang mga dependency na nakalagay sa `package.json` file. Pagkatapos ay tiyaking patakbuhin ang `listahan ng mga anchor key` upang mai-print sa console ang pampublikong key para sa iyong programa. Naiiba ito batay sa keypair na mayroon ka nang lokal, kaya kailangan mong i-update ang `lib.rs` at `Anchor.toml` para magamit ang *iyong* key.
 
-Finally, run `anchor test` to start the test. It should fail with the following output:
+Panghuli, patakbuhin ang `anchor test` upang simulan ang pagsubok. Dapat itong mabigo sa sumusunod na output:
 
 ```
 Error: failed to send transaction: Transaction simulation failed: Error processing Instruction 0: incorrect program id for instruction
 ```
 
-The reason for this error is that we're attempting to use the mainnet USDC mint address (as hard-coded in the `lib.rs` file of the program), but that mint doesn't exist in the local environment. 
+Ang dahilan ng error na ito ay sinusubukan naming gamitin ang mainnet USDC mint address (bilang hard-coded sa `lib.rs` file ng program), ngunit ang mint na iyon ay hindi umiiral sa lokal na kapaligiran.
 
-### 3. Adding a `local-testing` feature
+### 3. Pagdaragdag ng feature na `local-testing`
 
-To fix this, we need a mint we can use locally *and* hard-code into the program. Since the local environment is reset often during testing, you'll need to store a keypair that you can use to recreate the same mint address every time.
+Upang ayusin ito, kailangan namin ng mint na magagamit namin nang lokal *at* hard-code sa programa. Dahil madalas na ni-reset ang lokal na kapaligiran sa panahon ng pagsubok, kakailanganin mong mag-imbak ng keypair na magagamit mo upang muling likhain ang parehong mint address sa bawat oras.
 
-Additionally, you don't want to have to change the hard-coded address between local and mainnet builds since that could introduce human error (and is just annoying). So we'll create a `local-testing` feature that, when enabled, will make the program use our local mint but otherwise use the production USDC mint.
+Bukod pa rito, hindi mo nais na baguhin ang hard-coded na address sa pagitan ng mga lokal at mainnet na build dahil maaari itong magpakilala ng pagkakamali ng tao (at nakakainis lang). Kaya gagawa kami ng feature na `local-testing` na, kapag pinagana, gagawing gamitin ng program ang aming lokal na mint ngunit kung hindi man ay gagamitin ang production USDC mint.
 
-Generate a new keypair by running `solana-keygen grind`. Run the following command to generate a keypair with a public key that begins with "env".
+Bumuo ng bagong keypair sa pamamagitan ng pagpapatakbo ng `solana-keygen grind`. Patakbuhin ang sumusunod na command upang bumuo ng keypair na may pampublikong key na nagsisimula sa "env".
 
 ```
 solana-keygen grind --starts-with env:1
 ```
 
-Once a keypair is found, you should see an output similar to the following:
+Sa sandaling natagpuan ang isang keypair, dapat mong makita ang isang output na katulad ng sumusunod:
 
 ```
 Wrote keypair to env9Y3szLdqMLU9rXpEGPqkjdvVn8YNHtxYNvCKXmHe.json
 ```
 
-The keypair is written to a file in your working directory. Now that we have a placeholder USDC address, let's modify the `lib.rs` file. Use the `cfg` attribute to define the `USDC_MINT_PUBKEY` constant depending on whether the `local-testing` feature is enabled or disabled. Remember to set the `USDC_MINT_PUBKEY` constant for `local-testing` with the one generated in the previous step rather than copying the one below.
+Ang keypair ay nakasulat sa isang file sa iyong gumaganang direktoryo. Ngayong mayroon na tayong placeholder USDC address, baguhin natin ang `lib.rs` file. Gamitin ang attribute na `cfg` upang tukuyin ang pare-parehong `USDC_MINT_PUBKEY` depende sa kung ang feature na `local-testing` ay pinagana o hindi pinagana. Tandaang itakda ang pare-parehong `USDC_MINT_PUBKEY` para sa `local-testing` gamit ang nabuo sa nakaraang hakbang sa halip na kopyahin ang nasa ibaba.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -371,7 +371,7 @@ pub mod config {
 }
 ```
 
-Next, add the `local-testing` feature to the `Cargo.toml` file located in `/programs`.
+Susunod, idagdag ang feature na `local-testing` sa `Cargo.toml` file na matatagpuan sa `/programs`.
 
 ```
 [features]
@@ -379,7 +379,7 @@ Next, add the `local-testing` feature to the `Cargo.toml` file located in `/prog
 local-testing = []
 ```
 
-Next, update the `config.ts` test file to create a mint using the generated keypair. Start by deleting the `mint` constant.
+Susunod, i-update ang test file na `config.ts` para gumawa ng mint gamit ang nabuong keypair. Magsimula sa pamamagitan ng pagtanggal ng `mint` constant.
 
 ```ts
 const mint = new anchor.web3.PublicKey(
@@ -387,7 +387,7 @@ const mint = new anchor.web3.PublicKey(
 );
 ```
 
-Next, update the test to create a mint using the keypair, which will enable us to reuse the same mint address each time the tests are run. Remember to replace the file name with the one generated in the previous step.
+Susunod, i-update ang pagsubok upang lumikha ng mint gamit ang keypair, na magbibigay-daan sa amin na muling gamitin ang parehong mint address sa tuwing tatakbo ang mga pagsubok. Tandaan na palitan ang pangalan ng file ng nabuo sa nakaraang hakbang.
 
 ```ts
 let mint: anchor.web3.PublicKey
@@ -412,13 +412,13 @@ before(async () => {
 ...
 ```
 
-Lastly, run the test with the `local-testing` feature enabled.
+Panghuli, patakbuhin ang pagsubok gamit ang feature na `local-testing` na pinagana.
 
 ```
 anchor test -- --features "local-testing"
 ```
 
-You should see the following output:
+Dapat mong makita ang sumusunod na output:
 
 ```
 config
@@ -428,18 +428,18 @@ config
 1 passing (3s)
 ```
 
-Boom. Just like that, you've used features to run two different code paths for different environments.
+Boom. Ganoon lang, gumamit ka ng mga feature para magpatakbo ng dalawang magkaibang code path para sa magkaibang environment.
 
 ### 4. Program Config
 
-Features are great for setting different values at compilation, but what if you wanted to be able to dynamically update the fee percentage used by the program? Let's make that possible by creating a Program Config account that allows us to update the fee without upgrading the program.
+Ang mga tampok ay mahusay para sa pagtatakda ng iba't ibang mga halaga sa compilation, ngunit paano kung gusto mong dynamic na ma-update ang porsyento ng bayad na ginagamit ng programa? Gawin nating posible iyon sa pamamagitan ng paggawa ng Program Config account na nagbibigay-daan sa amin na i-update ang bayad nang hindi ina-upgrade ang program.
 
-To begin, let's first update the `lib.rs` file to:
+Upang magsimula, i-update muna natin ang `lib.rs` file sa:
 
-1. Include a `SEED_PROGRAM_CONFIG` constant, which will be used to generate the PDA for the program config account.
-2. Include an `ADMIN` constant, which will be used as a constraint when initializing the program config account. Run the `solana address` command to get your address to use as the constant's value.
-3. Include a `state` module that we'll implement shortly.
-4. Include the `initialize_program_config` and `update_program_config` instructions and calls to their "handlers," both of which we'll implement in another step.
+1. Magsama ng `SEED_PROGRAM_CONFIG` na pare-pareho, na gagamitin upang bumuo ng PDA para sa program config account.
+2. Magsama ng `ADMIN` constant, na gagamitin bilang isang hadlang kapag sinisimulan ang program config account. Patakbuhin ang command na `solana address` para magamit ang iyong address bilang value ng constant.
+3. Magsama ng module ng `state` na ipapatupad namin sa ilang sandali.
+4. Isama ang `initialize_program_config` at `update_program_config` na mga tagubilin at mga tawag sa kanilang "mga handler," na parehong ipapatupad natin sa isa pang hakbang.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -484,11 +484,11 @@ pub mod config {
 }
 ```
 
-### 5. Program Config State
+### 5. State Config ng Programa
 
-Next, let's define the structure for the `ProgramConfig` state. This account will store the admin, the token account where fees are sent, and the fee rate. We'll also specify the number of bytes required to store this structure.
+Susunod, tukuyin natin ang istraktura para sa estado ng `ProgramConfig`. Iimbak ng account na ito ang admin, ang token account kung saan ipinapadala ang mga bayarin, at ang rate ng bayad. Tutukuyin din namin ang bilang ng mga byte na kinakailangan upang maiimbak ang istrukturang ito.
 
-Create a new file called `state.rs` in the `/src` directory and add the following code.
+Gumawa ng bagong file na tinatawag na `state.rs` sa `/src` na direktoryo at idagdag ang sumusunod na code.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -505,13 +505,13 @@ impl ProgramConfig {
 }
 ```
 
-### 6. Add Initialize Program Config Account Instruction
+### 6. Magdagdag ng Initialize Program Config Account Instruction
 
-Now let's create the instruction logic for initializing the program config account. It should only be callable by a transaction signed by the `ADMIN` key and should set all the properties on the `ProgramConfig` account.
+Ngayon, gumawa tayo ng lohika ng pagtuturo para sa pagsisimula ng program config account. Dapat lang itong matawagan ng isang transaksyong nilagdaan ng `ADMIN` key at dapat itakda ang lahat ng property sa `ProgramConfig` account.
 
-Create a folder called `program_config` at the path `/src/instructions/program_config`. This folder will store all instructions related to the program config account.
+Gumawa ng folder na tinatawag na `program_config` sa path `/src/instructions/program_config`. Ang folder na ito ay mag-iimbak ng lahat ng mga tagubilin na nauugnay sa program config account.
 
-Within the `program_config` folder, create a file called `initialize_program_config.rs` and add the following code.
+Sa loob ng folder na `program_config`, lumikha ng file na tinatawag na `initialize_program_config.rs` at idagdag ang sumusunod na code.
 
 ```rust
 use crate::state::ProgramConfig;
@@ -540,11 +540,11 @@ pub fn initialize_program_config_handler(ctx: Context<InitializeProgramConfig>) 
 }
 ```
 
-### 7. Add Update Program Config Fee Instruction
+### 7. Magdagdag ng Instruksyon sa Bayarin sa Config ng Programa ng Update
 
-Next, implement the instruction logic for updating the config account. The instruction should require that the signer match the `admin` stored in the `program_config` account.
+Susunod, ipatupad ang lohika ng pagtuturo para sa pag-update ng config account. Ang pagtuturo ay dapat na nangangailangan na ang lumagda ay tumugma sa `admin` na nakaimbak sa `program_config` na account.
 
-Within the `program_config` folder, create a file called `update_program_config.rs` and add the following code.
+Sa loob ng folder na `program_config`, lumikha ng file na tinatawag na `update_program_config.rs` at idagdag ang sumusunod na code.
 
 ```rust
 use crate::state::ProgramConfig;
@@ -579,9 +579,9 @@ pub fn update_program_config_handler(
 }
 ```
 
-### 8. Add mod.rs and update instructions.rs
+### 8. Magdagdag ng mod.rs at mag-update ng mga tagubilin.rs
 
-Next, let's expose the instruction handlers we created so that the call from `lib.rs` doesn't show an error. Start by adding a file `mod.rs` in the `program_config` folder. Add the code below to make the two modules, `initialize_program_config` and `update_program_config` accessible.
+Susunod, ilantad natin ang mga tagapangasiwa ng pagtuturo na ginawa namin upang ang tawag mula sa `lib.rs` ay hindi magpakita ng error. Magsimula sa pamamagitan ng pagdaragdag ng file na `mod.rs` sa folder na `program_config`. Idagdag ang code sa ibaba para gawing accessible ang dalawang module, `initialize_program_config` at `update_program_config`.
 
 ```rust
 mod initialize_program_config;
@@ -591,7 +591,7 @@ mod update_program_config;
 pub use update_program_config::*;
 ```
 
-Now, update `instructions.rs` at the path `/src/instructions.rs`. Add the code below to make the two modules, `program_config` and `payment` accessible.
+Ngayon, i-update ang `instructions.rs` sa path `/src/instructions.rs`. Idagdag ang code sa ibaba para gawing accessible ang dalawang module, `program_config` at `payment`.
 
 ```rust
 mod program_config;
@@ -601,9 +601,9 @@ mod payment;
 pub use payment::*;
 ```
 
-### 9. Update Payment Instruction
+### 9. I-update ang Tagubilin sa Pagbabayad
 
-Lastly, let's update the payment instruction to check that the `fee_destination` account in the instruction matches the `fee_destination` stored in the program config account. Then update the instruction's fee calculation to be based on the `fee_basis_point` stored in the program config account.
+Panghuli, i-update natin ang tagubilin sa pagbabayad upang matiyak na ang `fee_destination` account sa pagtuturo ay tumutugma sa `fee_destination` na nakaimbak sa program config account. Pagkatapos ay i-update ang kalkulasyon ng bayad ng pagtuturo na nakabatay sa `fee_basis_point` na nakaimbak sa program config account.
 
 ```rust
 use crate::state::ProgramConfig;
@@ -680,9 +680,9 @@ pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
 }
 ```
 
-### 10. Test
+### 10. Pagsubok
 
-Now that we're done implementing our new program configuration struct and instructions, let's move on to testing our updated program. To begin, add the PDA for the program config account to the test file.
+Ngayong tapos na kaming ipatupad ang aming bagong istruktura ng pagsasaayos ng programa at mga tagubilin, magpatuloy tayo sa pagsubok sa aming na-update na programa. Upang magsimula, idagdag ang PDA para sa program config account sa test file.
 
 ```ts
 describe("config", () => {
@@ -694,14 +694,14 @@ describe("config", () => {
 ...
 ```
 
-Next, update the test file with three more tests testing that:
+Susunod, i-update ang test file na may tatlo pang pagsubok na pagsubok na:
 
-1. The program config account is initialized correctly
-2. The payment instruction is functioning as intended
-3. The config account can be updated successfully by the admin
-4. The config account cannot be updated by another other than the admin
+1. Ang program config account ay nasimulan nang tama
+2. Ang tagubilin sa pagbabayad ay gumagana ayon sa nilalayon
+3. Ang config account ay maaaring matagumpay na ma-update ng admin
+4. Ang config account ay hindi maaaring ma-update ng iba maliban sa admin
 
-The first test initializes the program config account and verifies that the correct fee is set and that the correct admin is stored on the program config account.
+Sinisimulan ng unang pagsubok ang program config account at bini-verify na ang tamang bayad ay nakatakda at na ang tamang admin ay naka-store sa program config account.
 
 ```typescript
 it("Initialize Program Config Account", async () => {
@@ -730,7 +730,7 @@ it("Initialize Program Config Account", async () => {
 })
 ```
 
-The second test verifies that the payment instruction is working correctly, with the fee being sent to the fee destination and the remaining balance being transferred to the receiver. Here we update the existing test to include the `programConfig` account.
+Ang pangalawang pagsubok ay nagpapatunay na ang pagtuturo sa pagbabayad ay gumagana nang tama, na ang bayad ay ipinadala sa patutunguhan ng bayad at ang natitirang balanse ay inililipat sa tatanggap. Dito, ina-update namin ang umiiral nang pagsubok para isama ang `programConfig` account.
 
 ```typescript
 it("Payment completes successfully", async () => {
@@ -766,7 +766,7 @@ it("Payment completes successfully", async () => {
 })
 ```
 
-The third test attempts to update the fee on the program config account, which should be successful.
+Ang ikatlong pagsubok ay sumusubok na i-update ang bayad sa program config account, na dapat ay matagumpay.
 
 ```typescript
 it("Update Program Config Account", async () => {
@@ -789,7 +789,7 @@ it("Update Program Config Account", async () => {
 })
 ```
 
-The fourth test tries to update the fee on the program config account, where the admin is not the one stored on the program config account, and this should fail.
+Ang ika-apat na pagsubok ay sumusubok na i-update ang bayad sa program config account, kung saan ang admin ay hindi ang naka-imbak sa program config account, at ito ay dapat mabigo.
 
 ```typescript
 it("Update Program Config Account with unauthorized admin (expect fail)", async () => {
@@ -811,13 +811,13 @@ it("Update Program Config Account with unauthorized admin (expect fail)", async 
 })
 ```
 
-Finally, run the test using the following command:
+Sa wakas, patakbuhin ang pagsubok gamit ang sumusunod na command:
 
 ```
 anchor test -- --features "local-testing"
 ```
 
-You should see the following output:
+Dapat mong makita ang sumusunod na output:
 
 ```
 config
@@ -829,15 +829,15 @@ config
 4 passing (8s)
 ```
 
-And that's it! You've made the program a lot easier to work with moving forward. If you want to take a look at the final solution code you can find it on the `solution` branch of [the same repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/solution).
+At ayun na nga! Mas pinadali mo ang programa sa pagsulong. Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa `solution` branch ng [the same repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/solution ).
 
-# Challenge
+# Hamon
 
-Now it's time for you to do some of this on your own. We mentioned being able to use the program's upgrade authority as the initial admin.  Go ahead and update the demo's `initialize_program_config` so that only the upgrade authority can call it rather than having a hardcoded `ADMIN`.
+Ngayon ay oras na para gawin mo ang ilan sa mga ito nang mag-isa. Binanggit namin ang kakayahang magamit ang awtoridad sa pag-upgrade ng programa bilang paunang admin. Sige at i-update ang `initialize_program_config` ng demo upang ang awtoridad lamang sa pag-upgrade ang makakatawag dito sa halip na magkaroon ng hardcoded na `ADMIN`.
 
-Note that the `anchor test` command, when run on a local network, starts a new test validator using `solana-test-validator`. This test validator uses a non-upgradeable loader. The non-upgradeable loader makes it so the program's `program_data` account isn't initialized when the validator starts. You'll recall from the lesson that this account is how we access the upgrade authority from the program.
+Tandaan na ang command na `anchor test`, kapag pinapatakbo sa isang lokal na network, ay magsisimula ng bagong test validator gamit ang `solana-test-validator`. Gumagamit ang test validator na ito ng non-upgradeable loader. Ginagawa ito ng hindi na-upgrade na loader upang hindi masimulan ang `program_data` account ng program kapag nagsimula ang validator. Maaalala mo mula sa aralin na ang account na ito ay kung paano namin naa-access ang awtoridad sa pag-upgrade mula sa programa.
 
-To work around this, you can add a `deploy` function to the test file that runs the deploy command for the program with an upgradeable loader. To use it, run `anchor test --skip-deploy`, and call the `deploy` function within the test to run the deploy command after the test validator has started.
+Upang malutas ito, maaari kang magdagdag ng function na `deploy` sa test file na nagpapatakbo ng command sa pag-deploy para sa program na may naa-upgrade na loader. Upang magamit ito, patakbuhin ang `anchor test --skip-deploy`, at tawagan ang function na `deploy` sa loob ng pagsubok upang patakbuhin ang deploy command pagkatapos magsimula ang test validator.
 
 ```typescript
 import { execSync } from "child_process"
@@ -857,10 +857,10 @@ before(async () => {
 })
 ```
 
-For example, the command to run the test with features would look like this:
+Halimbawa, ang utos na patakbuhin ang pagsubok na may mga tampok ay magiging ganito:
 
 ```
 anchor test --skip-deploy -- --features "local-testing"
 ```
 
-Try doing this on your own, but if you get stuck, feel free to reference the `challenge` branch of [the same repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/challenge) to see one possible solution.
+Subukang gawin ito nang mag-isa, ngunit kung natigil ka, huwag mag-atubiling sumangguni sa `challenge` na sangay ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-admin-instructions/tree/challenge ) upang makita ang isang posibleng solusyon.

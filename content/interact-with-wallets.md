@@ -9,49 +9,49 @@ objectives:
 
 # TL;DR
 
-- **Wallets** store your secret key and handle secure transaction signing
-- **Hardware wallets** store your secret key on a separate device
-- **Software wallets** use your computer for secure storage
-- Software wallets are often **browser extensions** that facilitate connecting to websites
-- Solana’s **Wallet-Adapter library** simplifies the support of wallet browser extensions, allowing you to build websites that can request a user’s wallet address and propose transactions for them to sign
+- **Ang mga Wallet** ay nag-iimbak ng iyong sikretong susi at pinangangasiwaan ang secure na pag-sign ng transaksyon
+- **Ang mga wallet ng hardware** ay nag-iimbak ng iyong sikretong key sa isang hiwalay na device
+- **Software wallet** gamitin ang iyong computer para sa secure na storage
+- Ang mga software wallet ay kadalasang **mga extension ng browser** na nagpapadali sa pagkonekta sa mga website
+- Pinapasimple ng **Wallet-Adapter library** ni Solana ang suporta ng mga extension ng browser ng wallet, na nagbibigay-daan sa iyong bumuo ng mga website na maaaring humiling ng address ng wallet ng user at magmungkahi ng mga transaksyon para lagdaan nila
 
-# Overview
+# Pangkalahatang-ideya
 
-## Wallets
+## Mga pitaka
 
-In the previous two lessons we discussed keypairs. Keypairs are used to locate accounts and sign transactions. While the public key of a keypair is perfectly safe to share, the secret key should always be kept in a secure location. If a user’s secret key is exposed, then a malicious actor could drain their account of all assets and execute transactions with the authority of that user.
+Sa nakaraang dalawang aralin ay tinalakay natin ang mga keypair. Ginagamit ang mga keypair upang mahanap ang mga account at pumirma ng mga transaksyon. Habang ang pampublikong susi ng isang keypair ay ganap na ligtas na ibahagi, ang sikretong susi ay dapat palaging itago sa isang secure na lokasyon. Kung malantad ang sikretong susi ng isang user, maaaring maubos ng isang malisyosong aktor ang kanilang account sa lahat ng asset at magsagawa ng mga transaksyon nang may awtoridad ng user na iyon.
 
-A “wallet” refers to anything that stores a secret key in order to keep it secure. These secure storage options can generally be described as either “hardware” or “software” wallets. Hardware wallets are storage devices that are separate from your computer. Software wallets are application you can install on your existing device(s).
+Ang "wallet" ay tumutukoy sa anumang bagay na nag-iimbak ng isang lihim na susi upang mapanatili itong secure. Ang mga secure na opsyon sa storage na ito ay karaniwang maaaring ilarawan bilang alinman sa "hardware" o "software" na mga wallet. Ang mga wallet ng hardware ay mga storage device na hiwalay sa iyong computer. Ang mga wallet ng software ay application na maaari mong i-install sa iyong (mga) kasalukuyang device.
 
-Software wallets often come in the form of a browser extension. This makes it possible for websites to interact easily with the wallet. Such interactions are usually limited to:
+Ang mga wallet ng software ay kadalasang nanggagaling sa anyo ng isang extension ng browser. Ginagawa nitong posible para sa mga website na madaling makipag-ugnayan sa wallet. Ang ganitong mga pakikipag-ugnayan ay karaniwang limitado sa:
 
-1. Seeing the wallet’s public key (address)
-2. Submitting transactions for a user's approval
-3. Sending an approved transaction to the network
+1. Pagtingin sa pampublikong susi (address) ng pitaka
+2. Pagsusumite ng mga transaksyon para sa pag-apruba ng isang user
+3. Pagpapadala ng naaprubahang transaksyon sa network
 
-Once a transaction is submitted, the end user can “confirm” the transaction and send it to the network with their “signature.”
+Kapag naisumite na ang isang transaksyon, maaaring "kumpirmahin" ng end user ang transaksyon at ipadala ito sa network kasama ang kanilang "pirma."
 
-Signing transactions requires using your secret key. By letting a site submit a transaction to your wallet and having the wallet handle the signing, you ensure that you never expose your secret key to the website. Instead, you only share the secret key with the wallet application.
+Ang pag-sign sa mga transaksyon ay nangangailangan ng paggamit ng iyong sikretong key. Sa pamamagitan ng pagpayag sa isang site na magsumite ng transaksyon sa iyong wallet at pagkakaroon ng wallet na pangasiwaan ang pagpirma, tinitiyak mong hindi mo kailanman ilantad ang iyong sikretong susi sa website. Sa halip, ibinabahagi mo lamang ang sikretong susi sa application ng wallet.
 
-Unless you’re creating a wallet application yourself, your code should never need to ask a user for their secret key. Instead, you can ask users to connect to your site using a reputable wallet.
+Maliban na lang kung ikaw mismo ang gumagawa ng wallet application, hindi dapat kailanganin ng iyong code na hilingin sa isang user ang kanilang sikretong key. Sa halip, maaari mong hilingin sa mga user na kumonekta sa iyong site gamit ang isang kagalang-galang na wallet.
 
 ## Phantom Wallet
 
-One of the most widely used software wallets in the Solana ecosystem is [Phantom](https://phantom.app). Phantom supports a few of the most popular browsers and has a mobile app for connecting on the go. You’ll likely want your decentralized applications to support multiple wallets, but this course will focus on Phantom.
+Ang isa sa pinakamalawak na ginagamit na software wallet sa Solana ecosystem ay [Phantom](https://phantom.app). Sinusuportahan ng Phantom ang ilan sa mga pinakasikat na browser at may mobile app para sa pagkonekta on the go. Malamang na gusto mong suportahan ng iyong mga desentralisadong aplikasyon ang maraming wallet, ngunit ang kursong ito ay tututuon sa Phantom.
 
-## Solana’s Wallet-Adapter
+## Ang Wallet-Adapter ni Solana
 
-Solana’s Wallet-Adapter is a suite of libraries you can use to simplify the process of supporting wallet browser extensions.
+Ang Solana's Wallet-Adapter ay isang hanay ng mga library na magagamit mo upang pasimplehin ang proseso ng pagsuporta sa mga extension ng browser ng wallet.
 
-Solana’s Wallet-Adapter comprises multiple modular packages. The core functionality is found in `@solana/wallet-adapter-base` and `@solana/wallet-adapter-react`.
+Ang Solana's Wallet-Adapter ay binubuo ng maraming modular na pakete. Ang pangunahing functionality ay matatagpuan sa `@solana/wallet-adapter-base` at `@solana/wallet-adapter-react`.
 
-There are also packages that provide components for common UI frameworks. In this lesson and throughout this course, we’ll be using components from `@solana/wallet-adapter-react-ui`.
+Mayroon ding mga package na nagbibigay ng mga bahagi para sa mga karaniwang UI framework. Sa araling ito at sa buong kursong ito, gagamit kami ng mga bahagi mula sa `@solana/wallet-adapter-react-ui`.
 
-Finally, there are packages that are adapters for specific wallets, including Phantom. You can use `@solana/wallet-adapter-wallets` to include all of the supported wallets, or you can choose a specific wallet package like `@solana/wallet-adapter-phantom`.
+Sa wakas, may mga pakete na mga adaptor para sa mga partikular na wallet, kabilang ang Phantom. Maaari mong gamitin ang `@solana/wallet-adapter-wallet` para isama ang lahat ng sinusuportahang wallet, o maaari kang pumili ng partikular na wallet package tulad ng `@solana/wallet-adapter-phantom`.
 
-### Install Wallet-Adapter Libraries
+### Mag-install ng Mga Aklatan ng Wallet-Adapter
 
-When adding wallet support to an existing react app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`, the package(s) for the wallet(s) you want to support, and `@solana/wallet-adapter-react-ui` if you plan to use the provided react components, e.g.
+Kapag nagdaragdag ng suporta sa wallet sa isang umiiral nang react app, magsisimula ka sa pamamagitan ng pag-install ng mga naaangkop na package. Kakailanganin mo ang `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`, ang (mga) package para sa (mga) wallet na gusto mong suportahan, at `@solana/wallet-adapter -react-ui` kung plano mong gamitin ang ibinigay na mga bahagi ng reaksyon, hal.
 
 ```
 npm install @solana/wallet-adapter-base \
@@ -60,16 +60,16 @@ npm install @solana/wallet-adapter-base \
     @solana/wallet-adapter-react-ui
 ```
 
-### Connect To Wallets
+### Kumonekta sa Wallets
 
-`@solana/wallet-adapter-react` allows us to persist and access wallet connection states through hooks and context providers, namely:
+Binibigyang-daan kami ng `@solana/wallet-adapter-react` na magpatuloy at ma-access ang mga estado ng koneksyon ng wallet sa pamamagitan ng mga hook at provider ng konteksto, katulad ng:
 
 - `useWallet`
 - `WalletProvider`
 - `useConnection`
 - `ConnectionProvider`
 
-For these to work properly, any use of `useWallet` and `useConnection` should be wrapped in `WalletProvider` and `ConnectionProvider`. One of the best ways to ensure this is to wrap your entire app in `ConnectionProvider` and `WalletProvider`:
+Para gumana nang maayos ang mga ito, anumang paggamit ng `useWallet` at `useConnection` ay dapat na nakabalot sa `WalletProvider` at `ConnectionProvider`. Isa sa mga pinakamahusay na paraan upang matiyak na ito ay ang pagbalot ng iyong buong app sa `ConnectionProvider` at `WalletProvider`:
 
 ```tsx
 import { NextPage } from 'next'
@@ -92,17 +92,17 @@ export const Home: NextPage = (props) => {
 }
 ```
 
-Note that `ConnectionProvider` requires an `endpoint` property and that `WalletProvider` requires a `wallets` property. We’re continuing to use the endpoint for the Devnet cluster, and for now we’re only using the `PhantomWalletAdapter` for `wallets`.
+Tandaan na ang `ConnectionProvider` ay nangangailangan ng `endpoint` na property at ang `WalletProvider` ay nangangailangan ng isang `wallet` na property. Patuloy naming ginagamit ang endpoint para sa Devnet cluster, at sa ngayon ginagamit lang namin ang `PhantomWalletAdapter` para sa `mga wallet`.
 
-At this point you can connect with `wallet.connect()`, which will effectively instruct the wallet to prompt the user for permission to view their public key and request approval for transactions.
+Sa puntong ito maaari kang kumonekta sa `wallet.connect()`, na epektibong magtuturo sa wallet na i-prompt ang user para sa pahintulot na tingnan ang kanilang pampublikong key at humiling ng pag-apruba para sa mga transaksyon.
 
 ![Screenshot of wallet connection prompt](../assets/wallet-connect-prompt.png)
 
-While you could do this in a `useEffect` hook, you’ll usually want to provide more sophisticated functionality. For example, you may want users to be able to choose from a list of supported wallets, or disconnect after they’ve already connected.
+Bagama't magagawa mo ito sa isang `useEffect` hook, karaniwang gusto mong magbigay ng mas sopistikadong functionality. Halimbawa, maaaring gusto mong pumili ang mga user mula sa isang listahan ng mga sinusuportahang wallet, o idiskonekta pagkatapos nilang kumonekta.
 
 ### `@solana/wallet-adapter-react-ui`
 
-You can create custom components for this, or you can leverage components provided by `@solana/wallet-adapter-react-ui`. The simplest way to provide extensive options is to use `WalletModalProvider` and `WalletMultiButton`:
+Maaari kang lumikha ng mga custom na bahagi para dito, o maaari mong gamitin ang mga bahagi na ibinigay ng `@solana/wallet-adapter-react-ui`. Ang pinakasimpleng paraan upang magbigay ng malawak na mga opsyon ay ang paggamit ng `WalletModalProvider` at `WalletMultiButton`:
 
 ```tsx
 import { NextPage } from 'next'
@@ -131,7 +131,7 @@ const Home: NextPage = (props) => {
 export default Home
 ```
 
-The `WalletModalProvider` adds functionality for presenting a modal screen for users to select which wallet they’d like to use. The `WalletMultiButton` changes behavior to match the connection status:
+Ang `WalletModalProvider` ay nagdaragdag ng functionality para sa pagpapakita ng modal screen para sa mga user upang piliin kung aling wallet ang gusto nilang gamitin. Ang `WalletMultiButton` ay nagbabago ng gawi upang tumugma sa katayuan ng koneksyon:
 
 ![Screenshot of multi button select wallet option](../assets/multi-button-select-wallet.png)
 
@@ -141,7 +141,7 @@ The `WalletModalProvider` adds functionality for presenting a modal screen for u
 
 ![Screenshot of multi button connected state](../assets/multi-button-connected.png)
 
-You can also use more granular components if you need more specific functionality:
+Maaari ka ring gumamit ng mas maraming butil na bahagi kung kailangan mo ng mas partikular na pagpapagana:
 
 - `WalletConnectButton`
 - `WalletModal`
@@ -149,9 +149,9 @@ You can also use more granular components if you need more specific functionalit
 - `WalletDisconnectButton`
 - `WalletIcon`
 
-### Access Account Info
+### I-access ang Impormasyon ng Account
 
-Once your site is connected to a wallet, `useConnection` will retrieve a `Connection` object and `useWallet` will get the `WalletContextState`. `WalletContextState` has a property `publicKey` that is `null` when not connected to a wallet and has the public key of the user’s account when a wallet is connected. With a public key and a connection, you can fetch account info and more.
+Kapag nakakonekta na ang iyong site sa isang wallet, kukuha ang `useConnection` ng object na `Connection` at makukuha ng `useWallet` ang `WalletContextState`. Ang `WalletContextState` ay may property na `publicKey` na `null` kapag hindi nakakonekta sa isang wallet at mayroong pampublikong key ng account ng user kapag nakakonekta ang isang wallet. Gamit ang isang pampublikong key at isang koneksyon, maaari kang kumuha ng impormasyon ng account at higit pa.
 
 ```tsx
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
@@ -179,9 +179,9 @@ export const BalanceDisplay: FC = () => {
 }
 ```
 
-### Send Transactions
+### Magpadala ng mga Transaksyon
 
-`WalletContextState` also provides a `sendTransaction` function that you can use to submit transactions for approval.
+Nagbibigay din ang `WalletContextState` ng function na `sendTransaction` na magagamit mo upang magsumite ng mga transaksyon para sa pag-apruba.
 
 ```tsx
 const { publicKey, sendTransaction } = useWallet()
@@ -206,33 +206,33 @@ const sendSol = event => {
 }
 ```
 
-When this function is called, the connected wallet will display the transaction for the user’s approval. If approved, then the transaction will be sent.
+Kapag tinawag ang function na ito, ipapakita ng konektadong wallet ang transaksyon para sa pag-apruba ng user. Kung naaprubahan, pagkatapos ay ipapadala ang transaksyon.
 
 ![Screenshot of wallet transaction approval prompt](../assets/wallet-transaction-approval-prompt.png)
 
 # Demo
 
-Let’s take the Ping program from last lesson and build a frontend that lets users approve a transaction that pings the program. As a reminder, the program’s public key is `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and the public key for the data account is `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+Kunin natin ang Ping program mula sa huling aralin at bumuo ng frontend na nagbibigay-daan sa mga user na aprubahan ang isang transaksyon na nag-ping sa program. Bilang paalala, ang pampublikong key ng programa ay `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` at ang pampublikong key para sa data account ay `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn`4.
 
 ![Screenshot of Solana Ping App](../assets/solana-ping-app.png)
 
-### 1. Download the Phantom browser extension and set it to Devnet
+### 1. I-download ang extension ng Phantom browser at itakda ito sa Devnet
 
-If you don’t already have it, download the [Phantom browser extension](https://phantom.app/download). At the time of writing, it supports Chrome, Brave, Firefox, and Edge browsers, so you’ll also need to have one of those browsers installed. Follow Phantom’s instructions for creating a new account and a new wallet.
+Kung wala ka pa nito, i-download ang [Phantom browser extension](https://phantom.app/download). Sa oras ng pagsulat, sinusuportahan nito ang mga browser ng Chrome, Brave, Firefox, at Edge, kaya kakailanganin mo ring i-install ang isa sa mga browser na iyon. Sundin ang mga tagubilin ng Phantom para sa paggawa ng bagong account at bagong wallet.
 
-Once you have a wallet, click the settings gear on the bottom right in the Phantom UI. Scroll down and click on the line item “Change Network” and select “Devnet.” This ensures that Phantom will be connected to the same network we’ll be using in this demo.
+Kapag mayroon ka nang wallet, i-click ang gear ng mga setting sa kanang ibaba sa Phantom UI. Mag-scroll pababa at mag-click sa line item na "Baguhin ang Network" at piliin ang "Devnet." Tinitiyak nito na ang Phantom ay makokonekta sa parehong network na gagamitin namin sa demo na ito.
 
-### 2. Download the starter code
+### 2. I-download ang starter code
 
-Download the starter code for this project [here](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo.
+I-download ang starter code para sa proyektong ito [dito](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). Ang proyektong ito ay isang simpleng Next.js application. Ito ay halos walang laman maliban sa `AppBar` na bahagi. Bubuo kami ng natitira sa buong demo na ito.
 
-You can see its current state with the command `npm run dev` in the console.
+Makikita mo ang kasalukuyang estado nito gamit ang command na `npm run dev` sa console.
 
-### 3. Wrap the app in context providers
+### 3. I-wrap ang app sa mga provider ng konteksto
 
-To start, we’re going to create a new component to contain the various Wallet-Adapter providers that we’ll be using. Create a new file inside the `components` folder called `WalletContextProvider.tsx`.
+Upang magsimula, gagawa kami ng bagong bahagi upang maglaman ng iba't ibang provider ng Wallet-Adapter na aming gagamitin. Gumawa ng bagong file sa loob ng folder na `mga component` na tinatawag na `WalletContextProvider.tsx`.
 
-Let’s start with some of the boilerplate for a functional component:
+Magsimula tayo sa ilan sa boilerplate para sa isang functional na bahagi:
 
 ```tsx
 import { FC, ReactNode } from 'react'
@@ -247,7 +247,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export default WalletContextProvider
 ```
 
-To properly connect to the user’s wallet, we’ll need a `ConnectionProvider`, `WalletProvider` and `WalletModalProvider`. Start by importing these components from `@solana/wallet-adapter-react` and `@solana/wallet-adapter-react-ui`. Then add them to the `WalletContextProvider` component. Note that `ConnectionProvider` requires an `endpoint` parameter and `WalletProvider` requires an array of `wallets`. For now, just use an empty string and an empty array, respectively.
+Para maayos na makakonekta sa wallet ng user, kakailanganin namin ng `ConnectionProvider`, `WalletProvider` at `WalletModalProvider`. Magsimula sa pamamagitan ng pag-import ng mga bahaging ito mula sa `@solana/wallet-adapter-react` at `@solana/wallet-adapter-react-ui`. Pagkatapos ay idagdag ang mga ito sa bahaging `WalletContextProvider`. Tandaan na ang `ConnectionProvider` ay nangangailangan ng `endpoint` na parameter at ang `WalletProvider` ay nangangailangan ng array ng `wallet`. Sa ngayon, gumamit lamang ng isang walang laman na string at isang walang laman na hanay, ayon sa pagkakabanggit.
 
 ```tsx
 import { FC, ReactNode } from 'react'
@@ -270,13 +270,13 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export default WalletContextProvider
 ```
 
-The last things we need are an actual endpoint for `ConnectionProvider` and the supported wallets for `WalletProvider`.
+Ang mga huling bagay na kailangan namin ay isang aktwal na endpoint para sa `ConnectionProvider` at ang mga sinusuportahang wallet para sa `WalletProvider`.
 
-For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it. For the array of wallets you’ll also need to import the `@solana/wallet-adapter-wallets` library.
+Para sa endpoint, gagamitin namin ang parehong function na `clusterApiUrl` mula sa library na `@solana/web3.js` na ginamit namin noon kaya kakailanganin mong i-import ito. Para sa hanay ng mga wallet, kakailanganin mo ring i-import ang library ng `@solana/wallet-adapter-wallets`.
 
-After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the url for Devnet. Then create a constant `wallets` and set it to an array that contains a newly constructed `PhantomWalletAdapter`. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
+Pagkatapos i-import ang mga library na ito, gumawa ng pare-parehong `endpoint` na gumagamit ng function na `clusterApiUrl` para makuha ang url para sa Devnet. Pagkatapos ay gumawa ng pare-parehong `mga wallet` at itakda ito sa isang array na naglalaman ng bagong gawang `PhantomWalletAdapter`. Panghuli, palitan ang walang laman na string at walang laman na array sa `ConnectionProvider` at `WalletProvider`, ayon sa pagkakabanggit.
 
-To complete this component, add `require('@solana/wallet-adapter-react-ui/styles.css');` below your imports to ensure proper styling and behavior of the Wallet Adapter library components.
+Upang kumpletuhin ang bahaging ito, idagdag ang `require('@solana/wallet-adapter-react-ui/styles.css');` sa ibaba ng iyong mga pag-import upang matiyak ang wastong istilo at gawi ng mga bahagi ng library ng Wallet Adapter.
 
 ```tsx
 import { FC, ReactNode } from 'react'
@@ -304,11 +304,11 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export default WalletContextProvider
 ```
 
-### 4. Add wallet multi-button
+### 4. Magdagdag ng wallet multi-button
 
-Next let’s set up the Connect button. The current button is just a placeholder because rather than using a standard button or creating a custom component, we’ll be using Wallet-Adapter’s “multi-button.” This button interfaces with the providers we set up in `WalletContextProvider` and let’s users choose a wallet, connect to a wallet, and disconnect from a wallet. If you ever need more custom functionality, you can create a custom component to handle this.
+Susunod, i-set up natin ang button na Connect. Ang kasalukuyang button ay isang placeholder lamang dahil sa halip na gumamit ng karaniwang button o gumawa ng custom na bahagi, gagamitin namin ang "multi-button" ng Wallet-Adapter. Ang button na ito ay nakikipag-ugnayan sa mga provider na na-set up namin sa `WalletContextProvider` at hinahayaan ang mga user na pumili ng wallet, kumonekta sa isang wallet, at magdiskonekta mula sa isang wallet. Kung kailangan mo ng higit pang custom na functionality, maaari kang lumikha ng custom na component para mahawakan ito.
 
-Before we add the “multi-button,” we need to wrap the app in the `WalletContextProvider`. Do this by importing it in `index.tsx` and adding it after the closing `</Head>` tag:
+Bago namin idagdag ang "multi-button," kailangan naming i-wrap ang app sa `WalletContextProvider`. Gawin ito sa pamamagitan ng pag-import nito sa `index.tsx` at pagdaragdag nito pagkatapos ng pansarang tag na `</Head>`:
 
 ```tsx
 import { NextPage } from 'next'
@@ -342,7 +342,7 @@ const Home: NextPage = (props) => {
 export default Home
 ```
 
-If you run the app, everything should still look the same since the current button on the top right is still just a placeholder. To remedy this, open `AppBar.tsx` and replace `<button>Connect</button>` with `<WalletMultiButton/>`. You’ll need to import `WalletMultiButton` from `@solana/wallet-adapter-react-ui`.
+Kung patakbuhin mo ang app, dapat ay pareho pa rin ang hitsura ng lahat dahil ang kasalukuyang button sa kanang itaas ay isang placeholder pa rin. Upang ayusin ito, buksan ang `AppBar.tsx` at palitan ang `<button>Connect</button>` ng `<WalletMultiButton/>`. Kakailanganin mong mag-import ng `WalletMultiButton` mula sa `@solana/wallet-adapter-react-ui`.
 
 ```tsx
 import { FC } from 'react'
@@ -361,15 +361,15 @@ export const AppBar: FC = () => {
 }
 ```
 
-At this point, you should be able to run the app and interact with the multi-button at the top-right of the screen. It should now read, "Select Wallet." If you have the Phantom extension and are signed in, you should be able to connect your Phantom wallet to the site using this new button.
+Sa puntong ito, dapat mong patakbuhin ang app at makipag-ugnayan sa multi-button sa kanang tuktok ng screen. Dapat itong basahin ngayon, "Piliin ang Wallet." Kung mayroon kang Phantom extension at naka-sign in ka, dapat mong maikonekta ang iyong Phantom wallet sa site gamit ang bagong button na ito.
 
-### 5. Create button to ping program
+### 5. Lumikha ng button sa ping program
 
-Now that our app can connect to the Phantom wallet, let’s make the “Ping!” button actually do something.
+Ngayong makakakonekta na ang aming app sa Phantom wallet, gawin natin ang "Ping!" ang pindutan ay talagang gumawa ng isang bagay.
 
-Start by opening the `PingButton.tsx` file. We’re going to replace the `console.log` inside of `onClick` with code that will create a transaction and submit it to the Phantom extension for the end user’s approval.
+Magsimula sa pamamagitan ng pagbubukas ng `PingButton.tsx` file. Papalitan namin ang `console.log` sa loob ng `onClick` ng code na lilikha ng transaksyon at isusumite ito sa extension ng Phantom para sa pag-apruba ng end user.
 
-First, we need a connection, the wallet’s public key, and Wallet-Adapter’s `sendTransaction` function. To get this, we need to import `useConnection` and `useWallet` from `@solana/wallet-adapter-react`. While we’re here, let’s also import `@solana/web3.js` since we’ll need it to create our transaction.
+Una, kailangan namin ng koneksyon, pampublikong key ng wallet, at function na `sendTransaction` ng Wallet-Adapter. Para makuha ito, kailangan naming mag-import ng `useConnection` at `useWallet` mula sa `@solana/wallet-adapter-react`. Habang narito tayo, mag-import din tayo ng `@solana/web3.js` dahil kakailanganin natin ito para magawa ang ating transaksyon.
 
 ```tsx
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
@@ -391,7 +391,7 @@ export const PingButton: FC = () => {
 }
 ```
 
-Now use the `useConnection` hook to create a `connection` constant and the `useWallet` hook to create `publicKey` and `sendTransaction` constants.
+Ngayon, gamitin ang `useConnection` hook para gumawa ng `connection` constant at ang `useWallet` hook para gumawa ng `publicKey` at `sendTransaction` constants.
 
 ```tsx
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
@@ -415,17 +415,17 @@ export const PingButton: FC = () => {
 }
 ```
 
-With that, we can fill in the body of `onClick`.
+Sa pamamagitan nito, maaari nating punan ang katawan ng `onClick`.
 
-First, check that both `connection` and `publicKey` exist (if either does not then the user’s wallet isn’t connected yet).
+Una, tingnan kung ang parehong `koneksyon` at `publicKey` ay umiiral (kung alinman sa wala ay hindi pa nakakonekta ang wallet ng user).
 
-Next, construct two instances of `PublicKey`, one for the program ID `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and one for the data account `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+Susunod, bumuo ng dalawang instance ng `PublicKey`, isa para sa program ID `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` at isa para sa data account na `Ah9K7dQ8EHaZqcAsgBW8w37yCm2eAdy`.
 
-Next, construct a `Transaction`, then a new `TransactionInstruction` that includes the data account as a writable key.
+Susunod, bumuo ng `Transaction`, pagkatapos ay isang bagong `TransactionInstruction` na kinabibilangan ng data account bilang writable key.
 
-Next, add the instruction to the transaction.
+Susunod, idagdag ang pagtuturo sa transaksyon.
 
-Finally, call `sendTransaction`.
+Panghuli, tawagan ang `sendTransaction`.
 
 ```tsx
 const onClick = () => {
@@ -453,23 +453,23 @@ const onClick = () => {
 }
 ```
 
-And that’s it! If you refresh the page, connect your wallet, and click the ping button, Phantom should present you with a popup for confirming the transaction.
+At iyon na! Kung nire-refresh mo ang page, ikonekta ang iyong wallet, at i-click ang ping button, dapat ipakita sa iyo ng Phantom ang isang popup para sa pagkumpirma ng transaksyon.
 
-### 6. Add some polish around the edges
+### 6. Magdagdag ng ilang polish sa paligid ng mga gilid
 
-There’s a lot you could do to make the user experience here even better. For example, you could change the UI to only show you the Ping button when a wallet is connected and display some other prompt otherwise. You could link to the transaction on Solana Explorer after a user confirms a transaction so they can easily go look at the transaction details. The more you experiment with it, the more comfortable you’ll get, so get creative!
+Marami kang magagawa para gawing mas mahusay ang karanasan ng user dito. Halimbawa, maaari mong baguhin ang UI upang ipakita lamang sa iyo ang Ping button kapag nakakonekta ang isang wallet at magpakita ng iba pang prompt kung hindi man. Maaari kang mag-link sa transaksyon sa Solana Explorer pagkatapos makumpirma ng isang user ang isang transaksyon upang madali nilang tingnan ang mga detalye ng transaksyon. Kapag mas nag-eeksperimento ka dito, mas magiging komportable ka, kaya maging malikhain!
 
-If you need to spend some time looking at the full source code from this demo to understand all of this in context, check that out [here](https://github.com/Unboxed-Software/solana-ping-frontend).
+Kung kailangan mong gumugol ng ilang oras sa pagtingin sa buong source code mula sa demo na ito upang maunawaan ang lahat ng ito sa konteksto, tingnan iyon [dito](https://github.com/Unboxed-Software/solana-ping-frontend).
 
-# Challenge
+# Hamon
 
-Now it’s your turn to build something independently. Create an application that lets a user connect their Phantom wallet and send SOL to another account.
+Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa. Gumawa ng application na nagbibigay-daan sa isang user na ikonekta ang kanilang Phantom wallet at ipadala ang SOL sa isa pang account.
 
-![Screenshot of Send Sol App](../assets/solana-send-sol-app.png)
+![Screenshot ng Send Sol App](../assets/solana-send-sol-app.png)
 
-1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/starter).
-2. Wrap the starter application in the appropriate context providers.
-3. In the form component, set up the transaction and send it to the user’s wallet for approval.
-4. Get creative with the user experience. Add a link to let the user view the transaction on Solana Explorer or something else that seems cool to you!
+1. Magagawa mo ito mula sa simula o maaari mong i-download ang starter code [dito](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/starter).
+2. I-wrap ang starter application sa naaangkop na mga provider ng konteksto.
+3. Sa bahagi ng form, i-set up ang transaksyon at ipadala ito sa wallet ng user para sa pag-apruba.
+4. Maging malikhain gamit ang karanasan ng user. Magdagdag ng link upang hayaan ang user na tingnan ang transaksyon sa Solana Explorer o iba pang bagay na mukhang cool sa iyo!
 
-If you get really stumped, feel free to check out the solution code [here](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/main).
+Kung talagang nalilito ka, huwag mag-atubiling tingnan ang code ng solusyon [dito](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/main).

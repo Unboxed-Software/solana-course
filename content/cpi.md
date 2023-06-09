@@ -9,23 +9,23 @@ objectives:
 
 # TL;DR
 
-- A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific instruction on the program called
-- CPIs are made using the commands `invoke` or `invoke_signed`, the latter being how programs provide signatures for PDAs that they own
-- CPIs make programs in the Solana ecosystem completely interoperable because all public instructions of a program can be invoked by another program via a CPI
-- Because we have no control over the accounts and data submitted to a program, it's important to verify all of the parameters passed into a CPI to ensure program security
+- Ang **Cross-Program Invocation (CPI)** ay isang tawag mula sa isang programa patungo sa isa pa, na nagta-target ng partikular na pagtuturo sa program na tinatawag
+- Ginagawa ang mga CPI gamit ang mga command na `invoke` o `invoke_signed`, ang huli ay kung paano nagbibigay ang mga program ng mga lagda para sa mga PDA na pagmamay-ari nila
+- Ginagawa ng mga CPI ang mga programa sa Solana ecosystem na ganap na interoperable dahil ang lahat ng pampublikong tagubilin ng isang programa ay maaaring gamitin ng isa pang programa sa pamamagitan ng isang CPI
+- Dahil wala kaming kontrol sa mga account at data na isinumite sa isang programa, mahalagang i-verify ang lahat ng mga parameter na ipinasa sa isang CPI upang matiyak ang seguridad ng programa
 
-# Overview
+# Pangkalahatang-ideya
 
-## What is a CPI?
+## Ano ang CPI?
 
-A Cross-Program Invocation (CPI) is a direct call from one program into another. Just as any client can call any program using the JSON RPC, any program can call any other program directly. The only requirement for invoking an instruction on another program from within your program is that you construct the instruction correctly. You can make CPIs to native programs, other programs you've created, and third party programs. CPIs essentially turn the entire Solana ecosystem into one giant API that is at your disposal as a developer.
+Ang Cross-Program Invocation (CPI) ay isang direktang tawag mula sa isang programa patungo sa isa pa. Tulad ng sinumang kliyente na maaaring tumawag sa anumang programa gamit ang JSON RPC, anumang programa ay maaaring direktang tumawag sa anumang iba pang programa. Ang tanging kinakailangan para sa paggamit ng pagtuturo sa isa pang programa mula sa loob ng iyong programa ay ang pagbuo mo ng pagtuturo nang tama. Maaari kang gumawa ng mga CPI sa mga katutubong programa, iba pang mga program na iyong nilikha, at mga programa ng third party. Talagang ginagawa ng mga CPI ang buong Solana ecosystem sa isang higanteng API na magagamit mo bilang isang developer.
 
 
-CPIs have a similar make up to instructions that you are used to creating client side. There are some intricacies and differences depending on if you are using `invoke` or `invoke_signed`. We'll be covering both of these later in this lesson.
+Ang mga CPI ay may katulad na komposisyon sa mga tagubilin na nakasanayan mo sa paglikha ng panig ng kliyente. Mayroong ilang mga intricacies at pagkakaiba depende sa kung gumagamit ka ng `invoke` o `invoke_signed`. Tatalakayin natin ang dalawa sa mga ito mamaya sa araling ito.
 
-## How to make a CPI
+## Paano gumawa ng CPI
 
-CPIs are made using the [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) or [`invoke_signed`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) function from the `solana_program` crate. You use `invoke` to essentially pass through the original transaction signature that was passed into your program. You use `invoke_signed` to have your program "sign" for its PDAs.
+Ginagawa ang mga CPI gamit ang [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) o [`invoke_signed`](https://docs. rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) function mula sa `solana_program` crate. Gumagamit ka ng `invoke` upang maipasa ang orihinal na lagda ng transaksyon na ipinasa sa iyong programa. Gumagamit ka ng `invoke_signed` para "mag-sign" ang iyong program para sa mga PDA nito.
 
 ```rust
 // Used when there are not signatures for PDAs needed
@@ -42,11 +42,11 @@ pub fn invoke_signed(
 ) -> ProgramResult
 ```
 
-CPIs extend the privileges of the caller to the callee. If the instruction the callee program is processing contains an account that was marked as a signer or writable when originally passed into the caller program, then it will be considered a signer or writable account in the invoked program as well.
+Pinapalawak ng mga CPI ang mga pribilehiyo ng tumatawag sa tumatawag. Kung ang pagtuturo na pinoproseso ng callee program ay naglalaman ng isang account na minarkahan bilang isang signer o nasusulat noong orihinal na ipinasa sa caller program, ituturing din itong isang signer o writeable account sa invoked program.
 
-It's important to note that you as the developer decide which accounts to pass into the CPI. You can think of a CPI as building another instruction from scratch with only information that was passed into your program.
+Mahalagang tandaan na ikaw bilang developer ang magpapasya kung aling mga account ang ipapasa sa CPI. Maaari mong isipin ang isang CPI bilang pagbuo ng isa pang pagtuturo mula sa simula gamit lamang ang impormasyong ipinasa sa iyong programa.
 
-### CPI with `invoke`
+### CPI na may `invoke`
 
 ```rust
 invoke(
@@ -59,11 +59,11 @@ invoke(
 )?;
 ```
 
-- `program_id` - the public key of the program you are going to invoke
-- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to
-- `data` - a byte buffer representing the data being passed to the callee program as a vector
+- `program_id` - ang pampublikong key ng program na iyong i-invoke
+- `account` - isang listahan ng metadata ng account bilang isang vector. Kailangan mong isama ang bawat account kung saan babasahin o susulatan ng invoked program
+- `data` - isang byte buffer na kumakatawan sa data na ipinapasa sa callee program bilang vector
 
-The `Instruction` type has the following definition:
+Ang uri ng `Instruction` ay may sumusunod na kahulugan:
 
 ```rust
 pub struct Instruction {
@@ -74,12 +74,12 @@ pub struct Instruction {
 ```
 
 
-Depending on the program you're making the call to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
-In all other cases, you'll need to create the `Instruction` instance from scratch.
+Depende sa program kung saan ka tumatawag, maaaring mayroong magagamit na crate na may mga function ng helper para sa paggawa ng object na `Instruction`. Maraming indibidwal at organisasyon ang gumagawa ng mga crates na available sa publiko kasama ng kanilang mga programa na naglalantad ng mga ganitong uri ng mga function upang pasimplehin ang pagtawag sa kanilang mga programa. Ito ay katulad ng mga Typescript library na ginamit namin sa kursong ito (hal. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl -token](https://solana-labs.github.io/solana-program-library/token/js/)). Halimbawa, sa demo ng araling ito, gagamitin namin ang `spl_token` crate upang lumikha ng mga tagubilin sa pag-print.
+Sa lahat ng iba pang sitwasyon, kakailanganin mong gawin ang instance ng `Instruction` mula sa simula.
 
-While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
+Bagama't medyo diretso ang field ng `program_id`, ang mga field ng `account` at `data` ay nangangailangan ng ilang paliwanag.
 
-Both the `accounts` and `data` fields are of type `Vec`, or vector. You can use the [`vec`](https://doc.rust-lang.org/std/macro.vec.html) macro to construct a vector using array notation, like so:
+Parehong ang mga field ng `accounts` at `data` ay may uri ng `Vec`, o vector. Maaari mong gamitin ang macro na [`vec`](https://doc.rust-lang.org/std/macro.vec.html) upang bumuo ng vector gamit ang notation ng array, tulad nito:
 
 ```rust
 let v = vec![1, 2, 3];
@@ -89,7 +89,7 @@ assert_eq!(v[2], 3);
 ```
 
 
-The `accounts` field of the `Instruction` struct expects a vector of type [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). The `AccountMeta` struct has the following definition:
+Inaasahan ng field ng `account` ng struct `Instruction` ang isang vector na may uri na [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). Ang `AccountMeta` struct ay may sumusunod na kahulugan:
 
 
 ```rust
@@ -100,7 +100,7 @@ pub struct AccountMeta {
 }
 ```
 
-Putting these two pieces together looks like this:
+Ang pagsasama-sama ng dalawang piraso ay ganito:
 
 ```rust
 use solana_program::instruction::AccountMeta;
@@ -114,7 +114,7 @@ vec![
 ```
 
 
-The final field of the instruction object is the data, as a byte buffer of course. You can create a byte buffer in Rust using the `vec` macro again, which has an implemented function allowing you to create a vector of certain length. Once you have initialized an empty vector, you would construct the byte buffer similar to how you would client-side. Determine the data required by the callee program and the serialization format used and write your code to match. Feel free to read up on some of the [features of the `vec` macro available to you here](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
+Ang huling larangan ng object ng pagtuturo ay ang data, bilang isang byte buffer siyempre. Maaari kang lumikha ng isang byte buffer sa Rust gamit ang `vec` na macro muli, na may ipinatupad na function na nagbibigay-daan sa iyong lumikha ng isang vector na may partikular na haba. Kapag nasimulan mo na ang isang walang laman na vector, gagawa ka ng byte buffer na katulad ng kung paano mo gagawin ang client-side. Tukuyin ang data na kinakailangan ng callee program at ang serialization format na ginamit at isulat ang iyong code upang tumugma. Huwag mag-atubiling basahin ang ilan sa [mga tampok ng `vec` na macro na available sa iyo dito](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#).
 
 
 ```rust
@@ -124,23 +124,23 @@ vec.push(2);
 vec.extend_from_slice(&number_variable.to_le_bytes());
 ```
 
-The [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#method.extend_from_slice) method is probably new to you. It's a method on vectors that takes a slice as input, iterates over the slice, clones each element, and then appends it to the `Vec`.
+Malamang na bago sa iyo ang [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#method.extend_from_slice). Ito ay isang paraan sa mga vector na kumukuha ng isang slice bilang input, umuulit sa slice, nag-clone ng bawat elemento, at pagkatapos ay idinadagdag ito sa `Vec`.
 
-### Pass a list of accounts
+### Magpasa ng listahan ng mga account
 
-In addition to the instruction, both `invoke` and `invoke_signed` also require a list of `account_info` objects. Just like the list of `AccountMeta` objects you added to the instruction, you must include all of the accounts that the program you're calling will read from or write to.
+Bilang karagdagan sa pagtuturo, ang parehong `invoke` at `invoke_signed` ay nangangailangan din ng isang listahan ng mga object na `account_info`. Tulad ng listahan ng mga bagay na `AccountMeta` na idinagdag mo sa pagtuturo, dapat mong isama ang lahat ng mga account kung saan babasahin o susulatan ng program na iyong tinatawagan.
 
-By the time you make a CPI in your program, you should have already grabbed all the `account_info` objects that were passed into your program and stored them in variables. You'll construct your list of `account_info` objects for the CPI by choosing which of these accounts to copy and send along.
+Sa oras na gumawa ka ng CPI sa iyong programa, dapat ay nakuha mo na ang lahat ng mga bagay na `account_info` na ipinasa sa iyong programa at inimbak ang mga ito sa mga variable. Bubuo ka ng iyong listahan ng mga bagay na `account_info` para sa CPI sa pamamagitan ng pagpili kung alin sa mga account na ito ang kokopyahin at ipapadala.
 
-You can copy each `account_info` object that you need to pass into the CPI using the [`Clone`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html#impl-Clone) trait that is implemented on the `account_info` struct in the `solana_program` crate. This `Clone` trait returns a copy of the [`account_info`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html) instance.
+Maaari mong kopyahin ang bawat object na `account_info` na kailangan mong ipasa sa CPI gamit ang [`Clone`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html# impl-Clone) na katangian na ipinatupad sa `account_info` struct sa `solana_program` crate. Ang katangiang ito ng `Clone` ay nagbabalik ng kopya ng [`account_info`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html) instance.
 
 ```rust
 &[first_account.clone(), second_account.clone(), third_account.clone()]
 ```
 
-### CPI with `invoke`
+### CPI na may `invoke`
 
-With both the instruction and the list of accounts created, you can perform a call to `invoke`.
+Gamit ang parehong tagubilin at ang listahan ng mga account na ginawa, maaari kang magsagawa ng isang tawag para sa `invoke`.
 
 ```rust
 invoke(
@@ -153,13 +153,12 @@ invoke(
 )?;
 ```
 
-There's no need to include a signature because the Solana runtime passes along the original signature passed into your program. Remember, `invoke` won't work if a signature is required on behalf of a PDA. For that, you'll need to use `invoke_signed`.
+Hindi na kailangang magsama ng lagda dahil ang Solana runtime ay dumadaan sa orihinal na lagda na ipinasa sa iyong programa. Tandaan, hindi gagana ang `invoke` kung kailangan ng pirma sa ngalan ng isang PDA. Para diyan, kakailanganin mong gumamit ng `invoke_signed`.
 
-### CPI with `invoke_signed`
+### CPI na may `invoke_signed`
 
 
-Using `invoke_signed` is a little different just because there is an additional field that requires the seeds used to derive any PDAs that must sign the transaction. You may recall from previous lessons that PDAs do not lie on the Ed25519 curve and, therefore, do not have a corresponding private key. You’ve been told that programs can provide signatures for their PDAs, but have not learned how that actually happens - until now. Programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` field that comes into play here.
-
+Ang paggamit ng `invoke_signed` ay medyo naiiba dahil lang may karagdagang field na nangangailangan ng mga seed na ginamit upang makuha ang anumang mga PDA na dapat pumirma sa transaksyon. Maaari mong maalala mula sa mga nakaraang aralin na ang mga PDA ay hindi namamalagi sa Ed25519 curve at, samakatuwid, ay walang kaukulang pribadong key. Sinabihan ka na ang mga programa ay maaaring magbigay ng mga lagda para sa kanilang mga PDA, ngunit hindi mo natutunan kung paano iyon aktwal na nangyayari - hanggang ngayon. Ang mga programa ay nagbibigay ng mga lagda para sa kanilang mga PDA na may function na `invoke_signed`. Ang unang dalawang field ng `invoke_signed` ay kapareho ng `invoke`, ngunit may karagdagang field na `signers_seeds` na gagana rito.
 
 ```rust
 invoke_signed(
@@ -171,81 +170,81 @@ invoke_signed(
 )?;
 ```
 
-While PDAs have no private keys of their own, they can be used by a program to issue an instruction that includes the PDA as a signer. The only way for the runtime to verify that the PDA belongs to the calling program is for the calling program to supply the seeds used to generate the address in the `signers_seeds` field.
+Bagama't walang sariling mga pribadong susi ang mga PDA, maaari silang gamitin ng isang programa para mag-isyu ng pagtuturo na kinabibilangan ng PDA bilang isang pumirma. Ang tanging paraan para ma-verify ng runtime na ang PDA ay kabilang sa calling program ay para sa calling program na mag-supply ng mga seed na ginamit upang buuin ang address sa field na `signers_seeds`.
 
-The Solana runtime will internally call [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) using the seeds provided and the `program_id` of the calling program. It can then compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that indeed the program associated with this address is the caller and thus is authorized to be a signer.
+Ang runtime ng Solana ay panloob na tatawag sa [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) gamit ang mga seed na ibinigay at ang `program_id ` ng programa sa pagtawag. Maaari nitong ihambing ang resulta laban sa mga address na ibinigay sa pagtuturo. Kung tumugma ang alinman sa mga address, alam ng runtime na ang program na nauugnay sa address na ito ay ang tumatawag at sa gayon ay awtorisadong maging isang pumirma.
 
 
-## Best Practices and common pitfalls
+## Pinakamahuhusay na Kasanayan at karaniwang mga pitfalls
 
-### Security checks
+### Mga pagsusuri sa seguridad
 
-There are some common mistakes and things to remember when utilizing CPIs that are important to your program’s security and robustness. The first thing to remember is that, as we know by now, we have no control over what information is passed into our programs. For this reason, it’s important to always verify the `program_id`, accounts, and data passed into the CPI. Without these security checks, someone could submit a transaction that invokes an instruction on a completely different program than was expected, which is not ideal.
+Mayroong ilang mga karaniwang pagkakamali at bagay na dapat tandaan kapag gumagamit ng mga CPI na mahalaga sa seguridad at katatagan ng iyong programa. Ang unang dapat tandaan ay, tulad ng alam natin sa ngayon, wala tayong kontrol sa kung anong impormasyon ang ipinapasa sa ating mga programa. Para sa kadahilanang ito, mahalagang palaging i-verify ang `program_id`, mga account, at data na ipinasa sa CPI. Kung wala ang mga pagsusuring ito sa seguridad, maaaring magsumite ang isang tao ng transaksyon na humihiling ng pagtuturo sa isang ganap na naiibang programa kaysa sa inaasahan, na hindi perpekto.
 
-Fortunately, there are inherent checks on the validity of any PDAs that are marked as signers within the `invoke_signed` function. All other accounts and `instruction_data` should be verified somewhere in your program code before making the CPI. It's also important to make sure you’re targeting the intended instruction on the program you are invoking. The easiest way to do this is to read the source code of the program you will be invoking just as you would if you were constructing an instruction from the client side.
+Sa kabutihang palad, may mga likas na pagsusuri sa bisa ng anumang PDA na minarkahan bilang mga lumagda sa loob ng function na `invoke_signed`. Ang lahat ng iba pang account at `instruction_data` ay dapat ma-verify sa isang lugar sa iyong program code bago gawin ang CPI. Mahalaga rin na tiyaking tina-target mo ang nilalayon na pagtuturo sa program na iyong ginagamit. Ang pinakamadaling paraan upang gawin ito ay basahin ang source code ng programa na iyong i-invoke tulad ng gagawin mo kung ikaw ay gumagawa ng isang pagtuturo mula sa panig ng kliyente.
 
-### Common errors
+### Mga karaniwang error
 
-There are some common errors you might receive when executing a CPI, they usually mean you are constructing the CPI with incorrect information. For example, you may come across an error message similar to this:
+Mayroong ilang mga karaniwang error na maaari mong matanggap kapag nagpapatupad ng isang CPI, kadalasang nangangahulugang ginagawa mo ang CPI na may maling impormasyon. Halimbawa, maaari kang makakita ng mensahe ng error na katulad nito:
 
 ```text
 EF1M4SPfKcchb6scq297y8FPCaLvj5kGjwMzjTM68wjA's signer privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
 
-This message is a little misleading, because “signer privilege escalated” does not seem like a problem but, in reality, it means that you are incorrectly signing for the address in the message. If you are using `invoke_signed` and receive this error, then it likely means that the seeds you are providing are incorrect. An example transaction that failed with this error can be found [here](https://explorer.solana.com/tx/3mxbShkerH9ZV1rMmvDfaAhLhJJqrmMjcsWzanjkARjBQurhf4dounrDCUkGunH1p9M4jEwef9parueyHVw6r2Et?cluster=devnet).
+Medyo nakaliligaw ang mensaheng ito, dahil hindi mukhang problema ang "lumalaki ang pribilehiyo ng signer" ngunit, sa katotohanan, nangangahulugan ito na mali ang pagpirma mo para sa address sa mensahe. Kung gumagamit ka ng `invoke_signed` at natanggap ang error na ito, malamang na nangangahulugan ito na ang mga binhi na iyong ibinibigay ay hindi tama. Ang isang halimbawang transaksyon na nabigo sa error na ito ay makikita [dito](https://explorer.solana.com/tx/3mxbShkerH9ZV1rMmvDfaAhLhJJqrmMjcsWzanjkARjBQurhf4dounrDCUkGunH1p9M4jEwef9parueyHVw6clude=Etnet).
 
-Another similar error is thrown when an account that's written to isn't marked as `writable` inside the `AccountMeta` struct.
+Ang isa pang katulad na error ay itinapon kapag ang isang account kung saan isinulat ay hindi namarkahan bilang `masusulat` sa loob ng `AccountMeta` struct.
 
 ```text
 2qoeXa9fo8xVHzd2h9mVcueh6oK3zmAiJxCTySM5rbLZ's writable privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
 
-Remember, any account whose data may be mutated by the program during execution must be specified as writable. During execution, writing to an account that was not specified as writable will cause the transaction to fail. Writing to an account that is not owned by the program will cause the transaction to fail. Any account whose lamport balance may be mutated by the program during execution must be specified as writable. During execution, mutating the lamports of an account that was not specified as writable will cause the transaction to fail. While subtracting lamports from an account not owned by the program will cause the transaction to fail, adding lamports to any account is allowed, as long is it is mutable.
+Tandaan, ang anumang account na ang data ay maaaring ma-mutate ng programa sa panahon ng pagpapatupad ay dapat na tukuyin bilang masusulat. Sa panahon ng pagpapatupad, ang pagsulat sa isang account na hindi tinukoy bilang masusulat ay magiging sanhi ng pagkabigo sa transaksyon. Ang pagsulat sa isang account na hindi pag-aari ng programa ay magiging sanhi ng pagkabigo sa transaksyon. Anumang account na ang balanse ng lamport ay maaaring i-mutate ng programa sa panahon ng pagpapatupad ay dapat na tukuyin bilang masusulat. Sa panahon ng pagpapatupad, ang pag-mutate sa mga lamport ng isang account na hindi tinukoy bilang nasusulat ay magiging sanhi ng pagkabigo sa transaksyon. Habang ang pagbabawas ng mga lampor sa isang account na hindi pagmamay-ari ng programa ay magdudulot ng pagkabigo sa transaksyon, ang pagdaragdag ng mga lampor sa anumang account ay pinapayagan, hangga't ito ay nababago.
 
-To see this in action, view this [transaction in the explorer](https://explorer.solana.com/tx/ExB9YQJiSzTZDBqx4itPaa4TpT8VK4Adk7GU5pSoGEzNz9fa7PPZsUxssHGrBbJRnCvhoKgLCWnAycFB7VYDbBg?cluster=devnet).
+Upang makita ito sa pagkilos, tingnan ito [transaksyon sa explorer](https://explorer.solana.com/tx/ExB9YQJiSzTZDBqx4itPaa4TpT8VK4Adk7GU5pSoGEzNz9fa7PPZsUxssHGrBbJRnCvhoKgBLCwnVcluyDc?
 
-## Why CPIs matter?
+## Bakit mahalaga ang CPI?
 
-CPIs are a very important feature of the Solana ecosystem and they make all programs deployed interoperable with each other. With CPIs there is no need to re-invent the wheel when it comes to development. This creates the opportunity for building new protocols and applications on top of what’s already been built, just like building blocks or Lego bricks. It’s important to remember that CPIs are a two-way street and the same is true for any programs that you deploy! If you build something cool and useful, developers have the ability to build on top of what you’ve done or just plug your protocol into whatever it is that they are building. Composability is a big part of what makes crypto so unique and CPIs are what makes this possible on Solana.
+Ang mga CPI ay isang napakahalagang tampok ng Solana ecosystem at ginagawa nilang interoperable ang lahat ng mga programang naka-deploy sa isa't isa. Sa mga CPI ay hindi na kailangang muling imbento ang gulong pagdating sa pag-unlad. Lumilikha ito ng pagkakataon para sa pagbuo ng mga bagong protocol at application sa ibabaw ng kung ano ang naitayo na, tulad ng mga building block o Lego brick. Mahalagang tandaan na ang mga CPI ay isang two-way na kalye at ganoon din ang totoo para sa anumang mga programang ipapatupad mo! Kung gagawa ka ng isang bagay na cool at kapaki-pakinabang, ang mga developer ay may kakayahang bumuo sa ibabaw ng kung ano ang nagawa mo o isaksak lang ang iyong protocol sa anumang ginagawa nila. Ang composability ay isang malaking bahagi ng kung bakit natatangi ang crypto at ang mga CPI ang ginagawang posible nito sa Solana.
 
 
-Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate transactions with valid signatures for those addresses. This can be *very* useful for many applications in Web3 (e.g. DeFi, NFTs, etc.) Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs!)
+Ang isa pang mahalagang aspeto ng CPI ay ang pagpapahintulot nila sa mga programa na pumirma para sa kanilang mga PDA. Tulad ng malamang na napansin mo ngayon, ang mga PDA ay napakadalas na ginagamit sa pagbuo ng Solana dahil pinapayagan nila ang mga programa na kontrolin ang mga partikular na address sa paraang walang panlabas na user ang makakabuo ng mga transaksyon na may wastong mga lagda para sa mga address na iyon. Ito ay maaaring maging *napaka-kapaki-pakinabang para sa maraming mga application sa Web3 (hal. DeFi, NFT, atbp.) Kung walang CPI, ang mga PDA ay hindi halos magiging kapaki-pakinabang dahil walang paraan para sa isang programa na pumirma sa mga transaksyong kinasasangkutan ng mga ito - mahalagang gawing itim ang mga ito mga butas (kapag may ipinadala sa isang PDA, wala nang paraan upang maibalik ito nang walang mga CPI!)
 
 # Demo
 
-Now let's get some hands on experience with CPIs by making some additions to the Movie Review program again. If you're dropping into this lesson without having gone through prior lessons, the Movie Review program allows users to submit movie reviews and have them stored in PDA accounts.
+Ngayon, kumuha tayo ng ilang karanasan sa mga CPI sa pamamagitan ng paggawa muli ng ilang mga karagdagan sa programa ng Pagsusuri ng Pelikula. Kung pumapasok ka sa araling ito nang hindi dumaan sa mga naunang aralin, ang programa sa Pagsusuri ng Pelikula ay nagbibigay-daan sa mga user na magsumite ng mga review ng pelikula at i-store ang mga ito sa mga PDA account.
 
-Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to work on having the program mint tokens to the reviewer or commenter anytime a review or comment is submitted.
+Noong nakaraang aralin, idinagdag namin ang kakayahang mag-iwan ng mga komento sa iba pang mga pagsusuri sa pelikula gamit ang mga PDA. Sa araling ito, sisikapin namin ang pagkakaroon ng mint token ng programa sa reviewer o commenter anumang oras na magsumite ng review o komento.
 
-To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token Program lesson](./token-program.md) before moving forward with this demo.
+Upang maipatupad ito, kakailanganin naming gamitin ang pagtuturo ng `MintTo` ng SPL Token Program gamit ang isang CPI. Kung kailangan mo ng refresher sa mga token, token mints, at paggawa ng mga bagong token, tingnan ang [aralin sa Token Program](./token-program.md) bago magpatuloy sa demo na ito.
 
-### 1. Get starter code and add dependencies
+### 1. Kumuha ng starter code at magdagdag ng mga dependency
 
-To get started, we will be using the final state of the Movie Review program from the previous PDA lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can [download the starter code here](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-comments). We'll be using the `solution-add-comments` branch as our starting point.
+Upang makapagsimula, gagamitin namin ang huling estado ng programa ng Pagsusuri ng Pelikula mula sa nakaraang aralin sa PDA. Kaya, kung kakatapos mo lang ng araling iyon, handa ka nang umalis. Kung tumatalon ka lang dito, huwag mag-alala, maaari mong [i-download ang starter code dito](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-comments). Gagamitin namin ang sangay na `solution-add-comments` bilang aming panimulang punto.
 
-### 2. Add dependencies to `Cargo.toml`
+### 2. Magdagdag ng mga dependency sa `Cargo.toml`
 
-Before we get started we need to add two new dependencies to the `Cargo.toml` file underneath `[dependencies]`. We'll be using the `spl-token` and `spl-associated-token-account` crates in addition to the existing dependencies.
+Bago tayo magsimula, kailangan nating magdagdag ng dalawang bagong dependencies sa `Cargo.toml` file sa ilalim ng `[dependencies]`. Gagamitin namin ang mga crate ng `spl-token` at `spl-associated-token-account` bilang karagdagan sa mga umiiral nang dependency.
 
 ```text
 spl-token = { version="~3.2.0", features = [ "no-entrypoint" ] }
 spl-associated-token-account = { version="=1.0.5", features = [ "no-entrypoint" ] }
 ```
 
-After adding the above, run `cargo check` in your console to have cargo resolve your dependencies and ensure that you are ready to continue. Depending on your setup you may need to modify crate versions before moving on.
+Pagkatapos idagdag ang nasa itaas, patakbuhin ang `cargo check` sa iyong console para maresolba ng cargo ang iyong mga dependency at matiyak na handa ka nang magpatuloy. Depende sa iyong setup, maaaring kailanganin mong baguhin ang mga bersyon ng crate bago magpatuloy.
 
-### 3. Add necessary accounts to `add_movie_review`
+### 3. Magdagdag ng mga kinakailangang account sa `add_movie_review`
 
-Because we want users to be minted tokens upon creating a review, it makes sense to add minting logic inside the `add_movie_review` function. Since we'll be minting tokens, the `add_movie_review` instruction requires a few new accounts to be passed in:
+Dahil gusto naming magkaroon ng mga token ang mga user sa paggawa ng review, makatuwirang magdagdag ng minting logic sa loob ng function na `add_movie_review`. Dahil gagawa kami ng mga token, ang tagubiling `add_movie_review` ay nangangailangan ng ilang bagong account na maipasa:
 
-- `token_mint` - the mint address of the token
-- `mint_auth` - address of the authority of the token mint
-- `user_ata` - user’s associated token account for this mint (where the tokens will be minted)
-- `token_program` - address of the token program
+- `token_mint` - ang mint address ng token
+- `mint_auth` - address ng awtoridad ng token mint
+- `user_ata` - ang nauugnay na token account ng user para sa mint na ito (kung saan ilalagay ang mga token)
+- `token_program` - address ng token program
 
-We'll start by adding these new accounts to the area of the function that iterates through the passed in accounts:
+Magsisimula kami sa pamamagitan ng pagdaragdag ng mga bagong account na ito sa lugar ng function na umuulit sa mga naipasa sa mga account:
 
 ```rust
 // Inside add_movie_review
@@ -266,11 +265,11 @@ let system_program = next_account_info(account_info_iter)?;
 let token_program = next_account_info(account_info_iter)?;
 ```
 
-There is no additional `instruction_data` required for the new functionality, so no changes need to be made to how data is deserialized. The only additional information that’s needed is the extra accounts.
+Walang karagdagang `instruction_data` na kinakailangan para sa bagong functionality, kaya walang mga pagbabagong kailangang gawin sa kung paano deserialized ang data. Ang tanging karagdagang impormasyon na kailangan ay ang mga karagdagang account.
 
-### 4. Mint tokens to the reviewer in `add_movie_review`
+### 4. Mint token sa reviewer sa `add_movie_review`
 
-Before we dive into the minting logic, let's import the address of the Token program and the constant `LAMPORTS_PER_SOL` at the top of the file.
+Bago tayo sumisid sa minting logic, i-import natin ang address ng Token program at ang pare-parehong `LAMPORTS_PER_SOL` sa tuktok ng file.
 
 ```rust
 // Inside processor.rs
@@ -279,13 +278,13 @@ use spl_associated_token_account::get_associated_token_address;
 use spl_token::{instruction::initialize_mint, ID as TOKEN_PROGRAM_ID};
 ```
 
-Now we can move on to the logic that handles the actual minting of the tokens! We’ll be adding this to the very end of the `add_movie_review` function right before `Ok(())` is returned.
+Ngayon ay maaari na tayong magpatuloy sa lohika na humahawak sa aktwal na paggawa ng mga token! Idaragdag namin ito sa pinakadulo ng function na `add_movie_review` bago ibalik ang `Ok(()).
 
-Minting tokens requires a signature by the mint authority. Since the program needs to be able to mint tokens, the mint authority needs to be an account that the program can sign for. In other words, it needs to be a PDA account owned by the program.
+Ang minting token ay nangangailangan ng pirma ng mint authority. Dahil ang program ay kailangang makapag-mint ng mga token, ang mint authority ay kailangang isang account na maaaring lagdaan ng program. Sa madaling salita, kailangan itong isang PDA account na pag-aari ng programa.
 
-We'll also be structuring our token mint such that the mint account is a PDA account that we can derive deterministically. This way we can always verify that the `token_mint` account passed into the program is the expected account.
+Aayusin din namin ang aming token mint upang ang mint account ay isang PDA account na maaari naming makuha nang deterministiko. Sa ganitong paraan maaari naming palaging i-verify na ang `token_mint` account na ipinasa sa programa ay ang inaasahang account.
 
-Let's go ahead and derive the token mint and mint authority addresses using the `find_program_address` function with the seeds “token_mint” and "token_auth," respectively.
+Sige at kunin natin ang token mint at mint authority address gamit ang `find_program_address` function na may mga seed na “token_mint” at "token_auth," ayon sa pagkakabanggit.
 
 ```rust
 // Mint tokens here
@@ -295,7 +294,7 @@ let (mint_auth_pda, _mint_auth_bump) =
     Pubkey::find_program_address(&[b"token_auth"], program_id);
 ```
 
-Next, we'll perform security checks against each of the new accounts passed into the program. Always remember to verify accounts!
+Susunod, magsasagawa kami ng mga pagsusuri sa seguridad laban sa bawat isa sa mga bagong account na ipinasa sa programa. Palaging tandaan na i-verify ang mga account!
 
 ```rust
 if *token_mint.key != mint_pda {
@@ -319,7 +318,7 @@ if *token_program.key != TOKEN_PROGRAM_ID {
 }
 ```
 
-Finally, we can issue a CPI to the `mint_to` function of the token program with the correct accounts using `invoke_signed`. The `spl_token` crate provides a `mint_to` helper function for creating the minting instruction. This is great because it means we don't have to manually build the entire instruction from scratch. Rather, we can simply pass in the arguments required by the function. Here's the function signature:
+Sa wakas, maaari kaming mag-isyu ng CPI sa `mint_to` function ng token program na may mga tamang account gamit ang `invoke_signed`. Ang `spl_token` crate ay nagbibigay ng `mint_to` helper function para sa paggawa ng pagtuturo ng minting. Ito ay mahusay dahil nangangahulugan ito na hindi namin kailangang manu-manong buuin ang buong pagtuturo mula sa simula. Sa halip, maaari nating ipasa ang mga argumento na kinakailangan ng function. Narito ang function signature:
 
 ```rust
 // Inside the token program, returns an Instruction object
@@ -333,7 +332,7 @@ pub fn mint_to(
 ) -> Result<Instruction, ProgramError>
 ```
 
-Then we provide copies of the `token_mint`, `user_ata`, and `mint_auth` accounts. And, most relevant to this lesson, we provide the seeds used to find the `token_mint` address, including the bump seed.
+Pagkatapos ay nagbibigay kami ng mga kopya ng `token_mint`, `user_ata`, at `mint_auth` na mga account. At, pinaka-kaugnay sa araling ito, ibinibigay namin ang mga butong ginamit upang mahanap ang address ng `token_mint`, kasama ang bump seed.
 
 ```rust
 msg!("Minting 10 tokens to User associated token account");
@@ -356,13 +355,13 @@ invoke_signed(
 Ok(())
 ```
 
-Note that we are using `invoke_signed` and not `invoke` here. The Token program requires the `mint_auth` account to sign for this transaction. Since the `mint_auth` account is a PDA, only the program it was derived from can sign on its behalf. When `invoke_signed` is called, the Solana runtime calls `create_program_address` with the seeds and bump provided and then compares the derived address with all of the addresses of the provided `AccountInfo` objects. If any of the addresses match the derived address, the runtime knows that the matching account is a PDA of this program and that the program is signing this transaction for this account.
+Tandaan na gumagamit kami ng `invoke_signed` at hindi `invoke` dito. Ang Token program ay nangangailangan ng `mint_auth` account upang mag-sign para sa transaksyong ito. Dahil ang `mint_auth` account ay isang PDA, tanging ang program kung saan ito hinango ay maaaring mag-sign sa ngalan nito. Kapag tinawag ang `invoke_signed`, ang runtime ng Solana ay tatawag ng `create_program_address` kasama ang mga seeds at bump na ibinigay at pagkatapos ay ihahambing ang nagmula na address sa lahat ng mga address ng ibinigay na `AccountInfo` object. Kung ang alinman sa mga address ay tumutugma sa nagmula na address, alam ng runtime na ang katugmang account ay isang PDA ng program na ito at na ang program ay pumipirma sa transaksyong ito para sa account na ito.
 
-At this point, the `add_movie_review` instruction should be fully functional and will mint ten tokens to the reviewer when a review is created.
+Sa puntong ito, ang pagtuturo ng `add_movie_review` ay dapat na ganap na gumagana at magbibigay ng sampung token sa reviewer kapag may ginawang review.
 
-### 5. Repeat for `add_comment`
+### 5. Ulitin para sa `add_comment`
 
-Our updates to the `add_comment` function will be almost identical to what we did for the `add_movie_review` function above. The only difference is that we’ll change the amount of tokens minted for a comment from ten to five so that adding reviews are weighted above commenting. First, update the accounts with the same four additional accounts as in the `add_movie_review` function.
+Ang aming mga update sa function na `add_comment` ay halos magkapareho sa kung ano ang ginawa namin para sa function na `add_movie_review` sa itaas. Ang pagkakaiba lang ay babaguhin namin ang dami ng mga token na na-minted para sa isang komento mula sampu hanggang lima upang ang pagdaragdag ng mga review ay mas matimbang sa pagkomento. Una, i-update ang mga account na may parehong apat na karagdagang account tulad ng sa function na `add_movie_review`.
 
 ```rust
 // Inside add_comment
@@ -379,7 +378,7 @@ let system_program = next_account_info(account_info_iter)?;
 let token_program = next_account_info(account_info_iter)?;
 ```
 
-Next, move to the bottom of the `add_comment` function just before the `Ok(())`. Then derive the token mint and mint authority accounts. Remember, both are PDAs derived from seeds "token_mint" and "token_authority" respectively.
+Susunod, lumipat sa ibaba ng function na `add_comment` bago ang `Ok(())`. Pagkatapos ay kunin ang token mint at mint authority account. Tandaan, pareho ang mga PDA na nagmula sa mga buto na "token_mint" at "token_authority" ayon sa pagkakabanggit.
 
 ```rust
 // Mint tokens here
@@ -389,7 +388,7 @@ let (mint_auth_pda, _mint_auth_bump) =
     Pubkey::find_program_address(&[b"token_auth"], program_id);
 ```
 
-Next, verify that each of the new accounts is the correct account.
+Susunod, i-verify na ang bawat isa sa mga bagong account ay ang tamang account.
 
 ```rust
 if *token_mint.key != mint_pda {
@@ -413,7 +412,7 @@ if *token_program.key != TOKEN_PROGRAM_ID {
 }
 ```
 
-Finally, use `invoke_signed` to send the `mint_to` instruction to the Token program, sending five tokens to the commenter.
+Panghuli, gamitin ang `invoke_signed` upang ipadala ang `mint_to` na pagtuturo sa Token program, na nagpapadala ng limang token sa nagkokomento.
 
 ```rust
 msg!("Minting 5 tokens to User associated token account");
@@ -436,11 +435,11 @@ invoke_signed(
 Ok(())
 ```
 
-### 6. Set up the token mint
+### 6. I-set up ang token mint
 
-We've written all the code needed to mint tokens to reviewers and commenters, but all of it assumes that there is a token mint at the PDA derived with the seed "token_mint." For this to work, we're going to set up an additional instruction for initializing the token mint. It will be written such that it can only be called once and it doesn't particularly matter who calls it.
+Isinulat namin ang lahat ng code na kailangan para mag-mint ng mga token sa mga reviewer at commenter, ngunit lahat ng ito ay ipinapalagay na mayroong isang token mint sa PDA na nagmula sa seed na "token_mint." Para gumana ito, magse-set up kami ng karagdagang tagubilin para sa pagsisimula ng token mint. Isusulat ito na isang beses lang ito matatawag at hindi mahalaga kung sino ang tatawag dito.
 
-Given that throughout this lesson we've already hammered home all of the concepts associated with PDAs and CPIs multiple times, we're going to walk through this bit with less explanation than the prior steps. Start by adding a fourth instruction variant to the `MovieInstruction` enum in `instruction.rs`.
+Dahil sa buong araling ito, na-martilyo na natin ang lahat ng mga konseptong nauugnay sa mga PDA at CPI nang maraming beses, tatalakayin natin ang kaunting ito nang may mas kaunting paliwanag kaysa sa mga naunang hakbang. Magsimula sa pamamagitan ng pagdaragdag ng pang-apat na variant ng pagtuturo sa `MovieInstruction` enum sa `instruction.rs`.
 
 ```rust
 pub enum MovieInstruction {
@@ -461,7 +460,7 @@ pub enum MovieInstruction {
 }
 ```
 
-Be sure to add it to the `match` statement in the `unpack` function in the same file under the variant `3`.
+Tiyaking idagdag ito sa statement na `match` sa function na `unpack` sa parehong file sa ilalim ng variant na `3`.
 
 ```rust
 impl MovieInstruction {
@@ -499,7 +498,7 @@ impl MovieInstruction {
 }
 ```
 
-In the `process_instruction` function in the `processor.rs` file, add the new instruction to the `match` statement and call a function `initialize_token_mint`.
+Sa function na `process_instruction` sa `processor.rs` file, idagdag ang bagong tagubilin sa statement na `match` at tumawag ng function na `initialize_token_mint`.
 
 ```rust
 pub fn process_instruction(
@@ -525,7 +524,7 @@ pub fn process_instruction(
 }
 ```
 
-Lastly, declare and implement the `initialize_token_mint` function. This function will derive the token mint and mint authority PDAs, create the token mint account, and then initialize the token mint. We won't explain all of this in detail, but it's worth reading through the code, especially given that the creation and initialization of the token mint both involve CPIs. Again, if you need a refresher on tokens and mints, have a look at the [Token Program lesson](./token-program.md).
+Panghuli, ideklara at ipatupad ang function na `initialize_token_mint`. Ang function na ito ay kukuha ng token mint at mint authority PDA, gagawa ng token mint account, at pagkatapos ay magsisimula ng token mint. Hindi namin ipapaliwanag nang detalyado ang lahat ng ito, ngunit sulit na basahin ang code, lalo na kung ang paggawa at pagsisimula ng token mint ay parehong may kinalaman sa mga CPI. Muli, kung kailangan mo ng refresher sa mga token at mints, tingnan ang [aralin sa Token Program](./token-program.md).
 
 ```rust
 pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
@@ -599,22 +598,22 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
 }
 ```
 
-### 7. Build and deploy
+### 7. Bumuo at i-deploy
 
-Now we’re ready to build and deploy our program! You can build the program by running `cargo build-bpf` and then running the command that is returned, it should look something like `solana program deploy <PATH>`.
+Ngayon ay handa na kaming buuin at i-deploy ang aming programa! Maaari mong buuin ang program sa pamamagitan ng pagpapatakbo ng `cargo build-bpf` at pagkatapos ay patakbuhin ang command na ibinalik, dapat itong magmukhang `solana program deploy <PATH>`.
 
-Before you can start testing whether or not adding a review or comment sends you tokens, you need to initialize the program's token mint. You can use [this script](https://github.com/Unboxed-Software/solana-movie-token-client) to do that. Once you'd cloned that repository, replace the `PROGRAM_ID` in `index.ts` with your program's ID. Then run `npm install` and then `npm start`. The script assumes you're deploying to Devnet. If you're deploying locally, then make sure to tailor the script accordingly.
+Bago mo simulan ang pagsubok kung magpapadala sa iyo ng mga token ang pagdaragdag ng review o komento, kailangan mong simulan ang token mint ng program. Maaari mong gamitin ang [script na ito](https://github.com/Unboxed-Software/solana-movie-token-client) para gawin iyon. Kapag na-clone mo na ang repositoryong iyon, palitan ang `PROGRAM_ID` sa `index.ts` ng ID ng iyong program. Pagkatapos ay patakbuhin ang `npm install` at pagkatapos ay `npm start`. Ipinapalagay ng script na nagde-deploy ka sa Devnet. Kung lokal kang nagde-deploy, siguraduhing iangkop ang script nang naaayon.
 
-Once you've initialized your token mint, you can use the [Movie Review frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-tokens) to test adding reviews and comments. Again, the code assumes you're on Devnet so please act accordingly.
+Kapag nasimulan mo na ang iyong token mint, maaari mong gamitin ang [Movie Review frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-tokens) upang subukan ang pagdaragdag ng mga review at mga komento. Muli, ipinapalagay ng code na nasa Devnet ka kaya mangyaring kumilos nang naaayon.
 
-After submitting a review, you should see 10 new tokens in your wallet! When you add a comment, you should receive 5 tokens. They won't have a fancy name or image since we didn't add any metadata to the token, but you get the idea.
+Pagkatapos magsumite ng pagsusuri, dapat kang makakita ng 10 bagong token sa iyong wallet! Kapag nagdagdag ka ng komento, dapat kang makatanggap ng 5 token. Hindi sila magkakaroon ng magarbong pangalan o larawan dahil hindi kami nagdagdag ng anumang metadata sa token, ngunit nakuha mo ang ideya.
 
-If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
+Kung kailangan mo ng mas maraming oras sa mga konsepto mula sa araling ito o natigil ka, huwag mag-atubiling [tingnan ang code ng solusyon](https://github.com/Unboxed-Software/solana-movie-program/tree /solution-add-token). Tandaan na ang solusyon sa demo na ito ay nasa `solution-add-tokens` branch.
 
-# Challenge
+# Hamon
 
-To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.
+Upang mailapat ang iyong natutunan tungkol sa mga CPI sa araling ito, pag-isipan kung paano mo maaaring isama ang mga ito sa programa ng Student Intro. Maaari kang gumawa ng isang bagay na katulad ng ginawa namin sa demo dito at magdagdag ng ilang functionality sa mint token sa mga user kapag ipinakilala nila ang kanilang mga sarili. O kung talagang ambisyoso ka, isipin kung paano mo makukuha ang lahat ng iyong natutunan sa kurso at lumikha ng isang bagay na ganap na bago mula sa simula.
 
-A great example would be to build a decentralized Stack Overflow. The program could use tokens to determine a user's overall rating, mint tokens when questions are answered correctly, allow users to upvote answers, etc. All of that is possible and you now have the skills and knowledge to go and build something like it on your own!
+Ang isang magandang halimbawa ay ang pagbuo ng isang desentralisadong Stack Overflow. Maaaring gumamit ang program ng mga token para matukoy ang pangkalahatang rating ng user, mint token kapag nasagot nang tama ang mga tanong, payagan ang mga user na mag-upvote ng mga sagot, atbp. Lahat ng iyon ay posible at mayroon ka na ngayong mga kasanayan at kaalaman upang pumunta at bumuo ng katulad nito sa iyong sariling!
 
-Congratulations on reaching the end of Module 4! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%204), so that we can continue to improve the course.
+Binabati kita sa pagtatapos ng Modyul 4! Huwag mag-atubiling magbahagi ng ilang mabilis na feedback [dito](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%204), nang sa gayon ay maaari naming patuloy na mapabuti ang kurso.

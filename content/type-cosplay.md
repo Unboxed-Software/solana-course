@@ -9,8 +9,8 @@ objectives:
 
 # TL;DR
 
-- Use discriminators to distinguish between different account types
-- To implement a discriminator in Rust, include a field in the account struct to represent the account type
+- Gumamit ng mga discriminator upang makilala ang iba't ibang uri ng account
+- Upang magpatupad ng discriminator sa Rust, magsama ng field sa struct ng account upang kumatawan sa uri ng account
 
     ```rust
     #[derive(BorshSerialize, BorshDeserialize)]
@@ -26,7 +26,7 @@ objectives:
     }
     ```
 
-- To implement a discriminator check in Rust, verify that the discriminator of the deserialized account data matches the expected value
+- Para magpatupad ng discriminator check sa Rust, i-verify na ang discriminator ng deserialized na data ng account ay tumutugma sa inaasahang halaga
 
     ```rust
     if user.discriminant != AccountDiscriminant::User {
@@ -34,20 +34,20 @@ objectives:
     }
     ```
 
-- In Anchor, program account types automatically implement the `Discriminator` trait which creates an 8 byte unique identifier for a type
-- Use Anchor’s `Account<'info, T>` type to automatically check the discriminator of the account when deserializing the account data
+- Sa Anchor, awtomatikong ipinapatupad ng mga uri ng program account ang katangiang `Discriminator` na lumilikha ng 8 byte na natatanging identifier para sa isang uri
+- Gamitin ang uri ng `Account<'info, T>` ng Anchor upang awtomatikong suriin ang discriminator ng account kapag deserialize ang data ng account
 
-# Overview
+# Pangkalahatang-ideya
 
-“Type cosplay” refers to an unexpected account type being used in place of an expected account type. Under the hood, account data is simply stored as an array of bytes that a program deserializes into a custom account type. Without implementing a way to explicitly distinguish between account types, account data from an unexpected account could result in an instruction being used in unintended ways.
+Ang "Uri ng cosplay" ay tumutukoy sa isang hindi inaasahang uri ng account na ginagamit sa halip na isang inaasahang uri ng account. Sa ilalim ng hood, ang data ng account ay iniimbak lamang bilang isang hanay ng mga byte na na-deserialize ng isang programa sa isang custom na uri ng account. Nang hindi nagpapatupad ng paraan upang tahasang makilala ang mga uri ng account, ang data ng account mula sa hindi inaasahang account ay maaaring magresulta sa paggamit ng pagtuturo sa mga hindi sinasadyang paraan.
 
-### Unchecked account
+### Hindi na-check ang account
 
-In the example below, both the `AdminConfig` and `UserConfig` account types store a single public key. The `admin_instruction` instruction deserializes the `admin_config` account as an `AdminConfig` type and then performs a owner check and data validation check.
+Sa halimbawa sa ibaba, ang mga uri ng account na `AdminConfig` at `UserConfig` ay nag-iimbak ng isang pampublikong key. Ang tagubiling `admin_instruction` ay nagde-deserialize sa `admin_config` account bilang isang uri ng `AdminConfig` at pagkatapos ay nagsasagawa ng pagsusuri ng may-ari at pagsusuri ng data validation.
 
-However, the `AdminConfig` and `UserConfig` account types have the same data structure. This means a `UserConfig` account type could be passed in as the `admin_config` account. As long as the public key stored on the account data matches the `admin` signing the transaction, the `admin_instruction` instruction would continue to process, even if the signer isn't actually an admin.
+Gayunpaman, ang mga uri ng account na `AdminConfig` at `UserConfig` ay may parehong istraktura ng data. Nangangahulugan ito na maaaring maipasa ang uri ng account na `UserConfig` bilang `admin_config` na account. Hangga't ang pampublikong key na nakaimbak sa data ng account ay tumutugma sa pag-sign ng `admin` sa transaksyon, patuloy na mapoproseso ang tagubiling `admin_instruction`, kahit na hindi naman admin ang pumirma.
 
-Note that the names of the fields stored on the account types (`admin` and `user`) make no difference when deserializing account data. The data is serialized and deserialized based on the order of fields rather than their names.
+Tandaan na ang mga pangalan ng mga field na nakaimbak sa mga uri ng account (`admin` at `user`) ay walang pagkakaiba kapag nagde-deserialize ng data ng account. Ang data ay serialized at deserialized batay sa pagkakasunud-sunod ng mga field kaysa sa kanilang mga pangalan.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -90,11 +90,11 @@ pub struct UserConfig {
 }
 ```
 
-### Add account discriminator
+### Magdagdag ng discriminator ng account
 
-To solve this, you can add a discriminant field for each account type and set the discriminant when initializing an account.
+Upang malutas ito, maaari kang magdagdag ng field ng discriminant para sa bawat uri ng account at itakda ang discriminant kapag nagpasimula ng account.
 
-The example below updates the `AdminConfig` and `UserConfig` account types with a `discriminant` field. The `admin_instruction` instruction includes an additional data validation check for the `discriminant` field.
+Ina-update ng halimbawa sa ibaba ang mga uri ng account na `AdminConfig` at `UserConfig` na may field na `discriminant`. Kasama sa tagubiling `admin_instruction` ang karagdagang pagsusuri sa validation ng data para sa field na `discriminant`.
 
 ```rust
 if account_data.discriminant != AccountDiscriminant::Admin {
@@ -102,7 +102,7 @@ if account_data.discriminant != AccountDiscriminant::Admin {
 }
 ```
 
-If the `discriminant` field of the account passed into the instruction as the `admin_config` account does not match the expected `AccountDiscriminant`, then the transaction will fail. Simply make sure to set the appropriate value for `discriminant` when you initialize each account (not shown in the example), and then you can include these discriminant checks in every subsequent instruction.
+Kung ang field na `discriminant` ng account ay naipasa sa pagtuturo bilang ang `admin_config` account ay hindi tumutugma sa inaasahang `AccountDiscriminant`, kung gayon ang transaksyon ay mabibigo. Siguraduhin lang na itakda ang naaangkop na halaga para sa `discriminant` kapag sinimulan mo ang bawat account (hindi ipinapakita sa halimbawa), at pagkatapos ay maaari mong isama ang mga discriminant check na ito sa bawat kasunod na pagtuturo.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -156,15 +156,15 @@ pub enum AccountDiscriminant {
 }
 ```
 
-### Use Anchor’s `Account` wrapper
+### Gamitin ang `Account` wrapper ng Anchor
 
-Implementing these checks for every account needed for every instruction can be tedious. Fortunately, Anchor provides a `#[account]` attribute macro for automatically implementing traits that every account should have.
+Ang pagpapatupad ng mga pagsusuring ito para sa bawat account na kailangan para sa bawat pagtuturo ay maaaring nakakapagod. Sa kabutihang palad, ang Anchor ay nagbibigay ng `#[account]` attribute macro para sa awtomatikong pagpapatupad ng mga katangiang dapat taglayin ng bawat account.
 
-Structs marked with `#[account]` can then be used with `Account` to validate that the passed in account is indeed the type you expect it to be. When initializing an account whose struct representation has the `#[account]` attribute, the first 8 bytes are automatically reserved for a discriminator unique to the account type. When deserializing the account data, Anchor will automatically check if the discriminator on the account matches the expected account type and throw and error if it does not match.
+Ang mga istrukturang minarkahan ng `#[account]` ay maaaring gamitin sa `Account` upang patunayan na ang naipasa sa account ay talagang ang uri na inaasahan mo. Kapag sinisimulan ang isang account na ang representasyon ng istruktura ay may katangiang `#[account]`, ang unang 8 byte ay awtomatikong nakalaan para sa isang discriminator na natatangi sa uri ng account. Kapag deserialize ang data ng account, awtomatikong susuriin ng Anchor kung ang discriminator sa account ay tumutugma sa inaasahang uri ng account at throw and error kung hindi ito tumugma.
 
-In the example below, `Account<'info, AdminConfig>` specifies that the `admin_config` account should be of type `AdminConfig`. Anchor then automatically checks that the first 8 bytes of account data match the discriminator of the `AdminConfig` type.
+Sa halimbawa sa ibaba, ang `Account<'info, AdminConfig>` ay tumutukoy na ang `admin_config` na account ay dapat na nasa uri ng `AdminConfig`. Awtomatikong tinitingnan ng Anchor na ang unang 8 byte ng data ng account ay tumutugma sa discriminator ng uri ng `AdminConfig`.
 
-The data validation check for the `admin` field is also moved from the instruction logic to the account validation struct using the `has_one` constraint. `#[account(has_one = admin)]` specifies that the `admin_config` account’s `admin` field must match the `admin` account passed into the instruction. Note that for the `has_one` constraint to work, the naming of the account in the struct must match the naming of field on the account you are validating.
+Ang pagsusuri sa pagpapatunay ng data para sa field na `admin` ay inilipat din mula sa lohika ng pagtuturo patungo sa struct ng pagpapatunay ng account gamit ang hadlang na `may_isa`. Tinutukoy ng `#[account(has_one = admin)]` na dapat tumugma ang field ng `admin` ng `admin_config` account sa `admin` account na ipinasa sa pagtuturo. Tandaan na para gumana ang `has_one` na hadlang, ang pagpapangalan ng account sa struct ay dapat tumugma sa pagpapangalan ng field sa account na iyong pinapatunayan.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -200,30 +200,30 @@ pub struct UserConfig {
 }
 ```
 
-It’s important to note that this is a vulnerability you don’t really have to worry about when using Anchor - that’s the whole point of it in the first place! After going through how this can be exploited if not handled properly in a native rust program, hopefully you have a much better understanding of what the purpose of the account discriminator is in an Anchor account. The fact that Anchor sets and checks this discriminator automatically means that developers can spend more time focusing on their product, but it’s still very important to understand what Anchor is doing behind the scenes to develop robust Solana programs.
+Mahalagang tandaan na ito ay isang kahinaan na hindi mo kailangang mag-alala kapag gumagamit ng Anchor - iyon ang buong punto nito sa unang lugar! Matapos suriin kung paano ito mapagsasamantalahan kung hindi mahawakan nang maayos sa isang katutubong programa ng kalawang, sana ay mas naunawaan mo kung ano ang layunin ng discriminator ng account sa isang Anchor account. Ang katotohanang awtomatikong itinatakda at sinusuri ng Anchor ang discriminator na ito ay nangangahulugan na ang mga developer ay maaaring gumugol ng mas maraming oras sa pagtutuon sa kanilang produkto, ngunit napakahalaga pa rin na maunawaan kung ano ang ginagawa ng Anchor sa likod ng mga eksena upang bumuo ng mga mahuhusay na programa ng Solana.
 
 # Demo
 
-For this demo we’ll create two programs to demonstrate a type cosplay vulnerability.
+Para sa demo na ito, gagawa kami ng dalawang programa upang ipakita ang isang uri ng kahinaan sa cosplay.
 
-- The first program will initialize program accounts without a discriminator
-- The second program will initialize program accounts using Anchor’s `init` constraint which automatically sets an account discriminator
+- Ang unang programa ay magsisimula ng mga account ng programa nang walang discriminator
+- Ang pangalawang programa ay magsisimula ng mga account ng program gamit ang hadlang na `init` ng Anchor na awtomatikong nagtatakda ng discriminator ng account
 
-### 1. Starter
+### 1. Panimula
 
-To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-type-cosplay/tree/starter). The starter code includes a program with three instructions and some tests.
+Para makapagsimula, i-download ang starter code mula sa `starter` branch ng [repository na ito](https://github.com/Unboxed-Software/solana-type-cosplay/tree/starter). Kasama sa starter code ang isang program na may tatlong tagubilin at ilang pagsubok.
 
-The three instructions are:
+Ang tatlong tagubilin ay:
 
-1. `initialize_admin` - initializes an admin account and sets the admin authority of the program
-2. `initialize_user` - intializes a standard user account
-3. `update_admin` - allows the existing admin to update the admin authority of the program
+1. `initialize_admin` - nagpapasimula ng admin account at nagtatakda ng awtoridad ng admin ng program
+2. `initialize_user` - nagpapakilala ng karaniwang user account
+3. `update_admin` - nagbibigay-daan sa kasalukuyang admin na i-update ang awtoridad ng admin ng programa
 
-Take a look at these three instructions in the `lib.rs` file. The last instruction should only be callable by the account matching the `admin` field on the admin account initialized using the `initialize_admin` instruction.
+Tingnan ang tatlong tagubiling ito sa `lib.rs` file. Ang huling tagubilin ay dapat lang na matatawag ng account na tumutugma sa field ng `admin` sa admin account na sinimulan gamit ang tagubiling `initialize_admin`.
 
-### 2. Test insecure `update_admin` instruction
+### 2. Subukan ang hindi secure na `update_admin` na pagtuturo
 
-However, both accounts have the same fields and field types:
+Gayunpaman, ang parehong mga account ay may parehong mga field at uri ng field:
 
 ```rust
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -237,11 +237,11 @@ pub struct User {
 }
 ```
 
-Because of this, it's possible to pass in a `User` account in place of the `admin` account in the `update_admin` instruction, thereby bypassing the requirement that one be an admin to call this instruction.
+Dahil dito, posibleng ipasa ang isang `User` na account sa halip na ang `admin` na account sa tagubiling `update_admin`, sa gayon ay nilalampasan ang pangangailangan na ang isa ay maging isang admin upang tawagan ang tagubiling ito.
 
-Take a look at the `solana-type-cosplay.ts` file in the `tests` directory. It contains some basic setup and two tests. One test initializes a user account, and the other invokes `update_admin` and passes in the user account in place of an admin account.
+Tingnan ang `solana-type-cosplay.ts` file sa direktoryo ng `tests`. Naglalaman ito ng ilang pangunahing pag-setup at dalawang pagsubok. Ang isang pagsubok ay nagpapasimula ng isang user account, at ang isa ay humihiling ng `update_admin` at pumasa sa user account sa halip ng isang admin account.
 
-Run `anchor test` to see that invoking `update_admin` will complete successfully.
+Patakbuhin ang `anchor test` upang makita na ang pag-invoke ng `update_admin` ay matagumpay na makukumpleto.
 
 ```bash
   type-cosplay
@@ -249,13 +249,13 @@ Run `anchor test` to see that invoking `update_admin` will complete successfully
     ✔ Invoke update admin instruction with user account (487ms)
 ```
 
-### 3. Create `type-checked` program
+### 3. Lumikha ng programang `type-checked`
 
-Now we'll create a new program called `type-checked` by running `anchor new type-checked` from the root of the existing anchor program.
+Ngayon ay gagawa kami ng bagong program na tinatawag na `type-checked` sa pamamagitan ng pagpapatakbo ng `anchor new type-checked` mula sa root ng kasalukuyang anchor program.
 
-Now in your `programs` folder you will have two programs. Run `anchor keys list` and you should see the program ID for the new program. Add it to the `lib.rs` file of the `type-checked` program and to the `type_checked` program in the `Anchor.toml` file.
+Ngayon sa iyong `programs` folder magkakaroon ka ng dalawang program. Patakbuhin ang `listahan ng mga anchor key` at dapat mong makita ang program ID para sa bagong program. Idagdag ito sa `lib.rs` file ng `type-checked` program at sa `type_checked` program sa `Anchor.toml` file.
 
-Next, update the test file's setup to include the new program and two new keypairs for the accounts we'll be initializing for the new program.
+Susunod, i-update ang setup ng test file para isama ang bagong program at dalawang bagong keypair para sa mga account na sisimulan namin para sa bagong program.
 
 ```tsx
 import * as anchor from "@project-serum/anchor"
@@ -279,11 +279,11 @@ describe("type-cosplay", () => {
 })
 ```
 
-### 4. Implement the `type-checked` program
+### 4. Ipatupad ang programang `type-checked`
 
-In the `type_checked` program, add two instructions using the `init` constraint to initialize an `AdminConfig` account and a `User` account. When using the `init` constraint to initialize new program accounts, Anchor will automatically set the first 8 bytes of account data as a unique discriminator for the account type.
+Sa programang `type_checked`, magdagdag ng dalawang tagubilin gamit ang `init` constraint upang simulan ang isang `AdminConfig` account at isang `User` account. Kapag ginagamit ang hadlang na `init` upang simulan ang mga bagong account ng program, awtomatikong itatakda ng Anchor ang unang 8 byte ng data ng account bilang isang natatanging discriminator para sa uri ng account.
 
-We’ll also add an `update_admin` instruction that validates the `admin_config` account as a `AdminConfig` account type using Anchor’s `Account` wrapper. For any account passed in as the `admin_config` account, Anchor will automatically check that the account discriminator matches the expected account type.
+Magdaragdag din kami ng tagubiling `update_admin` na nagpapatunay sa `admin_config` account bilang isang uri ng account na `AdminConfig` gamit ang `Account` wrapper ng Anchor. Para sa anumang account na ipinasa bilang `admin_config` account, awtomatikong susuriin ng Anchor na tumutugma ang discriminator ng account sa inaasahang uri ng account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -359,9 +359,9 @@ pub struct User {
 }
 ```
 
-### 5. Test secure `update_admin` instruction
+### 5. Subukan ang secure na `update_admin` na pagtuturo
 
-In the test file, we’ll initialize an `AdminConfig` account and a `User` account from the `type_checked` program. Then we’ll invoke the `updateAdmin` instruction twice passing in the newly created accounts.
+Sa test file, magsisimula kami ng `AdminConfig` account at isang `User` account mula sa `type_checked` program. Pagkatapos ay gagamitin namin ang tagubiling `updateAdmin` nang dalawang beses na ipinapasa sa mga bagong likhang account.
 
 ```rust
 describe("type-cosplay", () => {
@@ -417,7 +417,7 @@ describe("type-cosplay", () => {
 })
 ```
 
-Run `anchor test`. For the transaction where we pass in the `User` account type, we expect the instruction and return an Anchor Error for the account not being of type `AdminConfig`.
+Patakbuhin ang `anchor test`. Para sa transaksyon kung saan pumasa kami sa uri ng account na `User`, inaasahan namin ang pagtuturo at magbabalik ng Anchor Error para sa account na hindi uri ng `AdminConfig`.
 
 ```bash
 'Program EU66XDppFCf2Bg7QQr59nyykj9ejWaoW93TSkk1ufXh3 invoke [1]',
@@ -427,14 +427,14 @@ Run `anchor test`. For the transaction where we pass in the `User` account type,
 'Program EU66XDppFCf2Bg7QQr59nyykj9ejWaoW93TSkk1ufXh3 failed: custom program error: 0xbba'
 ```
 
-Following Anchor best practices and using Anchor types will ensure that your programs avoid this vulnerability. Always use the `#[account]` attribute when creating account structs, use the `init` constraint when initializing accounts, and use the `Account` type in your account validation structs.
+Ang pagsunod sa pinakamahuhusay na kagawian ng Anchor at paggamit ng mga uri ng Anchor ay titiyakin na maiiwasan ng iyong mga programa ang kahinaang ito. Palaging gamitin ang attribute na `#[account]` kapag gumagawa ng mga struct ng account, gamitin ang constraint na `init` kapag nagpapasimula ng mga account, at gamitin ang uri ng `Account` sa mga struct ng pagpapatunay ng iyong account.
 
-If you want to take a look at the final solution code you can find it on the `solution` branch of [the repository](https://github.com/Unboxed-Software/solana-type-cosplay/tree/solution).
+Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa `solution` branch ng [repository](https://github.com/Unboxed-Software/solana-type-cosplay/tree/solution) .
 
-# Challenge
+# Hamon
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Tulad ng iba pang mga aralin sa modyul na ito, ang iyong pagkakataon na magsanay sa pag-iwas sa pagsasamantala sa seguridad na ito ay nakasalalay sa pag-audit ng iyong sarili o iba pang mga programa.
 
-Take some time to review at least one program and ensure that account types have a discriminator and that those are checked for each account and instruction. Since standard Anchor types handle this check automatically, you're more likely to find a vulnerability in a native program.
+Maglaan ng ilang oras upang suriin ang hindi bababa sa isang programa at tiyaking may discriminator ang mga uri ng account at ang mga iyon ay sinusuri para sa bawat account at pagtuturo. Dahil awtomatikong pinangangasiwaan ng mga karaniwang uri ng Anchor ang pagsusuring ito, mas malamang na makakita ka ng kahinaan sa isang native na programa.
 
-Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+Tandaan, kung makakita ka ng bug o pagsasamantala sa programa ng ibang tao, mangyaring alertuhan sila! Kung makakita ka ng isa sa iyong sariling programa, siguraduhing i-patch ito kaagad.

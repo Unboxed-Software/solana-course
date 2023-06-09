@@ -11,45 +11,45 @@ objectives:
 
 # TL;DR
 
-- **Thinking like an attacker** means asking "How do I break this?"
-- Perform **owner checks** to ensure that the provided account is owned by the public key you expect, e.g. ensuring that an account you expect to be a PDA is owned by `program_id`
-- Perform **signer checks** to ensure that any account modification has been signed by the right party or parties
-- **Account validation** entails ensuring that provided accounts are the accounts you expect them to be, e.g. deriving PDAs with the expected seeds to make sure the address matches the provided account
-- **Data validation** entails ensuring that any provided data meets the criteria required by the program
+- **Ang pag-iisip na parang attacker** ay nangangahulugan ng pagtatanong ng "Paano ko ito masisira?"
+- Magsagawa ng **pagsusuri ng may-ari** upang matiyak na ang ibinigay na account ay pagmamay-ari ng pampublikong key na iyong inaasahan, hal. pagtiyak na ang isang account na inaasahan mong maging isang PDA ay pagmamay-ari ng `program_id`
+- Magsagawa ng **signer checks** upang matiyak na ang anumang pagbabago sa account ay nilagdaan ng tamang partido o mga partido
+- **Pagpapatunay ng account** ay nangangailangan ng pagtiyak na ang mga ibinigay na account ay ang mga account na inaasahan mong magiging mga ito, hal. pagkuha ng mga PDA na may inaasahang mga binhi upang matiyak na ang address ay tumutugma sa ibinigay na account
+- **Pagpapatunay ng data** ay nangangailangan ng pagtiyak na ang anumang ibinigay na data ay nakakatugon sa mga pamantayang kinakailangan ng programa
 
-# Overview
+# Pangkalahatang-ideya
 
-In the last two lessons we worked through building a Movie Review program together. The end result is pretty cool! It's exciting to get something working in a new development environment.
+Sa huling dalawang aralin, pinagsikapan namin ang pagbuo ng programa sa Pagsusuri ng Pelikula. Ang resulta ay medyo cool! Nakakatuwang makakuha ng isang bagay na gumagana sa isang bagong kapaligiran sa pag-unlad.
 
-Proper program development, however, doesn't end at "get it working." It's important to think through the possible failure points in your code in order to mitigate them. Failure points are where undesirable behavior in your code could potentially occur. Whether the undesirable behavior happens due to users interacting with your program in unexpected ways or bad actors intentionally trying to exploit your program, anticipating failure points is essential to secure program development.
+Ang wastong pagbuo ng programa, gayunpaman, ay hindi nagtatapos sa "get it working." Mahalagang pag-isipan ang mga posibleng punto ng pagkabigo sa iyong code upang mapagaan ang mga ito. Ang mga punto ng pagkabigo ay kung saan posibleng mangyari ang hindi kanais-nais na pag-uugali sa iyong code. Mangyayari man ang hindi kanais-nais na pag-uugali dahil sa mga user na nakikipag-ugnayan sa iyong programa sa hindi inaasahang paraan o sinasadya ng mga masasamang aktor na samantalahin ang iyong programa, ang pag-asa sa mga punto ng pagkabigo ay mahalaga upang ma-secure ang pagbuo ng programa.
 
-Remember, **you have no control over the transactions that will be sent to your program once it’s deployed**. You can only control how your program handles them. While this lesson is far from a comprehensive overview of program security, we'll cover some of the basic pitfalls to look out for.
+Tandaan, **wala kang kontrol sa mga transaksyong ipapadala sa iyong programa kapag na-deploy na ito**. Maaari mo lamang kontrolin kung paano pinangangasiwaan ng iyong programa ang mga ito. Bagama't malayo ang araling ito sa isang komprehensibong pangkalahatang-ideya ng seguridad ng programa, tatalakayin namin ang ilan sa mga pangunahing pitfalls na dapat abangan.
 
-## Think like an attacker
+## Mag-isip tulad ng isang umaatake
 
-[Neodyme](https://workshop.neodyme.io/) gave a presentation at Breakpoint 2021 entitled "Think Like An Attacker: Bringing Smart Contracts to Their Break(ing) Point." If there's one thing you take away from this lesson, it's that you should think like an attacker.
+Nagbigay ng presentation si [Neodyme](https://workshop.neodyme.io/) sa Breakpoint 2021 na pinamagatang "Think Like An Attacker: Bringing Smart Contracts to Their Break(ing) Point." Kung mayroong isang bagay na aalisin mo sa araling ito, ito ay ang dapat mong isipin na parang isang umaatake.
 
-In this lesson, of course, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program will have different security risks associated with it. While understanding common pitfalls is *essential* to engineering good programs, it is *insufficient* for deploying secure ones. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
+Sa araling ito, siyempre, hindi namin maaaring saklawin ang lahat ng posibleng magkamali sa iyong mga programa. Sa huli, ang bawat programa ay magkakaroon ng iba't ibang panganib sa seguridad na nauugnay dito. Habang ang pag-unawa sa mga karaniwang pitfall ay *mahahalaga* sa pag-engineer ng magagandang programa, ito ay *hindi sapat* para sa pag-deploy ng mga secure na programa. Upang magkaroon ng pinakamalawak na saklaw ng seguridad na posible, kailangan mong lapitan ang iyong code nang may tamang pag-iisip.
 
-As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do.
+Tulad ng nabanggit ni Neodyme sa kanilang presentasyon, ang tamang pag-iisip ay nangangailangan ng paglipat mula sa tanong na "Nasira ba ito?" sa "Paano ko ito masisira?" Ito ang una at pinakamahalagang hakbang sa pag-unawa kung ano ang *aktwal na ginagawa ng iyong code kumpara sa kung ano ang iyong isinulat na dapat gawin.
 
-### All programs can be broken
+### Lahat ng mga programa ay maaaring masira
 
-It's not a question of "if."
+Ito ay hindi isang tanong ng "kung."
 
-Rather, it's a question of "how much effort and dedication would it take."
+Sa halip, ito ay isang tanong ng "kung gaano karaming pagsisikap at dedikasyon ang kakailanganin."
 
-Our job as developers is to close as many holes as possible and increase the effort and dedication required to break our code. For example, in the Movie Review program we built together over the last two lessons, we wrote code to create new accounts to store movie reviews. If we take a closer look at the code, however, we'll notice how the program also facilitates a lot of unintentional behavior we could easily catch by asking "How do I break this?" We'll dig into some of these problems and how to fix them in this lesson, but remember that memorizing a few pitfalls isn't sufficient. It's up to you to change your mindset toward security.
+Ang aming trabaho bilang mga developer ay magsara ng maraming butas hangga't maaari at dagdagan ang pagsisikap at dedikasyon na kinakailangan upang masira ang aming code. Halimbawa, sa programang Pagsusuri ng Pelikula na binuo namin nang magkasama sa huling dalawang aralin, nagsulat kami ng code para gumawa ng mga bagong account para mag-imbak ng mga review ng pelikula. Kung susuriin natin ang code, gayunpaman, mapapansin natin kung paano pinapadali din ng programa ang maraming hindi sinasadyang pag-uugali na madali nating mahuli sa pamamagitan ng pagtatanong ng "Paano ko ito masisira?" Susuriin natin ang ilan sa mga problemang ito at kung paano ayusin ang mga ito sa araling ito, ngunit tandaan na hindi sapat ang pagsasaulo ng ilang mga pitfalls. Nasa sa iyo na baguhin ang iyong mindset patungo sa seguridad.
 
-## Error handling
+## Maling paghawak
 
-Before we dive into some of the common security pitfalls and how to avoid them, it's important to know how to use errors in your program. While your code can handle some issues gracefully, other issues will require that your program stop execution and return a program error.
+Bago tayo sumisid sa ilan sa mga karaniwang pitfalls sa seguridad at kung paano maiiwasan ang mga ito, mahalagang malaman kung paano gumamit ng mga error sa iyong program. Habang ang iyong code ay maaaring pangasiwaan ang ilang mga isyu nang maganda, ang iba pang mga isyu ay mangangailangan na ang iyong programa ay huminto sa pagpapatupad at magbalik ng isang error sa programa.
 
-### How to create errors
+### Paano gumawa ng mga error
 
-While the `solana_program` crate provides a `ProgramError` enum with a list of generic errors we can use, it will often be useful to create your own. Your custom errors will be able to provide more context and detail while you're debugging your code.
+Habang ang `solana_program` crate ay nagbibigay ng `ProgramError` na enum na may listahan ng mga generic na error na magagamit namin, kadalasan ay magiging kapaki-pakinabang na gumawa ng sarili mong error. Ang iyong mga custom na error ay makakapagbigay ng higit pang konteksto at detalye habang nagde-debug ka sa iyong code.
 
-We can define our own errors by creating an enum type listing the errors we want to use. For example, the `NoteError` contains variants `Forbidden` and `InvalidLength`. The enum is made into a Rust `Error` type by using the `derive` attribute macro to implement the `Error` trait from the `thiserror` library. Each error type also has its own `#[error("...")]` notation. This lets you provide an error message for each particular error type.
+Maaari nating tukuyin ang sarili nating mga error sa pamamagitan ng paggawa ng uri ng enum na naglilista ng mga error na gusto nating gamitin. Halimbawa, ang `NoteError` ay naglalaman ng mga variant na `Forbidden` at `InvalidLength`. Ang enum ay ginawang Rust `Error` na uri sa pamamagitan ng paggamit ng `derive` attribute macro para ipatupad ang `Error` na katangian mula sa `thiserror` na library. Ang bawat uri ng error ay mayroon ding sariling `#[error("...")]` notation. Hinahayaan ka nitong magbigay ng mensahe ng error para sa bawat partikular na uri ng error.
 
 ```rust
 use solana_program::{program_error::ProgramError};
@@ -65,9 +65,9 @@ pub enum NoteError {
 }
 ```
 
-### How to return errors
+### Paano ibalik ang mga error
 
-The compiler expects errors returned by the program to be of type `ProgramError` from the `solana_program` crate. That means we won't be able to return our custom error unless we have a way to convert it into this type. The following implementation handles conversion between our custom error and the `ProgramError` type.
+Inaasahan ng compiler na ang mga error na ibinalik ng program ay may uri ng `ProgramError` mula sa `solana_program` crate. Nangangahulugan iyon na hindi namin maibabalik ang aming custom na error maliban kung mayroon kaming paraan upang i-convert ito sa ganitong uri. Ang sumusunod na pagpapatupad ay humahawak ng conversion sa pagitan ng aming custom na error at ang uri ng `ProgramError`.
 
 ```rust
 impl From<NoteError> for ProgramError {
@@ -77,7 +77,7 @@ impl From<NoteError> for ProgramError {
 }
 ```
 
-To return the custom error from the program, simply use the `into()` method to convert the error into an instance of `ProgramError`.
+Upang ibalik ang custom na error mula sa program, gamitin lang ang `into()` na paraan upang i-convert ang error sa isang instance ng `ProgramError`.
 
 ```rust
 if pda != *note_pda.key {
@@ -85,22 +85,22 @@ if pda != *note_pda.key {
 }
 ```
 
-## Basic security checks
+## Mga pangunahing pagsusuri sa seguridad
 
-While these won't comprehensively secure your program, there are a few security checks you can keep in mind to fill in some of the larger gaps in your code:
+Bagama't hindi komprehensibong mase-secure ng mga ito ang iyong programa, may ilang mga pagsusuri sa seguridad na maaari mong tandaan upang punan ang ilan sa mas malalaking gaps sa iyong code:
 
-- Ownership checks - used to verify that an account is owned by the program
-- Signer checks - used to verify that an account has signed a transaction
-- General Account Validation - used to verify that an account is the expected account
-- Data Validation - used to verify the inputs provided by a user
+- Pagsusuri sa pagmamay-ari - ginagamit upang i-verify na ang isang account ay pagmamay-ari ng programa
+- Mga tseke ng lumagda - ginagamit upang i-verify na ang isang account ay lumagda sa isang transaksyon
+- Pangkalahatang Pagpapatunay ng Account - ginagamit upang i-verify na ang isang account ay ang inaasahang account
+- Data Validation - ginagamit upang i-verify ang mga input na ibinigay ng isang user
 
-### Ownership checks
+### Mga pagsusuri sa pagmamay-ari
 
-An ownership check verifies that an account is owned by the expected public key. Let's use the note-taking app example that we've referenced in previous lessons. In this app, users can create, update, and delete notes that are stored by the program in PDA accounts.
+Ang pagsusuri sa pagmamay-ari ay nagpapatunay na ang isang account ay pagmamay-ari ng inaasahang pampublikong susi. Gamitin natin ang halimbawa ng note-taking app na na-reference natin sa mga nakaraang aralin. Sa app na ito, ang mga user ay maaaring gumawa, mag-update, at magtanggal ng mga tala na iniimbak ng program sa mga PDA account.
 
-When a user invokes the `update` instruction, they also provide a `pda_account`. We presume the provided `pda_account` is for the particular note they want to update, but the user can input any instruction data they want. They could even potentially send data which matches the data format of a note account but was not also created by the note-taking program. This security vulnerability is one potential way to introduce malicious code.
+Kapag tinawag ng user ang tagubiling `update`, nagbibigay din sila ng `pda_account`. Ipinapalagay namin na ang ibinigay na `pda_account` ay para sa partikular na tala na gusto nilang i-update, ngunit maaaring magpasok ang user ng anumang data ng pagtuturo na gusto nila. Maaari pa nga silang magpadala ng data na tumutugma sa format ng data ng isang note account ngunit hindi rin ginawa ng programa ng note-taking. Ang kahinaan sa seguridad na ito ay isang potensyal na paraan upang ipakilala ang malisyosong code.
 
-The simplest way to avoid this problem is to always check that the owner of an account is the public key you expect it to be. In this case, we expect the note account to be a PDA account owned by the program itself. When this is not the case, we can report it as an error accordingly.
+Ang pinakasimpleng paraan upang maiwasan ang problemang ito ay palaging suriin kung ang may-ari ng isang account ay ang pampublikong susi na inaasahan mong magiging ito. Sa kasong ito, inaasahan namin na ang note account ay isang PDA account na pagmamay-ari ng mismong programa. Kapag hindi ito ang kaso, maaari naming iulat ito bilang isang error nang naaayon.
 
 ```rust
 if note_pda.owner != program_id {
@@ -108,11 +108,11 @@ if note_pda.owner != program_id {
 }
 ```
 
-As a side note, using PDAs whenever possible is more secure than trusting externally-owned accounts, even if they are owned by the transaction signer. The only accounts that the program has complete control over are PDA accounts, making them the most secure.
+Bilang isang side note, ang paggamit ng mga PDA hangga't maaari ay mas secure kaysa sa pagtitiwala sa mga account na pag-aari sa labas, kahit na pag-aari ang mga ito ng lumagda sa transaksyon. Ang tanging mga account na ganap na kontrolado ng programa ay ang mga PDA account, na ginagawa itong pinaka-secure.
 
-### Signer checks
+### Pagsusuri ng lumagda
 
-A signer check simply verifies that the right parties have signed a transaction. In the note-taking app, for example, we would want to verify that the note creator signed the transaction before we process the `update` instruction. Otherwise, anyone can update another user's notes by simply passing in the user's public key as the initializer.
+Ang isang signer check ay nagpapatunay lamang na ang mga tamang partido ay lumagda sa isang transaksyon. Sa note-taking app, halimbawa, gusto naming i-verify na nilagdaan ng tagalikha ng tala ang transaksyon bago namin iproseso ang tagubiling `update`. Kung hindi, maaaring i-update ng sinuman ang mga tala ng isa pang user sa pamamagitan lamang ng pagpasa sa pampublikong key ng user bilang initializer.
 
 ```rust
 if !initializer.is_signer {
@@ -121,11 +121,11 @@ if !initializer.is_signer {
 }
 ```
 
-### General account validation
+### Pangkalahatang pagpapatunay ng account
 
-In addition to checking the signers and owners of accounts, it's important to ensure that the provided accounts are what your code expects them to be. For example, you would want to validate that a provided PDA account's address can be derived with the expected seeds. This ensures that it is the account you expect it to be.
+Bilang karagdagan sa pagsusuri sa mga lumagda at may-ari ng mga account, mahalagang tiyakin na ang mga ibinigay na account ay kung ano ang inaasahan ng iyong code sa kanila. Halimbawa, nais mong patunayan na ang isang ibinigay na address ng PDA account ay maaaring makuha kasama ng mga inaasahang binhi. Tinitiyak nito na ito ang account na iyong inaasahan.
 
-In the note-taking app example, that would mean ensuring that you can derive a matching PDA using the note creator's public key and the ID as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
+Sa halimbawa ng note-taking app, nangangahulugan iyon ng pagtiyak na makakakuha ka ng tumutugmang PDA gamit ang pampublikong key ng gumawa ng tala at ang ID bilang mga buto (iyon ang ipinapalagay naming ginamit noong ginagawa ang tala). Sa ganoong paraan ang isang user ay hindi maaaring aksidenteng makapasa sa isang PDA account para sa maling tala o, higit sa lahat, na ang user ay hindi pumasa sa isang PDA account na kumakatawan sa tala ng ibang tao nang buo.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
@@ -136,11 +136,11 @@ if pda != *note_pda.key {
 }
 ```
 
-## Data validation
+## Pagpapatunay ng data
 
-Similar to validating accounts, you should also validate any data provided by the client.
+Katulad ng pagpapatunay ng mga account, dapat mo ring i-validate ang anumang data na ibinigay ng kliyente.
 
-For example, you may have a game program where a user can allocate character attribute points to various categories. You may have a maximum limit in each category of 100, in which case you would want to verify that the existing allocation of points plus the new allocation doesn't exceed the maximum.
+Halimbawa, maaari kang magkaroon ng program ng laro kung saan maaaring maglaan ang isang user ng mga puntos ng katangian ng character sa iba't ibang kategorya. Maaari kang magkaroon ng maximum na limitasyon sa bawat kategorya na 100, kung saan gugustuhin mong i-verify na ang umiiral na alokasyon ng mga puntos at ang bagong alokasyon ay hindi lalampas sa maximum.
 
 ```rust
 if character.agility + new_agility > 100 {
@@ -149,7 +149,7 @@ if character.agility + new_agility > 100 {
 }
 ```
 
-Or, the character may have an allowance of attribute points they can allocate and you want to make sure they don't exceed that allowance.
+O, ang karakter ay maaaring may allowance ng mga attribute point na maaari niyang ilaan at gusto mong tiyakin na hindi sila lalampas sa allowance na iyon.
 
 ```rust
 if attribute_allowance < new_agility {
@@ -158,20 +158,20 @@ if attribute_allowance < new_agility {
 }
 ```
 
-Without these checks, program behavior would differ from what you expect. In some cases, however, it's more than just an issue of undefined behavior. Sometimes failure to validate data can result in security loopholes that are financially devastating.
+Kung wala ang mga pagsusuring ito, mag-iiba ang gawi ng programa sa iyong inaasahan. Sa ilang mga kaso, gayunpaman, ito ay higit pa sa isang isyu ng hindi natukoy na pag-uugali. Minsan ang hindi pag-validate ng data ay maaaring magresulta sa mga butas sa seguridad na nakakasira sa pananalapi.
 
-For example, imagine that the character referenced in these examples is an NFT. Further, imagine that the program allows the NFT to be staked to earn token rewards proportional to the NFTs number of attribute points. Failure to implement these data validation checks would allow a bad actor to assign an obscenely high number of attribute points and quickly drain your treasury of all the rewards that were meant to be spread more evenly amongst a larger pool of stakers.
+Halimbawa, isipin na ang karakter na tinutukoy sa mga halimbawang ito ay isang NFT. Dagdag pa, isipin na ang programa ay nagpapahintulot sa NFT na ma-stake upang makakuha ng mga gantimpala ng token na proporsyonal sa bilang ng mga puntos ng katangian ng NFT. Ang pagkabigong ipatupad ang mga pagsusuri sa pagpapatunay ng data na ito ay magbibigay-daan sa isang masamang aktor na magtalaga ng isang malaswang mataas na bilang ng mga puntos ng katangian at mabilis na maubos ang iyong treasury ng lahat ng mga gantimpala na sinadya upang maikalat nang mas pantay-pantay sa mas malaking grupo ng mga staker.
 
-### Integer overflow and underflow
+### Integer overflow at underflow
 
-Rust integers have fixed sizes. This means they can only support a specific range of numbers. An arithmetic operation that results in a higher or lower value than what is supported by the range will cause the resulting value to wrap around. For example, a `u8` only supports numbers 0-255, so the result of addition that would be 256 would actually be 0, 257 would be 1, etc.
+Ang mga kalawang integer ay may mga nakapirming laki. Nangangahulugan ito na maaari lamang nilang suportahan ang isang partikular na hanay ng mga numero. Ang isang aritmetika na operasyon na nagreresulta sa isang mas mataas o mas mababang halaga kaysa sa kung ano ang sinusuportahan ng hanay ay magiging sanhi ng magreresultang halaga upang balutin. Halimbawa, ang `u8` ay sumusuporta lamang sa mga numerong 0-255, kaya ang resulta ng pagdaragdag na magiging 256 ay magiging 0, 257 ay magiging 1, atbp.
 
-This is always important to keep in mind, but especially so when dealing with any code that represents true value, such as depositing and withdrawing tokens.
+Ito ay palaging mahalaga na tandaan, ngunit lalo na kapag nakikitungo sa anumang code na kumakatawan sa tunay na halaga, tulad ng pagdedeposito at pag-withdraw ng mga token.
 
-To avoid integer overflow and underflow, either:
+Upang maiwasan ang integer overflow at underflow, alinman sa:
 
-1. Have logic in place that ensures overflow or underflow *cannot* happen or
-2. Use checked math like `checked_add` instead of `+`
+1. Magkaroon ng lohika sa lugar na nagsisigurong overflow o underflow *hindi* maaaring mangyari o
+2. Gumamit ng may check na math tulad ng `checked_add` sa halip na `+`
     ```rust
     let first_int: u8 = 5;
     let second_int: u8 = 255;
@@ -180,46 +180,46 @@ To avoid integer overflow and underflow, either:
 
 # Demo
 
-Let’s practice together with the Movie Review program we've worked on in previous lessons. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way.
+Magsanay tayo kasama ang programa ng Pagsusuri ng Pelikula na ginawa natin sa mga nakaraang aralin. Huwag mag-alala kung papasok ka lang sa araling ito nang hindi mo nagawa ang nakaraang aralin - dapat ay posible na sumunod sa alinmang paraan.
 
-As a refresher, the Movie Review program lets users store movie reviews in PDA accounts. Last lesson, we finished implementing the basic functionality of adding a movie review. Now, we'll add some security checks to the functionality we've already created and add the ability to update a movie review in a secure manner.
+Bilang pag-refresh, hinahayaan ng programang Pagsusuri ng Pelikula ang mga user na mag-imbak ng mga review ng pelikula sa mga PDA account. Noong nakaraang aralin, natapos namin ang pagpapatupad ng pangunahing pagpapaandar ng pagdaragdag ng pagsusuri sa pelikula. Ngayon, magdaragdag kami ng ilang pagsusuri sa seguridad sa functionality na nagawa na namin at idaragdag ang kakayahang mag-update ng review ng pelikula sa isang secure na paraan.
 
-Just as before, we'll be using [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code.
+Gaya ng dati, gagamitin namin ang [Solana Playground](https://beta.solpg.io/) upang isulat, buuin, at i-deploy ang aming code.
 
-## 1. Get the starter code
+## 1. Kunin ang starter code
 
-To begin, you can find the starter code [here](https://beta.solpg.io/62b552f3f6273245aca4f5c9). If you've been following along with the Movie Review demos, you'll notice that we've refactored our program.
+Upang magsimula, mahahanap mo ang starter code [dito](https://beta.solpg.io/62b552f3f6273245aca4f5c9). Kung sinusundan mo ang mga demo ng Pagsusuri ng Pelikula, mapapansin mo na ni-refactor namin ang aming programa.
 
-The refactored starter code is almost the same as what it was before. Since `lib.rs` was getting rather large and unwieldy, we've separated its code into 3 files: `lib.rs`, `entrypoint.rs`, and `processor.rs`. `lib.rs` now *only* registers the code's modules, `entrypoint.rs` *only* defines and sets the program's entrypoint, and `processor.rs` handles the program logic for processing instructions. We've also added an `error.rs` file where we'll be defining custom errors. The complete file structure is as follows:
+Ang refactored starter code ay halos kapareho ng dati. Dahil ang `lib.rs` ay nagiging medyo malaki at mahirap gamitin, pinaghiwalay namin ang code nito sa 3 file: `lib.rs`, `entrypoint.rs`, at `processor.rs`. Ang `lib.rs` ngayon *lamang* ay nagrerehistro ng mga module ng code, ang `entrypoint.rs` *lamang* ay tumutukoy at nagtatakda ng entrypoint ng program, at ang `processor.rs` ay pinangangasiwaan ang logic ng program para sa mga tagubilin sa pagproseso. Nagdagdag din kami ng `error.rs` file kung saan tutukuyin namin ang mga custom na error. Ang kumpletong istraktura ng file ay ang mga sumusunod:
 
-- **lib.rs** - register modules
-- **entrypoint.rs -** entry point to the program
-- **instruction.rs -** serialize and deserialize instruction data
-- **processor.rs -** program logic to process instructions
-- **state.rs -** serialize and deserialize state
-- **error.rs -** custom program errors
+- **lib.rs** - magrehistro ng mga module
+- **entrypoint.rs -** entry point sa programa
+- **instruction.rs -** i-serialize at deserialize ang data ng pagtuturo
+- **processor.rs -** logic ng programa upang iproseso ang mga tagubilin
+- **state.rs -** serialize at deserialize state
+- **error.rs -** custom na mga error sa program
 
-In addition to some changes to file structure, we've updated a small amount of code that will let this demo be more focused on security without having you write unnecessary boiler plate.
+Bilang karagdagan sa ilang mga pagbabago sa istraktura ng file, nag-update kami ng isang maliit na halaga ng code na hahayaan ang demo na ito na mas nakatuon sa seguridad nang hindi ka nagsusulat ng hindi kinakailangang boiler plate.
 
-Since we'll be allowing updates to movie reviews, we also changed `account_len` in the `add_movie_review` function (now in `processor.rs`). Instead of calculating the size of the review and setting the account length to only as large as it needs to be, we're simply going to allocate 1000 bytes to each review account. This way, we don’t have to worry about reallocating size or re-calculating rent when a user updates their movie review.
+Dahil papayagan namin ang mga update sa mga review ng pelikula, binago rin namin ang `account_len` sa function na `add_movie_review` (ngayon ay nasa `processor.rs`). Sa halip na kalkulahin ang laki ng review at itakda ang haba ng account sa kasing laki lang ng kailangan, maglalaan lang kami ng 1000 byte sa bawat review account. Sa ganitong paraan, hindi namin kailangang mag-alala tungkol sa muling pagtatalaga ng laki o muling pagkalkula ng renta kapag na-update ng isang user ang kanilang pagsusuri sa pelikula.
 
-We went from this:
+Nagpunta kami mula dito:
 ```rust
 let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 ```
 
-To this:
+Sa ganito:
 ```rust
 let account_len: usize = 1000;
 ```
 
-The [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) method was just recently enabled by Solana Labs which allows you to dynamically change the size of your accounts. We will not be using this method for this demo, but it’s something to be aware of.
+Ang [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) na pamamaraan ay kamakailan lamang pinagana ng Solana Labs na nagbibigay-daan sa iyong dynamic na baguhin ang laki ng iyong mga account. Hindi namin gagamitin ang paraang ito para sa demo na ito, ngunit ito ay isang bagay na dapat malaman.
 
-Finally, we've also implemented some additional functionality for our `MovieAccountState` struct in `state.rs` using the `impl` keyword.
+Sa wakas, nagpatupad din kami ng ilang karagdagang functionality para sa aming `MovieAccountState` struct sa `state.rs` gamit ang `impl` na keyword.
 
-For our movie reviews, we want the ability to check whether an account has already been initialized. To do this, we create an `is_initialized` function that checks the `is_initialized` field on the `MovieAccountState` struct.
+Para sa aming mga pagsusuri sa pelikula, gusto namin ang kakayahang suriin kung nasimulan na ang isang account. Para magawa ito, gagawa kami ng function na `is_initialized` na sumusuri sa field na `is_initialized` sa struct ng `MovieAccountState`.
 
-`Sealed` is Solana's version of Rust's `Sized` trait. This simply specifies that `MovieAccountState` has a known size and provides for some compiler optimizations.
+Ang `Sealed` ay ang bersyon ni Solana ng `Sized` na katangian ni Rust. Tinutukoy lang nito na ang `MovieAccountState` ay may alam na laki at nagbibigay ito ng ilang pag-optimize ng compiler.
 
 ```rust
 // inside state.rs
@@ -232,18 +232,18 @@ impl IsInitialized for MovieAccountState {
 }
 ```
 
-Before moving on, make sure you have a solid grasp on the current state of the program. Look through the code and spend some time thinking through any spots that are confusing to you. It may be helpful to compare the starter code to the [solution code from the previous lesson](https://beta.solpg.io/62b23597f6273245aca4f5b4).
+Bago magpatuloy, tiyaking mayroon kang matatag na kaalaman sa kasalukuyang estado ng programa. Tingnan ang code at gumugol ng ilang oras sa pag-iisip sa anumang mga lugar na nakakalito sa iyo. Maaaring makatulong na ihambing ang starter code sa [code ng solusyon mula sa nakaraang aralin](https://beta.solpg.io/62b23597f6273245aca4f5b4).
 
-## 2. Custom Errors
+## 2. Mga Custom na Error
 
-Let's begin by writing our custom program errors. We'll need errors that we can use in the following situations:
+Magsimula tayo sa pagsulat ng aming mga custom na error sa programa. Kakailanganin namin ang mga error na magagamit namin sa mga sumusunod na sitwasyon:
 
-- The update instruction has been invoked on an account that hasn't been initialized yet
-- The provided PDA doesn't match the expected or derived PDA
-- The input data is larger than the program allows
-- The rating provided does not fall in the 1-5 range
+- Ang tagubilin sa pag-update ay na-invoke sa isang account na hindi pa nasisimulan
+- Ang ibinigay na PDA ay hindi tumutugma sa inaasahan o nagmula na PDA
+- Ang input data ay mas malaki kaysa sa pinapayagan ng programa
+- Ang ibinigay na rating ay hindi nahuhulog sa hanay na 1-5
 
-The starter code includes an empty `error.rs` file. Open that file and add errors for each of the above cases.
+Ang starter code ay may kasamang walang laman na `error.rs` file. Buksan ang file na iyon at magdagdag ng mga error para sa bawat isa sa mga kaso sa itaas.
 
 ```rust
 // inside error.rs
@@ -273,22 +273,22 @@ impl From<ReviewError> for ProgramError {
 }
 ```
 
-Note that in addition to adding the error cases, we also added the implementation that lets us convert our error into a `ProgramError` type as needed.
+Tandaan na bilang karagdagan sa pagdaragdag ng mga kaso ng error, idinagdag din namin ang pagpapatupad na nagbibigay-daan sa amin na i-convert ang aming error sa isang uri ng `ProgramError` kung kinakailangan.
 
-Before moving on, let’s bring `ReviewError` into scope in the `processor.rs`. We will be using these errors shortly when we add our security checks.
+Bago magpatuloy, dalhin natin ang `ReviewError` sa saklaw sa `processor.rs`. Gagamitin namin ang mga error na ito sa ilang sandali kapag idinagdag namin ang aming mga pagsusuri sa seguridad.
 
 ```rust
 // inside processor.rs
 use crate::error::ReviewError;
 ```
 
-## 3. Add security checks to `add_movie_review`
+## 3. Magdagdag ng mga pagsusuri sa seguridad sa `add_movie_review`
 
-Now that we have errors to use, let's implement some security checks to our `add_movie_review` function.
+Ngayon na mayroon kaming mga error na gagamitin, ipatupad natin ang ilang mga pagsusuri sa seguridad sa aming function na `add_movie_review`.
 
-### Signer check
+### Checker ng signer
 
-The first thing we should do is ensure that the `initializer` of a review is also a signer on the transaction. This ensures that you can't submit movie reviews impersonating somebody else. We'll put this check right after iterating through the accounts.
+Ang unang bagay na dapat nating gawin ay tiyakin na ang `initializer` ng isang pagsusuri ay isa ring lumagda sa transaksyon. Tinitiyak nito na hindi ka makakapagsumite ng mga review ng pelikula na nagpapanggap bilang ibang tao. Ilalagay namin ang tseke na ito pagkatapos ng pag-ulit sa mga account.
 
 ```rust
 let account_info_iter = &mut accounts.iter();
@@ -303,9 +303,9 @@ if !initializer.is_signer {
 }
 ```
 
-### Account validation
+### Kumpirmasyon ng account
 
-Next, let's make sure the `pda_account` passed in by the user is the `pda` we expect. Recall we derived the `pda` for a movie review using the `initializer` and `title` as seeds. Within our instruction we’ll derive the `pda` again and then check if it matches the `pda_account`. If the addresses do not match, we’ll return our custom `InvalidPDA` error.
+Susunod, siguraduhin nating ang `pda_account` na ipinasa ng user ay ang `pda` na inaasahan namin. Tandaan na nakuha namin ang `pda` para sa isang pagsusuri ng pelikula gamit ang `initializer` at `title` bilang mga buto. Sa loob ng aming pagtuturo, kukunin naming muli ang `pda` at pagkatapos ay titingnan kung tumutugma ito sa `pda_account`. Kung hindi magkatugma ang mga address, ibabalik namin ang aming custom na `InvalidPDA` na error.
 
 ```rust
 // Derive PDA and check that it matches client
@@ -317,11 +317,11 @@ if pda != *pda_account.key {
 }
 ```
 
-### Data validation
+### Pagpapatunay ng data
 
-Now let's perform some data validation.
+Ngayon magsagawa tayo ng ilang pagpapatunay ng data.
 
-We'll start by making sure `rating` falls within the 1 to 5 scale. If the rating provided by the user outside of this range, we’ll return our custom `InvalidRating` error.
+Magsisimula tayo sa pamamagitan ng pagtiyak na ang `rating` ay nasa loob ng 1 hanggang 5 na sukat. Kung ang rating na ibinigay ng user sa labas ng hanay na ito, ibabalik namin ang aming custom na `InvalidRating` na error.
 
 ```rust
 if rating > 5 || rating < 1 {
@@ -330,7 +330,7 @@ if rating > 5 || rating < 1 {
 }
 ```
 
-Next, let’s check that the content of the review does not exceed the 1000 bytes we’ve allocated for the account. If the size exceeds 1000 bytes, we’ll return our custom `InvalidDataLength` error.
+Susunod, suriin natin na ang nilalaman ng pagsusuri ay hindi lalampas sa 1000 byte na inilaan namin para sa account. Kung lumampas ang laki sa 1000 bytes, ibabalik namin ang aming custom na `InvalidDataLength` na error.
 
 ```rust
 let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
@@ -340,7 +340,7 @@ if total_len > 1000 {
 }
 ```
 
-Lastly, let's checking if the account has already been initialized by calling the `is_initialized` function we implemented for our `MovieAccountState`. If the account already exists, then we will return an error.
+Panghuli, tingnan natin kung nasimulan na ang account sa pamamagitan ng pagtawag sa function na `is_initialized` na ipinatupad namin para sa aming `MovieAccountState`. Kung umiiral na ang account, magbabalik kami ng error.
 
 ```rust
 if account_data.is_initialized() {
@@ -349,7 +349,7 @@ if account_data.is_initialized() {
 }
 ```
 
-All together, the `add_movie_review` function should look something like this:
+Sa kabuuan, ang function na `add_movie_review` ay dapat magmukhang ganito:
 
 ```rust
 pub fn add_movie_review(
@@ -434,11 +434,11 @@ pub fn add_movie_review(
 }
 ```
 
-## 4. Support movie review updates in `MovieInstruction`
+## 4. Suportahan ang mga update sa pagsusuri ng pelikula sa `MovieInstruction`
 
-Now that `add_movie_review` is more secure, let's turn our attention to supporting the ability to update a movie review.
+Ngayong mas secure na ang `add_movie_review`, ibaling natin ang ating atensyon sa pagsuporta sa kakayahang mag-update ng review ng pelikula.
 
-Let’s begin by updating `instruction.rs`. We’ll start by adding an `UpdateMovieReview` variant to `MovieInstruction` that includes embedded data for the new title, rating, and description.
+Magsimula tayo sa pag-update ng `instruction.rs`. Magsisimula kami sa pamamagitan ng pagdaragdag ng variant ng `UpdateMovieReview` sa `MovieInstruction` na may kasamang naka-embed na data para sa bagong pamagat, rating, at paglalarawan.
 
 ```rust
 // inside instruction.rs
@@ -456,9 +456,9 @@ pub enum MovieInstruction {
 }
 ```
 
-The payload struct can stay the same since aside from the variant type, the instruction data is the same as what we used for `AddMovieReview`.
+Maaaring manatiling pareho ang payload struct dahil bukod sa uri ng variant, ang data ng pagtuturo ay pareho sa ginamit namin para sa `AddMovieReview`.
 
-Lastly, in the `unpack` function we need to add `UpdateMovieReview` to the match statement.
+Panghuli, sa `unpack` function na kailangan naming magdagdag ng `UpdateMovieReview` sa match statement.
 
 ```rust
 // inside instruction.rs
@@ -481,9 +481,9 @@ impl MovieInstruction {
 }
 ```
 
-## 5. Define `update_movie_review` function
+## 5. Tukuyin ang function na `update_movie_review`
 
-Now that we can unpack our `instruction_data` and determine which instruction of the program to run, we can add `UpdateMovieReview` to the match statement in the `process_instruction` function in the `processor.rs` file.
+Ngayon na maaari na naming i-unpack ang aming `instruction_data` at matukoy kung aling pagtuturo ng program ang tatakbo, maaari naming idagdag ang `UpdateMovieReview` sa match statement sa `process_instruction` function sa `processor.rs` file.
 
 ```rust
 // inside processor.rs
@@ -507,7 +507,7 @@ pub fn process_instruction(
 }
 ```
 
-Next, we can define the new `update_movie_review` function. The definition should have the same parameters as the definition of `add_movie_review`.
+Susunod, maaari naming tukuyin ang bagong function na `update_movie_review`. Ang kahulugan ay dapat na may parehong mga parameter tulad ng kahulugan ng `add_movie_review`.
 
 ```rust
 pub fn update_movie_review(
@@ -521,11 +521,11 @@ pub fn update_movie_review(
 }
 ```
 
-## 6. Implement `update_movie_review` function
+## 6. Ipatupad ang function na `update_movie_review`
 
-All that's left now is to fill in the logic for updating a movie review. Only let's make it secure from the start.
+Ang natitira na lang ngayon ay punan ang lohika para sa pag-update ng isang pagsusuri sa pelikula. Lamang gawin itong secure mula sa simula.
 
-Just like the `add_movie_review` function, let's start by iterating through the accounts. The only accounts we'll need are the first two: `initializer` and `pda_account`.
+Tulad ng function na `add_movie_review`, magsimula tayo sa pamamagitan ng pag-ulit sa mga account. Ang mga account lang na kakailanganin namin ay ang unang dalawa: `initializer` at `pda_account`.
 
 ```rust
 pub fn update_movie_review(
@@ -547,9 +547,9 @@ pub fn update_movie_review(
 }
 ```
 
-### Ownership Check
+### Pagsusuri ng Pagmamay-ari
 
-Before we continue, let's implement some basic security checks. We'll start with an ownership check on for `pda_account` to verify that it is owned by our program. If it isn't, we'll return an `InvalidOwner` error.
+Bago tayo magpatuloy, ipatupad natin ang ilang pangunahing pagsusuri sa seguridad. Magsisimula kami sa isang pagsusuri sa pagmamay-ari para sa `pda_account` upang i-verify na ito ay pagmamay-ari ng aming programa. Kung hindi, magbabalik kami ng `InvalidOwner` na error.
 
 ```rust
 if pda_account.owner != program_id {
@@ -559,7 +559,7 @@ if pda_account.owner != program_id {
 
 ### Signer Check
 
-Next, let’s perform a signer check to verify that the `initializer` of the update instruction has also signed the transaction. Since we are updating the data for a movie review, we want to ensure that the original `initializer` of the review has approved the changes by signing the transaction. If the `initializer` did not sign the transaction, we’ll return an error.
+Susunod, magsagawa tayo ng signer check upang i-verify na ang `initializer` ng tagubilin sa pag-update ay nilagdaan din ang transaksyon. Dahil ina-update namin ang data para sa pagsusuri ng pelikula, gusto naming tiyakin na inaprubahan ng orihinal na `initializer` ng pagsusuri ang mga pagbabago sa pamamagitan ng paglagda sa transaksyon. Kung hindi nilagdaan ng `initializer` ang transaksyon, magbabalik kami ng error.
 
 ```rust
 if !initializer.is_signer {
@@ -568,9 +568,9 @@ if !initializer.is_signer {
 }
 ```
 
-### Account Validation
+### Kumpirmasyon ng account
 
-Next, let’s check that the `pda_account` passed in by the user is the PDA we expect by deriving the PDA using `initializer` and `title` as seeds. If the addresses do not match, we’ll return our custom `InvalidPDA` error. We'll implement this the same way we did in the `add_movie_review` function.
+Susunod, tingnan natin kung ang `pda_account` na ipinasa ng user ay ang PDA na inaasahan namin sa pamamagitan ng pagkuha ng PDA gamit ang `initializer` at `title` bilang mga binhi. Kung hindi magkatugma ang mga address, ibabalik namin ang aming custom na `InvalidPDA` na error. Ipapatupad namin ito sa parehong paraan na ginawa namin sa function na `add_movie_review`.
 
 ```rust
 // Derive PDA and check that it matches client
@@ -582,9 +582,9 @@ if pda != *pda_account.key {
 }
 ```
 
-### Unpack `pda_account` and perform data validation
+### I-unpack ang `pda_account` at isagawa ang pagpapatunay ng data
 
-Now that our code ensures we can trust the passed in accounts, let's unpack the `pda_account` and perform some data validation. We'll start by unpacking `pda_account` and assigning it to a mutable variable `account_data`.
+Ngayong tinitiyak ng aming code na mapagkakatiwalaan natin ang mga naipasa sa mga account, i-unpack natin ang `pda_account` at magsagawa ng ilang pagpapatunay ng data. Magsisimula kami sa pamamagitan ng pag-unpack ng `pda_account` at pagtatalaga nito sa isang nababagong variable na `account_data`.
 
 ```rust
 msg!("unpacking state account");
@@ -592,7 +592,7 @@ let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_accoun
 msg!("borrowed account data");
 ```
 
-Now that we have access to the account and its fields, the first thing we need to do is verify that the account has already been initialized. An uninitialized account can't be updated so the program should return our custom `UninitializedAccount` error.
+Ngayong mayroon na kaming access sa account at sa mga field nito, ang unang bagay na kailangan naming gawin ay i-verify na ang account ay nasimulan na. Hindi maa-update ang isang hindi nasimulang account kaya dapat ibalik ng program ang aming custom na `UninitializedAccount` na error.
 
 ```rust
 if !account_data.is_initialized() {
@@ -601,7 +601,7 @@ if !account_data.is_initialized() {
 }
 ```
 
-Next, we need to validate the `rating`, `title`, and `description` data just like in the `add_movie_review` function. We want to limit the `rating` to a scale of 1 to 5 and limit the overall size of the review to be fewer than 1000 bytes. If the rating provided by the user outside of this range, then we’ll return our custom `InvalidRating` error. If the review is too long, then we'll return our custom `InvalidDataLength` error.
+Susunod, kailangan nating i-validate ang data ng `rating`, `title`, at `description` tulad ng sa function na `add_movie_review`. Gusto naming limitahan ang `rating` sa sukat na 1 hanggang 5 at limitahan ang kabuuang sukat ng pagsusuri na mas mababa sa 1000 byte. Kung ang rating na ibinigay ng user sa labas ng hanay na ito, ibabalik namin ang aming custom na `InvalidRating` na error. Kung masyadong mahaba ang pagsusuri, ibabalik namin ang aming custom na `InvalidDataLength` na error.
 
 ```rust
 if rating > 5 || rating < 1 {
@@ -616,9 +616,9 @@ if total_len > 1000 {
 }
 ```
 
-### Update the movie review account
+### I-update ang account sa pagsusuri ng pelikula
 
-Now that we've implemented all of the security checks, we can finally update the movie review account by updating `account_data` and re-serializing it. At that point, we can return `Ok` from our program.
+Ngayong naipatupad na namin ang lahat ng mga pagsusuring panseguridad, sa wakas ay maa-update na namin ang account sa pagsusuri ng pelikula sa pamamagitan ng pag-update sa `account_data` at muling pagse-serye nito. Sa puntong iyon, maaari naming ibalik ang `Ok` mula sa aming programa.
 
 ```rust
 account_data.rating = rating;
@@ -629,7 +629,7 @@ account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
 Ok(())
 ```
 
-All together, the `update_movie_review` function should look something like the code snippet below. We've included some additional logging for clarity in debugging.
+Kung magkakasama, ang function na `update_movie_review` ay dapat magmukhang katulad ng code snippet sa ibaba. Nagsama kami ng ilang karagdagang pag-log para sa kalinawan sa pag-debug.
 
 ```rust
 pub fn update_movie_review(
@@ -703,21 +703,21 @@ pub fn update_movie_review(
 }
 ```
 
-## 7. Build and upgrade
+## 7. Bumuo at mag-upgrade
 
-We're ready to build and upgrade our program! You can test your program by submitting a transaction with the right instruction data. For that, feel free to use this [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews).  Remember, to make sure you're testing the right program you'll need to replace `MOVIE_REVIEW_PROGRAM_ID` with your program ID in `Form.tsx` and `MovieCoordinator.ts`.
+Handa na kaming buuin at i-upgrade ang aming programa! Maaari mong subukan ang iyong programa sa pamamagitan ng pagsusumite ng isang transaksyon na may tamang data ng pagtuturo. Para diyan, huwag mag-atubiling gamitin itong [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews). Tandaan, upang matiyak na sinusubukan mo ang tamang program, kakailanganin mong palitan ang `MOVIE_REVIEW_PROGRAM_ID` ng iyong program ID sa `Form.tsx` at `MovieCoordinator.ts`.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://beta.solpg.io/62c8c6dbf6273245aca4f5e7) before continuing.
+Kung kailangan mo ng mas maraming oras sa proyektong ito upang maging komportable sa mga konseptong ito, tingnan ang [code ng solusyon](https://beta.solpg.io/62c8c6dbf6273245aca4f5e7) bago magpatuloy.
 
-# Challenge
+# Hamon
 
-Now it’s your turn to build something independently by building on top of the Student Intro program that you've used in previous lessons. If you haven't been following along or haven't saved your code from before, feel free to use [this starter code](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
+Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa sa pamamagitan ng pagbuo sa itaas ng programa ng Student Intro na ginamit mo sa mga nakaraang aralin. Kung hindi mo pa sinusubaybayan o hindi mo pa nai-save ang iyong code mula noon, huwag mag-atubiling gamitin ang [starter code na ito](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
 
-The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the instruction_data and creates an account to store the data on-chain.
+Ang Student Intro program ay isang Solana Program na nagbibigay-daan sa mga mag-aaral na magpakilala. Kinukuha ng program ang pangalan ng isang user at isang maikling mensahe bilang instruction_data at gagawa ng account upang iimbak ang data sa chain.
 
-Using what you've learned in this lesson, try applying what you've learned to the Student Intro Program. The program should:
+Gamit ang iyong natutunan sa araling ito, subukang ilapat ang iyong natutunan sa Student Intro Program. Ang programa ay dapat:
 
-1. Add an instruction allowing students to update their message
-2. Implement the basic security checks we've learned in this lesson
+1. Magdagdag ng pagtuturo na nagpapahintulot sa mga mag-aaral na i-update ang kanilang mensahe
+2. Ipatupad ang mga pangunahing pagsusuri sa seguridad na natutunan natin sa araling ito
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62c9120df6273245aca4f5e8). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write. Once you complete Module 3, we'd love to know more about your experience! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%203), so that we can continue to improve the course.
+Subukang gawin ito nang nakapag-iisa kung kaya mo! Ngunit kung natigil ka, huwag mag-atubiling sumangguni sa [code ng solusyon](https://beta.solpg.io/62c9120df6273245aca4f5e8). Tandaan na ang iyong code ay maaaring magmukhang bahagyang naiiba kaysa sa code ng solusyon depende sa mga tseke na iyong ipinapatupad at ang mga error na iyong isinulat. Kapag nakumpleto mo na ang Module 3, gusto naming malaman ang higit pa tungkol sa iyong karanasan! Huwag mag-atubiling magbahagi ng ilang mabilis na feedback [dito](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%203), nang sa gayon ay maaari naming patuloy na mapabuti ang kurso.

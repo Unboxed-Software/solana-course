@@ -4,24 +4,24 @@ objectives:
 - explain how this Solana course is structured
 ---
 
-## How is this course structured?
+## Paano nakaayos ang kursong ito?
 
-Glad you asked. Each lesson starts by listing the lesson objectives. These are short statements that indicate what you'll be learning throughout the lesson.
+Natutuwa kang nagtanong. Ang bawat aralin ay nagsisimula sa pamamagitan ng paglilista ng mga layunin ng aralin. Ito ay mga maikling pahayag na nagsasaad kung ano ang iyong matututuhan sa buong aralin.
 
-In addition to listing objectives, each lesson provides a brief TL;DR so that you can glance through, get a sense of what the lesson covers, and decide if the lesson is for you or not.
+Bilang karagdagan sa paglilista ng mga layunin, ang bawat aralin ay nagbibigay ng maikling TL;DR upang masilip mo, maunawaan kung ano ang saklaw ng aralin, at magpasya kung para sa iyo ang aralin o hindi.
 
-If you decide to continue your journey, you'll then encounter three sections:
-- **Overview** - the overview contains explanatory text, examples, and code snippets. You are *not* expected to code along with any of the examples shown here. The goal is to simply read through and get initial exposure to the lesson topics.
-- **Demo** - the demo is a tutorial-style project. You *absolutely should* code along with this section. This is your second exposure to the content as well as your first opportunity to dive in and *do the thing*.
-- **Challenge** - the challenge contains a similar project to the demo only instead of walking you through it, the lesson leaves just a few simple prompts that you should then take and implement independently.
+Kung magpasya kang ipagpatuloy ang iyong paglalakbay, makakatagpo ka ng tatlong seksyon:
+- **Pangkalahatang-ideya** - naglalaman ang pangkalahatang-ideya ng tekstong nagpapaliwanag, mga halimbawa, at mga snippet ng code. Ikaw ay *hindi* inaasahang mag-code kasama ng alinman sa mga halimbawang ipinapakita dito. Ang layunin ay basahin lamang at makakuha ng paunang pagkakalantad sa mga paksa ng aralin.
+- **Demo** - ang demo ay isang tutorial-style na proyekto. Ikaw *talagang dapat* mag-code kasama ng seksyong ito. Ito ang iyong pangalawang pagkakalantad sa nilalaman pati na rin ang iyong unang pagkakataon na sumisid at *gawin ang bagay*.
+- **Hamon** - ang hamon ay naglalaman ng isang katulad na proyekto sa demo lamang sa halip na gabayan ka sa pamamagitan nito, ang aralin ay nag-iiwan lamang ng ilang simpleng senyas na dapat mong gawin at ipatupad nang nakapag-iisa.
 
-This structure leans into a pedagogical technique call IWY loops. IWY stands for "I do, We do, You do." Each step along the way increases your exposure to the topic *and* reduces the amount of handholding you're given.
+Ang istrukturang ito ay umaasa sa isang pedagogical technique na tinatawag na IWY loops. Ang ibig sabihin ng IWY ay "I do, We do, You do." Ang bawat hakbang sa kahabaan ng paraan ay nagpapataas ng iyong pagkakalantad sa paksa *at* binabawasan ang dami ng paghawak na ibinigay sa iyo.
 
-## How do I use it effectively?
+## Paano ko ito magagamit nang epektibo?
 
-Again, glad you asked. The lesson structure is pretty great, but everyone comes into this with different backgrounds and aptitudes that can't be taken into account by static text. With that in mind, here are three recommendations for how to get the most out of the course:
-1. **Be brutally honest with yourself** - this may sound a little vague, but being honest with yourself about how well you understand a certain topic is essential to mastering it. It's really easy to read a thing and think "yeah, yeah I get it," only to realize later that you actually didn't. Be honest with yourself while going through each lesson. Please don't hesitate to repeat sections if you need to or do outside research when the lesson phrasing doesn't quite work for you.
-2. **Do every demo and challenge** - this supports the first point. It's pretty tough to lie to yourself about how well you know something when you make yourself try to do it. Do every demo and every challenge to test where you're at and repeat them as needed. We provide solution code for everything, but be sure to use it as a helpful resource rather than a crutch.
-3. **Go above and beyond** - sounds cliche, I know, but don't just stop at what the demo and challenges ask you to do. Get creative! Take the projects and make them your own. Build past them. The more you practice the better you get.
+Muli, natutuwa kang nagtanong. Ang istraktura ng aralin ay medyo mahusay, ngunit lahat ay pumapasok dito na may iba't ibang mga background at kakayahan na hindi maaaring isaalang-alang ng static na teksto. Sa pag-iisip na iyon, narito ang tatlong rekomendasyon para sa kung paano masulit ang kurso:
+1. **Maging malupit na tapat sa iyong sarili** - ito ay maaaring mukhang malabo, ngunit ang pagiging tapat sa iyong sarili tungkol sa kung gaano mo naiintindihan ang isang partikular na paksa ay mahalaga sa pag-master nito. Napakadaling magbasa ng isang bagay at mag-isip na "oo, oo naiintindihan ko," at malalaman mo lang sa bandang huli na hindi mo talaga ginawa. Maging tapat sa iyong sarili habang dumadaan sa bawat aralin. Mangyaring huwag mag-atubiling ulitin ang mga seksyon kung kailangan mo o magsaliksik sa labas kapag ang pagbigkas ng aralin ay hindi masyadong gumagana para sa iyo.
+2. **Gawin ang bawat demo at hamon** - sinusuportahan nito ang unang punto. Napakahirap magsinungaling sa iyong sarili tungkol sa kung gaano mo kakilala ang isang bagay kapag pinilit mong gawin ito. Gawin ang bawat demo at bawat hamon upang subukan kung nasaan ka at ulitin ang mga ito kung kinakailangan. Nagbibigay kami ng code ng solusyon para sa lahat, ngunit tiyaking gamitin ito bilang isang kapaki-pakinabang na mapagkukunan sa halip na isang saklay.
+3. **Go above and beyond** - sounds cliche, I know, pero huwag lang tumigil sa kung ano ang hinihiling sa iyo ng demo at mga hamon. Maging malikhain! Kunin ang mga proyekto at gawin ang mga ito sa iyo. Bumuo lampas sa kanila. Ang mas maraming pagsasanay mo ang mas mahusay na makakakuha ka.
 
-Alright, that's it for my pep talk. Get after it!
+Sige, iyon lang ang aking pep talk. Humanda ka!

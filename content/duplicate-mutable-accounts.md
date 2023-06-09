@@ -8,8 +8,8 @@ objectives:
 
 # TL;DR
 
-- When an instruction requires two mutable accounts of the same type, an attacker can pass in the same account twice, causing the account to be mutated in unintended ways.
-- To check for duplicate mutable accounts in Rust, simply compare the public keys of the two accounts and throw an error if they are the same.
+- Kapag ang isang pagtuturo ay nangangailangan ng dalawang nababagong account ng parehong uri, ang isang attacker ay maaaring pumasa sa parehong account nang dalawang beses, na nagiging sanhi ng account na ma-mutate sa hindi sinasadyang mga paraan.
+- Upang tingnan ang mga duplicate na mutable na account sa Rust, ihambing lang ang mga pampublikong key ng dalawang account at maglagay ng error kung pareho ang mga ito.
 
   ```rust
   if ctx.accounts.account_one.key() == ctx.accounts.account_two.key() {
@@ -17,19 +17,19 @@ objectives:
   }
   ```
 
-- In Anchor, you can use `constraint` to add an explicit constraint to an account checking that it is not the same as another account.
+- Sa Anchor, maaari mong gamitin ang `constraint` upang magdagdag ng isang tahasang pagpilit sa isang account na sinusuri na hindi ito katulad ng isa pang account.
 
-# Overview
+# Pangkalahatang-ideya
 
-Duplicate Mutable Accounts refers to an instruction that requires two mutable accounts of the same type. When this occurs, you should validate that two accounts are different to prevent the same account from being passed into the instruction twice.
+Ang mga Duplicate na Mutable na Account ay tumutukoy sa isang pagtuturo na nangangailangan ng dalawang nababagong account ng parehong uri. Kapag nangyari ito, dapat mong patunayan na ang dalawang account ay magkaiba upang maiwasan ang parehong account na maipasa sa pagtuturo nang dalawang beses.
 
-Since the program treats each account as separate, passing in the same account twice could result in the second account being mutated in unintended ways. This could result in very minor issues, or catastrophic ones - it really depends on what data the code changes and how these accounts are used. Regardless, this is a vulnerability all developers should be aware of.
+Dahil itinuring ng programa ang bawat account bilang hiwalay, ang pagpasa sa parehong account nang dalawang beses ay maaaring magresulta sa pag-mutate sa pangalawang account sa mga hindi sinasadyang paraan. Ito ay maaaring magresulta sa napakaliit na isyu, o mga sakuna - ito ay talagang depende sa kung anong data ang binago ng code at kung paano ginagamit ang mga account na ito. Anuman, ito ay isang kahinaan na dapat malaman ng lahat ng mga developer.
 
-### No check
+### Walang check
 
-For example, imagine a program that updates a `data` field for `user_a` and `user_b` in a single instruction. The value that the instruction sets for `user_a` is different from `user_b`. Without verifying that `user_a` and `user_b` are different, the program would update the `data` field on the `user_a` account, then update the `data` field a second time with a different value under the assumption that `user_b` is a separate account.
+Halimbawa, isipin ang isang program na nag-a-update ng field ng `data` para sa `user_a` at `user_b` sa isang pagtuturo. Ang value na itinakda ng tagubilin para sa `user_a` ay iba sa `user_b`. Nang hindi nabe-verify na magkaiba ang `user_a` at `user_b`, ia-update ng program ang field ng `data` sa `user_a` account, pagkatapos ay ia-update ang field ng `data` sa pangalawang pagkakataon na may ibang value sa ilalim ng pagpapalagay na `user_b` ay isang hiwalay na account.
 
-You can see this example in the code below.Tthere is no check to verify that `user_a` and `user_b` are not the same account. Passing in the same account for `user_a` and `user_b` will result in the `data` field for the account being set to `b` even though the intent is to set both values `a` and `b` on separate accounts. Depending on what `data` represents, this could be a minor unintended side-effect, or it could mean a severe security risk. allowing `user_a` and `user_b` to be the same account could result in
+Makikita mo ang halimbawang ito sa code sa ibaba. Walang tseke upang i-verify na ang `user_a` at `user_b` ay hindi magkaparehong account. Ang pagpasa sa parehong account para sa `user_a` at `user_b` ay magreresulta sa field ng `data` para sa account na itatakda sa `b` kahit na ang layunin ay itakda ang parehong mga value na `a` at `b` sa magkahiwalay na account. Depende sa kung ano ang kinakatawan ng `data`, ito ay maaaring isang maliit na hindi sinasadyang side-effect, o maaari itong mangahulugan ng isang matinding panganib sa seguridad. ang pagpapahintulot sa `user_a` at `user_b` na maging iisang account ay maaaring magresulta sa
 
 ```rust
 use anchor_lang::prelude::*;
@@ -62,9 +62,9 @@ pub struct User {
 }
 ```
 
-### Add check in instruction
+### Magdagdag ng pagtuturo ng check in
 
-To fix this problem with plan Rust, simply add a check in the instruction logic to verify that the public key of `user_a` isn't the same as the public key of `user_b`, returning an error if they are the same.
+Para ayusin ang problemang ito sa plan Rust, magdagdag lang ng check sa instruction logic para ma-verify na ang public key ng `user_a` ay hindi pareho sa public key ng `user_b`, na nagbabalik ng error kung pareho sila.
 
 ```rust
 if ctx.accounts.user_a.key() == ctx.accounts.user_b.key() {
@@ -72,7 +72,7 @@ if ctx.accounts.user_a.key() == ctx.accounts.user_b.key() {
 }
 ```
 
-This check ensures that `user_a` and `user_b` are not the same account.
+Tinitiyak ng pagsusuring ito na ang `user_a` at `user_b` ay hindi magkaparehong account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -108,13 +108,13 @@ pub struct User {
 }
 ```
 
-### Use Anchor `constraint`
+### Gamitin ang Anchor `constraint`
 
-An even better solution if you're using Anchor is to add the check to the account validation struct instead of the instruction logic.
+Ang isang mas mahusay na solusyon kung gumagamit ka ng Anchor ay idagdag ang tseke sa struct ng pagpapatunay ng account sa halip na ang lohika ng pagtuturo.
 
-You can use the `#[account(..)]` attribute macro and the `constraint` keyword to add a manual constraint to an account. The `constraint` keyword will check whether the expression that follows evaluates to true or false, returning an error if the expression evaluates to false.
+Maaari mong gamitin ang `#[account(..)]` attribute macro at ang `constraint` na keyword upang magdagdag ng manual na pagpilit sa isang account. Susuriin ng keyword na `constraint` kung ang expression na kasunod ay nagsusuri sa true o false, na nagbabalik ng error kung ang expression ay nage-evaluate sa false.
 
-The example below moves the check from the instruction logic to the account validation struct by adding a `constraint` to the `#[account(..)]` attribute.
+Ang halimbawa sa ibaba ay naglilipat ng tseke mula sa lohika ng pagtuturo patungo sa struct ng pagpapatunay ng account sa pamamagitan ng pagdaragdag ng `constraint` sa `#[account(..)]` attribute.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -150,21 +150,21 @@ pub struct User {
 
 # Demo
 
-Let’s practice by creating a simple Rock Paper Scissors program to demonstrate how failing to check for duplicate mutable accounts can cause undefined behavior within your program.
+Magsanay tayo sa pamamagitan ng paglikha ng isang simpleng programang Rock Paper Scissors upang ipakita kung paano maaaring magdulot ng hindi natukoy na gawi sa loob ng iyong programa ang hindi pagsuri para sa mga duplicate na nababagong account.
 
-This program will initialize “player” accounts and have a separate instruction that requires two player accounts to represent starting a game of rock paper scissors.
+Ang program na ito ay magsisimula ng mga account ng "manlalaro" at magkakaroon ng hiwalay na pagtuturo na nangangailangan ng dalawang account ng manlalaro upang kumatawan sa pagsisimula ng isang laro ng gunting na batong papel.
 
-- An `initialize` instruction to initialize a `PlayerState` account
-- A `rock_paper_scissors_shoot_insecure` instruction that requires two `PlayerState` accounts, but does not check that the accounts passed into the instruction are different
-- A `rock_paper_scissors_shoot_secure` instruction that is the same as the `rock_paper_scissors_shoot_insecure` instruction but adds a constraint that ensures the two player accounts are different
+- Isang `initialize` na tagubilin upang simulan ang isang `PlayerState` account
+- Isang `rock_paper_scissors_shoot_insecure` na pagtuturo na nangangailangan ng dalawang `PlayerState` na account, ngunit hindi sinisigurado kung magkaiba ang mga account na ipinasa sa pagtuturo
+- Isang `rock_paper_scissors_shoot_secure` na pagtuturo na kapareho ng `rock_paper_scissors_shoot_insecure` na pagtuturo ngunit nagdaragdag ng hadlang na tumitiyak na magkaiba ang dalawang account ng manlalaro
 
-### 1. Starter
+### 1. Panimula
 
-To get started, download the starter code on the `starter` branch of [this repository](https://github.com/unboxed-software/solana-duplicate-mutable-accounts/tree/starter). The starter code includes a program with two instructions and the boilerplate setup for the test file.
+Para makapagsimula, i-download ang starter code sa `starter` branch ng [repository na ito](https://github.com/unboxed-software/solana-duplicate-mutable-accounts/tree/starter). Kasama sa starter code ang isang program na may dalawang tagubilin at ang boilerplate setup para sa test file.
 
-The `initialize` instruction initializes a new `PlayerState` account that stores the public key of a player and a `choice` field that is set to `None`.
+Ang `initialize` na tagubilin ay nagpapasimula ng bagong `PlayerState` account na nag-iimbak ng pampublikong key ng isang player at isang `choice` na field na nakatakda sa `Wala`.
 
-The `rock_paper_scissors_shoot_insecure` instruction requires two `PlayerState` accounts and requires a choice from the `RockPaperScissors` enum for each player, but does not check that the accounts passed into the instruction are different. This means a single account can be used for both `PlayerState` accounts in the instruction.
+Ang pagtuturo ng `rock_paper_scissors_shoot_insecure` ay nangangailangan ng dalawang `PlayerState` na account at nangangailangan ng pagpipilian mula sa `RockPaperScissors` enum para sa bawat manlalaro, ngunit hindi sinisigurado na ang mga account na ipinasa sa pagtuturo ay iba. Nangangahulugan ito na ang isang account ay maaaring gamitin para sa parehong `PlayerState` na mga account sa pagtuturo.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -229,11 +229,11 @@ pub enum RockPaperScissors {
 }
 ```
 
-### 2. Test `rock_paper_scissors_shoot_insecure` instruction
+### 2. Subukan ang pagtuturo ng `rock_paper_scissors_shoot_insecure`
 
-The test file includes the code to invoke the `initialize` instruction twice to create two player accounts.
+Kasama sa test file ang code para i-invoke ang `initialize` na pagtuturo nang dalawang beses para gumawa ng dalawang player account.
 
-Add a test to invoke the `rock_paper_scissors_shoot_insecure` instruction by passing in the `playerOne.publicKey` for as both `playerOne` and `playerTwo`.
+Magdagdag ng test para gamitin ang `rock_paper_scissors_shoot_insecure` na pagtuturo sa pamamagitan ng pagpasa sa `playerOne.publicKey` para sa parehong `playerOne` at `playerTwo`.
 
 ```ts
 describe("duplicate-mutable-accounts", () => {
@@ -254,7 +254,7 @@ describe("duplicate-mutable-accounts", () => {
 })
 ```
 
-Run `anchor test` to see that the transactions completes successfully, even though the same account is used as two accounts in the instruction. Since the `playerOne` account is used as both players in the instruction, note the `choice` stored on the `playerOne` account is also overridden and set incorrectly as `scissors`.
+Patakbuhin ang `anchor test` upang makita na matagumpay na nakumpleto ang mga transaksyon, kahit na ang parehong account ay ginagamit bilang dalawang account sa pagtuturo. Dahil ang `playerOne` account ay ginagamit bilang parehong manlalaro sa pagtuturo, tandaan na ang `choice` na nakaimbak sa `playerOne` account ay na-overridden din at hindi tama ang itinakda bilang `gunting`.
 
 ```bash
 duplicate-mutable-accounts
@@ -263,11 +263,11 @@ duplicate-mutable-accounts
   ✔ Invoke insecure instruction (406ms)
 ```
 
-Not only does allowing duplicate accounts not make a whole lot of sense for the game, it also causes undefined behavior. If we were to build out this program further, the program only has one chosen option and therefore can't compare against a second option. The game would end in a draw every time. It's also unclear to a human whether `playerOne`'s choice should be rock or scissors, so the program behavior is strange.
+Hindi lamang ang pagpapahintulot sa mga duplicate na account ay hindi gumagawa ng isang buong kahulugan para sa laro, nagdudulot din ito ng hindi natukoy na pag-uugali. Kung bubuuin pa namin ang program na ito, ang programa ay mayroon lamang isang napiling opsyon at samakatuwid ay hindi maaaring ihambing sa pangalawang opsyon. Ang laro ay magtatapos sa isang draw sa bawat oras. Hindi rin malinaw sa isang tao kung bato o gunting ang pipiliin ni `playerOne`, kaya kakaiba ang gawi ng programa.
 
-### 3. Add `rock_paper_scissors_shoot_secure` instruction
+### 3. Magdagdag ng `rock_paper_scissors_shoot_secure` na pagtuturo
 
-Next, return to `lib.rs` and add a `rock_paper_scissors_shoot_secure` instruction that uses the `#[account(...)]` macro to add an additional `constraint` to check that `player_one` and `player_two` are different accounts.
+Susunod, bumalik sa `lib.rs` at magdagdag ng `rock_paper_scissors_shoot_secure` na pagtuturo na gumagamit ng `#[account(...)]` macro para magdagdag ng karagdagang `constraint` para masuri kung magkaiba ang `player_one` at `player_two` mga account.
 
 ```rust
 #[program]
@@ -298,9 +298,9 @@ pub struct RockPaperScissorsSecure<'info> {
 }
 ```
 
-### 7. Test `rock_paper_scissors_shoot_secure` instruction
+### 7. Subukan ang pagtuturo ng `rock_paper_scissors_shoot_secure`
 
-To test the `rock_paper_scissors_shoot_secure` instruction, we’ll invoke the instruction twice. First, we’ll invoke the instruction using two different player accounts to check that the instruction works as intended. Then, we’ll invoke the instruction using the `playerOne.publicKey` as both player accounts, which we expect to fail.
+Upang subukan ang tagubiling `rock_paper_scissors_shoot_secure`, gagamitin namin ang tagubilin nang dalawang beses. Una, gagamitin namin ang pagtuturo gamit ang dalawang magkaibang player na account para tingnan kung gumagana ang pagtuturo ayon sa nilalayon. Pagkatapos, gagamitin namin ang pagtuturo gamit ang `playerOne.publicKey` bilang parehong player account, na inaasahan naming mabibigo.
 
 ```ts
 describe("duplicate-mutable-accounts", () => {
@@ -337,7 +337,7 @@ describe("duplicate-mutable-accounts", () => {
 })
 ```
 
-Run `anchor test` to see that the instruction works as intended and using the `playerOne` account twice returns the expected error.
+Patakbuhin ang `anchor test` upang makita na gumagana ang pagtuturo ayon sa nilalayon at ang paggamit ng `playerOne` account ay dalawang beses na nagbabalik ng inaasahang error.
 
 ```bash
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]',
@@ -347,14 +347,14 @@ Run `anchor test` to see that the instruction works as intended and using the `p
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d3'
 ```
 
-The simple constraint is all it takes to close this loophole. While somewhat contrived, this example illustrates the odd behavior that can occur if you write your program under the assumption that two same-typed accounts will be different instances of an account but don't explicitly write that constraint into your program. Always think about the behavior you're expecting from the program and whether that is explicit.
+Ang simpleng pagpilit lang ang kailangan para isara ang butas na ito. Bagama't medyo gawa-gawa, ang halimbawang ito ay naglalarawan ng kakaibang gawi na maaaring mangyari kung isusulat mo ang iyong programa sa ilalim ng pagpapalagay na ang dalawang magkaparehong uri na account ay magiging magkaibang mga pagkakataon ng isang account ngunit hindi tahasang isulat ang hadlang na iyon sa iyong programa. Palaging isipin ang pag-uugali na iyong inaasahan mula sa programa at kung iyon ay tahasan.
 
-If you want to take a look at the final solution code you can find it on the `solution` branch of [the repository](https://github.com/Unboxed-Software/solana-duplicate-mutable-accounts/tree/solution).
+Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [repository](https://github.com/Unboxed-Software/solana-duplicate-mutable-accounts/tree/ solusyon).
 
-# Challenge
+# Hamon
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Tulad ng iba pang mga aralin sa modyul na ito, ang iyong pagkakataon na magsanay sa pag-iwas sa pagsasamantala sa seguridad na ito ay nakasalalay sa pag-audit ng iyong sarili o iba pang mga programa.
 
-Take some time to review at least one program and ensure that any instructions with two same-typed mutable accounts are properly constrained to avoid duplicates.
+Maglaan ng ilang oras upang suriin ang hindi bababa sa isang programa at tiyaking ang anumang mga tagubilin na may dalawang parehong-type na nababagong account ay wastong napipigilan upang maiwasan ang mga duplicate.
 
-Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+Tandaan, kung makakita ka ng bug o pagsasamantala sa programa ng ibang tao, mangyaring alertuhan sila! Kung makakita ka ng isa sa iyong sariling programa, siguraduhing i-patch ito kaagad.

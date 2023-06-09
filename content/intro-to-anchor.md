@@ -8,42 +8,42 @@ objectives:
 
 # TL;DR
 
-- **Anchor** is a framework for building Solana programs
-- **Anchor macros** speed up the process of building Solana programs by abstracting away a significant amount of boilerplate code
-- Anchor allows you to build **secure programs** more easily by performing certain security checks, requiring account validation, and providing a simple way to implement additional checks.
+- **Anchor** ay isang balangkas para sa pagbuo ng mga programang Solana
+- **Anchor macros** ay nagpapabilis sa proseso ng pagbuo ng mga programang Solana sa pamamagitan ng pag-abstract ng malaking halaga ng boilerplate code
+- Binibigyang-daan ka ng Anchor na bumuo ng **mga secure na programa** nang mas madali sa pamamagitan ng pagsasagawa ng ilang partikular na pagsusuri sa seguridad, nangangailangan ng pagpapatunay ng account, at pagbibigay ng simpleng paraan upang magpatupad ng mga karagdagang pagsusuri.
 
-# Overview
+# Pangkalahatang-ideya
 
-## What is Anchor?
+## Ano ang Anchor?
 
-Anchor is a development framework that makes writing Solana programs easier, faster, and more secure. It's the "go to" framework for Solana development for very good reason. It makes it easier to organize and reason about your code, implements common security checks automatically, and abstracts away a significant amount of boilerplate associated with writing a Solana program.
+Ang Anchor ay isang development framework na ginagawang mas madali, mas mabilis, at mas secure ang pagsusulat ng mga programang Solana. Ito ang balangkas na "pumunta sa" para sa pagbuo ng Solana para sa napakagandang dahilan. Ginagawa nitong mas madali ang pag-aayos at pangangatwiran tungkol sa iyong code, awtomatikong nagpapatupad ng mga karaniwang pagsusuri sa seguridad, at nag-aalis ng malaking halaga ng boilerplate na nauugnay sa pagsusulat ng isang programang Solana.
 
 ## Anchor program structure
 
-Anchor uses macros and traits to generate boilerplate Rust code for you. These provide a clear structure to your program so you can more easily reason about your code. The main high level macros and attributes are:
+Gumagamit ang Anchor ng mga macro at katangian para bumuo ng boilerplate Rust code para sa iyo. Nagbibigay ang mga ito ng malinaw na istraktura sa iyong programa upang mas madali kang mangatuwiran tungkol sa iyong code. Ang pangunahing mataas na antas ng mga macro at katangian ay:
 
-- `declare_id` - a macro for declaring the program’s on-chain address
-- `#[program]` - an attribute macro used to denote the module containing the program’s instruction logic
-- `Accounts` - a trait applied to structs representing the list of accounts required for an instruction
-- `#[account]` - an attribute macro used to define custom account types for the program
+- `declare_id` - isang macro para sa pagdedeklara ng on-chain address ng program
+- `#[program]` - isang attribute macro na ginagamit upang tukuyin ang module na naglalaman ng lohika ng pagtuturo ng program
+- `Mga Account` - isang katangiang inilapat sa mga istruktura na kumakatawan sa listahan ng mga account na kinakailangan para sa isang pagtuturo
+- `#[account]` - isang attribute na macro na ginagamit upang tukuyin ang mga custom na uri ng account para sa program
 
-Let's talk about each of them before putting all the pieces together.
+Pag-usapan natin ang bawat isa sa kanila bago pagsamahin ang lahat ng mga piraso.
 
-## Declare your program ID
+## Ideklara ang iyong program ID
 
-The `declare_id` macro is used to specify the on-chain address of the program (i.e. the `programId`). When you build an Anchor program for the first time, the framework will generate a new keypair. This becomes the default keypair used to deploy the program unless specified otherwise. The corresponding public key should be used as the `programId` specified in the `declare_id!` macro.
+Ang `declare_id` macro ay ginagamit upang tukuyin ang on-chain na address ng program (i.e. ang `programId`). Kapag bumuo ka ng Anchor program sa unang pagkakataon, bubuo ang framework ng bagong keypair. Ito ang nagiging default na keypair na ginamit upang i-deploy ang program maliban kung tinukoy kung hindi man. Ang kaukulang pampublikong key ay dapat gamitin bilang `programId` na tinukoy sa `declare_id!` na macro.
 
 ```rust
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 ```
 
-## Define instruction logic
+## Tukuyin ang lohika ng pagtuturo
 
-The `#[program]` attribute macro defines the module containing all of your program's instructions. This is where you implement the business logic for each instruction in your program.
+Tinutukoy ng `#[program]` attribute macro ang module na naglalaman ng lahat ng mga tagubilin ng iyong program. Dito mo ipinapatupad ang lohika ng negosyo para sa bawat pagtuturo sa iyong programa.
 
-Each public function in the module with the `#[program]` attribute will be treated as a separate instruction.
+Ang bawat pampublikong function sa module na may attribute na `#[program]` ay ituturing bilang isang hiwalay na pagtuturo.
 
-Each instruction function requires a parameter of type `Context` and can optionally include additional function parameters representing instruction data. Anchor will automatically handle instruction data deserialization so that you can work with instruction data as Rust types.
+Ang bawat function ng pagtuturo ay nangangailangan ng isang parameter ng uri ng `Konteksto` at maaaring opsyonal na magsama ng mga karagdagang parameter ng function na kumakatawan sa data ng pagtuturo. Awtomatikong hahawakan ng Anchor ang deserialization ng data ng pagtuturo para magawa mo ang data ng pagtuturo bilang mga uri ng Rust.
 
 ```rust
 #[program]
@@ -57,9 +57,9 @@ mod program_module_name {
 }
 ```
 
-### Instruction `Context`
+### Tagubilin `Konteksto`
 
-The `Context` type exposes instruction metadata and accounts to your instruction logic.
+Inilalantad ng uri ng `Konteksto` ang metadata ng pagtuturo at mga account sa iyong lohika ng pagtuturo.
 
 ```rust
 pub struct Context<'a, 'b, 'c, 'info, T> {
@@ -77,23 +77,23 @@ pub struct Context<'a, 'b, 'c, 'info, T> {
 }
 ```
 
-`Context` is a generic type where `T` defines the list of accounts an instruction requires. When you use `Context`, you specify the concrete type of `T` as a struct that adopts the `Accounts` trait (e.g. `Context<AddMovieReviewAccounts>`). Through this context argument the instruction can then access:
+Ang `Context` ay isang generic na uri kung saan ang `T` ay tumutukoy sa listahan ng mga account na kailangan ng isang pagtuturo. Kapag gumamit ka ng `Context`, tutukuyin mo ang kongkretong uri ng `T` bilang isang struct na gumagamit ng katangian ng `Accounts` (hal. `Context<AddMovieReviewAccounts>`). Sa pamamagitan ng argumentong konteksto na ito ay maaaring ma-access ng pagtuturo ang:
 
-- The accounts passed into the instruction (`ctx.accounts`)
-- The program ID (`ctx.program_id`) of the executing program
-- The remaining accounts (`ctx.remaining_accounts`). The `remaining_accounts` is a vector that contains all accounts that were passed into the instruction but are not declared in the `Accounts` struct.
-- The bumps for any PDA accounts in the `Accounts` struct (`ctx.bumps`)
+- Ang mga account na ipinasa sa pagtuturo (`ctx.accounts`)
+- Ang program ID (`ctx.program_id`) ng executing program
+- Ang natitirang mga account (`ctx.remaining_accounts`). Ang `remaining_accounts` ay isang vector na naglalaman ng lahat ng account na naipasa sa pagtuturo ngunit hindi idineklara sa `Mga Account` struct.
+- Ang mga bumps para sa anumang PDA account sa `Accounts` struct (`ctx.bumps`)
 
 
-## Define instruction accounts
+## Tukuyin ang mga account ng pagtuturo
 
-The `Accounts` trait defines a data structure of validated accounts. Structs adopting this trait define the list of accounts required for a given instruction. These accounts are then exposed through an instruction's `Context` so that manual account iteration and deserialization is no longer necessary.
+Ang katangian ng `Mga Account` ay tumutukoy sa istruktura ng data ng mga na-validate na account. Tinutukoy ng mga istrukturang gumagamit ng katangiang ito ang listahan ng mga account na kinakailangan para sa isang ibinigay na pagtuturo. Ang mga account na ito ay malalantad sa pamamagitan ng `Konteksto` ng isang tagubilin upang hindi na kailangan ang manu-manong pag-ulit ng account at deserialization.
 
-You typically apply the `Accounts` trait through the `derive` macro (e.g. `#[derive(Accounts)]`). This implements an `Accounts` deserializer on the given struct and removes the need to deserialize each account manually.
+Karaniwan mong inilalapat ang katangian ng `Mga Account` sa pamamagitan ng macro na `derive` (hal. `#[derive(Accounts)]`). Nagpapatupad ito ng deserializer na `Mga Account` sa ibinigay na struct at inaalis ang pangangailangang manual na i-deserialize ang bawat account.
 
-Implementations of the `Accounts` trait are responsible for performing all requisite constraint checks to ensure the accounts meet conditions required for the program to run securely. Constraints are provided for each field using the `#account(..)` attribute (more on that shortly).
+Ang mga pagpapatupad ng katangian ng `Mga Account` ay may pananagutan sa pagsasagawa ng lahat ng kinakailangang pagsusuri sa hadlang upang matiyak na ang mga account ay nakakatugon sa mga kundisyon na kinakailangan para sa programa na tumakbo nang ligtas. Ang mga hadlang ay ibinibigay para sa bawat field gamit ang `#account(..)` attribute (higit pa tungkol doon sa ilang sandali).
 
-For example, `instruction_one` requires a `Context` argument of type `InstructionAccounts`. The `#[derive(Accounts)]` macro is used to implement the `InstructionAccounts` struct which includes three accounts: `account_name`, `user`, and `system_program`.
+Halimbawa, ang `instruction_one` ay nangangailangan ng `Context` na argument na may uri ng `InstructionAccounts`. Ang `#[derive(Accounts)]` macro ay ginagamit upang ipatupad ang `InstructionAccounts` struct na kinabibilangan ng tatlong account: `account_name`, `user`, at `system_program`.
 
 ```rust
 #[program]
@@ -116,22 +116,22 @@ pub struct InstructionAccounts {
 }
 ```
 
-When `instruction_one` is invoked, the program:
+Kapag na-invoke ang `instruction_one`, ang program ay:
 
-- Checks that the accounts passed into the instruction match the account types specified in the `InstructionAccounts` struct
-- Checks the accounts against any additional constraints specified
+- Sinusuri kung ang mga account na ipinasa sa pagtuturo ay tumutugma sa mga uri ng account na tinukoy sa `InstructionAccounts` struct
+- Sinusuri ang mga account laban sa anumang karagdagang mga hadlang na tinukoy
 
-If any accounts passed into `instruction_one` fail the account validation or security checks specified in the `InstructionAccounts` struct, then the instruction fails before even reaching the program logic.
+Kung ang anumang mga account na ipinasa sa `instruction_one` ay nabigo sa pagpapatunay ng account o mga pagsusuri sa seguridad na tinukoy sa `InstructionAccounts` struct, kung gayon ang pagtuturo ay nabigo bago pa man maabot ang logic ng programa.
 
-## Account validation
+## Kumpirmasyon ng account
 
-You may have noticed in the previous example that one of the accounts in `InstructionAccounts` was of type `Account`, one was of type `Signer`, and one was of type `Program`.
+Maaaring napansin mo sa nakaraang halimbawa na ang isa sa mga account sa `InstructionAccounts` ay may uri ng `Account`, ang isa ay may uri ng `Signer`, at ang isa ay may uri ng `Program`.
 
-Anchor provides a number of account types that can be used to represent accounts. Each type implements different account validation. We’ll go over a few of the common types you may encounter, but be sure to look through the [full list of account types](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/index.html).
+Nagbibigay ang Anchor ng ilang uri ng account na maaaring gamitin upang kumatawan sa mga account. Ang bawat uri ay nagpapatupad ng iba't ibang pagpapatunay ng account. Tatalakayin namin ang ilan sa mga karaniwang uri na maaari mong makaharap, ngunit tiyaking tingnan ang [buong listahan ng mga uri ng account](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/index. html).
 
 ### `Account`
 
-`Account` is a wrapper around `AccountInfo` that verifies program ownership and deserializes the underlying data into a Rust type.
+Ang `Account` ay isang wrapper sa paligid ng `AccountInfo` na nagbe-verify ng pagmamay-ari ng program at nagde-deserialize ng pinagbabatayan na data sa isang uri ng Rust.
 
 ```rust
 // Deserializes this info
@@ -147,20 +147,20 @@ pub struct AccountInfo<'a> {
 }
 ```
 
-Recall the previous example where `InstructionAccounts` had a field `account_name`:
+Alalahanin ang nakaraang halimbawa kung saan ang `InstructionAccounts` ay mayroong field na `account_name`:
 
 ```rust
 pub account_name: Account<'info, AccountStruct>
 ```
 
-The `Account` wrapper here does the following:
+Ginagawa ng `Account` wrapper dito ang sumusunod:
 
-- Deserializes the account `data` in the format of type `AccountStruct`
-- Checks that the program owner of the account matches the program owner specified for the `AccountStruct` type.
+- Deserializes ang account `data` sa format ng uri `AccountStruct`
+- Sinusuri kung ang may-ari ng program ng account ay tumutugma sa may-ari ng program na tinukoy para sa uri ng `AccountStruct`.
 
-When the account type specified in the `Account` wrapper is defined within the same crate using the `#[account]` attribute macro, the program ownership check is against the `programId` defined in the `declare_id!` macro.
+Kapag ang uri ng account na tinukoy sa `Account` wrapper ay tinukoy sa loob ng parehong crate gamit ang `#[account]` attribute macro, ang pagsusuri sa pagmamay-ari ng program ay laban sa `programId` na tinukoy sa `declare_id!` na macro.
 
-The following are the checks performed:
+Ang mga sumusunod ay ang mga pagsusuring isinagawa:
 
 ```rust
 // Checks
@@ -168,13 +168,13 @@ Account.info.owner == T::owner()
 !(Account.info.owner == SystemProgram && Account.info.lamports() == 0)
 ```
 
-### `Signer`
+### `Lagda`
 
-The `Signer` type validates that the given account signed the transaction. No other ownership or type checks are done. You should only use the `Signer` when the underlying account data is not required in the instruction.
+Ang uri ng `Signer` ay nagpapatunay na nilagdaan ng ibinigay na account ang transaksyon. Walang ibang pagmamay-ari o uri ng pagsusuri ang ginagawa. Dapat mo lang gamitin ang `Signer` kapag hindi kinakailangan ang pinagbabatayan na data ng account sa pagtuturo.
 
-For the `user` account in the previous example, the `Signer` type specifies that the `user` account must be a signer of the instruction.
+Para sa `user` account sa nakaraang halimbawa, ang uri ng `Signer` ay tumutukoy na ang `user` na account ay dapat na lumagda sa pagtuturo.
 
-The following check is performed for you:
+Ang sumusunod na pagsusuri ay isinasagawa para sa iyo:
 
 ```rust
 // Checks
@@ -183,11 +183,11 @@ Signer.info.is_signer == true
 
 ### `Program`
 
-The `Program` type validates that the account is a certain program.
+Ang uri ng `Program` ay nagpapatunay na ang account ay isang partikular na programa.
 
-For the `system_program` account in the previous example, the `Program` type is used to specify the program should be the system program. Anchor provides a `System` type which includes the `programId` of the system program to check against.
+Para sa account ng `system_program` sa nakaraang halimbawa, ang uri ng `Program` ay ginagamit upang tukuyin ang program ay dapat ang system program. Nagbibigay ang Anchor ng uri ng `System` na kinabibilangan ng `programId` ng system program na susuriin.
 
-The following checks are performed for you:
+Ang mga sumusunod na pagsusuri ay ginagawa para sa iyo:
 
 ```rust
 //Checks
@@ -195,11 +195,11 @@ account_info.key == expected_program
 account_info.executable == true
 ```
 
-## Add constraints with `#[account(..)]`
+## Magdagdag ng mga hadlang sa `#[account(..)]`
 
-The `#[account(..)]` attribute macro is used to apply constraints to accounts. We'll go over a few constraint examples in this and future lessons, but at some point be sure to look at the full [list of possible constraints](https://docs.rs/anchor-lang/latest/anchor_lang/derive.Accounts.html).
+Ginagamit ang `#[account(..)]` attribute macro para maglapat ng mga hadlang sa mga account. Tatalakayin natin ang ilang halimbawa ng hadlang sa mga aralin na ito at sa hinaharap, ngunit tiyaking tingnan ang buong [listahan ng mga posibleng hadlang](https://docs.rs/anchor-lang/latest/anchor_lang/derive .Accounts.html).
 
-Recall again the `account_name` field from the `InstructionAccounts` example. 
+Recall muli ang `account_name` na field mula sa `InstructionAccounts` na halimbawa.
 
 ```rust
 #[account(init, payer = user, space = 8 + 8)]
@@ -208,24 +208,24 @@ pub account_name: Account<'info, AccountStruct>,
 pub user: Signer<'info>,
 ```
 
-Notice that the `#[account(..)]` attribute contains three comma-separated values:
+Pansinin na ang `#[account(..)]` attribute ay naglalaman ng tatlong comma-separated values:
 
-- `init` - creates the account via a CPI to the system program and initializes it (sets its account discriminator)
-- `payer` - specifies the payer for the account initialization to be the `user` account defined in the struct
-- `space`- specifies that the space allocated for the account should be `8 + 8` bytes. The first 8 bytes is for a discriminator that Anchor automatically adds to identify the account type. The next 8 bytes allocates space for the data stored on the account as defined in the `AccountStruct` type.
+- `init` - nililikha ang account sa pamamagitan ng CPI sa system program at sinisimulan ito (nagtatakda ng discriminator ng account nito)
+- `payer` - tumutukoy sa nagbabayad para sa pagsisimula ng account upang maging `user` na account na tinukoy sa struct
+- Ang `space`- ay tumutukoy na ang space na inilaan para sa account ay dapat na `8 + 8` bytes. Ang unang 8 byte ay para sa isang discriminator na awtomatikong idinaragdag ng Anchor upang matukoy ang uri ng account. Ang susunod na 8 byte ay naglalaan ng espasyo para sa data na nakaimbak sa account gaya ng tinukoy sa uri ng `AccountStruct`.
 
-For `user` we use the `#[account(..)]` attribute to specify that the given account is mutable. The `user` account must be marked as mutable because lamports will be deducted from the account to pay for the initialization of `account_name`.
+Para sa `user` ginagamit namin ang attribute na `#[account(..)]` para tukuyin na ang ibinigay na account ay mutable. Ang `user` account ay dapat mamarkahan bilang mutable dahil ang mga lampor ay ibabawas mula sa account upang bayaran ang pagsisimula ng `account_name`.
 
 ```rust
 #[account(mut)]
 pub user: Signer<'info>,
 ```
 
-Note that the `init` constraint placed on `account_name` automatically includes a `mut` constraint so that both `account_name` and `user` are mutable accounts.
+Tandaan na ang `init` constraint na inilagay sa `account_name` ay awtomatikong may kasamang `mut` constraint upang ang `account_name` at `user` ay mga mutable na account.
 
 ## `#[account]`
 
-The `#[account]` attribute is applied to structs representing the data structure of a Solana account. It implements the following traits:
+Inilapat ang attribute na `#[account]` sa mga struct na kumakatawan sa istruktura ng data ng isang Solana account. Ipinapatupad nito ang mga sumusunod na katangian:
 
 - `AccountSerialize`
 - `AccountDeserialize`
@@ -235,15 +235,15 @@ The `#[account]` attribute is applied to structs representing the data structure
 - `Discriminator`
 - `Owner`
 
-You can read more about the details of each trait [here](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). However, mostly what you need to know is that the `#[account]` attribute enables serialization and deserialization, and implements the discriminator and owner traits for an account.
+Maaari kang magbasa nang higit pa tungkol sa mga detalye ng bawat katangian [dito](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). Gayunpaman, higit sa lahat ang kailangan mong malaman ay na ang `#[account]` na katangian ay nagbibigay-daan sa serialization at deserialization, at nagpapatupad ng mga katangian ng discriminator at may-ari para sa isang account.
 
-The discriminator is an 8 byte unique identifier for an account type derived from the first 8 bytes of the SHA256 hash of the account type's name. When implementing account serialization traits, the first 8 bytes are reserved for the account discriminator.
+Ang discriminator ay isang 8 byte na natatanging identifier para sa isang uri ng account na nagmula sa unang 8 byte ng SHA256 hash ng pangalan ng uri ng account. Kapag nagpapatupad ng mga katangian ng serialization ng account, ang unang 8 byte ay nakalaan para sa discriminator ng account.
 
-As a result, any calls to `AccountDeserialize`’s `try_deserialize` will check this discriminator. If it doesn’t match, an invalid account was given, and the account deserialization will exit with an error.
+Bilang resulta, susuriin ng anumang mga tawag sa `AccountDeserialize` `try_deserialize` ang discriminator na ito. Kung hindi ito tumugma, nagbigay ng di-wastong account, at lalabas ang deserialization ng account nang may error.
 
-The `#[account]` attribute also implements the `Owner` trait for a struct using the `programId` declared by `declareId` of the crate `#[account]` is used in. In other words, all accounts initialized using an account type defined using the `#[account]` attribute within the program are also owned by the program.
+Ang `#[account]` attribute ay nagpapatupad din ng `Owner` trait para sa isang struct gamit ang `programId` na idineklara ng `declareId` ng crate `#[account]` ay ginagamit sa. Sa madaling salita, lahat ng account ay sinimulan gamit ang isang uri ng account na tinukoy gamit ang `#[account]` attribute sa loob ng program ay pagmamay-ari din ng program.
 
-As an example, let's look at `AccountStruct` used by the `account_name` of `InstructionAccounts`
+Bilang halimbawa, tingnan natin ang `AccountStruct` na ginamit ng `account_name` ng `InstructionAccounts`
 
 ```rust
 #[derive(Accounts)]
@@ -259,20 +259,20 @@ pub struct AccountStruct {
 }
 ```
 
-The `#[account]` attribute ensures that it can be used as an account in `InstructionAccounts`.
+Tinitiyak ng `#[account]` attribute na magagamit ito bilang account sa `InstructionAccounts`.
 
-When the `account_name` account is initialized:
+Kapag nasimulan ang `account_name` na account:
 
-- The first 8 bytes is set as the `AccountStruct` discriminator
-- The data field of the account will match `AccountStruct`
-- The account owner is set as the `programId` from `declare_id`
+- Ang unang 8 byte ay itinakda bilang `AccountStruct` discriminator
+- Tutugma ang field ng data ng account sa `AccountStruct`
+- Ang may-ari ng account ay itinakda bilang `programId` mula sa `declare_id`
 
-## Bring it all together
+## Pagsama-samahin ang lahat
 
-When you combine all of these Anchor types you end up with a complete program. Below is an example of a basic Anchor program with a single instruction that:
+Kapag pinagsama mo ang lahat ng mga uri ng Anchor na ito, magkakaroon ka ng kumpletong programa. Nasa ibaba ang isang halimbawa ng pangunahing Anchor program na may iisang pagtuturo na:
 
-- Initializes a new account
-- Updates the data field on the account with the instruction data passed into the instruction
+- Nagsisimula ng bagong account
+- Ina-update ang field ng data sa account gamit ang data ng pagtuturo na ipinasa sa pagtuturo
 
 ```rust
 // Use this import to gain access to common anchor features
@@ -309,57 +309,57 @@ pub struct AccountStruct {
 }
 ```
 
-You are now ready to build your own Solana program using the Anchor framework!
+Handa ka na ngayong bumuo ng sarili mong programang Solana gamit ang Anchor framework!
 
 # Demo
 
-Before we begin, install Anchor by following the steps [here](https://www.anchor-lang.com/docs/installation).
+Bago tayo magsimula, i-install ang Anchor sa pamamagitan ng pagsunod sa mga hakbang [dito](https://www.anchor-lang.com/docs/installation).
 
-For this demo we'll create a simple counter program with two instructions:
+Para sa demo na ito gagawa kami ng simpleng counter program na may dalawang tagubilin:
 
-- The first instruction will initialize a counter account
-- The second instruction will increment the count stored on a counter account
+- Ang unang tagubilin ay magpapasimula ng isang counter account
+- Ang pangalawang tagubilin ay magdaragdag sa bilang na nakaimbak sa isang counter account
 
-### 1. Setup
+### 1. Pag-setup
 
-Create a new project called `anchor-counter` by running `anchor init`:
+Lumikha ng bagong proyekto na tinatawag na `anchor-counter` sa pamamagitan ng pagpapatakbo ng `anchor init`:
 
 ```console
 anchor init anchor-counter
 ```
 
-Next, run `anchor-build`
+Susunod, patakbuhin ang `anchor-build`
 
 ```console
 anchor-build
 ```
 
-Then, run `anchor keys list`
+Pagkatapos, patakbuhin ang `listahan ng mga anchor key`
 
 ```console
 anchor keys list
 ```
 
-Copy the program ID output from `anchor keys list`
+Kopyahin ang output ng program ID mula sa `listahan ng mga anchor key`
 
 ```
 anchor_counter: BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
 ```
 
-Then update `declare_id!` in `lib.rs`
+Pagkatapos ay i-update ang `declare_id!` sa `lib.rs`
 
 ```rust
 declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
 ```
 
-And also update `Anchor.toml`
+At i-update din ang `Anchor.toml`
 
 ```
 [programs.localnet]
 anchor_counter = "BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr"
 ```
 
-Finally, delete the default code in `lib.rs` until all that is left is the following:
+Panghuli, tanggalin ang default na code sa `lib.rs` hanggang sa ang natitira na lang ay ang sumusunod:
 
 ```rust
 use anchor_lang::prelude::*;
@@ -373,9 +373,9 @@ pub mod anchor_counter {
 }
 ```
 
-### 2. Add the `initialize` instruction
+### 2. Idagdag ang `initialize` na pagtuturo
 
-First, let’s implement the `initialize` instruction within `#[program]`. This instruction requires a `Context` of type `Initialize` and takes no additional instruction data. In the instruction logic, we are simply setting the `counter` account’s `count` field to `0`.
+Una, ipatupad natin ang `initialize` na pagtuturo sa loob ng `#[program]`. Ang tagubiling ito ay nangangailangan ng `Konteksto` na may uri ng `Initialize` at hindi kumukuha ng karagdagang data ng pagtuturo. Sa lohika ng pagtuturo, itinatakda lang namin ang field ng `count` ng `count` sa `0`.
 
 ```rust
 pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
@@ -387,13 +387,13 @@ pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
 }
 ```
 
-### 3. Implement `Context` type `Initialize`
+### 3. Ipatupad ang uri ng `Context` na `Initialize`
 
-Next, using the `#[derive(Accounts)]` macro, let’s implement the `Initialize` type that lists and validates the accounts used by the `initialize` instruction. It'll need the following accounts:
+Susunod, gamit ang `#[derive(Accounts)]` macro, ipatupad natin ang uri ng `Initialize` na naglilista at nagpapatunay sa mga account na ginagamit ng tagubiling `initialize`. Kakailanganin nito ang mga sumusunod na account:
 
-- `counter` - the counter account initialized in the instruction
-- `user` - payer for the initialization
-- `system_program` - the system program is required for the initialization of any new accounts
+- `counter` - ang counter account na sinimulan sa pagtuturo
+- `user` - nagbabayad para sa pagsisimula
+- `system_program` - ang system program ay kinakailangan para sa pagsisimula ng anumang mga bagong account
 
 ```rust
 #[derive(Accounts)]
@@ -406,9 +406,9 @@ pub struct Initialize<'info> {
 }
 ```
 
-### 4. Implement `Counter`
+### 4. Ipatupad ang `Counter`
 
-Next, use the `#[account]` attribute to define a new `Counter` account type. The `Counter` struct defines one `count` field of type `u64`. This means that we can expect any new accounts initialized as a `Counter` type to have a matching data structure. The `#[account]` attribute also automatically sets the discriminator for a new account and sets the owner of the account as the `programId` from the `declare_id!` macro.
+Susunod, gamitin ang attribute na `#[account]` para tumukoy ng bagong uri ng account na `Counter`. Ang `Counter` struct ay tumutukoy sa isang `count` na field ng uri `u64`. Nangangahulugan ito na maaari naming asahan ang anumang mga bagong account na sinimulan bilang isang uri ng `Counter` na magkaroon ng katugmang istraktura ng data. Awtomatikong itinatakda din ng attribute na `#[account]` ang discriminator para sa isang bagong account at itinatakda ang may-ari ng account bilang `programId` mula sa `declare_id!` na macro.
 
 ```rust
 #[account]
@@ -417,9 +417,9 @@ pub struct Counter {
 }
 ```
 
-### 5. Add `increment` instruction
+### 5. Magdagdag ng `increment` na pagtuturo
 
-Within `#[program]`, let’s implement an `increment` instruction to increment the `count` once a `counter` account is initialized by the first instruction. This instruction requires a `Context` of type `Update` (implemented in the next step) and takes no additional instruction data. In the instruction logic, we are simply incrementing an existing `counter` account’s `count` field by `1`.
+Sa loob ng `#[program]`, ipatupad natin ang isang `increment` na tagubilin upang dagdagan ang `count` kapag ang isang `counter` na account ay nasimulan ng unang tagubilin. Nangangailangan ang tagubiling ito ng `Konteksto` ng uri ng `Update` (ipinatupad sa susunod na hakbang) at hindi kumukuha ng karagdagang data ng pagtuturo. Sa lohika ng pagtuturo, dinaragdagan lang namin ng `1` ang field ng `count` account ng umiiral nang `count`.
 
 ```rust
 pub fn increment(ctx: Context<Update>) -> Result<()> {
@@ -431,14 +431,14 @@ pub fn increment(ctx: Context<Update>) -> Result<()> {
 }
 ```
 
-### 6. Implement `Context` type `Update`
+### 6. Ipatupad ang uri ng `Context` na `Update`
 
-Lastly, using the `#[derive(Accounts)]` macro again, let’s create the `Update` type that lists the accounts that the `increment` instruction requires. It'll need the following accounts:
+Panghuli, gamit muli ang `#[derive(Accounts)]` macro, gawin natin ang uri ng `Update` na naglilista ng mga account na kinakailangan ng tagubiling `increment`. Kakailanganin nito ang mga sumusunod na account:
 
-- `counter` - an existing counter account to increment
-- `user` - payer for the transaction fee
+- `counter` - isang umiiral na counter account upang dagdagan
+- `user` - nagbabayad para sa bayarin sa transaksyon
 
-Again, we’ll need to specify any constraints using the `#[account(..)]` attribute:
+Muli, kakailanganin naming tukuyin ang anumang mga hadlang gamit ang `#[account(..)]` attribute:
 
 ```rust
 #[derive(Accounts)]
@@ -449,9 +449,9 @@ pub struct Update<'info> {
 }
 ```
 
-### 7. Build
+### 7. Bumuo
 
-All together, the complete program will look like this:
+Sa kabuuan, ang kumpletong programa ay magiging ganito:
 
 ```rust
 use anchor_lang::prelude::*;
@@ -500,11 +500,11 @@ pub struct Counter {
 }
 ```
 
-Run `anchor build` to build the program.
+Patakbuhin ang `anchor build` upang buuin ang program.
 
-### 8. Testing
+### 8. Pagsubok
 
-Anchor tests are typically Typescript integration tests that use the mocha test framework. We'll learn more about testing later, but for now navigate to `anchor-counter.ts` and replace the default test code with the following:
+Ang mga anchor test ay karaniwang mga Typescript integration test na gumagamit ng mocha test framework. Matututunan namin ang higit pa tungkol sa pagsubok sa ibang pagkakataon, ngunit sa ngayon ay mag-navigate sa `anchor-counter.ts` at palitan ang default na code ng pagsubok ng mga sumusunod:
 
 ```ts
 import * as anchor from "@project-serum/anchor"
@@ -527,9 +527,9 @@ describe("anchor-counter", () => {
 })
 ```
 
-The above code generates a new keypair for the `counter` account we'll be initializing and creates placeholders for a test of each instruction.
+Ang code sa itaas ay bumubuo ng bagong keypair para sa `counter` na account na ating sisimulan at gagawa ng mga placeholder para sa pagsubok ng bawat pagtuturo.
 
-Next, create the first test for the `initialize` instruction:
+Susunod, lumikha ng unang pagsubok para sa pagtuturo na `pasimulan`:
 
 ```ts
 it("Is initialized!", async () => {
@@ -545,7 +545,7 @@ it("Is initialized!", async () => {
 })
 ```
 
-Next, create the second test for the `increment` instruction:
+Susunod, lumikha ng pangalawang pagsubok para sa pagtuturo ng `increment`:
 
 ```ts
 it("Incremented the count", async () => {
@@ -559,7 +559,7 @@ it("Incremented the count", async () => {
 })
 ```
 
-Lastly, run `anchor test` and you should see the following output:
+Panghuli, patakbuhin ang `anchor test` at dapat mong makita ang sumusunod na output:
 
 ```console
 anchor-counter
@@ -570,19 +570,19 @@ anchor-counter
 2 passing (696ms)
 ```
 
-Running `anchor test` automatically spins up a local test validator, deploys your program, and runs your mocha tests against it. Don't worry if you're confused by the tests for now - we'll dig in more later.
+Ang pagpapatakbo ng `anchor test` ay awtomatikong magpapaikot ng lokal na test validator, i-deploy ang iyong program, at pinapatakbo ang iyong mga mocha test laban dito. Huwag mag-alala kung nalilito ka sa mga pagsubok sa ngayon - maghuhukay pa kami sa ibang pagkakataon.
 
-Congratulations, you just built a Solana program using the Anchor framework! Feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-increment) if you need some more time with it.
+Binabati kita, nakagawa ka lang ng isang programang Solana gamit ang balangkas ng Anchor! Huwag mag-atubiling sumangguni sa [code ng solusyon](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-increment) kung kailangan mo pa ng ilang oras dito.
 
-# Challenge
+# Hamon
 
-Now it’s your turn to build something independently. Because we're starting with very simple programs, yours will look almost identical to what we just created. It's useful to try and get to the point where you can write it from scratch without referencing prior code, so try not to copy and paste here.
+Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa. Dahil nagsisimula kami sa napakasimpleng mga programa, ang sa iyo ay magmumukhang halos magkapareho sa kung ano ang nilikha namin. Kapaki-pakinabang na subukan at makarating sa punto kung saan maaari mong isulat ito mula sa simula nang hindi tinutukoy ang naunang code, kaya subukang huwag kopyahin at i-paste dito.
 
-1. Write a new program that initializes a `counter` account
-2. Implement both an `increment` and `decrement` instruction
-3. Build and deploy your program like we did in the demo
-4. Test your newly deployed program and use Solana Explorer to check the program logs
+1. Sumulat ng bagong program na nagpapasimula ng `counter` account
+2. Magpatupad ng parehong `increment` at `decrement` na pagtuturo
+3. Buuin at i-deploy ang iyong programa tulad ng ginawa namin sa demo
+4. Subukan ang iyong bagong deployed na program at gamitin ang Solana Explorer upang suriin ang mga log ng program
 
-As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!
+Gaya ng dati, maging malikhain sa mga hamong ito at dalhin ang mga ito sa kabila ng mga pangunahing tagubilin kung gusto mo - at magsaya!
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
+Subukang gawin ito nang nakapag-iisa kung kaya mo! Ngunit kung natigil ka, huwag mag-atubiling sumangguni sa [solution code](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).

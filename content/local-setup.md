@@ -10,107 +10,108 @@ objectives:
 
 # TL;DR
 
-- To get started with Solana locally, you’ll first need to install **Rust** and the **Solana CLI**
-- Using the Solana CLI you can run a **local test validator** using the `solana-test-validator` command
-- Once you have Rust and Solana CLI installed, you’ll be able to build and deploy your programs locally using the `cargo build-bpf` and `solana program deploy` commands
-- You can view program logs using the `solana logs` command
+- Upang makapagsimula sa Solana nang lokal, kakailanganin mo munang i-install ang **Rust** at ang **Solana CLI**
+- Gamit ang Solana CLI maaari kang magpatakbo ng **local test validator** gamit ang `solana-test-validator` command
+- Kapag na-install mo na ang Rust at Solana CLI, magagawa mong buuin at i-deploy ang iyong mga programa nang lokal gamit ang mga command na `cargo build-bpf` at `solana program deploy`
+- Maaari mong tingnan ang mga log ng programa gamit ang command na `solana logs`
 
-# Overview
+# Pangkalahatang-ideya
 
-So far in this course, we've used Solana Playground to develop and deploy Solana programs. And while it's a great tool, for certain complex projects you may prefer to have a local development environment set up. This may be in order to use crates not supported by Solana Playground, to take advantage of custom scripts or tooling you've created, or simply out of personal preference.
+Sa ngayon sa kursong ito, ginamit namin ang Solana Playground upang bumuo at mag-deploy ng mga programang Solana. At habang ito ay isang mahusay na tool, para sa ilang mga kumplikadong proyekto ay maaaring mas gusto mong magkaroon ng isang lokal na kapaligiran sa pag-unlad na naka-set up. Maaaring ito ay upang magamit ang mga crates na hindi sinusuportahan ng Solana Playground, upang samantalahin ang mga custom na script o tooling na iyong ginawa, o dahil lang sa personal na kagustuhan.
 
-With that said, this lesson will be slightly different from the others. Instead of covering a lot of ground on how to write a program or interact with the Solana network, this lesson will primarily focus on the less glamorous task of setting up your local development environment.
+Sa sinabi nito, ang araling ito ay bahagyang naiiba sa iba. Sa halip na saklawin ang maraming lugar kung paano magsulat ng isang programa o makipag-ugnayan sa network ng Solana, ang araling ito ay pangunahing tututuon sa hindi gaanong kaakit-akit na gawain ng pag-set up ng iyong lokal na kapaligiran sa pag-unlad.
 
-In order to build, test, and deploy Solana programs from your machine, you'll need to install the Rust compiler and the Solana Command Line Interface (CLI). We'll start by guiding you through these installation processes, then cover how to use what you'll have just installed.
+Upang bumuo, subukan, at mag-deploy ng mga programang Solana mula sa iyong makina, kakailanganin mong i-install ang Rust compiler at ang Solana Command Line Interface (CLI). Magsisimula kami sa pamamagitan ng paggabay sa iyo sa mga proseso ng pag-install na ito, pagkatapos ay saklawin kung paano gamitin ang kaka-install mo pa lang.
 
-The installation instructions below contain the steps for installing Rust and the Solana CLI at the time of writing. They may have changed by the time you're reading this, so if you run into issues please consult the official installation pages for each:
+Ang mga tagubilin sa pag-install sa ibaba ay naglalaman ng mga hakbang para sa pag-install ng Rust at ang Solana CLI sa oras ng pagsulat. Maaaring nagbago ang mga ito sa oras na binabasa mo ito, kaya kung magkakaroon ka ng mga isyu mangyaring kumonsulta sa opisyal na pahina ng pag-install para sa bawat isa:
 
-- [Install Rust](https://www.rust-lang.org/tools/install)
-- [Install the Solana Tool Suite](https://docs.solana.com/cli/install-solana-cli-tools)
+- [I-install ang Rust](https://www.rust-lang.org/tools/install)
+- [I-install ang Solana Tool Suite](https://docs.solana.com/cli/install-solana-cli-tools)
 
-## Setup on Windows (with Linux)
+## Setup sa Windows (na may Linux)
 
-### Download Windows Subsystem for Linux (WSL)
+### I-download ang Windows Subsystem para sa Linux (WSL)
 
-If you are on a Windows computer, it is recommended to use Windows Subsystem for Linux (WSL) to build your Solana Programs.
+Kung ikaw ay nasa isang Windows computer, inirerekumenda na gamitin ang Windows Subsystem para sa Linux (WSL) upang buuin ang iyong Solana Programs.
 
-Open an **administrator** PowerShell or Windows Command Prompt and check Windows version
+Magbukas ng **administrator** PowerShell o Windows Command Prompt at tingnan ang bersyon ng Windows
+
 
 ```bash
 winver
 ```
 
-If you are on Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11, run the following command.
+Kung ikaw ay nasa Windows 10 na bersyon 2004 at mas mataas (Build 19041 at mas mataas) o Windows 11, patakbuhin ang sumusunod na command.
 
 ```bash
 wsl --install
 ```
 
-If you are running an older version of Windows, follow the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install-manual).
+Kung nagpapatakbo ka ng mas lumang bersyon ng Windows, sundin ang mga tagubilin [dito](https://docs.microsoft.com/en-us/windows/wsl/install-manual).
 
-You can read more about installing WSL [here](https://docs.microsoft.com/en-us/windows/wsl/install).
+Maaari kang magbasa nang higit pa tungkol sa pag-install ng WSL [dito](https://docs.microsoft.com/en-us/windows/wsl/install).
 
-### Download Ubuntu
+### I-download ang Ubuntu
 
-Next, download Ubuntu [here](https://apps.microsoft.com/store/detail/ubuntu-2004/9N6SVWS3RX71?hl=en-us&gl=US). Ubuntu provides a terminal that allows you to run Linux on a Windows computer. This is where you’ll be running Solana CLI commands.
+Susunod, i-download ang Ubuntu [dito](https://apps.microsoft.com/store/detail/ubuntu-2004/9N6SVWS3RX71?hl=en-us&gl=US). Nagbibigay ang Ubuntu ng terminal na nagbibigay-daan sa iyong patakbuhin ang Linux sa isang Windows computer. Dito ka magpapatakbo ng mga command ng Solana CLI.
 
-### Download Rust (for WSL)
+### I-download ang Rust (para sa WSL)
 
-Next, open an Ubuntu terminal and download Rust for WSL using the following command. You can read more about downloading Rust [here](https://www.rust-lang.org/learn/get-started).
+Susunod, magbukas ng Ubuntu terminal at i-download ang Rust para sa WSL gamit ang sumusunod na command. Maaari kang magbasa nang higit pa tungkol sa pag-download ng Rust [dito](https://www.rust-lang.org/learn/get-started).
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-### Download Solana CLI
+### I-download ang Solana CLI
 
-Now we are ready to download Solana CLI for Linux. Go ahead and run the following command in an Ubuntu terminal. You can read more about downloading Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
-
-```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
-```
-
-## Setup on macOS
-
-### Download Rust
-
-First, download Rust by following the instructions [here](https://www.rust-lang.org/tools/install)
-
-### Download the Solana CLI
-
-Next, download the Solana CLI by running the following command in your terminal.
+Ngayon handa na kaming mag-download ng Solana CLI para sa Linux. Sige at patakbuhin ang sumusunod na command sa isang Ubuntu terminal. Maaari kang magbasa nang higit pa tungkol sa pag-download ng Solana CLI [dito](https://docs.solana.com/cli/install-solana-cli-tools).
 
 ```bash
 sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 ```
 
-You can read more about downloading the Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
+## Setup sa macOS
 
-## Solana CLI basics
+### I-download ang Rust
 
-The Solana CLI is a command-line interface tool that provides a collection of commands for interacting with a Solana cluster.
+Una, i-download ang Rust sa pamamagitan ng pagsunod sa mga tagubilin [dito](https://www.rust-lang.org/tools/install)
 
-We'll cover some of the most common commands in this lesson, but you can always view the list of all possible Solana CLI commands by running `solana --help`.
+### I-download ang Solana CLI
+
+Susunod, i-download ang Solana CLI sa pamamagitan ng pagpapatakbo ng sumusunod na command sa iyong terminal.
+
+```bash
+sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
+```
+
+Maaari kang magbasa nang higit pa tungkol sa pag-download ng Solana CLI [dito](https://docs.solana.com/cli/install-solana-cli-tools).
+
+## Mga pangunahing kaalaman sa Solana CLI
+
+Ang Solana CLI ay isang command-line interface tool na nagbibigay ng koleksyon ng mga command para sa pakikipag-ugnayan sa isang Solana cluster.
+
+Sasaklawin namin ang ilan sa mga pinakakaraniwang command sa araling ito, ngunit maaari mong palaging tingnan ang listahan ng lahat ng posibleng Solana CLI command sa pamamagitan ng pagpapatakbo ng `solana --help`.
 
 ### Solana CLI configuration
 
-The Solana CLI stores a number of configuration settings that impact the behavior of certain commands. You can use the following command to view the current configuration:
+Ang Solana CLI ay nag-iimbak ng ilang setting ng configuration na nakakaapekto sa gawi ng ilang partikular na command. Maaari mong gamitin ang sumusunod na command upang tingnan ang kasalukuyang configuration:
 
 ```bash
 solana config get
 ```
 
-The `solana config get` command will return the following:
+Ang command na `solana config get` ay magbabalik ng sumusunod:
 
-- `Config File` - the file Solana CLI is located on your computer
-- `RPC URL` - endpoint you are using, connecting you to localhost, Devnet, or Mainnet
-- `WebSocket URL` - the websocket to listen for events from the cluster you are targeting (computed when you set the `RPC URL`)
-- `Keypair Path` - the keypair path used when running Solana CLI subcommands
-- `Commitment` - provides a measure of the network confirmation and describes how finalized a block is at that point in time
+- `Config File` - ang file na Solana CLI ay matatagpuan sa iyong computer
+- `RPC URL` - endpoint na iyong ginagamit, ikinokonekta ka sa localhost, Devnet, o Mainnet
+- `WebSocket URL` - ang websocket upang makinig sa mga kaganapan mula sa cluster na iyong tina-target (nakalkula kapag itinakda mo ang `RPC URL`)
+- `Path ng Keypair` - ang path ng keypair na ginagamit kapag nagpapatakbo ng mga subcommand ng Solana CLI
+- `Commitment` - nagbibigay ng sukatan ng kumpirmasyon ng network at inilalarawan kung paano na-finalize ang isang block sa oras na iyon
 
-You can change your Solana CLI configuration at any time by using the `solana config set` command followed by the setting you want to update.
+Maaari mong baguhin ang iyong configuration ng Solana CLI anumang oras sa pamamagitan ng paggamit ng command na `solana config set` na sinusundan ng setting na gusto mong i-update.
 
-The most common change will be to the cluster you are targeting. Use the `solana config set --url` command to change the `RPC URL`.
+Ang pinakakaraniwang pagbabago ay sa cluster na iyong tina-target. Gamitin ang command na `solana config set --url` para baguhin ang `RPC URL`.
 
 ```bash
 solana config set --url localhost
@@ -124,7 +125,7 @@ solana config set --url devnet
 solana config set --url mainnet-beta
 ```
 
-Similarly, you can use the `solana config set --keypair` command to change the `Keypair Path`. Solana CLI will then use the keypair from the specified path when running commands.
+Katulad nito, maaari mong gamitin ang command na `solana config set --keypair` upang baguhin ang `Path ng Keypair`. Gagamitin ng Solana CLI ang keypair mula sa tinukoy na landas kapag nagpapatakbo ng mga command.
 
 ```bash
 solana config set --keypair ~/<FILE_PATH>
@@ -132,65 +133,65 @@ solana config set --keypair ~/<FILE_PATH>
 
 ### Test validators
 
-You'll often find it helpful to run a local validator for testing and debugging rather than deploying to Devnet.
+Madalas mong makitang kapaki-pakinabang na magpatakbo ng lokal na validator para sa pagsubok at pag-debug kaysa sa pag-deploy sa Devnet.
 
-You can run a local test validator using the `solana-test-validator` command. This command creates an ongoing process that will require its own command line window.
+Maaari kang magpatakbo ng lokal na test validator gamit ang command na `solana-test-validator`. Lumilikha ang command na ito ng isang patuloy na proseso na mangangailangan ng sarili nitong command line window.
 
-### Stream program logs
+### Mga log ng stream ng programa
 
-It's often helpful to open a new console and run the `solana logs` command alongside the test validator. This creates another ongoing process that will stream the logs associated with your configuration's cluster.
+Madalas na nakakatulong na magbukas ng bagong console at patakbuhin ang command na `solana logs` kasama ng test validator. Lumilikha ito ng isa pang patuloy na proseso na mag-stream ng mga log na nauugnay sa cluster ng iyong configuration.
 
-If your CLI configuration is pointed to `localhost` then the logs will always be associated with the test validator you've created, but you can also stream logs from other clusters like Devnet and Mainnet Beta. When streaming logs from other clusters, you'll want to include a program ID with the command to limit the logs you see to your specific program.
+Kung ang iyong CLI configuration ay nakaturo sa `localhost`, ang mga log ay palaging iuugnay sa test validator na iyong ginawa, ngunit maaari ka ring mag-stream ng mga log mula sa iba pang mga cluster tulad ng Devnet at Mainnet Beta. Kapag nag-stream ng mga log mula sa iba pang mga cluster, gugustuhin mong magsama ng program ID na may command na limitahan ang mga log na nakikita mo sa iyong partikular na program.
 
-### Keypairs
+### Keypares
 
-You can generate a new keypair using the `solana-keygen new --outfile` command followed by the file path to store the keypair.
+Maaari kang bumuo ng bagong keypair gamit ang utos na `solana-keygen new --outfile` na sinusundan ng path ng file upang iimbak ang keypair.
 
 ```bash
 solana-keygen new --outfile ~/<FILE_PATH>
 ```
 
-At times you may need to check which keypair your configuration is pointed to. To view the `publickey` of the current keypair set in `solana config`, use the `solana address` command.
+Kung minsan, maaaring kailanganin mong suriin kung aling keypair ang itinuturo ng iyong configuration. Upang tingnan ang `publickey` ng kasalukuyang keypair na nakatakda sa `solana config`, gamitin ang command na `solana address`.
 
 ```bash
 solana address
 ```
 
-To view the SOL balance of the current keypair set in `solana config`, use the `solana balance` command.
+Upang tingnan ang balanse ng SOL ng kasalukuyang keypair na itinakda sa `solana config`, gamitin ang command na `solana balance`.
 
 ```bash
 solana balance
 ```
 
-To airdrop SOL on Devnet or localhost, use the `solana airdrop` command. Note that while on Devnet you are limited to 2 SOL per airdrop.
+Upang i-airdrop ang SOL sa Devnet o localhost, gamitin ang command na `solana airdrop`. Tandaan na habang nasa Devnet, limitado ka sa 2 SOL bawat airdrop.
 
 ```bash
 solana airdrop 2
 ```
 
-As you develop and test programs in your local environment, you'll likely encounter errors that are caused by:
+Habang gumagawa ka at sumusubok ng mga programa sa iyong lokal na kapaligiran, malamang na makatagpo ka ng mga error na sanhi ng:
 
-- Using the wrong keypair
-- Not having enough SOL to deploy your program or perform a transaction
-- Pointing to the wrong cluster
+- Paggamit ng maling keypair
+- Walang sapat na SOL para i-deploy ang iyong program o magsagawa ng transaksyon
+- Tumuturo sa maling kumpol
 
-The CLI commands we've covered so far should help you quickly resolve those issues.
+Ang mga utos ng CLI na saklaw namin sa ngayon ay dapat makatulong sa iyo na mabilis na malutas ang mga isyung iyon.
 
-## Develop Solana programs in your local environment
+## Bumuo ng mga programang Solana sa iyong lokal na kapaligiran
 
-While the Solana Playground is enormously helpful, it's hard to beat the flexibility of your own local development environment. As you build more complex programs, you may end up integrating them with one or more clients that are also under development in your local environment. Testing between these programs and clients is often simpler when you write, build, and deploy your programs locally.
+Bagama't napakalaking tulong ng Solana Playground, mahirap talunin ang flexibility ng sarili mong lokal na kapaligiran sa pag-unlad. Habang bumubuo ka ng mas kumplikadong mga programa, maaari mong isama ang mga ito sa isa o higit pang mga kliyente na nasa ilalim din ng pag-unlad sa iyong lokal na kapaligiran. Ang pagsubok sa pagitan ng mga program na ito at mga kliyente ay kadalasang mas simple kapag nagsusulat, bumuo, at nag-deploy ng iyong mga programa nang lokal.
 
-### Create a new project
+### Gumawa ng bagong proyekto
 
-To create a new Rust package to write a Solana program, you can use the `cargo new --lib` command with the name of the new directory you'd like to create.
+Para gumawa ng bagong Rust package para magsulat ng Solana program, maaari mong gamitin ang command na `cargo new --lib` na may pangalan ng bagong direktoryo na gusto mong gawin.
 
 ```bash
 cargo new --lib <PROJECT_DIRECTORY_NAME>
 ```
 
-This command will create a new directory with the name you specified at the end of the command. This new directory will contain a `Cargo.toml` manifest file that describes the package.
+Ang utos na ito ay lilikha ng bagong direktoryo na may pangalang tinukoy mo sa dulo ng utos. Ang bagong direktoryo na ito ay maglalaman ng `Cargo.toml` na manifest file na naglalarawan sa package.
 
-The manifest file contains metadata such as name, version, and dependencies (crates). To write a Solana program, you’ll need to update the `Cargo.toml` file to include `solana-program` as a dependency. You may also need to add the `[lib]` and `crate-type` lines shown below.
+Ang manifest file ay naglalaman ng metadata gaya ng pangalan, bersyon, at dependencies (crates). Para magsulat ng Solana program, kakailanganin mong i-update ang `Cargo.toml` file para maisama ang `solana-program` bilang dependency. Maaaring kailanganin mo ring idagdag ang mga linyang `[lib]` at `crate-type` na ipinapakita sa ibaba.
 
 ```rust
 [package]
@@ -208,17 +209,17 @@ solana-program = "~1.8.14"
 crate-type = ["cdylib", "lib"]
 ```
 
-At that point, you can start writing your program in the `src` folder.
+Sa puntong iyon, maaari mong simulan ang pagsusulat ng iyong programa sa folder na `src`.
 
-### Build and deploy
+### Bumuo at i-deploy
 
-When it comes time to build your Solana program, you can use the `cargo build-bpf` command.
+Pagdating ng oras para buuin ang iyong Solana program, maaari mong gamitin ang command na `cargo build-bpf`.
 
 ```bash
 cargo build-bpf
 ```
 
-The output of this command will include instructions for a deploying your program that look something like this:
+Ang output ng utos na ito ay magsasama ng mga tagubilin para sa pag-deploy ng iyong program na ganito ang hitsura:
 
 ```text
 To deploy this program:
@@ -227,7 +228,7 @@ The program address will default to this keypair (override with --program-id):
   /Users/James/Dev/Work/solana-hello-world-local/target/deploy/solana_hello_world_local-keypair.json
 ```
 
-When you are ready to deploy the program, use the `solana program deploy` command output from `cargo build-bpf`. This will deploy your program to the cluster specified in your CLI configuration.
+Kapag handa ka nang i-deploy ang program, gamitin ang `solana program deploy` na command output mula sa `cargo build-bpf`. Ide-deploy nito ang iyong programa sa cluster na tinukoy sa iyong configuration ng CLI.
 
 ```rust
 solana program deploy <PATH>
@@ -235,19 +236,19 @@ solana program deploy <PATH>
 
 # Demo
 
-Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program.md).
+Magsanay tayo sa pamamagitan ng pagbuo at pag-deploy ng "Hello World!" program na ginawa namin sa [aralin sa Hello World](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program.md).
 
-We'll do this all locally, including deploying to a local test validator. Before we begin, make sure you've installed Rust and the Solana CLI. You can refer to the instructions in the overview to get set up if you haven't already.
+Gagawin namin lahat ito nang lokal, kabilang ang pag-deploy sa isang lokal na validator ng pagsubok. Bago tayo magsimula, tiyaking na-install mo ang Rust at ang Solana CLI. Maaari kang sumangguni sa mga tagubilin sa pangkalahatang-ideya upang makapag-set up kung hindi mo pa nagagawa.
 
-### 1. Create a new Rust project
+### 1. Gumawa ng bagong proyekto ng Rust
 
-Let's start by creating a new Rust project. Run the `cargo new --lib` command below. Feel free to replace the directory name with your own.
+Magsimula tayo sa paggawa ng bagong proyekto ng Rust. Patakbuhin ang command na `cargo new --lib` sa ibaba. Huwag mag-atubiling palitan ang pangalan ng direktoryo ng iyong sarili.
 
 ```bash
 cargo new --lib solana-hello-world-local
 ```
 
-Remember to update the `cargo.toml` file to include `solana-program` as a dependency and the `crate-type` if isn't there already.
+Tandaang i-update ang `cargo.toml` file upang isama ang `solana-program` bilang dependency at ang `crate-type` kung wala pa.
 
 ```bash
 [package]
@@ -262,9 +263,9 @@ solana-program = "~1.8.14"
 crate-type = ["cdylib", "lib"]
 ```
 
-### 2. Write your program
+### 2. Isulat ang iyong programa
 
-Next, update `lib.rs` with the “Hello World!” program below. This program simply prints “Hello, world!” to the program log when the program is invoked.
+Susunod, i-update ang `lib.rs` gamit ang “Hello World!” programa sa ibaba. Ang program na ito ay nagpi-print lamang ng "Hello, world!" sa log ng program kapag na-invoke ang program.
 
 ```rust
 use solana_program::{
@@ -288,63 +289,63 @@ pub fn process_instruction(
 }
 ```
 
-### 3. Run a local test validator
+### 3. Magpatakbo ng lokal na test validator
 
-With your program written, let's make sure our Solana CLI configuration points to localhost by using the `solana config set --url` command.
+Sa pagsulat ng iyong programa, siguraduhin nating ang aming Solana CLI configuration ay tumuturo sa localhost sa pamamagitan ng paggamit ng `solana config set --url` na utos.
 
 ```bash
 solana config set --url localhost
 ```
 
-Next, check that the Solana CLI configuration has updated using the `solana config get` command.
+Susunod, tingnan kung na-update ang configuration ng Solana CLI gamit ang command na `solana config get`.
 
 ```bash
 solana config get
 ```
 
-Finally, run a local test validator. In a separate terminal window, run the `solana-test-validator` command. This is only necessary when our `RPC URL` is set to localhost.
+Panghuli, magpatakbo ng lokal na test validator. Sa isang hiwalay na terminal window, patakbuhin ang command na `solana-test-validator`. Ito ay kinakailangan lamang kapag ang aming `RPC URL` ay nakatakda sa localhost.
 
 ```bash
 solana-test-validator
 ```
 
-### 4. Build and deploy
+### 4. Bumuo at mag-deploy
 
-We're now ready to build and deploy our program. Build the program by running the `cargo build-bpf` command.
+Handa na kaming buuin at i-deploy ang aming programa. Buuin ang program sa pamamagitan ng pagpapatakbo ng utos na `cargo build-bpf`.
 
 ```bash
 cargo build-bpf
 ```
 
-Now let's deploy our program. Run the `solana program deploy` command output from `cargo build-bpf`.
+Ngayon, i-deploy natin ang ating programa. Patakbuhin ang command output ng `solana program deploy` mula sa `cargo build-bpf`.
 
 ```bash
 solana program deploy <PATH>
 ```
 
-The `solana program deploy` will output the `Program ID` for your program. You can now look up deployed program on [Solana Explorer](https://explorer.solana.com/?cluster=custom) (for localhost, select “Custom RPC URL” as the cluster).
+Ang `solana program deploy` ay maglalabas ng `Program ID` para sa iyong program. Maaari ka na ngayong maghanap ng naka-deploy na programa sa [Solana Explorer](https://explorer.solana.com/?cluster=custom) (para sa localhost, piliin ang “Custom RPC URL” bilang cluster).
 
-### 5. View program logs
+### 5. Tingnan ang mga log ng programa
 
-Before we invoke our program, open a separate terminal and run the `solana logs` command. This will allow use to view the program logs in the terminal.
+Bago namin i-invoke ang aming program, magbukas ng hiwalay na terminal at patakbuhin ang command na `solana logs`. Ito ay magbibigay-daan sa paggamit upang tingnan ang mga log ng programa sa terminal.
 
 ```bash
 solana logs <PROGRAM_ID>
 ```
 
-With the test validator still running, try invoking your program using the client-side script [here](https://github.com/Unboxed-Software/solana-hello-world-client).
+Habang tumatakbo pa rin ang test validator, subukang i-invoke ang iyong program gamit ang client-side script [dito](https://github.com/Unboxed-Software/solana-hello-world-client).
 
-Replace the program ID in `index.ts` with the one from the program you just deployed, then run `npm install` followed by `npm start`. This will return a Solana Explorer URL. Copy the URL into the browser to look up the transaction on Solana Explorer and check that “Hello, world!” was printed to the program log. Alternatively, you can view the program logs in the terminal where you ran the `solana logs` command.
+Palitan ang program ID sa `index.ts` ng isa mula sa program na kaka-deploy mo lang, pagkatapos ay patakbuhin ang `npm install` na sinusundan ng `npm start`. Magbabalik ito ng Solana Explorer URL. Kopyahin ang URL sa browser upang hanapin ang transaksyon sa Solana Explorer at tingnan na “Hello, world!” ay na-print sa log ng programa. Bilang kahalili, maaari mong tingnan ang mga log ng programa sa terminal kung saan mo pinatakbo ang command na `solana logs`.
 
-And that's it! You've just created and deployed your first program from a local development environment.
+At ayun na nga! Kakagawa mo lang at na-deploy ang iyong unang programa mula sa isang lokal na kapaligiran sa pag-unlad.
 
-# Challenge
+# Hamon
 
-Now it’s your turn to build something independently. Try to create a new program to print your own message to the program logs. This time deploy your program to Devnet instead of localhost.
+Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa. Subukang lumikha ng isang bagong programa upang i-print ang iyong sariling mensahe sa mga log ng programa. Sa pagkakataong ito, i-deploy ang iyong program sa Devnet sa halip na localhost.
 
-Remember to update your `RPC URL` to Devnet using the `solana config set --url` command.
+Tandaang i-update ang iyong `RPC URL` sa Devnet gamit ang command na `solana config set --url`.
 
-You can invoke the program using the same client-side script from the demo as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
+Maaari mong i-invoke ang program gamit ang parehong client-side script mula sa demo hangga't ina-update mo ang `koneksyon` at Solana Explorer URL sa parehong tumuturo sa Devnet sa halip na localhost.
 
 ```tsx
 let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
@@ -356,7 +357,7 @@ console.log(
 );
 ```
 
-You can also open a separate command line window and use the `solana logs | grep "<PROGRAM_ID> invoke" -A <NUMBER_OF_LINES_TO_RETURN>`. When using `solana logs` on Devnet you must specify the program ID. Otherwise, the `solana logs` command will return a constant stream of logs from Devnet. For example, you would do the following to monitor invocations to the Token Program and show the first 5 lines of logs for each invocation:
+Maaari ka ring magbukas ng hiwalay na command line window at gamitin ang `solana logs | grep "<PROGRAM_ID> invoke" -Isang <NUMBER_OF_LINES_TO_RETURN>`. Kapag gumagamit ng `solana logs` sa Devnet dapat mong tukuyin ang program ID. Kung hindi, ang command na `solana logs` ay magbabalik ng tuluy-tuloy na stream ng mga log mula sa Devnet. Halimbawa, gagawin mo ang sumusunod upang subaybayan ang mga invocation sa Token Program at ipakita ang unang 5 linya ng mga log para sa bawat invocation:
 
 ```bash
 solana logs | grep "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke" -A 5

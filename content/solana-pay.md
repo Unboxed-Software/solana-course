@@ -8,80 +8,80 @@ objectives:
 
 # TL;DR
 
--   **Solana Pay** is a specification for encoding Solana transaction requests within URLs, enabling standardized transaction requests across different Solana apps and wallets
--   **Partial signing** of transactions allows for the creation of transactions that require multiple signatures before they are submitted to the network
--   **Transaction gating** involves implementing rules that determine whether certain transactions are allowed to be processed or not, based on certain conditions or the presence of specific data in the transaction
+- **Solana Pay** ay isang detalye para sa pag-encode ng mga kahilingan sa transaksyon ng Solana sa loob ng mga URL, na nagpapagana ng mga standardized na kahilingan sa transaksyon sa iba't ibang Solana app at wallet
+- **Partial signing** ng mga transaksyon ay nagbibigay-daan para sa paglikha ng mga transaksyon na nangangailangan ng maramihang mga lagda bago sila isumite sa network
+- Ang **Transaction gating** ay nagsasangkot ng pagpapatupad ng mga panuntunan na tumutukoy kung ang ilang partikular na transaksyon ay pinapayagang iproseso o hindi, batay sa ilang kundisyon o pagkakaroon ng partikular na data sa transaksyon
 
-# Overview
+# Pangkalahatang-ideya
 
-The Solana community is continually improving and expanding the network's functionality. But that doesn't always mean developing brand new technology. Sometimes it means leveraging the network's existing features in new and interesting ways.
+Ang komunidad ng Solana ay patuloy na pinapabuti at pinapalawak ang paggana ng network. Ngunit hindi ito palaging nangangahulugan ng pagbuo ng bagong teknolohiya. Minsan ito ay nangangahulugan ng paggamit ng mga kasalukuyang feature ng network sa bago at kawili-wiling mga paraan.
 
-Solana Pay is a great example of this. Rather than add new functionality to the network, Solana Pay uses the network's existing signing features in a unique way to enable merchants and applications to request transactions and build gating mechanisms for specific transaction types.
+Ang Solana Pay ay isang magandang halimbawa nito. Sa halip na magdagdag ng bagong functionality sa network, ginagamit ng Solana Pay ang mga kasalukuyang feature ng pag-sign ng network sa isang natatanging paraan upang paganahin ang mga merchant at application na humiling ng mga transaksyon at bumuo ng mga mekanismo ng gating para sa mga partikular na uri ng transaksyon.
 
-Throughout this lesson, you'll learn how to use Solana Pay to create transfer and transaction requests, encode these requests as a QR code, partially sign transactions, and gate transactions based on conditions you choose. Rather than leaving it at that, we hope you'll see this as an example of leveraging existing features in new and interesting ways, using it as a launching pad for your own unique client-side network interactions.
+Sa buong araling ito, matututunan mo kung paano gamitin ang Solana Pay para gumawa ng mga kahilingan sa paglilipat at transaksyon, i-encode ang mga kahilingang ito bilang QR code, bahagyang pumirma sa mga transaksyon, at mga transaksyon sa gate batay sa mga kundisyong pipiliin mo. Sa halip na pabayaan ito, umaasa kaming makikita mo ito bilang isang halimbawa ng paggamit ng mga umiiral na feature sa mga bago at kawili-wiling paraan, gamit ito bilang isang launching pad para sa iyong sariling natatanging mga pakikipag-ugnayan sa network sa panig ng kliyente.
 
 ## Solana Pay
 
-The [Solana Pay specification](https://docs.solanapay.com/spec) is a set standards that allow users to request payments and initiate transactions using URLs in a uniform way across various Solana apps and wallets.
+Ang [Solana Pay specification](https://docs.solanapay.com/spec) ay isang set na pamantayan na nagbibigay-daan sa mga user na humiling ng mga pagbabayad at magsimula ng mga transaksyon gamit ang mga URL sa magkatulad na paraan sa iba't ibang Solana app at wallet.
 
-Request URLs are prefixed with `solana:` so that platforms can direct the link to the appropriate application. For example, on mobile a URL that starts with `solana:` will be directed to wallet applications that support the Solana Pay specification. From there, the wallet can use the remainder of the URL to appropriately handle the request.
+Ang mga URL ng kahilingan ay may prefix na `solana:` upang maidirekta ng mga platform ang link sa naaangkop na application. Halimbawa, sa mobile ang isang URL na nagsisimula sa `solana:` ay ididirekta sa mga application ng wallet na sumusuporta sa detalye ng Solana Pay. Mula doon, magagamit ng wallet ang natitira sa URL upang wastong pangasiwaan ang kahilingan.
 
-There are two types of requests defined by the Solana Pay specification:
+Mayroong dalawang uri ng mga kahilingan na tinukoy ng detalye ng Solana Pay:
 
-1. Transfer Request: used for simple SOL or SPL Token transfers
-2. Transaction Request: used to request any type of Solana transaction
+1. Kahilingan sa Paglipat: ginagamit para sa simpleng paglilipat ng SOL o SPL Token
+2. Kahilingan sa Transaksyon: ginagamit upang humiling ng anumang uri ng transaksyon sa Solana
 
-### Transfer requests
+### Mga kahilingan sa paglipat
 
-The transfer request specification describes a non-interactive request for SOL or SPL token transfer. Transfer request URLs take the following format `solana:<recipient>?<optional-query-params>`.
+Ang detalye ng kahilingan sa paglipat ay naglalarawan ng isang hindi interactive na kahilingan para sa paglilipat ng token ng SOL o SPL. Ang mga URL ng kahilingan sa paglipat ay may sumusunod na format na `solana:<recipient>?<optional-query-params>`.
 
-The value of `recipient` is required and must be a base58-encoded public key of the account from which a transfer is being requested. Additionally, the following optional query parameters are supported:
+Ang halaga ng `recipient` ay kinakailangan at dapat ay isang base58-encoded public key ng account kung saan hinihiling ang paglilipat. Bukod pa rito, sinusuportahan ang mga sumusunod na opsyonal na parameter ng query:
 
-- `amount` - a non-negative integer or decimal value indicating the amount of tokens to transfer
-- `spl-token` - a base58-encoded public key of an SPL Token mint account if the transfer is of an SPL token and not SOL
-- `reference` - optional reference values as base58-encoded 32 byte arrays. This can be used by a client for identifying the transaction on-chain since the client will not have a transaction's signature.
-- `label` - a URL-encoded UTF-8 string that describes the source of the transfer request
-- `message` - a URL-encoded UTF-8 string that describes the nature of the transfer request
-- `memo` - a URL-encoded UTF-8 string that must be included in the SPL memo instruction in the payment transaction
+- `amount` - isang non-negative integer o decimal value na nagsasaad ng halaga ng mga token na ililipat
+- `spl-token` - isang base58-encoded public key ng isang SPL Token mint account kung ang paglilipat ay isang SPL token at hindi SOL
+- `reference` - opsyonal na reference value bilang base58-encoded 32 byte arrays. Ito ay maaaring gamitin ng isang kliyente para sa pagtukoy sa transaksyon na on-chain dahil ang kliyente ay hindi magkakaroon ng lagda ng isang transaksyon.
+- `label` - isang URL-encoded UTF-8 string na naglalarawan sa pinagmulan ng kahilingan sa paglipat
+- `mensahe` - isang URL-encoded UTF-8 string na naglalarawan sa katangian ng kahilingan sa paglipat
+- `memo` - isang URL-encoded UTF-8 string na dapat isama sa SPL memo instruction sa transaksyon sa pagbabayad
 
-By way of example, here is a URL describing a transfer request for 1 SOL:
+Bilang halimbawa, narito ang isang URL na naglalarawan ng kahilingan sa paglipat para sa 1 SOL:
 
 ```text
 solana:mvines9iiHiQTysrwkJjGf2gb9Ex9jXJX8ns3qwf2kN?amount=1&label=Michael&message=Thanks%20for%20all%20the%20fish&memo=OrderId12345
 ```
 
-And here is a URL describing a transfer request for 0.1 USDC:
+At narito ang isang URL na naglalarawan ng kahilingan sa paglipat para sa 0.1 USDC:
 
 ```text
 solana:mvines9iiHiQTysrwkJjGf2gb9Ex9jXJX8ns3qwf2kN?amount=0.01&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 ```
 
-### Transaction requests
+### Mga kahilingan sa transaksyon
 
-The Solana Pay transaction request is similar to a transfer request in that it is simply a URL that can be consumed by a supporting wallet. However, this request is interactive and the format is more open-ended:
+Ang kahilingan sa transaksyon ng Solana Pay ay katulad ng isang kahilingan sa paglipat dahil isa lang itong URL na maaaring gamitin ng isang sumusuportang wallet. Gayunpaman, interactive ang kahilingang ito at mas open-ended ang format:
 
 ```text
 solana:<link>
 ```
 
-The value of `link` should be a URL to which the consuming wallet can make an HTTP request. Rather than containing all the information needed for a transaction, a transaction request uses this URL to fetch the transaction that should be presented to the user.
+Ang halaga ng `link` ay dapat na isang URL kung saan maaaring gumawa ng HTTP na kahilingan ang gumagamit ng wallet. Sa halip na naglalaman ng lahat ng impormasyong kailangan para sa isang transaksyon, ginagamit ng isang kahilingan sa transaksyon ang URL na ito upang kunin ang transaksyon na dapat ipakita sa user.
 
-When a wallet receives a transaction Request URL, four things happen:
+Kapag nakatanggap ang wallet ng URL ng Kahilingan sa transaksyon, apat na bagay ang mangyayari:
 
-1. The wallet sends a GET request to the application at the provided `link` URL to retrieve a label and icon image to display to the user.
-2. The wallet then sends a POST request with the public key of the end user.
-3. Using the public key of the end user (and any additional information provided in `link`), the application then builds the transaction and responds with a base64-encoded serialized transaction.
-4. The wallet decodes and deserializes the transaction, then lets the user sign and send the transaction.
+1. Nagpapadala ang wallet ng kahilingan sa GET sa application sa ibinigay na URL ng `link` upang makuha ang isang label at imahe ng icon na ipapakita sa user.
+2. Pagkatapos, magpapadala ang wallet ng kahilingan sa POST kasama ang pampublikong susi ng end user.
+3. Gamit ang pampublikong key ng end user (at anumang karagdagang impormasyon na ibinigay sa `link`), ang application ay bubuo ng transaksyon at tumugon sa isang base64-encoded serialized na transaksyon.
+4. Ang wallet ay nagde-decode at nagde-deserialize ng transaksyon, pagkatapos ay hahayaan ang user na mag-sign at ipadala ang transaksyon.
 
-Given that transaction requests are more involved than transfer requests, the remainder of this lesson will focus on creating transaction requests.
+Dahil mas kasangkot ang mga kahilingan sa transaksyon kaysa sa mga kahilingan sa paglipat, ang natitira sa araling ito ay tututuon sa paggawa ng mga kahilingan sa transaksyon.
 
-## Create a transaction request
+## Lumikha ng kahilingan sa transaksyon
 
-### Define the API endpoint
+### Tukuyin ang endpoint ng API
 
-The main thing you, the developer, need to do to make the transaction request flow work is set up a REST API endpoint at the URL you plan to include in the transaction request. In this lesson, we'll be using [Next.js API Routes](https://nextjs.org/docs/api-routes/introduction) for our endpoints, but you're welcome to use whatever stack and tools you're most comfortable with.
+Ang pangunahing bagay na kailangan mong gawin, ang developer, para magawa ang daloy ng kahilingan sa transaksyon ay mag-set up ng REST API endpoint sa URL na plano mong isama sa kahilingan sa transaksyon. Sa araling ito, gagamitin namin ang [Next.js API Routes](https://nextjs.org/docs/api-routes/introduction) para sa aming mga endpoint, ngunit maaari kang gumamit ng kahit anong stack at tool na gusto mo' re pinaka komportable sa.
 
-In Next.js, you do this by adding a file to the `pages/api` folder and exporting a function that handles the request and response.
+Sa Next.js, gagawin mo ito sa pamamagitan ng pagdaragdag ng file sa folder na `pages/api` at pag-export ng function na humahawak sa kahilingan at tugon.
 
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next"
@@ -94,14 +94,14 @@ export default async function handler(
 }
 ```
 
-### Handle a GET request
+### Pangasiwaan ang isang kahilingan sa GET
 
-The wallet consuming your transaction request URL will first issue a GET request to this endpoint. You'll want your endpoint to return a JSON object with two fields:
+Ang wallet na kumokonsumo ng iyong URL ng kahilingan sa transaksyon ay maglalabas muna ng kahilingan sa GET sa endpoint na ito. Gusto mong ibalik ng iyong endpoint ang isang JSON object na may dalawang field:
 
-1. `label` - a string that describes the source of the transaction request
-2. `icon`- a URL to an image that can be displayed to the user
+1. `label` - isang string na naglalarawan sa pinagmulan ng kahilingan sa transaksyon
+2. `icon`- isang URL sa isang imahe na maaaring ipakita sa user
 
-Building on the empty endpoint from before, that may look like this:
+Bumuo sa walang laman na endpoint mula sa dati, na maaaring ganito ang hitsura:
 
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next"
@@ -125,18 +125,18 @@ function get(res: NextApiResponse) {
 }
 ```
 
-When the wallet makes a GET request to the API endpoint, the `get` function is called, returning a response with a status code of 200 and the JSON object containing `label` and `icon`.
+Kapag ang wallet ay humiling ng GET sa API endpoint, ang function na `get` ay tinatawag, na nagbabalik ng tugon na may status code na 200 at ang JSON object na naglalaman ng `label` at `icon`.
 
-### Handle a POST request and build the transaction
+### Pangasiwaan ang isang POST na kahilingan at buuin ang transaksyon
 
-After issuing a GET request, the wallet will issue a POST request to the same URL. Your endpoint should expect the POST request's `body` to contain a JSON object with an `account` field provided by the requesting wallet. The value of `account` will be a string representing the end user's public key.
+Pagkatapos mag-isyu ng kahilingan sa GET, maglalabas ang wallet ng kahilingan sa POST sa parehong URL. Dapat asahan ng iyong endpoint na ang `body` ng POST na kahilingan ay naglalaman ng JSON object na may field na `account` na ibinigay ng humihiling na wallet. Ang halaga ng `account` ay magiging isang string na kumakatawan sa pampublikong key ng end user.
 
-With this information and any additional parameters provided, you can build the transaction and return it to the wallet for signing by:
+Gamit ang impormasyong ito at anumang karagdagang mga parameter na ibinigay, maaari mong buuin ang transaksyon at ibalik ito sa wallet para sa pagpirma sa pamamagitan ng:
 
-1. Connecting to the Solana network and getting the latest `blockhash`.
-2. Creating a new transaction using the `blockhash`.
-3. Adding instructions to the transaction
-4. Serializing the transaction and returning it in a `PostResponse` object along with a message for the user.
+1. Kumokonekta sa network ng Solana at makuha ang pinakabagong `blockhash`.
+2. Paglikha ng bagong transaksyon gamit ang `blockhash`.
+3. Pagdaragdag ng mga tagubilin sa transaksyon
+4. Pagse-serye ng transaksyon at pagbabalik nito sa isang object na `PostResponse` kasama ng isang mensahe para sa user.
 
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next"
@@ -203,23 +203,23 @@ async function post(
 }
 ```
 
-There is nothing too out of the ordinary here. It's the same transaction construction you would use in a standard client-side application. The only difference is that instead of signing and submitting to the network, you send the transaction as a base64-encoded string back in the HTTP response. The wallet that issued the request can then present the transaction to the user for signing.
+Walang masyadong kakaiba dito. Ito ang parehong pagtatayo ng transaksyon na gagamitin mo sa isang karaniwang application sa panig ng kliyente. Ang pagkakaiba lang ay sa halip na pumirma at magsumite sa network, ipapadala mo ang transaksyon bilang base64-encoded string pabalik sa tugon ng HTTP. Ang wallet na nagbigay ng kahilingan ay maaaring magpakita ng transaksyon sa user para sa pagpirma.
 
-### Confirm transaction
+### Kumpirmahin ang transaksyon
 
-You may have noticed that the previous example assumed a `reference` was provided as a query parameter. While this is *not* a value provided by the requesting wallet, it *is* useful to set up your initial transaction request URL to contain this query parameter.
+Maaaring napansin mo na ang nakaraang halimbawa ay ipinapalagay na isang `reference` ay ibinigay bilang isang parameter ng query. Bagama't ito ay *hindi* isang halaga na ibinigay ng humihiling na wallet, *kapaki-pakinabang na i-set up ang iyong URL ng kahilingan sa paunang transaksyon upang maglaman ng parameter ng query na ito.
 
-Since your application isn't the one submitting a transaction to the network, your code won't have access to a transaction signature. This would typically be how your app can locate a transaction on the network and see its status.
+Dahil ang iyong aplikasyon ay hindi ang nagsusumite ng isang transaksyon sa network, ang iyong code ay hindi magkakaroon ng access sa isang lagda ng transaksyon. Ito ay karaniwang kung paano mahahanap ng iyong app ang isang transaksyon sa network at makita ang status nito.
 
-To get around this, you can include a `reference` value as a query parameter for each transaction request. This value should be a base58-encoded 32 byte array that can be included as a non-signer key on the transaction. This allows your app to then use the `getSignaturesForAddress` RPC method to locate the transaction. Your app can then tailor its UI according to a transaction's status.
+Para malampasan ito, maaari kang magsama ng value ng `reference` bilang parameter ng query para sa bawat kahilingan sa transaksyon. Ang value na ito ay dapat na isang base58-encoded 32 byte array na maaaring isama bilang non-signer key sa transaksyon. Nagbibigay-daan ito sa iyong app na gamitin ang `getSignaturesForAddress` na paraan ng RPC upang mahanap ang transaksyon. Pagkatapos ay maiangkop ng iyong app ang UI nito ayon sa status ng isang transaksyon.
 
-If you use the `@solana/pay` library, you can use the `findReference` helper function instead of using `getSignaturesForAddress` directly.
+Kung gagamitin mo ang library na `@solana/pay`, maaari mong gamitin ang function na helper na `findReference` sa halip na direktang gamitin ang `getSignaturesForAddress`.
 
-## Gated transactions
+## Gated na mga transaksyon
 
-We've mentioned before how Solana Pay is an example of being able to do cool new things with the network by getting creative with existing functionality. Another small example of doing this within the Solana Pay umbrella is to only make certain transactions available once certain conditions are met.
+Nabanggit na namin dati kung paano ang Solana Pay ay isang halimbawa ng kakayahang gumawa ng mga cool na bagong bagay sa network sa pamamagitan ng pagiging malikhain gamit ang kasalukuyang functionality. Ang isa pang maliit na halimbawa ng paggawa nito sa loob ng payong ng Solana Pay ay gawing available lang ang ilang partikular na transaksyon kapag natugunan ang ilang kundisyon.
 
-Since you control the endpoint building the transaction, you can determine what criteria must be met before a transaction is built. For example, you can use the `account` field provided in the POST request to check if the end user holds an NFT from a particular collection or if that public key is on a predetermined list of accounts who can make this particular transaction.
+Dahil kinokontrol mo ang endpoint na pagbuo ng transaksyon, matutukoy mo kung anong pamantayan ang dapat matugunan bago mabuo ang isang transaksyon. Halimbawa, maaari mong gamitin ang field ng `account` na ibinigay sa kahilingan ng POST upang tingnan kung ang end user ay may hawak na NFT mula sa isang partikular na koleksyon o kung ang pampublikong key na iyon ay nasa isang paunang natukoy na listahan ng mga account na maaaring gumawa ng partikular na transaksyong ito.
 
 ```typescript
 // retrieve array of nfts owned by the given wallet
@@ -236,18 +236,18 @@ for (let i = 0; i < nfts.length; i++) {
 }
 ```
 
-### Partial Signing
+### Bahagyang Pagpirma
 
-If you want certain transactions behind some kind of gating mechanism, that functionality will have to be enforced on-chain as well. Returning an error from your Solana Pay endpoint makes it more difficult for end users to do the transaction, but they could still build it manually.
+Kung gusto mo ng ilang partikular na transaksyon sa likod ng ilang uri ng gating mechanism, ang functionality na iyon ay kailangang ipatupad din on-chain. Ang pagbabalik ng error mula sa iyong endpoint ng Solana Pay ay nagpapahirap para sa mga end user na gawin ang transaksyon, ngunit maaari pa rin nilang gawin ito nang manu-mano.
 
-What this means is that the instruction(s) being called should require some type of "admin" signature that only your application can provide. In doing that, however, you'll have made it so that our previous examples don't work. The transaction is built and sent to the requesting wallet for the end user's signature, but the submitted transaction will fail without the admin signature.
+Ang ibig sabihin nito ay ang (mga) tagubiling tinatawag ay dapat mangailangan ng ilang uri ng lagda ng "admin" na ang iyong aplikasyon lamang ang makakapagbigay. Sa paggawa nito, gayunpaman, nagawa mo ito upang ang aming mga nakaraang halimbawa ay hindi gumana. Ang transaksyon ay binuo at ipinadala sa humihiling na wallet para sa pirma ng end user, ngunit ang isinumiteng transaksyon ay mabibigo nang walang pirma ng admin.
 
-Fortunately, Solana enables signature composability with partial signing.
+Sa kabutihang palad, pinapagana ng Solana ang pagiging composability ng lagda na may bahagyang pagpirma.
 
-Partially signing a multi-signature transaction allows signers to add their signature before the transaction is broadcast on the network. This can be useful in a number of situations, including:
+Ang bahagyang pagpirma sa isang multi-signature na transaksyon ay nagbibigay-daan sa mga pumirma na idagdag ang kanilang lagda bago ang transaksyon ay i-broadcast sa network. Maaari itong maging kapaki-pakinabang sa maraming sitwasyon, kabilang ang:
 
--   Approving transactions that require the signature of multiple parties, such as a merchant and a buyer who need to confirm the details of a payment.
--   Invoking custom programs that require the signatures of both a user and an administrator. This can help to limit access to the program instructions and ensure that only authorized parties can execute them.
+- Pag-apruba sa mga transaksyon na nangangailangan ng lagda ng maraming partido, tulad ng isang merchant at isang mamimili na kailangang kumpirmahin ang mga detalye ng isang pagbabayad.
+- Pag-invoke ng mga custom na program na nangangailangan ng mga lagda ng parehong user at administrator. Makakatulong ito upang limitahan ang pag-access sa mga tagubilin ng programa at matiyak na ang mga awtorisadong partido lamang ang makakapagsagawa ng mga ito.
 
 ```typescript
 const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
@@ -263,20 +263,20 @@ const transaction = new Transaction({
 transaction.partialSign(adminKeypair)
 ```
 
-The `partialSign` function is used to add a signature to a transaction without overriding any previous signatures on the transaction. If you are building a transaction with multiple signers, it is important to remember that if you don't specify a transaction's `feePayer`, the first signer will be used as the fee payer for the transaction. To avoid any confusion or unexpected behavior, make sure to explicitly set the fee payer when necessary.
+Ang function na `partialSign` ay ginagamit upang magdagdag ng pirma sa isang transaksyon nang hindi ina-override ang anumang mga nakaraang lagda sa transaksyon. Kung gagawa ka ng transaksyon na may maraming pumirma, mahalagang tandaan na kung hindi mo tinukoy ang `feePayer` ng transaksyon, ang unang pumirma ay gagamitin bilang nagbabayad ng bayad para sa transaksyon. Upang maiwasan ang anumang pagkalito o hindi inaasahang pag-uugali, tiyaking tahasang itakda ang nagbabayad ng bayad kapag kinakailangan.
 
-In our example of only allowing a transaction request to go through when the end user has a specific NFT, you would simply add your admin signature to the transaction using `partialSign` before encoding the transaction as a base64-encoded string and issuing the HTTP response.
+Sa aming halimbawa ng pagpapahintulot lamang sa isang kahilingan sa transaksyon na dumaan kapag ang end user ay may partikular na NFT, idaragdag mo lang ang iyong admin signature sa transaksyon gamit ang `partialSign` bago i-encode ang transaksyon bilang base64-encoded string at ibigay ang HTTP na tugon .
 
-## Solana Pay QR codes
+## Solana Pay QR code
 
-One of the standout features of Solana Pay is its easy integration with QR codes. Since transfer and transaction requests are simply URLs, you can embed them into QR codes that you make available in your application or elsewhere.
+Isa sa mga natatanging tampok ng Solana Pay ay ang madaling pagsasama nito sa mga QR code. Dahil ang mga kahilingan sa paglipat at transaksyon ay mga URL lang, maaari mong i-embed ang mga ito sa mga QR code na gagawin mong available sa iyong application o saanman.
 
-The `@solana/pay` library simplifies this with the provided `createQR` helper function. This function needs you to provide the following:
+Pinapasimple ito ng library ng `@solana/pay` gamit ang ibinigay na function ng helper na `createQR`. Kailangan ng function na ito na ibigay mo ang sumusunod:
 
-- `url` - the url of the transaction request.
-- `size` (optional) - the width and height of the QR code in pixels. Defaults to 512.
-- `background` (optional) - the background color. Defaults to white.
-- `color` (optional) - the foreground color. Defaults to black.
+- `url` - ang url ng kahilingan sa transaksyon.
+- `size` (opsyonal) - ang lapad at taas ng QR code sa mga pixel. Default sa 512.
+- `background` (opsyonal) - ang kulay ng background. Default sa puti.
+- `kulay` (opsyonal) - ang kulay ng foreground. Default sa itim.
 
 ```typescript
 const qr = createQR(url, 400, 'transparent')
@@ -284,33 +284,33 @@ const qr = createQR(url, 400, 'transparent')
 
 # Demo
 
-Now that you've got a conceptual grasp on Solana Pay, let's put it into practice. We'll use Solana Pay to generate a series of QR codes for a scavenger hunt. Participants must visit each scavenger hunt location in order. At each location, they'll use the provided QR code to submit the appropriate transaction to the scavenger hunt's smart contract that keeps track of user progress.
+Ngayong mayroon ka nang konseptong kaalaman sa Solana Pay, isabuhay natin ito. Gagamitin namin ang Solana Pay upang bumuo ng isang serye ng mga QR code para sa isang scavenger hunt. Dapat bisitahin ng mga kalahok ang bawat lokasyon ng scavenger hunt sa pagkakasunud-sunod. Sa bawat lokasyon, gagamitin nila ang ibinigay na QR code para isumite ang naaangkop na transaksyon sa smart contract ng scavenger hunt na sumusubaybay sa pag-unlad ng user.
 
-### 1. Starter
+### 1. Panimula
 
-To get started, download the starter code on the `starter` branch of this [repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/starter). The starter code is a Next.js app that displays a Solana Pay QR code. Notice that the menu bar lets you switch between different QR codes. The default option is a simple SOL transfer for illustrative purposes. Throughout  We'll be adding functionality to the location options in the menu bar.
+Para makapagsimula, i-download ang starter code sa `starter` branch ng [repository] na ito(https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/starter). Ang starter code ay isang Next.js app na nagpapakita ng Solana Pay QR code. Pansinin na hinahayaan ka ng menu bar na lumipat sa pagitan ng iba't ibang QR code. Ang default na opsyon ay isang simpleng paglilipat ng SOL para sa mga layunin ng paglalarawan. Sa kabuuan Magdaragdag kami ng functionality sa mga opsyon sa lokasyon sa menu bar.
 
-![Screenshot of scavenger hunt app](../assets/scavenger-hunt-screenshot.png)
+![Screenshot ng scavenger hunt app](../assets/scavenger-hunt-screenshot.png)
 
-To do this, we'll be creating a new endpoint for a transaction request that builds a transaction for invoking an Anchor program on Devnet. This program has been made specifically for this "scavenger hunt" app and has two instructions: `initialize` and `check_in`. The `initialize` instruction is used to set up the user's state, while the `check_in` instruction is used to record a check-in at a location in the scavenger hunt. We won't be making any changes to the program in this demo, but feel free to check out the [source code](https://github.com/Unboxed-Software/anchor-scavenger-hunt) if you'd like to familiarize yourself with the program.
+Para magawa ito, gagawa kami ng bagong endpoint para sa isang kahilingan sa transaksyon na bubuo ng transaksyon para sa paggamit ng Anchor program sa Devnet. Ang program na ito ay partikular na ginawa para sa "scavenger hunt" app na ito at may dalawang tagubilin: `initialize` at `check_in`. Ang tagubiling `pasimulan` ay ginagamit upang i-set up ang estado ng user, habang ang tagubiling `check_in` ay ginagamit upang mag-record ng check-in sa isang lokasyon sa pangangaso ng basura. Hindi kami gagawa ng anumang pagbabago sa program sa demo na ito, ngunit huwag mag-atubiling tingnan ang [source code](https://github.com/Unboxed-Software/anchor-scavenger-hunt) kung gusto mo upang maging pamilyar sa programa.
 
-Before moving on, make sure you get familiar with the starter code for the Scavenger Hunt app. Looking at `pages/index.tsx`, `utils/createQrCode/simpleTransfer`, and `/utils/checkTransaction` will let you see how the transaction request for sending SOL is set up. We'll be following a similar pattern for the transaction request for checking in at a location.
+Bago magpatuloy, tiyaking pamilyar ka sa starter code para sa Scavenger Hunt app. Ang pagtingin sa `pages/index.tsx`, `utils/createQrCode/simpleTransfer`, at `/utils/checkTransaction` ay magbibigay-daan sa iyo na makita kung paano naka-set up ang kahilingan sa transaksyon para sa pagpapadala ng SOL. Susundan namin ang isang katulad na pattern para sa kahilingan sa transaksyon para sa pag-check in sa isang lokasyon.
 
-### 2. Setup
+### 2. Pag-setup
 
-Before we move forward, let's make sure you can run the app locally. Start by renaming the `.env.example` file in the frontend directory to `.env`. This file contains a keypair that will be used in this demo to partially sign transactions.
+Bago tayo sumulong, tiyaking mapapatakbo mo ang app nang lokal. Magsimula sa pamamagitan ng pagpapalit ng pangalan ng `.env.example` na file sa frontend na direktoryo sa `.env`. Ang file na ito ay naglalaman ng keypair na gagamitin sa demo na ito upang bahagyang pumirma ng mga transaksyon.
 
-Next, install dependencies with `yarn`, then use `yarn dev` and open your browser `localhost:3000` (or the port indicated in the console if 3000 was already in use).
+Susunod, i-install ang mga dependency na may `yarn`, pagkatapos ay gamitin ang `yarn dev` at buksan ang iyong browser `localhost:3000` (o ang port na nakasaad sa console kung 3000 ay ginagamit na).
 
-Now, if you try to scan the QR code shown on the page from your mobile device, you'll get an error. That's because the QR code is set up to send you to your computer's `localhost:3000`, which isn't an address your phone can get to. Further, Solana Pay needs to use an HTTPS URL to work.
+Ngayon, kung susubukan mong i-scan ang QR code na ipinapakita sa page mula sa iyong mobile device, magkakaroon ka ng error. Iyon ay dahil naka-set up ang QR code para ipadala ka sa `localhost:3000` ng iyong computer, na hindi isang address na mapupuntahan ng iyong telepono. Dagdag pa, kailangang gumamit ng HTTPS URL ang Solana Pay upang gumana.
 
-To get around this, you can use [ngrok](https://ngrok.com/). You'll need to install it if you haven't used it before. Once it's installed, run the following command in your terminal, replacing `3000` with whichever port you're using for this project:
+Para makalibot dito, maaari mong gamitin ang [ngrok](https://ngrok.com/). Kakailanganin mong i-install ito kung hindi mo pa ito nagamit dati. Kapag na-install na ito, patakbuhin ang sumusunod na command sa iyong terminal, palitan ang `3000` ng alinmang port na iyong ginagamit para sa proyektong ito:
 
 ```bash
 ngrok http 3000
 ```
 
-This will provide you with a unique URL that you can use to access your local server remotely. The output will look something like this:
+Bibigyan ka nito ng isang natatanging URL na magagamit mo upang ma-access ang iyong lokal na server nang malayuan. Ang output ay magmumukhang ganito:
 
 ```bash
 Session Status                online
@@ -323,21 +323,21 @@ Web Interface                 http://127.0.0.1:4040
 Forwarding                    https://7761-24-28-107-82.ngrok.io -> http://localhost:3000
 ```
 
-Now, open the HTTPS ngrok URL shown in your console in the browser (e.g. https://7761-24-28-107-82.ngrok.io). This will allow you to scan QR codes from your mobile device while testing locally.
+Ngayon, buksan ang HTTPS ngrok URL na ipinapakita sa iyong console sa browser (hal. https://7761-24-28-107-82.ngrok.io). Papayagan ka nitong mag-scan ng mga QR code mula sa iyong mobile device habang lokal na sumusubok.
 
-At the time of writing, this demo works best with Solflare. Some wallets will display an incorrect warning message when scanning a Solana Pay QR code. Regardless of the wallet you use, make sure you switch to devnet in the wallet. Then scan the QR code on the home page labeled “SOL Transfer”. This QR code is a reference implementation for a transaction request that performs a simple SOL transfer. It also calls the `requestAirdrop` function to fund your mobile wallet with Devnet SOL since most people don't have Devnet SOL available for testing.
+Sa oras ng pagsulat, ang demo na ito ay pinakamahusay na gumagana sa Solflare. Magpapakita ang ilang wallet ng maling mensahe ng babala kapag nag-scan ng Solana Pay QR code. Anuman ang wallet na ginagamit mo, siguraduhing lumipat ka sa devnet sa wallet. Pagkatapos ay i-scan ang QR code sa home page na may label na "SOL Transfer". Ang QR code na ito ay isang reference na pagpapatupad para sa isang kahilingan sa transaksyon na nagsasagawa ng simpleng paglilipat ng SOL. Tinatawag din nito ang function na `requestAirdrop` upang pondohan ang iyong mobile wallet gamit ang Devnet SOL dahil karamihan sa mga tao ay walang Devnet SOL na magagamit para sa pagsubok.
 
-If you were able to successfully execute the transaction using the QR code, you're good to move on!
+Kung matagumpay mong naisagawa ang transaksyon gamit ang QR code, handa ka nang magpatuloy!
 
-### 3. Create a check-in transaction request endpoint
+### 3. Gumawa ng endpoint ng kahilingan sa pag-check-in na transaksyon
 
-Now that you're up and running, it's time to create an endpoint that supports transaction requests for location check-in using the Scavenger Hunt program.
+Ngayong handa ka na, oras na para gumawa ng endpoint na sumusuporta sa mga kahilingan sa transaksyon para sa pag-check in sa lokasyon gamit ang programang Scavenger Hunt.
 
-Start by opening the file at `pages/api/checkIn.ts`. Notice that it has a helper function for initializing `eventOrganizer` from a private key environment variable.  The first thing we'll do in this file is the following:
+Magsimula sa pamamagitan ng pagbubukas ng file sa `pages/api/checkIn.ts`. Pansinin na mayroon itong function na helper para sa pagsisimula ng `eventOrganizer` mula sa isang pribadong key environment variable. Ang unang bagay na gagawin namin sa file na ito ay ang mga sumusunod:
 
-1. Export a `handler` function to handle an arbitrary HTTP request
-2. Add `get` and `post` functions for handling those HTTP methods
-3. Add logic to the body of the `handler` function to either call `get`, `post`, or return a 405 error based on the HTTP request method
+1. Mag-export ng function na `handler` upang pangasiwaan ang isang arbitrary na kahilingan sa HTTP
+2. Magdagdag ng mga function na `get` at `post` para sa paghawak sa mga pamamaraang HTTP na iyon
+3. Magdagdag ng logic sa katawan ng function na `handler` para tumawag sa `get`, `post`, o magbalik ng 405 error batay sa paraan ng paghiling ng HTTP
 
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next"
@@ -360,9 +360,9 @@ function get(res: NextApiResponse) {}
 async function post(req: NextApiRequest, res: NextApiResponse) {}
 ```
 
-### 4. Update `get` function
+### 4. I-update ang function na `get`
 
-Remember, the first request from a wallet will be a GET request expecting the endpoint to return a label and icon. Update the `get` function to send a response with a "Scavenger Hunt!" label and a Solana logo icon.
+Tandaan, ang unang kahilingan mula sa isang wallet ay isang kahilingan sa GET na umaasang magbabalik ang endpoint ng isang label at icon. I-update ang function na `get` para magpadala ng tugon na may "Scavenger Hunt!" label at isang icon ng logo ng Solana.
 
 ```jsx
 function get(res: NextApiResponse) {
@@ -373,20 +373,20 @@ function get(res: NextApiResponse) {
 }
 ```
 
-### 5. Update `post` function
+### 5. I-update ang function na `post`
 
-After the GET request, a wallet will issue a POST request to the endpoint. The request's `body` will contain a JSON object with an `account` field representing the end user's public key.
+Pagkatapos ng kahilingan sa GET, maglalabas ang wallet ng kahilingan sa POST sa endpoint. Ang `body` ng kahilingan ay maglalaman ng JSON object na may field na `account` na kumakatawan sa pampublikong key ng end user.
 
-Additionally, the query parameters will contain whatever you encoded into the QR code. If you take a look at `utils/createQrCode/checkIn.ts`, you'll notice that this particular app includes parameters for `reference` and `id` as the following:
+Bilang karagdagan, ang mga parameter ng query ay maglalaman ng anumang na-encode mo sa QR code. Kung titingnan mo ang `utils/createQrCode/checkIn.ts`, mapapansin mo na ang partikular na app na ito ay may kasamang mga parameter para sa `reference` at `id` gaya ng sumusunod:
 
-1. `reference` - a randomly generated public key used to identify the transaction
-2. `id` - the location id as an integer
+1. `reference` - isang random na nabuong pampublikong key na ginagamit upang tukuyin ang transaksyon
+2. `id` - ang location id bilang integer
 
-Go ahead and update the `post` function to extract `account`, `reference`, and `id` from the request. You should respond with an error if any of these is missing.
+Sige at i-update ang function na `post` upang kunin ang `account`, `reference`, at `id` mula sa kahilingan. Dapat kang tumugon nang may error kung ang alinman sa mga ito ay nawawala.
 
-Next, add a `try catch` statement where the `catch` block responds with an error and the `try` block calls out to a new function `buildTransaction`. If `buildTransaction` is successful, respond with a 200 and a JSON object with the transaction and a message that the user has found the given location. Don't worry about the logic for the `buildTransaction` function just yet - we'll do that next.
+Susunod, magdagdag ng statement na `try catch` kung saan tumutugon ang `catch` block nang may error at ang `try` block ay tumatawag sa isang bagong function na `buildTransaction`. Kung matagumpay ang `buildTransaction`, tumugon gamit ang 200 at JSON object kasama ang transaksyon at isang mensahe na natagpuan ng user ang ibinigay na lokasyon. Huwag mag-alala tungkol sa lohika para sa function na `buildTransaction` - gagawin namin iyon sa susunod.
 
-Note that you'll need to import `PublicKey` and `Transaction` from `@solana/web3.js` here as well.
+Tandaan na kakailanganin mo ring mag-import ng `PublicKey` at `Transaction` mula sa `@solana/web3.js` dito.
 
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next"
@@ -433,24 +433,24 @@ async function buildTransaction(
 }
 ```
 
-### 6. Implement the `buildTransaction` function
+### 6. Ipatupad ang function na `buildTransaction`
 
-Next, let’s implement the `buildTransaction` function. It should build, partially sign, and return the check-in transaction. The sequence of items it needs to perform is:
+Susunod, ipatupad natin ang function na `buildTransaction`. Dapat itong buuin, bahagyang lagdaan, at ibalik ang transaksyon sa pag-check-in. Ang pagkakasunud-sunod ng mga item na kailangan nitong gawin ay:
 
-1. Fetch the user state
-2. Use the `locationAtIndex` helper function and the location id to get a Location object
-3. Verify that the user is at the correct location
-4. Get the current blockhash and last valid block height from the connection
-5. Create a new transaction object
-6. Add an initialize instruction to the transaction if user state does not exist
-7. Add a check-in instruction to the transaction
-8. Add the `reference` public key to the check-in instruction
-9. Partially sign the transaction with the event organizer's keypair
-10. Serialize the transaction with base64 encoding and return the transaction
+1. Kunin ang katayuan ng user
+2. Gamitin ang `locationAtIndex` helper function at ang location id para makakuha ng Lokasyon na object
+3. I-verify na ang user ay nasa tamang lokasyon
+4. Kunin ang kasalukuyang blockhash at huling wastong taas ng block mula sa koneksyon
+5. Gumawa ng bagong object ng transaksyon
+6. Magdagdag ng tagubilin sa pagsisimula sa transaksyon kung hindi umiiral ang estado ng user
+7. Magdagdag ng tagubilin sa pag-check-in sa transaksyon
+8. Idagdag ang `reference` na pampublikong key sa pagtuturo sa pag-check-in
+9. Bahagyang lagdaan ang transaksyon sa keypair ng event organizer
+10. I-serialize ang transaksyon gamit ang base64 encoding at ibalik ang transaksyon
 
-While each of these steps is straightforward, it's a lot of steps. To simplify the function, we're going to create empty helper functions that we'll fill in later for steps 1, 3, 6, and 7-8. We'll call these `fetchUserState`, `verifyCorrectLocation`, `createInitUserInstruction`, and `createCheckInInstruction`, respectively.
+Bagama't diretso ang bawat isa sa mga hakbang na ito, marami itong hakbang. Upang pasimplehin ang function, gagawa kami ng mga walang laman na function ng helper na pupunan namin sa ibang pagkakataon para sa mga hakbang 1, 3, 6, at 7-8. Tatawagin namin itong `fetchUserState`, `verifyCorrectLocation`, `createInitUserInstruction`, at `createCheckInInstruction`, ayon sa pagkakabanggit.
 
-We'll also add the following imports:
+Idaragdag din namin ang mga sumusunod na pag-import:
 
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next"
@@ -459,7 +459,7 @@ import { locationAtIndex, Location, locations } from "../../utils/locations"
 import { connection, gameId, program } from "../../utils/programSetup"
 ```
 
-Using the empty helper functions and the new imports, we can fill in the `buildTransaction` function:
+Gamit ang mga walang laman na function ng helper at ang mga bagong import, maaari naming punan ang function na `buildTransaction`:
 
 ```typescript
 async function buildTransaction(
@@ -539,9 +539,9 @@ async function createCheckInInstruction(
 }
 ```
 
-### 7. Implement `fetchUserState` function
+### 7. Ipatupad ang function na `fetchUserState`
 
-With the `buildTransaction` function finished, we can start implementing the empty helper functions we created, starting with `fetchUserState`. This function uses the `gameId` and user's `account` to derive the user state PDA, then fetches that account, returning null if it doesn't exist.
+Kapag natapos na ang function na `buildTransaction`, maaari naming simulan ang pagpapatupad ng mga walang laman na function ng helper na ginawa namin, simula sa `fetchUserState`. Ginagamit ng function na ito ang `gameId` at `account` ng user upang makuha ang PDA ng estado ng user, pagkatapos ay kinukuha ang account na iyon, at ibabalik ang null kung wala ito.
 
 ```typescript
 async function fetchUserState(account: PublicKey): Promise<UserState | null> {
@@ -558,13 +558,13 @@ async function fetchUserState(account: PublicKey): Promise<UserState | null> {
 }
 ```
 
-### 8. Implement `verifyCorrectLocation` function
+### 8. Ipatupad ang function na `verifyCorrectLocation`
 
-Next, let’s implement the `verifyCorrectLocation` helper function. This function is used to verify that a user is at the correct location in a scavenger hunt game.
+Susunod, ipatupad natin ang function ng helper na `verifyCorrectLocation`. Ginagamit ang function na ito upang i-verify na ang isang user ay nasa tamang lokasyon sa isang scavenger hunt game.
 
-If `userState` is `null`, that means the user should be visiting the first location. Otherwise, the user should be visiting the location whose index is 1 more than their last visited location.
+Kung ang `userState` ay `null`, nangangahulugan iyon na dapat bumisita ang user sa unang lokasyon. Kung hindi, ang user ay dapat na bumisita sa lokasyon na ang index ay 1 higit pa sa kanilang huling binisita na lokasyon.
 
-If these conditions are satisfied, the function will return true. Otherwise, it'll return false.
+Kung ang mga kundisyong ito ay nasiyahan, ang function ay magbabalik ng true. Kung hindi, magbabalik ito ng false.
 
 ```typescript
 function verifyCorrectLocation(
@@ -587,9 +587,9 @@ function verifyCorrectLocation(
 }
 ```
 
-### 9. Implement the instruction creation functions
+### 9. Ipatupad ang mga function ng paggawa ng pagtuturo
 
-Lastly, let's implement `createInitUserInstruction` and `createCheckInInstruction`. These can use Anchor to generate and return the corresponding instructions. The only catch is that `createCheckInInstruction` needs to add `reference` to the instructions list of keys.
+Panghuli, ipatupad natin ang `createInitUserInstruction` at `createCheckInInstruction`. Maaaring gamitin ng mga ito ang Anchor upang buuin at ibalik ang mga kaukulang tagubilin. Ang tanging catch ay ang `createCheckInInstruction` ay kailangang magdagdag ng `reference` sa listahan ng mga tagubilin ng mga key.
 
 ```typescript
 async function createInitUserInstruction(
@@ -626,20 +626,20 @@ async function createCheckInInstruction(
 }
 ```
 
-### 10. Test the app
+### 10. Subukan ang app
 
-At this point your app should be working! Go ahead and test it using your mobile wallet. Start by scanning the QR code for `Location 1`. Remember to make sure your frontend is running using the ngrok URL rather than `localhost`.
+Sa puntong ito dapat gumagana ang iyong app! Sige at subukan ito gamit ang iyong mobile wallet. Magsimula sa pamamagitan ng pag-scan sa QR code para sa `Lokasyon 1`. Tandaang tiyaking gumagana ang iyong frontend gamit ang URL ng ngrok sa halip na `localhost`.
 
-After scanning the QR code, you should see a message indicating that you are at location 1. From there, scan the QR code on the `Location 2` page. You may need to wait a few seconds for the previous transaction to finalize before continuing.
+Pagkatapos i-scan ang QR code, dapat kang makakita ng mensaheng nagsasaad na ikaw ay nasa lokasyon 1. Mula doon, i-scan ang QR code sa pahina ng `Lokasyon 2. Maaaring kailanganin mong maghintay ng ilang segundo para ma-finalize ang nakaraang transaksyon bago magpatuloy.
 
-Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay! Depending on your background, this may not feel intuitive or straightforward. If that's the case, feel free to go through the demo again or make something on your own. Solana Pay opens a lot of doors for bridging the gap between real life and on-chain interaction.
+Binabati kita, matagumpay mong natapos ang demo ng scavenger hunt gamit ang Solana Pay! Depende sa iyong background, maaaring hindi ito intuitive o prangka. Kung iyon ang kaso, huwag mag-atubiling dumaan muli sa demo o gumawa ng isang bagay sa iyong sarili. Ang Solana Pay ay nagbubukas ng maraming pinto para sa pagtulay sa agwat sa pagitan ng totoong buhay at on-chain na pakikipag-ugnayan.
 
-If you want to take a look at the final solution code you can find it on the solution branch of [the same repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/solution).
+Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa sangay ng solusyon ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/solution ).
 
-# Challenge
+# Hamon
 
-It's time to try this out on your own. Feel free to build out an idea of your own using Solana Pay. Or, if you need some inspiration, you can use the prompt below.
+Oras na para subukan ito nang mag-isa. Huwag mag-atubiling bumuo ng sarili mong ideya gamit ang Solana Pay. O, kung kailangan mo ng ilang inspirasyon, maaari mong gamitin ang prompt sa ibaba.
 
-Build out an app using Solana Pay (or modify the one from the demo) to mint an NFT to users. To take it up a notch, only make the transaction possible if the user meets one or more conditions (e.g. holds an NFT from a specific collection, is already on a pre-determined list, etc.).
+Bumuo ng isang app gamit ang Solana Pay (o baguhin ang isa mula sa demo) upang magbigay ng NFT sa mga user. Upang mapahusay ito, gawin lang posible ang transaksyon kung natutugunan ng user ang isa o higit pang kundisyon (hal. may hawak na NFT mula sa isang partikular na koleksyon, nasa isang paunang natukoy na listahan, atbp.).
 
-Get creative with this! The Solana pay spec opens up a lot of doors for unique use cases.
+Maging malikhain dito! Ang Solana pay spec ay nagbubukas ng maraming pinto para sa mga natatanging kaso ng paggamit.

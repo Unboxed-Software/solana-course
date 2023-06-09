@@ -8,11 +8,11 @@ objectives:
 
 # TL;DR
 
-- The [**`create_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) function derives a PDA without searching for the **canonical bump**. This means there are multiple valid bumps, all of which will produce different addresses.
-- Using [**`find_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) ensures that the highest valid bump, or canonical bump, is used for the derivation, thus creating a deterministic way to find an address given specific seeds.
-- Upon initialization, you can use Anchor's `seeds` and `bump` constraint to ensure that PDA derivations in the account validation struct always use the canonical bump
-- Anchor allows you to **specify a bump** with the `bump = <some_bump>` constraint when verifying the address of a PDA
-- Because `find_program_address` can be expensive, best practice is to store the derived bump in an account’s data field to be referenced later on when re-deriving the address for verification
+- Ang [**`create_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) function ay kumukuha ng PDA nang hindi hinahanap ang ** canonical bump**. Nangangahulugan ito na mayroong maraming wastong mga bump, na lahat ay magbubunga ng iba't ibang mga address.
+- Ang paggamit ng [**`find_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) ay tinitiyak na ang pinakamataas na wastong bump, o canonical bump , ay ginagamit para sa derivation, kaya lumilikha ng isang deterministikong paraan upang mahanap ang isang address na ibinigay ng mga partikular na binhi.
+- Sa pagsisimula, maaari mong gamitin ang `seeds` at `bump` ng Anchor upang matiyak na palaging ginagamit ng mga PDA derivation sa validation struct ng account ang canonical bump
+- Binibigyang-daan ka ng Anchor na **tumukoy ng bump** na may hadlang na `bump = <some_bump>` kapag bini-verify ang address ng isang PDA
+- Dahil maaaring magastos ang `find_program_address`, ang pinakamahusay na kasanayan ay ang pag-imbak ng nagmula na bump sa field ng data ng isang account na isa-reference sa ibang pagkakataon kapag muling kinukuha ang address para sa pag-verify
     ```rust
     #[derive(Accounts)]
     pub struct VerifyAddress<'info> {
@@ -24,17 +24,17 @@ objectives:
     }
     ```
 
-# Overview
+# Pangkalahatang-ideya
 
-Bump seeds are a number between 0 and 255, inclusive, used to ensure that an address derived using [`create_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) is a valid PDA. The **canonical bump** is the highest bump value that produces a valid PDA. The standard in Solana is to *always use the canonical bump* when deriving PDAs, both for security and convenience. 
+Ang bump seeds ay isang numero sa pagitan ng 0 at 255, kasama, na ginagamit upang matiyak na ang isang address ay nakuha gamit ang [`create_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html# method.create_program_address) ay isang wastong PDA. Ang **canonical bump** ay ang pinakamataas na bump value na gumagawa ng valid PDA. Ang pamantayan sa Solana ay ang *palaging gamitin ang canonical bump* kapag kumukuha ng mga PDA, kapwa para sa seguridad at kaginhawahan.
 
-## Insecure PDA derivation using `create_program_address`
+## Hindi secure na PDA derivation gamit ang `create_program_address`
 
-Given a set of seeds, the `create_program_address` function will produce a valid PDA about 50% of the time. The bump seed is an additional byte added as a seed to "bump" the derived address into valid territory. Since there are 256 possible bump seeds and the function produces valid PDAs approximately 50% of the time, there are many valid bumps for a given set of input seeds.
+Dahil sa isang hanay ng mga buto, ang function na `create_program_address` ay gagawa ng wastong PDA halos 50% ng oras. Ang bump seed ay isang karagdagang byte na idinagdag bilang seed upang "i-bump" ang hinangong address sa valid na teritoryo. Dahil mayroong 256 na posibleng bump seed at ang function ay gumagawa ng mga valid na PDA sa humigit-kumulang 50% ng oras, mayroong maraming valid na bumps para sa isang naibigay na set ng input seeds.
 
-You can imagine that this could cause confusion for locating accounts when using seeds as a way of mapping between known pieces of information to accounts. Using the canonical bump as the standard ensures that you can always find the right account. More importantly, it avoids security exploits caused by the open-ended nature of allowing multiple bumps.
+Maaari mong isipin na ito ay maaaring magdulot ng kalituhan para sa paghahanap ng mga account kapag gumagamit ng mga buto bilang isang paraan ng pagmamapa sa pagitan ng mga kilalang piraso ng impormasyon sa mga account. Ang paggamit ng canonical bump bilang pamantayan ay tumitiyak na palagi mong mahahanap ang tamang account. Higit sa lahat, iniiwasan nito ang mga pagsasamantala sa seguridad na dulot ng bukas na katangian ng pagpayag ng maraming bumps.
 
-In the example below, the `set_value` instruction uses a `bump` that was passed in as instruction data to derive a PDA. The instruction then derives the PDA using `create_program_address` function and checks that the `address` matches the public key of the `data` account.
+Sa halimbawa sa ibaba, ang tagubiling `set_value` ay gumagamit ng `bump` na ipinasa bilang data ng pagtuturo upang makakuha ng PDA. Pagkatapos ay kinukuha ng pagtuturo ang PDA gamit ang function na `create_program_address` at tinitingnan kung ang `address` ay tumutugma sa pampublikong key ng `data` account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -69,17 +69,17 @@ pub struct Data {
 }
 ```
 
-While the instruction derives the PDA and checks the passed-in account, which is good, it allows the caller to pass in an arbitrary bump. Depending on the context of your program, this could result in undesired behavior or potential exploit.
+Habang kinukuha ng pagtuturo ang PDA at sinusuri ang naipasa na account, na mabuti, pinapayagan nito ang tumatawag na makapasa sa isang arbitrary na bump. Depende sa konteksto ng iyong programa, maaari itong magresulta sa hindi kanais-nais na pag-uugali o potensyal na pagsasamantala.
 
-If the seed mapping was meant to enforce a one-to-one relationship between PDA and user, for example, this program would not properly enforce that. A user could call the program multiple times with many valid bumps, each producing a different PDA.
+Kung ang seed mapping ay nilalayong ipatupad ang isang one-to-one na relasyon sa pagitan ng PDA at user, halimbawa, hindi iyon ipapatupad ng program na ito nang maayos. Maaaring tawagan ng isang user ang program nang maraming beses na may maraming wastong bump, bawat isa ay gumagawa ng ibang PDA.
 
-## Recommended derivation using `find_program_address`
+## Inirerekomendang derivation gamit ang `find_program_address`
 
-A simple way around this problem is to have the program expect only the canonical bump and use `find_program_address` to derive the PDA. 
+Ang isang simpleng paraan sa problemang ito ay ang pag-asa lamang ng programa sa canonical bump at gamitin ang `find_program_address` upang makuha ang PDA.
 
-The [`find_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) *always uses the canonical bump*. This function iterates through calling `create_program_address`, starting with a bump of 255 and decrementing the bump by one with each iteration. As soon as a valid address is found, the function returns both the derived PDA and the canonical bump used to derive it.
+Ang [`find_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) *palaging ginagamit ang canonical bump*. Ang function na ito ay umuulit sa pamamagitan ng pagtawag sa `create_program_address`, na nagsisimula sa isang bump na 255 at binabawasan ang bump ng isa sa bawat pag-ulit. Sa sandaling natagpuan ang isang wastong address, ibabalik ng function ang parehong hinango na PDA at ang canonical bump na ginamit upang makuha ito.
 
-This ensures a one-to-one mapping between your input seeds and the address they produce.
+Tinitiyak nito ang isa-sa-isang pagmamapa sa pagitan ng iyong mga input seed at ang address na ginagawa ng mga ito.
 
 ```rust
 pub fn set_value_secure(
@@ -103,9 +103,9 @@ pub fn set_value_secure(
 }
 ```
 
-## Use Anchor’s `seeds` and `bump` constraints
+## Gamitin ang mga hadlang sa `seeds` at `bump` ng Anchor
 
-Anchor provides a convenient way to derive PDAs in the account validation struct using the `seeds` and `bump` constraints. These can even be combined with the `init` constraint to initialize the account at the intended address. To protect the program from the vulnerability we’ve been discussing throughout this lesson, Anchor does not even allow you to initialize an account at a PDA using anything but the canonical bump. Instead, it uses `find_program_address` to derive the PDA and subsequently performs the initialization.
+Nagbibigay ang Anchor ng maginhawang paraan upang makakuha ng mga PDA sa struct ng pagpapatunay ng account gamit ang mga hadlang na `seeds` at `bump`. Ang mga ito ay maaaring isama pa sa `init` na hadlang upang masimulan ang account sa nilalayong address. Upang maprotektahan ang programa mula sa kahinaan na tinatalakay namin sa buong araling ito, hindi ka pinapayagan ng Anchor na magsimula ng isang account sa isang PDA gamit ang anumang bagay maliban sa canonical bump. Sa halip, gumagamit ito ng `find_program_address` para makuha ang PDA at pagkatapos ay isagawa ang initialization.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -146,11 +146,11 @@ pub struct Data {
 }
 ```
 
-If you aren't initializing an account, you can still validate PDAs with the `seeds` and `bump` constraints. This simply rederives the PDA and compares the derived address with the address of the account passed in.
+Kung hindi ka nagpapasimula ng account, maaari mo pa ring patunayan ang mga PDA gamit ang mga hadlang na `seeds` at `bump`. Ibinabalik lang nito ang PDA at inihahambing ang nakuhang address sa address ng account na ipinasa.
 
-In this scenario, Anchor *does* allow you to specify the bump to use to derive the PDA with `bump = <some_bump>`. The intent here is not for you to use arbitrary bumps, but rather to let you optimize your program. The iterative nature of `find_program_address` makes it expensive, so best practice is to store the canonical bump in the PDA account's data upon initializing a PDA, allowing you to reference the bump stored when validating the PDA in subsequent instructions.
+Sa sitwasyong ito, binibigyang-daan ka ng Anchor *ay* na tukuyin ang bump na gagamitin para makuha ang PDA na may `bump = <some_bump>`. Ang layunin dito ay hindi para sa iyo na gumamit ng mga di-makatwirang bumps, ngunit sa halip ay hayaan kang i-optimize ang iyong program. Ang umuulit na katangian ng `find_program_address` ay ginagawang mahal, kaya ang pinakamahusay na kasanayan ay ang pag-imbak ng canonical bump sa data ng PDA account sa pagsisimula ng isang PDA, na nagbibigay-daan sa iyong i-reference ang bump na nakaimbak kapag pinapatunayan ang PDA sa mga kasunod na tagubilin.
 
-When you specify the bump to use, Anchor uses `create_program_address` with the provided bump instead of `find_program_address`. This pattern of storing the bump in the account data ensures that your program always uses the canonical bump without degrading performance.
+Kapag tinukoy mo ang bump na gagamitin, ang Anchor ay gumagamit ng `create_program_address` kasama ang ibinigay na bump sa halip na `find_program_address`. Tinitiyak ng pattern na ito ng pag-iimbak ng bump sa data ng account na palaging ginagamit ng iyong program ang canonical bump nang hindi nakakasira ng performance.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -211,38 +211,38 @@ pub struct Data {
 }
 ```
 
-If you don't specify the bump on the `bump` constraint, Anchor will still use `find_program_address` to derive the PDA using the canonical bump. As a consequence, your instruction will incur a variable amount of compute budget. Programs that are already at risk of exceeding their compute budget should use this with care since there is a chance that the program’s budget may be occasionally and unpredictably exceeded.
+Kung hindi mo tutukuyin ang bump sa `bump` constraint, gagamitin pa rin ni Anchor ang `find_program_address` para makuha ang PDA gamit ang canonical bump. Bilang resulta, ang iyong pagtuturo ay magkakaroon ng variable na halaga ng compute budget. Dapat itong gamitin ng mga program na nasa panganib na lumampas sa kanilang compute budget dahil may posibilidad na ang badyet ng programa ay maaaring paminsan-minsan at hindi mahuhulaan na lumampas.
 
-On the other hand, if you only need to verify the address of a PDA passed in without initializing an account, you'll be forced to either let Anchor derive the canonical bump or expose your program to unecessary risks. In that case, please use the canonical bump despite the slight mark against performance.
+Sa kabilang banda, kung kailangan mo lang i-verify ang address ng isang PDA na ipinasa nang hindi sinisimulan ang isang account, mapipilitan kang hayaan ang Anchor na makuha ang canonical bump o ilantad ang iyong programa sa mga hindi kinakailangang panganib. Kung ganoon, mangyaring gamitin ang canonical bump sa kabila ng bahagyang marka laban sa pagganap.
 
 # Demo
 
-To demonstrate the security exploits possible when you don't check for the canonical bump, let's work with a program that lets each program user "claim" rewards on time.
+Upang ipakita ang mga posibleng pagsasamantala sa seguridad kapag hindi mo tiningnan ang canonical bump, magtrabaho tayo sa isang program na nagbibigay-daan sa bawat user ng program na "mag-claim" ng mga reward sa oras.
 
-### 1. Setup
+### 1. Pag-setup
 
-Start by getting the code on the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-bump-seed-canonicalization/tree/starter).
+Magsimula sa pamamagitan ng pagkuha ng code sa `starter` branch ng [repository na ito](https://github.com/Unboxed-Software/solana-bump-seed-canonicalization/tree/starter).
 
-Notice that there are two instructions on the program and a single test in the `tests` directory.
+Pansinin na mayroong dalawang tagubilin sa programa at isang pagsubok sa direktoryo ng `mga pagsubok`.
 
-The instructions on the program are:
+Ang mga tagubilin sa programa ay:
 
 1. `create_user_insecure`
 2. `claim_insecure`
 
-The `create_user_insecure` instruction simply creates a new account at a PDA derived using the signer's public key and a passed-in bump. 
+Ang tagubiling `create_user_insecure` ay gumagawa lang ng bagong account sa isang PDA na hinango gamit ang public key ng lumagda at isang naipasa na bump.
 
-The `claim_insecure` instruction mints 10 tokens to the user and then marks the account's rewards as claimed so that they can't claim again.
+Ang tagubiling `claim_insecure` ay nagbibigay ng 10 token sa user at pagkatapos ay minarkahan ang mga reward ng account bilang na-claim upang hindi na sila makapag-claim muli.
 
-However, the program doesn't explicitly check that the PDAs in question are using the canonical bump.
+Gayunpaman, hindi tahasang tinitingnan ng program na ginagamit ng mga PDA na pinag-uusapan ang canonical bump.
 
-Have a look at the program to understand what it does before proceeding.
+Tingnan ang programa upang maunawaan kung ano ang ginagawa nito bago magpatuloy.
 
-### 2. Test insecure instructions
+### 2. Subukan ang hindi secure na mga tagubilin
 
-Since the instructions don't explicitly require the `user` PDA to use the canonical bump, an attacker can create multiple accounts per wallet and claim more rewards than should be allowed.
+Dahil hindi tahasang hinihiling ng mga tagubilin ang PDA ng `user` na gamitin ang canonical bump, maaaring gumawa ang isang attacker ng maraming account sa bawat wallet at mag-claim ng higit pang reward kaysa sa dapat payagan.
 
-The test in the `tests` directory creates a new keypair called `attacker` to represent an attacker. It then loops through all possible bumps and calls `create_user_insecure` and `claim_insecure`. By the end, the test expects that the attacker has been able to claim rewards multiple times and has earned more than the 10 tokens allotted per user.
+Ang pagsubok sa direktoryo ng `mga pagsubok` ay lumilikha ng bagong keypair na tinatawag na `attacker` upang kumatawan sa isang umaatake. Pagkatapos ay i-loop nito ang lahat ng posibleng bumps at tumatawag ng `create_user_insecure` at `claim_insecure`. Sa pagtatapos, inaasahan ng pagsubok na ang umaatake ay nakapag-claim ng mga reward nang maraming beses at nakakuha ng higit sa 10 token na inilaan sa bawat user.
 
 ```ts
 it("Attacker can claim more than reward limit with insecure instructions", async () => {
@@ -298,7 +298,7 @@ it("Attacker can claim more than reward limit with insecure instructions", async
 })
 ```
 
-Run `anchor test` to see that this test passes, showing that the attacker is successful. Since the test calles the instructions for every valid bump, it takes a bit to run, so be patient.
+Patakbuhin ang `anchor test` upang makita na ang pagsubok na ito ay pumasa, na nagpapakita na ang umaatake ay matagumpay. Dahil ang pagsubok ay tumatawag sa mga tagubilin para sa bawat wastong bump, ito ay tumatagal ng kaunti upang tumakbo, kaya maging matiyaga.
 
 ```bash
   bump-seed-canonicalization
@@ -306,14 +306,14 @@ Attacker claimed 129 times and got 1290 tokens
     ✔ Attacker can claim more than reward limit with insecure instructions (133840ms)
 ```
 
-### 3. Create secure instructions
+### 3. Lumikha ng mga secure na tagubilin
 
-Let's demonstrate patching the vulnerability by creating two new instructions:
+Ipakita natin ang pag-patch ng kahinaan sa pamamagitan ng paggawa ng dalawang bagong tagubilin:
 
 1. `create_user_secure`
 2. `claim_secure`
 
-Before we write the account validation or instruction logic, let's create a new user type, `UserSecure`. This new type will add the canonical bump as a field on the struct.
+Bago natin isulat ang pagpapatunay ng account o lohika ng pagtuturo, gumawa tayo ng bagong uri ng user, `UserSecure`. Ang bagong uri na ito ay magdaragdag ng canonical bump bilang isang field sa struct.
 
 ```rust
 #[account]
@@ -324,7 +324,7 @@ pub struct UserSecure {
 }
 ```
 
-Next, let's create account validation structs for each of the new instructions. They'll be very similar to the insecure versions but will let Anchor handle the derivation and deserialization of the PDAs.
+Susunod, gumawa tayo ng mga istruktura ng pagpapatunay ng account para sa bawat isa sa mga bagong tagubilin. Magiging katulad ang mga ito sa mga hindi secure na bersyon ngunit hahayaan ang Anchor na pangasiwaan ang derivation at deserialization ng mga PDA.
 
 ```rust
 #[derive(Accounts)]
@@ -373,7 +373,7 @@ pub struct SecureClaim<'info> {
 }
 ```
 
-Finally, let's implement the instruction logic for the two new instructions. The `create_user_secure` instruction simply needs to set the `auth`, `bump` and `rewards_claimed` fields on the `user` account data.
+Panghuli, ipatupad natin ang lohika ng pagtuturo para sa dalawang bagong tagubilin. Kailangan lang itakda ng tagubiling `create_user_secure` ang `auth`, `bump` at `rewards_claimed` sa data ng account ng `user`.
 
 ```rust
 pub fn create_user_secure(ctx: Context<CreateUserSecure>) -> Result<()> {
@@ -384,7 +384,7 @@ pub fn create_user_secure(ctx: Context<CreateUserSecure>) -> Result<()> {
 }
 ```
 
-The `claim_secure` instruction needs to mint 10 tokens to the user and set the `user` account's `rewards_claimed` field to `true`.
+Ang tagubiling `claim_secure` ay kailangang mag-mint ng 10 token sa user at itakda ang field ng `rewards_claimed` ng `user` account sa `true`.
 
 ```rust
 pub fn claim_secure(ctx: Context<SecureClaim>) -> Result<()> {
@@ -410,11 +410,11 @@ pub fn claim_secure(ctx: Context<SecureClaim>) -> Result<()> {
 }
 ```
 
-### 4. Test secure instructions
+### 4. Subukan ang mga secure na tagubilin
 
-Let's go ahead and write a test to show that the attacker can no longer claim more than once using the new instructions.
+Sige at magsulat tayo ng pagsubok upang ipakita na hindi na maaaring mag-claim ng higit sa isang beses ang umaatake gamit ang mga bagong tagubilin.
 
-Notice that if you start to loop through using multiple PDAs like the old test, you can't even pass the non-canonical bump to the instructions. However, you can still loop through using the various PDAs and at the end check that only 1 claim happened for a total of 10 tokens. Your final test will look something like this:
+Pansinin na kung magsisimula kang mag-loop sa pamamagitan ng paggamit ng maraming PDA tulad ng lumang pagsubok, hindi mo rin maipapasa ang hindi kanonikal na bump sa mga tagubilin. Gayunpaman, maaari ka pa ring mag-loop sa pamamagitan ng paggamit ng iba't ibang PDA at sa dulo suriin na 1 claim lang ang nangyari para sa kabuuang 10 token. Magiging ganito ang hitsura ng iyong huling pagsubok:
 
 ```ts
 it.only("Attacker can only claim once with secure instructions", async () => {
@@ -491,14 +491,14 @@ Attacker claimed 119 times and got 1190 tokens
     ✔ Attacker can only claim once with secure instructions (1448ms)
 ```
 
-If you use Anchor for all of the PDA derivations, this particular exploit is pretty simple to avoid. However, if you end up doing anything "non-standard," be careful to design your program to explicitly use the canonical bump!
+Kung gagamit ka ng Anchor para sa lahat ng mga derivasyon ng PDA, ang partikular na pagsasamantalang ito ay medyo simpleng iwasan. Gayunpaman, kung gagawa ka ng anumang bagay na "hindi karaniwan," mag-ingat sa disenyo ng iyong programa upang tahasang gamitin ang canonical bump!
 
-If you want to take a look at the final solution code you can find it on the `solution` branch of [the same repository](https://github.com/Unboxed-Software/solana-bump-seed-canonicalization/tree/solution).
+Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-bump-seed-canonicalization/tree /solusyon).
 
-# Challenge
+# Hamon
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Tulad ng iba pang mga aralin sa modyul na ito, ang iyong pagkakataon na magsanay sa pag-iwas sa pagsasamantala sa seguridad na ito ay nakasalalay sa pag-audit ng iyong sarili o iba pang mga programa.
 
-Take some time to review at least one program and ensure that all PDA derivations and checks are using the canonical bump.
+Maglaan ng ilang oras upang suriin ang hindi bababa sa isang programa at tiyaking ginagamit ng lahat ng PDA derivations at tseke ang canonical bump.
 
-Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+Tandaan, kung makakita ka ng bug o pagsasamantala sa programa ng ibang tao, mangyaring alertuhan sila! Kung makakita ka ng isa sa iyong sariling programa, siguraduhing i-patch ito kaagad.

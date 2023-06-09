@@ -8,8 +8,8 @@ objectives:
 
 # TL;DR
 
-- Use **data validation checks** to verify that account data matches an expected value**.** Without appropriate data validations checks, unexpected accounts may be used in an instruction.
-- To implement data validations checks in Rust, simply compare the data stored on an account to an expected value.
+- Gumamit ng **mga pagsusuri sa pagpapatunay ng data** upang i-verify na tumutugma ang data ng account sa inaasahang halaga**.** Kung walang mga naaangkop na pagsusuri sa pagpapatunay ng data, maaaring gamitin ang mga hindi inaasahang account sa isang pagtuturo.
+- Upang ipatupad ang mga pagsusuri sa pagpapatunay ng data sa Rust, ihambing lang ang data na nakaimbak sa isang account sa inaasahang halaga.
     
     ```rust
     if ctx.accounts.user.key() != ctx.accounts.user_data.user {
@@ -17,19 +17,19 @@ objectives:
     }
     ```
     
-- In Anchor, you can use `constraint` to checks whether the given expression evaluates to true. Alternatively, you can use `has_one` to check that a target account field stored on the account matches the key of an account in the `Accounts` struct.
+- Sa Anchor, maaari mong gamitin ang `constraint` upang suriin kung ang ibinigay na expression ay nagsusuri sa true. Bilang kahalili, maaari mong gamitin ang `may_isa` upang tingnan kung ang isang target na field ng account na nakaimbak sa account ay tumutugma sa susi ng isang account sa `Mga Account` struct.
 
-# Overview
+# Pangkalahatang-ideya
 
-Account data matching refers to data validation checks used to verify the data stored on an account matches an expected value. Data validation checks provide a way to include additional constraints to ensure the appropriate accounts are passed into an instruction. 
+Ang pagtutugma ng data ng account ay tumutukoy sa mga pagsusuri sa pagpapatunay ng data na ginagamit upang i-verify na ang data na nakaimbak sa isang account ay tumutugma sa inaasahang halaga. Ang mga pagsusuri sa pagpapatunay ng data ay nagbibigay ng paraan upang magsama ng mga karagdagang paghihigpit upang matiyak na ang mga naaangkop na account ay naipapasa sa isang tagubilin.
 
-This can be useful when accounts required by an instruction have dependencies on values stored in other accounts or if an instruction is dependent on the data stored in an account.
+Maaari itong maging kapaki-pakinabang kapag ang mga account na kinakailangan ng isang pagtuturo ay may mga dependency sa mga halagang nakaimbak sa iba pang mga account o kung ang isang pagtuturo ay nakadepende sa data na nakaimbak sa isang account.
 
-### Missing data validation check
+### Nawawalang pagsusuri sa pagpapatunay ng data
 
-The example below includes an `update_admin` instruction that updates the `admin` field stored on an `admin_config` account. 
+Ang halimbawa sa ibaba ay may kasamang tagubiling `update_admin` na nag-a-update sa field ng `admin` na nakaimbak sa isang `admin_config` na account.
 
-The instruction is missing a data validation check to verify the `admin` account signing the transaction matches the `admin` stored on the `admin_config` account. This means any account signing the transaction and passed into the instruction as the `admin` account can update the `admin_config` account.
+Ang tagubilin ay walang data validation check upang i-verify ang `admin` na account na pumipirma sa transaksyon ay tumutugma sa `admin` na nakaimbak sa `admin_config` account. Nangangahulugan ito ng anumang account na pumipirma sa transaksyon at ipinasa sa pagtuturo dahil maaaring i-update ng `admin` account ang `admin_config` account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -61,9 +61,9 @@ pub struct AdminConfig {
 }
 ```
 
-### Add data validation check
+### Magdagdag ng pagsusuri sa pagpapatunay ng data
 
-The basic Rust approach to solve this problem is to simply compare the passed in `admin` key to the `admin` key stored in the `admin_config` account, throwing an error if they don’t match.
+Ang pangunahing diskarte sa Rust upang malutas ang problemang ito ay ihambing lamang ang ipinasa sa `admin` na key sa `admin` na key na nakaimbak sa `admin_config` na account, na naglalagay ng error kung hindi sila magkatugma.
 
 ```rust
 if ctx.accounts.admin.key() != ctx.accounts.admin_config.admin {
@@ -71,7 +71,7 @@ if ctx.accounts.admin.key() != ctx.accounts.admin_config.admin {
 }
 ```
 
-By adding a data validation check, the `update_admin` instruction would only process if the `admin` signer of the transaction matched the `admin` stored on the `admin_config` account.
+Sa pamamagitan ng pagdaragdag ng pagsusuri sa pagpapatunay ng data, ang pagtuturo ng `update_admin` ay mapoproseso lamang kung ang `admin` signer ng transaksyon ay tumugma sa `admin` na nakaimbak sa `admin_config` account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -106,11 +106,11 @@ pub struct AdminConfig {
 }
 ```
 
-### Use Anchor constraints
+### Gumamit ng mga hadlang sa Anchor
 
-Anchor simplifies this with the `has_one` constraint. You can use the `has_one` constraint to move the data validation check from the instruction logic to the `UpdateAdmin` struct.
+Pinapasimple ito ng Anchor gamit ang hadlang na `may_isa`. Maaari mong gamitin ang hadlang na `has_one` upang ilipat ang pagsusuri sa pagpapatunay ng data mula sa lohika ng pagtuturo patungo sa struct ng `UpdateAdmin`.
 
-In the example below, `has_one = admin` specifies that the `admin` account signing the transaction must match the `admin` field stored on the `admin_config` account. To use the `has_one` constraint, the naming convention of the data field on the account must be consistent with the naming on the account validation struct. 
+Sa halimbawa sa ibaba, ang `has_one = admin` ay tumutukoy na ang `admin` account na pumipirma sa transaksyon ay dapat na tumugma sa `admin` na field na nakaimbak sa `admin_config` account. Upang magamit ang hadlang na `may_isa`, ang convention ng pagbibigay ng pangalan ng field ng data sa account ay dapat na pare-pareho sa pagbibigay ng pangalan sa struct ng pagpapatunay ng account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -145,7 +145,7 @@ pub struct AdminConfig {
 }
 ```
 
-Alternatively, you can use `constraint` to manually add an expression that must evaluate to true in order for execution to continue. This is useful when for some reason naming can’t be consistent or when you need a more complex expression to fully validate the incoming data.
+Bilang kahalili, maaari mong gamitin ang `constraint` upang manu-manong magdagdag ng isang expression na dapat suriin sa true upang magpatuloy ang pagpapatupad. Ito ay kapaki-pakinabang kapag sa ilang kadahilanan ay hindi maaaring maging pare-pareho ang pagbibigay ng pangalan o kapag kailangan mo ng mas kumplikadong expression upang ganap na mapatunayan ang papasok na data.
 
 ```rust
 #[derive(Accounts)]
@@ -163,19 +163,19 @@ pub struct UpdateAdmin<'info> {
 
 # Demo
 
-For this demo we’ll create a simple “vault” program similar to the program we used in the Signer Authorization lesson and the Owner Check lesson. Similar to those demos, we’ll show in this demo how a missing data validation check could allow the vault to be drained.
+Para sa demo na ito, gagawa kami ng simpleng "vault" na programa na katulad ng program na ginamit namin sa aralin sa Signer Authorization at sa Owner Check lesson. Katulad ng mga demo na iyon, ipapakita namin sa demo na ito kung paano maaaring magbigay-daan ang isang nawawalang data validation check na ma-drain ang vault.
 
-### 1. Starter
+### 1. Panimula
 
-To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-account-data-matching). The starter code includes a program with two instructions and the boilerplate setup for the test file. 
+Para makapagsimula, i-download ang starter code mula sa `starter` branch ng [repository na ito](https://github.com/Unboxed-Software/solana-account-data-matching). Kasama sa starter code ang isang program na may dalawang tagubilin at ang setup ng boilerplate para sa test file.
 
-The `initialize_vault` instruction initializes a new `Vault` account and a new `TokenAccount`. The `Vault` account will store the address of a token account, the authority of the vault, and a withdraw destination token account.
+Ang tagubiling `initialize_vault` ay nagpapasimula ng bagong `Vault` account at isang bagong `TokenAccount`. Ang `Vault` account ay mag-iimbak ng address ng isang token account, ang awtoridad ng vault, at isang withdraw destination token account.
 
-The authority of the new token account will be set as the `vault`, a PDA of the program. This allows the `vault` account to sign for the transfer of tokens from the token account. 
+Ang awtoridad ng bagong token account ay itatakda bilang `vault`, isang PDA ng programa. Nagbibigay-daan ito sa `vault` account na mag-sign para sa paglilipat ng mga token mula sa token account.
 
-The `insecure_withdraw` instruction transfers all the tokens in the `vault` account’s token account to a `withdraw_destination` token account. 
+Inilipat ng tagubiling `insecure_withdraw` ang lahat ng token sa token account ng `vault` account sa isang token account na `withdraw_destination`.
 
-Notice that this instruction ****does**** have a signer check for `authority` and an owner check for `vault`. However, nowhere in the account validation or instruction logic is there code that checks that the `authority` account passed into the instruction matches the `authority` account on the `vault`.
+Pansinin na ang tagubiling ito ****ay**** ay may signer check para sa `authority` at may owner check para sa `vault`. Gayunpaman, wala kahit saan sa pagpapatunay ng account o lohika ng pagtuturo na mayroong code na nagsusuri kung ang `authority` account na ipinasa sa pagtuturo ay tumutugma sa `authority` account sa `vault`.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -270,15 +270,15 @@ pub struct Vault {
 }
 ```
 
-### 2. Test `insecure_withdraw` instruction
+### 2. Subukan ang `insecure_withdraw` na pagtuturo
 
-To prove that this is a problem, let’s write a test where an account other than the vault’s `authority` tries to withdraw from the vault.
+Upang patunayan na ito ay isang problema, sumulat tayo ng isang pagsubok kung saan ang isang account maliban sa `awtoridad` ng vault ay sumusubok na mag-withdraw mula sa vault.
 
-The test file includes the code to invoke the `initialize_vault` instruction using the provider wallet as the `authority` and then mints 100 tokens to the `vault` token account.
+Kasama sa test file ang code para i-invoke ang `initialize_vault` na pagtuturo gamit ang provider wallet bilang `authority` at pagkatapos ay mag-mint ng 100 token sa `vault` token account.
 
-Add a test to invoke the `insecure_withdraw` instruction. Use `withdrawDestinationFake` as the `withdrawDestination` account and `walletFake` as the `authority`. Then send the transaction using `walletFake`.
+Magdagdag ng pagsubok para ma-invoke ang `insecure_withdraw` na pagtuturo. Gamitin ang `withdrawDestinationFake` bilang `withdrawDestination` account at `walletFake` bilang `authority`. Pagkatapos ay ipadala ang transaksyon gamit ang `walletFake`.
 
-Since there are no checks the verify the `authority` account passed into the instruction matches the values stored on the `vault` account initialized in the first test, the instruction will process successfully and the tokens will be transferred to the `withdrawDestinationFake` account.
+Dahil walang mga pagsusuri, ang pag-verify ng `authority` account na ipinasa sa pagtuturo ay tumutugma sa mga value na nakaimbak sa `vault` account na sinimulan sa unang pagsubok, matagumpay na mapoproseso ang pagtuturo at ang mga token ay ililipat sa `withdrawDestinationFake` account.
 
 ```tsx
 describe("account-data-matching", () => {
@@ -302,7 +302,7 @@ describe("account-data-matching", () => {
 })
 ```
 
-Run `anchor test` to see that both transactions will complete successfully.
+Patakbuhin ang `anchor test` upang makita na ang parehong mga transaksyon ay matagumpay na makumpleto.
 
 ```bash
 account-data-matching
@@ -310,11 +310,11 @@ account-data-matching
   ✔ Insecure withdraw (403ms)
 ```
 
-### 3. Add `secure_withdraw` instruction
+### 3. Magdagdag ng `secure_withdraw` na pagtuturo
 
-Let’s go implement a secure version of this instruction called `secure_withdraw`.
+Magpatupad tayo ng secure na bersyon ng tagubiling ito na tinatawag na `secure_withdraw`.
 
-This instruction will be identical to the `insecure_withdraw` instruction, except we’ll use the `has_one` constraint in the account validation struct (`SecureWithdraw`) to check that the `authority` account passed into the instruction matches the `authority` account on the `vault` account. That way only the correct authority account can withdraw the vault’s tokens.
+Magiging kapareho ang tagubiling ito sa tagubiling `insecure_withdraw`, maliban kung gagamitin namin ang `has_one` constraint sa struct ng pagpapatunay ng account (`SecureWithdraw`) upang tingnan kung ang `authority` account na naipasa sa pagtuturo ay tumutugma sa `authority` account sa `vault` account. Sa ganoong paraan lamang ang tamang account ng awtoridad ang makakapag-withdraw ng mga token ng vault.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -371,9 +371,9 @@ pub struct SecureWithdraw<'info> {
 }
 ```
 
-### 4. Test `secure_withdraw` instruction
+### 4. Subukan ang pagtuturo ng `secure_withdraw`
 
-Now let’s test the `secure_withdraw` instruction with two tests: one that uses `walletFake` as the authority and one that uses `wallet` as the authority. We expect the first invocation to return an error and the second to succeed.
+Ngayon, subukan natin ang tagubiling `secure_withdraw` gamit ang dalawang pagsubok: isa na gumagamit ng `walletFake` bilang awtoridad at isa na gumagamit ng `wallet` bilang awtoridad. Inaasahan namin na ang unang invocation ay magbabalik ng error at ang pangalawa ay magtatagumpay.
 
 ```tsx
 describe("account-data-matching", () => {
@@ -423,7 +423,7 @@ describe("account-data-matching", () => {
 })
 ```
 
-Run `anchor test` to see that the transaction using an incorrect authority account will now return an Anchor Error  while the transaction using correct accounts completes successfully.
+Magpatakbo ng `anchor test` upang makita na ang transaksyon gamit ang isang maling account ng awtoridad ay magbabalik na ngayon ng Anchor Error habang matagumpay na nakumpleto ang transaksyon gamit ang mga tamang account.
 
 ```bash
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]',
@@ -437,21 +437,21 @@ Run `anchor test` to see that the transaction using an incorrect authority accou
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d1'
 ```
 
-Note that Anchor specifies in the logs the account that causes the error (`AnchorError caused by account: vault`).
+Tandaan na tinukoy ng Anchor sa mga log ang account na nagdudulot ng error (`AnchorError na sanhi ng account: vault`).
 
 ```bash
 ✔ Secure withdraw, expect error (77ms)
 ✔ Secure withdraw (10073ms)
 ```
 
-And just like that, you've closed up the security loophole. The theme across most of these potential exploits is that they're quite simple. However, as your programs grow in scope and complexity, it becomse increasingly easy to miss possible exploits. It's great to get in a habit of writing tests that send instructions that *shouldn't* work. The more the better. That way you catch problems before you deploy.
+At tulad niyan, isinara mo na ang butas ng seguridad. Ang tema sa karamihan ng mga potensyal na pagsasamantalang ito ay medyo simple ang mga ito. Gayunpaman, habang lumalaki ang iyong mga programa sa saklaw at pagiging kumplikado, nagiging mas madaling makaligtaan ang mga posibleng pagsasamantala. Napakahusay na ugaliing sumulat ng mga pagsusulit na nagpapadala ng mga tagubilin na *hindi dapat* gumana. Mas marami mas mabuti. Sa ganoong paraan makakahuli ka ng mga problema bago ka mag-deploy.
 
-If you want to take a look at the final solution code you can find it on the `solution` branch of [the repository](https://github.com/Unboxed-Software/solana-account-data-matching/tree/solution).
+Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [repository](https://github.com/Unboxed-Software/solana-account-data-matching/tree/solusyon).
 
-# Challenge
+# Hamon
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Tulad ng iba pang mga aralin sa modyul na ito, ang iyong pagkakataon na magsanay sa pag-iwas sa pagsasamantala sa seguridad na ito ay nakasalalay sa pag-audit ng iyong sarili o iba pang mga programa.
 
-Take some time to review at least one program and ensure that proper data checks are in place to avoid security exploits.
+Maglaan ng ilang oras upang suriin ang hindi bababa sa isang programa at tiyakin na ang mga wastong pagsusuri sa data ay nasa lugar upang maiwasan ang mga pagsasamantala sa seguridad.
 
-Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+Tandaan, kung makakita ka ng bug o pagsasamantala sa programa ng ibang tao, mangyaring alertuhan sila! Kung makakita ka ng isa sa iyong sariling programa, siguraduhing i-patch ito kaagad.

@@ -8,26 +8,26 @@ objectives:
 
 # TL;DR
 
-- Use an account discriminator or initialization flag to check whether an account has already been initialized to prevent an account from being reinitialized and overriding existing account data.
-- To prevent account reinitialization in plain Rust, initialize accounts with an `is_initialized` flag and check if it has already been set to true when initializing an account
+- Gumamit ng account discriminator o initialization flag upang tingnan kung ang isang account ay nasimulan na upang maiwasan ang isang account na ma-reinitialize at ma-override ang kasalukuyang data ng account.
+- Para maiwasan ang muling pagsisimula ng account sa plain Rust, simulan ang mga account gamit ang `is_initialized` na flag at tingnan kung naitakda na ito sa true kapag nagpasimula ng account
   ```rust
   if account.is_initialized {
       return Err(ProgramError::AccountAlreadyInitialized.into());
   }
   ```
-- To simplify this, use Anchor’s `init` constraint to create an account via a CPI to the system program and sets its discriminator
+- Upang gawing simple ito, gamitin ang hadlang na `init` ng Anchor upang lumikha ng isang account sa pamamagitan ng CPI sa program ng system at itakda ang discriminator nito
 
-# Overview
+# Pangkalahatang-ideya
 
-Initialization refers to setting the data of a new account for the first time. When initializing a new account, you should implement a way to check if the account has already been initialized. Without an appropriate check, an existing account could be reinitialized and have existing data overwritten.
+Ang pagsisimula ay tumutukoy sa pagtatakda ng data ng isang bagong account sa unang pagkakataon. Kapag nagpasimula ng isang bagong account, dapat kang magpatupad ng isang paraan upang suriin kung ang account ay nasimulan na. Kung walang naaangkop na pagsusuri, maaaring muling simulan ang isang umiiral na account at ma-overwrite ang umiiral nang data.
 
-Note that initializing an account and creating an account are two separate instructions. Creating an account requires invoking the `create_account` instruction on the System Program which specifies the space required for the account, the rent in lamports allocated to the account, and the program owner of the account. Initialization is an instruction that sets the data of a newly created account. Creating and initializing an account can be combined into a single transaction.
+Tandaan na ang pagsisimula ng account at paggawa ng account ay dalawang magkahiwalay na tagubilin. Ang paggawa ng account ay nangangailangan ng paggamit ng `create_account` na pagtuturo sa System Program na tumutukoy sa espasyong kinakailangan para sa account, ang renta sa mga laport na inilaan sa account, at ang may-ari ng program ng account. Ang pagsisimula ay isang tagubilin na nagtatakda ng data ng isang bagong likhang account. Ang paglikha at pagsisimula ng isang account ay maaaring pagsamahin sa isang transaksyon.
 
-### Missing Initialization Check
+### Nawawalang Pagsusuri ng Initialization
 
-In the example below, there are no checks on the `user` account. The `initialize` instruction deserializes the data of the `user` account as a `User` account type, sets the `authority` field, and serializes the updated account data to the `user` account.
+Sa halimbawa sa ibaba, walang mga pagsusuri sa `user` account. Ang `initialize` na pagtuturo ay nagde-deserialize sa data ng `user` account bilang isang `User` na uri ng account, nagtatakda ng `authority` field, at nagse-serialize ng na-update na data ng account sa `user` account.
 
-Without checks on the `user` account, the same account could be passed into the `initialize` instruction a second time by another party to overwrite the existing `authority` stored on the account data.
+Nang walang mga pagsusuri sa `user` account, ang parehong account ay maaaring maipasa sa `initialize` na pagtuturo sa pangalawang pagkakataon ng isa pang partido upang i-overwrite ang umiiral na `authority` na nakaimbak sa data ng account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -61,9 +61,9 @@ pub struct User {
 }
 ```
 
-### Add `is_initialized` check
+### Magdagdag ng `is_initialized` check
 
-One approach to fix this is to add an additional `is_initialized` field to the `User` account type and use it as a flag to check if an account has already been initialized.
+Ang isang diskarte para ayusin ito ay ang magdagdag ng karagdagang field na `is_initialized` sa uri ng account ng `User` at gamitin ito bilang flag para tingnan kung nasimulan na ang isang account.
 
 ```jsx
 if user.is_initialized {
@@ -71,7 +71,7 @@ if user.is_initialized {
 }
 ```
 
-By including a check within the `initialize` instruction, the `user` account would only be initialized if the `is_initialized` field has not yet been set to true. If the `is_initialized` field was already set, the transaction would fail, thereby avoiding the scenario where an attacker could replace the account authority with their own public key.
+Sa pamamagitan ng pagsasama ng tseke sa loob ng tagubiling `pagsisimula`, ang account ng `user` ay masisimulan lamang kung hindi pa naitakda sa true ang field na `is_initialize`. Kung naitakda na ang field na `is_initialized`, mabibigo ang transaksyon, at sa gayon ay maiiwasan ang sitwasyon kung saan maaaring palitan ng isang attacker ang awtoridad ng account ng sarili nilang pampublikong key.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -112,13 +112,13 @@ pub struct User {
 }
 ```
 
-### Use Anchor’s `init` constraint
+### Gamitin ang `init` constraint ng Anchor
 
-Anchor provides an `init` constraint that can be used with the `#[account(...)]` attribute to initialize an account. The `init` constraint creates the account via a CPI to the system program and sets the account discriminator.
+Nagbibigay ang Anchor ng `init` constraint na maaaring gamitin sa attribute na `#[account(...)]` para makapagsimula ng account. Ang `init` constraint ay lumilikha ng account sa pamamagitan ng isang CPI sa system program at nagtatakda ng account discriminator.
 
-The `init` constraint must be used in combination with the `payer` and `space` constraints. The `payer` specifies the account paying for the initialization of the new account. The `space` specifies the amount of space the new account requires, which determines the amount of lamports that must be allocated to the account. The first 8 bytes of data is set as a discriminator that Anchor automatically adds to identify the account type.
+Dapat gamitin ang `init` constraint kasama ng `payer` at `space` constraints. Tinukoy ng `nagbabayad` ang account na nagbabayad para sa pagsisimula ng bagong account. Tinutukoy ng `space` ang halaga ng espasyo na kailangan ng bagong account, na tumutukoy sa halaga ng mga laport na dapat ilaan sa account. Ang unang 8 byte ng data ay itinakda bilang isang discriminator na awtomatikong idinaragdag ng Anchor upang matukoy ang uri ng account.
 
-Most importantly for this lesson, the `init` constraint ensures that this instruction can only be called once per account, so you can set the initial state of the account in the instruction logic and not have to worry about an attacker trying to reinitialize the account.
+Pinakamahalaga para sa araling ito, tinitiyak ng hadlang na `init` na ang pagtuturo na ito ay maaari lamang tawagan ng isang beses sa bawat account, upang maitakda mo ang paunang katayuan ng account sa lohika ng pagtuturo at hindi na kailangang mag-alala tungkol sa isang umaatake na sumusubok na muling simulan ang account. .
 
 ```rust
 use anchor_lang::prelude::*;
@@ -150,30 +150,30 @@ pub struct User {
 }
 ```
 
-### Anchor’s `init_if_needed` constraint
+### Ang hadlang na `init_if_needed` ng Anchor
 
-It’s worth noting that Anchor has an `init_if_needed` constraint. This constraint should be used very cautiously. In fact, it is blocked behind a feature flag so that you are forced to be intentional about using it.
+Kapansin-pansin na ang Anchor ay may hadlang na `init_if_needed`. Ang paghihigpit na ito ay dapat gamitin nang maingat. Sa katunayan, ito ay naka-block sa likod ng isang tampok na bandila upang ikaw ay mapipilitang maging sinasadya tungkol sa paggamit nito.
 
-The `init_if_needed` constraint does the same thing as the `init` constraint, only if the account has already been initialized the instruction will still run.
+Ang `init_if_needed` constraint ay gumagawa ng parehong bagay gaya ng `init` constraint, kung ang account ay nasimulan na ang pagtuturo ay tatakbo pa rin.
 
-Given this, it’s *********extremely********* important that when you use this constraint you include checks to avoid resetting the account to its initial state.
+Dahil dito, *********sobrang********* mahalaga na kapag ginamit mo ang hadlang na ito, isasama mo ang mga pagsusuri upang maiwasang i-reset ang account sa paunang katayuan nito.
 
-For example, if the account stores an `authority` field that gets set in the instruction using the `init_if_needed` constraint, you need checks that ensure that no attacker could call the instruction after it has already been initialized and have the `authority` field set again.
+Halimbawa, kung ang account ay nag-iimbak ng field na `authority` na naitakda sa pagtuturo gamit ang `init_if_needed` constraint, kailangan mo ng mga pagsusuri na matiyak na walang attacker ang makakatawag sa pagtuturo pagkatapos na ito ay masimulan at magkaroon ng `authority` field. itakda muli.
 
-In most cases, it’s safer to have a separate instruction for initializing account data.
+Sa karamihan ng mga kaso, mas ligtas na magkaroon ng hiwalay na tagubilin para sa pagsisimula ng data ng account.
 
 # Demo
 
-For this demo we’ll create a simple program that does nothing but initialize accounts. We’ll include two instructions:
+Para sa demo na ito, gagawa kami ng isang simpleng program na walang ginagawa kundi ang magpasimula ng mga account. Magsasama kami ng dalawang tagubilin:
 
-- `insecure_initialization` - initializes an account that can be reinitialized
-- `recommended_initialization` - initialize an account using Anchor’s `init` constraint
+- `insecure_initialization` - nagpapasimula ng isang account na maaaring muling simulan
+- `recommended_initialization` - magpasimula ng account gamit ang `init` constraint ng Anchor
 
-### 1. Starter
+### 1. Panimula
 
-To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/starter). The starter code includes a program with one instruction and the boilerplate setup for the test file. 
+Para makapagsimula, i-download ang starter code mula sa `starter` branch ng [repository na ito](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/starter). Kasama sa starter code ang isang program na may isang pagtuturo at ang setup ng boilerplate para sa test file.
 
-The `insecure_initialization` instruction initializes a new `user` account that stores the public key of an `authority`. In this instruction, the account is expected to be allocated client-side, then passed into the program instruction. Once passed into the program, there are no checks to see if the `user` account's initial state has already been set. This means the same account can be passed in a second time to override the `authority` stored on an existing `user` account.
+Ang tagubiling `insecure_initialization` ay nagpapasimula ng bagong account ng `user` na nag-iimbak ng pampublikong susi ng isang `awtoridad`. Sa tagubiling ito, ang account ay inaasahang ilalaan sa panig ng kliyente, pagkatapos ay ipapasa sa pagtuturo ng programa. Kapag naipasa na sa programa, walang mga pagsusuri upang makita kung naitakda na ang paunang katayuan ng `user` account. Nangangahulugan ito na ang parehong account ay maaaring maipasa sa pangalawang pagkakataon upang i-override ang `awtoridad` na nakaimbak sa isang umiiral na account ng `user`.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -207,11 +207,11 @@ pub struct User {
 }
 ```
 
-### 2. Test `insecure_initialization` instruction
+### 2. Subukan ang `insecure_initialization` na pagtuturo
 
-The test file includes the setup to create an account by invoking the system program and then invokes the `insecure_initialization` instruction twice using the same account. 
+Kasama sa test file ang setup para gumawa ng account sa pamamagitan ng paggamit ng system program at pagkatapos ay i-invoke ang `insecure_initialization` na pagtuturo nang dalawang beses gamit ang parehong account.
 
-Since there are no checks the verify that the account data has not already been initialized, the `insecure_initialization` instruction will complete successfully both times, despite the second invocation providing a *different* authority account.
+Dahil walang mga pagsusuri sa pag-verify na ang data ng account ay hindi pa nasisimulan, ang pagtuturo ng `insecure_initialization` ay matagumpay na makukumpleto sa parehong pagkakataon, sa kabila ng pangalawang invocation na nagbibigay ng *ibang* awtoridad na account.
 
 ```tsx
 import * as anchor from "@project-serum/anchor"
@@ -282,7 +282,7 @@ describe("initialization", () => {
 })
 ```
 
-Run `anchor test` to see that both transactions will complete successfully.
+Patakbuhin ang `anchor test` upang makita na ang parehong mga transaksyon ay matagumpay na makumpleto.
 
 ```bash
 initialization
@@ -290,13 +290,13 @@ initialization
   ✔ Re-invoke insecure init with different auth (464ms)
 ```
 
-### 3. Add `recommended_initialization` instruction
+### 3. Magdagdag ng `recommended_initialization` na pagtuturo
 
-Let's create a new instruction called `recommended_initialization` that fixes this problem. Unlike the previous insecure instruction, this instruction should handle both the creation and initialization of the user's account using Anchor's `init` constraint.
+Gumawa tayo ng bagong tagubilin na tinatawag na `recommended_initialization` na nag-aayos sa problemang ito. Hindi tulad ng nakaraang insecure na pagtuturo, dapat pangasiwaan ng tagubiling ito ang paggawa at pagsisimula ng account ng user gamit ang `init` constraint ng Anchor.
 
-This constraint instructs the program to create the account via a CPI to the system program, so the account no longer needs to be created client-side. The constraint also sets the account discriminator. Your instruction logic can then set the account's initial state.
+Ang paghihigpit na ito ay nagtuturo sa programa na lumikha ng account sa pamamagitan ng isang CPI sa program ng system, kaya hindi na kailangang gawin ang account sa panig ng kliyente. Itinatakda din ng paghihigpit ang discriminator ng account. Ang iyong lohika ng pagtuturo ay maaaring magtakda ng paunang katayuan ng account.
 
-By doing this, you ensure that any subsequent invocation of the same instruction with the same user account will fail rather than reset the account's initial state.
+Sa paggawa nito, tinitiyak mo na ang anumang kasunod na invocation ng parehong pagtuturo na may parehong user account ay mabibigo sa halip na i-reset ang paunang katayuan ng account.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -324,9 +324,9 @@ pub struct Checked<'info> {
 }
 ```
 
-### 4. Test `recommended_initialization` instruction
+### 4. Subukan ang pagtuturo ng `recommended_initialization`
 
-To test the `recommended_initialization` instruction, we’ll invoke the instruction twice just like before. This time, we expect the transaction to fail when we try to initialize the same account a second time. 
+Upang subukan ang tagubiling `recommended_initialization`, gagamit kami ng tagubilin nang dalawang beses tulad ng dati. Sa pagkakataong ito, inaasahan naming mabibigo ang transaksyon kapag sinubukan naming simulan ang parehong account sa pangalawang pagkakataon.
 
 ```tsx
 describe("initialization", () => {
@@ -363,7 +363,7 @@ describe("initialization", () => {
 })
 ```
 
-Run `anchor test` and to see that the second transaction which tries to initialize the same account twice will now return an error stating the account address is already in use.
+Patakbuhin ang `anchor test` at upang makita na ang pangalawang transaksyon na sumusubok na simulan ang parehong account nang dalawang beses ay magbabalik na ngayon ng error na nagsasaad na ang address ng account ay ginagamit na.
 
 ```bash
 'Program CpozUgSwe9FPLy9BLNhY2LTGqLUk1nirUkMMA5RmDw6t invoke [1]',
@@ -375,14 +375,14 @@ Run `anchor test` and to see that the second transaction which tries to initiali
 'Program CpozUgSwe9FPLy9BLNhY2LTGqLUk1nirUkMMA5RmDw6t failed: custom program error: 0x0'
 ```
 
-If you use Anchor's `init` constraint, that's usually all you need to protect against reinitialization attacks! Remember, just because the fix for these security exploits is simple doesn't mean it isn't important. Every time your initialize an account, make sure you're either using the `init` constraint or have some other check in place to avoid resetting an existing account's initial state.
+Kung gagamit ka ng `init` constraint ng Anchor, kadalasan iyon lang ang kailangan mong protektahan laban sa mga pag-atake sa muling pagsisimula! Tandaan, dahil ang pag-aayos para sa mga pagsasamantalang ito sa seguridad ay simple ay hindi nangangahulugan na hindi ito mahalaga. Sa tuwing magpapasimula ka ng isang account, tiyaking ginagamit mo ang hadlang na `init` o may iba pang pag-check sa lugar upang maiwasan ang pag-reset sa paunang katayuan ng kasalukuyang account.
 
-If you want to take a look at the final solution code you can find it on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/solution).
+Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [imbakang ito](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/solution) .
 
-# Challenge
+# Hamon
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Tulad ng iba pang mga aralin sa modyul na ito, ang iyong pagkakataon na magsanay sa pag-iwas sa pagsasamantala sa seguridad na ito ay nakasalalay sa pag-audit ng iyong sarili o iba pang mga programa.
 
-Take some time to review at least one program and ensure that instructions are properly protected against reinitialization attacks.
+Maglaan ng ilang oras upang suriin ang hindi bababa sa isang programa at tiyaking maayos na pinoprotektahan ang mga tagubilin laban sa mga pag-atake sa muling pagsisimula.
 
-Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+Tandaan, kung makakita ka ng bug o pagsasamantala sa programa ng ibang tao, mangyaring alertuhan sila! Kung makakita ka ng isa sa iyong sariling programa, siguraduhing i-patch ito kaagad.

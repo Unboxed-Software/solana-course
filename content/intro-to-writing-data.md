@@ -13,8 +13,8 @@ objectives:
 
 # TL;DR
 
-- **Keypair** refers to a pairing of public and secret keys. The public key is used as an “address” that points to an account on the Solana network. The secret key is used to verify identity or authority. As the name suggests, you should always keep secret keys *private*. `@solana/web3.js` provides helper functions for creating a brand new keypair, or for constructing a keypair using an existing secret key.
-- **Transactions** are effectively a bundle of instructions that invoke Solana programs. The result of each transaction depends on the program being called. All modifications to on-chain data happen through transactions. Example:
+- **Keypair** ay tumutukoy sa isang pagpapares ng pampubliko at lihim na mga susi. Ang pampublikong key ay ginagamit bilang isang "address" na tumuturo sa isang account sa network ng Solana. Ang lihim na susi ay ginagamit upang i-verify ang pagkakakilanlan o awtoridad. Gaya ng ipinahihiwatig ng pangalan, dapat mong palaging panatilihing *pribado* ang mga lihim na susi. Ang `@solana/web3.js` ay nagbibigay ng mga function ng helper para sa paglikha ng bagong keypair, o para sa pagbuo ng keypair gamit ang isang umiiral nang secret key.
+- Ang **Transactions** ay epektibong isang bundle ng mga tagubilin na humihimok ng mga programang Solana. Ang resulta ng bawat transaksyon ay depende sa program na tinatawag. Ang lahat ng mga pagbabago sa on-chain na data ay nangyayari sa pamamagitan ng mga transaksyon. Halimbawa:
     ```tsx
     const transaction = new Transaction()
 
@@ -33,34 +33,34 @@ objectives:
     )
     ```
 
-# Overview
+# Pangkalahatang-ideya
 
 ## Keypair
 
-As the name suggests, a keypair is a pair of keys: a public key and a secret key.
+Gaya ng ipinahihiwatig ng pangalan, ang keypair ay isang pares ng mga susi: isang pampublikong susi at isang lihim na susi.
 
-- The public key is used as an “address” that points to an account on the Solana network.
-- The secret key is used to verify identity or authority. As the name suggests, you should always keep secret keys *private*.
+- Ang pampublikong susi ay ginagamit bilang isang "address" na tumuturo sa isang account sa network ng Solana.
+- Ang lihim na susi ay ginagamit upang i-verify ang pagkakakilanlan o awtoridad. Gaya ng ipinahihiwatig ng pangalan, dapat mong palaging panatilihing *pribado* ang mga lihim na susi.
 
-A keypair is *required* for the vast majority of interactions within the Solana network. If you don’t already have a keypair, or if you want to generate a new one for a specific purpose, `@solana/web3.js` provides a helper function for creating a brand new keypair.
+Ang keypair ay *kinakailangan* para sa karamihan ng mga pakikipag-ugnayan sa loob ng network ng Solana. Kung wala ka pang keypair, o kung gusto mong bumuo ng bago para sa isang partikular na layunin, ang `@solana/web3.js` ay nagbibigay ng helper function para sa paggawa ng bagong keypair.
 
 ```tsx
 const ownerKeypair = Keypair.generate()
 ```
 
-A keypair is of the data type `Keypair` and can be deconstructed into a public key:
+Ang keypair ay nasa uri ng data na `Keypair` at maaaring i-deconstruct sa isang pampublikong key:
 
 ```tsx
 const publicKey = ownerKeypair.publicKey
 ```
 
-... or the secret key:
+... o ang secret key:
 
 ```tsx
 const secretKey = ownerKeypair.secretKey
 ```
 
-If you already have a keypair you’d like to use, you can create a `Keypair` from the secret key using the `Keypair.fromSecretKey()` function. To ensure that your secret key stays secure, we recommend injecting it through an environment variable and not committing your `.env` file.
+Kung mayroon ka nang keypair na gusto mong gamitin, maaari kang lumikha ng `Keypair` mula sa secret key gamit ang `Keypair.fromSecretKey()` function. Upang matiyak na mananatiling secure ang iyong sikretong key, inirerekomenda namin ang pag-inject nito sa pamamagitan ng isang environment variable at hindi i-commit ang iyong `.env` file.
 
 ```tsx
 const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[]
@@ -68,21 +68,21 @@ const secretKey = Uint8Array.from(secret)
 const keypairFromSecretKey = Keypair.fromSecretKey(secretKey)
 ```
 
-## Transactions
+## Mga Transaksyon
 
-Any modification to on-chain data happens through transactions sent to programs.
+Ang anumang pagbabago sa on-chain na data ay nangyayari sa pamamagitan ng mga transaksyong ipinadala sa mga programa.
 
-Transaction instructions contain:
+Ang mga tagubilin sa transaksyon ay naglalaman ng:
 
-- an identifier of the program you intend to invoke
-- an array of accounts that will be read from and/or written to
-- data structured as a byte array that is specified to the program being invoked
+- isang identifier ng program na balak mong gamitin
+- isang hanay ng mga account na babasahin mula sa at/o isusulat sa
+- data na nakabalangkas bilang isang byte array na tinukoy sa program na ini-invoke
 
-When you send a transaction to a Solana cluster, a Solana program is invoked with the instructions included in the transaction.
+Kapag nagpadala ka ng transaksyon sa isang Solana cluster, ang isang Solana program ay ini-invoke kasama ang mga tagubiling kasama sa transaksyon.
 
-As you might expect, `@solana/web3.js` provides helper functions for creating transactions and instructions. You can create a new transaction with the constructor, `new Transaction()`. Once created, then you can add instructions to the transaction with the `add()` method.
+Gaya ng maaari mong asahan, ang `@solana/web3.js` ay nagbibigay ng mga function ng helper para sa paggawa ng mga transaksyon at mga tagubilin. Maaari kang gumawa ng bagong transaksyon kasama ang constructor, `new Transaction()`. Kapag nagawa na, maaari kang magdagdag ng mga tagubilin sa transaksyon gamit ang pamamaraang `add()`.
 
-Instructions can get complicated when working with custom programs. Fortunately, `@solana/web3.js` has convenience functions for some of Solana’s native programs and basic operations, like transferring SOL:
+Maaaring maging kumplikado ang mga instruction kapag nagtatrabaho sa mga custom na programa. Sa kabutihang palad, ang `@solana/web3.js` ay may mga function ng kaginhawahan para sa ilan sa mga katutubong programa at pangunahing operasyon ng Solana, tulad ng paglilipat ng SOL:
 
 ```tsx
 const transaction = new Transaction()
@@ -96,15 +96,15 @@ const sendSolInstruction = SystemProgram.transfer({
 transaction.add(sendSolInstruction)
 ```
 
-The `SystemProgram.transfer()` function requires that you pass as parameters:
+Ang function na `SystemProgram.transfer()` ay nangangailangan na ipasa mo bilang mga parameter:
 
-- a public key corresponding to the sender account
-- a public key corresponding to the recipient account
-- the amount of SOL to send in lamports.
+- isang pampublikong susi na naaayon sa account ng nagpadala
+- isang pampublikong susi na naaayon sa account ng tatanggap
+- ang halaga ng SOL na ipapadala sa lamports.
 
-This function then returns the instruction for sending SOL from the sender to the recipient, after which the instruction can be added to the transaction.
+Ibinabalik ng function na ito ang pagtuturo para sa pagpapadala ng SOL mula sa nagpadala sa tatanggap, pagkatapos nito ay maaaring idagdag ang pagtuturo sa transaksyon.
 
-Once created, a transaction needs to be sent to the cluster and confirmed:
+Kapag nagawa na, kailangang ipadala ang isang transaksyon sa cluster at kumpirmahin:
 
 ```tsx
 const signature = sendAndConfirmTransaction(
@@ -114,17 +114,17 @@ const signature = sendAndConfirmTransaction(
 )
 ```
 
-The `sendAndConfirmTransaction()` functions takes as parameters
+Ang mga function na `sendAndConfirmTransaction()` ay tumatagal bilang mga parameter
 
-- a cluster connection
-- a transaction
-- an array of keypairs that will act as signers on the transaction - in this example, we only have the one signer: the sender.
+- isang kumpol na koneksyon
+- isang transaksyon
+- isang hanay ng mga keypair na magsisilbing mga lumagda sa transaksyon - sa halimbawang ito, mayroon lang kaming isang pumirma: ang nagpadala.
 
-### Instructions
+### Mga tagubilin
 
-The example of sending SOL is great for introducing you to sending transactions, but a lot of web3 development will involve calling non-native programs. In the example above, the `SystemProgram.transfer()` function ensures that you pass all the necessary data required to create the instruction, then it creates the instruction for you. When working with non-native programs, however, you’ll need to be very specific about creating instructions that are structured to match the corresponding program.
+Ang halimbawa ng pagpapadala ng SOL ay mahusay para sa pagpapakilala sa iyo sa pagpapadala ng mga transaksyon, ngunit maraming web3 development ang magsasangkot ng pagtawag sa mga hindi katutubong programa. Sa halimbawa sa itaas, tinitiyak ng function na `SystemProgram.transfer()` na maipapasa mo ang lahat ng kinakailangang data na kinakailangan upang gawin ang pagtuturo, pagkatapos ay gagawa ito ng pagtuturo para sa iyo. Kapag nagtatrabaho sa mga hindi katutubong programa, gayunpaman, kakailanganin mong maging napaka-espesipiko tungkol sa paggawa ng mga tagubilin na nakabalangkas upang tumugma sa kaukulang programa.
 
-With `@solana/web3.js`, you can create non-native instructions with the `TransactionInstruction` constructor. This constructor takes a single argument of the data type `TransactionInstructionCtorFields`.
+Sa `@solana/web3.js`, makakagawa ka ng mga hindi katutubong tagubilin gamit ang constructor ng `TransactionInstruction`. Ang constructor na ito ay tumatagal ng isang argument ng uri ng data na `TransactionInstructionCtorFields`.
 
 ```tsx
 export type TransactionInstructionCtorFields = {
@@ -134,24 +134,24 @@ export type TransactionInstructionCtorFields = {
 };
 ```
 
-Per the definition above, the object passed to the `TransactionInstruction` constructor requires:
+Alinsunod sa kahulugan sa itaas, ang bagay na ipinasa sa `TransactionInstruction` constructor ay nangangailangan ng:
 
-- an array of keys of type `AccountMeta`
-- the public key for the program being called
-- an optional `Buffer` containing data to pass to the program.
+- isang hanay ng mga key na may uri ng `AccountMeta`
+- ang pampublikong susi para sa programang tinatawag
+- isang opsyonal na `Buffer` na naglalaman ng data na ipapasa sa program.
 
-We’ll be ignoring the `data` field for now and will revisit it in a future lesson.
+Babalewalain natin ang field ng `data` sa ngayon at muli itong babalikan sa susunod na aralin.
 
-The `programId` field is fairly self explanatory: it’s the public key associated with the program. You’ll need to know this in advance of calling the program in the same way that you’d need to know the public key of someone to whom you want to send SOL.
+Ang field ng `programId` ay medyo nagpapaliwanag sa sarili: ito ang pampublikong susi na nauugnay sa programa. Kakailanganin mong malaman ito nang maaga sa pagtawag sa programa sa parehong paraan na kailangan mong malaman ang pampublikong susi ng isang taong gusto mong padalhan ng SOL.
 
-The `keys` array requires a bit more explanation. Each object in this array represents an account that will be read from or written to during a transaction's execution. This means you need to know the behavior of the program you are calling and ensure that you provide all of the necessary accounts in the array.
+Ang hanay ng `keys` ay nangangailangan ng kaunting paliwanag. Ang bawat bagay sa array na ito ay kumakatawan sa isang account na babasahin o isusulat sa panahon ng pagpapatupad ng isang transaksyon. Nangangahulugan ito na kailangan mong malaman ang pag-uugali ng program na iyong tinatawagan at tiyaking ibibigay mo ang lahat ng kinakailangang mga account sa array.
 
-Each object in the `keys` array must include the following:
-- `pubkey` - the public key of the account
-- `isSigner` - a boolean representing whether or not the account is a signer on the transaction
-- `isWritable` - a boolean representing whether or not the account is written to during the transaction's execution
+Ang bawat bagay sa hanay ng `keys` ay dapat may kasamang sumusunod:
+- `pubkey` - ang pampublikong susi ng account
+- `isSigner` - isang boolean na kumakatawan kung ang account ay isang lumagda sa transaksyon o hindi
+- `isWritable` - isang boolean na kumakatawan kung ang account ay isinulat o hindi sa panahon ng pagpapatupad ng transaksyon
 
-Putting this all together, we might end up with something like the following:
+Kung pinagsama-sama ito, maaari tayong magkaroon ng isang bagay tulad ng sumusunod:
 
 ```tsx
 async function callProgram(
@@ -181,34 +181,34 @@ async function callProgram(
 }
 ```
 
-### Transaction Fees
+### Bayarin sa transaksyon
 
-Transaction fees are built into the Solana economy as compensation to the validator network for the CPU and GPU resources required in processing transactions. Unlike many networks that have a fee market where users can pay higher fees to increase their chances of being included in the next block, Solana transaction fees are deterministic.
+Ang mga bayarin sa transaksyon ay binuo sa ekonomiya ng Solana bilang kabayaran sa validator network para sa mga mapagkukunan ng CPU at GPU na kinakailangan sa pagproseso ng mga transaksyon. Hindi tulad ng maraming network na may market ng bayad kung saan maaaring magbayad ang mga user ng mas matataas na bayarin upang mapataas ang kanilang pagkakataong mapabilang sa susunod na block, ang mga bayarin sa transaksyon sa Solana ay deterministiko.
 
-The first signer included in the array of signers on a transaction is responsible for paying the transaction fee. If this signer does not have enough SOL in their account to cover the transaction fee the transaction will be dropped.
+Ang unang lumagda na kasama sa hanay ng mga pumirma sa isang transaksyon ay may pananagutan sa pagbabayad ng bayarin sa transaksyon. Kung ang signer na ito ay walang sapat na SOL sa kanilang account upang mabayaran ang bayad sa transaksyon ang transaksyon ay ibababa.
 
-When testing, whether locally or on devnet, you can use the Solana CLI command `solana airdrop 1` to get free test SOL in your account for paying transaction fees.
+Kapag sumusubok, lokal man o sa devnet, maaari mong gamitin ang Solana CLI command na `solana airdrop 1` upang makakuha ng libreng pagsubok na SOL sa iyong account para sa pagbabayad ng mga bayarin sa transaksyon.
 
 ### Solana Explorer
 
 ![Screenshot of Solana Explorer set to Devnet](../assets/solana-explorer-devnet.png)
 
-All transactions on the blockchain are publicly viewable on the [Solana Explorer](http://explorer.solana.com). For example, you could take the signature returned by `sendAndConfirmTransaction()` in the example above, search for that signature in the Solana Explorer, then see:
+Ang lahat ng mga transaksyon sa blockchain ay makikita ng publiko sa [Solana Explorer](http://explorer.solana.com). Halimbawa, maaari mong kunin ang pirmang ibinalik ng `sendAndConfirmTransaction()` sa halimbawa sa itaas, hanapin ang pirmang iyon sa Solana Explorer, pagkatapos ay tingnan ang:
 
-- when it occurred
-- which block it was included in
-- the transaction fee
-- and more!
+- kapag nangyari ito
+- saang block ito kasama
+- ang bayad sa transaksyon
+- at iba pa!
 
 ![Screenshot of Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
 
 # Demo
 
-We’re going to create a script to ping a simple program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores the count data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+Gagawa kami ng script para i-ping ang isang simpleng program na nagdaragdag ng counter sa tuwing na-ping ito. Ang program na ito ay umiiral sa Solana Devnet sa address na `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. Iniimbak ng program ang data ng pagbilang sa isang partikular na account sa address na `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
 ### 1. Basic scaffolding
 
-Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate, but we’ll be using a simple Typescript project with a dependency on the @solana/web3.js package. If you want to use our scaffolding, you can use the following commands in the command line:
+Magsimula tayo sa ilang pangunahing scaffolding. Malugod kang i-set up ang iyong proyekto gayunpaman, sa tingin mo ay pinakaangkop, ngunit gagamit kami ng isang simpleng Typescript na proyekto na may dependency sa @solana/web3.js package. Kung gusto mong gamitin ang aming scaffolding, maaari mong gamitin ang mga sumusunod na command sa command line:
 
 ```bash
 mkdir -p solana-ping-client/src && \
@@ -224,21 +224,21 @@ mkdir -p solana-ping-client/src && \
 	touch .env
 ```
 
-This will:
+Ito ay:
 
-1. create a new directory for the project with a subdirectory `src`
-2. move the command line prompt inside the project directory
-3. create an `index.ts` file inside of `src`
-4. initialize a git repository with a `.gitignore` file
-5. create a new `npm` package
-6. add a developer dependency on typescript
-7. add a developer dependency on `ts-node`
-8. create a `.tsconfig` file
-9. install the `@solana/web3.js` dependency
-10. install the `.dotenv` dependency
-11. create a `.env` file
+1. gumawa ng bagong direktoryo para sa proyekto na may subdirectory na `src`
+2. ilipat ang command line prompt sa loob ng direktoryo ng proyekto
+3. gumawa ng `index.ts` file sa loob ng `src`
+4. magpasimula ng git repository na may `.gitignore` file
+5. gumawa ng bagong `npm` package
+6. magdagdag ng dependency ng developer sa typescript
+7. magdagdag ng dependency ng developer sa `ts-node`
+8. lumikha ng `.tsconfig` file
+9. i-install ang `@solana/web3.js` dependency
+10. i-install ang `.dotenv` dependency
+11. gumawa ng `.env` file
 
-If you want to match our code exactly, replace the contents of `tsconfig.json` with the following:
+Kung gusto mong itugma nang eksakto ang aming code, palitan ang mga nilalaman ng `tsconfig.json` ng sumusunod:
 
 ```json
 {
@@ -255,7 +255,7 @@ If you want to match our code exactly, replace the contents of `tsconfig.json` w
 }
 ```
 
-Add the following to the `.gitignore`:
+Idagdag ang sumusunod sa `.gitignore`:
 
 ```
 node_modules/
@@ -263,15 +263,15 @@ dist/
 .env
 ```
 
-And finally, add the following to the `scripts` object in `package.json`:
+At sa wakas, idagdag ang sumusunod sa object na `scripts` sa `package.json`:
 
 ```json
 "start": "ts-node src/index.ts"
 ```
 
-### 2. Generate a new keypair
+### 2. Bumuo ng bagong keypair
 
-Before you can do anything, you’ll need a keypair. Let’s jump into the `index.ts` file and generate one:
+Bago mo magawa ang anuman, kakailanganin mo ng keypair. Pumunta tayo sa `index.ts` file at bumuo ng isa:
 
 ```tsx
 import web3 = require('@solana/web3.js')
@@ -290,25 +290,25 @@ main().then(() => {
 })
 ```
 
-Most of this code is just boilerplate to run the file properly. The lines inside of the `main()` function generate a new keypair and log the secret key to the console.
+Karamihan sa code na ito ay boilerplate lamang upang patakbuhin nang maayos ang file. Ang mga linya sa loob ng function na `main()` ay bumubuo ng bagong keypair at i-log ang secret key sa console.
 
-Run `npm start` after saving this file and you should see an array of numbers printed to the console. This array represents the secret key for your new keypair. **Do not** use this keypair for Mainnet operations. **Only use this keypair for testing.**
+Patakbuhin ang `npm start` pagkatapos i-save ang file na ito at dapat mong makita ang isang hanay ng mga numero na naka-print sa console. Ang array na ito ay kumakatawan sa sikretong key para sa iyong bagong keypair. **Huwag** gamitin ang keypair na ito para sa mga pagpapatakbo ng Mainnet. **Gamitin lang ang keypair na ito para sa pagsubok.**
 
-Copy the secret key array from the console log and paste it into the `.env` file as an environment variable called, `PRIVATE_KEY`. This way we can reuse this keypair in future development instead of generating a new keypair every time we run something. It should look something like this but with different numbers:
+Kopyahin ang secret key array mula sa console log at i-paste ito sa `.env` file bilang environment variable na tinatawag na, `PRIVATE_KEY`. Sa ganitong paraan maaari naming muling gamitin ang keypair na ito sa hinaharap na pagbuo sa halip na bumuo ng bagong keypair sa tuwing magpapatakbo kami ng isang bagay. Dapat itong magmukhang ganito ngunit may magkakaibang mga numero:
 
 ```
 PRIVATE_KEY=[56,83,31,62,66,154,33,74,106,59,111,224,176,237,89,224,10,220,28,222,128,36,138,89,30,252,100,209,206,155,154,65,98,194,97,182,98,162,107,238,61,183,163,215,44,6,10,49,218,156,5,131,125,253,247,190,181,196,0,249,40,149,119,246]
 ```
 
-### 3. Initialize Keypair from secret
+### 3. Simulan ang Keypair mula sa lihim
 
-Now that we’ve successfully generated a keypair and copied it to the `.env` file, we can remove the code inside of the `main()` function.
+Ngayong matagumpay na kaming nakabuo ng keypair at nakopya ito sa `.env` file, maaari naming alisin ang code sa loob ng `main()` function.
 
-We’ll return to the `main()` function soon, but for now let’s create a new function outside of `main()` called `initializeKeypair()`. Inside of this new function:
+Babalik tayo sa function na `main()` sa lalong madaling panahon, ngunit sa ngayon ay gumawa tayo ng bagong function sa labas ng `main()` na tinatawag na `initializeKeypair()`. Sa loob ng bagong function na ito:
 
-1. parse the `PRIVATE_KEY` environment variable as `number[]`
-2. use it to initialize a `Uint8Array`
-3. initialize and return a `Keypair` using that `Uint8Array`.
+1. i-parse ang `PRIVATE_KEY` na environment variable bilang `number[]`
+2. gamitin ito upang simulan ang isang `Uint8Array`
+3. simulan at ibalik ang isang `Keypair` gamit ang `Uint8Array` na iyon.
 
 ```tsx
 function initializeKeypair(): web3.Keypair {
@@ -321,7 +321,7 @@ function initializeKeypair(): web3.Keypair {
 
 ### 4. Ping program
 
-Now that we have a way of initializing our keypair, we need to establish a connection with Solana’s Devnet. In `main()`, let’s invoke `initializeKeypair()` and create a connection:
+Ngayon na mayroon na kaming paraan ng pagsisimula ng aming keypair, kailangan naming magtatag ng koneksyon sa Devnet ni Solana. Sa `main()`, tawagin natin ang `initializeKeypair()` at gumawa ng koneksyon:
 
 ```tsx
 async function main() {
@@ -330,27 +330,27 @@ async function main() {
 }
 ```
 
-Now create an async function outside of `main()` called `pingProgram()` with two parameters requiring a connection and a payer’s keypair as arguments:
+Gumawa ngayon ng async function sa labas ng `main()` na tinatawag na `pingProgram()` na may dalawang parameter na nangangailangan ng koneksyon at keypair ng nagbabayad bilang mga argumento:
 
 ```tsx
 async function pingProgram(connection: web3.Connection, payer: web3.Keypair) { }
 ```
 
-Inside this function, we need to:
+Sa loob ng function na ito, kailangan nating:
 
-1. create a transaction
-2. create an instruction
-3. add the instruction to the transaction
-4. send the transaction.
+1. gumawa ng transaksyon
+2. gumawa ng panuto
+3. idagdag ang pagtuturo sa transaksyon
+4. ipadala ang transaksyon.
 
-Remember, the most challenging piece here is including the right information in the instruction. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the `index.ts` file:
+Tandaan, ang pinaka-mapanghamong piraso dito ay ang pagsasama ng tamang impormasyon sa pagtuturo. Alam namin ang address ng programa na aming tinatawagan. Alam din namin na ang program ay nagsusulat ng data sa isang hiwalay na account na ang address ay mayroon din kami. Idagdag natin ang mga string na bersyon ng pareho ng mga iyon bilang mga constant sa itaas ng `index.ts` file:
 
 ```tsx
 const PROGRAM_ADDRESS = 'ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa'
 const PROGRAM_DATA_ADDRESS = 'Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod'
 ```
 
-Now, in the `pingProgram()` function, let’s create a new transaction, then initialize a `PublicKey` for the program account, and another for the data account.
+Ngayon, sa function na `pingProgram()`, gumawa tayo ng bagong transaksyon, pagkatapos ay magpasimula ng `PublicKey` para sa program account, at isa pa para sa data account.
 
 ```tsx
 async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
@@ -361,7 +361,7 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
 }
 ```
 
-Next, let’s create the instruction. Remember, the instruction needs to include the public key for the program and it also needs to include an array with all the accounts that will be read from or written to. In this example program, only the data account referenced above is needed.
+Susunod, gawin natin ang pagtuturo. Tandaan, kailangang isama ng pagtuturo ang pampublikong susi para sa programa at kailangan din nitong magsama ng array kasama ang lahat ng account na babasahin o isusulat. Sa halimbawang programang ito, tanging ang data account na tinukoy sa itaas ang kailangan.
 
 ```tsx
 async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
@@ -383,7 +383,7 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
 }
 ```
 
-Next, let’s add the instruction to the transaction we created at the start of the function. Then, call upon `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on the Solana Explorer.
+Susunod, idagdag natin ang pagtuturo sa transaksyon na ginawa namin sa simula ng function. Pagkatapos, tumawag sa `sendAndConfirmTransaction()` sa pamamagitan ng pagpasa sa koneksyon, transaksyon, at nagbabayad. Panghuli, i-log natin ang resulta ng tawag sa function na iyon para mahanap natin ito sa Solana Explorer.
 
 ```tsx
 async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
@@ -414,7 +414,7 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
     console.log(signature)
 }
 ```
-Finally, let's invoke `pingProgram()` within `main()` using `connection` and `payer`:
+Panghuli, i-invoke natin ang `pingProgram()` sa loob ng `main()` gamit ang `connection` at `payer`:
 
 ```tsx
 async function main() {
@@ -426,46 +426,46 @@ async function main() {
 
 ### 5. Airdrop
 
-Now run the code with `npm start` and see if it works. You may end up with the following error in the console:
+Ngayon patakbuhin ang code gamit ang `npm start` at tingnan kung gumagana ito. Maaari kang magkaroon ng sumusunod na error sa console:
 
-> Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
+> Nabigo ang simulation ng transaksyon: Subukang mag-debit ng isang account ngunit walang nakitang talaan ng isang naunang kredito.
 
-If you get this error, it’s because your keypair is brand new and doesn’t have any SOL to cover the transaction fees. Let’s fix this by adding the following line in `main()` before the call to `pingProgram()`:
+Kung makuha mo ang error na ito, ito ay dahil ang iyong keypair ay bago at walang anumang SOL upang masakop ang mga bayarin sa transaksyon. Ayusin natin ito sa pamamagitan ng pagdaragdag ng sumusunod na linya sa `main()` bago ang tawag sa `pingProgram()`:
 
 ```tsx
 await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL*1)
 ```
 
-This will deposit 1 SOL into your account which you can use for testing. This won’t work on Mainnet where it would actually have value. But it's incredibly convenient for testing locally and on Devnet.
+Ito ay magdeposito ng 1 SOL sa iyong account na magagamit mo para sa pagsubok. Hindi ito gagana sa Mainnet kung saan ito ay talagang may halaga. Ngunit ito ay hindi kapani-paniwalang maginhawa para sa pagsubok sa lokal at sa Devnet.
 
-### 6. Check the Solana explorer
+### 6. Suriin ang Solana explorer
 
-Now run the code again. It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
+Ngayon patakbuhin muli ang code. Maaaring tumagal ng isang sandali o dalawa, ngunit ngayon ay dapat gumana ang code at dapat mong makita ang isang mahabang string na naka-print sa console, tulad ng sumusunod:
 
 ```
 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
 ```
 
-Copy this confirmation signature. Open a browser and go to [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (the query parameter at the end of the URL will ensure that you’ll explore transactions on Devnet instead of Mainnet). Paste the signature into the search bar at the top of Solana’s Devnet explorer and hit enter. You should see all the details about the transaction. If you scroll all the way to the bottom, then you will see `Program Logs`, which show how many times the program has been pinged including your ping.
+Kopyahin itong pirma ng kumpirmasyon. Magbukas ng browser at pumunta sa [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (siguraduhin ng parameter ng query sa dulo ng URL na tutuklasin mo ang mga transaksyon sa Devnet sa halip na sa Mainnet). I-paste ang signature sa search bar sa tuktok ng Devnet explorer ni Solana at pindutin ang enter. Dapat mong makita ang lahat ng mga detalye tungkol sa transaksyon. Kung mag-scroll ka hanggang sa ibaba, makikita mo ang `Program Logs`, na nagpapakita kung gaano karaming beses na-ping ang program kasama ang iyong ping.
 
 ![Screenshot of Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
 
-If you want to make it easier to look at Solana Explorer for transactions in the future, simply change your `console.log` in `pingProgram()` to the following:
+Kung gusto mong gawing mas madali ang pagtingin sa Solana Explorer para sa mga transaksyon sa hinaharap, palitan lang ang iyong `console.log` sa `pingProgram()` sa sumusunod:
 
 ```tsx
 console.log(`You can view your transaction on the Solana Explorer at:\nhttps://explorer.solana.com/tx/${sig}?cluster=devnet`)
 ```
 
-And just like that you’re calling programs on the Solana network and writing data to chain!
+At tulad niyan tumatawag ka sa mga programa sa network ng Solana at nagsusulat ng data sa chain!
 
-In the next few lessons you’ll learn how to
+Sa susunod na ilang mga aralin, matututunan mo kung paano
 
-1. do this safely from the browser instead of from running a script
-2. add custom data to your instructions
-3. deserialize data from the chain
+1. gawin ito nang ligtas mula sa browser sa halip na mula sa pagpapatakbo ng script
+2. magdagdag ng custom na data sa iyong mga tagubilin
+3. deserialize ang data mula sa chain
 
-# Challenge
+# Hamon
 
-Go ahead and create a script from scratch that will allow you to transfer SOL from one account to another on Devnet. Be sure to print out the transaction signature so you can look at it on the Solana Explorer.
+Sige at gumawa ng script mula sa simula na magbibigay-daan sa iyong ilipat ang SOL mula sa isang account patungo sa isa pa sa Devnet. Siguraduhing i-print ang lagda ng transaksyon upang makita mo ito sa Solana Explorer.
 
-If you get stuck feel free to glance at the [solution code](https://github.com/Unboxed-Software/solana-send-sol-client).
+Kung natigil ka huwag mag-atubiling tingnan ang [code ng solusyon](https://github.com/Unboxed-Software/solana-send-sol-client).

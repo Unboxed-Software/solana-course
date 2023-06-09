@@ -16,44 +16,44 @@ objectives:
 - Seeds can be used to map to the data stored in a separate PDA account
 - A program can sign instructions on behalf of the PDAs derived from its ID
 
-# Overview
+# Pangkalahatang-ideya
 
-## What is a Program Derived Address?
+## Ano ang Programa Derived Address?
 
-Program Derived Addresses (PDAs) are account addresses designed to be signed for by a program rather than a secret key. As the name suggests, PDAs are derived using a program ID. Optionally, these derived accounts can also be found using the ID along with a set of "seeds." More on this later, but these seeds will play an important role in how we use PDAs for data storage and retrieval.
+Ang Program Derived Addresses (Mga PDA) ay mga address ng account na idinisenyo upang pirmahan ng isang programa sa halip na isang lihim na susi. Gaya ng ipinahihiwatig ng pangalan, ang mga PDA ay hinango gamit ang isang program ID. Opsyonal, ang mga hinangong account na ito ay matatagpuan din gamit ang ID kasama ng isang set ng "mga buto." Higit pa tungkol dito sa ibang pagkakataon, ngunit ang mga binhing ito ay gaganap ng mahalagang papel sa kung paano namin ginagamit ang mga PDA para sa pag-iimbak at pagkuha ng data.
 
-PDAs serve two main functions:
+Ang mga PDA ay nagsisilbi ng dalawang pangunahing tungkulin:
 
-1. Provide a deterministic way to find the address of a program-owned account
-2. Authorize the program from which a PDA was derived to sign on its behalf in the same way a user may sign with their private key
+1. Magbigay ng isang tiyak na paraan upang mahanap ang address ng isang account na pagmamay-ari ng program
+2. Pahintulutan ang programa kung saan nagmula ang isang PDA na mag-sign sa ngalan nito sa parehong paraan na maaaring mag-sign ang isang user gamit ang kanilang pribadong key
 
-In this lesson we'll focus on using PDAs to find and store data. We'll discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
+Sa araling ito, tututuon tayo sa paggamit ng mga PDA upang maghanap at mag-imbak ng data. Tatalakayin natin ang pagpirma sa isang PDA nang mas masinsinan sa isang aralin sa hinaharap kung saan sinasaklaw natin ang Cross Program Invocations (CPIs).
 
-## Finding PDAs
+## Paghahanap ng mga PDA
 
-PDAs are not technically created. Rather, they are *found* or *derived* based on a program ID and one or more input seeds.
+Ang mga PDA ay hindi teknikal na nilikha. Sa halip, ang mga ito ay *hinahanap* o *hinango* batay sa isang program ID at isa o higit pang mga input seed.
 
-Solana keypairs can be found on what is called the Ed25519 Elliptic Curve (Ed25519). Ed25519 is a deterministic signature scheme that Solana uses to generate corresponding public and private keys. Together, we call these keypairs.
+Ang mga keypair ng Solana ay matatagpuan sa tinatawag na Ed25519 Elliptic Curve (Ed25519). Ang Ed25519 ay isang deterministikong signature scheme na ginagamit ni Solana upang bumuo ng kaukulang pampubliko at pribadong key. Sama-sama, tinatawag nating mga keypair ang mga ito.
 
-Alternatively, PDAs are addresses that lie *off* the Ed25519 curve. This effectively means they are public keys *without* a corresponding private key. This property of PDAs is essential for programs to be able to sign on their behalf, but we'll cover that in a future lesson.
+Bilang kahalili, ang mga PDA ay mga address na nasa *off* ng Ed25519 curve. Ito ay epektibong nangangahulugan na ang mga ito ay mga pampublikong susi *nang walang* kaukulang pribadong susi. Ang pag-aari na ito ng mga PDA ay mahalaga para makapag-sign ang mga programa sa kanilang ngalan, ngunit tatalakayin natin iyon sa susunod na aralin.
 
-To find a PDA within a Solana program, we'll use the `find_program_address` function. This function takes an optional list of “seeds” and a program ID as inputs, and then returns the PDA and a bump seed.
+Upang maghanap ng PDA sa loob ng isang Solana program, gagamitin namin ang function na `find_program_address`. Ang function na ito ay tumatagal ng opsyonal na listahan ng "mga buto" at isang program ID bilang mga input, at pagkatapos ay ibinabalik ang PDA at isang bump seed.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_input.as_bytes().as_ref(), "SEED".as_bytes()], program_id)
 ```
 
-### Seeds
+### Mga seed
 
-“Seeds” are optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and no additional seeds. Using seeds to find our PDAs, however, allows us to create an arbitrary number of accounts that our program can own.
+Ang "Seeds" ay mga opsyonal na input na ginagamit sa function na `find_program_address` upang makakuha ng PDA. Halimbawa, ang mga buto ay maaaring maging anumang kumbinasyon ng mga pampublikong key, mga input na ibinigay ng isang user, o mga hardcoded na halaga. Ang isang PDA ay maaari ding makuha gamit lamang ang program ID at walang karagdagang mga buto. Ang paggamit ng mga buto upang mahanap ang aming mga PDA, gayunpaman, ay nagpapahintulot sa amin na lumikha ng isang arbitrary na bilang ng mga account na maaaring pagmamay-ari ng aming programa.
 
-While you, the developer, determine the seeds to pass into the `find_program_address` function, the function itself provides an additional seed called a "bump seed." The cryptographic function for deriving a PDA results in a key that lies *on* the Ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the Ed25519 curve and therefore does not have a private key, the `find_program_address` function adds a numeric seed called a bump seed.
+Habang ikaw, ang nag-develop, ay tinutukoy ang mga binhi na ipapasa sa function na `find_program_address`, ang function mismo ay nagbibigay ng karagdagang binhi na tinatawag na "bump seed." Ang cryptographic function para sa pagkuha ng isang PDA ay nagreresulta sa isang key na nasa *sa* Ed25519 curve halos 50% ng oras. Upang matiyak na ang resulta *ay wala* sa Ed25519 curve at samakatuwid ay walang pribadong key, ang function na `find_program_address` ay nagdaragdag ng numeric seed na tinatawag na bump seed.
 
-The function starts by using the value `255` as the bump seed, then checks to see if the output is a valid PDA. If the result is not a valid PDA, the function decreases the bump seed by 1 and tries again (`255`, `254`, `253`, et cetera). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
+Magsisimula ang function sa pamamagitan ng paggamit ng value na `255` bilang bump seed, pagkatapos ay titingnan kung valid PDA ang output. Kung ang resulta ay hindi wastong PDA, binabawasan ng function ang bump seed ng 1 at susubukang muli (`255`, `254`, `253`, at iba pa). Kapag natagpuan ang isang wastong PDA, ibabalik ng function ang PDA at ang bump na ginamit upang makuha ang PDA.
 
-### Under the hood of `find_program_address`
+### Sa ilalim ng hood ng `find_program_address`
 
-Let's take a look at the source code for `find_program_address`.
+Tingnan natin ang source code para sa `find_program_address`.
 
 ```rust
  pub fn find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> (Pubkey, u8) {
@@ -62,9 +62,9 @@ Let's take a look at the source code for `find_program_address`.
 }
 ```
 
-Under the hood, the `find_program_address` function passes the input `seeds` and `program_id` to the `try_find_program_address` function.
+Sa ilalim ng hood, ipinapasa ng function na `find_program_address` ang input na `seeds` at `program_id` sa `try_find_program_address` function.
 
-The `try_find_program_address` function then introduces the `bump_seed`. The `bump_seed` is a `u8` variable with a value ranging between 0 to 255. Iterating over a descending range starting from 255, a `bump_seed` is appended to the optional input seeds which are then passed to the `create_program_address` function. If the output of `create_program_address` is not a valid PDA, then the `bump_seed` is decreased by 1 and the loop continues until a valid PDA is found.
+Ang function na `try_find_program_address` ay ipinakilala ang `bump_seed`. Ang `bump_seed` ay isang variable na `u8` na may value na nasa pagitan ng 0 hanggang 255. Ang pag-ulit sa isang pababang hanay na nagsisimula sa 255, ang isang `bump_seed` ay idinaragdag sa mga opsyonal na input seed na pagkatapos ay ipapasa sa function na `create_program_address`. Kung ang output ng `create_program_address` ay hindi wastong PDA, ang `bump_seed` ay babawasan ng 1 at ang loop ay magpapatuloy hanggang sa may makitang valid na PDA.
 
 ```rust
 pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<(Pubkey, u8)> {
@@ -87,7 +87,7 @@ pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<
 }
 ```
 
-The `create_program_address` function performs a set of hash operations over the seeds and `program_id`. These operations compute a key, then verify if the computed key lies on the Ed25519 elliptic curve or not. If a valid PDA is found (i.e. an address that is *off* the curve), then the PDA is returned. Otherwise, an error is returned.
+Ang function na `create_program_address` ay nagsasagawa ng isang set ng hash operations sa mga seeds at `program_id`. Ang mga operasyong ito ay nagku-compute ng isang susi, pagkatapos ay i-verify kung ang na-compute na key ay nasa Ed25519 elliptic curve o hindi. Kung may nakitang valid na PDA (ibig sabihin, isang address na *off* the curve), ibabalik ang PDA. Kung hindi, may ibabalik na error.
 
 ```rust
 pub fn create_program_address(
@@ -111,46 +111,46 @@ pub fn create_program_address(
 }
 ```
 
-In summary, the `find_program_address` function passes our input seeds and `program_id` to the `try_find_program_address` function. The `try_find_program_address` function adds a `bump_seed` (starting from 255) to our input seeds, then calls the `create_program_address` function until a valid PDA is found. Once found, both the PDA and the `bump_seed` are returned.
+Sa kabuuan, ipinapasa ng function na `find_program_address` ang aming mga input seed at `program_id` sa function na `try_find_program_address`. Ang function na `try_find_program_address` ay nagdaragdag ng `bump_seed` (nagsisimula sa 255) sa aming mga input seed, pagkatapos ay tinatawagan ang function na `create_program_address` hanggang sa makita ang isang wastong PDA. Kapag nahanap na, ibabalik ang PDA at ang `bump_seed`.
 
-Note that for the same input seeds, different valid bumps will generate different valid PDAs. The `bump_seed` returned by `find_program_address` will always be the first valid PDA found. Because the function starts with a `bump_seed` value of 255 and iterates downwards to zero, the `bump_seed` that ultimately gets returned will always be the largest valid 8-bit value possible. This `bump_seed` is commonly referred to as the "*canonical bump*". To avoid confusion, it's recommended to only use the canonical bump, and to *always validate every PDA passed into your program.*
+Tandaan na para sa parehong mga input seed, ang iba't ibang valid na bump ay bubuo ng iba't ibang valid na PDA. Ang `bump_seed` na ibinalik ng `find_program_address` ay palaging magiging unang balidong PDA na makikita. Dahil ang function ay nagsisimula sa isang `bump_seed` na halaga na 255 at umuulit pababa sa zero, ang `bump_seed` na sa huli ay maibabalik ay palaging ang pinakamalaking wastong 8-bit na halaga na posible. Ang `bump_seed` na ito ay karaniwang tinutukoy bilang "*canonical bump*". Upang maiwasan ang pagkalito, inirerekumenda na gamitin lamang ang canonical bump, at *palaging i-validate ang bawat PDA na ipinasa sa iyong programa.*
 
-One point to emphasize is that the `find_program_address` function only returns a Program Derived Address and the bump seed used to derive it. The `find_program_address` function does *not* initialize a new account, nor is any PDA returned by the function necessarily associated with an account that stores data.
+Ang isang puntong dapat bigyang-diin ay ang function na `find_program_address` ay nagbabalik lamang ng Programa Derived Address at ang bump seed na ginamit upang makuha ito. Ang function na `find_program_address` ay *hindi* nagpapasimula ng isang bagong account, o anumang PDA na ibinalik ng function ay kinakailangang nauugnay sa isang account na nag-iimbak ng data.
 
-## Use PDA accounts to store data
+## Gumamit ng mga PDA account upang mag-imbak ng data
 
-Since programs themselves are stateless, program state is managed through external accounts. Given that you can use seeds for mapping and that programs can sign on their behalf, using PDA accounts to store data related to the program is an extremely common design choice. While programs can invoke the System Program to create non-PDA accounts and use those to store data as well, PDAs tend to be the way to go.
+Dahil ang mga programa mismo ay walang estado, ang estado ng programa ay pinamamahalaan sa pamamagitan ng mga panlabas na account. Dahil maaari kang gumamit ng mga buto para sa pagmamapa at ang mga programa ay maaaring mag-sign sa kanilang ngalan, ang paggamit ng mga PDA account upang mag-imbak ng data na nauugnay sa programa ay isang napakakaraniwang pagpipilian sa disenyo. Bagama't maaaring tawagan ng mga program ang System Program upang lumikha ng mga hindi PDA na account at gamitin din ang mga iyon upang mag-imbak ng data, ang mga PDA ay malamang na ang paraan upang pumunta.
 
-If you need a refresher on how to store data in PDAs, have a look at the [Create a Basic Program, Part 2 - State Management lesson](./program-state-management.md).
+Kung kailangan mo ng refresher kung paano mag-imbak ng data sa mga PDA, tingnan ang [Gumawa ng Basic Program, Part 2 - State Management lesson](./program-state-management.md).
 
-## Map to data stored in PDA accounts
+## Mapa sa data na nakaimbak sa mga PDA account
 
-Storing data in PDA accounts is only half of the equation. You also need a way to retrieve that data. We'll talk about two approaches:
+Ang pag-iimbak ng data sa mga PDA account ay kalahati lamang ng equation. Kailangan mo rin ng paraan para makuha ang data na iyon. Pag-uusapan natin ang tungkol sa dalawang diskarte:
 
-1. Creating a PDA "map" account that stores the addresses of various accounts where data is stored
-2. Strategically using seeds to locate the appropriate PDA accounts and retrieve the necessary data
+1. Paglikha ng isang PDA "mapa" na account na nag-iimbak ng mga address ng iba't ibang mga account kung saan ang data ay nakaimbak
+2. Estratehikong paggamit ng mga buto upang mahanap ang naaangkop na mga PDA account at makuha ang kinakailangang data
 
-### Map to data using PDA "map" accounts
+### Mapa sa data gamit ang PDA "map" account
 
-One approach to organizing data storage is to store clusters of relevant data in their own PDAs and then to have a separate PDA account that stores a mapping of where all of the data is.
+Ang isang diskarte sa pag-aayos ng pag-iimbak ng data ay ang pag-imbak ng mga kumpol ng nauugnay na data sa sarili nilang mga PDA at pagkatapos ay magkaroon ng hiwalay na PDA account na nag-iimbak ng pagmamapa kung nasaan ang lahat ng data.
 
-For example, you might have a note-taking app whose backing program uses random seeds to generate PDA accounts and stores one note in each account. The program would also have a single global PDA "map" account that stores a mapping of users' public keys to the list of PDAs where their notes are stored. This map account would be derived using a static seed, e.g. "GLOBAL_MAPPING".
+Halimbawa, maaari kang magkaroon ng note-taking app na ang backing program ay gumagamit ng mga random na buto upang bumuo ng mga PDA account at mag-imbak ng isang tala sa bawat account. Ang programa ay magkakaroon din ng isang pandaigdigang PDA na "mapa" na account na nag-iimbak ng pagmamapa ng mga pampublikong key ng mga user sa listahan ng mga PDA kung saan naka-imbak ang kanilang mga tala. Ang map account na ito ay kukunin gamit ang isang static na binhi, hal. "GLOBAL_MAPPING".
 
-When it comes time to retrieve a user's notes, you could then look at the map account, see the list of addresses associated with a user's public key, then retrieve the account for each of those addresses.
+Kapag dumating na ang oras upang kunin ang mga tala ng user, maaari mong tingnan ang map account, tingnan ang listahan ng mga address na nauugnay sa pampublikong key ng isang user, pagkatapos ay kunin ang account para sa bawat isa sa mga address na iyon.
 
-While such a solution is perhaps more approachable for traditional web developers, it does come with some drawbacks that are particular to web3 development. Since the size of the mapping stored in the map account will grow over time, you'll either need to allocate more size than necessary to the account when you first create it, or you'll need to reallocate space for it every time a new note is created. On top of that, you'll eventually reach the account size limit of 10 megabytes.
+Bagama't ang ganitong solusyon ay marahil ay mas madaling lapitan para sa mga tradisyunal na web developer, ito ay may kasamang ilang mga disbentaha na partikular sa web3 development. Dahil ang laki ng pagmamapa na nakaimbak sa map account ay lalago sa paglipas ng panahon, kakailanganin mong maglaan ng higit na laki kaysa sa kinakailangan sa account noong una mo itong nilikha, o kakailanganin mong muling maglaan ng espasyo para dito sa tuwing may bago. ang tala ay nilikha. Higit pa rito, maaabot mo sa kalaunan ang limitasyon sa laki ng account na 10 megabytes.
 
-You could mitigate this issue to some degree by creating a separate map account for each user. For example, rather than having a single PDA map account for the entire program, you would construct a PDA map account per user. Each of these map accounts could be derived with the user's public key. The addresses for each note could then be stored inside the corresponding user's map account.
+Maaari mong pagaanin ang isyung ito sa ilang antas sa pamamagitan ng paggawa ng hiwalay na map account para sa bawat user. Halimbawa, sa halip na magkaroon ng isang PDA map account para sa buong programa, gagawa ka ng PDA map account bawat user. Ang bawat isa sa mga map account na ito ay maaaring makuha gamit ang pampublikong key ng user. Ang mga address para sa bawat tala ay maaaring maiimbak sa loob ng kaukulang account ng mapa ng gumagamit.
 
-This approach reduces the size required for each map account, but ultimately still adds an unnecessary requirement to the process: having to read the information on the map account *before* being able to find the accounts with the relevant note data.
+Binabawasan ng diskarteng ito ang laki na kinakailangan para sa bawat map account, ngunit sa huli ay nagdaragdag pa rin ng hindi kinakailangang kinakailangan sa proseso: kinakailangang basahin ang impormasyon sa map account *bago* mahanap ang mga account na may nauugnay na data ng tala.
 
-There may be times where using this approach makes sense for your application, but we don't recommend it as your "go to" strategy.
+Maaaring may mga pagkakataon kung saan ang paggamit ng diskarteng ito ay makatuwiran para sa iyong aplikasyon, ngunit hindi namin ito inirerekomenda bilang iyong "pumunta sa" diskarte.
 
-### Map to data using PDA derivation
+### Mapa sa data gamit ang PDA derivation
 
-If you're strategic about the seeds you use to derive PDAs, you can embed the required mappings into the seeds themselves. This is the natural evolution of the note-taking app example we just discussed. If you start to use the note creator's public key as a seed to create one map account per user, then why not use both the creator's public key and some other known piece of information to derive a PDA for the note itself?
+Kung madiskarte ka tungkol sa mga buto na ginagamit mo upang kunin ang mga PDA, maaari mong i-embed ang mga kinakailangang mapping sa mismong mga buto. Ito ang natural na ebolusyon ng halimbawa ng note-taking app na tinalakay namin. Kung sinimulan mong gamitin ang pampublikong key ng tagalikha ng tala bilang isang binhi upang lumikha ng isang account sa mapa bawat user, kung gayon bakit hindi gamitin ang parehong pampublikong susi ng lumikha at ilang iba pang kilalang piraso ng impormasyon upang makakuha ng isang PDA para sa tala mismo?
 
-Now, without talking about it explicitly, we’ve been mapping seeds to accounts this entire course. Think about the Movie Review program we've been built in previous lessons. This program uses a review creator's public key and the title of the movie they're reviewing to find the address that *should* be used to store the review. This approach lets the program create a unique address for every new review while also making it easy to locate a review when needed. When you want to find a user's review of "Spiderman," you know that it is stored at the PDA account whose address can be derived using the user's public key and the text "Spiderman" as seeds.
+Ngayon, nang hindi tahasang pinag-uusapan ito, nagmamapa kami ng mga buto sa mga account sa buong kursong ito. Isipin ang programa ng Pagsusuri ng Pelikula na binuo natin sa mga nakaraang aralin. Gumagamit ang program na ito ng pampublikong susi ng gumawa ng review at ang pamagat ng pelikulang kanilang nire-review para mahanap ang address na *dapat* gamitin para iimbak ang review. Ang diskarte na ito ay nagbibigay-daan sa programa na lumikha ng isang natatanging address para sa bawat bagong pagsusuri habang ginagawang madali upang mahanap ang isang pagsusuri kapag kinakailangan. Kapag gusto mong humanap ng review ng user tungkol sa "Spiderman," alam mong naka-store ito sa PDA account na ang address ay maaaring makuha gamit ang pampublikong key ng user at ang text na "Spiderman" bilang mga buto.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[
@@ -160,15 +160,15 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[
     program_id)
 ```
 
-### Associated token account addresses
+### Mga nauugnay na token account address
 
-Another practical example of this type of mapping is how associated token account (ATA) addresses are determined. Tokens are often held in an ATA whose address was derived using a wallet address and the mint address of a specific token. The address for an ATA is found using the `get_associated_token_address` function which takes a `wallet_address` and `token_mint_address` as inputs.
+Ang isa pang praktikal na halimbawa ng ganitong uri ng pagmamapa ay kung paano tinutukoy ang mga nauugnay na token account (ATA) na address. Ang mga token ay madalas na hawak sa isang ATA na ang address ay hinango gamit ang isang wallet address at ang mint address ng isang partikular na token. Ang address para sa isang ATA ay matatagpuan gamit ang function na `get_associated_token_address` na kumukuha ng `wallet_address` at `token_mint_address` bilang mga input.
 
 ```rust
 let associated_token_address = get_associated_token_address(&wallet_address, &token_mint_address);
 ```
 
-Under the hood, the associated token address is a PDA found using the `wallet_address`, `token_program_id`, and `token_mint_address` as seeds. This provides a deterministic way to find a token account associated with any wallet address for a specific token mint.
+Sa ilalim ng hood, ang nauugnay na token address ay isang PDA na makikita gamit ang `wallet_address`, `token_program_id`, at `token_mint_address` bilang mga buto. Nagbibigay ito ng deterministikong paraan upang maghanap ng token account na nauugnay sa anumang wallet address para sa isang partikular na token mint.
 
 ```rust
 fn get_associated_token_address_and_bump_seed_internal(
@@ -188,82 +188,82 @@ fn get_associated_token_address_and_bump_seed_internal(
 }
 ```
 
-The mappings between seeds and PDA accounts that you use will be highly dependent on your specific program. While this isn't a lesson on system design or architecture, it's worth calling out a few guidelines:
+Ang mga pagmamapa sa pagitan ng mga buto at PDA account na iyong ginagamit ay lubos na nakadepende sa iyong partikular na programa. Bagama't hindi ito isang aralin sa disenyo o arkitektura ng system, ito ay nagkakahalaga ng pagtawag ng ilang mga alituntunin:
 
-- Use seeds that will be known at the time of PDA derivation
-- Be thoughtful about what data is grouped together into a single account
-- Be thoughtful about the data structure used within each account
-- Simpler is usually better
+- Gumamit ng mga buto na malalaman sa oras ng PDA derivation
+- Mag-isip tungkol sa kung anong data ang pinagsama-sama sa isang account
+- Maging maalalahanin tungkol sa istruktura ng data na ginagamit sa loob ng bawat account
+- Ang mas simple ay karaniwang mas mahusay
 
 # Demo
 
-Let’s practice together with the Movie Review program we've worked on in previous lessons. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way.
+Magsanay tayo kasama ang programa ng Pagsusuri ng Pelikula na ginawa natin sa mga nakaraang aralin. Huwag mag-alala kung papasok ka lang sa araling ito nang hindi mo nagawa ang nakaraang aralin - dapat ay posible na sumunod sa alinmang paraan.
 
-As a refresher, the Movie Review program lets users create movie reviews. These reviews are stored in an account using a PDA derived with the initializer’s public key and the title of the movie they are reviewing.
+Bilang isang refresher, hinahayaan ng programa ng Movie Review ang mga user na gumawa ng mga review ng pelikula. Ang mga review na ito ay iniimbak sa isang account gamit ang isang PDA na hinango sa public key ng initializer at ang pamagat ng pelikulang kanilang sinusuri.
 
-Previously, we finished implementing the ability to update a movie review in a secure manner. In this demo, we'll add the ability for users to comment on a movie review. We'll use building this feature as an opportunity to work through how to structure the comment storage using PDA accounts.
+Dati, natapos namin ang pagpapatupad ng kakayahang mag-update ng pagsusuri ng pelikula sa isang secure na paraan. Sa demo na ito, magdaragdag kami ng kakayahan para sa mga user na magkomento sa isang pagsusuri ng pelikula. Gagamitin namin ang pagbuo ng feature na ito bilang isang pagkakataon upang pag-aralan kung paano ayusin ang storage ng komento gamit ang mga PDA account.
 
-### 1. Get the starter code
+### 1. Kunin ang starter code
 
-To begin, you can find the starter code [here](https://github.com/Unboxed-Software/solana-movie-program/tree/starter) on the `starter` branch.
+Upang magsimula, mahahanap mo ang starter code [dito](https://github.com/Unboxed-Software/solana-movie-program/tree/starter) sa `starter` branch.
 
-If you've been following along with the Movie Review demos, you'll notice that this is the program we’ve built out so far. Previously, we used [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code. In this lesson, we’ll build and deploy the program locally.
+Kung sinusundan mo ang mga demo ng Pagsusuri ng Pelikula, mapapansin mo na ito ang program na binuo namin sa ngayon. Dati, ginamit namin [Solana Playground](https://beta.solpg.io/) para isulat, buuin, at i-deploy ang aming code. Sa araling ito, bubuo at ide-deploy namin ang programa nang lokal.
 
-Open the folder, then run `cargo-build-bpf` to build the program. The `cargo-build-bpf` command will output instruction to deploy the program.
+Buksan ang folder, pagkatapos ay patakbuhin ang `cargo-build-bpf` upang buuin ang program. Ang utos na `cargo-build-bpf` ay maglalabas ng pagtuturo upang i-deploy ang programa.
 
 ```sh
 cargo-build-bpf
 ```
 
-Deploy the program by copying the output of `cargo-build-bpf` and running the `solana program deploy` command.
+I-deploy ang program sa pamamagitan ng pagkopya sa output ng `cargo-build-bpf` at patakbuhin ang command na `solana program deploy`.
 
 ```sh
 solana program deploy <PATH>
 ```
 
-You can test the program by using the movie review [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews) and updating the program ID with the one you’ve just deployed. Make sure you use the `solution-update-reviews` branch.
+Maaari mong subukan ang programa sa pamamagitan ng paggamit ng pagsusuri ng pelikula [frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews) at pag-update ng program ID gamit ang iyong ' kaka-deploy lang. Tiyaking ginagamit mo ang sangay ng `solution-update-reviews`.
 
-### 2. Plan out the account structure
+### 2. Planuhin ang istraktura ng account
 
-Adding comments means we need to make a few decisions about how to store the data associated with each comment. The criteria for a good structure here are:
+Ang pagdaragdag ng mga komento ay nangangahulugan na kailangan naming gumawa ng ilang mga pagpapasya tungkol sa kung paano iimbak ang data na nauugnay sa bawat komento. Ang mga pamantayan para sa isang mahusay na istraktura dito ay:
 
-- Not overly complicated
-- Data is easily retrievable
-- Each comment has something to link it to the review it's associated with
+- Hindi masyadong kumplikado
+- Ang data ay madaling makuha
+- Ang bawat komento ay may maiuugnay dito sa review na nauugnay dito
 
-To do this, we'll create two new account types:
+Para magawa ito, gagawa kami ng dalawang bagong uri ng account:
 
-- Comment counter account
-- Comment account
+- Komento counter account
+- Magkomento ng account
 
-There will be one comment counter account per review and one comment account per comment. The comment counter account will be linked to a given review by using a review's address as a seed for finding the comment counter PDA. It will also use the static string "comment" as a seed.
+Magkakaroon ng isang comment counter account sa bawat pagsusuri at isang comment account sa bawat komento. Ang account counter ng komento ay mali-link sa isang ibinigay na pagsusuri sa pamamagitan ng paggamit ng address ng review bilang isang binhi para sa paghahanap ng comment counter PDA. Gagamitin din nito ang static na string na "comment" bilang isang binhi.
 
-The comment account will be linked to a review in the same way. However, it will not include the "comment" string as a seed and will instead use the *actual comment count* as a seed. That way the client can easily retrieve comments for a given review by doing the following:
+Ang account ng komento ay mali-link sa isang pagsusuri sa parehong paraan. Gayunpaman, hindi nito isasama ang string ng "komento" bilang isang binhi at sa halip ay gagamitin ang *aktwal na bilang ng komento* bilang isang binhi. Sa ganoong paraan ang kliyente ay madaling makuha ang mga komento para sa isang ibinigay na pagsusuri sa pamamagitan ng paggawa ng sumusunod:
 
-1. Read the data on the comment counter account to determine the number of comments on a review.
-2. Where `n` is the total number of comments on the review, loop `n` times. Each iteration of the loop will derive a PDA using the review address and the current number as seeds. The result is `n` number of PDAs, each of which is the address of an account that stores a comment.
-3. Fetch the accounts for each of the `n` PDAs and read the data stored in each.
+1. Basahin ang data sa comment counter account para matukoy ang bilang ng mga komento sa isang review.
+2. Kung saan ang `n` ay ang kabuuang bilang ng mga komento sa pagsusuri, i-loop ang `n` na beses. Ang bawat pag-ulit ng loop ay makakakuha ng isang PDA gamit ang address ng pagsusuri at ang kasalukuyang numero bilang mga buto. Ang resulta ay `n` na bilang ng mga PDA, na ang bawat isa ay ang address ng isang account na nag-iimbak ng komento.
+3. Kunin ang mga account para sa bawat isa sa mga `n` na PDA at basahin ang data na nakaimbak sa bawat isa.
 
-This ensures that every one of our accounts can be deterministically retrieved using data that is already known ahead of time.
+Tinitiyak nito na ang bawat isa sa aming mga account ay maaaring tiyak na makuha gamit ang data na alam na nang maaga.
 
-In order to implement these changes, we'll need to do the following:
+Upang maipatupad ang mga pagbabagong ito, kakailanganin naming gawin ang sumusunod:
 
-- Define structs to represent the comment counter and comment accounts
-- Update the existing `MovieAccountState` to contain a discriminator (more on this later)
-- Add an instruction variant to represent the `add_comment` instruction
-- Update the existing `add_movie_review` instruction processing function to include creating the comment counter account
-- Create a new `add_comment` instruction processing function
+- Tukuyin ang mga struct upang kumatawan sa comment counter at comment accounts
+- I-update ang umiiral na `MovieAccountState` upang maglaman ng discriminator (higit pa dito sa ibang pagkakataon)
+- Magdagdag ng variant ng pagtuturo upang kumatawan sa tagubiling `add_comment`
+- I-update ang kasalukuyang function ng pagpoproseso ng pagtuturo ng `add_movie_review` upang isama ang paggawa ng account counter account
+- Lumikha ng bagong `add_comment` na function sa pagproseso ng pagtuturo
 
-### 3. Define `MovieCommentCounter` and `MovieComment` structs
+### 3. Tukuyin ang mga istruktura ng `MovieCommentCounter` at `MovieComment`
 
-Recall that the `state.rs` file defines the structs our program uses to populate the data field of a new account.
+Alalahanin na ang `state.rs` file ay tumutukoy sa mga istrukturang ginagamit ng aming programa upang i-populate ang field ng data ng isang bagong account.
 
-We’ll need to define two new structs to enable commenting.
+Kakailanganin nating tukuyin ang dalawang bagong struct upang paganahin ang pagkomento.
 
-1. `MovieCommentCounter` - to store a counter for the number of comments associated with a review
-2. `MovieComment` - to store data associated with each comment
+1. `MovieCommentCounter` - upang mag-imbak ng counter para sa bilang ng mga komentong nauugnay sa isang pagsusuri
+2. `MovieComment` - upang mag-imbak ng data na nauugnay sa bawat komento
 
-To start, let’s define the structs we’ll be using for our program. Note that we are adding a `discriminator` field to each struct, including the existing `MovieAccountState`. Since we now have multiple account types, we need a way to only fetch the account type we need from the client. This discriminator is a string that can be used to filter through accounts when we fetch our program accounts.
+Upang magsimula, tukuyin natin ang mga istrukturang gagamitin namin para sa aming programa. Tandaan na nagdaragdag kami ng field na `discriminator` sa bawat struct, kasama ang umiiral na `MovieAccountState`. Dahil marami na kaming uri ng account, kailangan namin ng paraan para makuha lang ang uri ng account na kailangan namin mula sa kliyente. Ang discriminator na ito ay isang string na maaaring gamitin upang mag-filter sa mga account kapag kinuha namin ang aming mga account ng programa.
 
 ```rust
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -314,7 +314,7 @@ impl IsInitialized for MovieComment {
 }
 ```
 
-Since we've added a new `discriminator` field to our existing struct, the account size calculation needs to change. Let's use this as an opportunity to clean up some of our code a bit. We'll add an implementation for each of the three structs above that adds a constant `DISCRIMINATOR` and either a constant `SIZE` or function `get_account_size` so we can quickly get the size needed when initializing an account.
+Dahil nagdagdag kami ng bagong field ng `discriminator` sa aming umiiral na struct, kailangang baguhin ang pagkalkula ng laki ng account. Gamitin natin ito bilang isang pagkakataon upang linisin nang kaunti ang ilan sa ating code. Magdaragdag kami ng pagpapatupad para sa bawat isa sa tatlong struct sa itaas na nagdaragdag ng pare-parehong `DISCRIMINATOR` at alinman sa pare-parehong `SIZE` o function na `get_account_size` upang mabilis naming makuha ang laki na kailangan kapag nag-initialize ng account.
 
 ```rust
 impl MovieAccountState {
@@ -343,11 +343,11 @@ impl MovieComment {
 }
 ```
 
-Now everywhere we need the discriminator or account size we can use this implementation and not risk unintentional typos.
+Ngayon kahit saan kailangan namin ang discriminator o laki ng account, magagamit namin ang pagpapatupad na ito at hindi ipagsapalaran ang hindi sinasadyang mga typo.
 
-### 4. Create `AddComment` instruction
+### 4. Lumikha ng tagubiling `AddComment`
 
-Recall that the `instruction.rs` file defines the instructions our program will accept and how to deserialize the data for each. We need to add a new instruction variant for adding comments. Let’s start by adding a new variant `AddComment` to the `MovieInstruction` enum.
+Alalahanin na ang `instruction.rs` file ay tumutukoy sa mga tagubilin na tatanggapin ng aming programa at kung paano i-deserialize ang data para sa bawat isa. Kailangan naming magdagdag ng bagong variant ng pagtuturo para sa pagdaragdag ng mga komento. Magsimula tayo sa pamamagitan ng pagdaragdag ng bagong variant na `AddComment` sa `MovieInstruction` enum.
 
 ```rust
 pub enum MovieInstruction {
@@ -367,7 +367,7 @@ pub enum MovieInstruction {
 }
 ```
 
-Next, let's create a `CommentPayload` struct to represent the instruction data associated with this new instruction. Most of the data we'll include in the account are public keys associated with accounts passed into the program, so the only thing we actually need here is a single field to represent the comment text.
+Susunod, gumawa tayo ng `CommentPayload` na struct upang kumatawan sa data ng pagtuturo na nauugnay sa bagong tagubiling ito. Karamihan sa data na isasama namin sa account ay mga pampublikong key na nauugnay sa mga account na ipinasa sa programa, kaya ang tanging kailangan lang namin dito ay isang field para kumatawan sa text ng komento.
 
 ```rust
 #[derive(BorshDeserialize)]
@@ -376,7 +376,7 @@ struct CommentPayload {
 }
 ```
 
-Now let’s update how we unpack the instruction data. Notice that we’ve moved the deserialization of instruction data into each matching case using the associated payload struct for each instruction.
+Ngayon, i-update natin kung paano namin i-unpack ang data ng pagtuturo. Pansinin na inilipat namin ang deserialization ng data ng pagtuturo sa bawat katugmang case gamit ang nauugnay na payload struct para sa bawat pagtuturo.
 
 ```rust
 impl MovieInstruction {
@@ -410,15 +410,15 @@ impl MovieInstruction {
 }
 ```
 
-Lastly, let's update the `process_instruction` function in `processor.rs` to use the new instruction variant we've created.
+Panghuli, i-update natin ang function na `process_instruction` sa `processor.rs` para magamit ang bagong variant ng pagtuturo na ginawa namin.
 
-In `processor.rs`, bring into scope the new structs from `state.rs`.
+Sa `processor.rs`, dalhin sa saklaw ang mga bagong struct mula sa `state.rs`.
 
 ```rust
 use crate::state::{MovieAccountState, MovieCommentCounter, MovieComment};
 ```
 
-Then in `process_instruction` let’s match our deserialized `AddComment` instruction data to the `add_comment` function we’ll be implementing shortly.
+Pagkatapos, sa `process_instruction` itugma natin ang aming deserialized na `AddComment` na data ng pagtuturo sa function na `add_comment` na ipapatupad namin sa ilang sandali.
 
 ```rust
 pub fn process_instruction(
@@ -442,13 +442,13 @@ pub fn process_instruction(
 }
 ```
 
-### 5. Update `add_movie_review` to create comment counter account
+### 5. I-update ang `add_movie_review` para gumawa ng comment counter account
 
-Before we implement the `add_comment` function, we need to update the `add_movie_review` function to create the review's comment counter account.
+Bago namin ipatupad ang function na `add_comment`, kailangan naming i-update ang function na `add_movie_review` para magawa ang comment counter account ng review.
 
-Remember that this account will keep track of the total number of comments that exist for an associated review. It's address will be a PDA derived using the movie review address and the word “comment” as seeds. Note that how we store the counter is simply a design choice. We could also add a “counter” field to the original movie review account.
+Tandaan na susubaybayan ng account na ito ang kabuuang bilang ng mga komentong umiiral para sa isang nauugnay na pagsusuri. Ang address nito ay isang PDA na hango gamit ang address ng pagsusuri ng pelikula at ang salitang "comment" bilang mga buto. Tandaan na kung paano namin iniimbak ang counter ay isang pagpipilian lamang sa disenyo. Maaari rin kaming magdagdag ng field na "counter" sa orihinal na account sa pagsusuri ng pelikula.
 
-Within the `add_movie_review` function, let’s add a `pda_counter` to represent the new counter account we’ll be initializing along with the movie review account. This means we now expect four accounts to be passed into the `add_movie_review` function through the `accounts` argument.
+Sa loob ng function na `add_movie_review`, magdagdag tayo ng `pda_counter` upang kumatawan sa bagong counter account na sisimulan natin kasama ng movie review account. Nangangahulugan ito na inaasahan na namin ngayon ang apat na account na ipapasa sa function na `add_movie_review` sa pamamagitan ng argumento ng `accounts`.
 
 ```rust
 let account_info_iter = &mut accounts.iter();
@@ -459,7 +459,7 @@ let pda_counter = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-Next, there's a check to make sure `total_len` is less than 1000 bytes, but `total_len` is no longer accurate since we added the discriminator. Let's replace `total_len` with a call to `MovieAccountState::get_account_size`:
+Susunod, mayroong check upang matiyak na ang `total_len` ay mas mababa sa 1000 bytes, ngunit ang `total_len` ay hindi na tumpak dahil idinagdag namin ang discriminator. Palitan natin ang `total_len` ng isang tawag sa `MovieAccountState::get_account_size`:
 
 ```rust
 let account_len: usize = 1000;
@@ -470,9 +470,9 @@ if MovieAccountState::get_account_size(title.clone(), description.clone()) > acc
 }
 ```
 
-Note that this also needs to be updated in the `update_movie_review` function for that instruction to work properly.
+Tandaan na kailangan din itong i-update sa function na `update_movie_review` para gumana nang maayos ang tagubiling iyon.
 
-Once we’ve initialized the review account, we’ll also need to update the `account_data` with the new fields we specified in the `MovieAccountState` struct.
+Kapag nasimulan na namin ang review account, kakailanganin din naming i-update ang `account_data` gamit ang mga bagong field na aming tinukoy sa `MovieAccountState` na struct.
 
 ```rust
 account_data.discriminator = MovieAccountState::DISCRIMINATOR.to_string();
@@ -483,15 +483,15 @@ account_data.description = description;
 account_data.is_initialized = true;
 ```
 
-Finally, let’s add the logic to initialize the counter account within the `add_movie_review` function. This means:
+Panghuli, idagdag natin ang lohika upang simulan ang counter account sa loob ng function na `add_movie_review`. Ibig sabihin nito:
 
-1. Calculating the rent exemption amount for the counter account
-2. Deriving the counter PDA using the review address and the string "comment" as seeds
-3. Invoking the system program to create the account
-4. Set the starting counter value
-5. Serialize the account data and return from the function
+1. Pagkalkula ng halaga ng exemption sa upa para sa counter account
+2. Pagkuha ng counter PDA gamit ang review address at ang string na "comment" bilang mga buto
+3. Pag-invoke sa system program para likhain ang account
+4. Itakda ang panimulang halaga ng counter
+5. I-serialize ang data ng account at ibalik mula sa function
 
-All of this should be added to the end of the `add_movie_review` function before the `Ok(())`.
+Dapat idagdag ang lahat ng ito sa dulo ng function na `add_movie_review` bago ang `Ok(())`.
 
 ```rust
 msg!("create comment counter");
@@ -538,18 +538,18 @@ msg!("comment count: {}", counter_data.counter);
 counter_data.serialize(&mut &mut pda_counter.data.borrow_mut()[..])?;
 ```
 
-Now when a new review is created, two accounts are initialized:
+Ngayon kapag may ginawang bagong review, dalawang account ang sinisimulan:
 
-1. The first is the review account that stores the contents of the review. This is unchanged from the version of the program we started with.
-2. The second account stores the counter for comments
+1. Ang una ay ang review account na nag-iimbak ng mga nilalaman ng review. Ito ay hindi nagbabago mula sa bersyon ng program na sinimulan namin.
+2. Iniimbak ng pangalawang account ang counter para sa mga komento
 
-### 6. Implement `add_comment`
+### 6. Ipatupad ang `add_comment`
 
-Finally, let’s implement our `add_comment` function to create new comment accounts.
+Panghuli, ipatupad natin ang ating function na `add_comment` upang lumikha ng mga bagong account ng komento.
 
-When a new comment is created for a review, we will increment the count on the comment counter PDA account and derive the PDA for the comment account using the review address and current count.
+Kapag may ginawang bagong komento para sa pagsusuri, dagdagan namin ang bilang sa PDA account ng counter ng komento at kukunin ang PDA para sa account ng komento gamit ang address ng pagsusuri at kasalukuyang bilang.
 
-Like in other instruction processing functions, we'll start by iterating through accounts passed into the program. Then before we do anything else we need to deserialize the counter account so we have access to the current comment count:
+Tulad ng iba pang mga function sa pagpoproseso ng pagtuturo, magsisimula kami sa pamamagitan ng pag-ulit sa mga account na ipinasa sa programa. At bago tayo gumawa ng anupaman, kailangan nating i-deserialize ang counter account para magkaroon tayo ng access sa kasalukuyang bilang ng komento:
 
 ```rust
 pub fn add_comment(
@@ -574,13 +574,13 @@ pub fn add_comment(
 }
 ```
 
-Now that we have access to the counter data, we can continue with the remaining steps:
+Ngayon na mayroon na kaming access sa counter data, maaari kaming magpatuloy sa mga natitirang hakbang:
 
-1. Calculate the rent exempt amount for the new comment account
-2. Derive the PDA for the comment account using the review address and the current comment count as seeds
-3. Invoke the System Program to create the new comment account
-4. Set the appropriate values to the newly created account
-5. Serialize the account data and return from the function
+1. Kalkulahin ang halaga ng hindi kasama sa upa para sa bagong account ng komento
+2. Kunin ang PDA para sa account ng komento gamit ang address ng pagsusuri at ang kasalukuyang komento ay binibilang bilang mga buto
+3. I-invoke ang System Program para gumawa ng bagong comment account
+4. Itakda ang naaangkop na mga halaga sa bagong likhang account
+5. I-serialize ang data ng account at ibalik mula sa function
 
 ```rust
 pub fn add_comment(
@@ -649,25 +649,25 @@ pub fn add_comment(
 }
 ```
 
-### 7. Build and deploy
+### 7. Bumuo at i-deploy
 
-We're ready to build and deploy our program!
+Handa na kaming buuin at i-deploy ang aming programa!
 
-Build the updated program by running `cargo-build-bpf`. Then deploy the program by running the `solana program deploy` command printed to the console.
+Buuin ang na-update na programa sa pamamagitan ng pagpapatakbo ng `cargo-build-bpf`. Pagkatapos ay i-deploy ang program sa pamamagitan ng pagpapatakbo ng command na `solana program deploy` na naka-print sa console.
 
-You can test your program by submitting a transaction with the right instruction data. You can create your own script or feel free to use [this frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-comments). Be sure to use the `solution-add-comments` branch and replace the `MOVIE_REVIEW_PROGRAM_ID` in `utils/constants.ts` with your program's ID or the frontend won't work with your program.
+Maaari mong subukan ang iyong programa sa pamamagitan ng pagsusumite ng isang transaksyon na may tamang data ng pagtuturo. Maaari kang gumawa ng sarili mong script o huwag mag-atubiling gamitin ang [frontend na ito](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-comments). Tiyaking gamitin ang sangay ng `solution-add-comments` at palitan ang `MOVIE_REVIEW_PROGRAM_ID` sa `utils/constants.ts` ng ID ng iyong program o hindi gagana ang frontend sa iyong program.
 
-Keep in mind that we made breaking changes to the review accounts (i.e. adding a discriminator). If you were to use the same program ID that you've used previously when deploying this program, none of the reviews you created previously will show on this frontend due to a data mismatch.
+Tandaan na gumawa kami ng mga paglabag na pagbabago sa mga review account (ibig sabihin, pagdaragdag ng discriminator). Kung gagamitin mo ang parehong program ID na ginamit mo dati noong i-deploy ang program na ito, wala sa mga review na ginawa mo dati ang lalabas sa frontend na ito dahil sa isang data mismatch.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-comments) before continuing. Note that the solution code is on the `solution-add-comments` branch of the linked repository.
+Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable sa mga konseptong ito, tingnan ang [solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-comments ) bago magpatuloy. Tandaan na ang code ng solusyon ay nasa sangay ng `solution-add-comments` ng naka-link na repository.
 
-# Challenge
+# Hamon
 
-Now it’s your turn to build something independently! Go ahead and work with the Student Intro program that we've used in past lessons. The Student Intro program is a Solana program that lets students introduce themselves. This program takes a user's name and a short message as the `instruction_data` and creates an account to store the data on-chain. For this challenge you should:
+Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa! Sige at magtrabaho kasama ang Student Intro program na ginamit namin sa mga nakaraang aralin. Ang Student Intro program ay isang Solana program na nagbibigay-daan sa mga mag-aaral na ipakilala ang kanilang sarili. Ang program na ito ay tumatagal ng pangalan ng isang user at isang maikling mensahe bilang `instruction_data` at gumagawa ng isang account upang iimbak ang data sa chain. Para sa hamon na ito dapat mong:
 
-1. Add an instruction allowing other users to reply to an intro
-2. Build and deploy the program locally
+1. Magdagdag ng tagubilin na nagpapahintulot sa ibang mga user na tumugon sa isang intro
+2. Buuin at i-deploy ang programa nang lokal
 
-If you haven't been following along with past lessons or haven't saved your work from before, feel free to use the starter code on the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-student-intro-program/tree/starter).
+Kung hindi mo pa sinusubaybayan ang mga nakaraang aralin o hindi mo pa nai-save ang iyong trabaho mula noon, huwag mag-atubiling gamitin ang starter code sa `starter` branch ng [repository na ito](https://github.com/Unboxed- Software/solana-student-intro-program/tree/starter).
 
-Try to do this independently if you can! If you get stuck though, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intro-program/tree/solution-add-replies). Note that the solution code is on the `solution-add-replies` branch and that your code may look slightly different.
+Subukang gawin ito nang nakapag-iisa kung kaya mo! Kung natigil ka, huwag mag-atubiling sumangguni sa [code ng solusyon](https://github.com/Unboxed-Software/solana-student-intro-program/tree/solution-add-replies). Tandaan na ang code ng solusyon ay nasa branch na `solution-add-replies` at maaaring magmukhang bahagyang naiiba ang iyong code.

@@ -13,12 +13,12 @@ objectives:
 
 ## TL;DR
 
-- **Accounts** are like the files in Solana’s network ledger. All state data is stored in an account. Accounts can be used for many things, but for now we’ll focus on the aspect of accounts which store SOL.
-- **SOL** is the name of Solana’s native token.
-- **Lamports** are fractional SOL and are named after [Leslie Lamport](https://en.wikipedia.org/wiki/Leslie_Lamport).
-- **Public keys**, often referred to as addresses, point to accounts on the Solana network. While you must have a specific secret key to perform certain functions within accounts, anyone can read account data with a public key.
-- **JSON RPC API**: all interactions with the Solana network happens through the [JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api). This is effectively an HTTP POST with a JSON body that represents the method you want to call.
-- **@solana/web3.js** is an abstraction on top of the JSON RPC API. It can be installed with `npm` and allows you to call Solana methods as JavaScript functions. For example, you can use it to query the SOL balance of any account:
+- Ang **Mga Account** ay tulad ng mga file sa network ledger ni Solana. Ang lahat ng data ng estado ay nakaimbak sa isang account. Maaaring gamitin ang mga account para sa maraming bagay, ngunit sa ngayon ay tututukan natin ang aspeto ng mga account na nag-iimbak ng SOL.
+- **SOL** ang pangalan ng katutubong token ni Solana.
+- Ang **Lamports** ay fractional SOL at ipinangalan kay [Leslie Lamport](https://en.wikipedia.org/wiki/Leslie_Lamport).
+- **Mga pampublikong key**, madalas na tinutukoy bilang mga address, ay tumuturo sa mga account sa network ng Solana. Bagama't dapat ay mayroon kang isang partikular na sikretong key upang maisagawa ang ilang partikular na function sa loob ng mga account, kahit sino ay maaaring magbasa ng data ng account gamit ang isang pampublikong key.
+- **JSON RPC API**: lahat ng pakikipag-ugnayan sa Solana network ay nangyayari sa pamamagitan ng [JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api). Ito ay epektibong isang HTTP POST na may JSON body na kumakatawan sa paraan na gusto mong tawagan.
+- **@solana/web3.js** ay isang abstraction sa itaas ng JSON RPC API. Maaari itong i-install gamit ang `npm` at pinapayagan kang tawagan ang mga pamamaraan ng Solana bilang mga function ng JavaScript. Halimbawa, maaari mo itong gamitin upang i-query ang balanse ng SOL ng anumang account:
 
     ```tsx
     async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
@@ -32,41 +32,41 @@ objectives:
     })
     ```
 
-# Overview
+# Pangkalahatang-ideya
 
-## Accounts
+## Mga Account
 
-Solana accounts are similar to files in operating systems such as Linux. They hold arbitrary, persistent data and are flexible enough to be used in many different ways.
+Ang mga Solana account ay katulad ng mga file sa mga operating system gaya ng Linux. Ang mga ito ay nagtataglay ng arbitrary, paulit-ulit na data at sapat na kakayahang umangkop upang magamit sa maraming iba't ibang paraan.
 
-In this lesson we won’t consider much about accounts beyond their ability to store SOL (Solana’s native token - more on that later). However, accounts are also used to store custom data structures and executable code that can be run as programs. Accounts will be involved in everything you do with Solana.
+Sa araling ito, hindi namin isasaalang-alang ang tungkol sa mga account na lampas sa kanilang kakayahang mag-imbak ng SOL (katutubong token ni Solana - higit pa doon sa ibang pagkakataon). Gayunpaman, ginagamit din ang mga account para mag-imbak ng mga custom na istruktura ng data at executable code na maaaring patakbuhin bilang mga program. Ang mga account ay kasangkot sa lahat ng gagawin mo sa Solana.
 
-### Public Keys
+### Mga Pampublikong Susi
 
-Public keys are often referred to as addresses. The addresses point to accounts on the Solana network. If you want to run a specific program or transfer SOL, you’ll need to provide the necessary public key (or keys) to do so.
+Ang mga pampublikong susi ay madalas na tinutukoy bilang mga address. Ang mga address ay tumuturo sa mga account sa network ng Solana. Kung gusto mong magpatakbo ng isang partikular na programa o maglipat ng SOL, kakailanganin mong ibigay ang kinakailangang pampublikong susi (o mga susi) para magawa ito.
 
-Public keys are 256-bit and they are often shown as base-58 encoded strings like `7C4jsPZpht42Tw6MjXWF56Q5RQUocjBBmciEjDa8HRtp`.
+Ang mga pampublikong key ay 256-bit at kadalasang ipinapakita ang mga ito bilang mga base-58 na naka-encode na mga string tulad ng `7C4jsPZpht42Tw6MjXWF56Q5RQUocjBBmciEjDa8HRtp`.
 
-## The Solana JSON RPC API
+## Ang Solana JSON RPC API
 
 ![Illustration depicting how client-side interaction with the Solana network happens through the JSON RPC API](../assets/json-rpc-illustration.png)
 
-All client interaction with the Solana network happens through Solana’s [JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api).
+Ang lahat ng pakikipag-ugnayan ng kliyente sa network ng Solana ay nangyayari sa pamamagitan ng [JSON RPC API] ni Solana(https://docs.solana.com/developing/clients/jsonrpc-api).
 
-Per the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification)
+Alinsunod sa [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification)
 
-> *JSON-RPC is a stateless, light-weight remote procedure call (RPC) protocol. Primarily this specification defines several data structures and the rules around their processing. It is transport agnostic in that the concepts can be used within the same process, over sockets, over http, or in many various message passing environments. It uses [JSON](http://www.json.org/) ([RFC 4627](http://www.ietf.org/rfc/rfc4627.txt)) as data format.*
+> *Ang JSON-RPC ay isang stateless, light-weight remote procedure call (RPC) protocol. Pangunahing tinutukoy ng detalyeng ito ang ilang istruktura ng data at ang mga panuntunan sa kanilang pagpoproseso. Ito ay transport agnostic dahil ang mga konsepto ay maaaring gamitin sa loob ng parehong proseso, sa mga socket, sa http, o sa maraming iba't ibang mga environment na nagpapasa ng mensahe. Gumagamit ito ng [JSON](http://www.json.org/) ([RFC 4627](http://www.ietf.org/rfc/rfc4627.txt)) bilang format ng data.*
 >
 
-In practice, this specification simply involves sending a JSON object representing a method you want to call. You can do this with sockets, http, and more.
+Sa pagsasagawa, ang pagtutukoy na ito ay nagsasangkot lamang ng pagpapadala ng JSON object na kumakatawan sa isang paraan na gusto mong tawagan. Magagawa mo ito sa mga socket, http, at higit pa.
 
-This JSON object needs four members:
+Ang object ng JSON na ito ay nangangailangan ng apat na miyembro:
 
-- `jsonrpc` - The JSON RPC version number. This needs to be *exactly* `"2.0"`.
-- `id` - An identifier that you choose for identifying the call. This can be a string or a whole number.
-- `method` - The name of the method you want to invoke.
-- `params` - An array containing the parameters to use during the method invocation.
+- `jsonrpc` - Ang numero ng bersyon ng JSON RPC. Ito ay kailangang *eksaktong* `"2.0"`.
+- `id` - Isang identifier na pipiliin mo para sa pagtukoy sa tawag. Ito ay maaaring isang string o isang buong numero.
+- `method` - Ang pangalan ng paraan na gusto mong gamitin.
+- `params` - Isang array na naglalaman ng mga parameter na gagamitin sa panahon ng method invocation.
 
-So, if you want to call the `getBalance` method on the Solana network, you could send an HTTP call to a Solana cluster as follows:
+Kaya, kung gusto mong tawagan ang paraan ng `getBalance` sa Solana network, maaari kang magpadala ng HTTP na tawag sa isang Solana cluster gaya ng sumusunod:
 
 ```tsx
 async function getBalanceUsingJSONRPC(address: string): Promise<number> {
@@ -97,31 +97,31 @@ async function getBalanceUsingJSONRPC(address: string): Promise<number> {
 }
 ```
 
-## Solana’s Web3.js SDK
+## Web3.js SDK ni Solana
 
-While the JSON-RPC API is simple enough, it involves a significant amount of tedious boilerplate. To simplify the process of communication, Solana Labs created the `@solana/web3.js` SDK as an abstraction on top of the JSON-RPC API.
+Bagama't ang JSON-RPC API ay sapat na simple, ito ay nagsasangkot ng malaking halaga ng nakakapagod na boilerplate. Upang pasimplehin ang proseso ng komunikasyon, ginawa ng Solana Labs ang `@solana/web3.js` SDK bilang abstraction sa itaas ng JSON-RPC API.
 
-Web3.js allows you to call the JSON-RPC API methods using JavaScript functions. The SDK provides a suite of helper functions and objects. We’ll cover a lot of the SDK gradually throughout this course, but we won’t go over everything in depth, so be sure to check out the [documentation](https://docs.solana.com/developing/clients/javascript-reference) at some point.
+Binibigyang-daan ka ng Web3.js na tawagan ang mga pamamaraan ng JSON-RPC API gamit ang mga function ng JavaScript. Ang SDK ay nagbibigay ng hanay ng mga function at bagay ng helper. Sasaklawin namin ang maraming SDK nang unti-unti sa buong kursong ito, ngunit hindi namin tatalakayin nang malalim ang lahat, kaya siguraduhing tingnan ang [dokumentasyon](https://docs.solana.com/developing/clients/ javascript-reference) sa isang punto.
 
-### Installation
+### Pag-install
 
-Throughout this course, we’ll mostly be using `npm`. How to use `npm` is outside the scope of this course and we’ll assume it’s a tool you use regularly. [Check this out](https://nodesource.com/blog/an-absolute-beginners-guide-to-using-npm/) if that’s not the case.
+Sa buong kursong ito, karamihan ay gagamit kami ng `npm`. Ang paggamit ng `npm` ay wala sa saklaw ng kursong ito at ipagpalagay namin na ito ay isang tool na regular mong ginagamit. [Tingnan ito](https://nodesource.com/blog/an-absolute-beginners-guide-to-using-npm/) kung hindi iyon ang kaso.
 
-To install `@solana/web3.js`, set up your project the way you normally would then use:
+Upang i-install ang `@solana/web3.js`, i-set up ang iyong proyekto sa paraang karaniwan mong gagamitin:
 
-`npm install @solana/web3.js`.
+`npm i-install ang @solana/web3.js`.
 
-### Connect to the Network
+### Kumonekta sa Network
 
-Every interaction with the Solana network using `@solana/web3.js` is going to happen through a `Connection` object. This object establishes a JSON-RPC connection with a Solana cluster (more on clusters later). For now, we’re going to use the url for the Devnet cluster rather than Mainnet. As the name suggests, this cluster is designed for developer use and testing.
+Ang bawat pakikipag-ugnayan sa network ng Solana gamit ang `@solana/web3.js` ay mangyayari sa pamamagitan ng object na `Connection`. Ang object na ito ay nagtatatag ng isang JSON-RPC na koneksyon sa isang Solana cluster (higit pa sa mga cluster sa ibang pagkakataon). Sa ngayon, gagamitin namin ang url para sa Devnet cluster kaysa sa Mainnet. Gaya ng iminumungkahi ng pangalan, ang cluster na ito ay idinisenyo para sa paggamit at pagsubok ng developer.
 
 ```tsx
 const connection = new Connection(clusterApiUrl('devnet'));
 ```
 
-### Read from the Network
+### Basahin mula sa Network
 
-Once you have a `Connection` object, querying the network is as simple as calling the appropriate methods. For example, to get the balance of a particular address, you do the following:
+Kapag mayroon kang object na `Connection`, ang pag-query sa network ay kasing simple ng pagtawag sa mga naaangkop na pamamaraan. Halimbawa, upang makuha ang balanse ng isang partikular na address, gagawin mo ang sumusunod:
 
 ```tsx
 async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
@@ -130,35 +130,35 @@ async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
 }
 ```
 
-The balance returned is in fractional SOL called lamports. A single lamport represents 0.000000001 SOL. Most of the time when dealing with SOL the system will use lamports instead of SOL. Web3.js provides the constant `LAMPORTS_PER_SOL` for making quick conversions.
+Ang ibinalik na balanse ay nasa fractional SOL na tinatawag na lamports. Ang isang lamport ay kumakatawan sa 0.000000001 SOL. Karamihan sa mga oras kapag nakikitungo sa SOL ang system ay gagamit ng mga lamport sa halip na SOL. Nagbibigay ang Web3.js ng patuloy na `LAMPORTS_PER_SOL` para sa paggawa ng mabilis na mga conversion.
 
-...and just like that, now you know how to read data from the Solana blockchain! Once we get into custom data things will get more complicated. But for now, let’s practice what we’ve learned so far.
+...at tulad niyan, ngayon alam mo na kung paano magbasa ng data mula sa Solana blockchain! Kapag nakapasok na tayo sa custom na data, magiging mas kumplikado ang mga bagay. Ngunit sa ngayon, isabuhay natin ang natutunan natin sa ngayon.
 
 # Demo
 
-Let’s create a simple website that lets users check the balance at a particular address.
+Gumawa tayo ng simpleng website na nagbibigay-daan sa mga user na suriin ang balanse sa isang partikular na address.
 
-It’ll look something like this:
+Magiging ganito ang hitsura nito:
 
 ![Screenshot of demo solution](../assets/intro-frontend-demo.png)
 
-In the interest of staying on topic, we won’t be working entirely from scratch. You can find the starter code [here](https://github.com/Unboxed-Software/solana-intro-frontend/tree/starter). The starter project uses Next.js and Typescript. If you’re used to a different stack, don’t worry! The web3 and Solana principles you’ll learn throughout these lessons are applicable to whichever frontend stack you’re most comfortable with.
+Sa interes na manatili sa paksa, hindi kami ganap na gagana mula sa simula. Mahahanap mo ang starter code [dito](https://github.com/Unboxed-Software/solana-intro-frontend/tree/starter). Ang panimulang proyekto ay gumagamit ng Next.js at Typescript. Kung sanay ka sa ibang stack, huwag mag-alala! Ang mga prinsipyo ng web3 at Solana na matututunan mo sa mga araling ito ay naaangkop sa alinmang frontend stack na pinaka komportable ka.
 
-### 1. Get oriented
+### 1. Maging oriented
 
-Once you’ve got the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`. Notice that no matter what you put into the address field, when you click “Check SOL Balance” the balance will be a placeholder value of 1000.
+Kapag nakuha mo na ang starter code, tumingin sa paligid. I-install ang mga dependencies gamit ang `npm install` at pagkatapos ay patakbuhin ang app gamit ang `npm run dev`. Pansinin na anuman ang ilagay mo sa field ng address, kapag na-click mo ang "Suriin ang Balanse ng SOL" ang balanse ay magiging isang halaga ng placeholder na 1000.
 
-Structurally, the app is composed of `index.tsx` and `AddressForm.tsx`. When a user submits the form, the `addressSubmittedHandler` in `index.tsx` gets called. That’s where we’ll be adding the logic to update the rest of the UI.
+Sa istruktura, ang app ay binubuo ng `index.tsx` at `AddressForm.tsx`. Kapag isinumite ng isang user ang form, tatawagin ang `addressSubmittedHandler` sa `index.tsx`. Doon namin idaragdag ang lohika para i-update ang natitirang bahagi ng UI.
 
-### 2. Install dependencies
+### 2. Mag-install ng mga dependency
 
-Use `npm install @solana/web3.js` to install our dependency on Solana’s Web3 library.
+Gamitin ang `npm install @solana/web3.js` para i-install ang aming dependency sa Web3 library ng Solana.
 
-### 3. Set the address balance
+### 3. Itakda ang balanse ng address
 
-First, import `@solana/web3.js` at the top of `index.tsx`.
+Una, i-import ang `@solana/web3.js` sa itaas ng `index.tsx`.
 
-Now that the library is available, let’s go into the `addressSubmittedHandler` and create an instance of `PublicKey` using the address value from the form input. Next, create an instance of `Connection` and use it to call `getBalance`. Pass in the value of the public key you just created. Finally, call `setBalance`, passing in the result from `getBalance`. If you’re up to it, try this independently instead of copying from the code snippet below.
+Ngayong available na ang library, pumunta tayo sa `addressSubmittedHandler` at gumawa ng instance ng `PublicKey` gamit ang value ng address mula sa input ng form. Susunod, gumawa ng instance ng `Connection` at gamitin ito para tawagan ang `getBalance`. Ipasok ang halaga ng pampublikong key na kakagawa mo lang. Panghuli, tawagan ang `setBalance`, ipasa ang resulta mula sa `getBalance`. Kung handa ka, subukan ito nang nakapag-iisa sa halip na kopyahin mula sa snippet ng code sa ibaba.
 
 ```tsx
 import type { NextPage } from 'next'
@@ -185,15 +185,15 @@ const Home: NextPage = () => {
 }
 ```
 
-Notice that we are taking the balance returned by Solana and dividing it by `LAMPORTS_PER_SOL`. Lamports are fractional SOL (0.000000001 SOL). Most of the time when dealing with SOL, the system will use lamports instead of SOL. In this case, the balance returned by the network is in lamports. Before setting it to our state, we convert it to SOL using the `LAMPORTS_PER_SOL` constant.
+Pansinin na kinukuha namin ang balanseng ibinalik ni Solana at hinahati ito sa `LAMPORTS_PER_SOL`. Ang mga Lampor ay fractional na SOL (0.000000001 SOL). Karamihan sa mga oras kapag nakikitungo sa SOL, ang system ay gagamit ng mga lamport sa halip na SOL. Sa kasong ito, ang balanse na ibinalik ng network ay nasa lamports. Bago ito itakda sa aming estado, kino-convert namin ito sa SOL gamit ang pare-parehong `LAMPORTS_PER_SOL`.
 
-At this point you should be able to put a valid address into the form field and click “Check SOL Balance” to see both the Address and Balance populate below.
+Sa puntong ito dapat kang makapaglagay ng wastong address sa field ng form at i-click ang "Suriin ang Balanse ng SOL" upang makita ang parehong Address at Balanse na napuno sa ibaba.
 
-### 4. Handle invalid addresses
+### 4. Pangasiwaan ang mga di-wastong address
 
-We’re just about done. The only remaining issue is that using an invalid address doesn’t show any error message or change the balance shown. If you open the developer console, you’ll see `Error: Invalid public key input`. When using the `PublicKey` constructor, you need to pass in a valid address or you’ll get this error.
+Kakatapos lang namin. Ang tanging natitirang isyu ay ang paggamit ng di-wastong address ay hindi nagpapakita ng anumang mensahe ng error o binabago ang balanseng ipinapakita. Kung bubuksan mo ang developer console, makikita mo ang `Error: Invalid public key input`. Kapag ginagamit ang tagabuo ng `PublicKey`, kailangan mong magpasa ng wastong address o makukuha mo ang error na ito.
 
-To fix this, let’s wrap everything in a `try-catch` block and alert the user if their input is invalid.
+Upang ayusin ito, ibalot natin ang lahat sa isang bloke na `try-catch` at alertuhan ang user kung hindi wasto ang kanilang input.
 
 ```tsx
 const addressSubmittedHandler = (address: string) => {
@@ -212,16 +212,16 @@ const addressSubmittedHandler = (address: string) => {
 }
 ```
 
-Notice that in the catch block we also cleared out the address and balance to avoid confusion.
+Pansinin na sa catch block na-clear din namin ang address at balanse upang maiwasan ang pagkalito.
 
-We did it! We have a functioning site that reads SOL balances from the Solana network. You’re well on your way to achieving your grand ambitions on Solana. If you need to spend some more time looking at this code to better understand it, have a look at the complete [solution code](https://github.com/Unboxed-Software/solana-intro-frontend). Hang on tight, these lessons will ramp up quickly.
+Nagawa natin! Mayroon kaming gumaganang site na nagbabasa ng mga balanse ng SOL mula sa network ng Solana. Malapit ka nang makamit ang iyong mga dakilang ambisyon sa Solana. Kung kailangan mong gumugol ng mas maraming oras sa pagtingin sa code na ito para mas maunawaan ito, tingnan ang kumpletong [code ng solusyon](https://github.com/Unboxed-Software/solana-intro-frontend). Maghintay ka, ang mga araling ito ay mabilis na tataas.
 
-# Challenge
+# Hamon
 
-Since this is the first challenge, we’ll keep it simple. Go ahead and add on to the frontend we’ve already created by including a line item after “Balance”. Have the line item display whether or not the account is an executable account or not. Hint: there’s a `getAccountInfo` method.
+Dahil ito ang unang hamon, pananatilihin namin itong simple. Sige at magdagdag sa frontend na nagawa na namin sa pamamagitan ng pagsasama ng isang line item pagkatapos ng "Balanse." Ipakita ang line item kung ang account ay isang executable account o hindi. Hint: mayroong paraan ng `getAccountInfo`.
 
-Your standard wallet address will *not* be executable, so if you want an address that *will* be executable for testing, use `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
+Ang iyong karaniwang wallet address ay *hindi* magiging executable, kaya kung gusto mo ng isang address na *ay* ma-executable para sa pagsubok, gamitin ang `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
 ![Screenshot of final challenge solution](../assets/intro-frontend-challenge.png)
 
-If you get stuck feel free to take a look at the [solution code](https://github.com/Unboxed-Software/solana-intro-frontend/tree/challenge-solution).
+Kung natigil ka huwag mag-atubiling tingnan ang [code ng solusyon](https://github.com/Unboxed-Software/solana-intro-frontend/tree/challenge-solution).

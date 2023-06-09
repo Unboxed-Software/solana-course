@@ -9,8 +9,8 @@ objectives:
 
 # TL;DR
 
-- Use **Signer Checks** to verify that specific accounts have signed a transaction. Without appropriate signer checks, accounts may be able to execute instructions they shouldn’t be authorized to perform.
-- To implement a signer check in Rust, simply check that an account’s `is_signer` property is `true`
+- Gamitin ang **Signer Checks** upang i-verify na ang mga partikular na account ay lumagda sa isang transaksyon. Kung walang naaangkop na pag-check ng lumagda, maaaring maisagawa ng mga account ang mga tagubiling hindi sila dapat pahintulutang gawin.
+- Para magpatupad ng signer check sa Rust, tingnan lang kung ang property ng `is_signer` ng account ay `true`
     
     ```rust
     if !ctx.accounts.authority.is_signer {
@@ -18,22 +18,22 @@ objectives:
     }
     ```
     
-- In Anchor, you can use the **`Signer`** account type in your account validation struct to have Anchor automatically perform a signer check on a given account
-- Anchor also has an account constraint that will automatically verify that a given account has signed a transaction
+- Sa Anchor, maaari mong gamitin ang **`Signer`** na uri ng account sa struct ng pagpapatunay ng iyong account upang awtomatikong magsagawa ang Anchor ng signer check sa isang partikular na account
+- Ang Anchor ay mayroon ding hadlang sa account na awtomatikong magbe-verify na ang isang partikular na account ay pumirma ng isang transaksyon
 
-# Overview
+# Pangkalahatang-ideya
 
-Signer checks are used to verify that a given account’s owner has authorized a transaction. Without a signer check, operations whose execution should be limited to only specific accounts can potentially be performed by any account. In the worst case scenario, this could result in wallets being completely drained by attackers passing in whatever account they want to an instruction.
+Ginagamit ang mga tseke ng signer para i-verify na pinahintulutan ng may-ari ng isang account ang isang transaksyon. Kung walang tseke ng signer, ang mga pagpapatakbo na ang pagpapatupad ay dapat na limitado sa mga partikular na account lamang ang posibleng gawin ng anumang account. Sa pinakamasamang sitwasyon, maaari itong magresulta sa mga wallet na ganap na maubos ng mga umaatake na pumasa sa anumang account na gusto nila sa isang pagtuturo.
 
-### Missing Signer Check
+### Nawawalang Signer Check
 
-The example below shows an oversimplified version of an instruction that updates the `authority` field stored on a program account. 
+Ang halimbawa sa ibaba ay nagpapakita ng sobrang pinasimple na bersyon ng isang pagtuturo na nag-a-update sa field ng `awtoridad` na nakaimbak sa isang account ng programa.
 
-Notice that the `authority` field on the `UpdateAuthority` account validation struct is of type `AccountInfo`. In Anchor, the `AccountInfo` account type indicates that no checks are performed on the account prior to instruction execution.
+Pansinin na ang field ng `authority` sa struct ng validation ng account na `UpdateAuthority` ay may uri ng `AccountInfo`. Sa Anchor, ang uri ng account na `AccountInfo` ay nagpapahiwatig na walang mga pagsusuri na ginawa sa account bago ang pagpapatupad ng pagtuturo.
 
-Although the `has_one` constraint is used to validate the `authority` account passed into the instruction matches the `authority` field stored on the `vault` account, there is no check to verify the `authority` account authorized the transaction.
+Bagama't ang hadlang na `may_isa` ay ginagamit upang patunayan ang `awtoridad` na account na ipinasa sa pagtuturo ay tumutugma sa field ng `awtoridad` na nakaimbak sa `vault` account, walang tseke upang i-verify ang `authority` account na pinahintulutan ang transaksyon.
 
-This means an attacker can simply pass in the public key of the `authority` account and their own public key as the `new_authority` account to reassign themselves as the new authority of the `vault` account. At that point, they can interact with the program as the new authority.
+Nangangahulugan ito na maipapasa lang ng isang attacker ang pampublikong key ng `authority` account at ang kanilang sariling public key bilang ang `new_authority` account upang muling italaga ang kanilang sarili bilang bagong awtoridad ng `vault` account. Sa puntong iyon, maaari silang makipag-ugnayan sa programa bilang bagong awtoridad.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -68,9 +68,9 @@ pub struct Vault {
 }
 ```
 
-### Add signer authorization checks
+### Magdagdag ng mga tseke ng awtorisasyon ng lumagda
 
-All you need to do to validate that the `authority` account signed is to add a signer check within the instruction. That simply means checking that `authority.is_signer` is `true`, and returning a `MissingRequiredSignature` error if `false`.
+Ang kailangan mo lang gawin para ma-validate na ang `authority` account na nilagdaan ay magdagdag ng signer check sa loob ng instruction. Nangangahulugan lamang iyon ng pagsuri kung ang `authority.is_signer` ay `true`, at nagbabalik ng error na `MissingRequiredSignature` kung `false`.
 
 ```tsx
 if !ctx.accounts.authority.is_signer {
@@ -78,7 +78,7 @@ if !ctx.accounts.authority.is_signer {
 }
 ```
 
-By adding a signer check, the instruction would only process if the account passed in as the `authority` account also signed the transaction. If the transaction was not signed by the account passed in as the `authority` account, then the transaction would fail.
+Sa pamamagitan ng pagdaragdag ng tseke ng lumagda, mapoproseso lamang ang pagtuturo kung ang account ay pumasa bilang ang `autoridad` na account ay nilagdaan din ang transaksyon. Kung ang transaksyon ay hindi nilagdaan ng account na ipinasa bilang `authority` account, kung gayon ang transaksyon ay mabibigo.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -117,13 +117,13 @@ pub struct Vault {
 }
 ```
 
-### Use Anchor’s `Signer` account type
+### Gamitin ang uri ng account na `Signer` ng Anchor
 
-However, putting this check into the instruction function muddles the separation between account validation and instruction logic.
+Gayunpaman, ang paglalagay ng tseke na ito sa function ng pagtuturo ay nagpapagulo sa paghihiwalay sa pagitan ng pagpapatunay ng account at lohika ng pagtuturo.
 
-Fortunately, Anchor makes it easy to perform signer checks by providing the `Signer` account type. Simply change the `authority` account’s type in the account validation struct to be of type `Signer`, and Anchor will check at runtime that the specified account is a signer on the transaction. This is the approach we generally recommend since it allows you to separate the signer check from instruction logic.
+Sa kabutihang palad, pinapadali ng Anchor ang pagsasagawa ng mga pagsusuri ng signer sa pamamagitan ng pagbibigay ng uri ng account na `Signer`. Baguhin lang ang uri ng `authority` account sa struct ng pagpapatunay ng account upang maging uri ng `Signer`, at titingnan ng Anchor sa runtime na ang tinukoy na account ay isang lumagda sa transaksyon. Ito ang diskarte na karaniwang inirerekomenda namin dahil pinapayagan ka nitong paghiwalayin ang checker check mula sa lohika ng pagtuturo.
 
-In the example below, if the `authority` account does not sign the transaction, then the transaction will fail before even reaching the instruction logic. 
+Sa halimbawa sa ibaba, kung hindi nilagdaan ng `authority` account ang transaksyon, mabibigo ang transaksyon bago pa man maabot ang lohika ng pagtuturo.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -158,17 +158,17 @@ pub struct Vault {
 }
 ```
 
-Note that when you use the `Signer` type, no other ownership or type checks are performed.
+Tandaan na kapag ginamit mo ang uri ng `Signer`, walang iba pang pagmamay-ari o pagsuri sa uri ang isinasagawa.
 
-### Use Anchor’s `#[account(signer)]` constraint
+### Gamitin ang hadlang na `#[account(signer)]` ng Anchor
 
-While in most cases, the `Signer` account type will suffice to ensure an account has signed a transaction, the fact that no other ownership or type checks are performed means that this account can’t really be used for anything else in the instruction.
+Bagama't sa karamihan ng mga kaso, ang uri ng account na `Signer` ay sapat na upang matiyak na ang isang account ay pumirma sa isang transaksyon, ang katotohanang walang ibang pagmamay-ari o uri ng pagsusuri na isinasagawa ay nangangahulugan na ang account na ito ay hindi talaga magagamit para sa anumang bagay sa pagtuturo.
 
-This is where the `signer` *constraint* comes in handy. The `#[account(signer)]` constraint allows you to verify the account signed the transaction, while also getting the benefits of using the `Account` type if you wanted access to it’s underlying data as well. 
+Dito magagamit ang `signer` *constraint*. Ang hadlang na `#[account(signer)]` ay nagbibigay-daan sa iyong i-verify ang account na nilagdaan ang transaksyon, habang nakakakuha din ng mga benepisyo ng paggamit sa uri ng `Account` kung gusto mo rin ng access sa pinagbabatayan na data nito.
 
-As an example of when this would be useful, imagine writing an instruction that you expect to be invoked via CPI that expects one of the passed in accounts to be both a ******signer****** on the transaciton and a ***********data source***********. Using the `Signer` account type here removes the automatic deserialization and type checking you would get with the `Account` type. This is both inconvenient, as you need to manually deserialize the account data in the instruction logic, and may make your program vulnerable by not getting the ownership and type checking performed by the `Account` type.
+Bilang isang halimbawa kung kailan ito magiging kapaki-pakinabang, isipin ang pagsulat ng isang tagubilin na inaasahan mong ma-invoke sa pamamagitan ng CPI na inaasahan na ang isa sa mga naipasa sa mga account ay parehong ******signer****** sa transaciton at isang ***********data source**************. Ang paggamit ng `Signer` na uri ng account dito ay nag-aalis ng awtomatikong deserialization at pagsuri ng uri na makukuha mo gamit ang uri ng `Account`. Ito ay parehong nakakaabala, dahil kailangan mong manual na i-deserialize ang data ng account sa lohika ng pagtuturo, at maaaring maging vulnerable ang iyong program sa pamamagitan ng hindi pagkuha ng pagmamay-ari at pagsusuri ng uri na isinagawa ayon sa uri ng `Account`.
 
-In the example below, you can safely write logic to interact with the data stored in the `authority` account while also verifying that it signed the transaction.
+Sa halimbawa sa ibaba, maaari mong ligtas na magsulat ng lohika upang makipag-ugnayan sa data na nakaimbak sa `authority` account habang bini-verify din na nilagdaan nito ang transaksyon.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -215,21 +215,21 @@ pub struct AuthState{
 
 # Demo
 
-Let’s practice by creating a simple program to demonstrate how a missing signer check can allow an attacker to withdraw tokens that don’t belong to them.
+Magsanay tayo sa pamamagitan ng paglikha ng isang simpleng programa upang ipakita kung paano maaaring payagan ng isang nawawalang signer check ang isang umaatake na mag-withdraw ng mga token na hindi sa kanila.
 
-This program initializes a simplified token “vault” account and demonstrates how a missing signer check could allow the vault to be drained.
+Sinisimulan ng program na ito ang isang pinasimpleng token na "vault" na account at ipinapakita kung paano maaaring payagan ng nawawalang signer check ang vault na ma-drain.
 
-### 1. Starter
+### 1. Panimula
 
-To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-signer-auth/tree/starter). The starter code includes a program with two instructions and the boilerplate setup for the test file. 
+Upang makapagsimula, i-download ang starter code mula sa `starter` branch ng [repository na ito](https://github.com/Unboxed-Software/solana-signer-auth/tree/starter). Kasama sa starter code ang isang program na may dalawang tagubilin at ang setup ng boilerplate para sa test file.
 
-The `initialize_vault` instruction initializes two new accounts: `Vault` and `TokenAccount`. The `Vault` account will be initialized using a Program Derived Address (PDA) and store the address of a token account and the authority of the vault. The authority of the token account will be the `vault` PDA which enables the program to sign for the transfer of tokens. 
+Ang tagubiling `initialize_vault` ay nagpapasimula ng dalawang bagong account: `Vault` at `TokenAccount`. Ang `Vault` account ay pasisimulan gamit ang Program Derived Address (PDA) at iimbak ang address ng isang token account at ang awtoridad ng vault. Ang awtoridad ng token account ay ang `vault` na PDA na nagbibigay-daan sa programa na mag-sign para sa paglipat ng mga token.
 
-The `insecure_withdraw` instruction will transfer tokens in the `vault` account’s token account to a `withdraw_destination` token account. However, the `authority` account in the `InsecureWithdraw` struct has a type of `UncheckedAccount`. This is a wrapper around `AccountInfo` to explicitly indicate the account is unchecked. 
+Ang tagubiling `insecure_withdraw` ay maglilipat ng mga token sa token account ng `vault` account sa isang token account ng `withdraw_destination`. Gayunpaman, ang `authority` account sa `InsecureWithdraw` struct ay may uri ng `UncheckedAccount`. Ito ay isang wrapper sa paligid ng `AccountInfo` upang tahasang isaad na ang account ay hindi naka-check.
 
-Without a signer check, anyone can simply provide the public key of the `authority` account that matches `authority` stored on the `vault` account and the `insecure_withdraw` instruction would continue to process.
+Kung walang signer check, kahit sino ay maaaring magbigay ng pampublikong key ng `authority` account na tumutugma sa `authority` na naka-store sa `vault` account at ang `insecure_withdraw` na tagubilin ay patuloy na ipoproseso.
 
-While this is somewhat contrived in that any DeFi program with a vault would be more sophisticated than this, it will show how the lack of a signer check can result in tokens being withdrawn by the wrong party.
+Bagama't ito ay medyo gawa-gawa na ang anumang DeFi program na may vault ay magiging mas sopistikado kaysa dito, ipapakita nito kung paano ang kakulangan ng signer check ay maaaring magresulta sa pag-withdraw ng mga token ng maling partido.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -318,13 +318,13 @@ pub struct Vault {
 }
 ```
 
-### 2. Test `insecure_withdraw` instruction
+### 2. Subukan ang `insecure_withdraw` na pagtuturo
 
-The test file includes the code to invoke the `initialize_vault` instruction using `wallet` as the `authority` on the vault. The code then mints 100 tokens to the `vault` token account. Theoretically, the `wallet` key should be the only one that can withdraw the 100 tokens from the vault.
+Kasama sa test file ang code para i-invoke ang `initialize_vault` na pagtuturo gamit ang `wallet` bilang `authority` sa vault. Ang code ay nagbibigay ng 100 token sa `vault` token account. Ayon sa teorya, ang susi ng `wallet` ay dapat na ang tanging maaaring mag-withdraw ng 100 token mula sa vault.
 
-Now, let’s add a test to invoke `insecure_withdraw` on the program to show that the current version of the program allows a third party to in fact withdraw those 100 tokens.
+Ngayon, magdagdag tayo ng pagsubok para ma-invoke ang `insecure_withdraw` sa program para ipakita na ang kasalukuyang bersyon ng program ay nagbibigay-daan sa isang third party na talagang bawiin ang 100 token na iyon.
 
-In the test, we’ll still use the public key of `wallet` as the `authority` account, but we’ll use a different keypair to sign and send the transaction.
+Sa pagsubok, gagamitin pa rin namin ang pampublikong key ng `wallet` bilang `authority` account, ngunit gagamit kami ng ibang keypair para lagdaan at ipadala ang transaksyon.
 
 ```tsx
 describe("signer-authorization", () => {
@@ -350,7 +350,7 @@ describe("signer-authorization", () => {
 })
 ```
 
-Run `anchor test` to see that both transactions will complete successfully.
+Patakbuhin ang `anchor test` upang makita na ang parehong mga transaksyon ay matagumpay na makukumpleto.
 
 ```bash
 signer-authorization
@@ -358,11 +358,11 @@ signer-authorization
   ✔ Insecure withdraw  (405ms)
 ```
 
-Since there is no signer check for the `authority` account, the `insecure_withdraw` instruction will transfer tokens from the `vault` token account to the `withdrawDestinationFake` token account as long as the public key of the`authority` account matches the public key stored on the authority field of the `vault` account. Clearly, the `insecure_withdraw` instruction is as insecure as the name suggests.
+Dahil walang signer check para sa `authority` account, ang `insecure_withdraw` na tagubilin ay maglilipat ng mga token mula sa `vault` token account sa `withdrawDestinationFake` token account hangga't ang pampublikong key ng`authority` account ay tumutugma sa publiko key na naka-store sa authority field ng `vault` account. Maliwanag, ang pagtuturo ng `insecure_withdraw` ay kasing insecure gaya ng iminumungkahi ng pangalan.
 
-### 3. Add `secure_withdraw` instruction
+### 3. Magdagdag ng `secure_withdraw` na pagtuturo
 
-Let’s fix the problem in a new instruction called `secure_withdraw`. This instruction will be identical to the `insecure_withdraw` instruction, except we’ll use the `Signer` type in the Accounts struct to validate the `authority` account in the `SecureWithdraw` struct. If the `authority` account is not a signer on the transaction, then we expect the transaction to fail and return an error.
+Ayusin natin ang problema sa isang bagong tagubilin na tinatawag na `secure_withdraw`. Magiging kapareho ang tagubiling ito sa tagubiling `insecure_withdraw`, maliban kung gagamitin namin ang uri ng `Signer` sa struct ng Mga Account upang i-validate ang `authority` account sa `SecureWithdraw` na struct. Kung ang `authority` account ay hindi isang lumagda sa transaksyon, inaasahan naming mabibigo ang transaksyon at magbabalik ng error.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -413,9 +413,9 @@ pub struct SecureWithdraw<'info> {
 }
 ```
 
-### 4. Test `secure_withdraw` instruction
+### 4. Subukan ang pagtuturo ng `secure_withdraw`
 
-With the instruction in place, return to the test file to test the `secure_withdraw` instruction. Invoke the `secure_withdraw` instruction, again using the public key of `wallet` as the `authority` account and the `withdrawDestinationFake` keypair as the signer and withdraw destination. Since the `authority` account is validated using the `Signer` type, we expect the transaction to fail the signer check and return an error.
+Habang nakalagay ang pagtuturo, bumalik sa test file para subukan ang `secure_withdraw` na pagtuturo. Gawin ang tagubiling `secure_withdraw`, gamit muli ang pampublikong key ng `wallet` bilang `authority` account at ang keypair ng `withdrawDestinationFake` bilang ang pumirma at destinasyon ng withdraw. Dahil na-validate ang `authority` account gamit ang uri ng `Signer`, inaasahan naming mabibigo ang transaksyon sa checker check at magbabalik ng error.
 
 ```tsx
 describe("signer-authorization", () => {
@@ -441,20 +441,20 @@ describe("signer-authorization", () => {
 })
 ```
 
-Run `anchor test` to see that the transaction will now return a signature verification error.
+Patakbuhin ang `anchor test` upang makita na ang transaksyon ay magbabalik na ngayon ng signature verification error.
 
 ```bash
 Error: Signature verification failed
 ```
 
-That’s it! This is a fairly simple thing to avoid, but incredibly important. Make sure to always think through who should who should be authorizing instructions and make sure that each is a signer on the transaction.
+Ayan yun! Ito ay isang medyo simpleng bagay na dapat iwasan, ngunit hindi kapani-paniwalang mahalaga. Siguraduhing palaging pag-isipan kung sino ang dapat na magpapahintulot sa mga tagubilin at tiyaking ang bawat isa ay lumagda sa transaksyon.
 
-If you want to take a look at the final solution code you can find it on the `solution` branch of [the repository](https://github.com/Unboxed-Software/solana-signer-auth/tree/solution).
+Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [imbakan](https://github.com/Unboxed-Software/solana-signer-auth/tree/solution) .
 
-# Challenge
+# Hamon
 
-At this point in the course, we hope you've started to work on programs and projects outside the Demos and Challenges provided in these lessons. For this and the remainder of the lessons on security vulnerabilities, the Challenge for each lesson will be to audit your own code for the security vulnerability discussed in the lesson. 
+Sa puntong ito ng kurso, umaasa kaming nagsimula kang gumawa ng mga programa at proyekto sa labas ng Mga Demo at Hamon na ibinigay sa mga araling ito. Para dito at sa natitirang mga aralin tungkol sa mga kahinaan sa seguridad, ang Hamon para sa bawat aralin ay ang pag-audit ng sarili mong code para sa kahinaan sa seguridad na tinalakay sa aralin.
 
-Alternatively, you can find open source programs to audit. There are plenty of programs you can look at. A good start if you don't mind diving into native Rust would be the [SPL programs](https://github.com/solana-labs/solana-program-library).
+Bilang kahalili, maaari kang makahanap ng mga open source na programa upang i-audit. Maraming mga programa ang maaari mong tingnan. Ang isang magandang simula kung hindi mo iniisip ang pagsisid sa katutubong Rust ay ang [mga programa ng SPL](https://github.com/solana-labs/solana-program-library).
 
-So for this lesson, take a look at a program (whether yours or one you've found online) and audit it for signer checks. If you find a bug in somebody else's program, please alert them! If you find a bug in your own program, be sure to patch it right away.
+Kaya para sa araling ito, tingnan ang isang programa (sa iyo man o isa na nahanap mo online) at i-audit ito para sa mga tseke ng lumagda. Kung makakita ka ng bug sa programa ng ibang tao, mangyaring alertuhan sila! Kung makakita ka ng bug sa sarili mong program, siguraduhing i-patch ito kaagad.

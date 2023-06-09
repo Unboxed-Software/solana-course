@@ -9,35 +9,35 @@ objectives:
 
 # TL;DR
 
-- Anchor provides a simplified way to create CPIs using a **`CpiContext`**
-- Anchor's **`cpi`** feature generates CPI helper functions for invoking instructions on existing Anchor programs
-- If you do not have access to CPI helper functions, you can still use `invoke` and `invoke_signed` directly
-- The **`error_code`** attribute macro is used to create custom Anchor Errors
+- Nagbibigay ang Anchor ng pinasimpleng paraan upang lumikha ng mga CPI gamit ang isang **`CpiContext`**
+- Ang tampok na **`cpi`** ng Anchor ay bumubuo ng mga function ng katulong ng CPI para sa paggamit ng mga tagubilin sa mga umiiral na Anchor program
+- Kung wala kang access sa mga function ng helper ng CPI, maaari mo pa ring gamitin ang `invoke` at `invoke_signed` nang direkta
+- Ginagamit ang **`error_code`** attribute macro para gumawa ng custom na Anchor Error
 
-# Overview
+# Pangkalahatang-ideya
 
-If you think back to the [first CPI lesson](cpi.md), you'll remember that constructing CPIs can get tricky with vanilla Rust. Anchor makes it a bit simpler though, especially if the program you're invoking is also an Anchor program whose crate you can access.
+Kung iisipin mo ang [unang CPI lesson](cpi.md), maaalala mo na ang paggawa ng mga CPI ay maaaring maging mahirap gamit ang vanilla Rust. Ang Anchor ay ginagawa itong medyo mas simple, lalo na kung ang program na iyong ini-invoke ay isa ring Anchor program na ang crate ay maa-access mo.
 
-In this lesson, you'll learn how to construct an Anchor CPI. You'll also learn how to throw custom errors from an Anchor program so that you can start to write more sophisticated Anchor programs.
+Sa araling ito, matututunan mo kung paano bumuo ng Anchor CPI. Matututuhan mo rin kung paano magtapon ng mga custom na error mula sa isang Anchor program para makapagsimula kang magsulat ng mas sopistikadong mga Anchor program.
 
 ## Cross Program Invocations (CPIs) with Anchor
 
-As a refresher, CPIs allow programs to invoke instructions on other programs using the `invoke` or `invoke_signed` functions. This allows new programs to build on top of existing programs (we call that composability).
+Bilang isang refresher, pinapayagan ng mga CPI ang mga program na mag-invoke ng mga tagubilin sa iba pang mga program gamit ang mga function na `invoke` o `invoke_signed`. Binibigyang-daan nito ang mga bagong programa na bumuo sa ibabaw ng mga kasalukuyang programa (tinatawag namin na composability).
 
-While making CPIs directly using `invoke` or `invoke_signed` is still an option, Anchor also provides a simplified way to make CPIs by using a `CpiContext`.
+Habang ang paggawa ng mga CPI nang direkta gamit ang `invoke` o `invoke_signed` ay isa pa ring opsyon, nagbibigay din ang Anchor ng pinasimpleng paraan upang gumawa ng mga CPI sa pamamagitan ng paggamit ng `CpiContext`.
 
-In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token Program. You can explore what's available in the `anchor_spl` crate [here](https://docs.rs/anchor-spl/latest/anchor_spl/#).
+Sa araling ito, gagamitin mo ang `anchor_spl` crate upang gumawa ng mga CPI sa SPL Token Program. Maaari mong tuklasin kung ano ang available sa `anchor_spl` crate [dito](https://docs.rs/anchor-spl/latest/anchor_spl/#).
 
 ### `CpiContext`
 
-The first step in making a CPI is to create an instance of `CpiContext`. `CpiContext` is very similar to `Context`, the first argument type required by Anchor instruction functions. They are both declared in the same module and share similar functionality.
+Ang unang hakbang sa paggawa ng CPI ay gumawa ng instance ng `CpiContext`. Ang `CpiContext` ay halos kapareho sa `Context`, ang unang uri ng argumento na kinakailangan ng mga function ng Anchor instruction. Pareho silang idineklara sa parehong module at nagbabahagi ng magkatulad na pag-andar.
 
-The `CpiContext` type specifies non-argument inputs for cross program invocations:
+Ang uri ng `CpiContext` ay tumutukoy sa mga input na hindi argumento para sa mga cross program invocations:
 
-- `accounts` - the list of accounts required for the instruction being invoked
-- `remaining_accounts` - any remaining accounts
-- `program` - the program ID of the program being invoked
-- `signer_seeds` - if a PDA is signing, include the seeds required to derived the PDA
+- `accounts` - ang listahan ng mga account na kinakailangan para sa pagtuturo na ginagamit
+- `remaining_accounts` - anumang natitirang account
+- `program` - ang program ID ng program na ini-invoke
+- `signer_seeds` - kung ang isang PDA ay pumipirma, isama ang mga buto na kinakailangan upang makuha ang PDA
 
 ```rust
 pub struct CpiContext<'a, 'b, 'c, 'info, T>
@@ -51,7 +51,7 @@ where
 }
 ```
 
-You use `CpiContext::new` to construct a new instance when passing along the original transaction signature.
+Gumagamit ka ng `CpiContext::new` upang bumuo ng bagong instance kapag nagpapasa sa orihinal na lagda ng transaksyon.
 
 ```rust
 CpiContext::new(cpi_program, cpi_accounts)
@@ -71,7 +71,7 @@ pub fn new(
 }
 ```
 
-You use `CpiContext::new_with_signer` to construct a new instance when signing on behalf of a PDA for the CPI.
+Gumagamit ka ng `CpiContext::new_with_signer` upang bumuo ng bagong instance kapag pumirma sa ngalan ng isang PDA para sa CPI.
 
 ```rust
 CpiContext::new_with_signer(cpi_program, cpi_accounts, seeds)
@@ -100,22 +100,30 @@ These traits are added by the `#[derive(Accounts)]` attribute macro that you've 
 
 This helps with code organization and type safety.
 
-### Invoke an instruction on another Anchor program
+### CPI account
 
-When the program you're calling is an Anchor program with a published crate, Anchor can generate instruction builders and CPI helper functions for you.
+Isa sa mga pangunahing bagay tungkol sa `CpiContext` na nagpapasimple sa mga cross-program na invocation ay ang argumento ng `accounts` ay isang generic na uri na nagbibigay-daan sa iyong ipasa ang anumang bagay na gumagamit ng `ToAccountMetas` at `ToAccountInfos<'info>` na mga katangian.
 
-Simply declare your program's dependency on the program you're calling in your program's `Cargo.toml` file as follows:
+Ang mga katangiang ito ay idinaragdag ng `#[derive(Accounts)]` na attribute na macro na ginamit mo noon noong gumagawa ng mga struct upang kumatawan sa mga account ng pagtuturo. Nangangahulugan iyon na maaari kang gumamit ng mga katulad na struct na may `CpiContext`.
+
+Nakakatulong ito sa organisasyon ng code at kaligtasan ng uri.
+
+### Magpatawag ng pagtuturo sa isa pang Anchor program
+
+Kapag ang program na tinatawagan mo ay isang Anchor program na may naka-publish na crate, maaaring bumuo ang Anchor ng mga tagabuo ng pagtuturo at mga function ng CPI helper para sa iyo.
+
+Ipahayag lang ang dependency ng iyong program sa program na tinatawagan mo sa `Cargo.toml` file ng iyong program gaya ng sumusunod:
 
 ```
 [dependencies]
 callee = { path = "../callee", features = ["cpi"]}
 ```
 
-By adding `features = ["cpi"]`, you enable the `cpi` feature and your program gains access to the `callee::cpi` module.
+Sa pamamagitan ng pagdaragdag ng `features = ["cpi"]`, pinagana mo ang feature na `cpi` at ang iyong program ay magkakaroon ng access sa `callee::cpi` module.
 
-The `cpi` module exposes `callee`'s instructions as a Rust function that takes as arguments a `CpiContext` and any additional instruction data. These functions use the same format as the instruction functions in your Anchor programs, only with `CpiContext` instead of `Context`. The `cpi` module also exposes the accounts structs required for calling the instructions.
+Inilalantad ng module ng `cpi` ang mga tagubilin ng `callee` bilang isang Rust function na kumukuha bilang argumento ng `CpiContext` at anumang karagdagang data ng pagtuturo. Gumagamit ang mga function na ito ng parehong format gaya ng mga function ng pagtuturo sa iyong mga Anchor program, gamit lang ang `CpiContext` sa halip na `Context`. Inilalantad din ng module na `cpi` ang mga istruktura ng account na kinakailangan para sa pagtawag sa mga tagubilin.
 
-For example, if `callee` has the instruction `do_something` that requires the accounts defined in the `DoSomething` struct, you could invoke `do_something` as follows:
+Halimbawa, kung ang `callee` ay may tagubiling `do_something` na nangangailangan ng mga account na tinukoy sa `DoSomething` struct, maaari mong i-invoke ang `do_something` gaya ng sumusunod:
 
 ```rust
 use anchor_lang::prelude::*;
@@ -141,11 +149,11 @@ pub mod lootbox_program {
 ...
 ```
 
-### Invoke an instruction on a non-Anchor program
+### Magpatawag ng pagtuturo sa isang programang hindi Anchor
 
-When the program you're calling is *not* an Anchor program, there are two possible options:
+Kapag ang program na iyong tinatawagan ay *hindi* isang Anchor program, mayroong dalawang posibleng opsyon:
 
-1. It's possible that the program maintainers have published a crate with their own helper functions for calling into their program. For example, the `anchor_spl` crate provides helper functions that are virtually identical from a call-site perspective to what you would get with the `cpi` module of an Anchor program. E.g. you can mint using the [`mint_to` helper function](https://docs.rs/anchor-spl/latest/src/anchor_spl/token.rs.html#36-58) and use the [`MintTo` accounts struct](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.MintTo.html).
+1. Posible na ang mga tagapangasiwa ng programa ay nag-publish ng isang crate na may sarili nilang mga function ng helper para sa pagtawag sa kanilang programa. Halimbawa, ang `anchor_spl` crate ay nagbibigay ng mga function ng helper na halos magkapareho mula sa pananaw ng call-site sa kung ano ang makukuha mo gamit ang `cpi` module ng isang Anchor program. Hal. maaari kang mag-mint gamit ang [`mint_to` helper function](https://docs.rs/anchor-spl/latest/src/anchor_spl/token.rs.html#36-58) at gamitin ang [`MintTo` accounts struct ](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.MintTo.html).
     ```rust
     token::mint_to(
         CpiContext::new_with_signer(
@@ -163,7 +171,7 @@ When the program you're calling is *not* an Anchor program, there are two possib
         amount,
     )?;
     ```
-2. If there is no helper module for the program whose instruction(s) you need to invoke, you can fall back to using `invoke` and `invoke_signed`. In fact, the source code of the `mint_to` helper function referenced above shows an example us using `invoke_signed` when given a `CpiContext`. You can follow a similar pattern if you decide to use an accounts struct and `CpiContext` to organize and prepare your CPI.
+2. Kung walang helper module para sa program na ang (mga) tagubilin ay kailangan mong i-invoke, maaari kang bumalik sa paggamit ng `invoke` at `invoke_signed`. Sa katunayan, ang source code ng `mint_to` helper function na isinangguni sa itaas ay nagpapakita ng halimbawa sa amin gamit ang `invoke_signed` kapag binigyan ng `CpiContext`. Maaari mong sundin ang isang katulad na pattern kung magpasya kang gumamit ng isang account struct at `CpiContext` upang ayusin at ihanda ang iyong CPI.
     ```rust
     pub fn mint_to<'a, 'b, 'c, 'info>(
         ctx: CpiContext<'a, 'b, 'c, 'info, MintTo<'info>>,
@@ -190,15 +198,15 @@ When the program you're calling is *not* an Anchor program, there are two possib
     }
     ```
 
-## Throw errors in Anchor
+## Magtapon ng mga error sa Anchor
 
-We're deep enough into Anchor at this point that it's important to know how to create custom errors.
+Malalim na kami sa Anchor sa puntong ito na mahalagang malaman kung paano gumawa ng mga custom na error.
 
-Ultimately, all programs return the same error type: [`ProgramError`](https://docs.rs/solana-program/latest/solana_program/program_error/enum.ProgramError.html). However, when writing a program using Anchor you can use `AnchorError` as an abstraction on top of `ProgramError`. This abstraction provides additional information when a program fails, including:
+Sa huli, ibinabalik ng lahat ng program ang parehong uri ng error: [`ProgramError`](https://docs.rs/solana-program/latest/solana_program/program_error/enum.ProgramError.html). Gayunpaman, kapag nagsusulat ng isang programa gamit ang Anchor maaari mong gamitin ang `AnchorError` bilang abstraction sa ibabaw ng `ProgramError`. Ang abstraction na ito ay nagbibigay ng karagdagang impormasyon kapag nabigo ang isang programa, kabilang ang:
 
-- The error name and number
-- Location in the code where the error was thrown
-- The account that violated a constraint
+- Ang pangalan at numero ng error
+- Lokasyon sa code kung saan itinapon ang error
+- Ang account na lumabag sa isang hadlang
 
 ```rust
 pub struct AnchorError {
@@ -210,12 +218,12 @@ pub struct AnchorError {
 }
 ```
 
-Anchor Errors can be divided into:
+Ang mga Anchor Error ay maaaring nahahati sa:
 
-- Anchor Internal Errors that the framework returns from inside its own code
-- Custom errors that you the developer can create
+- Anchor Internal Error na ibinabalik ng framework mula sa loob ng sarili nitong code
+- Mga custom na error na maaaring gawin ng developer
 
-You can add errors unique to your program by using the `error_code` attribute. Simply add this attribute to a custom `enum` type. You can then use the variants of the `enum` as errors in your program. Additionally, you can add an error message to each variant using the `msg` attribute. Clients can then display this error message if the error occurs.
+Maaari kang magdagdag ng mga error na natatangi sa iyong program sa pamamagitan ng paggamit ng attribute na `error_code`. Idagdag lang ang attribute na ito sa isang custom na uri ng `enum`. Pagkatapos ay maaari mong gamitin ang mga variant ng `enum` bilang mga error sa iyong program. Bukod pa rito, maaari kang magdagdag ng mensahe ng error sa bawat variant gamit ang attribute na `msg`. Maaaring ipakita ng mga kliyente ang mensahe ng error na ito kung nangyari ang error.
 
 ```rust
 #[error_code]
@@ -225,7 +233,7 @@ pub enum MyError {
 }
 ```
 
-To return a custom error you can use the [err](https://docs.rs/anchor-lang/latest/anchor_lang/macro.err.html) or the [error](https://docs.rs/anchor-lang/latest/anchor_lang/prelude/macro.error.html) macro from an instruction function. These add file and line information to the error that is then logged by Anchor to help you with debugging.
+Upang magbalik ng custom na error, maaari mong gamitin ang [err](https://docs.rs/anchor-lang/latest/anchor_lang/macro.err.html) o ang [error](https://docs.rs/anchor -lang/latest/anchor_lang/prelude/macro.error.html) macro mula sa isang function ng pagtuturo. Ang mga ito ay nagdaragdag ng impormasyon ng file at linya sa error na pagkatapos ay nila-log ng Anchor upang matulungan ka sa pag-debug.
 
 ```rust
 #[program]
@@ -247,7 +255,7 @@ pub enum MyError {
 }
 ```
 
-Alternatively, you can use the [require](https://docs.rs/anchor-lang/latest/anchor_lang/macro.require.html) macro to simplify returning errors. The code above can be refactored to the following:
+Bilang kahalili, maaari mong gamitin ang [require](https://docs.rs/anchor-lang/latest/anchor_lang/macro.require.html) macro para pasimplehin ang mga bumabalik na error. Ang code sa itaas ay maaaring i-refactor sa sumusunod:
 
 ```rust
 #[program]
@@ -273,13 +281,19 @@ Let’s practice the concepts we’ve gone over in this lesson by building on to
 
 In this demo we’ll update the program to mint tokens to users when they submit a new movie review.
 
-### 1. Starter
+# Demo
 
-To get started, we will be using the final state of the Anchor Movie Review program from the previous lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can download the starter code [here](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas). We'll be using the `solution-pdas` branch as our starting point.
+Sanayin natin ang mga konseptong napag-usapan natin sa araling ito sa pamamagitan ng pagbuo sa ibabaw ng programa ng Pagsusuri ng Pelikula mula sa mga nakaraang aralin.
 
-### 2. Add dependencies to `Cargo.toml`
+Sa demo na ito, ia-update namin ang program para mag-mint ng mga token sa mga user kapag nagsumite sila ng bagong review ng pelikula.
 
-Before we get started we need enable the `init-if-needed` feature and add the `anchor-spl` crate to the dependencies in `Cargo.toml`. If you need to brush up on the `init-if-needed` feature take a look at the [Anchor PDAs and Accounts lesson](anchor-pdas.md).
+### 1. Panimula
+
+Upang makapagsimula, gagamitin natin ang huling estado ng programa ng Anchor Movie Review mula sa nakaraang aralin. Kaya, kung kakatapos mo lang ng araling iyon, handa ka nang umalis. Kung tumatalon ka lang dito, huwag mag-alala, maaari mong i-download ang starter code [dito](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas). Gagamitin namin ang `solution-pdas` branch bilang aming panimulang punto.
+
+### 2. Magdagdag ng mga dependency sa `Cargo.toml`
+
+Bago tayo magsimula, kailangan nating paganahin ang feature na `init-if-needed` at idagdag ang `anchor-spl` crate sa mga dependency sa `Cargo.toml`. Kung kailangan mong pag-aralan ang feature na `init-if-needed`, tingnan ang [Anchor PDAs and Accounts lesson](anchor-pdas.md).
 
 ```rust
 [dependencies]
@@ -287,9 +301,9 @@ anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
 anchor-spl = "0.25.0"
 ```
 
-### 3. Initialize reward token
+### 3. Magsimula ng reward token
 
-Next, navigate to `lib.rs` and create an instruction to initialize a new token mint. This will be the token that is minted each time a user leaves a review. Note that we don't need to include any custom instruction logic since the initialization can be handled entirely through Anchor constraints.
+Susunod, mag-navigate sa `lib.rs` at gumawa ng tagubilin para makapagsimula ng bagong token mint. Ito ang magiging token na mined sa tuwing ang isang user ay umalis ng isang review. Tandaan na hindi namin kailangang isama ang anumang custom na lohika ng pagtuturo dahil ang pagsisimula ay maaaring ganap na mahawakan sa pamamagitan ng mga hadlang sa Anchor.
 
 ```rust
 pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
@@ -298,9 +312,9 @@ pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
 }
 ```
 
-Now, implement the `InitializeMint` context type and list the accounts and constraints the instruction requires. Here we initialize a new `Mint` account using a PDA with the string "mint" as a seed. Note that we can use the same PDA for both the address of the `Mint` account and the mint authority. Using a PDA as the mint authority enables our program to sign for the minting of the tokens.
+Ngayon, ipatupad ang uri ng konteksto na `InitializeMint` at ilista ang mga account at mga hadlang na kinakailangan ng pagtuturo. Dito namin sinisimulan ang isang bagong `Mint` account gamit ang isang PDA na may string na "mint" bilang isang binhi. Tandaan na maaari naming gamitin ang parehong PDA para sa parehong address ng `Mint` account at ang awtoridad ng mint. Ang paggamit ng PDA bilang awtoridad ng mint ay nagbibigay-daan sa aming programa na mag-sign para sa pag-minting ng mga token.
 
-In order to initialize the `Mint` account, we'll need to include the `token_program`, `rent`, and `system_program` in the list of accounts.
+Upang masimulan ang `Mint` account, kakailanganin naming isama ang `token_program`, `rent`, at `system_program` sa listahan ng mga account.
 
 ```rust
 #[derive(Accounts)]
@@ -322,11 +336,11 @@ pub struct InitializeMint<'info> {
 }
 ```
 
-There may be some constraints above that you haven't seen yet. Adding `mint::decimals` and `mint::authority` along with `init` ensures that the account is initialized as a new token mint with the appropriate decimals and mint authority set.
+Maaaring may ilang mga hadlang sa itaas na hindi mo pa nakikita. Ang pagdaragdag ng `mint::decimals` at `mint::authority` kasama ng `init` ay nagsisiguro na ang account ay masisimulan bilang isang bagong token mint na may naaangkop na mga decimal at mint authority set.
 
 ### 4. Anchor Error
 
-Next, let’s create an Anchor Error that we’ll use when validating the `rating` passed to either the `add_movie_review` or `update_movie_review` instruction.
+Susunod, gumawa tayo ng Anchor Error na gagamitin natin kapag pinapatunayan ang `rating` na ipinasa sa alinman sa `add_movie_review` o `update_movie_review` na pagtuturo.
 
 ```rust
 #[error_code]
@@ -336,17 +350,17 @@ enum MovieReviewError {
 }
 ```
 
-### 5. Update `add_movie_review` instruction
+### 5. I-update ang pagtuturo ng `add_movie_review`
 
-Now that we've done some setup, let’s update the `add_movie_review` instruction and `AddMovieReview` context type to mint tokens to the reviewer.
+Ngayong nakagawa na tayo ng ilang setup, i-update natin ang pagtuturo ng `add_movie_review` at uri ng konteksto ng `AddMovieReview` upang mag-mint ng mga token sa reviewer.
 
-Next, update the `AddMovieReview` context type to add the following accounts:
+Susunod, i-update ang uri ng konteksto ng `AddMovieReview` upang idagdag ang mga sumusunod na account:
 
-- `token_program` - we'll be using the Token Program to mint tokens
-- `mint` - the mint account for the tokens that we'll mint to users when they add a movie review
-- `token_account` - the associated token account for the afforementioned `mint` and reviewer
-- `associated_token_program` - required because we'll be using the `associated_token` constraint on the `token_account`
-- `rent` - required because we are using the `init-if-needed` constraint on the `token_account`
+- `token_program` - gagamitin namin ang Token Program para mag-mint ng mga token
+- `mint` - ang mint account para sa mga token na ibibigay namin sa mga user kapag nagdagdag sila ng review ng pelikula
+- `token_account` - ang nauugnay na token account para sa nabanggit na `mint` at reviewer
+- `associated_token_program` - kinakailangan dahil gagamitin namin ang `associated_token` constraint sa `token_account`
+- `rent` - kailangan dahil ginagamit namin ang `init-if-needed` constraint sa `token_account`
 
 ```rust
 #[derive(Accounts)]
@@ -383,14 +397,14 @@ pub struct AddMovieReview<'info> {
 }
 ```
 
-Again, some of the above constraints may be unfamiliar to you. The `associated_token::mint` and `associated_token::authority` constraints along with the `init_if_needed` constraint ensures that if the account has not already been initialized, it will be initialized as an associated token account for the specified mint and authority.
+Muli, ang ilan sa mga hadlang sa itaas ay maaaring hindi pamilyar sa iyo. Ang `associated_token::mint` at `associated_token::authority` na mga hadlang kasama ang `init_if_needed` constraint ay nagsisiguro na kung ang account ay hindi pa nasisimulan, ito ay pasisimulan bilang isang nauugnay na token account para sa tinukoy na mint at awtoridad.
 
-Next, let’s update the `add_movie_review` instruction to do the following:
+Susunod, i-update natin ang tagubiling `add_movie_review` para gawin ang sumusunod:
 
-- Check that `rating` is valid. If it is not a valid rating, return the `InvalidRating` error.
-- Make a CPI to the token program’s `mint_to` instruction using the mint authority PDA as a signer. Note that we'll mint 10 tokens to the user but need to adjust for the mint decimals by making it `10*10^6`.
+- Suriin na ang `rating` ay wasto. Kung ito ay hindi wastong rating, ibalik ang `InvalidRating` na error.
+- Gumawa ng CPI sa pagtuturo ng `mint_to` ng token program gamit ang mint authority PDA bilang isang pumirma. Tandaan na gagawa kami ng 10 token sa user ngunit kailangan naming mag-adjust para sa mint decimal sa pamamagitan ng paggawa nitong `10*10^6`.
 
-Fortunately, we can use the `anchor_spl` crate to access helper functions and types like `mint_to` and `MintTo` for constructing our CPI to the Token Program. `mint_to` takes a `CpiContext` and integer as arguments, where the integer represents the number of tokens to mint. `MintTo` can be used for the list of accounts that the mint instruction needs.
+Sa kabutihang palad, maaari naming gamitin ang `anchor_spl` crate upang ma-access ang mga function at uri ng helper tulad ng `mint_to` at `MintTo` para sa pagbuo ng aming CPI sa Token Program. Ang `mint_to` ay kumukuha ng `CpiContext` at integer bilang mga argumento, kung saan kinakatawan ng integer ang bilang ng mga token na gagawin. Maaaring gamitin ang `MintTo` para sa listahan ng mga account na kailangan ng pagtuturo ng mint.
 
 ```rust
 pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description: String, rating: u8) -> Result<()> {
@@ -429,9 +443,9 @@ pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description
 }
 ```
 
-### 6. Update `update_movie_review` instruction
+### 6. I-update ang tagubilin sa `update_movie_review`
 
-Here we are only adding the check that `rating` is valid.
+Dito ay idinaragdag lamang namin ang tseke na ang `rating` ay wasto.
 
 ```rust
 pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, description: String, rating: u8) -> Result<()> {
@@ -450,11 +464,11 @@ pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, descr
 }
 ```
 
-### 7. Test
+### 7. Pagsubok
 
-Those are all of the changes we need to make to the program! Now, let’s update our tests.
+Iyan ang lahat ng mga pagbabagong kailangan nating gawin sa programa! Ngayon, i-update natin ang aming mga pagsubok.
 
-Start by making sure your imports nad `describe` function look like this:
+Magsimula sa pamamagitan ng pagtiyak na ganito ang hitsura ng iyong pag-import nad `describe` function:
 
 ```ts
 import * as anchor from "@project-serum/anchor"
@@ -490,7 +504,7 @@ describe("anchor-movie-review-program", () => {
 }
 ```
 
-With that done, add a test for the `initializeTokenMint` instruction:
+Kapag tapos na iyon, magdagdag ng pagsubok para sa pagtuturo ng `initializeTokenMint`:
 
 ```ts
 it("Initializes the reward token", async () => {
@@ -498,11 +512,11 @@ it("Initializes the reward token", async () => {
 })
 ```
 
-Notice that we didn't have to add `.accounts` because they call be inferred, including the `mint` account (assuming you have seed inference enabled).
+Pansinin na hindi namin kinailangang magdagdag ng `.accounts` dahil ang tawag nila ay inferred, kasama ang `mint` account (ipagpalagay na pinagana mo ang seed inference).
 
-Next, update the test for the `addMovieReview` instruction. The primary additions are:
-1. To get the associated token address that needs to be passed into the instruction as an account that cannot be inferred
-2. Check at the end of the test that the associated token account has 10 tokens
+Susunod, i-update ang pagsubok para sa pagtuturo ng `addMovieReview`. Ang mga pangunahing karagdagan ay:
+1. Upang makuha ang nauugnay na token address na kailangang maipasa sa pagtuturo bilang isang account na hindi mahihinuha
+2. Tingnan sa dulo ng pagsubok na ang nauugnay na token account ay may 10 token
 
 ```ts
 it("Movie review is added`", async () => {
@@ -529,9 +543,9 @@ it("Movie review is added`", async () => {
 })
 ```
 
-After that, neither the test for `updateMovieReview` nor the test for `deleteMovieReview` need any changes.
+Pagkatapos noon, hindi na kailangan ng pagsubok para sa `updateMovieReview` o ang pagsubok para sa `deleteMovieReview` ng anumang mga pagbabago.
 
-At this point, run `anchor test` and you should see the following output
+Sa puntong ito, patakbuhin ang `anchor test` at dapat mong makita ang sumusunod na output
 
 ```console
 anchor-movie-review-program
@@ -543,10 +557,10 @@ anchor-movie-review-program
   5 passing (2s)
 ```
 
-If you need more time with the concepts from this lesson or got stuck along the way, feel free to take a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
+Kung kailangan mo ng mas maraming oras sa mga konsepto mula sa araling ito o natigil ka, huwag mag-atubiling tingnan ang [code ng solusyon](https://github.com/Unboxed-Software/anchor-movie-review-program /tree/solution-add-tokens). Tandaan na ang solusyon sa demo na ito ay nasa `solution-add-tokens` branch.
 
-# Challenge
+# Hamon
 
-To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves.
+Upang mailapat ang iyong natutunan tungkol sa mga CPI sa araling ito, pag-isipan kung paano mo maaaring isama ang mga ito sa programa ng Student Intro. Maaari kang gumawa ng isang bagay na katulad ng ginawa namin sa demo dito at magdagdag ng ilang functionality sa mga mint token sa mga user kapag ipinakilala nila ang kanilang mga sarili.
 
-Try to do this independently if you can! But if you get stuck, feel free to reference this [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge). Note that your code may look slightly different than the solution code depending on your implementation.
+Subukang gawin ito nang nakapag-iisa kung kaya mo! Ngunit kung natigil ka, huwag mag-atubiling i-reference itong [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge). Tandaan na maaaring bahagyang iba ang hitsura ng iyong code kaysa sa code ng solusyon depende sa iyong pagpapatupad.

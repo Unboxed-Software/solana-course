@@ -9,41 +9,41 @@ objectives:
 
 # TL;DR
 
--   **Versioned Transactions** refers to a way to support both legacy versions and newer versions of transaction formats. The original transaction format is "legacy" and new transaction versions start at version 0. Versioned transactions were implemented in order to support the use of Address Lookup Tables (also called lookup tables or LUTs).
--   **Address Lookup Tables** are accounts used to store addresses of other accounts, which can then be referenced in versioned transactions using a 1 byte index instead of the full 32 bytes per address. This enables the creation of more complex transactions than what was possible prior to the introduction of LUTs.
+- **Mga Bersyon na Transaksyon** ay tumutukoy sa isang paraan upang suportahan ang parehong mga legacy na bersyon at mas bagong bersyon ng mga format ng transaksyon. Ang orihinal na format ng transaksyon ay "legacy" at ang mga bagong bersyon ng transaksyon ay nagsisimula sa bersyon 0. Ipinatupad ang mga bersyong transaksyon upang suportahan ang paggamit ng Address Lookup Tables (tinatawag ding lookup table o LUTs).
+- **Mga Talaan ng Paghahanap ng Address** ay mga account na ginagamit upang mag-imbak ng mga address ng iba pang mga account, na maaaring i-reference sa mga may bersyong transaksyon gamit ang isang 1 byte na index sa halip na ang buong 32 byte bawat address. Ito ay nagbibigay-daan sa paglikha ng mas kumplikadong mga transaksyon kaysa sa kung ano ang posible bago ang pagpapakilala ng mga LUT.
 
-# Overview
+# Pangkalahatang-ideya
 
-By design, Solana transactions are limited to 1232 bytes. Transactions exceeding this size will fail. While this enables a number of network optimizations, it can also limit the types of atomic operations that can be performed on the network.
+Sa disenyo, ang mga transaksyon sa Solana ay limitado sa 1232 bytes. Mabibigo ang mga transaksyong lalampas sa laki na ito. Bagama't pinapagana nito ang isang bilang ng mga pag-optimize ng network, maaari din nitong limitahan ang mga uri ng mga pagpapatakbong atomic na maaaring gawin sa network.
 
-To help get around the transaction size limitation, Solana released a new transaction format that allows support for multiple versions of transaction formats. At the time of writing, Solana supports two transaction versions:
+Upang makatulong na makayanan ang limitasyon sa laki ng transaksyon, naglabas si Solana ng bagong format ng transaksyon na nagbibigay-daan sa suporta para sa maraming bersyon ng mga format ng transaksyon. Sa oras ng pagsulat, sinusuportahan ng Solana ang dalawang bersyon ng transaksyon:
 
-1. `legacy` - the original transaction format
-2. `0` - the newest transaction format that includes support for Address Lookup Tables
+1. `legacy` - ang orihinal na format ng transaksyon
+2. `0` - ang pinakabagong format ng transaksyon na may kasamang suporta para sa Address Lookup Tables
 
-Versioned transactions don't require any modifications to existing Solana programs, but any client-side code created prior to the release of versioned transactions should be updated. In this lesson, we'll cover the basics of versioned transactions and how to use them, including:
+Ang mga may bersyong transaksyon ay hindi nangangailangan ng anumang mga pagbabago sa mga umiiral nang Solana program, ngunit dapat na ma-update ang anumang client-side code na ginawa bago ang paglabas ng mga bersyong transaksyon. Sa araling ito, sasaklawin natin ang mga pangunahing kaalaman ng mga may bersyong transaksyon at kung paano gamitin ang mga ito, kabilang ang:
 
--   Creating versioned transactions
--   Creating and managing lookup tables
--   Using lookup tables in versioned transactions
+- Paglikha ng mga bersyong transaksyon
+- Paglikha at pamamahala ng mga lookup table
+- Paggamit ng mga lookup table sa mga may bersyong transaksyon
 
-## Versioned Transactions
+## Mga Bersyon na Transaksyon
 
-One of the items taking up the most space Solana transactions is the inclusion of full account addresses. At 32 bytes each, 39 accounts will render a transaction too large. That's not even accounting for instruction data. In practice, most transactions will be too large with around 20 accounts.
+Isa sa mga item na kumukuha ng pinakamaraming espasyo sa mga transaksyon sa Solana ay ang pagsasama ng buong address ng account. Sa 32 bytes bawat isa, 39 na account ang magre-render ng isang transaksyon na masyadong malaki. Hindi iyon kahit na accounting para sa data ng pagtuturo. Sa pagsasagawa, karamihan sa mga transaksyon ay magiging masyadong malaki na may humigit-kumulang 20 account.
 
-Solana released versioned transactions in order to support multiple transaction formats. Alongside the release of versioned transactions, Solana released version 0 of transactions to support Address Lookup Tables. Lookup tables are separate accounts that store account addresses and then allow them to be referenced in a transaction using a 1 byte index. This significantly decreases the size of a transaction since each included account now only needs to use 1 byte instead of 32 bytes.
+Naglabas si Solana ng mga bersyong transaksyon upang suportahan ang maraming format ng transaksyon. Kasabay ng paglabas ng mga bersyong transaksyon, inilabas ni Solana ang bersyon 0 ng mga transaksyon upang suportahan ang Mga Talaan ng Paghahanap ng Address. Ang mga lookup table ay mga hiwalay na account na nag-iimbak ng mga address ng account at pagkatapos ay nagbibigay-daan sa mga ito na ma-reference sa isang transaksyon gamit ang isang 1 byte na index. Ito ay makabuluhang binabawasan ang laki ng isang transaksyon dahil ang bawat kasamang account ay kailangan na lang gumamit ng 1 byte sa halip na 32 byte.
 
-Even if you don't need to use lookup tables, you'll need to know how to support versioned transactions in your client-side code. Fortunately, everything you need to work with versioned transactions and lookup tables is included in the `@solana/web3.js` library.
+Kahit na hindi mo kailangang gumamit ng mga lookup table, kakailanganin mong malaman kung paano suportahan ang mga naka-bersyon na transaksyon sa iyong client-side code. Sa kabutihang palad, lahat ng kailangan mo para magtrabaho sa mga may bersyong transaksyon at lookup table ay kasama sa `@solana/web3.js` library.
 
-### Create versioned transaction
+### Lumikha ng bersyong transaksyon
 
-To create a versioned transaction, you simply create a `TransactionMessage` with the following parameters:
+Para gumawa ng may bersyon na transaksyon, gagawa ka lang ng `TransactionMessage` na may mga sumusunod na parameter:
 
--   `payerKey` - the public key of the account that will pay for the transaction
--   `recentBlockhash` - a recent blockhash from the network
--   `instructions` - the instructions to include in the transaction
+- `payerKey` - ang pampublikong key ng account na magbabayad para sa transaksyon
+- `recentBlockhash` - isang kamakailang blockhash mula sa network
+- `mga tagubilin` - ang mga tagubilin na isasama sa transaksyon
 
-You then transform this message object into a version `0` transaction using the `compileToV0Message()` method.
+Pagkatapos ay gagawin mong bersyong `0` na transaksyon ang object ng mensaheng ito gamit ang paraan ng `compileToV0Message()`.
 
 ```ts
 import * as web3 from "@solana/web3.js";
@@ -68,7 +68,7 @@ const message = new web3.TransactionMessage({
 }).compileToV0Message();
 ```
 
-Finally, you pass the compiled message into `VersionedTransaction` constructor to create a new versioned transaction. Your code can then sign and send the transaction to the network, similar to a legacy transaction.
+Sa wakas, ipapasa mo ang pinagsama-samang mensahe sa `VersionedTransaction` constructor upang lumikha ng bagong bersyon na transaksyon. Pagkatapos ay maaaring lagdaan at ipadala ng iyong code ang transaksyon sa network, katulad ng isang legacy na transaksyon.
 
 ```ts
 // Create the versioned transaction using the message
@@ -81,29 +81,29 @@ transaction.sign([payer]);
 const transactionSignature = await connection.sendTransaction(transaction);
 ```
 
-## Address Lookup Table
+## Talahanayan ng Paghahanap ng Address
 
-Address Lookup Tables (also called lookup tables or LUTs) are accounts that store a lookup table of other account addresses. These LUT accounts are owned by the Address Lookup Table Program and are used to increase the number of accounts that can be included in a single transaction.
+Ang Address Lookup Tables (tinatawag ding lookup tables o LUTs) ay mga account na nag-iimbak ng lookup table ng iba pang mga address ng account. Ang mga LUT account na ito ay pagmamay-ari ng Address Lookup Table Program at ginagamit upang madagdagan ang bilang ng mga account na maaaring isama sa isang transaksyon.
 
-Versioned transactions can include the address of an LUT account and then reference additional accounts with a 1-byte index instead of including the full address of those accounts. This significantly reduces the amount of space used for referencing accounts in a transaction.
+Maaaring kasama sa mga bersyong transaksyon ang address ng isang LUT account at pagkatapos ay sumangguni sa mga karagdagang account na may 1-byte na index sa halip na isama ang buong address ng mga account na iyon. Ito ay makabuluhang binabawasan ang dami ng espasyong ginagamit para sa pagtukoy ng mga account sa isang transaksyon.
 
-To simplify the process of working with LUTs, the `@solana/web3.js` library includes an `AddressLookupTableProgram` class which provides a set of methods to create instructions for managing LUTs. These methods include:
+Upang pasimplehin ang proseso ng pagtatrabaho sa mga LUT, ang library ng `@solana/web3.js` ay may kasamang klase ng `AddressLookupTableProgram` na nagbibigay ng isang hanay ng mga pamamaraan upang lumikha ng mga tagubilin para sa pamamahala ng mga LUT. Kasama sa mga pamamaraang ito ang:
 
--   `createLookupTable` - creates a new LUT account
--   `freezeLookupTable` - makes an existing LUT immutable
--   `extendLookupTable` - adds addresses to an existing LUT
--   `deactivateLookupTable` - puts an LUT in a “deactivation” period before it can be closed
--   `closeLookupTable` - permanently closes an LUT account
+- `createLookupTable` - lumilikha ng bagong LUT account
+- `freezeLookupTable` - ginagawang hindi nababago ang isang umiiral na LUT
+- `extendLookupTable` - nagdaragdag ng mga address sa isang umiiral nang LUT
+- `deactivateLookupTable` - naglalagay ng LUT sa panahon ng “deactivation” bago ito maisara
+- `closeLookupTable` - permanenteng isinasara ang isang LUT account
 
-### Create a lookup table
+### Gumawa ng lookup table
 
-You use the `createLookupTable` method to construct the instruction that creates a lookup table. The function requires the following parameters:
+Ginagamit mo ang paraan ng `createLookupTable` upang bumuo ng pagtuturo na lumilikha ng lookup table. Ang function ay nangangailangan ng mga sumusunod na parameter:
 
--   `authority` - the account that will have permission to modify the lookup table
--   `payer` - the account that will pay for the account creation
--   `recentSlot` - a recent slot to derive the lookup table's address
+- `authority` - ang account na magkakaroon ng pahintulot na baguhin ang lookup table
+- `payer` - ang account na magbabayad para sa paggawa ng account
+- `recentSlot` - isang kamakailang puwang upang makuha ang address ng lookup table
 
-The function returns both the instruction to create the lookup table and the address of the lookup table.
+Ibinabalik ng function ang parehong pagtuturo upang lumikha ng lookup table at ang address ng lookup table.
 
 ```ts
 // Get the current slot
@@ -119,7 +119,7 @@ const [lookupTableInst, lookupTableAddress] =
     });
 ```
 
-Under the hood, the lookup table address is simply a PDA derived using the `authority` and `recentSlot` as seeds.
+Sa ilalim ng hood, ang lookup table address ay isang PDA na hinango lamang gamit ang `authority` at `recentSlot` bilang seeds.
 
 ```ts
 const [lookupTableAddress, bumpSeed] = PublicKey.findProgramAddressSync(
@@ -128,7 +128,7 @@ const [lookupTableAddress, bumpSeed] = PublicKey.findProgramAddressSync(
 );
 ```
 
-Note that using the most recent slot sometimes results in an error after sending the transaction. To avoid this, you can use a slot that is one slot prior the most recent one (e.g. `recentSlot: slot - 1`). However, if you still encounter an error when sending the transaction, you can try resending the transaction.
+Tandaan na ang paggamit ng pinakabagong slot ay minsan nagreresulta sa isang error pagkatapos ipadala ang transaksyon. Upang maiwasan ito, maaari kang gumamit ng slot na isang slot bago ang pinakabago (hal. `recentSlot: slot - 1`). Gayunpaman, kung nakatagpo ka pa rin ng isang error sa pagpapadala ng transaksyon, maaari mong subukang ipadala muli ang transaksyon.
 
 ```
 "Program AddressLookupTab1e1111111111111111111111111 invoke [1]",
@@ -136,16 +136,16 @@ Note that using the most recent slot sometimes results in an error after sending
 "Program AddressLookupTab1e1111111111111111111111111 failed: invalid instruction data";
 ```
 
-### Extend a lookup table
+### Mag-extend ng lookup table
 
-You use the `extendLookupTable` method to create an instruction that adds addresses to an existing lookup table. It takes the following parameters:
+Ginagamit mo ang paraan ng `extendLookupTable` upang lumikha ng isang pagtuturo na nagdaragdag ng mga address sa isang kasalukuyang lookup table. Kinakailangan ang mga sumusunod na parameter:
 
--   `payer` - the account that will pay for the transaction fees and any increased rent
--   `authority` - the account that has permission to change the lookup table
--   `lookupTable` - the address of the lookup table to extend
--   `addresses` - the addresses to add to the lookup table
+- `payer` - ang account na magbabayad para sa mga bayarin sa transaksyon at anumang tumaas na upa
+- `authority` - ang account na may pahintulot na baguhin ang lookup table
+- `lookupTable` - ang address ng lookup table na palawigin
+- `address` - ang mga address na idaragdag sa lookup table
 
-The function returns an instruction to extend the lookup table.
+Ang function ay nagbabalik ng isang tagubilin upang i-extend ang lookup table.
 
 ```ts
 const addresses = [
@@ -163,11 +163,11 @@ const extendInstruction = web3.AddressLookupTableProgram.extendLookupTable({
 });
 ```
 
-Note that when extending a lookup table, the number of addresses that can be added in one instruction is limited by the transaction size limit, which is 1232 bytes. This means you can add 30 addresses to a lookup table at a time. If you need to add more than that, you'll need to send multiple transactions. Each lookup table can store a maximum of 256 addresses.
+Tandaan na kapag nagpapalawak ng lookup table, ang bilang ng mga address na maaaring idagdag sa isang pagtuturo ay nililimitahan ng limitasyon sa laki ng transaksyon, na 1232 bytes. Nangangahulugan ito na maaari kang magdagdag ng 30 address sa isang lookup table sa isang pagkakataon. Kung kailangan mong magdagdag ng higit pa riyan, kakailanganin mong magpadala ng maraming transaksyon. Ang bawat lookup table ay maaaring mag-imbak ng maximum na 256 na mga address.
 
-### Send Transaction
+### Magpadala ng Transaksyon
 
-After creating the instructions, you can add them to a transaction and sent to the network.
+Pagkatapos gawin ang mga tagubilin, maaari mong idagdag ang mga ito sa isang transaksyon at ipadala sa network.
 
 ```ts
 // Get the latest blockhash
@@ -190,22 +190,22 @@ transaction.sign([payer]);
 const transactionSignature = await connection.sendTransaction(transaction);
 ```
 
-Note that when you first create or extend a lookup table or when, it needs to "warm up" for one slot before the LUT or new addresses can be used in transactions. In other words, you can only use a lookup tables and access addresses that were added prior to the current slot.
+Tandaan na noong una kang gumawa o nag-extend ng lookup table o kung kailan, kailangan nitong "magpainit" para sa isang slot bago magamit ang LUT o mga bagong address sa mga transaksyon. Sa madaling salita, maaari ka lamang gumamit ng mga lookup table at access address na idinagdag bago ang kasalukuyang slot.
 
 ```ts
 SendTransactionError: failed to send transaction: invalid transaction: Transaction address table lookup uses an invalid index
 ```
 
-If you encounter the error above or are unable to access addresses in a lookup table immediately after extending it, it's likely because you're attempting to access the lookup table or a specific address prior to the end of the warm up period. To avoid this issue, add a delay after extending the lookup table before sending a transaction that references the table.
+Kung nakatagpo ka ng error sa itaas o hindi ma-access ang mga address sa isang lookup table kaagad pagkatapos itong palawigin, ito ay malamang dahil sinusubukan mong i-access ang lookup table o isang partikular na address bago matapos ang panahon ng warm up. Upang maiwasan ang isyung ito, magdagdag ng pagkaantala pagkatapos palawigin ang lookup table bago magpadala ng transaksyon na tumutukoy sa talahanayan.
 
-### Deactivate a lookup table
+### I-deactivate ang isang lookup table
 
-When an lookup table is no longer needed, you can deactivate and close it to reclaim its rent balance. Address lookup tables can be deactivated at any time, but they can continue to be used by transactions until a specified "deactivation" slot is no longer "recent". This "cool-down" period ensures that in-flight transactions can't be censored by LUTs being closed and recreated in the same slot. The deactivation period is approximately 513 slots.
+Kapag hindi na kailangan ng lookup table, maaari mo itong i-deactivate at isara para mabawi ang balanse nito sa upa. Maaaring i-deactivate ang mga talahanayan ng paghahanap ng address anumang oras, ngunit maaari silang patuloy na gamitin ng mga transaksyon hanggang sa hindi na "recent" ang isang tinukoy na "deactivation" slot. Tinitiyak ng "cool-down" na panahon na ito na ang mga in-flight na transaksyon ay hindi ma-censor ng mga LUT na isinara at muling ginawa sa parehong slot. Ang panahon ng pag-deactivate ay humigit-kumulang 513 na mga puwang.
 
-To deactivate an LUT, use the `deactivateLookupTable` method and pass in the following parameters:
+Upang i-deactivate ang isang LUT, gamitin ang paraan ng `deactivateLookupTable` at ipasa ang mga sumusunod na parameter:
 
--   `lookupTable` - the address of the LUT to be deactivated
--   `authority` - the account with permission to deactivate the LUT
+- `lookupTable` - ang address ng LUT na ide-deactivate
+- `authority` - ang account na may pahintulot na i-deactivate ang LUT
 
 ```ts
 const deactivateInstruction =
@@ -215,13 +215,13 @@ const deactivateInstruction =
     });
 ```
 
-### Close a lookup table
+### Magsara ng lookup table
 
-To close a lookup table after its deactivation period, use the `closeLookupTable` method. This method creates an instruction to close a deactivated lookup table and reclaim its rent balance. It takes the following parameters:
+Upang isara ang lookup table pagkatapos ng panahon ng pag-deactivate nito, gamitin ang `closeLookupTable` na paraan. Lumilikha ang paraang ito ng tagubilin upang isara ang isang na-deactivate na lookup table at bawiin ang balanse nito sa upa. Kinakailangan ang mga sumusunod na parameter:
 
--   `lookupTable` - the address of the LUT to be closed
--   `authority` - the account with permission to close the LUT
--   `recipient` - the account that will receive the reclaimed rent balance
+- `lookupTable` - ang address ng LUT na isasara
+- `authority` - ang account na may pahintulot na isara ang LUT
+- `recipient` - ang account na tatanggap ng na-reclaim na balanse sa upa
 
 ```ts
 const closeInstruction = web3.AddressLookupTableProgram.closeLookupTable({
@@ -231,7 +231,7 @@ const closeInstruction = web3.AddressLookupTableProgram.closeLookupTable({
 });
 ```
 
-Attempting to close a lookup table before it's been fully deactivated will result in an error.
+Ang pagtatangkang isara ang isang lookup table bago ito ganap na na-deactivate ay magreresulta sa isang error.
 
 ```
 "Program AddressLookupTab1e1111111111111111111111111 invoke [1]",
@@ -239,14 +239,14 @@ Attempting to close a lookup table before it's been fully deactivated will resul
 "Program AddressLookupTab1e1111111111111111111111111 failed: invalid program argument";
 ```
 
-### Freeze a lookup table
+### I-freeze ang lookup table
 
-In addition to standard CRUD operations, you can "freeze" a lookup table. This makes it immutable so that it can no longer be extended, deactivated, or closed.
+Bilang karagdagan sa mga karaniwang pagpapatakbo ng CRUD, maaari mong "i-freeze" ang isang lookup table. Ginagawa nitong hindi nababago upang hindi na ito ma-extend, ma-deactivate, o maisara.
 
-You freeze a lookup table with the `freezeLookupTable` method. It takes the following parameters:
+Nag-freeze ka ng lookup table gamit ang `freezeLookupTable` na paraan. Kinakailangan ang mga sumusunod na parameter:
 
--   `lookupTable` - the address of the LUT to be frozen
--   `authority` - the account with permission to freeze the LUT
+- `lookupTable` - ang address ng LUT na ipi-freeze
+- `authority` - ang account na may pahintulot na i-freeze ang LUT
 
 ```ts
 const freezeInstruction = web3.AddressLookupTableProgram.freezeLookupTable({
@@ -255,7 +255,7 @@ const freezeInstruction = web3.AddressLookupTableProgram.freezeLookupTable({
 });
 ```
 
-Once an LUT is frozen, any further attempts to modify it will result in an error.
+Kapag na-freeze ang isang LUT, magreresulta sa error ang anumang karagdagang pagtatangka na baguhin ito.
 
 ```
 "Program AddressLookupTab1e1111111111111111111111111 invoke [1]",
@@ -263,9 +263,9 @@ Once an LUT is frozen, any further attempts to modify it will result in an error
 "Program AddressLookupTab1e1111111111111111111111111 failed: Account is immutable";
 ```
 
-### Using lookup tables in versioned transactions
+### Paggamit ng mga lookup table sa mga bersyong transaksyon
 
-To use a lookup table in a versioned transaction, you need to retrieve the lookup table account using its address.
+Upang gumamit ng lookup table sa isang bersyong transaksyon, kailangan mong kunin ang lookup table account gamit ang address nito.
 
 ```ts
 const lookupTableAccount = (
@@ -273,7 +273,7 @@ const lookupTableAccount = (
 ).value;
 ```
 
-You can then create a list of instructions to include in a transaction as usual. When creating the `TransactionMessage`, you can include any lookup table accounts by passing them as an array to the `compileToV0Message()` method. You can also provide multiple lookup table accounts.
+Pagkatapos ay maaari kang lumikha ng isang listahan ng mga tagubilin na isasama sa isang transaksyon gaya ng dati. Kapag gumagawa ng `TransactionMessage`, maaari mong isama ang anumang lookup table account sa pamamagitan ng pagpasa sa mga ito bilang array sa `compileToV0Message()` na paraan. Maaari ka ring magbigay ng maramihang lookup table account.
 
 ```ts
 const message = new web3.TransactionMessage({
@@ -294,19 +294,19 @@ const transactionSignature = await connection.sendTransaction(transaction);
 
 # Demo
 
-Let's go ahead and practice using lookup tables!
+Sige at magsanay tayo gamit ang mga lookup table!
 
-This demo will guide you through the steps of creating, extending, and then using a lookup table in a versioned transaction.
+Gagabayan ka ng demo na ito sa mga hakbang ng paggawa, pagpapalawak, at pagkatapos ay paggamit ng lookup table sa isang may bersyong transaksyon.
 
-### 1. Get the starter code
+### 1. Kunin ang starter code
 
-To begin, download the starter code from the starter branch of this [repository](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/starter). Once you have the starter code, run `npm install` in the terminal to install the required dependencies.
+Upang magsimula, i-download ang starter code mula sa starter branch nitong [repository](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/starter). Kapag mayroon ka na ng starter code, patakbuhin ang `npm install` sa terminal para i-install ang mga kinakailangang dependencies.
 
-The starter code includes an example of creating a legacy transaction that intends to atomically transfer SOL to 22 recipients. The transaction contains 22 instructions where each instruction transfers SOL from the signer to a different recipient.
+Kasama sa starter code ang isang halimbawa ng paggawa ng isang legacy na transaksyon na naglalayong ilipat ang SOL sa atomically sa 22 na tatanggap. Ang transaksyon ay naglalaman ng 22 mga tagubilin kung saan ang bawat tagubilin ay naglilipat ng SOL mula sa pumirma patungo sa ibang tatanggap.
 
-The purpose of the starter code is to illustrate the limitation on the number of addresses that can be included in a legacy transaction. The transaction built in the starter code is expected to fail when sent.
+Ang layunin ng starter code ay upang ilarawan ang limitasyon sa bilang ng mga address na maaaring isama sa isang legacy na transaksyon. Ang transaksyon na binuo sa starter code ay inaasahang mabibigo kapag ipinadala.
 
-The following starter code can be found in the `index.ts` file.
+Ang sumusunod na starter code ay matatagpuan sa `index.ts` file.
 
 ```typescript
 import { initializeKeypair } from "./initializeKeypair";
@@ -362,7 +362,7 @@ async function main() {
 }
 ```
 
-To execute the code, run `npm start`. This will create a new keypair, write it to the `.env` file, airdrop devnet SOL to the keypair, and send the transaction built in the starter code. The transaction is expected to fail with the error message `Transaction too large`.
+Upang isagawa ang code, patakbuhin ang `npm start`. Gagawa ito ng bagong keypair, isusulat ito sa `.env` na file, airdrop devnet SOL sa keypair, at ipapadala ang transaksyong binuo sa starter code. Ang transaksyon ay inaasahang mabibigo sa mensahe ng error na `Masyadong malaki ang transaksyon.`
 
 ```
 Creating .env file
@@ -373,9 +373,9 @@ PublicKey: 5ZZzcDbabFHmoZU8vm3VzRzN5sSQhkf91VJzHAJGNM7B
 Error: Transaction too large: 1244 > 1232
 ```
 
-In the next steps, we'll go over how to use lookup tables with versioned transactions to increase the number of addresses that can be included in a single transaction.
+Sa mga susunod na hakbang, tatalakayin natin kung paano gamitin ang mga lookup table na may mga bersyong transaksyon upang madagdagan ang bilang ng mga address na maaaring isama sa isang transaksyon.
 
-Before we start, go ahead and delete the content of the `main` function to leave only the following:
+Bago tayo magsimula, magpatuloy at tanggalin ang nilalaman ng `pangunahing` function upang iwan lamang ang sumusunod:
 
 ```ts
 async function main() {
@@ -394,20 +394,20 @@ async function main() {
 }
 ```
 
-### 2. Create a `sendV0Transaction` helper function
+### 2. Gumawa ng `sendV0Transaction` helper function
 
-We'll be sending multiple "version 0" transactions, so let's create a helper function to facilitate this.
+Magpapadala kami ng maramihang "bersyon 0" na mga transaksyon, kaya gumawa tayo ng function ng helper upang mapadali ito.
 
-This function should take parameters for a connection, a user's keypair, an array of transaction instructions, and an optional array of lookup table accounts.
+Ang function na ito ay dapat kumuha ng mga parameter para sa isang koneksyon, keypair ng isang user, isang hanay ng mga tagubilin sa transaksyon, at isang opsyonal na hanay ng mga lookup table account.
 
-The function then performs the following tasks:
+Ang function ay pagkatapos ay nagsasagawa ng mga sumusunod na gawain:
 
--   Retrieves the latest blockhash and last valid block height from the Solana network
--   Creates a new transaction message using the provided instructions
--   Signs the transaction using the user's keypair
--   Sends the transaction to the Solana network
--   Confirms the transaction
--   Logs the transaction URL on the Solana Explorer
+- Kinukuha ang pinakabagong blockhash at huling wastong taas ng block mula sa network ng Solana
+- Lumilikha ng bagong mensahe ng transaksyon gamit ang ibinigay na mga tagubilin
+- Pinirmahan ang transaksyon gamit ang keypair ng user
+- Ipinapadala ang transaksyon sa network ng Solana
+- Kinukumpirma ang transaksyon
+- Nila-log ang URL ng transaksyon sa Solana Explorer
 
 ```ts
 async function sendV0Transaction(
@@ -453,11 +453,11 @@ async function sendV0Transaction(
 }
 ```
 
-### 3. Create a `waitForNewBlock` helper function
+### 3. Gumawa ng `waitForNewBlock` helper function
 
-Recall that lookup tables and the addresses contained in them can't be referenced immediately after creation or extension. This means we'll end up needing to wait for a new block before submitting transactions that reference the newly created or extended lookup table. To make this simpler down the road, let's create a `waitForNewBlock` helper function that we'll use to wait for lookup tables to activate between sending transactions.
+Tandaan na ang mga lookup table at ang mga address na nakapaloob sa mga ito ay hindi maaaring i-reference kaagad pagkatapos gawin o extension. Nangangahulugan ito na kakailanganin naming maghintay para sa isang bagong bloke bago magsumite ng mga transaksyon na tumutukoy sa bagong likha o pinalawig na talahanayan ng paghahanap. Upang gawing mas simple ito sa hinaharap, gumawa tayo ng `waitForNewBlock` helper function na gagamitin namin upang hintayin ang mga lookup table na ma-activate sa pagitan ng pagpapadala ng mga transaksyon.
 
-This function will have parameters for a connection and a target block height. It then starts an interval that checks the current block height of the network every 1000ms. Once the new block height exceeds the target height, the interval is cleared and the promise is resolved.
+Ang function na ito ay magkakaroon ng mga parameter para sa isang koneksyon at isang target na taas ng block. Pagkatapos ay magsisimula ito ng agwat na sumusuri sa kasalukuyang taas ng block ng network tuwing 1000ms. Kapag lumampas na sa target na taas ang bagong block height, ang agwat ay iki-clear at ang pangako ay naresolba.
 
 ```ts
 function waitForNewBlock(connection: web3.Connection, targetHeight: number) {
@@ -484,15 +484,15 @@ function waitForNewBlock(connection: web3.Connection, targetHeight: number) {
 }
 ```
 
-### 4. Create an `initializeLookupTable` function
+### 4. Gumawa ng function na `initializeLookupTable`
 
-Now that we have some helper functions ready to go, declare a function named `initializeLookupTable`. This function has parameters `user`, `connection`, and `addresses`. The function will:
+Ngayong mayroon na kaming ilang function ng helper na handa nang gamitin, magdeklara ng function na pinangalanang `initializeLookupTable`. Ang function na ito ay may mga parameter na `user`, `connection`, at `address`. Ang function ay:
 
-1. Retrieve the current slot
-2. Generate an instruction for creating a lookup table
-3. Generate an instruction for extending the lookup table with the provided addresses
-4. Send and confirm a transaction with the instructions for creating and extending the lookup table
-5. Return the address of the lookup table
+1. Kunin ang kasalukuyang slot
+2. Bumuo ng tagubilin para sa paggawa ng lookup table
+3. Bumuo ng isang tagubilin para sa pagpapalawak ng lookup table na may ibinigay na mga address
+4. Magpadala at kumpirmahin ang isang transaksyon na may mga tagubilin para sa paggawa at pagpapahaba ng lookup table
+5. Ibalik ang address ng lookup table
 
 ```ts
 async function initializeLookupTable(
@@ -530,15 +530,15 @@ async function initializeLookupTable(
 }
 ```
 
-### 5. Modify `main` to use lookup tables
+### 5. Baguhin ang `pangunahing` upang magamit ang mga talahanayan ng paghahanap
 
-Now that we can initialize a lookup table with all of the recipients' addresses, let's update `main` to use versioned transactions and lookup tables. We'll need to:
+Ngayon na maaari na nating simulan ang isang lookup table kasama ang lahat ng address ng mga tatanggap, i-update natin ang `main` upang gumamit ng mga bersyon na transaksyon at lookup table. Kakailanganin nating:
 
-1. Call `initializeLookupTable`
-2. Call `waitForNewBlock`
-3. Get the lookup table using `connection.getAddressLookupTable`
-4. Create the transfer instruction for each recipient
-5. Send the v0 transaction with all of the transfer instructions
+1. Tawagan ang `initializeLookupTable`
+2. Tawagan ang `waitForNewBlock`
+3. Kunin ang lookup table gamit ang `connection.getAddressLookupTable`
+4. Lumikha ng pagtuturo sa paglipat para sa bawat tatanggap
+5. Ipadala ang v0 na transaksyon kasama ang lahat ng mga tagubilin sa paglipat
 
 ```ts
 async function main() {
@@ -585,9 +585,9 @@ async function main() {
 }
 ```
 
-Notice that you create the transfer instructions with the full recipient address even though we created a lookup table. That's because by including the lookup table in the versioned transaction, you tell the `web3.js` framework to replace any recipient addresses that match addresses in the lookup table with pointers to the lookup table instead. By the time the transaction is sent to the network, addresses that exist in the lookup table will be referenced by a single byte rather than the full 32 bytes.
+Pansinin na gagawa ka ng mga tagubilin sa paglipat gamit ang buong address ng tatanggap kahit na gumawa kami ng lookup table. Iyon ay dahil sa pagsasama ng lookup table sa may bersyong transaksyon, sasabihin mo sa `web3.js` framework na palitan ang anumang mga address ng tatanggap na tumutugma sa mga address sa lookup table na may mga pointer sa lookup table sa halip. Sa oras na maipadala ang transaksyon sa network, ang mga address na umiiral sa lookup table ay ire-reference ng isang byte kaysa sa buong 32 byte.
 
-Use `npm start` in the command line to execute the `main` function. You should see output similar to the following:
+Gamitin ang `npm start` sa command line para isagawa ang `main` function. Dapat mong makita ang output na katulad ng sumusunod:
 
 ```bash
 Current balance is 1.38866636
@@ -599,18 +599,18 @@ https://explorer.solana.com/tx/rgpmxGU4QaAXw9eyqfMUqv8Lp6LHTuTyjQqDXpeFcu1ijQMmC
 Finished successfully
 ```
 
-The first transaction link in the console represents the transaction for creating and extending the lookup table. The second transaction represents the transfers to all recipients. Feel free to inspect these transactions in the explorer.
+Ang unang link ng transaksyon sa console ay kumakatawan sa transaksyon para sa paggawa at pagpapahaba ng lookup table. Ang pangalawang transaksyon ay kumakatawan sa mga paglilipat sa lahat ng mga tatanggap. Huwag mag-atubiling suriin ang mga transaksyong ito sa explorer.
 
-Remember, this same transaction was failing when you first downloaded the starter code. Now that we're using lookup tables, we can do all 22 transfers in a single transaction.
+Tandaan, ang parehong transaksyon ay nabigo noong una mong na-download ang starter code. Ngayon na gumagamit na kami ng mga lookup table, magagawa namin ang lahat ng 22 paglilipat sa isang transaksyon.
 
-### 6. Add more address to the lookup table
+### 6. Magdagdag ng higit pang address sa lookup table
 
-Keep in mind that the solution we've come up with so far only supports transfers to up to 30 accounts since we only extend the lookup table once. When you factor in the transfer instruction size, it's actually possible to extend the lookup table with an additional 27 addresses and complete an atomic transfer to up to 57 recipients. Let's go ahead and add support for this now!
+Tandaan na ang solusyon na naisip namin sa ngayon ay sumusuporta lamang sa mga paglilipat sa hanggang 30 account dahil isang beses lang namin pinalawig ang lookup table. Kapag isinaalang-alang mo ang laki ng pagtuturo sa paglilipat, talagang posible na palawigin ang talahanayan ng paghahanap na may karagdagang 27 address at kumpletuhin ang isang atomic na paglipat sa hanggang 57 na tatanggap. Sige at magdagdag tayo ng suporta para dito ngayon!
 
-All we need to do is go into `initializeLookupTable` and do two things:
+Ang kailangan lang nating gawin ay pumunta sa `initializeLookupTable` at gawin ang dalawang bagay:
 
-1. Modify the existing call to `extendLookupTable` to only add the first 30 addressess (any more than that and the transaction will be too large)
-2. Add a loop that will keep extending a lookup table 30 addresses at a time until all addresses have been added
+1. Baguhin ang kasalukuyang tawag sa `extendLookupTable` upang idagdag lamang ang unang 30 addressess (higit pa riyan at ang transaksyon ay magiging masyadong malaki)
+2. Magdagdag ng loop na patuloy na magpapalawak ng lookup table 30 address sa isang pagkakataon hanggang sa maidagdag ang lahat ng address
 
 ```ts
 async function initializeLookupTable(
@@ -664,15 +664,15 @@ async function initializeLookupTable(
 }
 ```
 
-Congratulations! If you feel good about this demo, you're probably ready to work with lookup tables and versioned transactions on your own. If you want to take a look at the final solution code you can find it on the solution branch [here](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/solution).
+Binabati kita! Kung maganda ang pakiramdam mo tungkol sa demo na ito, malamang na handa ka nang magtrabaho nang mag-isa sa mga lookup table at may bersyong transaksyon. Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa sangay ng solusyon [dito](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/solution).
 
-# Challenge
+# Hamon
 
-As a challenge, experiment with deactivating, closing and freezing lookup tables. Remember that you need to wait for a lookup table to finish deactivating before you can close it. Also, if a lookup table is frozen, it cannot be modified (deactivated or closed), so you will have to test separately or use separate lookup tables.
+Bilang isang hamon, mag-eksperimento sa pag-deactivate, pagsasara at pagyeyelo ng mga talahanayan ng paghahanap. Tandaan na kailangan mong maghintay para sa isang lookup table na matapos ang pag-deactivate bago mo ito maisara. Gayundin, kung ang isang lookup table ay naka-freeze, hindi ito maaaring baguhin (deactivated o sarado), kaya kailangan mong subukan nang hiwalay o gumamit ng hiwalay na lookup table.
 
-1. Create a function for deactivating the lookup table.
-2. Create a function for closing the lookup table
-3. Create a function for freezing the lookup table
-4. Test the functions by calling them in the `main()` function
+1. Gumawa ng function para sa pag-deactivate ng lookup table.
+2. Gumawa ng function para sa pagsasara ng lookup table
+3. Gumawa ng function para sa pagyeyelo ng lookup table
+4. Subukan ang mga function sa pamamagitan ng pagtawag sa kanila sa `main()` function
 
-You can reuse the functions we created in the demo for sending the transaction and waiting for the lookup table to activate/deactivate. Feel free to reference this [solution code](https://github.com/Unboxed-Software/versioned-transaction/tree/challenge).
+Maaari mong muling gamitin ang mga function na ginawa namin sa demo para sa pagpapadala ng transaksyon at paghihintay para sa lookup table na i-activate/deactivate. Huwag mag-atubiling i-reference ang [solution code](https://github.com/Unboxed-Software/versioned-transaction/tree/challenge).

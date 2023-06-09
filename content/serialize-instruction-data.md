@@ -10,84 +10,84 @@ objectives:
 
 # TL;DR
 
-- Transactions are made up of an array of instructions, a single transaction can have any number of instructions in it, each targeting its own program. When a transaction is submitted, the Solana runtime will process its instructions in order and atomically, meaning that if any of the instructions fail for any reason, the entire transaction will fail to be processed.
-- Every *instruction* is made up of 3 components: the intended program's ID, an array of all account’s involved, and a byte buffer of instruction data.
-- Every *transaction* contains: an array of all accounts it intends to read from or write to, one or more instructions, a recent blockhash, and one or more signatures.
-- In order to pass instruction data from a client, it must be serialized into a byte buffer. To facilitate this process of serialization, we will be using [Borsh](https://borsh.io/).
-- Transactions can fail to be processed by the blockchain for any number of reasons, we’ll discuss some of the most common ones here.
+- Ang mga transaksyon ay binubuo ng isang hanay ng mga tagubilin, ang isang transaksyon ay maaaring magkaroon ng anumang bilang ng mga tagubilin sa loob nito, bawat isa ay nagta-target ng sarili nitong programa. Kapag isinumite ang isang transaksyon, ipoproseso ng Solana runtime ang mga tagubilin nito sa pagkakasunud-sunod at atomically, ibig sabihin, kung mabibigo ang alinman sa mga tagubilin para sa anumang kadahilanan, ang buong transaksyon ay mabibigo na maproseso.
+- Ang bawat *pagtuturo* ay binubuo ng 3 bahagi: ang nilalayong ID ng programa, isang hanay ng lahat ng sangkot na account, at isang byte na buffer ng data ng pagtuturo.
+- Ang bawat *transaksyon* ay naglalaman ng: isang hanay ng lahat ng mga account na nilalayon nitong basahin o sulatan, isa o higit pang mga tagubilin, kamakailang blockhash, at isa o higit pang mga lagda.
+- Upang maipasa ang data ng pagtuturo mula sa isang kliyente, dapat itong i-serialize sa isang byte buffer. Upang mapadali ang prosesong ito ng serialization, gagamitin namin ang [Borsh](https://borsh.io/).
+- Maaaring mabigo ang mga transaksyon na maproseso ng blockchain para sa anumang bilang ng mga kadahilanan, tatalakayin natin ang ilan sa mga pinakakaraniwan dito.
 
-# Overview
+# Pangkalahatang-ideya
 
-## Transactions
+## Mga Transaksyon
 
-Transactions are how we send information to the blockchain in order to be processed. So far, we’ve learned how to create very basic transactions with limited functionality. But transactions, and the programs they are sent to, can be designed to be far more flexible and handle far more complexity than we’ve dealt with up to now.
+Ang mga transaksyon ay kung paano kami nagpapadala ng impormasyon sa blockchain upang maproseso. Sa ngayon, natutunan na namin kung paano gumawa ng mga pangunahing transaksyon na may limitadong functionality. Ngunit ang mga transaksyon, at ang mga program kung saan sila ipinapadala, ay maaaring idisenyo upang maging mas nababaluktot at mapangasiwaan ang mas kumplikado kaysa sa napag-usapan namin hanggang ngayon.
 
-### Transaction Contents
+### Mga Nilalaman ng Transaksyon
 
-Every transaction contains:
+Ang bawat transaksyon ay naglalaman ng:
 
-- An array that includes every account it intends to read from or write to
-- One or more instructions
-- A recent blockhash
-- One or more signatures
+- Isang array na kinabibilangan ng bawat account na nilalayon nitong basahin o sulatan
+- Isa o higit pang mga tagubilin
+- Isang kamakailang blockhash
+- Isa o higit pang mga lagda
 
-`@solana/web3.js` simplifies this process for you so that all you really need to focus on is adding instructions and signatures. The library builds the array of accounts based on that information and handles the logic for including a recent blockhash.
+Pinapasimple ng `@solana/web3.js` ang prosesong ito para sa iyo upang ang talagang kailangan mong pagtuunan ay ang pagdaragdag ng mga tagubilin at pirma. Binubuo ng library ang hanay ng mga account batay sa impormasyong iyon at pinangangasiwaan ang lohika para sa pagsasama ng isang kamakailang blockhash.
 
-## Instructions
+## Mga tagubilin
 
-Every instruction contains:
+Ang bawat tagubilin ay naglalaman ng:
 
-- The program ID (public key) of the intended program
-- An array listing every account that will be read from or written to during execution
-- A byte buffer of instruction data
+- Ang program ID (public key) ng nilalayon na programa
+- Isang array na naglilista ng bawat account na babasahin o isusulat sa panahon ng pagpapatupad
+- Isang byte buffer ng data ng pagtuturo
 
-Identifying the program by its public key ensures that the instruction is carried out by the correct program.
+Ang pagkilala sa programa sa pamamagitan ng pampublikong susi nito ay tumitiyak na ang pagtuturo ay isinasagawa ng tamang programa.
 
-Including an array of every account that will be read from or written to allows the network to perform a number of optimizations which allow for high transaction load and quicker execution.
+Ang pagsasama ng isang hanay ng bawat account na babasahin o isusulat sa nagbibigay-daan sa network na magsagawa ng ilang mga pag-optimize na nagbibigay-daan para sa mataas na pag-load ng transaksyon at mas mabilis na pagpapatupad.
 
-The byte buffer lets you pass external data to a program.
+Hinahayaan ka ng byte buffer na ipasa ang panlabas na data sa isang programa.
 
-You can include multiple instructions in a single transaction. The Solana runtime will process these instructions in order and atomically. In other words, if every instruction succeeds then the transaction as a whole will be successful, but if a single instruction fails then the entire transaction will fail immediately with no side-effects.
+Maaari kang magsama ng maraming tagubilin sa isang transaksyon. Ipoproseso ng Solana runtime ang mga tagubiling ito sa pagkakasunud-sunod at atomically. Sa madaling salita, kung ang bawat tagubilin ay magtagumpay, ang transaksyon sa kabuuan ay magiging matagumpay, ngunit kung ang isang pagtuturo ay nabigo, ang buong transaksyon ay mabibigo kaagad nang walang mga side-effects.
 
-A note on the account array and optimization:
+Isang tala sa hanay ng account at pag-optimize:
 
-It is not just an array of the accounts’ public keys. Each object in the array includes the account’s public key, whether or not it is a signer on the transaction, and whether or not it is writable. Including whether or not an account is writable during the execution of an instruction allows the runtime to facilitate parallel processing of smart contracts. Because you must define which accounts are read-only and which you will write to, the runtime can determine which transactions are non-overlapping or read-only and allow them to execute concurrently. To learn more about the Solana’s runtime, check out this [blog post](https://solana.com/news/sealevel---parallel-processing-thousands-of-smart-contracts).
+Ito ay hindi lamang isang hanay ng mga pampublikong key ng mga account. Kasama sa bawat object sa array ang pampublikong key ng account, lumagda man ito o hindi sa transaksyon, at kung ito ay maisusulat o hindi. Kasama kung maisusulat o hindi ang isang account sa panahon ng pagpapatupad ng isang pagtuturo ay nagbibigay-daan sa runtime na mapadali ang parallel processing ng mga smart contract. Dahil dapat mong tukuyin kung aling mga account ang read-only at kung saan ka susulatan, matutukoy ng runtime kung aling mga transaksyon ang hindi magkakapatong o read-only at payagan ang mga ito na isagawa nang sabay-sabay. Para matuto pa tungkol sa runtime ng Solana, tingnan itong [blog post](https://solana.com/news/sealevel---parallel-processing-thousands-of-smart-contracts).
 
-### Instruction Data
+### Data ng Pagtuturo
 
-The ability to add arbitrary data to an instruction ensures that programs can be dynamic and flexible enough for broad use cases in the same way that the body of an HTTP request lets you build dynamic and flexible REST APIs.
+Ang kakayahang magdagdag ng di-makatwirang data sa isang pagtuturo ay nagsisiguro na ang mga programa ay maaaring maging dynamic at sapat na kakayahang umangkop para sa malawak na mga kaso ng paggamit sa parehong paraan na ang katawan ng isang kahilingan sa HTTP ay nagbibigay-daan sa iyong bumuo ng mga dynamic at flexible na REST API.
 
-Just as the structure of the body of an HTTP request is dependent on the endpoint you intend to call, the structure of the byte buffer used as instruction data is entirely dependent on the recipient program. If you’re building a full-stack dApp on your own, then you’ll need to copy the same structure that you used when building the program over to the client-side code. If you’re working with another developer who is handling the program development, you can coordinate to ensure matching buffer layouts.
+Kung paanong ang istraktura ng katawan ng isang kahilingan sa HTTP ay nakasalalay sa endpoint na balak mong tawagan, ang istraktura ng byte buffer na ginamit bilang data ng pagtuturo ay ganap na nakadepende sa programa ng tatanggap. Kung ikaw ay gumagawa ng isang full-stack na dApp nang mag-isa, pagkatapos ay kakailanganin mong kopyahin ang parehong istraktura na ginamit mo noong pagbuo ng program patungo sa client-side code. Kung nakikipagtulungan ka sa isa pang developer na nangangasiwa sa pagbuo ng program, maaari kang makipag-coordinate para matiyak na tumutugma ang mga buffer layout.
 
-Let’s think about a concrete example. Imagine working on a Web3 game and being responsible for writing client-side code that interacts with a player inventory program. The program was designed to allow the client to:
+Mag-isip tayo ng isang konkretong halimbawa. Isipin na nagtatrabaho sa isang laro sa Web3 at pagiging responsable para sa pagsulat ng client-side code na nakikipag-ugnayan sa isang programa ng imbentaryo ng player. Ang programa ay idinisenyo upang payagan ang kliyente na:
 
-- Add inventory based on a player’s game-play results
-- Transfer inventory from one player to another
-- Equip a player with selected inventory items
+- Magdagdag ng imbentaryo batay sa mga resulta ng laro-play ng isang manlalaro
+- Maglipat ng imbentaryo mula sa isang manlalaro patungo sa isa pa
+- Magbigay ng kasangkapan sa isang manlalaro ng mga napiling item sa imbentaryo
 
-This program would have been structured such that each of these is encapsulated in its own function.
+Ang program na ito ay nakabalangkas sana na ang bawat isa sa mga ito ay naka-encapsulated sa sarili nitong function.
 
-Each program, however, only has one entry point. You would instruct the program on which of these functions to run through the instruction data.
+Ang bawat programa, gayunpaman, ay mayroon lamang isang entry point. Ituturo mo sa programa kung alin sa mga function na ito ang tatakbo sa data ng pagtuturo.
 
-You would also include in the instruction data any information the function needs in order to execute properly, e.g. an inventory item’s ID, a player to transfer inventory to, etc.
+Isasama mo rin sa data ng pagtuturo ang anumang impormasyong kailangan ng function upang maisagawa nang maayos, hal. ID ng isang item ng imbentaryo, isang player na ililipat ng imbentaryo, atbp.
 
-Exactly *how* this data would be structured would depend on how the program was written, but it’s common to have the first field in instruction data be a number that the program can map to a function, after which additional fields act as function arguments.
+Eksakto *paano* ang data na ito ay magiging structured ay depende sa kung paano isinulat ang program, ngunit karaniwan na ang unang field sa data ng pagtuturo ay isang numero na maaaring imapa ng program sa isang function, pagkatapos nito ang mga karagdagang field ay nagsisilbing mga argumento ng function.
 
 ## Serialization
 
-In addition to knowing what information to include in an instruction data buffer, you also need to serialize it properly. The most common serializer used in Solana is [Borsh](https://borsh.io). Per the website:
+Bilang karagdagan sa pag-alam kung anong impormasyon ang isasama sa isang buffer ng data ng pagtuturo, kailangan mo ring i-serialize ito nang maayos. Ang pinakakaraniwang serializer na ginagamit sa Solana ay [Borsh](https://borsh.io). Ayon sa website:
 
-> Borsh stands for Binary Object Representation Serializer for Hashing. It is meant to be used in security-critical projects as it prioritizes consistency, safety, speed; and comes with a strict specification.
+> Ang Borsh ay nangangahulugang Binary Object Representation Serializer para sa Hashing. Ito ay nilalayong gamitin sa mga proyektong kritikal sa seguridad dahil inuuna nito ang pare-pareho, kaligtasan, bilis; at may kasamang mahigpit na detalye.
 
-Borsh maintains a [JS library](https://github.com/near/borsh-js) that handles serializing common types into a buffer. There are also other packages built on top of borsh that try to make this process even easier. We’ll be using the `@project-serum/borsh` library which can be installed using `npm`.
+Ang Borsh ay nagpapanatili ng [JS library](https://github.com/near/borsh-js) na nangangasiwa sa pagse-serialize ng mga karaniwang uri sa isang buffer. Mayroon ding iba pang mga pakete na binuo sa ibabaw ng borsh na sumusubok na gawing mas madali ang prosesong ito. Gagamitin namin ang library na `@project-serum/borsh` na maaaring i-install gamit ang `npm`.
 
-Building off of the previous game inventory example, let’s look at a hypothetical scenario where we are instructing the program to equip a player with a given item. Assume the program is designed to accept a buffer that represents a struct with the following properties:
+Mula sa nakaraang halimbawa ng imbentaryo ng laro, tingnan natin ang isang hypothetical na senaryo kung saan itinuturo natin ang programa na magbigay ng kasangkapan sa isang manlalaro ng isang partikular na item. Ipagpalagay na ang programa ay idinisenyo upang tanggapin ang isang buffer na kumakatawan sa isang struct na may mga sumusunod na katangian:
 
-1. `variant` as an unsigned, 8-bit integer that instructs the program which instruction, or function, to execute.
-2. `playerId` as an unsigned, 16-bit integer that represents the player ID of the player who is to be equipped with the given item.
-3. `itemId` as an unsigned, 256-bit integer that represents the item ID of the item that will be equipped to the given player.
+1. `variant` bilang isang unsigned, 8-bit integer na nagtuturo sa program kung aling pagtuturo, o function, ang isasagawa.
+2. `playerId` bilang isang unsigned, 16-bit integer na kumakatawan sa player ID ng player na gagamitin sa ibinigay na item.
+3. `itemId` bilang isang unsigned, 256-bit integer na kumakatawan sa item ID ng item na gagamitin sa ibinigay na player.
 
-All of this will be passed as a byte buffer that will be read in order, so ensuring proper buffer layout order is crucial. You would create the buffer layout schema or template for the above as follows:
+Ang lahat ng ito ay ipapasa bilang isang byte buffer na babasahin sa pagkakasunud-sunod, kaya ang pagtiyak ng wastong pagkakasunud-sunod ng buffer layout ay napakahalaga. Gagawa ka ng buffer layout schema o template para sa itaas tulad ng sumusunod:
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -99,7 +99,7 @@ const equipPlayerSchema = borsh.struct([
 ])
 ```
 
-You can then encode data using this schema with the `encode` method. This method accepts as arguments an object representing the data to be serialized and a buffer. In the below example, we allocate a new buffer that’s much larger than needed, then encode the data into that buffer and slice it down into a new buffer that’s only as large as needed.
+Pagkatapos ay maaari mong i-encode ang data gamit ang schema na ito gamit ang paraan ng `encode`. Ang pamamaraang ito ay tumatanggap bilang mga argumento ng isang bagay na kumakatawan sa data na isa-serialize at isang buffer. Sa halimbawa sa ibaba, naglalaan kami ng bagong buffer na mas malaki kaysa sa kailangan, pagkatapos ay i-encode ang data sa buffer na iyon at i-slice ito sa isang bagong buffer na kasing laki lang kung kinakailangan.
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -116,12 +116,12 @@ equipPlayerSchema.encode({ variant: 2, playerId: 1435, itemId: 737498 }, buffer)
 const instructionBuffer = buffer.slice(0, equipPlayerSchema.getSpan(buffer))
 ```
 
-Once a buffer is properly created and the data serialized, all that’s left is building the transaction. This is similar to what you’ve done in previous lessons. The example below assumes that:
+Kapag maayos nang nagawa ang isang buffer at na-serialize ang data, ang natitira na lang ay ang pagbuo ng transaksyon. Ito ay katulad ng ginawa mo sa mga nakaraang aralin. Ipinapalagay ng halimbawa sa ibaba na:
 
-- `player`, `playerInfoAccount`, and `PROGRAM_ID` are already defined somewhere outside the code snippet
-- `player` is a user’s public key
-- `playerInfoAccount` is the public key of the account where inventory changes will be written
-- `SystemProgram` will be used in the process of executing the instruction.
+- Ang `player`, `playerInfoAccount`, at `PROGRAM_ID` ay natukoy na sa isang lugar sa labas ng code snippet
+- Ang `player` ay pampublikong key ng isang user
+- Ang `playerInfoAccount` ay ang pampublikong susi ng account kung saan isusulat ang mga pagbabago sa imbentaryo
+- Gagamitin ang `SystemProgram` sa proseso ng pagsasagawa ng pagtuturo.
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -173,30 +173,30 @@ web3.sendAndConfirmTransaction(connection, transaction, [player]).then((txid) =>
 
 # Demo
 
-Let’s practice this together by building a Movie Review app that lets users submit a movie review and have it stored on Solana’s network. We’ll build this app a little bit at a time over the next few lessons, adding new functionality each lesson.
+Sanayin natin ito nang sama-sama sa pamamagitan ng pagbuo ng Movie Review app na nagbibigay-daan sa mga user na magsumite ng review ng pelikula at i-store ito sa network ni Solana. Bubuo kami ng app na ito nang paunti-unti sa susunod na ilang mga aralin, na nagdaragdag ng bagong functionality sa bawat aralin.
 
-![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
+![Screenshot ng frontend ng pagsusuri ng pelikula](../assets/movie-reviews-frontend.png)
 
-The public key of the Solana program we’ll use for this application is `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
+Ang pampublikong susi ng programang Solana na gagamitin namin para sa application na ito ay `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
-### 1. Download the starter code
+### 1. I-download ang starter code
 
-Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/starter).
+Bago tayo magsimula, magpatuloy at i-download ang [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/starter).
 
-The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson, a `Card` component for displaying a movie review, a `MovieList` component that displays reviews in a list, a `Form` component for submitting a new review, and a `Movie.ts` file that contains a class definition for a `Movie` object.
+Ang proyekto ay isang medyo simpleng Next.js application. Kabilang dito ang `WalletContextProvider` na ginawa namin sa aralin sa Wallets, isang bahagi ng `Card` para sa pagpapakita ng pagsusuri sa pelikula, isang bahagi ng `MovieList` na nagpapakita ng mga review sa isang listahan, isang bahagi ng `Form` para sa pagsusumite ng bagong review, at isang ` Movie.ts` file na naglalaman ng kahulugan ng klase para sa object na `Movie`.
 
-Note that for now, the movies displayed on the page when you run `npm run dev` are mocks. In this lesson, we’ll focus on adding a new review but we won’t actually be able to see that review displayed. Next lesson, we’ll focus on deserializing custom data from on-chain accounts.
+Tandaan na sa ngayon, ang mga pelikulang ipinapakita sa page kapag nagpatakbo ka ng `npm run dev` ay mga pangungutya. Sa araling ito, magtutuon tayo sa pagdaragdag ng bagong pagsusuri ngunit hindi talaga natin makikitang ipinapakita ang pagsusuring iyon. Sa susunod na aralin, magtutuon tayo sa pag-deserialize ng custom na data mula sa mga on-chain na account.
 
-### 2. Create the buffer layout
+### 2. Lumikha ng buffer layout
 
-Remember that to properly interact with a Solana program, you need to know how it expects data to be structured. Our Movie Review program is expecting instruction data to contain:
+Tandaan na upang maayos na makipag-ugnayan sa isang programa ng Solana, kailangan mong malaman kung paano ito inaasahan na mai-istruktura ang data. Inaasahan ng aming programa sa Pagsusuri ng Pelikula na ang data ng pagtuturo ay naglalaman ng:
 
-1. `variant` as an unsigned, 8-bit integer representing which instruction should be executed (in other words which function on the program should be called).
-2. `title` as a string representing the title of the movie that you are reviewing.
-3. `rating` as an unsigned, 8-bit integer representing the rating out of 5 that you are giving to the movie you are reviewing.
-4. `description` as a string representing the written portion of the review you are leaving for the movie.
+1. `variant` bilang isang unsigned, 8-bit integer na kumakatawan sa kung aling pagtuturo ang dapat isagawa (sa madaling salita kung aling function sa program ang dapat tawagan).
+2. `title` bilang isang string na kumakatawan sa pamagat ng pelikula na iyong sinusuri.
+3. `rating` bilang isang unsigned, 8-bit integer na kumakatawan sa rating sa 5 na ibinibigay mo sa pelikulang iyong sinusuri.
+4. `description` bilang isang string na kumakatawan sa nakasulat na bahagi ng review na iiwan mo para sa pelikula.
 
-Let’s configure a `borsh` layout in the `Movie` class. Start by importing `@project-serum/borsh`. Next, create a `borshInstructionSchema` property and set it to the appropriate `borsh` struct containing the properties listed above.
+Mag-configure tayo ng `borsh` na layout sa klase ng `Movie`. Magsimula sa pamamagitan ng pag-import ng `@project-serum/borsh`. Susunod, gumawa ng `borshInstructionSchema` property at itakda ito sa naaangkop na `borsh` struct na naglalaman ng mga property na nakalista sa itaas.
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -217,11 +217,11 @@ export class Movie {
 }
 ```
 
-Keep in mind that *order matters*. If the order of properties here differs from how the program is structured, the transaction will fail.
+Tandaan na *mahalaga ang order*. Kung ang pagkakasunud-sunod ng mga pag-aari dito ay naiiba sa kung paano nakaayos ang programa, ang transaksyon ay mabibigo.
 
-### 3. Create a method to serialize data
+### 3. Gumawa ng paraan para mag-serialize ng data
 
-Now that we have the buffer layout set up, let’s create a method in `Movie` called `serialize()` that will return a `Buffer` with a `Movie` object’s properties encoded into the appropriate layout.
+Ngayong na-set up na natin ang buffer layout, gumawa tayo ng paraan sa `Pelikula` na tinatawag na `serialize()` na magbabalik ng `Buffer` na may mga katangian ng object ng `Movie` na naka-encode sa naaangkop na layout.
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -248,15 +248,15 @@ export class Movie {
 }
 ```
 
-The method shown above first creates a large enough buffer for our object, then encodes `{ ...this, variant: 0 }` into the buffer. Because the `Movie` class definition contains 3 of the 4 properties required by the buffer layout and uses the same naming, we can use it directly with the spread operator and just add the `variant` property. Finally, the method returns a new buffer that leaves off the unused portion of the original.
+Ang pamamaraang ipinakita sa itaas ay unang lumilikha ng sapat na malaking buffer para sa ating object, pagkatapos ay ine-encode ang `{ ...this, variant: 0 }` sa buffer. Dahil ang kahulugan ng klase ng `Pelikula` ay naglalaman ng 3 sa 4 na katangian na kinakailangan ng buffer layout at gumagamit ng parehong pagpapangalan, maaari namin itong gamitin nang direkta sa spread operator at idagdag lang ang property na `variant`. Sa wakas, ang pamamaraan ay nagbabalik ng isang bagong buffer na nag-iiwan sa hindi nagamit na bahagi ng orihinal.
 
-### 4. Send transaction when user submits form
+### 4. Magpadala ng transaksyon kapag nagsumite ang user ng form
 
-Now that we have the building blocks for the instruction data, we can create and send the transaction when a user submits the form. Open `Form.tsx` and locate the `handleTransactionSubmit` function. This gets called by `handleSubmit` each time a user submits the Movie Review form.
+Ngayon na mayroon na kaming mga bloke ng gusali para sa data ng pagtuturo, maaari kaming lumikha at magpadala ng transaksyon kapag ang isang gumagamit ay nagsumite ng form. Buksan ang `Form.tsx` at hanapin ang function na `handleTransactionSubmit`. Ito ay tatawagin ng `handleSubmit` sa tuwing isusumite ng isang user ang form ng Pagsusuri ng Pelikula.
 
-Inside this function, we’ll be creating and sending the transaction that contains the data submitted through the form.
+Sa loob ng function na ito, gagawa at ipapadala namin ang transaksyon na naglalaman ng data na isinumite sa pamamagitan ng form.
 
-Start by importing `@solana/web3.js` and importing `useConnection` and `useWallet` from `@solana/wallet-adapter-react`.
+Magsimula sa pamamagitan ng pag-import ng `@solana/web3.js` at pag-import ng `useConnection` at `useWallet` mula sa `@solana/wallet-adapter-react`.
 
 ```tsx
 import { FC } from 'react'
@@ -267,7 +267,7 @@ import * as web3 from '@solana/web3.js'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 ```
 
-Next, before the `handleSubmit` function, call `useConnection()` to get a `connection` object and call `useWallet()` to get `publicKey` and `sendTransaction`.
+Susunod, bago ang function na `handleSubmit`, tawagan ang `useConnection()` para makakuha ng object na `connection` at tawagan ang `useWallet()` para makakuha ng `publicKey` at `sendTransaction`.
 
 ```tsx
 import { FC } from 'react'
@@ -297,17 +297,17 @@ export const Form: FC = () => {
 }
 ```
 
-Before we implement `handleTransactionSubmit`, let’s talk about what needs to be done. We need to:
+Bago natin ipatupad ang `handleTransactionSubmit`, pag-usapan natin kung ano ang kailangang gawin. Kailangan natin:
 
-1. Check that `publicKey` exists to ensure that the user has connected their wallet.
-2. Call `serialize()` on `movie` to get a buffer representing the instruction data.
-3. Create a new `Transaction` object.
-4. Get all of the accounts that the transaction will read from or write to.
-5. Create a new `Instruction` object that includes all of these accounts in the `keys` argument, includes the buffer in the `data` argument, and includes the program’s public key in the `programId` argument.
-6. Add the instruction from the last step to the transaction.
-7. Call `sendTransaction`, passing in the assembled transaction.
+1. Suriin kung umiiral ang `publicKey` upang matiyak na naikonekta ng user ang kanilang wallet.
+2. Tawagan ang `serialize()` sa `movie` upang makakuha ng buffer na kumakatawan sa data ng pagtuturo.
+3. Gumawa ng bagong object na `Transaction`.
+4. Kunin ang lahat ng mga account kung saan babasahin o susulatan ang transaksyon.
+5. Gumawa ng bagong object na `Instruction` na kinabibilangan ng lahat ng account na ito sa argument na `keys`, kasama ang buffer sa argument na `data`, at kasama ang public key ng program sa argument na `programId`.
+6. Idagdag ang pagtuturo mula sa huling hakbang sa transaksyon.
+7. Tawagan ang `sendTransaction`, pagpasa sa naka-assemble na transaksyon.
 
-That’s quite a lot to process! But don’t worry, it gets easier the more you do it. Let’s start with the first 3 steps from above:
+Napakaraming iproseso! Ngunit huwag mag-alala, nagiging mas madali ito kapag ginagawa mo ito. Magsimula tayo sa unang 3 hakbang mula sa itaas:
 
 ```tsx
 const handleTransactionSubmit = async (movie: Movie) => {
@@ -321,7 +321,7 @@ const handleTransactionSubmit = async (movie: Movie) => {
 }
 ```
 
-The next step is to get all of the accounts that the transaction will read from or write to. In past lessons, the account where data will be stored has been given to you. This time, the account’s address is more dynamic, so it needs to be computed. We’ll cover this in depth in the next lesson, but for now you can use the following, where `pda` is the address to the account where data will be stored:
+Ang susunod na hakbang ay kunin ang lahat ng mga account kung saan babasahin o susulatan ng transaksyon. Sa mga nakaraang aralin, ang account kung saan iimbak ang data ay ibinigay na sa iyo. Sa pagkakataong ito, mas dynamic ang address ng account, kaya kailangan itong kalkulahin. Tatalakayin namin ito nang malalim sa susunod na aralin, ngunit sa ngayon maaari mong gamitin ang sumusunod, kung saan ang `pda` ay ang address sa account kung saan iimbak ang data:
 
 ```tsx
 const [pda] = await web3.PublicKey.findProgramAddress(
@@ -330,9 +330,9 @@ const [pda] = await web3.PublicKey.findProgramAddress(
 )
 ```
 
-In addition to this account, the program will also need to read from `SystemProgram`, so our array needs to include `web3.SystemProgram.programId` as well.
+Bilang karagdagan sa account na ito, kakailanganin din ng program na magbasa mula sa `SystemProgram`, kaya kailangan ding isama ng aming array ang `web3.SystemProgram.programId`.
 
-With that, we can finish the remaining steps:
+Sa pamamagitan nito, maaari nating tapusin ang mga natitirang hakbang:
 
 ```tsx
 const handleTransactionSubmit = async (movie: Movie) => {
@@ -382,25 +382,25 @@ const handleTransactionSubmit = async (movie: Movie) => {
 }
 ```
 
-And that’s it! You should now be able to use the form on the site to submit a movie review. While you won’t see the UI update to reflect the new review, you can look at the transaction’s program logs on Solana Explorer to see that it was successful.
+At iyon na! Dapat mo na ngayong gamitin ang form sa site upang magsumite ng pagsusuri sa pelikula. Bagama't hindi mo makikita ang pag-update ng UI upang ipakita ang bagong pagsusuri, maaari mong tingnan ang mga log ng programa ng transaksyon sa Solana Explorer upang makitang matagumpay ito.
 
-If you need a bit more time with this project to feel comfortable, have a look at the complete [solution code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction-data).
+Kung kailangan mo ng kaunti pang oras sa proyektong ito para kumportable, tingnan ang kumpletong [code ng solusyon](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction -data).
 
-# Challenge
+# Hamon
 
-Now it’s your turn to build something independently. Create an application that lets students of this course introduce themselves! The Solana program that supports this is at `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
+Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa. Lumikha ng isang application na nagbibigay-daan sa mga mag-aaral ng kursong ito na ipakilala ang kanilang sarili! Ang programang Solana na sumusuporta dito ay nasa `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
 
-![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
+![Screenshot ng Student Intros frontend](../assets/student-intros-frontend.png)
 
-1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/starter).
-2. Create the instruction buffer layout in `StudentIntro.ts`. The program expects instruction data to contain:
-   1. `variant` as an unsigned, 8-bit integer representing the instruction to run (should be 0).
-   2. `name` as a string representing the student's name.
-   3. `message` as a string representing the message the student is sharing about their Solana journey.
-3. Create a method in `StudentIntro.ts` that will use the buffer layout to serialize a `StudentIntro` object.
-4. In the `Form` component, implement the `handleTransactionSubmit` function so that it serializes a `StudentIntro`, builds the appropriate transaction and transaction instructions, and submits the transaction to the user's wallet.
-5. You should now be able to submit introductions and have the information stored on chain! Be sure to log the transaction ID and look at it in Solana Explorer to verify that it worked.
+1. Magagawa mo ito mula sa simula o maaari mong i-download ang starter code [dito](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/starter).
+2. Gawin ang layout ng buffer ng pagtuturo sa `StudentIntro.ts`. Inaasahan ng programa na ang data ng pagtuturo ay naglalaman ng:
+    1. `variant` bilang isang unsigned, 8-bit integer na kumakatawan sa pagtuturo na tatakbo (dapat ay 0).
+    2. `pangalan` bilang isang string na kumakatawan sa pangalan ng mag-aaral.
+    3. `mensahe` bilang isang string na kumakatawan sa mensaheng ibinabahagi ng mag-aaral tungkol sa kanilang paglalakbay sa Solana.
+3. Gumawa ng paraan sa `StudentIntro.ts` na gagamit ng buffer layout para i-serialize ang isang `StudentIntro` object.
+4. Sa bahagi ng `Form`, ipatupad ang function na `handleTransactionSubmit` para mag-serialize ito ng `StudentIntro`, bumuo ng naaangkop na mga tagubilin sa transaksyon at transaksyon, at isumite ang transaksyon sa wallet ng user.
+5. Dapat ay nakapagsumite ka na ng mga pagpapakilala at nakaimbak ang impormasyon sa chain! Tiyaking i-log ang transaction ID at tingnan ito sa Solana Explorer para i-verify na gumana ito.
 
-If you get really stumped, you can check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
+Kung talagang nalilito ka, maaari mong tingnan ang code ng solusyon [dito](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 
-Feel free to get creative with these challenges and take them even further. The instructions aren't here to hold you back!
+Huwag mag-atubiling maging malikhain sa mga hamong ito at gawin ang mga ito nang higit pa. Ang mga tagubilin ay wala dito para pigilan ka!

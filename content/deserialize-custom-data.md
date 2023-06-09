@@ -9,51 +9,51 @@ objectives:
 
 # TL;DR
 
-- **Program Derived Addresses**, or PDAs, are addresses that do not have a corresponding private key. The concept of PDAs allows for programs to sign for transactions themselves and allows for storing and locating data.
-- You can derive a PDA using the `findProgramAddress(seeds, programid)` method.
-- You can get an array of all the accounts belonging to a program using `getProgramAccounts(programId)`.
-- Account data needs to be deserialized using the same layout used to store it in the first place. You can use `@project-serum/borsh` to create a schema.
+- **Program Derived Addresses**, o PDAs, ay mga address na walang kaukulang pribadong key. Ang konsepto ng mga PDA ay nagbibigay-daan para sa mga programa na mag-sign para sa mga transaksyon mismo at nagbibigay-daan para sa pag-iimbak at paghahanap ng data.
+- Maaari kang kumuha ng PDA gamit ang `findProgramAddress(seeds, programid)` na paraan.
+- Maaari kang makakuha ng hanay ng lahat ng mga account na kabilang sa isang program gamit ang `getProgramAccounts(programId)`.
+- Kailangang ma-deserialize ang data ng account gamit ang parehong layout na ginamit upang iimbak ito sa unang lugar. Maaari mong gamitin ang `@project-serum/borsh` para gumawa ng schema.
 
-# Overview
+# Pangkalahatang-ideya
 
-In the last lesson, we serialized custom instruction data that was subsequently stored on-chain by a Solana program. In this lesson, we’ll cover in greater detail how programs use accounts, how to retrieve them, and how to deserialize the data they store.
+Sa huling aralin, nag-serialize kami ng custom na data ng pagtuturo na pagkatapos ay inimbak on-chain ng isang Solana program. Sa araling ito, tatalakayin natin nang mas detalyado kung paano ginagamit ng mga program ang mga account, kung paano kunin ang mga ito, at kung paano i-deserialize ang data na iniimbak nila.
 
-## Programs
+## Mga Programa
 
-As the saying goes, everything in Solana is an account. Even programs. Programs are accounts that store code and are marked as executable. This code can be executed by the Solana runtime when instructed to do so.
+Gaya nga ng kasabihan, lahat ng nasa Solana ay isang account. Kahit na mga programa. Ang mga programa ay mga account na nag-iimbak ng code at minarkahan bilang executable. Ang code na ito ay maaaring isagawa ng Solana runtime kapag inutusang gawin ito.
 
-Programs themselves, however, are stateless. They cannot modify the data within their account. They can only persist state by storing data in other accounts that can be referenced at some other point in time. Understanding how these accounts are used and how to find them is crucial to client-side Solana development.
+Ang mga programa mismo, gayunpaman, ay walang estado. Hindi nila maaaring baguhin ang data sa loob ng kanilang account. Maaari lamang silang magpatuloy sa estado sa pamamagitan ng pag-iimbak ng data sa iba pang mga account na maaaring i-reference sa ibang pagkakataon. Ang pag-unawa sa kung paano ginagamit ang mga account na ito at kung paano hanapin ang mga ito ay mahalaga sa client-side na pagbuo ng Solana.
 
 ### PDA
 
-PDA stands for Program Derived Address. As the name suggests, it refers to an address (public key) derived from a program and some seeds. In a previous lesson, we discussed public/private keys and how they are used on Solana. Unlike a keypair, a PDA *does not* have a corresponding private key. The purpose of a PDA is to create an address that a program can sign for in the same way a user may sign for a transaction with their wallet.
+Ang PDA ay nangangahulugang Program Derived Address. Gaya ng ipinahihiwatig ng pangalan, ito ay tumutukoy sa isang address (public key) na nagmula sa isang programa at ilang mga buto. Sa nakaraang aralin, tinalakay natin ang mga pampubliko/pribadong susi at kung paano ginagamit ang mga ito sa Solana. Hindi tulad ng keypair, ang isang PDA *walang* ay may kaukulang pribadong key. Ang layunin ng isang PDA ay lumikha ng isang address na maaaring lagdaan ng isang programa sa parehong paraan na maaaring mag-sign ang isang user para sa isang transaksyon gamit ang kanilang wallet.
 
-When you submit a transaction to a program and expect the program to then update state or store data in some way, that program is using one or more PDAs. This is important to understand when developing client-side for two reasons:
+Kapag nagsumite ka ng transaksyon sa isang program at inaasahan na ang program ay mag-a-update ng estado o mag-imbak ng data sa ilang paraan, ang program na iyon ay gumagamit ng isa o higit pang mga PDA. Mahalaga itong maunawaan kapag bumubuo ng panig ng kliyente para sa dalawang dahilan:
 
-1. When submitting a transaction to a program, the client needs to include all addresses for accounts that will be written to or read from. This means that unlike more traditional client-server architectures, the client needs to have implementation-specific knowledge about the Solana program. The client needs to know which PDA is going to be used to store data so that it can include that address in the transaction.
-2. Similarly, when reading data from a program, the client needs to know which account(s) to read from.
+1. Kapag nagsusumite ng transaksyon sa isang programa, kailangang isama ng kliyente ang lahat ng address para sa mga account na susulatan o babasahin. Nangangahulugan ito na hindi tulad ng mas tradisyonal na mga arkitektura ng client-server, ang kliyente ay kailangang magkaroon ng kaalaman na partikular sa pagpapatupad tungkol sa programang Solana. Kailangang malaman ng kliyente kung aling PDA ang gagamitin upang mag-imbak ng data upang maisama nito ang address na iyon sa transaksyon.
+2. Katulad nito, kapag nagbabasa ng data mula sa isang programa, kailangang malaman ng kliyente kung aling (mga) account ang babasahin.
 
-### Finding PDAs
+### Paghahanap ng mga PDA
 
-PDAs are not technically created. Rather, they are *found* or *derived* based on one or more input seeds.
+Ang mga PDA ay hindi teknikal na nilikha. Sa halip, ang mga ito ay *hinahanap* o *hinango* batay sa isa o higit pang mga input seed.
 
-Regular Solana keypairs lie on the ed2559 Elliptic Curve. This cryptographic function ensures that every point along the curve has a corresponding point somewhere else on the curve, allowing for public/private keys. PDAs are addresses that lie *off* the ed2559 Elliptic curve and therefore cannot be signed for by a private key (since there isn’t one). This ensures that the program is the only valid signer for that address.
+Ang mga regular na keypair ng Solana ay nasa ed2559 Elliptic Curve. Tinitiyak ng cryptographic function na ito na ang bawat punto sa kahabaan ng curve ay may katumbas na punto sa ibang lugar sa curve, na nagbibigay-daan para sa mga pampubliko/pribadong key. Ang mga PDA ay mga address na nasa *off* ang ed2559 Elliptic curve at samakatuwid ay hindi maaaring lagdaan ng isang pribadong key (dahil walang isa). Tinitiyak nito na ang programa ay ang tanging wastong lumagda para sa address na iyon.
 
-To find a public key that does not lie on the ed2559 curve, the program ID and seeds of the developer’s choice (like a string of text) are passed through the function [`findProgramAddress(seeds, programid)`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). This function combines the program ID, seeds, and a bump seed into a buffer and passes it into a SHA256 hash to see whether or not the resulting address is on the curve. If the address is on the curve (~50% chance it is), then the bump seed is decremented by 1 and the address is calculated again. The bump seed starts at 255 and progressively iterates down to `bump = 254`, `bump = 253`, etc. until an address is found with the given seeds and bump that does not lie on the ed2559 curve. The `findProgramAddress` function returns the resulting address and the bump used to kick it off the curve. This way, the address can be generated anywhere as long as you have the bump and seeds.
+Upang makahanap ng pampublikong key na hindi nasa curve ng ed2559, ang program ID at mga buto na pinili ng developer (tulad ng isang string ng text) ay ipinapasa sa function na [`findProgramAddress(seeds, programid)`](https:// solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). Pinagsasama ng function na ito ang program ID, mga buto, at isang bump seed sa isang buffer at ipinapasa ito sa isang SHA256 hash upang makita kung ang resultang address ay nasa curve o hindi. Kung ang address ay nasa curve (~50% na pagkakataon), ang bump seed ay binabawasan ng 1 at ang address ay kinakalkula muli. Ang bump seed ay nagsisimula sa 255 at unti-unting umuulit pababa sa `bump = 254`, `bump = 253`, atbp. hanggang sa makita ang isang address na may mga ibinigay na seeds at bump na hindi matatagpuan sa ed2559 curve. Ibinabalik ng function na `findProgramAddress` ang resultang address at ang bump na ginamit upang maalis ito sa curve. Sa ganitong paraan, maaaring mabuo ang address kahit saan hangga't mayroon kang bump at buto.
 
-![Screenshot of ed2559 curve](../assets/ed2559-curve.png)
+![Screenshot ng ed2559 curve](../assets/ed2559-curve.png)
 
-PDAs are a unique concept and are one of the hardest parts of Solana development to understand. If you don’t get it right away, don’t worry. It’ll make more sense the more you practice.
+Ang mga PDA ay isang natatanging konsepto at isa sa mga pinakamahirap na bahagi ng pagbuo ng Solana na maunawaan. Kung hindi mo makuha ito kaagad, huwag mag-alala. Mas magiging makabuluhan ito kapag nagsasanay ka.
 
-### Why Does This Matter?
+### Bakit Ito Mahalaga?
 
-The derivation of PDAs is important because the seeds used to find a PDA are what we use to locate the data. For example, a simple program that only uses a single PDA to store global program state might use a simple seed phrase like “GLOBAL_STATE”. If the client wanted to read data from this PDA, it could derive the address using the program ID and this same seed.
+Ang derivation ng mga PDA ay mahalaga dahil ang mga buto na ginamit upang mahanap ang isang PDA ay ang ginagamit namin upang mahanap ang data. Halimbawa, ang isang simpleng program na gumagamit lamang ng isang PDA upang mag-imbak ng pandaigdigang estado ng programa ay maaaring gumamit ng isang simpleng seed na parirala tulad ng "GLOBAL_STATE". Kung gusto ng kliyente na basahin ang data mula sa PDA na ito, maaari nitong makuha ang address gamit ang program ID at ang parehong binhi.
 
 ```tsx
 const [pda, bump] = await findProgramAddress(Buffer.from("GLOBAL_STATE"), programId)
 ```
 
-In more complex programs that store user-specific data, it’s common to use a user’s public key as the seed. This separates each user’s data into its own PDA. The separation makes it possible for the client to locate each user’s data by finding the address using the program ID and the user’s public key.
+Sa mas kumplikadong mga program na nag-iimbak ng data na partikular sa user, karaniwan nang gamitin ang pampublikong key ng user bilang seed. Pinaghihiwalay nito ang data ng bawat user sa sarili nitong PDA. Ang paghihiwalay ay ginagawang posible para sa kliyente na mahanap ang data ng bawat user sa pamamagitan ng paghahanap ng address gamit ang program ID at pampublikong key ng user.
 
 ```tsx
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
@@ -64,7 +64,7 @@ const [pda, bump] = await web3.PublicKey.findProgramAddress(
 )
 ```
 
-Also, when there are multiple accounts per user, a program may use one or more additional seeds to create and identify accounts. For example, in a note-taking app there may be one account per note where each PDA is derived with the user’s public key and the note’s title.
+Gayundin, kapag mayroong maramihang mga account sa bawat user, maaaring gumamit ang isang program ng isa o higit pang karagdagang mga binhi upang lumikha at tumukoy ng mga account. Halimbawa, sa isang note-taking app ay maaaring mayroong isang account sa bawat tala kung saan ang bawat PDA ay hinango kasama ang pampublikong key ng user at ang pamagat ng tala.
 
 ```tsx
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
@@ -76,9 +76,9 @@ const [pda, bump] = await web3.PublicKey.findProgramAddress(
 )
 ```
 
-### Getting Multiple Program Accounts
+### Pagkuha ng Maramihang Programa Accounts
 
-In addition to deriving addresses, you can fetch all accounts created by a program using `connection.getProgramAccounts(programId)`. This returns an array of objects where each object has `pubkey` property representing the public key of the account and an `account` property of type `AccountInfo`. You can use the `account` property to get the account data.
+Bilang karagdagan sa pagkuha ng mga address, maaari mong kunin ang lahat ng account na ginawa ng isang program gamit ang `connection.getProgramAccounts(programId)`. Nagbabalik ito ng hanay ng mga bagay kung saan ang bawat bagay ay may `pubkey` na property na kumakatawan sa pampublikong key ng account at isang `account` na property na may uri ng `AccountInfo`. Maaari mong gamitin ang property na `account` para makuha ang data ng account.
 
 ```tsx
 const accounts = connection.getProgramAccounts(programId).then(accounts => {
@@ -89,13 +89,13 @@ const accounts = connection.getProgramAccounts(programId).then(accounts => {
 })
 ```
 
-## Deserializing custom account data
+## Deserializing data ng custom na account
 
-The `data` property on an `AccountInfo` object is a buffer. To use it efficiently, you’ll need to write code that deserializes it into something more usable. This is similar to the serialization process we covered last lesson. Just as before, we’ll use [Borsh](https://borsh.io/) and `@project-serum/borsh`. If you need a refresher on either of these, have a look at the previous lesson.
+Ang property na `data` sa isang object na `AccountInfo` ay isang buffer. Upang magamit ito nang mahusay, kakailanganin mong magsulat ng code na nagde-deserialize nito sa isang bagay na mas magagamit. Ito ay katulad ng proseso ng serialization na aming tinalakay noong nakaraang aralin. Gaya ng dati, gagamitin namin ang [Borsh](https://borsh.io/) at `@project-serum/borsh`. Kung kailangan mo ng refresher sa alinman sa mga ito, tingnan ang nakaraang aralin.
 
-Deserializing requires knowledge of the account layout ahead of time. When creating your own programs, you will define how this is done as part of that process. Many programs also have documentation on how to deserialize the account data. Otherwise, if the program code is available you can look at the source and determine the structure that way.
+Ang deserializing ay nangangailangan ng kaalaman sa layout ng account nang maaga. Kapag gumagawa ng sarili mong mga programa, tutukuyin mo kung paano ito ginagawa bilang bahagi ng prosesong iyon. Maraming mga programa ang mayroon ding dokumentasyon kung paano i-deserialize ang data ng account. Kung hindi, kung magagamit ang program code maaari mong tingnan ang pinagmulan at tukuyin ang istraktura sa ganoong paraan.
 
-To properly deserialize data from an on-chain program, you will have to create a client-side schema mirroring how the data is stored in the account. For example, the following might be the schema for an account storing metadata about a player in an on-chain game.
+Upang maayos na i-deserialize ang data mula sa isang on-chain na program, kakailanganin mong gumawa ng schema sa panig ng kliyente na sumasalamin kung paano iniimbak ang data sa account. Halimbawa, ang sumusunod ay maaaring ang schema para sa isang account na nag-iimbak ng metadata tungkol sa isang manlalaro sa isang on-chain na laro.
 
 ```tsx
 import * as borsh from "@project-serum/borsh";
@@ -107,7 +107,7 @@ borshAccountSchema = borsh.struct([
 ])
 ```
 
-Once you have your layout defined, simply call `.decode(buffer)` on the schema.
+Kapag natukoy mo na ang iyong layout, tawagan lang ang `.decode(buffer)` sa schema.
 
 ```tsx
 import * as borsh from "@project-serum/borsh";
@@ -123,32 +123,32 @@ const { playerId, name } = borshAccountSchema.decode(buffer)
 
 # Demo
 
-Let’s practice this together by continuing to work on the Movie Review app from the last lesson. No worries if you’re just jumping into this lesson - it should be possible to follow either way.
+Sanayin natin ito nang magkasama sa pamamagitan ng patuloy na paggawa sa Movie Review app mula sa huling aralin. Huwag mag-alala kung papasok ka lang sa araling ito - dapat na posible na sundin ang alinmang paraan.
 
-As a refresher, this project uses a Solana program deployed on Devnet which lets users review movies. Last lesson, we added functionality to the frontend skeleton letting users submit movie reviews but the list of reviews is still showing mock data. Let’s fix that by fetching the program’s storage accounts and deserializing the data stored there.
+Bilang isang refresher, ang proyektong ito ay gumagamit ng isang Solana program na naka-deploy sa Devnet na nagbibigay-daan sa mga user na magsuri ng mga pelikula. Noong nakaraang aralin, nagdagdag kami ng functionality sa frontend skeleton na nagpapahintulot sa mga user na magsumite ng mga review ng pelikula ngunit ang listahan ng mga review ay nagpapakita pa rin ng mock data. Ayusin natin iyon sa pamamagitan ng pagkuha sa mga storage account ng program at pag-deserialize ng data na nakaimbak doon.
 
-![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
+![Screenshot ng frontend ng pagsusuri ng pelikula](../assets/movie-reviews-frontend.png)
 
-### 1. Download the starter code
+### 1. I-download ang starter code
 
-If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction-data).
+Kung hindi mo nakumpleto ang demo mula sa huling aralin o gusto mo lang matiyak na wala kang napalampas, maaari mong i-download ang [starter code](https://github.com/Unboxed-Software/solana-movie -frontend/tree/solution-serialize-instruction-data).
 
-The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson, a `Card` component for displaying a movie review, a `MovieList` component that displays reviews in a list, a `Form` component for submitting a new review, and a `Movie.ts` file that contains a class definition for a `Movie` object.
+Ang proyekto ay isang medyo simpleng Next.js application. Kabilang dito ang `WalletContextProvider` na ginawa namin sa aralin sa Wallets, isang bahagi ng `Card` para sa pagpapakita ng pagsusuri sa pelikula, isang bahagi ng `MovieList` na nagpapakita ng mga review sa isang listahan, isang bahagi ng `Form` para sa pagsusumite ng bagong review, at isang ` Movie.ts` file na naglalaman ng kahulugan ng klase para sa object na `Movie`.
 
-Note that when you run `npm run dev`, the reviews displayed on the page are mocks. We’ll be swapping those out for the real deal.
+Tandaan na kapag nagpatakbo ka ng `npm run dev`, ang mga review na ipinapakita sa page ay mga pangungutya. Papalitan namin ang mga iyon para sa totoong deal.
 
-### 2. Create the buffer layout
+### 2. Lumikha ng buffer layout
 
-Remember that to properly interact with a Solana program, you need to know how its data is structured.
+Tandaan na upang maayos na makipag-ugnayan sa isang Solana program, kailangan mong malaman kung paano nakaayos ang data nito.
 
-The Movie Review program creates a separate account for each movie review and stores the following data in the account’s `data`:
+Ang programa ng Pagsusuri ng Pelikula ay gumagawa ng isang hiwalay na account para sa bawat pagsusuri ng pelikula at iniimbak ang sumusunod na data sa `data` ng account:
 
-1. `initialized` as a boolean representing whether or not the account has been initialized.
-2. `rating` as an unsigned, 8-bit integer representing the rating out of 5 that the reviewer gave the movie.
-3. `title` as a string representing the title of the reviewed movie.
-4. `description` as a string representing the written portion of the review.
+1. `nasimulan` bilang isang boolean na kumakatawan sa kung ang account ay nasimulan o hindi.
+2. `rating` bilang unsigned, 8-bit integer na kumakatawan sa rating sa 5 na ibinigay ng reviewer sa pelikula.
+3. `title` bilang isang string na kumakatawan sa pamagat ng sinuri na pelikula.
+4. `paglalarawan` bilang isang string na kumakatawan sa nakasulat na bahagi ng pagsusuri.
 
-Let’s configure a `borsh` layout in the `Movie` class to represent the movie account data layout. Start by importing `@project-serum/borsh`. Next, create a `borshAccountSchema` static property and set it to the appropriate `borsh` struct containing the properties listed above.
+Mag-configure tayo ng layout ng `borsh` sa klase ng `Movie` upang kumatawan sa layout ng data ng account ng movie. Magsimula sa pamamagitan ng pag-import ng `@project-serum/borsh`. Susunod, gumawa ng `borshAccountSchema` na static na property at itakda ito sa naaangkop na `borsh` struct na naglalaman ng mga property na nakalista sa itaas.
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -169,11 +169,11 @@ export class Movie {
 }
 ```
 
-Remember, the order here *matters*. It needs to match how the account data is structured.
+Tandaan, ang order dito *mahalaga*. Kailangan itong tumugma sa kung paano nakaayos ang data ng account.
 
-### 3. Create a method to deserialize data
+### 3. Gumawa ng paraan para i-deserialize ang data
 
-Now that we have the buffer layout set up, let’s create a static method in `Movie` called `deserialize` that will take an optional `Buffer` and return a `Movie` object or `null`.
+Ngayong na-set up na natin ang buffer layout, gumawa tayo ng static na paraan sa `Pelikula` na tinatawag na `deserialize` na kukuha ng opsyonal na `Buffer` at magbabalik ng `Movie` object o `null`.
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -208,11 +208,11 @@ export class Movie {
 }
 ```
 
-The method first checks whether or not the buffer exists and returns `null` if it doesn’t. Next, it uses the layout we created to decode the buffer, then uses the data to construct and return an instance of `Movie`. If the decoding fails, the method logs the error and returns `null`.
+Sinusuri muna ng pamamaraan kung mayroon o wala ang buffer at ibabalik ang `null` kung wala ito. Susunod, ginagamit nito ang layout na ginawa namin upang i-decode ang buffer, pagkatapos ay ginagamit ang data upang bumuo at magbalik ng isang instance ng `Pelikula`. Kung nabigo ang pag-decode, itatala ng pamamaraan ang error at ibabalik ang `null`.
 
-### 4. Fetch movie review accounts
+### 4. Kunin ang mga account sa pagsusuri ng pelikula
 
-Now that we have a way to deserialize account data, we need to actually fetch the accounts. Open `MovieList.tsx` and import `@solana/web3.js`. Then, create a new `Connection` inside the `MovieList` component. Finally, replace the line `setMovies(Movie.mocks)` inside `useEffect` with a call to `connection.getProgramAccounts`. Take the resulting array and convert it into an array of movies and call `setMovies`.
+Ngayong mayroon na tayong paraan para i-deserialize ang data ng account, kailangan talaga nating kunin ang mga account. Buksan ang `MovieList.tsx` at i-import ang `@solana/web3.js`. Pagkatapos, gumawa ng bagong `Koneksyon` sa loob ng bahagi ng `MovieList`. Panghuli, palitan ang linyang `setMovies(Movie.mocks)` sa loob ng `useEffect` ng isang tawag sa `connection.getProgramAccounts`. Kunin ang resultang array at i-convert ito sa hanay ng mga pelikula at tawagan ang `setMovies`.
 
 ```tsx
 import { Card } from './Card'
@@ -246,27 +246,27 @@ export const MovieList: FC = () => {
 }
 ```
 
-At this point, you should be able to run the app and see the list of movie reviews retrieved from the program!
+Sa puntong ito, dapat mong patakbuhin ang app at makita ang listahan ng mga review ng pelikula na nakuha mula sa programa!
 
-Depending on how many reviews have been submitted, this may take a long time to load or may lock up your browser entirely. But don’t worry — next lesson we’ll learn how to page and filter accounts so you can be more surgical with what you load.
+Depende sa kung gaano karaming mga review ang naisumite, maaaring tumagal ito ng mahabang panahon upang ma-load o maaaring ganap na i-lock ang iyong browser. Ngunit huwag mag-alala — sa susunod na aralin, matututunan natin kung paano mag-page at mag-filter ng mga account para mas maging surgical ka sa iyong ni-load.
 
-If you need more time with this project to feel comfortable with these concepts, have a look at the [solution code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account-data) before continuing.
+Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable sa mga konseptong ito, tingnan ang [solution code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account -data) bago magpatuloy.
 
-# Challenge
+# Hamon
 
-Now it’s your turn to build something independently. Last lesson, you worked on the Student Intros app to serialize instruction data and send a new intro to the network. Now, it's time to fetch and deserialize the program's account data. Remember, the Solana program that supports this is at `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
+Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa. Noong nakaraang aralin, nagtrabaho ka sa Student Intros app para i-serialize ang data ng pagtuturo at magpadala ng bagong intro sa network. Ngayon, oras na para kunin at i-deserialize ang data ng account ng program. Tandaan, ang programang Solana na sumusuporta dito ay nasa `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
 
-![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
+![Screenshot ng Student Intros frontend](../assets/student-intros-frontend.png)
 
-1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
-2. Create the account buffer layout in `StudentIntro.ts`. The account data contains:
-   1. `initialized` as an unsigned, 8-bit integer representing the instruction to run (should be 1).
-   2. `name` as a string representing the student's name.
-   3. `message` as a string representing the message the student shared about their Solana journey.
-3. Create a static method in `StudentIntro.ts` that will use the buffer layout to deserialize an account data buffer into a `StudentIntro` object.
-4. In the `StudentIntroList` component's `useEffect`, get the program's accounts and deserialize their data into a list of `StudentIntro` objects.
-5. Instead of mock data, you should now be seeing student introductions from the network!
+1. Maaari mong buuin ito mula sa simula o maaari mong i-download ang starter code [dito](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
+2. Gawin ang layout ng buffer ng account sa `StudentIntro.ts`. Ang data ng account ay naglalaman ng:
+    1. `pinasimulan` bilang isang unsigned, 8-bit integer na kumakatawan sa pagtuturo na tumakbo (dapat ay 1).
+    2. `pangalan` bilang isang string na kumakatawan sa pangalan ng mag-aaral.
+    3. `mensahe` bilang isang string na kumakatawan sa mensaheng ibinahagi ng mag-aaral tungkol sa kanilang paglalakbay sa Solana.
+3. Gumawa ng static na paraan sa `StudentIntro.ts` na gagamit ng buffer layout upang i-deserialize ang buffer ng data ng account sa isang object na `StudentIntro`.
+4. Sa `useEffect` ng component ng `StudentIntroList`, kunin ang mga account ng program at i-deserialize ang kanilang data sa isang listahan ng mga object ng `StudentIntro`.
+5. Sa halip na mock data, dapat ay nakikita mo na ngayon ang mga pagpapakilala ng mag-aaral mula sa network!
 
-If you get really stumped, feel free to check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data).
+Kung talagang nalilito ka, huwag mag-atubiling tingnan ang code ng solusyon [dito](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data).
 
-As always, get creative with these challenges and take them beyond the instructions if you want!
+Gaya ng dati, maging malikhain sa mga hamong ito at dalhin ang mga ito sa kabila ng mga tagubilin kung gusto mo!
