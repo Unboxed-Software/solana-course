@@ -446,7 +446,7 @@ Tandaan na tinukoy ng Anchor sa mga log ang account na nagdudulot ng error (`Anc
 
 At tulad niyan, isinara mo na ang butas ng seguridad. Ang tema sa karamihan ng mga potensyal na pagsasamantalang ito ay medyo simple ang mga ito. Gayunpaman, habang lumalaki ang iyong mga programa sa saklaw at pagiging kumplikado, nagiging mas madaling makaligtaan ang mga posibleng pagsasamantala. Napakahusay na ugaliing sumulat ng mga pagsusulit na nagpapadala ng mga tagubilin na *hindi dapat* gumana. Mas marami mas mabuti. Sa ganoong paraan makakahuli ka ng mga problema bago ka mag-deploy.
 
-Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [repository](https://github.com/Unboxed-Software/solana-account-data-matching/tree/solusyon).
+Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [repository](https://github.com/Unboxed-Software/solana-account-data-matching/tree/solution).
 
 # Hamon
 

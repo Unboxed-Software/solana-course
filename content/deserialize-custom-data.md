@@ -39,7 +39,7 @@ Ang mga PDA ay hindi teknikal na nilikha. Sa halip, ang mga ito ay *hinahanap* o
 
 Ang mga regular na keypair ng Solana ay nasa ed2559 Elliptic Curve. Tinitiyak ng cryptographic function na ito na ang bawat punto sa kahabaan ng curve ay may katumbas na punto sa ibang lugar sa curve, na nagbibigay-daan para sa mga pampubliko/pribadong key. Ang mga PDA ay mga address na nasa *off* ang ed2559 Elliptic curve at samakatuwid ay hindi maaaring lagdaan ng isang pribadong key (dahil walang isa). Tinitiyak nito na ang programa ay ang tanging wastong lumagda para sa address na iyon.
 
-Upang makahanap ng pampublikong key na hindi nasa curve ng ed2559, ang program ID at mga buto na pinili ng developer (tulad ng isang string ng text) ay ipinapasa sa function na [`findProgramAddress(seeds, programid)`](https:// solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). Pinagsasama ng function na ito ang program ID, mga buto, at isang bump seed sa isang buffer at ipinapasa ito sa isang SHA256 hash upang makita kung ang resultang address ay nasa curve o hindi. Kung ang address ay nasa curve (~50% na pagkakataon), ang bump seed ay binabawasan ng 1 at ang address ay kinakalkula muli. Ang bump seed ay nagsisimula sa 255 at unti-unting umuulit pababa sa `bump = 254`, `bump = 253`, atbp. hanggang sa makita ang isang address na may mga ibinigay na seeds at bump na hindi matatagpuan sa ed2559 curve. Ibinabalik ng function na `findProgramAddress` ang resultang address at ang bump na ginamit upang maalis ito sa curve. Sa ganitong paraan, maaaring mabuo ang address kahit saan hangga't mayroon kang bump at buto.
+Upang makahanap ng pampublikong key na hindi nasa curve ng ed2559, ang program ID at mga buto na pinili ng developer (tulad ng isang string ng text) ay ipinapasa sa function na [`findProgramAddress(seeds, programid)`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). Pinagsasama ng function na ito ang program ID, mga buto, at isang bump seed sa isang buffer at ipinapasa ito sa isang SHA256 hash upang makita kung ang resultang address ay nasa curve o hindi. Kung ang address ay nasa curve (~50% na pagkakataon), ang bump seed ay binabawasan ng 1 at ang address ay kinakalkula muli. Ang bump seed ay nagsisimula sa 255 at unti-unting umuulit pababa sa `bump = 254`, `bump = 253`, atbp. hanggang sa makita ang isang address na may mga ibinigay na seeds at bump na hindi matatagpuan sa ed2559 curve. Ibinabalik ng function na `findProgramAddress` ang resultang address at ang bump na ginamit upang maalis ito sa curve. Sa ganitong paraan, maaaring mabuo ang address kahit saan hangga't mayroon kang bump at buto.
 
 ![Screenshot ng ed2559 curve](../assets/ed2559-curve.png)
 
@@ -131,7 +131,7 @@ Bilang isang refresher, ang proyektong ito ay gumagamit ng isang Solana program 
 
 ### 1. I-download ang starter code
 
-Kung hindi mo nakumpleto ang demo mula sa huling aralin o gusto mo lang matiyak na wala kang napalampas, maaari mong i-download ang [starter code](https://github.com/Unboxed-Software/solana-movie -frontend/tree/solution-serialize-instruction-data).
+Kung hindi mo nakumpleto ang demo mula sa huling aralin o gusto mo lang matiyak na wala kang napalampas, maaari mong i-download ang [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction-data).
 
 Ang proyekto ay isang medyo simpleng Next.js application. Kabilang dito ang `WalletContextProvider` na ginawa namin sa aralin sa Wallets, isang bahagi ng `Card` para sa pagpapakita ng pagsusuri sa pelikula, isang bahagi ng `MovieList` na nagpapakita ng mga review sa isang listahan, isang bahagi ng `Form` para sa pagsusumite ng bagong review, at isang ` Movie.ts` file na naglalaman ng kahulugan ng klase para sa object na `Movie`.
 
@@ -250,7 +250,7 @@ Sa puntong ito, dapat mong patakbuhin ang app at makita ang listahan ng mga revi
 
 Depende sa kung gaano karaming mga review ang naisumite, maaaring tumagal ito ng mahabang panahon upang ma-load o maaaring ganap na i-lock ang iyong browser. Ngunit huwag mag-alala — sa susunod na aralin, matututunan natin kung paano mag-page at mag-filter ng mga account para mas maging surgical ka sa iyong ni-load.
 
-Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable sa mga konseptong ito, tingnan ang [solution code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account -data) bago magpatuloy.
+Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable sa mga konseptong ito, tingnan ang [solution code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account-data) bago magpatuloy.
 
 # Hamon
 

@@ -449,7 +449,7 @@ Tandaan, hindi nito pinipigilan ang malisyosong user na i-refund nang buo ang ka
 
 Ang pinakasimple at pinakasecure na paraan upang isara ang mga account ay ang paggamit ng `close` constraint ng Anchor. Kung kailangan mo ng higit pang custom na gawi at hindi mo magagamit ang hadlang na ito, tiyaking gayahin ang functionality nito upang matiyak na secure ang iyong program.
 
-Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa `solution` branch ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-closing-accounts/tree/solution ).
+Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa `solution` branch ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-closing-accounts/tree/solution).
 
 # Hamon
 

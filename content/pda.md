@@ -659,7 +659,7 @@ Maaari mong subukan ang iyong programa sa pamamagitan ng pagsusumite ng isang tr
 
 Tandaan na gumawa kami ng mga paglabag na pagbabago sa mga review account (ibig sabihin, pagdaragdag ng discriminator). Kung gagamitin mo ang parehong program ID na ginamit mo dati noong i-deploy ang program na ito, wala sa mga review na ginawa mo dati ang lalabas sa frontend na ito dahil sa isang data mismatch.
 
-Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable sa mga konseptong ito, tingnan ang [solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-comments ) bago magpatuloy. Tandaan na ang code ng solusyon ay nasa sangay ng `solution-add-comments` ng naka-link na repository.
+Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable sa mga konseptong ito, tingnan ang [solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-comments) bago magpatuloy. Tandaan na ang code ng solusyon ay nasa sangay ng `solution-add-comments` ng naka-link na repository.
 
 # Hamon
 
@@ -668,6 +668,6 @@ Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa! Sige at m
 1. Magdagdag ng tagubilin na nagpapahintulot sa ibang mga user na tumugon sa isang intro
 2. Buuin at i-deploy ang programa nang lokal
 
-Kung hindi mo pa sinusubaybayan ang mga nakaraang aralin o hindi mo pa nai-save ang iyong trabaho mula noon, huwag mag-atubiling gamitin ang starter code sa `starter` branch ng [repository na ito](https://github.com/Unboxed- Software/solana-student-intro-program/tree/starter).
+Kung hindi mo pa sinusubaybayan ang mga nakaraang aralin o hindi mo pa nai-save ang iyong trabaho mula noon, huwag mag-atubiling gamitin ang starter code sa `starter` branch ng [repository na ito](https://github.com/Unboxed-Software/solana-student-intro-program/tree/starter).
 
 Subukang gawin ito nang nakapag-iisa kung kaya mo! Kung natigil ka, huwag mag-atubiling sumangguni sa [code ng solusyon](https://github.com/Unboxed-Software/solana-student-intro-program/tree/solution-add-replies). Tandaan na ang code ng solusyon ay nasa branch na `solution-add-replies` at maaaring magmukhang bahagyang naiiba ang iyong code.

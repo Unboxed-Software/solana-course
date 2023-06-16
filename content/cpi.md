@@ -25,7 +25,7 @@ Ang mga CPI ay may katulad na komposisyon sa mga tagubilin na nakasanayan mo sa 
 
 ## Paano gumawa ng CPI
 
-Ginagawa ang mga CPI gamit ang [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) o [`invoke_signed`](https://docs. rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) function mula sa `solana_program` crate. Gumagamit ka ng `invoke` upang maipasa ang orihinal na lagda ng transaksyon na ipinasa sa iyong programa. Gumagamit ka ng `invoke_signed` para "mag-sign" ang iyong program para sa mga PDA nito.
+Ginagawa ang mga CPI gamit ang [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) o [`invoke_signed`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) function mula sa `solana_program` crate. Gumagamit ka ng `invoke` upang maipasa ang orihinal na lagda ng transaksyon na ipinasa sa iyong programa. Gumagamit ka ng `invoke_signed` para "mag-sign" ang iyong program para sa mga PDA nito.
 
 ```rust
 // Used when there are not signatures for PDAs needed
@@ -608,7 +608,7 @@ Kapag nasimulan mo na ang iyong token mint, maaari mong gamitin ang [Movie Revie
 
 Pagkatapos magsumite ng pagsusuri, dapat kang makakita ng 10 bagong token sa iyong wallet! Kapag nagdagdag ka ng komento, dapat kang makatanggap ng 5 token. Hindi sila magkakaroon ng magarbong pangalan o larawan dahil hindi kami nagdagdag ng anumang metadata sa token, ngunit nakuha mo ang ideya.
 
-Kung kailangan mo ng mas maraming oras sa mga konsepto mula sa araling ito o natigil ka, huwag mag-atubiling [tingnan ang code ng solusyon](https://github.com/Unboxed-Software/solana-movie-program/tree /solution-add-token). Tandaan na ang solusyon sa demo na ito ay nasa `solution-add-tokens` branch.
+Kung kailangan mo ng mas maraming oras sa mga konsepto mula sa araling ito o natigil ka, huwag mag-atubiling [tingnan ang code ng solusyon](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Tandaan na ang solusyon sa demo na ito ay nasa `solution-add-tokens` branch.
 
 # Hamon
 

@@ -349,7 +349,7 @@ Patakbuhin ang `anchor test` upang makita na gumagana ang pagtuturo ayon sa nila
 
 Ang simpleng pagpilit lang ang kailangan para isara ang butas na ito. Bagama't medyo gawa-gawa, ang halimbawang ito ay naglalarawan ng kakaibang gawi na maaaring mangyari kung isusulat mo ang iyong programa sa ilalim ng pagpapalagay na ang dalawang magkaparehong uri na account ay magiging magkaibang mga pagkakataon ng isang account ngunit hindi tahasang isulat ang hadlang na iyon sa iyong programa. Palaging isipin ang pag-uugali na iyong inaasahan mula sa programa at kung iyon ay tahasan.
 
-Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [repository](https://github.com/Unboxed-Software/solana-duplicate-mutable-accounts/tree/ solusyon).
+Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [repository](https://github.com/Unboxed-Software/solana-duplicate-mutable-accounts/tree/solution).
 
 # Hamon
 

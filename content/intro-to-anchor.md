@@ -127,7 +127,7 @@ Kung ang anumang mga account na ipinasa sa `instruction_one` ay nabigo sa pagpap
 
 Maaaring napansin mo sa nakaraang halimbawa na ang isa sa mga account sa `InstructionAccounts` ay may uri ng `Account`, ang isa ay may uri ng `Signer`, at ang isa ay may uri ng `Program`.
 
-Nagbibigay ang Anchor ng ilang uri ng account na maaaring gamitin upang kumatawan sa mga account. Ang bawat uri ay nagpapatupad ng iba't ibang pagpapatunay ng account. Tatalakayin namin ang ilan sa mga karaniwang uri na maaari mong makaharap, ngunit tiyaking tingnan ang [buong listahan ng mga uri ng account](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/index. html).
+Nagbibigay ang Anchor ng ilang uri ng account na maaaring gamitin upang kumatawan sa mga account. Ang bawat uri ay nagpapatupad ng iba't ibang pagpapatunay ng account. Tatalakayin namin ang ilan sa mga karaniwang uri na maaari mong makaharap, ngunit tiyaking tingnan ang [buong listahan ng mga uri ng account](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/index.html).
 
 ### `Account`
 
@@ -197,7 +197,7 @@ account_info.executable == true
 
 ## Magdagdag ng mga hadlang sa `#[account(..)]`
 
-Ginagamit ang `#[account(..)]` attribute macro para maglapat ng mga hadlang sa mga account. Tatalakayin natin ang ilang halimbawa ng hadlang sa mga aralin na ito at sa hinaharap, ngunit tiyaking tingnan ang buong [listahan ng mga posibleng hadlang](https://docs.rs/anchor-lang/latest/anchor_lang/derive .Accounts.html).
+Ginagamit ang `#[account(..)]` attribute macro para maglapat ng mga hadlang sa mga account. Tatalakayin natin ang ilang halimbawa ng hadlang sa mga aralin na ito at sa hinaharap, ngunit tiyaking tingnan ang buong [listahan ng mga posibleng hadlang](https://docs.rs/anchor-lang/latest/anchor_lang/derive.Accounts.html).
 
 Recall muli ang `account_name` na field mula sa `InstructionAccounts` na halimbawa.
 

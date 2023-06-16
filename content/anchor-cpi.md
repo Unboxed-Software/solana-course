@@ -557,7 +557,7 @@ anchor-movie-review-program
   5 passing (2s)
 ```
 
-Kung kailangan mo ng mas maraming oras sa mga konsepto mula sa araling ito o natigil ka, huwag mag-atubiling tingnan ang [code ng solusyon](https://github.com/Unboxed-Software/anchor-movie-review-program /tree/solution-add-tokens). Tandaan na ang solusyon sa demo na ito ay nasa `solution-add-tokens` branch.
+Kung kailangan mo ng mas maraming oras sa mga konsepto mula sa araling ito o natigil ka, huwag mag-atubiling tingnan ang [code ng solusyon](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-add-tokens). Tandaan na ang solusyon sa demo na ito ay nasa `solution-add-tokens` branch.
 
 # Hamon
 

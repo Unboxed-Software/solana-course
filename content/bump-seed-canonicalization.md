@@ -493,7 +493,7 @@ Attacker claimed 119 times and got 1190 tokens
 
 Kung gagamit ka ng Anchor para sa lahat ng mga derivasyon ng PDA, ang partikular na pagsasamantalang ito ay medyo simpleng iwasan. Gayunpaman, kung gagawa ka ng anumang bagay na "hindi karaniwan," mag-ingat sa disenyo ng iyong programa upang tahasang gamitin ang canonical bump!
 
-Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-bump-seed-canonicalization/tree /solusyon).
+Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-bump-seed-canonicalization/tree/solution).
 
 # Hamon
 

@@ -471,7 +471,7 @@ unknown signer: GJcHJLot3whbY1aC9PtCsBYk5jWoZnZRJPy5uUwzktAY
 
 At ayun na nga! Hindi tulad ng ilan sa iba pang mga kahinaan sa seguridad na napag-usapan namin, ang isang ito ay mas konseptwal at hindi maaaring ayusin sa pamamagitan lamang ng paggamit ng isang partikular na uri ng Anchor. Kakailanganin mong pag-isipan ang arkitektura ng iyong programa at tiyaking hindi ka nagbabahagi ng mga PDA sa iba't ibang domain.
 
-Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa `solution` branch ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-pda-sharing/tree/solution ).
+Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa `solution` branch ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-pda-sharing/tree/solution).
 
 # Hamon
 

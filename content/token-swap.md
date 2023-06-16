@@ -156,7 +156,7 @@ transaction.add(initializeTokenAccountPoolInstruction)
 
 ### Pool Token Fee Account
 
-Ang pool token fee account ay ang token account kung saan binabayaran ang mga bayarin para sa mga token swaps. Para sa Serum deployment ng Token Swap Program na ginagamit namin, ang account na ito ay dapat na pagmamay-ari ng isang partikular na account na tinukoy sa swap program: [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1TmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN/ JqaKN?cluster=devnet ).
+Ang pool token fee account ay ang token account kung saan binabayaran ang mga bayarin para sa mga token swaps. Para sa Serum deployment ng Token Swap Program na ginagamit namin, ang account na ito ay dapat na pagmamay-ari ng isang partikular na account na tinukoy sa swap program: [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet ).
 
 ```tsx
 const feeOwner = new web3.PublicKey('HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN')
@@ -461,7 +461,7 @@ Bago tayo magsimula, magpatuloy at i-download ang [starter code](https://github.
 
 Ang proyekto ay isang medyo simpleng Next.js na application na muling gumagamit ng marami sa kung ano ang dating binuo para sa demo sa [aralin sa Token Program](./token-program.md). Tulad ng nakikita mo mula sa larawan sa itaas, mayroong ilang iba't ibang mga input ng teksto at mga pindutan - lahat ng ito ay magsusumite ng mga transaksyon sa blockchain sa ngalan ng gumagamit. Ang aming pagtuon sa demo na ito ay ang paggawa ng mga tagubilin na isusumite ng huling tatlong button.
 
-Naipatupad na ang mga button ng airdrop at dapat gumana sa labas ng kahon. Gumagamit sila ng isang airdrop program na naka-deploy sa Devnet sa address na [CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3](https://explorer.solana.com/address/CPEV4ibq2VUv7UnNpkzUGL82fVRzotbwcluvnet? Maaari kang mag-mint ng maraming token hangga't gusto mo sa iyong wallet upang makipag-ugnayan sa pool.
+Naipatupad na ang mga button ng airdrop at dapat gumana sa labas ng kahon. Gumagamit sila ng isang airdrop program na naka-deploy sa Devnet sa address na [CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3](https://explorer.solana.com/address/CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3 Maaari kang mag-mint ng maraming token hangga't gusto mo sa iyong wallet upang makipag-ugnayan sa pool.
 
 ### 2. Lumikha ng Instruksyon sa Pagdeposito
 

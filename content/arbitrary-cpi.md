@@ -141,7 +141,7 @@ impl<'info> Cpi<'info> {
 
 Tandaan na, tulad ng halimbawa sa itaas, gumawa si Anchor ng ilang [wrappers para sa mga sikat na katutubong programa](https://github.com/coral-xyz/anchor/tree/master/spl/src) na nagbibigay-daan sa iyong magbigay ng mga CPI sa sila na parang mga programang Anchor.
 
-Bukod pa rito at depende sa program kung saan ka gumagawa ng CPI, maaari mong magamit ang [`Program` account type] ng Anchor(https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct .Program.html) upang i-validate ang naipasa-in na programa sa struct ng pagpapatunay ng iyong account. Sa pagitan ng [`anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) at [`anchor_spl`](https://docs.rs/anchor_spl/latest/) crates, ang sumusunod na `Programa ` mga uri ay ibinigay sa labas ng kahon:
+Bukod pa rito at depende sa program kung saan ka gumagawa ng CPI, maaari mong magamit ang [`Program` account type] ng Anchor(https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct.Program.html) upang i-validate ang naipasa-in na programa sa struct ng pagpapatunay ng iyong account. Sa pagitan ng [`anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) at [`anchor_spl`](https://docs.rs/anchor_spl/latest/) crates, ang sumusunod na `Programa ` mga uri ay ibinigay sa labas ng kahon:
 
 - [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/struct.System.html)
 - [`AssociatedToken`](https://docs.rs/anchor-spl/latest/anchor_spl/associated_token/struct.AssociatedToken.html)
@@ -348,7 +348,7 @@ Iyon lang ang kailangan mong gawin para maprotektahan laban sa mga di-makatwiran
 
 Maaaring may mga pagkakataon kung saan gusto mo ng higit na kakayahang umangkop sa mga CPI ng iyong programa. Tiyak na hindi ka namin pipigilan sa pag-arkitekto ng program na kailangan mo, ngunit mangyaring gawin ang lahat ng posibleng pag-iingat upang matiyak na walang mga kahinaan sa iyong programa.
 
-Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-arbitrary-cpi/tree/solution ).
+Kung gusto mong tingnan ang code ng panghuling solusyon, mahahanap mo ito sa sangay ng `solusyon` ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-arbitrary-cpi/tree/solution).
 
 # Hamon
 

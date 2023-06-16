@@ -100,7 +100,7 @@ const imageUri = await metaplex.storage().upload(file);
 
 Pagkatapos mag-upload ng larawan, oras na para i-upload ang off-chain na JSON metadata gamit ang `nfts().uploadMetadata` function. Magbabalik ito ng URI kung saan naka-store ang JSON metadata.
 
-Tandaan, kasama sa off-chain na bahagi ng metadata ang mga bagay tulad ng URI ng larawan pati na rin ang karagdagang impormasyon tulad ng pangalan at paglalarawan ng NFT. Bagama't maaari mong teknikal na isama ang anumang gusto mo sa object na ito ng JSON, sa karamihan ng mga kaso dapat mong sundin ang [NFT standard](https://docs.metaplex.com/programs/token-metadata/token-standard#the-non -fungible-standard) para matiyak ang pagiging tugma sa mga wallet, program, at application.
+Tandaan, kasama sa off-chain na bahagi ng metadata ang mga bagay tulad ng URI ng larawan pati na rin ang karagdagang impormasyon tulad ng pangalan at paglalarawan ng NFT. Bagama't maaari mong teknikal na isama ang anumang gusto mo sa object na ito ng JSON, sa karamihan ng mga kaso dapat mong sundin ang [NFT standard](https://docs.metaplex.com/programs/token-metadata/token-standard#the-non-fungible-standard) para matiyak ang pagiging tugma sa mga wallet, program, at application.
 
 Upang gawin ang metadata, gamitin ang paraang `uploadMetadata` na ibinigay ng SDK. Ang pamamaraang ito ay tumatanggap ng isang metadata object at nagbabalik ng isang URI na tumuturo sa na-upload na metadata.
 

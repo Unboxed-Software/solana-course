@@ -382,7 +382,7 @@ Handa na kaming buuin at i-deploy ang aming programa!
 
 ![Gif Build and Deploy Program](../assets/movie-review-pt2-build-deploy.gif)
 
-Maaari mong subukan ang iyong programa sa pamamagitan ng pagsusumite ng isang transaksyon na may tamang data ng pagtuturo. Para diyan, huwag mag-atubiling gamitin [ang script na ito](https://github.com/Unboxed-Software/solana-movie-client) o [ang frontend](https://github.com/Unboxed-Software/solana- movie-frontend) na binuo namin sa [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). Sa parehong mga kaso, siguraduhing kopyahin at i-paste mo ang program ID para sa iyong program sa naaangkop na bahagi ng source code upang matiyak na sinusubukan mo ang tamang program.
+Maaari mong subukan ang iyong programa sa pamamagitan ng pagsusumite ng isang transaksyon na may tamang data ng pagtuturo. Para diyan, huwag mag-atubiling gamitin [ang script na ito](https://github.com/Unboxed-Software/solana-movie-client) o [ang frontend](https://github.com/Unboxed-Software/solana-movie-frontend) na binuo namin sa [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). Sa parehong mga kaso, siguraduhing kopyahin at i-paste mo ang program ID para sa iyong program sa naaangkop na bahagi ng source code upang matiyak na sinusubukan mo ang tamang program.
 
 Kung gagamitin mo ang frontend, palitan lang ang `MOVIE_REVIEW_PROGRAM_ID` sa parehong bahagi ng `MovieList.tsx` at `Form.tsx` ng address ng program na iyong na-deploy. Pagkatapos ay patakbuhin ang frontend, magsumite ng view, at i-refresh ang browser para makita ang review.
 
@@ -399,6 +399,6 @@ Gamit ang iyong natutunan sa araling ito, buuin ang programang ito. Bilang karag
 1. Gumawa ng hiwalay na account para sa bawat mag-aaral
 2. I-store ang `is_initialized` bilang boolean, `name` bilang string, at `msg` bilang string sa bawat account
 
-Maaari mong subukan ang iyong programa sa pamamagitan ng pagbuo ng [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) na ginawa namin sa aralin ng [Page, Order, at Filter ng Custom na Data ng Account](. /paging-ordering-filtering-data.md). Tandaang palitan ang program ID sa frontend code ng na-deploy mo.
+Maaari mong subukan ang iyong programa sa pamamagitan ng pagbuo ng [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) na ginawa namin sa aralin ng [Page, Order, at Filter ng Custom na Data ng Account](./paging-ordering-filtering-data.md). Tandaang palitan ang program ID sa frontend code ng na-deploy mo.
 
 Subukang gawin ito nang nakapag-iisa kung kaya mo! Ngunit kung natigil ka, huwag mag-atubiling sumangguni sa [code ng solusyon](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).

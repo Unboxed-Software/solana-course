@@ -499,7 +499,7 @@ Huwag mag-atubiling i-click ang mga link upang siyasatin ang mga log ng programa
 
 Binabati kita, alam mo na ngayon kung paano mag-set up ng frontend para mag-invoke ng isang Solana program gamit ang isang Anchor IDL.
 
-Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable sa mga konseptong ito, huwag mag-atubiling tingnan ang [solution code sa `solution-increment` branch](https://github.com/Unboxed-Software/anchor- ping-frontend/tree/solution-increment) bago magpatuloy.
+Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable sa mga konseptong ito, huwag mag-atubiling tingnan ang [solution code sa `solution-increment` branch](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/solution-increment) bago magpatuloy.
 
 # Hamon
 

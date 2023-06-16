@@ -384,7 +384,7 @@ const handleTransactionSubmit = async (movie: Movie) => {
 
 At iyon na! Dapat mo na ngayong gamitin ang form sa site upang magsumite ng pagsusuri sa pelikula. Bagama't hindi mo makikita ang pag-update ng UI upang ipakita ang bagong pagsusuri, maaari mong tingnan ang mga log ng programa ng transaksyon sa Solana Explorer upang makitang matagumpay ito.
 
-Kung kailangan mo ng kaunti pang oras sa proyektong ito para kumportable, tingnan ang kumpletong [code ng solusyon](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction -data).
+Kung kailangan mo ng kaunti pang oras sa proyektong ito para kumportable, tingnan ang kumpletong [code ng solusyon](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-serialize-instruction-data).
 
 # Hamon
 

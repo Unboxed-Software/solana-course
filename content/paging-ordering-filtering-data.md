@@ -139,7 +139,7 @@ Tandaan ang Movie Review app na ginawa namin sa huling dalawang aralin? Papagand
 
 ### **1. I-download ang starter code**
 
-Kung hindi mo nakumpleto ang demo mula sa huling aralin o gusto mo lang matiyak na wala kang napalampas, maaari mong i-download ang [starter code](https://github.com/Unboxed-Software/solana-movie -frontend/tree/solution-deserialize-account-data).
+Kung hindi mo nakumpleto ang demo mula sa huling aralin o gusto mo lang matiyak na wala kang napalampas, maaari mong i-download ang [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account-data).
 
 Ang proyekto ay isang medyo simpleng Next.js application. Kabilang dito ang `WalletContextProvider` na ginawa namin sa aralin sa Wallets, isang bahagi ng `Card` para sa pagpapakita ng pagsusuri sa pelikula, isang bahagi ng `MovieList` na nagpapakita ng mga review sa isang listahan, isang bahagi ng `Form` para sa pagsusumite ng bagong review, at isang ` Movie.ts` file na naglalaman ng kahulugan ng klase para sa object na `Movie`.
 
@@ -421,7 +421,7 @@ return (
 
 At iyon na! Nag-order na ngayon ang app ng mga review, paging, at paghahanap.
 
-Napakaraming dapat tunawin, ngunit nagtagumpay ka. Kung kailangan mong gumugol ng mas maraming oras sa mga konsepto, huwag mag-atubiling basahin muli ang mga seksyong pinakahamong para sa iyo at/o tingnan ang [code ng solusyon](https://github.com/Unboxed-Software/solana -movie-frontend/tree/solution-paging-account-data).
+Napakaraming dapat tunawin, ngunit nagtagumpay ka. Kung kailangan mong gumugol ng mas maraming oras sa mga konsepto, huwag mag-atubiling basahin muli ang mga seksyong pinakahamong para sa iyo at/o tingnan ang [code ng solusyon](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-paging-account-data).
 
 # Hamon
 
