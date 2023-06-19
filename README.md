@@ -93,6 +93,14 @@ General flow for making a contribution:
 
 **NOTE**: Be sure to merge the latest from `upstream/draft` before making a pull request!
 
+### Localization
+
+In order for the course structure to be maintained, localized files need to adhere to the following rules:
+
+1. Localized lesson files should be in a subdirectory of `content` named after the language abbreviation. For example, lessons translated into Spanish should be housed in `content/es`.
+2. Localized asset files should be in a subdirectory of `assets` named after the language abbreviation. For example, assets localized into Spanish should be housed in `assets/es`.
+3. File names for localized files must be identical to their English counterpart. To be clear, *do not translate file names*. The file name is used as the slug for the article and must be identical between languages.
+
 ### Providing general feedback
 
 If you have feedback on content or suggestions for additional content, simply [create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) explaining your feedback/suggestions.
