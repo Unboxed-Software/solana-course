@@ -1,12 +1,10 @@
-# Account Data Matching
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Account Data Matching
+objectives:
 - Explain the security risks associated with missing data validation checks
 - Implement data validation checks using long-form Rust
 - Implement data validation checks using Anchor constraints
+---
 
 # TL;DR
 

@@ -1,13 +1,11 @@
-# Create Solana NFTs With Metaplex
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Create Solana NFTs With Metaplex
+objectives:
 - Explain NFTs and how they're represented on the Solana network
 - Explain the role of Metaplex in the Solana NFT ecosystem
 - Create and update NFTs using the Metaplex SDK
 - Explain the basic functionality of the Token Metadata program, Candy Machine program, and Sugar CLI as tools that assist in creating and distributing NFTs on Solana
+---
 
 # TL;DR
 

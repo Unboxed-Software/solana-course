@@ -1,15 +1,13 @@
-# Create a Basic Program, Part 3 - Basic Security and Validation
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Create a Basic Program, Part 3 - Basic Security and Validation
+objectives:
 - Explain the importance of "thinking like an attacker"
 - Understand basic security practices
 - Perform owner checks
 - Perform signer checks
 - Validate accounts passed into the program
 - Perform basic data validation
+---
 
 # TL;DR
 

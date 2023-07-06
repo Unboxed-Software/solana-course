@@ -1,9 +1,6 @@
-# Write Data To The Solana Network
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Write Data To The Solana Network
+objectives:
 - Explain keypair
 - Use `@solana/web3.js` to generate a keypair
 - Use `@solana/web3.js` to create a keypair using a secret key
@@ -12,6 +9,7 @@
 - Use `@solana/web3.js` to send sol
 - Use `@solana/web3.js` to sign transactions
 - Use Solana explorer to view transactions
+---
 
 # TL;DR
 
