@@ -40,7 +40,7 @@ Los pares de teclas regulares de Solana se encuentran en la curva elíptica ed25
 
 Para encontrar una clave pública que no se encuentre en la curva ed2559, el ID del programa y las semillas de la elección del desarrollador (como una cadena de texto) se pasan a través de la función [ `findProgramAddress(seeds, programid)`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). Esta función combina el ID del programa, las semillas y una semilla de bache en un búfer y lo pasa a un hash SHA256 para ver si la dirección resultante está o no en la curva. Si la dirección está en la curva (~50% de probabilidad de que lo esté), entonces la semilla de la protuberancia se decrementa en 1 y la dirección se calcula de nuevo. La semilla de protuberancia comienza en 255 y progresivamente itera hasta `bump = 254`, `bump = 253`, etc. hasta que se encuentra una dirección con las semillas dadas y la protuberancia que no se encuentra en la curva ed2559. La `findProgramAddress` función devuelve la dirección resultante y el bache utilizado para sacarla de la curva. De esta manera, la dirección se puede generar en cualquier lugar, siempre y cuando tenga el bache y las semillas.
 
-![Captura de pantalla de la curva ed2559](../assets/ed2559-curve.png)
+![Captura de pantalla de la curva ed2559](../../assets/ed2559-curve.png)
 
 Los PDA son un concepto único y son una de las partes más difíciles de entender del desarrollo de Solana. Si no lo entiendes enseguida, no te preocupes. Tendrá más sentido cuanto más practiques.
 
@@ -124,7 +124,7 @@ Practiquemos esto juntos al continuar trabajando en la aplicación Movie Review 
 
 Como actualización, este proyecto utiliza un programa de Solana implementado en Devnet que permite a los usuarios revisar películas. En la última lección, agregamos funcionalidad al esqueleto del frontend que permite a los usuarios enviar reseñas de películas, pero la lista de reseñas aún muestra datos simulados. Vamos a arreglar eso buscando las cuentas de almacenamiento del programa y deserializando los datos almacenados allí.
 
-![Captura de pantalla del frontend de revisión de películas](../assets/movie-reviews-frontend.png)
+![Captura de pantalla del frontend de revisión de películas](../../assets/movie-reviews-frontend.png)
 
 ### 1. Descarga el código de inicio
 
@@ -255,7 +255,7 @@ Si necesita más tiempo con este proyecto para sentirse cómodo con estos concep
 
 Ahora es tu turno de construir algo de forma independiente. En la última lección, trabajó en la aplicación Student Intros para serializar los datos de instrucción y enviar una nueva introducción a la red. Ahora, es el momento de buscar y deserializar los datos de la cuenta del programa. Recuerde, el programa Solana que apoya esto es en `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
 
-![Captura de pantalla del frontend de Student Intros](../assets/student-intros-frontend.png)
+![Captura de pantalla del frontend de Student Intros](../../assets/student-intros-frontend.png)
 
 1. Puede construir esto desde cero o puede descargar el código de inicio[here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 2. Cree el diseño del búfer de la cuenta en `StudentIntro.ts`. Los datos de la cuenta contienen:

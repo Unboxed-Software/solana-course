@@ -188,7 +188,7 @@ Al probar, ya sea localmente o en devnet, puede usar el comando CLI de Solana `s
 
 ### Solana Explorer
 
-![Captura de pantalla de Solana Explorer configurada en Devnet](../assets/solana-explorer-devnet.png)
+![Captura de pantalla de Solana Explorer configurada en Devnet](../../assets/solana-explorer-devnet.png)
 
 Todas las transacciones en la cadena de bloques se pueden ver públicamente en el[Solana Explorer](http://explorer.solana.com). Por ejemplo, podría tomar la firma devuelta por `sendAndConfirmTransaction()` en el ejemplo anterior, buscar esa firma en Solana Explorer y luego ver:
 
@@ -197,7 +197,7 @@ Todas las transacciones en la cadena de bloques se pueden ver públicamente en e
 -   la tasa de transacción
 -   ¡Y más!
 
-![Captura de pantalla de Solana Explorer con detalles sobre una transacción](../assets/solana-explorer-transaction-overview.png)
+![Captura de pantalla de Solana Explorer con detalles sobre una transacción](../../assets/solana-explorer-transaction-overview.png)
 
 # Demostración
 
@@ -448,7 +448,7 @@ Ahora ejecute el código de nuevo. Puede tomar un momento o dos, pero ahora el c
 
 Copie esta firma de confirmación. Abra un navegador y vaya a [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (el parámetro de consulta al final de la URL se asegurará de que explore las transacciones en Devnet en lugar de Mainnet). Pegue la firma en la barra de búsqueda en la parte superior del explorador Devnet de Solana y presione enter. Deberías ver todos los detalles de la transacción. Si se desplaza todo el camino hasta la parte inferior, a continuación `Program Logs`, verá, que muestran cuántas veces el programa se ha hecho ping incluyendo su ping.
 
-![Captura de pantalla de Solana Explorer con registros de llamadas al programa Ping](../assets/solana-explorer-ping-result.png)
+![Captura de pantalla de Solana Explorer con registros de llamadas al programa Ping](../../assets/solana-explorer-ping-result.png)
 
 Si desea facilitar la búsqueda de transacciones en Solana Explorer en el futuro, simplemente cambie `console.log` `pingProgram()` a lo siguiente:
 

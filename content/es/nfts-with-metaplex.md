@@ -38,7 +38,7 @@ Típicamente, los metadatos de un NFT tienen tanto un componente dentro como fue
 
 A continuación se muestra un ejemplo de la relación entre los metadatos dentro y fuera de la cadena. Los metadatos en cadena contienen un campo URI que apunta a un `.json` archivo fuera de cadena que almacena el enlace a la imagen del NFT y metadatos adicionales.
 
-![Captura de pantalla de metadatos](../assets/solana-nft-metaplex-metadata.png)
+![Captura de pantalla de metadatos](../../assets/solana-nft-metaplex-metadata.png)
 
 ## **Metaplex**
 

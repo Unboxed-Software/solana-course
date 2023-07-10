@@ -9,11 +9,11 @@ title: Crear un Programa Básico, Parte 2 - Objetivos de la Administración del 
 
 # TL;DR
 
-- El estado del programa se almacena en otras cuentas en lugar de en el propio programa.
-- Una dirección derivada de programa (PDA) se deriva de un ID de programa y una lista opcional de semillas. Una vez obtenidos, los PDA se utilizan posteriormente como la dirección para una cuenta de almacenamiento.
-- Crear una cuenta requiere que calculemos el espacio requerido y el alquiler correspondiente para asignar a la nueva cuenta
-- Crear una nueva cuenta requiere una Invocación de Programa Cruzado (CPI) a la `create_account` instrucción en el Programa del Sistema
-- La actualización del campo de datos en una cuenta requiere que serialicemos (convertir a matriz de bytes) los datos en la cuenta
+-   El estado del programa se almacena en otras cuentas en lugar de en el propio programa.
+-   Una dirección derivada de programa (PDA) se deriva de un ID de programa y una lista opcional de semillas. Una vez obtenidos, los PDA se utilizan posteriormente como la dirección para una cuenta de almacenamiento.
+-   Crear una cuenta requiere que calculemos el espacio requerido y el alquiler correspondiente para asignar a la nueva cuenta
+-   Crear una nueva cuenta requiere una Invocación de Programa Cruzado (CPI) a la `create_account` instrucción en el Programa del Sistema
+-   La actualización del campo de datos en una cuenta requiere que serialicemos (convertir a matriz de bytes) los datos en la cuenta
 
 # Descripción general
 
@@ -35,7 +35,6 @@ Al escribir un programa en Rust, normalmente creamos este "formato" definiendo u
 
 Si bien este tipo debe reflejar la estructura de sus datos, para la mayoría de los casos de uso es suficiente una estructura simple. Por ejemplo, un programa de toma de notas que almacena notas en cuentas separadas probablemente tendría datos para un título, cuerpo y tal vez una identificación de algún tipo. Podríamos crear una estructura para representar eso de la siguiente manera:
 
-
 ```rust
 struct NoteState {
     title: String,
@@ -49,7 +48,6 @@ struct NoteState {
 Al igual que con los datos de instrucción, necesitamos un mecanismo para convertir de nuestro tipo de datos Rust a una matriz de bytes, y viceversa. **Serialización** es el proceso de convertir un objeto en una matriz de bytes. **Deserialización** es el proceso de reconstruir un objeto a partir de una matriz de bytes.
 
 Continuaremos usando Borsh para serialización y deserialización. En Rust, podemos usar la `borsh` caja para acceder a los `BorshDeserialize` rasgos `BorshSerialize` y. A continuación, podemos aplicar esos rasgos utilizando la macro de `derive` atributos.
-
 
 ```rust
 use borsh::{BorshSerialize, BorshDeserialize};
@@ -86,7 +84,6 @@ Para datos dinámicos, como cadenas, Borsh añade 4 bytes adicionales al princip
 
 Puede sumar esas longitudes y luego calcular la renta requerida para esa cantidad de espacio utilizando la `minimum_balance` función del `rent` módulo de la `solana_program` caja.
 
-
 ```rust
 // Calculate account size required for struct NoteState
 let account_len: usize = (4 + title.len()) + (4 + body.len()) + 8;
@@ -106,7 +103,6 @@ Además de las semillas que proporciona para derivar un PDA, la `find_program_ad
 
 Para nuestro programa de toma de notas, utilizaremos la clave pública del creador de notas y el ID como semillas opcionales para derivar el PDA. Derivar el PDA de esta manera nos permite encontrar de manera determinista la cuenta para cada nota.
 
-
 ```rust
 let (note_pda_account, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
 ```
@@ -117,14 +113,12 @@ Una vez que hemos calculado el alquiler requerido para nuestra cuenta y hemos en
 
 Los CPI se pueden hacer usando cualquiera `invoke` o `invoke_signed`.
 
-
 ```rust
 pub fn invoke(
     instruction: &Instruction,
     account_infos: &[AccountInfo<'_>]
 ) -> ProgramResult
 ```
-
 
 ```rust
 pub fn invoke_signed(
@@ -137,7 +131,6 @@ pub fn invoke_signed(
 Para esta lección vamos a utilizar `invoke_signed`. A diferencia de una firma regular donde se usa una clave privada para firmar, `invoke_signed` usa las semillas opcionales, la semilla de bump y el ID de programa para derivar un PDA y firmar una instrucción. Esto se hace comparando el PDA derivado con todas las cuentas pasadas a la instrucción. Si alguna de las cuentas coincide con el PDA, entonces el campo de firmante para esa cuenta se establece en true.
 
 Un programa puede firmar transacciones de forma segura de esta manera porque `invoke_signed` genera el PDA utilizado para firmar con el ID de programa del programa que invoca la instrucción. Por lo tanto, no es posible que un programa genere un PDA coincidente para firmar una cuenta con un PDA derivado usando otro ID de programa.
-
 
 ```rust
 invoke_signed(
@@ -166,7 +159,6 @@ El primer paso para actualizar los datos de una cuenta es deserializar su matriz
 
 A continuación, puede utilizar la `try_from_slice_unchecked` función para deserializar el campo de datos de la cuenta prestada utilizando el formato del tipo que creó para representar los datos. Esto le da una instancia de su tipo de óxido para que pueda actualizar fácilmente los campos utilizando la notación de puntos. Si tuviéramos que hacer esto con el ejemplo de la aplicación para tomar notas que hemos estado usando, se vería así:
 
-
 ```rust
 let mut account_data = try_from_slice_unchecked::<NoteState>(note_pda_account.data.borrow()).unwrap();
 
@@ -180,7 +172,6 @@ account_data.id = id;
 Una vez que la instancia de Rust que representa los datos de la cuenta se ha actualizado con los valores apropiados, puede "guardar" los datos en la cuenta.
 
 Esto se hace con la `serialize` función en la instancia del tipo de óxido que creó. Tendrá que pasar una referencia mutable a los datos de la cuenta. La sintaxis aquí es complicada, así que no te preocupes si no la entiendes completamente. Los préstamos y las referencias son dos de los conceptos más difíciles en Rust.
-
 
 ```rust
 account_data.serialize(&mut &mut note_pda_account.data.borrow_mut()[..])?;
@@ -197,7 +188,6 @@ Para obtener acceso a esta y otras cuentas, utilizamos un[Iterator](https://doc.
 ### Rust iterator
 
 El patrón iterador le permite realizar alguna tarea en una secuencia de elementos. El `iter()` método crea un objeto iterador que hace referencia a una colección. Un iterador es responsable de la lógica de iterar sobre cada elemento y determinar cuándo ha terminado la secuencia. En Rust, los iteradores son perezosos, lo que significa que no tienen efecto hasta que llama a los métodos que consumen el iterador para usarlo. Una vez que haya creado un iterador, debe llamar a la `next()` función en él para obtener el siguiente elemento.
-
 
 ```rust
 let v1 = vec![1, 2, 3];
@@ -221,7 +211,6 @@ En ese momento, en lugar de usar el iterador directamente, lo pasamos a la `next
 Por ejemplo, la instrucción para crear una nueva nota en un programa de toma de notas requeriría como mínimo las cuentas para el usuario que crea la nota, un PDA para almacenar la nota y `system_program` la inicialización de una nueva cuenta. Las tres cuentas se pasarían al punto de entrada del programa a través del `accounts` argumento. Un iterador de `accounts` se utiliza entonces para separar el `AccountInfo` asociado con cada cuenta para procesar la instrucción.
 
 Tenga en cuenta que `&mut` significa una referencia mutable al `accounts` argumento. Puede leer más sobre las referencias en Rust [here](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) y la `mut` palabra clave[here](https://doc.rust-lang.org/std/keyword.mut.html).
-
 
 ```rust
 // Get Account iterator
@@ -256,18 +245,16 @@ Este archivo:
 
 En primer lugar, vamos a poner en alcance todo lo que necesitaremos de la `borsh` caja.
 
-
 ```rust
 use borsh::{BorshSerialize, BorshDeserialize};
 ```
 
 A continuación, vamos a crear nuestra `MovieAccountState` estructura. Esta estructura definirá los parámetros que cada nueva cuenta de revisión de películas almacenará en su campo de datos. Nuestra `MovieAccountState` estructura requerirá los siguientes parámetros:
 
--  `is_initialized` - muestra si la cuenta se ha inicializado o no
--  `rating` - Valoración del usuario de la película
--  `description` - Descripción del usuario de la película
--  `title` - título de la película que el usuario está revisando
-
+-   `is_initialized` - muestra si la cuenta se ha inicializado o no
+-   `rating` - Valoración del usuario de la película
+-   `description` - Descripción del usuario de la película
+-   `title` - título de la película que el usuario está revisando
 
 ```rust
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -275,14 +262,13 @@ pub struct MovieAccountState {
     pub is_initialized: bool,
     pub rating: u8,
     pub title: String,
-    pub description: String  
+    pub description: String
 }
 ```
 
 ### 3. Actualizar `lib.rs`
 
 A continuación, actualicemos nuestro `lib.rs` archivo. Primero, pondremos en alcance todo lo que necesitaremos para completar nuestro programa de Revisión de Películas. Puede leer más sobre los detalles de cada artículo que estamos utilizando desde la `solana_program` caja[here](https://docs.rs/solana-program/latest/solana_program/).
-
 
 ```rust
 use solana_program::{
@@ -309,7 +295,6 @@ use borsh::BorshSerialize;
 
 A continuación, continuemos desarrollando nuestra `add_movie_review` función. Recuerde que una serie de cuentas se pasa a la `add_movie_review` función a través de un solo `accounts` argumento. Para procesar nuestra instrucción, necesitaremos iterar `accounts` y asignar la `AccountInfo` para cada cuenta a su propia variable.
 
-
 ```rust
 // Get Account iterator
 let account_info_iter = &mut accounts.iter();
@@ -326,7 +311,6 @@ A continuación, dentro de nuestra `add_movie_review` función, vamos a derivar 
 
 Tenga en cuenta que derivamos el PDA para cada nueva cuenta utilizando la clave pública del inicializador y el título de la película como semillas opcionales. Configurar el PDA de esta manera restringe a cada usuario a solo una revisión para cualquier título de película. Sin embargo, todavía permite que el mismo usuario revise películas con diferentes títulos y que diferentes usuarios revisen películas con el mismo título.
 
-
 ```rust
 // Derive PDA and check that it matches client
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
@@ -337,7 +321,6 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), 
 A continuación, vamos a calcular el alquiler que nuestra nueva cuenta necesitará. Recordemos que el alquiler es la cantidad de lamports que un usuario debe asignar a una cuenta para almacenar datos en la red de Solana. Para calcular el alquiler, primero debemos calcular la cantidad de espacio que requiere nuestra nueva cuenta.
 
 La `MovieAccountState` estructura tiene cuatro campos. Asignaremos 1 byte cada uno para `rating` y `is_initialized`. Para ambos `title` y `description` asignaremos un espacio igual a 4 bytes más la longitud de la cadena.
-
 
 ```rust
 // Calculate account size required
@@ -351,7 +334,6 @@ let rent_lamports = rent.minimum_balance(account_len);
 ### 7. Crear nueva cuenta
 
 Una vez que hayamos calculado el alquiler y verificado el PDA, estamos listos para crear nuestra nueva cuenta. Para crear una nueva cuenta, debemos llamar a la `create_account` instrucción del programa del sistema. Hacemos esto con una Invocación de Programa Cruzado (CPI) usando la `invoke_signed` función. Usamos `invoke_signed` porque estamos creando la cuenta usando un PDA y necesitamos el programa de revisión de películas para "firmar" la instrucción.
-
 
 ```rust
 // Create the account
@@ -374,7 +356,6 @@ msg!("PDA created: {}", pda);
 
 Ahora que hemos creado una nueva cuenta, estamos listos para actualizar el campo de datos de la nueva cuenta utilizando el formato de la `MovieAccountState` estructura de nuestro `state.rs` archivo. Primero deserializamos los datos de la cuenta del `pda_account` uso `try_from_slice_unchecked`, luego establecemos los valores de cada campo.
 
-
 ```rust
 msg!("unpacking state account");
 let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
@@ -388,7 +369,6 @@ account_data.is_initialized = true;
 
 Por último, serializamos el actualizado `account_data` en el campo de datos de nuestro `pda_account`.
 
-
 ```rust
 msg!("serializing account");
 account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
@@ -399,7 +379,7 @@ msg!("state account serialized");
 
 ¡Estamos listos para construir e implementar nuestro programa!
 
-![Programa Gif Build and Deploy](../assets/movie-review-pt2-build-deploy.gif)
+![Programa Gif Build and Deploy](../../assets/movie-review-pt2-build-deploy.gif)
 
 Puede probar su programa enviando una transacción con los datos de instrucción correctos. Para eso, siéntase libre de usar [este script](https://github.com/Unboxed-Software/solana-movie-client) o [el frontend](https://github.com/Unboxed-Software/solana-movie-frontend) construimos en el[Deserializar la lección de datos de instrucción personalizada](deserialize-custom-data.md). En ambos casos, asegúrese de copiar y pegar el ID de programa para su programa en el área apropiada del código fuente para asegurarse de que está probando el programa correcto.
 
@@ -421,4 +401,3 @@ Usando lo que has aprendido en esta lección, desarrolla este programa. Además 
 Puede probar su programa construyendo el [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) que creamos en el[Lección de datos de cuenta personalizada de página, pedido y filtro](./paging-ordering-filtering-data.md). Recuerde reemplazar el ID del programa en el código del frontend con el que ha implementado.
 
 ¡Intenta hacerlo de forma independiente si puedes! Pero si te quedas atascado, siéntete libre de hacer referencia a la[código de solución](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
-

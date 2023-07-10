@@ -98,7 +98,7 @@ Tenga en cuenta que `ConnectionProvider` requiere una `endpoint` propiedad y que
 
 En este punto, puede conectarse con `wallet.connect()`, lo que instruirá efectivamente a la billetera para solicitar al usuario permiso para ver su clave pública y solicitar la aprobación de transacciones.
 
-![Captura de pantalla del mensaje de conexión a la billetera](../assets/wallet-connect-prompt.png)
+![Captura de pantalla del mensaje de conexión a la billetera](../../assets/wallet-connect-prompt.png)
 
 Si bien puede hacer esto en un `useEffect` gancho, generalmente querrá proporcionar una funcionalidad más sofisticada. Por ejemplo, es posible que desee que los usuarios puedan elegir entre una lista de billeteras compatibles o desconectarse después de que ya se hayan conectado.
 
@@ -141,13 +141,13 @@ export default Home;
 
 La funcionalidad `WalletModalProvider` añade para presentar una pantalla modal para que los usuarios seleccionen qué billetera les gustaría usar. El comportamiento `WalletMultiButton` cambia para que coincida con el estado de la conexión:
 
-![Captura de pantalla de la opción de selección de billetera de varios botones](../assets/multi-button-select-wallet.png)
+![Captura de pantalla de la opción de selección de billetera de varios botones](../../assets/multi-button-select-wallet.png)
 
-![Captura de pantalla del modal Connect Wallet](../assets/connect-wallet-modal.png)
+![Captura de pantalla del modal Connect Wallet](../../assets/connect-wallet-modal.png)
 
-![Captura de pantalla de las opciones de conexión de varios botones](../assets/multi-button-connect.png)
+![Captura de pantalla de las opciones de conexión de varios botones](../../assets/multi-button-connect.png)
 
-![Captura de pantalla del estado conectado de varios botones](../assets/multi-button-connected.png)
+![Captura de pantalla del estado conectado de varios botones](../../assets/multi-button-connected.png)
 
 También puede utilizar componentes más granulares si necesita una funcionalidad más específica:
 
@@ -220,13 +220,13 @@ const sendSol = (event) => {
 
 Cuando se llama a esta función, la billetera conectada mostrará la transacción para la aprobación del usuario. Si se aprueba, se enviará la transacción.
 
-![Captura de pantalla del aviso de aprobación de transacción de billetera](../assets/wallet-transaction-approval-prompt.png)
+![Captura de pantalla del aviso de aprobación de transacción de billetera](../../assets/wallet-transaction-approval-prompt.png)
 
 # Demostración
 
 Tomemos el programa Ping de la última lección y construyamos una interfaz que permita a los usuarios aprobar una transacción que haga ping al programa. Como recordatorio, la clave pública del programa es `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` y la clave pública de la cuenta de datos es `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
-![Captura de pantalla de la aplicación Solana Ping](../assets/solana-ping-app.png)
+![Captura de pantalla de la aplicación Solana Ping](../../assets/solana-ping-app.png)
 
 ### 1. Descargue la extensión del navegador Phantom y configúrela en Devnet
 
@@ -475,7 +475,7 @@ Si necesitas pasar algún tiempo mirando el código fuente completo de esta demo
 
 Ahora es tu turno de construir algo de forma independiente. Cree una aplicación que permita a un usuario conectar su billetera Phantom y enviar SOL a otra cuenta.
 
-![Captura de pantalla de la aplicación Send Sol](../assets/solana-send-sol-app.png)
+![Captura de pantalla de la aplicación Send Sol](../../assets/solana-send-sol-app.png)
 
 1. Puede construir esto desde cero o puede descargar el código de inicio[here](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/starter).
 2. Envuelva la aplicación de inicio en los proveedores de contexto apropiados.

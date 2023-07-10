@@ -184,7 +184,7 @@ web3.sendAndConfirmTransaction(connection, transaction, [player]).then(
 
 Practiquemos esto juntos construyendo una aplicación de revisión de películas que permita a los usuarios enviar una revisión de películas y almacenarla en la red de Solana. Vamos a construir esta aplicación un poco a la vez en las próximas lecciones, añadiendo nuevas funcionalidades en cada lección.
 
-![Captura de pantalla del frontend de revisión de películas](../assets/movie-reviews-frontend.png)
+![Captura de pantalla del frontend de revisión de películas](../../assets/movie-reviews-frontend.png)
 
 La clave pública del programa Solana que usaremos para esta aplicación es `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
@@ -413,7 +413,7 @@ Si necesitas un poco más de tiempo con este proyecto para sentirte cómodo, ech
 
 Ahora es tu turno de construir algo de forma independiente. ¡Crea una aplicación que permita a los estudiantes de este curso presentarse! El programa de Solana que apoya esto está en `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
 
-![Captura de pantalla del frontend de Student Intros](../assets/student-intros-frontend.png)
+![Captura de pantalla del frontend de Student Intros](../../assets/student-intros-frontend.png)
 
 1. Puede construir esto desde cero o puede descargar el código de inicio[here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/starter).
 2. Cree el diseño del búfer de instrucciones en `StudentIntro.ts`. El programa espera que los datos de instrucción contengan:

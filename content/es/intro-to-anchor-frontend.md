@@ -43,7 +43,7 @@ Para crear una instancia de `Program`, necesitará lo siguiente:
 -   `Provider` - encapsula el `Connection` a un clúster de Solana y un `Wallet`
 -   `ProgramId` - la dirección en cadena del programa
 
-![Estructura de anclaje](../assets/anchor-client-structure.png)
+![Estructura de anclaje](../../assets/anchor-client-structure.png)
 
 La imagen de arriba muestra cómo cada una de estas piezas se combinan para crear una `Program` instancia. Repasaremos cada uno de ellos individualmente para tener una mejor idea de cómo todo se une.
 
@@ -488,13 +488,13 @@ En este punto, ¡todo debería funcionar! Puede probar el frontend ejecutando `n
 4. Haga clic en el `Increment Counter` botón y, a continuación, apruebe la transacción
 5. Espere unos segundos y haga clic `Refresh Count`. El recuento debe incrementarse en la pantalla.
 
-![Gif de Anchor Frontend Demo](../assets/anchor-frontend-demo.gif)
+![Gif de Anchor Frontend Demo](../../assets/anchor-frontend-demo.gif)
 
 ¡Siéntase libre de hacer clic en los enlaces para inspeccionar los registros del programa de cada transacción!
 
-![Captura de pantalla de Initialize Program Log](../assets/anchor-frontend-initialize.png)
+![Captura de pantalla de Initialize Program Log](../../assets/anchor-frontend-initialize.png)
 
-![Captura de pantalla del registro del programa de incremento](../assets/anchor-frontend-increment.png)
+![Captura de pantalla del registro del programa de incremento](../../assets/anchor-frontend-increment.png)
 
 Enhorabuena, ahora sabe cómo configurar un frontend para invocar un programa Solana utilizando un IDL de Anchor.
 

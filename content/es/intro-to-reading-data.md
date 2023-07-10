@@ -49,7 +49,7 @@ Las claves públicas son de 256 bits y a menudo se muestran como cadenas codific
 
 ## La API Solana JSON RPC
 
-![Ilustración que muestra cómo ocurre la interacción del lado del cliente con la red Solana a través de la API JSON RPC](../assets/json-rpc-illustration.png)
+![Ilustración que muestra cómo ocurre la interacción del lado del cliente con la red Solana a través de la API JSON RPC](../../assets/json-rpc-illustration.png)
 
 Toda la interacción del cliente con la red de Solana ocurre a través de Solana[JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api).
 
@@ -139,7 +139,7 @@ Vamos a crear un sitio web simple que permite a los usuarios comprobar el saldo 
 
 Se verá algo como esto:
 
-![Captura de pantalla de la solución de demostración](../assets/intro-frontend-demo.png)
+![Captura de pantalla de la solución de demostración](../../assets/intro-frontend-demo.png)
 
 Con el fin de permanecer en el tema, no vamos a trabajar completamente desde cero. Puedes encontrar el código de inicio[here](https://github.com/Unboxed-Software/solana-intro-frontend/tree/starter). El proyecto inicial utiliza Next.js y Typescript. Si estás acostumbrado a una pila diferente, ¡no te preocupes! Los principios de web3 y Solana que aprenderá a lo largo de estas lecciones son aplicables a la pila frontend con la que se sienta más cómodo.
 
@@ -221,6 +221,6 @@ Dado que este es el primer desafío, lo mantendremos simple. Siga adelante y añ
 
 Su dirección de billetera estándar _no_ será ejecutable, por lo que si desea una dirección que _will_ sea ejecutable para pruebas, úsela `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
-![Captura de pantalla de la solución de desafío final](../assets/intro-frontend-challenge.png)
+![Captura de pantalla de la solución de desafío final](../../assets/intro-frontend-challenge.png)
 
 Si te quedas atascado siéntete libre de echar un vistazo a la[código de solución](https://github.com/Unboxed-Software/solana-intro-frontend/tree/challenge-solution).

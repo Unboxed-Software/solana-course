@@ -468,7 +468,7 @@ Para esta demostración, se ha creado un grupo de tokens de dos tokens nuevos y 
 -   retirar su liquidez depositada
 -   intercambio de un token a otro
 
-![Captura de pantalla de la demo de Token Swap](../assets/token-swap-frontend.png)
+![Captura de pantalla de la demo de Token Swap](../../assets/token-swap-frontend.png)
 
 ### 1. Descarga el código de inicio
 

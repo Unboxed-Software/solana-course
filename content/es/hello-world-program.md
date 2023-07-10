@@ -182,7 +182,7 @@ Vamos a construir un programa "¡Hola, Mundo!" usando Solana Playground. Solana 
 
 Haga clic [here](https://beta.solpg.io/) para abrir Solana Playground. A continuación, siga adelante y elimine todo en el `lib.rs` archivo predeterminado y cree una billetera Playground.
 
-![Cartera Gif Solana Playground Create](../assets/hello-world-create-wallet.gif)
+![Cartera Gif Solana Playground Create](../../assets/hello-world-create-wallet.gif)
 
 ### 2. Solana Program Crate
 
@@ -244,7 +244,7 @@ pub fn process_instruction(
 
 Ahora vamos a construir y desplegar nuestro programa usando Solana Playground.
 
-![Gif Solana Playground Construir y desplegar](../assets/hello-world-build-deploy.gif)
+![Gif Solana Playground Construir y desplegar](../../assets/hello-world-build-deploy.gif)
 
 ### 5. Invocar programa
 
@@ -260,7 +260,7 @@ let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
 
 Puede localizar el ID del programa en Solana Playground haciendo referencia a la imagen a continuación.
 
-![ID del programa Gif Solana Playground](../assets/hello-world-program-id.gif)
+![ID del programa Gif Solana Playground](../../assets/hello-world-program-id.gif)
 
 A continuación, instale los módulos Nodo con `npm i`.
 
@@ -273,7 +273,7 @@ Ahora, adelante y corre `npm start`. Este comando:
 
 Copie la URL de transacción impresa en la consola en su navegador. Desplácese hacia abajo para ver "¡Hola, mundo!" en Registros de instrucciones del programa.
 
-![Captura de pantalla del registro del programa Solana Explorer](../assets/hello-world-program-log.png)
+![Captura de pantalla del registro del programa Solana Explorer](../../assets/hello-world-program-log.png)
 
 ¡Felicidades, acabas de construir e implementar con éxito un programa de Solana!
 
