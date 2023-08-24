@@ -1,18 +1,18 @@
 ---
 title: Swap Tokens With The Token Swap Program
 objectives:
-- Create a token swap pool
-- Deposit liquidity
-- Withdraw liquidity
-- Swap tokens
+    - Create a token swap pool
+    - Deposit liquidity
+    - Withdraw liquidity
+    - Swap tokens
 ---
 
 # TL;DR
 
-- The **Token Swap Program** is an SPL contract deployed to Devnet available for testing and experimentation by developers and protocols. For production use cases, use your own deployment or one regularly maintained by a reputable service.
-- The program accepts six different **instructions**, all of which we will explore in this lesson.
-- Developers are able to create and use **liquidity pools** to swap between any SPL token that they wish.
-- The program uses a mathematical formula called "**curve**" to calculate the price of all trades. Curves aim to mimic normal market dynamics: for example, as traders buy a lot of one token type, the value of the other token type goes up.
+-   The **Token Swap Program** is an SPL contract deployed to Devnet available for testing and experimentation by developers and protocols. For production use cases, use your own deployment or one regularly maintained by a reputable service.
+-   The program accepts six different **instructions**, all of which we will explore in this lesson.
+-   Developers are able to create and use **liquidity pools** to swap between any SPL token that they wish.
+-   The program uses a mathematical formula called "**curve**" to calculate the price of all trades. Curves aim to mimic normal market dynamics: for example, as traders buy a lot of one token type, the value of the other token type goes up.
 
 # Overview
 
@@ -43,6 +43,7 @@ Solana also maintains the `@solana/spl-token-swap` JS library. This library prov
 Creating swap pools with the SPL Token Swap Program really showcases the account, instruction, and authorization models on Solana. This lesson will combine and build on top of a lot of what we have learned so far in the course. For operations specific to the Token Swap Program, we'll use the `@solana/spl-token-swap` library.
 
 As we talk through creating a swap pool, we'll assume we're creating a swap pool for two tokens named Token A and Token B. Creating the swap pool with the `spl-token-swap` library is as simple as sending a transaction with an instruction created with the `TokenSwap.createInitSwapInstruction` function. However, there are a number of accounts you need to create or derive beforehand that will be needed when creating that instruction:
+
 1. **Token swap state account** - holds information about the swap pool
 2. **Swap pool authority** - the PDA used to sign transactions on behalf of the swap program
 3. **Token accounts for Token A and Token B** - token accounts that will hold tokens A and B for the pool
@@ -57,23 +58,30 @@ Before you can create a swap pool, you'll need to create a token swap state acco
 To create the token swap state account, you use the `SystemProgram` instruction `createAccount`.
 
 ```tsx
-import * as web3 from '@solana/web3'
-import { TokenSwap, TOKEN_SWAP_PROGRAM_ID, TokenSwapLayout } from "@solana/spl-token-swap"
+import * as web3 from "@solana/web3";
+import {
+    TokenSwap,
+    TOKEN_SWAP_PROGRAM_ID,
+    TokenSwapLayout,
+} from "@solana/spl-token-swap";
 
-const transaction = new Web3.Transaction()
-const tokenSwapStateAccount = Web3.Keypair.generate()
-const rent = TokenSwap.getMinBalanceRentForExemptTokenSwap(connection)
-const tokenSwapStateAccountInstruction = await Web3.SystemProgram.createAccount({
-    newAccountPubkey: tokenSwapStateAccount.publicKey,
-    fromPubkey: wallet.publicKey,
-    lamports: rent,
-    space: TokenSwapLayout.span,
-    programId: TOKEN_SWAP_PROGRAM_ID
-})
-transaction.add(tokenSwapStateAccountInstruction)
+const transaction = new Web3.Transaction();
+const tokenSwapStateAccount = Web3.Keypair.generate();
+const rent = TokenSwap.getMinBalanceRentForExemptTokenSwap(connection);
+const tokenSwapStateAccountInstruction = await Web3.SystemProgram.createAccount(
+    {
+        newAccountPubkey: tokenSwapStateAccount.publicKey,
+        fromPubkey: wallet.publicKey,
+        lamports: rent,
+        space: TokenSwapLayout.span,
+        programId: TOKEN_SWAP_PROGRAM_ID,
+    },
+);
+transaction.add(tokenSwapStateAccountInstruction);
 ```
 
 A few items to note from this example:
+
 1. You can get the number of lamports required for rent exemption using `TokenSwap.getMinBalanceRentForExemptTokenSwap` from the `spl-token-swap` library.
 2. Similarly, you can use `TokenSwapLayout.span` for the space required on the account.
 3. `programId` must be set to `TOKEN_SWAP_PROGRAM_ID`. This sets the owner of the new account to be the Token Swap Program itself. The Token Swap Program will need to write data to the new account and so must be set as the owner.
@@ -88,7 +96,7 @@ PDAs can only be created by their owning program, so you don't need to create th
 const [swapAuthority, bump] = await Web3.PublicKey.findProgramAddress(
     [tokenSwapStateAccount.publicKey.toBuffer()],
     TOKEN_SWAP_PROGRAM_ID,
-)
+);
 ```
 
 The resulting public key will be used as the authority on a number of the accounts that follow.
@@ -101,17 +109,18 @@ Token A and Token B accounts are associated token accounts used for the actual s
 let tokenAAccountAddress = await token.getAssociatedTokenAddress(
     tokenAMint, // mint
     swapAuthority, // owner
-    true // allow owner off curve
-)
+    true, // allow owner off curve
+);
 
-const tokenAAccountInstruction = await token.createAssociatedTokenAccountInstruction(
-    wallet.publicKey, // payer
-    tokenAAccountAddress, // ata
-    swapAuthority, // owner
-    tokenAMint // mint
-)
+const tokenAAccountInstruction =
+    await token.createAssociatedTokenAccountInstruction(
+        wallet.publicKey, // payer
+        tokenAAccountAddress, // ata
+        swapAuthority, // owner
+        tokenAMint, // mint
+    );
 
-transaction.add(tokenAAccountInstruction)
+transaction.add(tokenAAccountInstruction);
 ```
 
 If you need a refresher on creating token accounts, have a look at the [Token Program lesson](./token-program.md).
@@ -126,8 +135,8 @@ const poolTokenMint = await token.createMint(
     wallet,
     swapAuthority,
     null,
-    2
-)
+    2,
+);
 ```
 
 ### Pool Token Account
@@ -135,23 +144,24 @@ const poolTokenMint = await token.createMint(
 The pool token account is the account that the initial liquidity pool tokens get minted to when the swap account is first created. Subsequent minting of LP-tokens will be minted directly to the account of the user adding liquidity to the pool. Liquidity pool tokens represent ownership in the deposited liquidity in the pool.
 
 ```tsx
-const tokenAccountPool = Web3.Keypair.generate()
-const rent = await token.getMinimumBalanceForRentExemptAccount(connection)
+const tokenAccountPool = Web3.Keypair.generate();
+const rent = await token.getMinimumBalanceForRentExemptAccount(connection);
 const createTokenAccountPoolInstruction = Web3.SystemProgram.createAccount({
     fromPubkey: wallet.publicKey,
     newAccountPubkey: tokenAccountPool.publicKey,
     space: token.ACCOUNT_SIZE,
     lamports: rent,
     programId: token.TOKEN_PROGRAM_ID,
-})
-const initializeTokenAccountPoolInstruction = token.createInitializeAccountInstruction(
-    tokenAccountPool.publicKey,
-    poolTokenMint,
-    wallet.publicKey
-)
+});
+const initializeTokenAccountPoolInstruction =
+    token.createInitializeAccountInstruction(
+        tokenAccountPool.publicKey,
+        poolTokenMint,
+        wallet.publicKey,
+    );
 
-transaction.add(createTokenAccountPoolInstruction)
-transaction.add(initializeTokenAccountPoolInstruction)
+transaction.add(createTokenAccountPoolInstruction);
+transaction.add(initializeTokenAccountPoolInstruction);
 ```
 
 ### Pool Token Fee Account
@@ -159,29 +169,32 @@ transaction.add(initializeTokenAccountPoolInstruction)
 The pool token fee account is the token account that the fees for the token swaps are paid to. For the Serum deployment of the Token Swap Program that we are using, this account must be owned by a specific account defined in the swap program: [HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN](https://explorer.solana.com/address/HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN?cluster=devnet).
 
 ```tsx
-const feeOwner = new web3.PublicKey('HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN')
+const feeOwner = new web3.PublicKey(
+    "HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN",
+);
 
 let tokenFeeAccountAddress = await token.getAssociatedTokenAddress(
     poolTokenMint, // mint
     feeOwner, // owner
-    true // allow owner off curve
-)
+    true, // allow owner off curve
+);
 
-const tokenFeeAccountInstruction = await token.createAssociatedTokenAccountInstruction(
-    wallet.publicKey, // payer
-    tokenFeeAccountAddress, // ata
-    feeOwner, // owner
-    poolTokenMint // mint
-)
+const tokenFeeAccountInstruction =
+    await token.createAssociatedTokenAccountInstruction(
+        wallet.publicKey, // payer
+        tokenFeeAccountAddress, // ata
+        feeOwner, // owner
+        poolTokenMint, // mint
+    );
 
-transaction.add(tokenFeeAccountInstruction)
+transaction.add(tokenFeeAccountInstruction);
 ```
 
 ### Create the swap pool
 
 With all of the prerequisite accounts created, you can create the swap pool initialization instruction using `TokenSwap.createInitSwapInstruction` from the `spl-token-swap` library.
 
-This function takes *a lot* of arguments. Let's talk through them.
+This function takes _a lot_ of arguments. Let's talk through them.
 
 The first 7 arguments are the prerequisite token accounts we just discussed.
 
@@ -194,33 +207,33 @@ Next, there are 4 pairs of number arguments representing numerators and denomina
 3. **Owner withdraw fee** - extra LP-tokens that are sent to the owner on every withdrawal
 4. **Host fee** - a proportion of the owner trade fees, sent to an extra host token account provided during the trade. This fee incentives external parties (such as a decentralized exchange) to provide frontends for the swap pool and rewards them with a portion.
 
-When using a swap program deployed and maintained by a third party, these fees may or may not be fixed such that you *must* input the correct arguments. You'll need to check the implementation of the backing program.
+When using a swap program deployed and maintained by a third party, these fees may or may not be fixed such that you _must_ input the correct arguments. You'll need to check the implementation of the backing program.
 
 Lastly, there's the curve type, which we'll discuss further later in the lesson.
 
 ```tsx
 const createSwapInstruction = TokenSwap.createInitSwapInstruction(
-    tokenSwapStateAccount,      // Token swap state account
-    swapAuthority,              // Swap pool authority
-    poolTokenA,                 // Token A token account
-    poolTokenB,                 // Token B token account
-    poolTokenMint,              // Swap pool token mint
-    tokenFeeAccountAddress,     // Token fee account
+    tokenSwapStateAccount, // Token swap state account
+    swapAuthority, // Swap pool authority
+    poolTokenA, // Token A token account
+    poolTokenB, // Token B token account
+    poolTokenMint, // Swap pool token mint
+    tokenFeeAccountAddress, // Token fee account
     tokenAccountPool.publicKey, // Swap pool token account
-    token.TOKEN_PROGRAM_ID,     // Token Program ID
-    TOKEN_SWAP_PROGRAM_ID,      // Token Swap Program ID
-    0,                          // Trade fee numerator
-    10000,                      // Trade fee denominator
-    5,                          // Owner trade fee numerator
-    10000,                      // Owner trade fee denominator
-    0,                          // Owner withdraw fee numerator
-    0,                          // Owner withdraw fee denominator
-    20,                         // Host fee numerator
-    100,                        // Host fee denominator
-    CurveType.ConstantProduct   // Curve type
-)
+    token.TOKEN_PROGRAM_ID, // Token Program ID
+    TOKEN_SWAP_PROGRAM_ID, // Token Swap Program ID
+    0, // Trade fee numerator
+    10000, // Trade fee denominator
+    5, // Owner trade fee numerator
+    10000, // Owner trade fee denominator
+    0, // Owner withdraw fee numerator
+    0, // Owner withdraw fee denominator
+    20, // Host fee numerator
+    100, // Host fee denominator
+    CurveType.ConstantProduct, // Curve type
+);
 
-transaction.add(createSwapInstruction)
+transaction.add(createSwapInstruction);
 ```
 
 When a transaction with these instructions successfully executes, the swap pool is created and ready to be used.
@@ -228,6 +241,7 @@ When a transaction with these instructions successfully executes, the swap pool 
 ## Interacting with Swap Pools
 
 Once the swap pool is initialized, the Token Swap Program has a few different instructions for using a swap pool. These include:
+
 1. Executing a swap
 2. Depositing liquidity
 3. Withdrawing liquidity
@@ -239,6 +253,7 @@ Users can immediately begin trading on a swap pool using the swap instruction. 
 Since Solana programs require all accounts to be declared in the instruction, users need to gather all account information from the token swap state account: the token A and B accounts, pool token mint, and fee account.
 
 We swap tokens using the `TokenSwap.swapInstruction` helper function which requires the following arguments:
+
 1. `tokenSwap` - the token swap state account
 2. `authority` - the swap pool authority
 3. `userTransferAuthority` - the delegate over the user token account
@@ -271,10 +286,10 @@ const swapInstruction = TokenSwap.swapInstruction(
     TOKEN_SWAP_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     amount * 10 ** MintInfoTokenA.decimals,
-    0
-)
+    0,
+);
 
-transaction.add(swapInstruction)
+transaction.add(swapInstruction);
 ```
 
 ### Deposit liquidity
@@ -284,6 +299,7 @@ The Token Swap Program has two variations of deposit instructions. One allows us
 In order to deposit liquidity to both sides of the swap pool, a user’s wallet must have a sufficient amount of each token. When depositing both tokens, instead of providing the amount of each token to deposit, the user specifies the amount of LP-tokens they would like to receive. The Token Swap Program then calculates the amount of each token that a depositor will receive given the pool's curve and current liquidity.
 
 We can deposit both tokens at the same time using the `TokenSwap.depositAllTokenTypesInstruction` helper function which requires the following arguments:
+
 1. `tokenSwap` - the token swap state account
 2. `authority` - the swap pool authority
 3. `userTransferAuthority` - the authority over the user token accounts
@@ -318,10 +334,10 @@ const instruction = TokenSwap.depositAllTokenTypesInstruction(
     TOKEN_PROGRAM_ID,
     poolTokenAmount * 10 ** MintInfoPoolToken.decimals,
     100e9,
-    100e9
-)
+    100e9,
+);
 
-transaction.add(instruction)
+transaction.add(instruction);
 ```
 
 We can deposit tokens to only one side of the swap pool in a similar way using the `TokenSwap.depositSingleTokenTypeExactAmountInInstruction`. The main difference is that the last argument in the instruction is `minimumPoolTokenAmount`. When depositing to only one side of the swap pool, the user specifies exactly how many tokens to deposit. In turn, the Token Swap Program calculates the amount of LP-tokens to mint the user for their deposit. An instruction depositing only Token A will look like this:
@@ -339,9 +355,9 @@ const instruction = TokenSwap.depositSingleTokenTypeExactAmountInInstruction(
     TOKEN_PROGRAM_ID,
     DepositAmountTokenA * 10 ** MintInfoTokenA.decimals,
     0,
-)
+);
 
-transaction.add(instruction)
+transaction.add(instruction);
 ```
 
 ### Withdraw liquidity
@@ -351,6 +367,7 @@ In exchange for providing liquidity, depositors receive LP-tokens representing t
 The Token Swap Program has two variations of withdraw instructions. One allows users to only withdraw tokens from one side of the swap pool at a time. The other allows for withdraws from both sides of the swap pool at the same time.
 
 We can withdraw both tokens at the same time using the `TokenSwap.withdrawAllTokenTypesInstruction` helper function which requires the following arguements:
+
 1. `tokenSwap` - the token swap state account
 2. `authority` - the swap pool authority
 3. `userTransferAuthority` - the authority over the user token accounts
@@ -387,10 +404,10 @@ const instruction = TokenSwap.withdrawAllTokenTypesInstruction(
     TOKEN_PROGRAM_ID,
     poolTokenAmount * 10 ** MintInfoPoolToken.decimals,
     0,
-    0
-)
+    0,
+);
 
-transaction.add(instruction)
+transaction.add(instruction);
 ```
 
 We can withdraw tokens from only one side of the swap pool in a similar way using the `TokenSwap.withdrawSingleTokenTypeExactAmountOut`. The main difference is that the last argument in the instruction is `maximumPoolTokenAmount`. When withdrawing only one side of the swap pool, the user specifies exact how many tokens to withdraw. In turn, the Token Swap Program calculates the amount of LP-tokens to mint the user must burn. An instruction withdrawing only Token B will look like this:
@@ -408,9 +425,9 @@ const instruction = TokenSwap.depositSingleTokenTypeExactAmountInInstruction(
     TOKEN_PROGRAM_ID,
     WithdrawAmountTokenB * 10 ** MintInfoTokenB.decimals,
     100e9,
-)
+);
 
-transaction.add(instruction)
+transaction.add(instruction);
 ```
 
 ## Curves
@@ -448,9 +465,9 @@ If curves don't make a whole lot of sense, don't worry! While learning more abou
 
 For this demo, a token pool of two brand new tokens has been created and is live on Devnet. We'll walk through building out a frontend UI to interact with this swap pool! Since the pool is already made, we don't have to worry about initiating the pool and funding it with tokens. Instead, we'll focus on building out the instructions for
 
-- depositing liquidity to the pool
-- withdrawing your deposited liquidity
-- swapping from one token to the other
+-   depositing liquidity to the pool
+-   withdrawing your deposited liquidity
+-   swapping from one token to the other
 
 ![Screenshot of Token Swap Demo](../assets/token-swap-frontend.png)
 
@@ -469,6 +486,7 @@ Of the two variations of deposit instructions on the Token Swap Program, we'll b
 The deposit instruction should be added inside the `/components/Deposit.tsx` file inside the `handleTransactionSubmit` function. This function is called when the user clicks the Deposit button.
 
 We’ll start by deriving three associated token account addresses:
+
 1. The associated token account corresponding to the user's wallet address and Krypt Coin
 2. The associated token account corresponding to the user's wallet address and Scrooge Coin
 3. The associated token account corresponding to the user's wallet address and the swap pools LP token
@@ -480,17 +498,26 @@ We'll also need the data associated with the pool token mint to adjust the user 
 ```tsx
 const handleTransactionSubmit = async (deposit: DepositAllSchema) => {
     if (!publicKey) {
-        alert('Please connect your wallet!')
-        return
+        alert("Please connect your wallet!");
+        return;
     }
-	// these are the accounts that hold the tokens
-    const kryptATA = await token.getAssociatedTokenAddress(kryptMint, publicKey)
-    const scroogeATA = await token.getAssociatedTokenAddress(ScroogeCoinMint, publicKey)
-	const tokenAccountPool = await token.getAssociatedTokenAddress(pool_mint, publicKey)
+    // these are the accounts that hold the tokens
+    const kryptATA = await token.getAssociatedTokenAddress(
+        kryptMint,
+        publicKey,
+    );
+    const scroogeATA = await token.getAssociatedTokenAddress(
+        ScroogeCoinMint,
+        publicKey,
+    );
+    const tokenAccountPool = await token.getAssociatedTokenAddress(
+        pool_mint,
+        publicKey,
+    );
 
     // poolMintInfo holds data we've fetched for the pool token mint
-    const poolMintInfo = await token.getMint(connection, poolMint)
-}
+    const poolMintInfo = await token.getMint(connection, poolMint);
+};
 ```
 
 Next, we need to check if the `tokenAccountPool` address we just derived has been created. We'll use the `getAccountInfo` function from the `@solana/web3` library to get the account info associated with `tokenAccountPool`. This function will return an `AccountInfo` struct if the account exists or `null` otherwise. If `null` is returned, we'll need to create the account.
@@ -500,19 +527,28 @@ Since the `handleTransactionSubmit` function is already going to be submitting a
 ```tsx
 const handleTransactionSubmit = async () => {
     if (!publicKey) {
-        alert('Please connect your wallet!')
-        return
+        alert("Please connect your wallet!");
+        return;
     }
 
-    const kryptATA = await token.getAssociatedTokenAddress(kryptMint, publicKey)
-    const scroogeATA = await token.getAssociatedTokenAddress(ScroogeCoinMint, publicKey)
-    const tokenAccountPool = await token.getAssociatedTokenAddress(pool_mint, publicKey)
+    const kryptATA = await token.getAssociatedTokenAddress(
+        kryptMint,
+        publicKey,
+    );
+    const scroogeATA = await token.getAssociatedTokenAddress(
+        ScroogeCoinMint,
+        publicKey,
+    );
+    const tokenAccountPool = await token.getAssociatedTokenAddress(
+        pool_mint,
+        publicKey,
+    );
 
-    const poolMintInfo = await token.getMint(connection, poolMint)
+    const poolMintInfo = await token.getMint(connection, poolMint);
 
-    const transaction = new Web3.Transaction()
+    const transaction = new Web3.Transaction();
 
-    let account = await connection.getAccountInfo(tokenAccountPool)
+    let account = await connection.getAccountInfo(tokenAccountPool);
 
     if (account == null) {
         const createATAInstruction =
@@ -520,11 +556,11 @@ const handleTransactionSubmit = async () => {
                 publicKey,
                 tokenAccountPool,
                 publicKey,
-                pool_mint
-            )
-        transaction.add(createATAInstruction)
+                pool_mint,
+            );
+        transaction.add(createATAInstruction);
     }
-}
+};
 ```
 
 Finally, we can create the deposit instruction using the `spl-token-swap` library's `TokenSwap.depositAllTokenTypesInstruction` helper function. We then add the instruction and submit the transaction.
@@ -532,30 +568,30 @@ Finally, we can create the deposit instruction using the `spl-token-swap` librar
 ```tsx
 const handleTransactionSubmit = async () => {
     if (!publicKey) {
-        alert("Please connect your wallet!")
-        return
+        alert("Please connect your wallet!");
+        return;
     }
 
     const kryptATA = await token.getAssociatedTokenAddress(
         kryptMint,
-        publicKey
-    )
+        publicKey,
+    );
 
     const scroogeATA = await token.getAssociatedTokenAddress(
         ScroogeCoinMint,
-        publicKey
-    )
+        publicKey,
+    );
 
     const tokenAccountPool = await token.getAssociatedTokenAddress(
         poolMint,
-        publicKey
-    )
+        publicKey,
+    );
 
-    const poolMintInfo = await token.getMint(connection, poolMint)
+    const poolMintInfo = await token.getMint(connection, poolMint);
 
-    const transaction = new Web3.Transaction()
+    const transaction = new Web3.Transaction();
 
-    let account = await connection.getAccountInfo(tokenAccountPool)
+    let account = await connection.getAccountInfo(tokenAccountPool);
 
     if (account == null) {
         const createATAInstruction =
@@ -563,9 +599,9 @@ const handleTransactionSubmit = async () => {
                 publicKey,
                 tokenAccountPool,
                 publicKey,
-                poolMint
-            )
-        transaction.add(createATAInstruction)
+                poolMint,
+            );
+        transaction.add(createATAInstruction);
     }
 
     const instruction = TokenSwap.depositAllTokenTypesInstruction(
@@ -582,24 +618,24 @@ const handleTransactionSubmit = async () => {
         token.TOKEN_PROGRAM_ID,
         poolTokenAmount * 10 ** poolMintInfo.decimals,
         100e9,
-        100e9
-    )
+        100e9,
+    );
 
-    transaction.add(instruction)
+    transaction.add(instruction);
 
     try {
-        let txid = await sendTransaction(transaction, connection)
+        let txid = await sendTransaction(transaction, connection);
         alert(
-            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`
-        )
+            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`,
+        );
         console.log(
-            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`
-        )
+            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`,
+        );
     } catch (e) {
-        console.log(JSON.stringify(e))
-        alert(JSON.stringify(e))
+        console.log(JSON.stringify(e));
+        alert(JSON.stringify(e));
     }
-}
+};
 ```
 
 With the exception of the user’s `publickey` and their derived associated token accounts (for Krypt Coin, Scrooge Coin, and the pool's LP-token), notice that all the accounts are constants for this swap pool and are defined in the `const.ts` file.
@@ -619,19 +655,28 @@ We’ll start by deriving the three associated token account addresses, fetching
 ```tsx
 const handleTransactionSubmit = async () => {
     if (!publicKey) {
-        alert('Please connect your wallet!')
-        return
+        alert("Please connect your wallet!");
+        return;
     }
 
-    const kryptATA = await token.getAssociatedTokenAddress(kryptMint, publicKey)
-    const scroogeATA = await token.getAssociatedTokenAddress(ScroogeCoinMint, publicKey)
-    const tokenAccountPool = await token.getAssociatedTokenAddress(pool_mint, publicKey)
+    const kryptATA = await token.getAssociatedTokenAddress(
+        kryptMint,
+        publicKey,
+    );
+    const scroogeATA = await token.getAssociatedTokenAddress(
+        ScroogeCoinMint,
+        publicKey,
+    );
+    const tokenAccountPool = await token.getAssociatedTokenAddress(
+        pool_mint,
+        publicKey,
+    );
 
-    const poolMintInfo = await token.getMint(connection, poolMint)
+    const poolMintInfo = await token.getMint(connection, poolMint);
 
-    const transaction = new Web3.Transaction()
+    const transaction = new Web3.Transaction();
 
-    let account = await connection.getAccountInfo(tokenAccountPool)
+    let account = await connection.getAccountInfo(tokenAccountPool);
 
     if (account == null) {
         const createATAInstruction =
@@ -639,11 +684,11 @@ const handleTransactionSubmit = async () => {
                 publicKey,
                 tokenAccountPool,
                 publicKey,
-                pool_mint
-            )
-        transaction.add(createATAInstruction)
+                pool_mint,
+            );
+        transaction.add(createATAInstruction);
     }
-}
+};
 ```
 
 Next, we create the withdraw instruction using the `spl-token-swap` library's `TokenSwap.withdrawAllTokenTypesInstruction` helper function. We then add the instruction and submit the transaction.
@@ -651,28 +696,28 @@ Next, we create the withdraw instruction using the `spl-token-swap` library's `T
 ```tsx
 const handleTransactionSubmit = async () => {
     if (!publicKey) {
-        alert("Please connect your wallet!")
-        return
+        alert("Please connect your wallet!");
+        return;
     }
 
     const kryptATA = await token.getAssociatedTokenAddress(
         kryptMint,
-        publicKey
-    )
+        publicKey,
+    );
     const scroogeATA = await token.getAssociatedTokenAddress(
         ScroogeCoinMint,
-        publicKey
-    )
+        publicKey,
+    );
     const tokenAccountPool = await token.getAssociatedTokenAddress(
         poolMint,
-        publicKey
-    )
+        publicKey,
+    );
 
-    const poolMintInfo = await token.getMint(connection, poolMint)
+    const poolMintInfo = await token.getMint(connection, poolMint);
 
-    const transaction = new Web3.Transaction()
+    const transaction = new Web3.Transaction();
 
-    let account = await connection.getAccountInfo(tokenAccountPool)
+    let account = await connection.getAccountInfo(tokenAccountPool);
 
     if (account == null) {
         const createATAInstruction =
@@ -680,9 +725,9 @@ const handleTransactionSubmit = async () => {
                 publicKey,
                 tokenAccountPool,
                 publicKey,
-                poolMint
-            )
-        transaction.add(createATAInstruction)
+                poolMint,
+            );
+        transaction.add(createATAInstruction);
     }
 
     const instruction = TokenSwap.withdrawAllTokenTypesInstruction(
@@ -700,23 +745,23 @@ const handleTransactionSubmit = async () => {
         TOKEN_PROGRAM_ID,
         poolTokenAmount * 10 ** poolMintInfo.decimals,
         0,
-        0
-    )
+        0,
+    );
 
-    transaction.add(instruction)
+    transaction.add(instruction);
     try {
-        let txid = await sendTransaction(transaction, connection)
+        let txid = await sendTransaction(transaction, connection);
         alert(
-            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`
-        )
+            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`,
+        );
         console.log(
-            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`
-        )
+            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`,
+        );
     } catch (e) {
-        console.log(JSON.stringify(e))
-        alert(JSON.stringify(e))
+        console.log(JSON.stringify(e));
+        alert(JSON.stringify(e));
     }
-}
+};
 ```
 
 Notice the ordering of accounts is different for the withdraw transaction and there is an additional `feeAccount` provided this time. This `feeAccount` is the destination for the fee that must be paid by the user for withdrawing liquidity from the pools.
@@ -725,24 +770,36 @@ Notice the ordering of accounts is different for the withdraw transaction and th
 
 Now it's time to implement the actual purpose of this program - the swap instruction!
 
-Note that our UI has a dropdown to allow users to select which token they would like to swap *from*, so we will have to create our instruction differently based on what the user selects.
+Note that our UI has a dropdown to allow users to select which token they would like to swap _from_, so we will have to create our instruction differently based on what the user selects.
 
 We’ll do this inside the `handleTransactionSubmit` function of the `/components/Swap.tsx` file. Once again, we will have to derive the user’s `Associated Token Addresses` for each token mint (Krypt Coin, Scrooge Coin, and Pool Token) and create the `tokenAccountPool` if it does not already exist. Additionally, we'll fetch the data for both the Krypt Coin and Scrooge Coin to account for the decimal precision of the tokens.
 
 ```tsx
 const handleTransactionSubmit = async () => {
     if (!publicKey) {
-      alert("Please connect your wallet!")
-      return
+        alert("Please connect your wallet!");
+        return;
     }
 
-    const kryptMintInfo = await token.getMint(connection, kryptMint)
-    const ScroogeCoinMintInfo = await token.getMint(connection, ScroogeCoinMint)
+    const kryptMintInfo = await token.getMint(connection, kryptMint);
+    const ScroogeCoinMintInfo = await token.getMint(
+        connection,
+        ScroogeCoinMint,
+    );
 
-    const kryptATA = await token.getAssociatedTokenAddress(kryptMint, publicKey)
-    const scroogeATA = await token.getAssociatedTokenAddress(ScroogeCoinMint, publicKey)
-    const tokenAccountPool = await token.getAssociatedTokenAddress(poolMint, publicKey)
-}
+    const kryptATA = await token.getAssociatedTokenAddress(
+        kryptMint,
+        publicKey,
+    );
+    const scroogeATA = await token.getAssociatedTokenAddress(
+        ScroogeCoinMint,
+        publicKey,
+    );
+    const tokenAccountPool = await token.getAssociatedTokenAddress(
+        poolMint,
+        publicKey,
+    );
+};
 ```
 
 From here, the user’s input will determine our path of execution. The user's choice is saved to the `mint` property, so we'll use this to branch between each possible instruction.
@@ -750,32 +807,32 @@ From here, the user’s input will determine our path of execution. The user's c
 ```tsx
 const handleTransactionSubmit = async () => {
     if (!publicKey) {
-        alert("Please connect your wallet!")
-        return
+        alert("Please connect your wallet!");
+        return;
     }
 
-    const kryptMintInfo = await token.getMint(connection, kryptMint)
+    const kryptMintInfo = await token.getMint(connection, kryptMint);
     const ScroogeCoinMintInfo = await token.getMint(
         connection,
-        ScroogeCoinMint
-    )
+        ScroogeCoinMint,
+    );
 
     const kryptATA = await token.getAssociatedTokenAddress(
         kryptMint,
-        publicKey
-    )
+        publicKey,
+    );
     const scroogeATA = await token.getAssociatedTokenAddress(
         ScroogeCoinMint,
-        publicKey
-    )
+        publicKey,
+    );
     const tokenAccountPool = await token.getAssociatedTokenAddress(
         poolMint,
-        publicKey
-    )
+        publicKey,
+    );
 
-    const transaction = new Web3.Transaction()
+    const transaction = new Web3.Transaction();
 
-    let account = await connection.getAccountInfo(tokenAccountPool)
+    let account = await connection.getAccountInfo(tokenAccountPool);
 
     if (account == null) {
         const createATAInstruction =
@@ -783,9 +840,9 @@ const handleTransactionSubmit = async () => {
                 publicKey,
                 tokenAccountPool,
                 publicKey,
-                poolMint
-            )
-        transaction.add(createATAInstruction)
+                poolMint,
+            );
+        transaction.add(createATAInstruction);
     }
 
     // check which direction to swap
@@ -804,10 +861,10 @@ const handleTransactionSubmit = async () => {
             TOKEN_SWAP_PROGRAM_ID,
             TOKEN_PROGRAM_ID,
             amount * 10 ** kryptMintInfo.decimals,
-            0
-        )
+            0,
+        );
 
-        transaction.add(instruction)
+        transaction.add(instruction);
     } else if (mint == "option2") {
         const instruction = TokenSwap.swapInstruction(
             tokenSwapStateAccount,
@@ -823,25 +880,25 @@ const handleTransactionSubmit = async () => {
             TOKEN_SWAP_PROGRAM_ID,
             TOKEN_PROGRAM_ID,
             amount * 10 ** ScroogeCoinMintInfo.decimals,
-            0
-        )
+            0,
+        );
 
-        transaction.add(instruction)
+        transaction.add(instruction);
     }
 
     try {
-        let txid = await sendTransaction(transaction, connection)
+        let txid = await sendTransaction(transaction, connection);
         alert(
-            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`
-        )
+            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`,
+        );
         console.log(
-            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`
-        )
+            `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`,
+        );
     } catch (e) {
-        console.log(JSON.stringify(e))
-        alert(JSON.stringify(e))
+        console.log(JSON.stringify(e));
+        alert(JSON.stringify(e));
     }
-}
+};
 ```
 
 And that’s it! Once you have the swap instruction implemented, the UI should be fully functional and you can airdrop yourself tokens, deposit liquidity, withdraw your liquidity, and swap from token to token!

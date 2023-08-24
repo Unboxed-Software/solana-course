@@ -1,16 +1,16 @@
 ---
 title: PDA Sharing
 objectives:
-- Explain the security risks associated with PDA sharing
-- Derive PDAs that have discrete authority domains
-- Use Anchor’s `seeds` and `bump` constraints to validate PDA accounts
+    - Explain the security risks associated with PDA sharing
+    - Derive PDAs that have discrete authority domains
+    - Use Anchor’s `seeds` and `bump` constraints to validate PDA accounts
 ---
 
 # TL;DR
 
-- Using the same PDA for multiple authority domains opens your program up to the possibility of users accessing data and funds that don't belong to them
-- Prevent the same PDA from being used for multiple accounts by using seeds that are user and/or domain-specific
-- Use Anchor’s `seeds` and `bump` constraints to validate that a PDA is derived using the expected seeds and bump
+-   Using the same PDA for multiple authority domains opens your program up to the possibility of users accessing data and funds that don't belong to them
+-   Prevent the same PDA from being used for multiple accounts by using seeds that are user and/or domain-specific
+-   Use Anchor’s `seeds` and `bump` constraints to validate that a PDA is derived using the expected seeds and bump
 
 # Overview
 
@@ -131,7 +131,7 @@ PDAs can be used as both the address of an account and allow programs to sign fo
 
 The example below uses a PDA derived using the `withdraw_destination` as both the address of the `pool` account and owner of the `vault` token account. This means that only the `pool` account associated with correct `vault` and `withdraw_destination` can be used in the `withdraw_tokens` instruction.
 
-You can use Anchor’s `seeds` and `bump` constraints with the `#[account(...)]` attribute to validate the `pool` account PDA. Anchor derives a PDA using the `seeds` and `bump` specified and compare against the account passed into the instruction as the `pool` account. The `has_one` constraint is used to further ensure that only the correct accounts stored on the `pool` account are passed into the instruction. 
+You can use Anchor’s `seeds` and `bump` constraints with the `#[account(...)]` attribute to validate the `pool` account PDA. Anchor derives a PDA using the `seeds` and `bump` specified and compare against the account passed into the instruction as the `pool` account. The `has_one` constraint is used to further ensure that only the correct accounts stored on the `pool` account are passed into the instruction.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -198,7 +198,7 @@ To get started, download the starter code on the `starter` branch of [this repo
 
 The `initialize_pool` instruction initializes a new `TokenPool` that stores a `vault`, `mint`, `withdraw_destination`, and `bump`. The `vault` is a token account where the authority is set as a PDA derived using the `mint` address.
 
-The `withdraw_insecure` instruction will transfer tokens in the `vault` token account to a `withdraw_destination` token account. 
+The `withdraw_insecure` instruction will transfer tokens in the `vault` token account to a `withdraw_destination` token account.
 
 However, as written the seeds used for signing are not specific to the vault's withdraw destination, thus opening up the program to security exploits. Take a minute to familiarize yourself with the code before continuing on.
 
@@ -215,55 +215,55 @@ The second test withdraws from this pool, effectively stealing funds from the va
 ```tsx
 it("Insecure initialize allows pool to be initialized with wrong vault", async () => {
     await program.methods
-      .initializePool(authInsecureBump)
-      .accounts({
-        pool: poolInsecureFake.publicKey,
-        mint: mint,
-        vault: vaultInsecure.address,
-        withdrawDestination: withdrawDestinationFake,
-        payer: walletFake.publicKey,
-      })
-      .signers([walletFake, poolInsecureFake])
-      .rpc()
+        .initializePool(authInsecureBump)
+        .accounts({
+            pool: poolInsecureFake.publicKey,
+            mint: mint,
+            vault: vaultInsecure.address,
+            withdrawDestination: withdrawDestinationFake,
+            payer: walletFake.publicKey,
+        })
+        .signers([walletFake, poolInsecureFake])
+        .rpc();
 
-    await new Promise((x) => setTimeout(x, 1000))
+    await new Promise((x) => setTimeout(x, 1000));
 
     await spl.mintTo(
-      connection,
-      wallet.payer,
-      mint,
-      vaultInsecure.address,
-      wallet.payer,
-      100
-    )
+        connection,
+        wallet.payer,
+        mint,
+        vaultInsecure.address,
+        wallet.payer,
+        100,
+    );
 
-    const account = await spl.getAccount(connection, vaultInsecure.address)
-    expect(Number(account.amount)).to.equal(100)
-})
+    const account = await spl.getAccount(connection, vaultInsecure.address);
+    expect(Number(account.amount)).to.equal(100);
+});
 
 it("Insecure withdraw allows stealing from vault", async () => {
     await program.methods
-      .withdrawInsecure()
-      .accounts({
-        pool: poolInsecureFake.publicKey,
-        vault: vaultInsecure.address,
-        withdrawDestination: withdrawDestinationFake,
-        authority: authInsecure,
-        signer: walletFake.publicKey,
-      })
-      .signers([walletFake])
-      .rpc()
+        .withdrawInsecure()
+        .accounts({
+            pool: poolInsecureFake.publicKey,
+            vault: vaultInsecure.address,
+            withdrawDestination: withdrawDestinationFake,
+            authority: authInsecure,
+            signer: walletFake.publicKey,
+        })
+        .signers([walletFake])
+        .rpc();
 
-    const account = await spl.getAccount(connection, vaultInsecure.address)
-    expect(Number(account.amount)).to.equal(0)
-})
+    const account = await spl.getAccount(connection, vaultInsecure.address);
+    expect(Number(account.amount)).to.equal(0);
+});
 ```
 
 Run `anchor test` to see that the transactions complete successfully and the `withdraw_instrucure` instruction allows the `vault` token account to be drained to a fake withdraw destination stored on the fake `pool` account.
 
 ### 3. Add `initialize_pool_secure` instruction
 
-Now let's add a new instruction to the program for securely initializing a pool. 
+Now let's add a new instruction to the program for securely initializing a pool.
 
 This new `initialize_pool_secure` instruction will initialize a `pool` account as a PDA derived using the `withdraw_destination`. It will also initialize a `vault` token account with the authority set as the `pool` PDA.
 
@@ -307,7 +307,7 @@ pub struct InitializePoolSecure<'info> {
 
 ### 4. Add `withdraw_secure` instruction
 
-Next, add a `withdraw_secure` instruction. This instruction will withdraw tokens from the `vault` token account to the `withdraw_destination`. The `pool` account is validated using the `seeds` and `bump` constraints to ensure the correct PDA account is provided. The `has_one` constraints check that the correct `vault` and `withdraw_destination` token accounts are provided. 
+Next, add a `withdraw_secure` instruction. This instruction will withdraw tokens from the `vault` token account to the `withdraw_destination`. The `pool` account is validated using the `seeds` and `bump` constraints to ensure the correct PDA account is provided. The `has_one` constraints check that the correct `vault` and `withdraw_destination` token accounts are provided.
 
 ```rust
 pub fn withdraw_secure(ctx: Context<WithdrawTokensSecure>) -> Result<()> {
@@ -359,50 +359,50 @@ Before we write a test showing the vulnerability has been patched let's write a 
 ```typescript
 it("Secure pool initialization and withdraw works", async () => {
     const withdrawDestinationAccount = await getAccount(
-      provider.connection,
-      withdrawDestination
-    )
+        provider.connection,
+        withdrawDestination,
+    );
 
     await program.methods
-      .initializePoolSecure()
-      .accounts({
-        pool: authSecure,
-        mint: mint,
-        vault: vaultRecommended.publicKey,
-        withdrawDestination: withdrawDestination,
-      })
-      .signers([vaultRecommended])
-      .rpc()
+        .initializePoolSecure()
+        .accounts({
+            pool: authSecure,
+            mint: mint,
+            vault: vaultRecommended.publicKey,
+            withdrawDestination: withdrawDestination,
+        })
+        .signers([vaultRecommended])
+        .rpc();
 
-    await new Promise((x) => setTimeout(x, 1000))
+    await new Promise((x) => setTimeout(x, 1000));
 
     await spl.mintTo(
-      connection,
-      wallet.payer,
-      mint,
-      vaultRecommended.publicKey,
-      wallet.payer,
-      100
-    )
+        connection,
+        wallet.payer,
+        mint,
+        vaultRecommended.publicKey,
+        wallet.payer,
+        100,
+    );
 
     await program.methods
-      .withdrawSecure()
-      .accounts({
-        pool: authSecure,
-        vault: vaultRecommended.publicKey,
-        withdrawDestination: withdrawDestination,
-      })
-      .rpc()
+        .withdrawSecure()
+        .accounts({
+            pool: authSecure,
+            vault: vaultRecommended.publicKey,
+            withdrawDestination: withdrawDestination,
+        })
+        .rpc();
 
     const afterAccount = await getAccount(
-      provider.connection,
-      withdrawDestination
-    )
+        provider.connection,
+        withdrawDestination,
+    );
 
     expect(
-      Number(afterAccount.amount) - Number(withdrawDestinationAccount.amount)
-    ).to.equal(100)
-})
+        Number(afterAccount.amount) - Number(withdrawDestinationAccount.amount),
+    ).to.equal(100);
+});
 ```
 
 Now, we'll test that the exploit no longer works. Since the `vault` authority is the `pool` PDA derived using the intended `withdraw_destination` token account, there should no longer be a way to withdraw to an account other than the intended `withdraw_destination`.
@@ -410,24 +410,24 @@ Now, we'll test that the exploit no longer works. Since the `vault` authority is
 Add a test that shows you can't call `withdraw_secure` with the wrong withdrawal destination. It can use the pool and vault created in the previous test.
 
 ```typescript
-  it("Secure withdraw doesn't allow withdraw to wrong destination", async () => {
+it("Secure withdraw doesn't allow withdraw to wrong destination", async () => {
     try {
-      await program.methods
-        .withdrawSecure()
-        .accounts({
-          pool: authSecure,
-          vault: vaultRecommended.publicKey,
-          withdrawDestination: withdrawDestinationFake,
-        })
-        .signers([walletFake])
-        .rpc()
+        await program.methods
+            .withdrawSecure()
+            .accounts({
+                pool: authSecure,
+                vault: vaultRecommended.publicKey,
+                withdrawDestination: withdrawDestinationFake,
+            })
+            .signers([walletFake])
+            .rpc();
 
-      assert.fail("expected error")
+        assert.fail("expected error");
     } catch (error) {
-      console.log(error.message)
-      expect(error)
+        console.log(error.message);
+        expect(error);
     }
-  })
+});
 ```
 
 Lastly, since the `pool` account is a PDA derived using the `withdraw_destination` token account, we can’t create a fake `pool` account using the same PDA. Add one more test showing that the new `initialize_pool_secure` instruction won't let an attacker put in the wrong vault.
@@ -435,23 +435,23 @@ Lastly, since the `pool` account is a PDA derived using the `withdraw_destinatio
 ```typescript
 it("Secure pool initialization doesn't allow wrong vault", async () => {
     try {
-      await program.methods
-        .initializePoolSecure()
-        .accounts({
-          pool: authSecure,
-          mint: mint,
-          vault: vaultInsecure.address,
-          withdrawDestination: withdrawDestination,
-        })
-        .signers([vaultRecommended])
-        .rpc()
+        await program.methods
+            .initializePoolSecure()
+            .accounts({
+                pool: authSecure,
+                mint: mint,
+                vault: vaultInsecure.address,
+                withdrawDestination: withdrawDestination,
+            })
+            .signers([vaultRecommended])
+            .rpc();
 
-      assert.fail("expected error")
+        assert.fail("expected error");
     } catch (error) {
-      console.log(error.message)
-      expect(error)
+        console.log(error.message);
+        expect(error);
     }
-})
+});
 ```
 
 Run `anchor test` and to see that the new instructions don't allow an attacker to withdraw from a vault that isn't theirs.

@@ -1,19 +1,19 @@
 ---
 title: Hello World
 objectives:
-- Use the Rust module system
-- Define a function in Rust
-- Explain the `Result` type
-- Explain the entry point to a Solana program
-- Build and deploy a basic Solana program
-- Submit a transaction to invoke our “Hello, world!” program
+    - Use the Rust module system
+    - Define a function in Rust
+    - Explain the `Result` type
+    - Explain the entry point to a Solana program
+    - Build and deploy a basic Solana program
+    - Submit a transaction to invoke our “Hello, world!” program
 ---
 
 # TL;DR
 
-- **Programs** on Solana are a particular type of account that stores and executes instruction logic
-- Solana programs have a single **entry point** to process instructions
-- A program processes an instruction using the **program_id**, list of **accounts**, and **instruction_data** included with the instruction
+-   **Programs** on Solana are a particular type of account that stores and executes instruction logic
+-   Solana programs have a single **entry point** to process instructions
+-   A program processes an instruction using the **program_id**, list of **accounts**, and **instruction_data** included with the instruction
 
 # Overview
 
@@ -31,9 +31,9 @@ Rust organizes code using what is collectively referred to as the “module syst
 
 This includes:
 
-- **Modules** - A module separates code into logical units to provide isolated namespaces for organization, scope, and privacy of paths
-- **Crates** - A crate is either a library or an executable program. The source code for a crate is usually subdivided into multiple modules.
-- **Packages** - A package contains a collection of crates as well as a manifest file for specifying metadata and dependencies between packages
+-   **Modules** - A module separates code into logical units to provide isolated namespaces for organization, scope, and privacy of paths
+-   **Crates** - A crate is either a library or an executable program. The source code for a crate is usually subdivided into multiple modules.
+-   **Packages** - A package contains a collection of crates as well as a manifest file for specifying metadata and dependencies between packages
 
 Throughout this lesson, we’ll focus on using crates and modules.
 
@@ -73,9 +73,9 @@ Rust is known as a ”statically typed” language and every value in Rust is 
 
 In the example below, we create a function named `process_instruction` that requires the following arguments:
 
-- `program_id` - required to be type `&Pubkey`
-- `accounts` - required to be type `&[AccountInfo]`
-- `instruction_data` - required to be type `&[u8]`
+-   `program_id` - required to be type `&Pubkey`
+-   `accounts` - required to be type `&[AccountInfo]`
+-   `instruction_data` - required to be type `&[u8]`
 
 Note the `&` in front of the type for each argument listed in the `process_instruction` function. In Rust, `&` represents a ”reference” to another variable. This allows you to refer to some value without taking ownership of it. The “reference” is guaranteed to point to a valid value of a particular type. The action of creating a reference in Rust is called “borrowing”.
 
@@ -141,11 +141,11 @@ use solana_program::{
 };
 ```
 
-- `AccountInfo` - a struct within the `account_info` module that allows us to access account information
-- `entrypoint` - a macro that declares the entry point of the program
-- `ProgramResult` - a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
-- `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
-- `msg` - a macro that allows us to print messages to the program log
+-   `AccountInfo` - a struct within the `account_info` module that allows us to access account information
+-   `entrypoint` - a macro that declares the entry point of the program
+-   `ProgramResult` - a type within the `entrypoint` module that returns either a `Result` or `ProgramError`
+-   `Pubkey` - a struct within the `pubkey` module that allows us to access addresses as a public key
+-   `msg` - a macro that allows us to print messages to the program log
 
 ### Solana Program Entry Point
 
@@ -153,9 +153,9 @@ Solana programs require a single entry point to process program instructions. Th
 
 The entry point to a Solana program requires a `process_instruction` function with the following arguments:
 
-- `program_id` - the address of the account where the program is stored
-- `accounts` - the list of accounts required to process the instruction
-- `instruction_data` - the serialized, instruction-specific data
+-   `program_id` - the address of the account where the program is stored
+-   `accounts` - the list of accounts required to process the instruction
+-   `instruction_data` - the serialized, instruction-specific data
 
 ```rust
 entrypoint!(process_instruction);
@@ -266,6 +266,7 @@ You can locate the program ID on Solana Playground referencing the image below.
 Next, install the Node modules with `npm i`.
 
 Now, go ahead and run `npm start`. This command will:
+
 1. Generate a new keypair and create a `.env` file if one does not already exist
 2. Airdrop devnet SOL
 3. Invoke the “Hello, world!” program

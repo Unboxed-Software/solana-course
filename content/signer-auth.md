@@ -1,25 +1,23 @@
 ---
 title: Signer Authorization
 objectives:
-- Explain the security risks associated with not performing appropriate signer checks
-- Implement signer checks using long-form Rust
-- Implement signer checks using Anchor’s `Signer` type
-- Implement signer checks using Anchor’s `#[account(signer)]` constraint
+    - Explain the security risks associated with not performing appropriate signer checks
+    - Implement signer checks using long-form Rust
+    - Implement signer checks using Anchor’s `Signer` type
+    - Implement signer checks using Anchor’s `#[account(signer)]` constraint
 ---
 
 # TL;DR
 
-- Use **Signer Checks** to verify that specific accounts have signed a transaction. Without appropriate signer checks, accounts may be able to execute instructions they shouldn’t be authorized to perform.
-- To implement a signer check in Rust, simply check that an account’s `is_signer` property is `true`
-    
+-   Use **Signer Checks** to verify that specific accounts have signed a transaction. Without appropriate signer checks, accounts may be able to execute instructions they shouldn’t be authorized to perform.
+-   To implement a signer check in Rust, simply check that an account’s `is_signer` property is `true`
     ```rust
     if !ctx.accounts.authority.is_signer {
     	return Err(ProgramError::MissingRequiredSignature.into());
     }
     ```
-    
-- In Anchor, you can use the **`Signer`** account type in your account validation struct to have Anchor automatically perform a signer check on a given account
-- Anchor also has an account constraint that will automatically verify that a given account has signed a transaction
+-   In Anchor, you can use the **`Signer`** account type in your account validation struct to have Anchor automatically perform a signer check on a given account
+-   Anchor also has an account constraint that will automatically verify that a given account has signed a transaction
 
 # Overview
 
@@ -27,7 +25,7 @@ Signer checks are used to verify that a given account’s owner has authorized a
 
 ### Missing Signer Check
 
-The example below shows an oversimplified version of an instruction that updates the `authority` field stored on a program account. 
+The example below shows an oversimplified version of an instruction that updates the `authority` field stored on a program account.
 
 Notice that the `authority` field on the `UpdateAuthority` account validation struct is of type `AccountInfo`. In Anchor, the `AccountInfo` account type indicates that no checks are performed on the account prior to instruction execution.
 
@@ -123,7 +121,7 @@ However, putting this check into the instruction function muddles the separation
 
 Fortunately, Anchor makes it easy to perform signer checks by providing the `Signer` account type. Simply change the `authority` account’s type in the account validation struct to be of type `Signer`, and Anchor will check at runtime that the specified account is a signer on the transaction. This is the approach we generally recommend since it allows you to separate the signer check from instruction logic.
 
-In the example below, if the `authority` account does not sign the transaction, then the transaction will fail before even reaching the instruction logic. 
+In the example below, if the `authority` account does not sign the transaction, then the transaction will fail before even reaching the instruction logic.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -164,9 +162,9 @@ Note that when you use the `Signer` type, no other ownership or type checks are 
 
 While in most cases, the `Signer` account type will suffice to ensure an account has signed a transaction, the fact that no other ownership or type checks are performed means that this account can’t really be used for anything else in the instruction.
 
-This is where the `signer` *constraint* comes in handy. The `#[account(signer)]` constraint allows you to verify the account signed the transaction, while also getting the benefits of using the `Account` type if you wanted access to it’s underlying data as well. 
+This is where the `signer` _constraint_ comes in handy. The `#[account(signer)]` constraint allows you to verify the account signed the transaction, while also getting the benefits of using the `Account` type if you wanted access to it’s underlying data as well.
 
-As an example of when this would be useful, imagine writing an instruction that you expect to be invoked via CPI that expects one of the passed in accounts to be both a ******signer****** on the transaciton and a ***********data source***********. Using the `Signer` account type here removes the automatic deserialization and type checking you would get with the `Account` type. This is both inconvenient, as you need to manually deserialize the account data in the instruction logic, and may make your program vulnerable by not getting the ownership and type checking performed by the `Account` type.
+As an example of when this would be useful, imagine writing an instruction that you expect to be invoked via CPI that expects one of the passed in accounts to be both a **\*\***signer**\*\*** on the transaciton and a ****\*\*\*****data source****\*\*\*****. Using the `Signer` account type here removes the automatic deserialization and type checking you would get with the `Account` type. This is both inconvenient, as you need to manually deserialize the account data in the instruction logic, and may make your program vulnerable by not getting the ownership and type checking performed by the `Account` type.
 
 In the example below, you can safely write logic to interact with the data stored in the `authority` account while also verifying that it signed the transaction.
 
@@ -221,11 +219,11 @@ This program initializes a simplified token “vault” account and demonstrates
 
 ### 1. Starter
 
-To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-signer-auth/tree/starter). The starter code includes a program with two instructions and the boilerplate setup for the test file. 
+To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-signer-auth/tree/starter). The starter code includes a program with two instructions and the boilerplate setup for the test file.
 
-The `initialize_vault` instruction initializes two new accounts: `Vault` and `TokenAccount`. The `Vault` account will be initialized using a Program Derived Address (PDA) and store the address of a token account and the authority of the vault. The authority of the token account will be the `vault` PDA which enables the program to sign for the transfer of tokens. 
+The `initialize_vault` instruction initializes two new accounts: `Vault` and `TokenAccount`. The `Vault` account will be initialized using a Program Derived Address (PDA) and store the address of a token account and the authority of the vault. The authority of the token account will be the `vault` PDA which enables the program to sign for the transfer of tokens.
 
-The `insecure_withdraw` instruction will transfer tokens in the `vault` account’s token account to a `withdraw_destination` token account. However, the `authority` account in the `InsecureWithdraw` struct has a type of `UncheckedAccount`. This is a wrapper around `AccountInfo` to explicitly indicate the account is unchecked. 
+The `insecure_withdraw` instruction will transfer tokens in the `vault` account’s token account to a `withdraw_destination` token account. However, the `authority` account in the `InsecureWithdraw` struct has a type of `UncheckedAccount`. This is a wrapper around `AccountInfo` to explicitly indicate the account is unchecked.
 
 Without a signer check, anyone can simply provide the public key of the `authority` account that matches `authority` stored on the `vault` account and the `insecure_withdraw` instruction would continue to process.
 
@@ -453,7 +451,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-At this point in the course, we hope you've started to work on programs and projects outside the Demos and Challenges provided in these lessons. For this and the remainder of the lessons on security vulnerabilities, the Challenge for each lesson will be to audit your own code for the security vulnerability discussed in the lesson. 
+At this point in the course, we hope you've started to work on programs and projects outside the Demos and Challenges provided in these lessons. For this and the remainder of the lessons on security vulnerabilities, the Challenge for each lesson will be to audit your own code for the security vulnerability discussed in the lesson.
 
 Alternatively, you can find open source programs to audit. There are plenty of programs you can look at. A good start if you don't mind diving into native Rust would be the [SPL programs](https://github.com/solana-labs/solana-program-library).
 

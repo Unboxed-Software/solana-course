@@ -1,16 +1,16 @@
 ---
 title: Closing Accounts and Revival Attacks
 objectives:
-- Explain the various security vulnerabilities associated with closing program accounts incorrectly
-- Close program accounts safely and securely using native Rust
-- Close program accounts safely and securely using the Anchor `close` constraint
+    - Explain the various security vulnerabilities associated with closing program accounts incorrectly
+    - Close program accounts safely and securely using native Rust
+    - Close program accounts safely and securely using the Anchor `close` constraint
 ---
 
 # TL;DR
 
-- **Closing an account** improperly creates an opportunity for reinitialization/revival attacks
-- The Solana runtime **garbage collects accounts** when they are no longer rent exempt. Closing accounts involves transferring the lamports stored in the account for rent exemption to another account of your choosing.
-- You can use the Anchor `#[account(close = <address_to_send_lamports>)]` constraint to securely close accounts and set the account discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR`
+-   **Closing an account** improperly creates an opportunity for reinitialization/revival attacks
+-   The Solana runtime **garbage collects accounts** when they are no longer rent exempt. Closing accounts involves transferring the lamports stored in the account for rent exemption to another account of your choosing.
+-   You can use the Anchor `#[account(close = <address_to_send_lamports>)]` constraint to securely close accounts and set the account discriminator to the `CLOSED_ACCOUNT_DISCRIMINATOR`
     ```rust
     #[account(mut, close = receiver)]
     pub data_account: Account<'info, MyData>,
@@ -68,11 +68,11 @@ pub struct Data {
 }
 ```
 
-However, the garbage collection doesn't occur until the transaction completes. And since there can be multiple instructions in a transaction, this creates an opportunity for an attacker to invoke the instruction to close the account but also include in the transaction a transfer to refund the account's rent exemption lamports. The result is that the account *will not* be garbage collected, opening up a path for the attacker to cause unintended behavior in the program and even drain a protocol.
+However, the garbage collection doesn't occur until the transaction completes. And since there can be multiple instructions in a transaction, this creates an opportunity for an attacker to invoke the instruction to close the account but also include in the transaction a transfer to refund the account's rent exemption lamports. The result is that the account _will not_ be garbage collected, opening up a path for the attacker to cause unintended behavior in the program and even drain a protocol.
 
 ## Secure account closing
 
-The two most important things you can do to close this loophole are to zero out the account data and add an account discriminator that represents the account has been closed. You need *both* of these things to avoid unintended program behavior.
+The two most important things you can do to close this loophole are to zero out the account data and add an account discriminator that represents the account has been closed. You need _both_ of these things to avoid unintended program behavior.
 
 An account with zeroed out data can still be used for some things, especially if it's a PDA whose address derivation is used within the program for verification purposes. However, the damage may be potentially limited if the attacker can't access the previously-stored data.
 
@@ -134,7 +134,7 @@ Note that the example above is using Anchor's `CLOSED_ACCOUNT_DISCRIMINATOR`. Th
 
 There is still one small issue. While the practice of zeroing out account data and adding a "closed" account discriminator will stop your program from being exploited, a user can still keep an account from being garbage collected by refunding the account's lamports before the end of an instruction. This results in one or potentially many accounts existing in a limbo state where they cannot be used but also cannot be garbage collected.
 
-To handle this edge case, you may consider adding an instruction that will allow *anyone* to defund accounts tagged with the "closed" account discriminator. The only account validation this instruction would perform is to ensure that the account being defunded is marked as closed. It may look something like this:
+To handle this edge case, you may consider adding an instruction that will allow _anyone_ to defund accounts tagged with the "closed" account discriminator. The only account validation this instruction would perform is to ensure that the account being defunded is marked as closed. It may look something like this:
 
 ```rust
 use anchor_lang::__private::CLOSED_ACCOUNT_DISCRIMINATOR;
@@ -193,7 +193,7 @@ All you have to do is add it in the account validation struct to the account you
 #[derive(Accounts)]
 pub struct CloseAccount {
     #[account(
-        mut, 
+        mut,
         close = receiver
     )]
     pub data_account: Account<'info, MyData>,
@@ -227,7 +227,7 @@ Take a minute to familiarize yourself with the program code. The `enter_lottery`
 
 The `redeem_rewards_insecure` instruction performs some account and data validation, mints tokens to the given token account, then closes the lottery account by removing its lamports.
 
-However, notice the `redeem_rewards_insecure` instruction *only* transfers out the account's lamports, leaving the account open to revival attacks.
+However, notice the `redeem_rewards_insecure` instruction _only_ transfers out the account's lamports, leaving the account open to revival attacks.
 
 ## 2. Test Insecure Program
 
@@ -241,52 +241,52 @@ Finally, there's a test that demonstrates how an attacker can keep the account a
 it("attacker  can close + refund lottery acct + claim multiple rewards", async () => {
     // claim multiple times
     for (let i = 0; i < 2; i++) {
-      const tx = new Transaction()
-      // instruction claims rewards, program will try to close account
-      tx.add(
-        await program.methods
-          .redeemWinningsInsecure()
-          .accounts({
-            lotteryEntry: attackerLotteryEntry,
-            user: attacker.publicKey,
-            userAta: attackerAta,
-            rewardMint: rewardMint,
-            mintAuth: mintAuth,
-            tokenProgram: TOKEN_PROGRAM_ID,
-          })
-          .instruction()
-      )
+        const tx = new Transaction();
+        // instruction claims rewards, program will try to close account
+        tx.add(
+            await program.methods
+                .redeemWinningsInsecure()
+                .accounts({
+                    lotteryEntry: attackerLotteryEntry,
+                    user: attacker.publicKey,
+                    userAta: attackerAta,
+                    rewardMint: rewardMint,
+                    mintAuth: mintAuth,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                })
+                .instruction(),
+        );
 
-      // user adds instruction to refund dataAccount lamports
-      const rentExemptLamports =
-        await provider.connection.getMinimumBalanceForRentExemption(
-          82,
-          "confirmed"
-        )
-      tx.add(
-        SystemProgram.transfer({
-          fromPubkey: attacker.publicKey,
-          toPubkey: attackerLotteryEntry,
-          lamports: rentExemptLamports,
-        })
-      )
-      // send tx
-      await sendAndConfirmTransaction(provider.connection, tx, [attacker])
-      await new Promise((x) => setTimeout(x, 5000))
+        // user adds instruction to refund dataAccount lamports
+        const rentExemptLamports =
+            await provider.connection.getMinimumBalanceForRentExemption(
+                82,
+                "confirmed",
+            );
+        tx.add(
+            SystemProgram.transfer({
+                fromPubkey: attacker.publicKey,
+                toPubkey: attackerLotteryEntry,
+                lamports: rentExemptLamports,
+            }),
+        );
+        // send tx
+        await sendAndConfirmTransaction(provider.connection, tx, [attacker]);
+        await new Promise((x) => setTimeout(x, 5000));
     }
 
-    const ata = await getAccount(provider.connection, attackerAta)
-    const lotteryEntry = await program.account.lotteryAccount.fetch(
-      attackerLotteryEntry
-    )
+    const ata = await getAccount(provider.connection, attackerAta);
+    const lotteryEntry =
+        await program.account.lotteryAccount.fetch(attackerLotteryEntry);
 
     expect(Number(ata.amount)).to.equal(
-      lotteryEntry.timestamp.toNumber() * 10 * 2
-    )
-})
+        lotteryEntry.timestamp.toNumber() * 10 * 2,
+    );
+});
 ```
 
 This test does the following:
+
 1. Calls `redeem_rewards_insecure` to redeem the user's rewards
 2. In the same transaction, adds an instruction to refund the user's `lottery_entry` before it can actually be closed
 3. Successfully repeats steps 1 and 2, redeeming rewards for a second time.
@@ -381,56 +381,56 @@ To test our new secure instruction, let's create a new test that trys to call `r
 
 ```typescript
 it("attacker cannot claim multiple rewards with secure claim", async () => {
-    const tx = new Transaction()
+    const tx = new Transaction();
     // instruction claims rewards, program will try to close account
     tx.add(
-      await program.methods
-        .redeemWinningsSecure()
-        .accounts({
-          lotteryEntry: attackerLotteryEntry,
-          user: attacker.publicKey,
-          userAta: attackerAta,
-          rewardMint: rewardMint,
-          mintAuth: mintAuth,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        .instruction()
-    )
+        await program.methods
+            .redeemWinningsSecure()
+            .accounts({
+                lotteryEntry: attackerLotteryEntry,
+                user: attacker.publicKey,
+                userAta: attackerAta,
+                rewardMint: rewardMint,
+                mintAuth: mintAuth,
+                tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .instruction(),
+    );
 
     // user adds instruction to refund dataAccount lamports
     const rentExemptLamports =
-      await provider.connection.getMinimumBalanceForRentExemption(
-        82,
-        "confirmed"
-      )
+        await provider.connection.getMinimumBalanceForRentExemption(
+            82,
+            "confirmed",
+        );
     tx.add(
-      SystemProgram.transfer({
-        fromPubkey: attacker.publicKey,
-        toPubkey: attackerLotteryEntry,
-        lamports: rentExemptLamports,
-      })
-    )
+        SystemProgram.transfer({
+            fromPubkey: attacker.publicKey,
+            toPubkey: attackerLotteryEntry,
+            lamports: rentExemptLamports,
+        }),
+    );
     // send tx
-    await sendAndConfirmTransaction(provider.connection, tx, [attacker])
+    await sendAndConfirmTransaction(provider.connection, tx, [attacker]);
 
     try {
-      await program.methods
-        .redeemWinningsSecure()
-        .accounts({
-          lotteryEntry: attackerLotteryEntry,
-          user: attacker.publicKey,
-          userAta: attackerAta,
-          rewardMint: rewardMint,
-          mintAuth: mintAuth,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        .signers([attacker])
-        .rpc()
+        await program.methods
+            .redeemWinningsSecure()
+            .accounts({
+                lotteryEntry: attackerLotteryEntry,
+                user: attacker.publicKey,
+                userAta: attackerAta,
+                rewardMint: rewardMint,
+                mintAuth: mintAuth,
+                tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .signers([attacker])
+            .rpc();
     } catch (error) {
-      console.log(error.message)
-      expect(error)
+        console.log(error.message);
+        expect(error);
     }
-})
+});
 ```
 
 Run `anchor test` to see that the test passes. The output will look something like this:

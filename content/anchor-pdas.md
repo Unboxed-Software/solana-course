@@ -1,18 +1,18 @@
 ---
 title: Anchor PDAs and Accounts
 objectives:
-- Use the `seeds` and `bump` constraints to work with PDA accounts in Anchor
-- Enable and use the `init_if_needed` constraint
-- Use the `realloc` constraint to reallocate space on an existing account
-- Use the `close` constraint to close an existing account
+    - Use the `seeds` and `bump` constraints to work with PDA accounts in Anchor
+    - Enable and use the `init_if_needed` constraint
+    - Use the `realloc` constraint to reallocate space on an existing account
+    - Use the `close` constraint to close an existing account
 ---
 
 # TL;DR
 
-- The `seeds` and `bump` constraints are used to initialize and validate PDA accounts in Anchor
-- The `init_if_needed` constraint is used to conditionally initialize a new account
-- The `realloc` constraint is used to reallocate space on an existing account
-- The `close` constraint is used to close an account and refund its rent
+-   The `seeds` and `bump` constraints are used to initialize and validate PDA accounts in Anchor
+-   The `init_if_needed` constraint is used to conditionally initialize a new account
+-   The `realloc` constraint is used to reallocate space on an existing account
+-   The `close` constraint is used to close an account and refund its rent
 
 # Overview
 
@@ -93,7 +93,7 @@ pub struct AccountType {
 
 When using `init` for non-PDA accounts, Anchor defaults to setting the owner of the initialized account to be the program currently executing the instruction.
 
-However, when using `init` in combination with `seeds` and `bump`, the owner *must* be the executing program. This is because initializing an account for the PDA requires a signature that only the executing program can provide. In other words, the signature verification for the initialization of the PDA account would fail if the program ID used to derive the PDA did not match the program ID of the executing program.
+However, when using `init` in combination with `seeds` and `bump`, the owner _must_ be the executing program. This is because initializing an account for the PDA requires a signature that only the executing program can provide. In other words, the signature verification for the initialization of the PDA account would fail if the program ID used to derive the PDA did not match the program ID of the executing program.
 
 When determining the value of `space` for an account initialized and owned by the executing Anchor program, remember that the first 8 bytes are reserved for the account discriminator. This is an 8-byte value that Anchor calculates and uses to identify the program account types. You can use this [reference](https://www.anchor-lang.com/docs/space) to calculate how much space you should allocate for an account.
 
@@ -201,9 +201,9 @@ The `realloc` constraint provides a simple way to reallocate space for existing 
 
 The `realloc` constraint must be used in combination with the following constraints:
 
-- `mut` - the account must be set as mutable
-- `realloc::payer` - the account to subtract or add lamports to depending on whether the reallocation is decreasing or increasing account space
-- `realloc::zero` - boolean to specify if new memory should be zero initialized
+-   `mut` - the account must be set as mutable
+-   `realloc::payer` - the account to subtract or add lamports to depending on whether the reallocation is decreasing or increasing account space
+-   `realloc::zero` - boolean to specify if new memory should be zero initialized
 
 As with `init`, you must include `system_program` as one of the accounts in the account validation struct when using `realloc`.
 
@@ -234,9 +234,10 @@ pub struct AccountType {
 ```
 
 Notice that `realloc` is set to `8 + 4 + instruction_data.len()`. This breaks down as follows:
-- `8` is for the account discriminator
-- `4` is for the 4 bytes of space that BORSH uses to store the length of the string
-- `instruction_data.len()` is the length of the string itself
+
+-   `8` is for the account discriminator
+-   `4` is for the 4 bytes of space that BORSH uses to store the length of the string
+-   `instruction_data.len()` is the length of the string itself
 
 If the change in account data length is additive, lamports will be transferred from the `realloc::payer` to the account in order to maintain rent exemption. Likewise, if the change is subtractive, lamports will be transferred from the account back to the `realloc::payer`.
 
@@ -270,9 +271,9 @@ Let’s practice the concepts we’ve gone over in this lesson by creating a Mov
 
 This program will allow users to:
 
-- Use a PDA to initialize a new movie review account to store the review
-- Update the content of an existing movie review account
-- Close an existing movie review account
+-   Use a PDA to initialize a new movie review account to store the review
+-   Update the content of an existing movie review account
+-   Close an existing movie review account
 
 ### 1. Create a new Anchor project
 
@@ -322,10 +323,10 @@ First, let’s use the `#[account]` attribute macro to define the `MovieAccountS
 
 Within each movie review account, we’ll store the:
 
-- `reviewer` - user creating the review
-- `rating` - rating for the movie
-- `title` - title of the movie
-- `description` - content of the review
+-   `reviewer` - user creating the review
+-   `rating` - rating for the movie
+-   `title` - title of the movie
+-   `description` - content of the review
 
 ```rust
 use anchor_lang::prelude::*;
@@ -353,9 +354,9 @@ Next, let’s implement the `add_movie_review` instruction. The `add_movie_revie
 
 The instruction will require three additional arguments as instruction data provided by a reviewer:
 
-- `title` - title of the movie as a `String`
-- `description` - details of the review as a `String`
-- `rating` - rating for the movie as a `u8`
+-   `title` - title of the movie as a `String`
+-   `description` - details of the review as a `String`
+-   `rating` - rating for the movie as a `u8`
 
 Within the instruction logic, we’ll populate the data of the new `movie_review` account with the instruction data. We’ll also set the `reviewer` field as the `initializer` account from the instruction context.
 
@@ -389,9 +390,9 @@ Next, let’s create the `AddMovieReview` struct that we used as the generic in 
 
 Remember, you'll need the following macros:
 
-- The `#[derive(Accounts)]` macro is used to deserialize and validate the list of accounts specified within the struct
-- The `#[instruction(...)]` attribute macro is used to access the instruction data passed into the instruction
-- The `#[account(...)]` attribute macro then specifies additional constraints on the accounts
+-   The `#[derive(Accounts)]` macro is used to deserialize and validate the list of accounts specified within the struct
+-   The `#[instruction(...)]` attribute macro is used to access the instruction data passed into the instruction
+-   The `#[account(...)]` attribute macro then specifies additional constraints on the accounts
 
 The `movie_review` account is a PDA that needs to be initialized, so we'll add the `seeds` and `bump` constraints as well as the `init` constraint with its required `payer` and `space` constraints.
 
@@ -421,9 +422,9 @@ Next, let’s implement the `update_movie_review` instruction with a context who
 
 Just as before, the instruction will require three additional arguments as instruction data provided by a reviewer:
 
-- `title` - title of the movie
-- `description` - details of the review
-- `rating` - rating for the movie
+-   `title` - title of the movie
+-   `description` - details of the review
+-   `rating` - rating for the movie
 
 Within the instruction logic we’ll update the `rating` and `description` stored on the `movie_review` account.
 
@@ -536,41 +537,41 @@ The program should be good to go! Now let's test it out. Navigate to `anchor-mov
 
 Here we:
 
-- Create default values for the movie review instruction data
-- Derive the movie review account PDA
-- Create placeholders for tests
+-   Create default values for the movie review instruction data
+-   Derive the movie review account PDA
+-   Create placeholders for tests
 
 ```ts
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
-import { assert, expect } from "chai"
-import { AnchorMovieReviewProgram } from "../target/types/anchor_movie_review_program"
+import * as anchor from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
+import { assert, expect } from "chai";
+import { AnchorMovieReviewProgram } from "../target/types/anchor_movie_review_program";
 
 describe("anchor-movie-review-program", () => {
-  // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env()
-  anchor.setProvider(provider)
+    // Configure the client to use the local cluster.
+    const provider = anchor.AnchorProvider.env();
+    anchor.setProvider(provider);
 
-  const program = anchor.workspace
-    .AnchorMovieReviewProgram as Program<AnchorMovieReviewProgram>
+    const program = anchor.workspace
+        .AnchorMovieReviewProgram as Program<AnchorMovieReviewProgram>;
 
-  const movie = {
-    title: "Just a test movie",
-    description: "Wow what a good movie it was real great",
-    rating: 5,
-  }
+    const movie = {
+        title: "Just a test movie",
+        description: "Wow what a good movie it was real great",
+        rating: 5,
+    };
 
-  const [moviePda] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from(movie.title), provider.wallet.publicKey.toBuffer()],
-    program.programId
-  )
+    const [moviePda] = anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from(movie.title), provider.wallet.publicKey.toBuffer()],
+        program.programId,
+    );
 
-  it("Movie review is added`", async () => {})
+    it("Movie review is added`", async () => {});
 
-  it("Movie review is updated`", async () => {})
+    it("Movie review is updated`", async () => {});
 
-  it("Deletes a movie review", async () => {})
-})
+    it("Deletes a movie review", async () => {});
+});
 ```
 
 Next, let's create the first test for the `addMovieReview` instruction. Note that we don't explicitly add `.accounts`. This is because the `Wallet` from `AnchorProvider` is automatically included as a signer, Anchor can infer certain accounts like `SystemProgram`, and Anchor can also infer the `movieReview` PDA from the `title` instruction argument and the signer's public key.
@@ -579,46 +580,44 @@ Once the instruction runs, we then fetch the `movieReview` account and check tha
 
 ```ts
 it("Movie review is added`", async () => {
-  // Add your test here.
-  const tx = await program.methods
-    .addMovieReview(movie.title, movie.description, movie.rating)
-    .rpc()
+    // Add your test here.
+    const tx = await program.methods
+        .addMovieReview(movie.title, movie.description, movie.rating)
+        .rpc();
 
-  const account = await program.account.movieAccountState.fetch(moviePda)
-  expect(movie.title === account.title)
-  expect(movie.rating === account.rating)
-  expect(movie.description === account.description)
-  expect(account.reviewer === provider.wallet.publicKey)
-})
+    const account = await program.account.movieAccountState.fetch(moviePda);
+    expect(movie.title === account.title);
+    expect(movie.rating === account.rating);
+    expect(movie.description === account.description);
+    expect(account.reviewer === provider.wallet.publicKey);
+});
 ```
 
 Next, let's create the test for the `updateMovieReview` instruction following the same process as before.
 
 ```ts
 it("Movie review is updated`", async () => {
-  const newDescription = "Wow this is new"
-  const newRating = 4
+    const newDescription = "Wow this is new";
+    const newRating = 4;
 
-  const tx = await program.methods
-    .updateMovieReview(movie.title, newDescription, newRating)
-    .rpc()
+    const tx = await program.methods
+        .updateMovieReview(movie.title, newDescription, newRating)
+        .rpc();
 
-  const account = await program.account.movieAccountState.fetch(moviePda)
-  expect(movie.title === account.title)
-  expect(newRating === account.rating)
-  expect(newDescription === account.description)
-  expect(account.reviewer === provider.wallet.publicKey)
-})
+    const account = await program.account.movieAccountState.fetch(moviePda);
+    expect(movie.title === account.title);
+    expect(newRating === account.rating);
+    expect(newDescription === account.description);
+    expect(account.reviewer === provider.wallet.publicKey);
+});
 ```
 
 Next, create the test for the `deleteMovieReview` instruction
 
 ```ts
 it("Deletes a movie review", async () => {
-  const tx = await program.methods
-    .deleteMovieReview(movie.title)
-    .rpc()
-})
+    const tx = await program.methods.deleteMovieReview(movie.title).rpc();
+});
 ```
 
 Lastly, run `anchor test` and you should see the following output in the console.

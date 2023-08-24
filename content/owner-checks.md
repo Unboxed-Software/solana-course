@@ -1,16 +1,16 @@
 ---
 title: Owner Checks
 objectives:
-- Explain the security risks associated with not performing appropriate owner checks
-- Implement owner checks using long-form Rust
-- Use Anchor’s `Account<'info, T>` wrapper and an account type to automate owner checks
-- Use Anchor’s `#[account(owner = <expr>)]` constraint to explicitly define an external program that should own an account
+    - Explain the security risks associated with not performing appropriate owner checks
+    - Implement owner checks using long-form Rust
+    - Use Anchor’s `Account<'info, T>` wrapper and an account type to automate owner checks
+    - Use Anchor’s `#[account(owner = <expr>)]` constraint to explicitly define an external program that should own an account
 ---
 
 # TL;DR
 
-- Use **Owner Checks** to verify that accounts are owned by the expected program. Without appropriate owner checks, accounts owned by unexpected programs could be used in an instruction.
-- To implement an owner check in Rust, simply check that an account’s owner matches an expected program ID
+-   Use **Owner Checks** to verify that accounts are owned by the expected program. Without appropriate owner checks, accounts owned by unexpected programs could be used in an instruction.
+-   To implement an owner check in Rust, simply check that an account’s owner matches an expected program ID
 
 ```rust
 if ctx.accounts.account.owner != ctx.program_id {
@@ -18,8 +18,8 @@ if ctx.accounts.account.owner != ctx.program_id {
 }
 ```
 
-- Anchor program account types implement the `Owner` trait which allows the `Account<'info, T>` wrapper to automatically verify program ownership
-- Anchor gives you the option to explicitly define the owner of an account if it should be anything other than the currently executing program
+-   Anchor program account types implement the `Owner` trait which allows the `Account<'info, T>` wrapper to automatically verify program ownership
+-   Anchor gives you the option to explicitly define the owner of an account if it should be anything other than the currently executing program
 
 # Overview
 
@@ -246,8 +246,8 @@ To get started, download the starter code from the `starter` branch of [this rep
 
 The `owner_check` program includes two instructions:
 
-- `initialize_vault` initializes a simplified vault account that stores the addresses of a token account and an authority account
-- `insecure_withdraw` withdraws tokens from the token account, but is missing an owner check for the vault account
+-   `initialize_vault` initializes a simplified vault account that stores the addresses of a token account and an authority account
+-   `insecure_withdraw` withdraws tokens from the token account, but is missing an owner check for the vault account
 
 ```rust
 use anchor_lang::prelude::*;
@@ -347,7 +347,7 @@ pub struct Vault {
 
 The `clone` program includes a single instruction:
 
-- `initialize_vault` initializes a “vault” account that mimics the vault account of the `owner_check` program. It stores the address of the real vault’s token account, but allows the malicious user to put their own authority account.
+-   `initialize_vault` initializes a “vault” account that mimics the vault account of the `owner_check` program. It stores the address of the real vault’s token account, but allows the malicious user to put their own authority account.
 
 ```rust
 use anchor_lang::prelude::*;

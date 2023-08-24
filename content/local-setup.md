@@ -1,19 +1,19 @@
 ---
 title: Local Program Development
 objectives:
-- Set up a local environment for Solana program development
-- Use basic Solana CLI commands
-- Run a local test validator
-- Use Rust and the Solana CLI to deploy a Solana program from your local development environment
-- Use the Solana CLI to view program logs
+    - Set up a local environment for Solana program development
+    - Use basic Solana CLI commands
+    - Run a local test validator
+    - Use Rust and the Solana CLI to deploy a Solana program from your local development environment
+    - Use the Solana CLI to view program logs
 ---
 
 # TL;DR
 
-- To get started with Solana locally, you’ll first need to install **Rust** and the **Solana CLI**
-- Using the Solana CLI you can run a **local test validator** using the `solana-test-validator` command
-- Once you have Rust and Solana CLI installed, you’ll be able to build and deploy your programs locally using the `cargo build-bpf` and `solana program deploy` commands
-- You can view program logs using the `solana logs` command
+-   To get started with Solana locally, you’ll first need to install **Rust** and the **Solana CLI**
+-   Using the Solana CLI you can run a **local test validator** using the `solana-test-validator` command
+-   Once you have Rust and Solana CLI installed, you’ll be able to build and deploy your programs locally using the `cargo build-bpf` and `solana program deploy` commands
+-   You can view program logs using the `solana logs` command
 
 # Overview
 
@@ -25,8 +25,8 @@ In order to build, test, and deploy Solana programs from your machine, you'll ne
 
 The installation instructions below contain the steps for installing Rust and the Solana CLI at the time of writing. They may have changed by the time you're reading this, so if you run into issues please consult the official installation pages for each:
 
-- [Install Rust](https://www.rust-lang.org/tools/install)
-- [Install the Solana Tool Suite](https://docs.solana.com/cli/install-solana-cli-tools)
+-   [Install Rust](https://www.rust-lang.org/tools/install)
+-   [Install the Solana Tool Suite](https://docs.solana.com/cli/install-solana-cli-tools)
 
 ## Setup on Windows (with Linux)
 
@@ -102,11 +102,11 @@ solana config get
 
 The `solana config get` command will return the following:
 
-- `Config File` - the file Solana CLI is located on your computer
-- `RPC URL` - endpoint you are using, connecting you to localhost, Devnet, or Mainnet
-- `WebSocket URL` - the websocket to listen for events from the cluster you are targeting (computed when you set the `RPC URL`)
-- `Keypair Path` - the keypair path used when running Solana CLI subcommands
-- `Commitment` - provides a measure of the network confirmation and describes how finalized a block is at that point in time
+-   `Config File` - the file Solana CLI is located on your computer
+-   `RPC URL` - endpoint you are using, connecting you to localhost, Devnet, or Mainnet
+-   `WebSocket URL` - the websocket to listen for events from the cluster you are targeting (computed when you set the `RPC URL`)
+-   `Keypair Path` - the keypair path used when running Solana CLI subcommands
+-   `Commitment` - provides a measure of the network confirmation and describes how finalized a block is at that point in time
 
 You can change your Solana CLI configuration at any time by using the `solana config set` command followed by the setting you want to update.
 
@@ -170,9 +170,9 @@ solana airdrop 2
 
 As you develop and test programs in your local environment, you'll likely encounter errors that are caused by:
 
-- Using the wrong keypair
-- Not having enough SOL to deploy your program or perform a transaction
-- Pointing to the wrong cluster
+-   Using the wrong keypair
+-   Not having enough SOL to deploy your program or perform a transaction
+-   Pointing to the wrong cluster
 
 The CLI commands we've covered so far should help you quickly resolve those issues.
 
@@ -352,7 +352,7 @@ let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
 
 ```tsx
 console.log(
-    `Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+    `Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
 );
 ```
 

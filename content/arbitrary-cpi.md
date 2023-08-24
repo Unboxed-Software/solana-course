@@ -1,16 +1,16 @@
 ---
 title: Arbitrary CPI
 objectives:
-- Explain the security risks associated with invoking a CPI to an unknown program
-- Showcase how Anchor’s CPI module prevents this from happening when making a CPI from one Anchor program to another
-- Safely and securely make a CPI from an Anchor program to an arbitrary non-anchor program
+    - Explain the security risks associated with invoking a CPI to an unknown program
+    - Showcase how Anchor’s CPI module prevents this from happening when making a CPI from one Anchor program to another
+    - Safely and securely make a CPI from an Anchor program to an arbitrary non-anchor program
 ---
 
 # TL;DR
 
-- To generate a CPI, the target program must be passed into the invoking instruction as an account. This means that any target program could be passed into the instruction. Your program should check for incorrect or unexpected programs.
-- Perform program checks in native programs by simply comparing the public key of the passed-in program to the progam you expected.
-- If a program is written in Anchor, then it may have a publicly available CPI module. This makes invoking the program from another Anchor program simple and secure. The Anchor CPI module automatically checks that the address of the program passed in matches the address of the program stored in the module.
+-   To generate a CPI, the target program must be passed into the invoking instruction as an account. This means that any target program could be passed into the instruction. Your program should check for incorrect or unexpected programs.
+-   Perform program checks in native programs by simply comparing the public key of the passed-in program to the progam you expected.
+-   If a program is written in Anchor, then it may have a publicly available CPI module. This makes invoking the program from another Anchor program simple and secure. The Anchor CPI module automatically checks that the address of the program passed in matches the address of the program stored in the module.
 
 # Overview
 
@@ -143,9 +143,9 @@ Note that, like the example above, Anchor has created a few [wrappers for popula
 
 Additionally and depending on the program you’re making the CPI to, you may be able to use Anchor’s [`Program` account type](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct.Program.html) to validate the passed-in program in your account validation struct. Between the [`anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) and [`anchor_spl`](https://docs.rs/anchor_spl/latest/) crates, the following `Program` types are provided out of the box:
 
-- [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/struct.System.html)
-- [`AssociatedToken`](https://docs.rs/anchor-spl/latest/anchor_spl/associated_token/struct.AssociatedToken.html)
-- [`Token`](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.Token.html)
+-   [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/struct.System.html)
+-   [`AssociatedToken`](https://docs.rs/anchor-spl/latest/anchor_spl/associated_token/struct.AssociatedToken.html)
+-   [`Token`](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.Token.html)
 
 If you have access to an Anchor program's CPI module, you typically can import its program type with the following, replacing the program name with the name of the actual program:
 
@@ -188,53 +188,51 @@ There is already a test in the `tests` directory for this. It's long, but take a
 it("Insecure instructions allow attacker to win every time", async () => {
     // Initialize player one with real metadata program
     await gameplayProgram.methods
-      .createCharacterInsecure()
-      .accounts({
-        metadataProgram: metadataProgram.programId,
-        authority: playerOne.publicKey,
-      })
-      .signers([playerOne])
-      .rpc()
+        .createCharacterInsecure()
+        .accounts({
+            metadataProgram: metadataProgram.programId,
+            authority: playerOne.publicKey,
+        })
+        .signers([playerOne])
+        .rpc();
 
     // Initialize attacker with fake metadata program
     await gameplayProgram.methods
-      .createCharacterInsecure()
-      .accounts({
-        metadataProgram: fakeMetadataProgram.programId,
-        authority: attacker.publicKey,
-      })
-      .signers([attacker])
-      .rpc()
+        .createCharacterInsecure()
+        .accounts({
+            metadataProgram: fakeMetadataProgram.programId,
+            authority: attacker.publicKey,
+        })
+        .signers([attacker])
+        .rpc();
 
     // Fetch both player's metadata accounts
     const [playerOneMetadataKey] = getMetadataKey(
-      playerOne.publicKey,
-      gameplayProgram.programId,
-      metadataProgram.programId
-    )
+        playerOne.publicKey,
+        gameplayProgram.programId,
+        metadataProgram.programId,
+    );
 
     const [attackerMetadataKey] = getMetadataKey(
-      attacker.publicKey,
-      gameplayProgram.programId,
-      fakeMetadataProgram.programId
-    )
+        attacker.publicKey,
+        gameplayProgram.programId,
+        fakeMetadataProgram.programId,
+    );
 
-    const playerOneMetadata = await metadataProgram.account.metadata.fetch(
-      playerOneMetadataKey
-    )
+    const playerOneMetadata =
+        await metadataProgram.account.metadata.fetch(playerOneMetadataKey);
 
-    const attackerMetadata = await fakeMetadataProgram.account.metadata.fetch(
-      attackerMetadataKey
-    )
+    const attackerMetadata =
+        await fakeMetadataProgram.account.metadata.fetch(attackerMetadataKey);
 
     // The regular player should have health and power between 0 and 20
-    expect(playerOneMetadata.health).to.be.lessThan(20)
-    expect(playerOneMetadata.power).to.be.lessThan(20)
+    expect(playerOneMetadata.health).to.be.lessThan(20);
+    expect(playerOneMetadata.power).to.be.lessThan(20);
 
     // The attacker will have health and power of 255
-    expect(attackerMetadata.health).to.equal(255)
-    expect(attackerMetadata.power).to.equal(255)
-})
+    expect(attackerMetadata.health).to.equal(255);
+    expect(attackerMetadata.power).to.equal(255);
+});
 ```
 
 This test effectively walks through the scenario where a regular player and an attacker both create their characters. Only the attacker passes in the program ID of the fake metadata program rather than the actual metadata program. And since the `create_character_insecure` instruction has no program checks, it still executes.
@@ -319,19 +317,19 @@ Now that we have a secure way of initializing a new character, let's create a ne
 ```ts
 it("Secure character creation doesn't allow fake program", async () => {
     try {
-      await gameplayProgram.methods
-        .createCharacterSecure()
-        .accounts({
-          metadataProgram: fakeMetadataProgram.programId,
-          authority: attacker.publicKey,
-        })
-        .signers([attacker])
-        .rpc()
+        await gameplayProgram.methods
+            .createCharacterSecure()
+            .accounts({
+                metadataProgram: fakeMetadataProgram.programId,
+                authority: attacker.publicKey,
+            })
+            .signers([attacker])
+            .rpc();
     } catch (error) {
-      expect(error)
-      console.log(error)
+        expect(error);
+        console.log(error);
     }
-})
+});
 ```
 
 Run `anchor test` if you haven't already. Notice that an error was thrown as expected, detailing that the program ID passed into the instruction is not the expected program ID:

@@ -1,16 +1,16 @@
 ---
 title: Type Cosplay
 objectives:
-- Explain the security risks associated with not checking account types
-- Implement an account type discriminator using long-form Rust
-- Use Anchor's `init` constraint to initialize accounts
-- Use Anchor's `Account` type for account validation
+    - Explain the security risks associated with not checking account types
+    - Implement an account type discriminator using long-form Rust
+    - Use Anchor's `init` constraint to initialize accounts
+    - Use Anchor's `Account` type for account validation
 ---
 
 # TL;DR
 
-- Use discriminators to distinguish between different account types
-- To implement a discriminator in Rust, include a field in the account struct to represent the account type
+-   Use discriminators to distinguish between different account types
+-   To implement a discriminator in Rust, include a field in the account struct to represent the account type
 
     ```rust
     #[derive(BorshSerialize, BorshDeserialize)]
@@ -26,7 +26,7 @@ objectives:
     }
     ```
 
-- To implement a discriminator check in Rust, verify that the discriminator of the deserialized account data matches the expected value
+-   To implement a discriminator check in Rust, verify that the discriminator of the deserialized account data matches the expected value
 
     ```rust
     if user.discriminant != AccountDiscriminant::User {
@@ -34,8 +34,8 @@ objectives:
     }
     ```
 
-- In Anchor, program account types automatically implement the `Discriminator` trait which creates an 8 byte unique identifier for a type
-- Use Anchor’s `Account<'info, T>` type to automatically check the discriminator of the account when deserializing the account data
+-   In Anchor, program account types automatically implement the `Discriminator` trait which creates an 8 byte unique identifier for a type
+-   Use Anchor’s `Account<'info, T>` type to automatically check the discriminator of the account when deserializing the account data
 
 # Overview
 
@@ -206,8 +206,8 @@ It’s important to note that this is a vulnerability you don’t really have to
 
 For this demo we’ll create two programs to demonstrate a type cosplay vulnerability.
 
-- The first program will initialize program accounts without a discriminator
-- The second program will initialize program accounts using Anchor’s `init` constraint which automatically sets an account discriminator
+-   The first program will initialize program accounts without a discriminator
+-   The second program will initialize program accounts using Anchor’s `init` constraint which automatically sets an account discriminator
 
 ### 1. Starter
 
@@ -258,25 +258,25 @@ Now in your `programs` folder you will have two programs. Run `anchor keys list`
 Next, update the test file's setup to include the new program and two new keypairs for the accounts we'll be initializing for the new program.
 
 ```tsx
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
-import { TypeCosplay } from "../target/types/type_cosplay"
-import { TypeChecked } from "../target/types/type_checked"
-import { expect } from "chai"
+import * as anchor from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
+import { TypeCosplay } from "../target/types/type_cosplay";
+import { TypeChecked } from "../target/types/type_checked";
+import { expect } from "chai";
 
 describe("type-cosplay", () => {
-  const provider = anchor.AnchorProvider.env()
-  anchor.setProvider(provider)
+    const provider = anchor.AnchorProvider.env();
+    anchor.setProvider(provider);
 
-  const program = anchor.workspace.TypeCosplay as Program<TypeCosplay>
-  const programChecked = anchor.workspace.TypeChecked as Program<TypeChecked>
+    const program = anchor.workspace.TypeCosplay as Program<TypeCosplay>;
+    const programChecked = anchor.workspace.TypeChecked as Program<TypeChecked>;
 
-  const userAccount = anchor.web3.Keypair.generate()
-  const newAdmin = anchor.web3.Keypair.generate()
+    const userAccount = anchor.web3.Keypair.generate();
+    const newAdmin = anchor.web3.Keypair.generate();
 
-  const userAccountChecked = anchor.web3.Keypair.generate()
-  const adminAccountChecked = anchor.web3.Keypair.generate()
-})
+    const userAccountChecked = anchor.web3.Keypair.generate();
+    const adminAccountChecked = anchor.web3.Keypair.generate();
+});
 ```
 
 ### 4. Implement the `type-checked` program

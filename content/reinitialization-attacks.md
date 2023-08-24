@@ -1,21 +1,21 @@
 ---
 title: Reinitialization Attacks
 objectives:
-- Explain security risks associated with a reinitialization vulnerability
-- Use long-form Rust check if an account has already been initialized
-- Using Anchor’s `init` constraint to initialize accounts, which automatically sets an account discriminator that is checked to prevent the reinitialization of an account
+    - Explain security risks associated with a reinitialization vulnerability
+    - Use long-form Rust check if an account has already been initialized
+    - Using Anchor’s `init` constraint to initialize accounts, which automatically sets an account discriminator that is checked to prevent the reinitialization of an account
 ---
 
 # TL;DR
 
-- Use an account discriminator or initialization flag to check whether an account has already been initialized to prevent an account from being reinitialized and overriding existing account data.
-- To prevent account reinitialization in plain Rust, initialize accounts with an `is_initialized` flag and check if it has already been set to true when initializing an account
-  ```rust
-  if account.is_initialized {
-      return Err(ProgramError::AccountAlreadyInitialized.into());
-  }
-  ```
-- To simplify this, use Anchor’s `init` constraint to create an account via a CPI to the system program and sets its discriminator
+-   Use an account discriminator or initialization flag to check whether an account has already been initialized to prevent an account from being reinitialized and overriding existing account data.
+-   To prevent account reinitialization in plain Rust, initialize accounts with an `is_initialized` flag and check if it has already been set to true when initializing an account
+    ```rust
+    if account.is_initialized {
+        return Err(ProgramError::AccountAlreadyInitialized.into());
+    }
+    ```
+-   To simplify this, use Anchor’s `init` constraint to create an account via a CPI to the system program and sets its discriminator
 
 # Overview
 
@@ -156,7 +156,7 @@ It’s worth noting that Anchor has an `init_if_needed` constraint. This constra
 
 The `init_if_needed` constraint does the same thing as the `init` constraint, only if the account has already been initialized the instruction will still run.
 
-Given this, it’s *********extremely********* important that when you use this constraint you include checks to avoid resetting the account to its initial state.
+Given this, it’s ****\*****extremely****\***** important that when you use this constraint you include checks to avoid resetting the account to its initial state.
 
 For example, if the account stores an `authority` field that gets set in the instruction using the `init_if_needed` constraint, you need checks that ensure that no attacker could call the instruction after it has already been initialized and have the `authority` field set again.
 
@@ -166,12 +166,12 @@ In most cases, it’s safer to have a separate instruction for initializing acco
 
 For this demo we’ll create a simple program that does nothing but initialize accounts. We’ll include two instructions:
 
-- `insecure_initialization` - initializes an account that can be reinitialized
-- `recommended_initialization` - initialize an account using Anchor’s `init` constraint
+-   `insecure_initialization` - initializes an account that can be reinitialized
+-   `recommended_initialization` - initialize an account using Anchor’s `init` constraint
 
 ### 1. Starter
 
-To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/starter). The starter code includes a program with one instruction and the boilerplate setup for the test file. 
+To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/starter). The starter code includes a program with one instruction and the boilerplate setup for the test file.
 
 The `insecure_initialization` instruction initializes a new `user` account that stores the public key of an `authority`. In this instruction, the account is expected to be allocated client-side, then passed into the program instruction. Once passed into the program, there are no checks to see if the `user` account's initial state has already been set. This means the same account can be passed in a second time to override the `authority` stored on an existing `user` account.
 
@@ -209,77 +209,78 @@ pub struct User {
 
 ### 2. Test `insecure_initialization` instruction
 
-The test file includes the setup to create an account by invoking the system program and then invokes the `insecure_initialization` instruction twice using the same account. 
+The test file includes the setup to create an account by invoking the system program and then invokes the `insecure_initialization` instruction twice using the same account.
 
-Since there are no checks the verify that the account data has not already been initialized, the `insecure_initialization` instruction will complete successfully both times, despite the second invocation providing a *different* authority account.
+Since there are no checks the verify that the account data has not already been initialized, the `insecure_initialization` instruction will complete successfully both times, despite the second invocation providing a _different_ authority account.
 
 ```tsx
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
-import { expect } from "chai"
-import { Initialization } from "../target/types/initialization"
+import * as anchor from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
+import { expect } from "chai";
+import { Initialization } from "../target/types/initialization";
 
 describe("initialization", () => {
-  const provider = anchor.AnchorProvider.env()
-  anchor.setProvider(provider)
+    const provider = anchor.AnchorProvider.env();
+    anchor.setProvider(provider);
 
-  const program = anchor.workspace.Initialization as Program<Initialization>
+    const program = anchor.workspace.Initialization as Program<Initialization>;
 
-  const wallet = anchor.workspace.Initialization.provider.wallet
-  const walletTwo = anchor.web3.Keypair.generate()
+    const wallet = anchor.workspace.Initialization.provider.wallet;
+    const walletTwo = anchor.web3.Keypair.generate();
 
-  const userInsecure = anchor.web3.Keypair.generate()
-  const userRecommended = anchor.web3.Keypair.generate()
+    const userInsecure = anchor.web3.Keypair.generate();
+    const userRecommended = anchor.web3.Keypair.generate();
 
-  before(async () => {
-    const tx = new anchor.web3.Transaction().add(
-      anchor.web3.SystemProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        newAccountPubkey: userInsecure.publicKey,
-        space: 32,
-        lamports: await provider.connection.getMinimumBalanceForRentExemption(
-          32
-        ),
-        programId: program.programId,
-      })
-    )
+    before(async () => {
+        const tx = new anchor.web3.Transaction().add(
+            anchor.web3.SystemProgram.createAccount({
+                fromPubkey: wallet.publicKey,
+                newAccountPubkey: userInsecure.publicKey,
+                space: 32,
+                lamports:
+                    await provider.connection.getMinimumBalanceForRentExemption(
+                        32,
+                    ),
+                programId: program.programId,
+            }),
+        );
 
-    await anchor.web3.sendAndConfirmTransaction(provider.connection, tx, [
-      wallet.payer,
-      userInsecure,
-    ])
+        await anchor.web3.sendAndConfirmTransaction(provider.connection, tx, [
+            wallet.payer,
+            userInsecure,
+        ]);
 
-    await provider.connection.confirmTransaction(
-      await provider.connection.requestAirdrop(
-        walletTwo.publicKey,
-        1 * anchor.web3.LAMPORTS_PER_SOL
-      ),
-      "confirmed"
-    )
-  })
+        await provider.connection.confirmTransaction(
+            await provider.connection.requestAirdrop(
+                walletTwo.publicKey,
+                1 * anchor.web3.LAMPORTS_PER_SOL,
+            ),
+            "confirmed",
+        );
+    });
 
-  it("Insecure init", async () => {
-    await program.methods
-      .insecureInitialization()
-      .accounts({
-        user: userInsecure.publicKey,
-      })
-      .rpc()
-  })
+    it("Insecure init", async () => {
+        await program.methods
+            .insecureInitialization()
+            .accounts({
+                user: userInsecure.publicKey,
+            })
+            .rpc();
+    });
 
-  it("Re-invoke insecure init with different auth", async () => {
-    const tx = await program.methods
-      .insecureInitialization()
-      .accounts({
-        user: userInsecure.publicKey,
-        authority: walletTwo.publicKey,
-      })
-      .transaction()
-    await anchor.web3.sendAndConfirmTransaction(provider.connection, tx, [
-      walletTwo,
-    ])
-  })
-})
+    it("Re-invoke insecure init with different auth", async () => {
+        const tx = await program.methods
+            .insecureInitialization()
+            .accounts({
+                user: userInsecure.publicKey,
+                authority: walletTwo.publicKey,
+            })
+            .transaction();
+        await anchor.web3.sendAndConfirmTransaction(provider.connection, tx, [
+            walletTwo,
+        ]);
+    });
+});
 ```
 
 Run `anchor test` to see that both transactions will complete successfully.
@@ -326,7 +327,7 @@ pub struct Checked<'info> {
 
 ### 4. Test `recommended_initialization` instruction
 
-To test the `recommended_initialization` instruction, we’ll invoke the instruction twice just like before. This time, we expect the transaction to fail when we try to initialize the same account a second time. 
+To test the `recommended_initialization` instruction, we’ll invoke the instruction twice just like before. This time, we expect the transaction to fail when we try to initialize the same account a second time.
 
 ```tsx
 describe("initialization", () => {

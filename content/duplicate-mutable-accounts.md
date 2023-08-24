@@ -1,23 +1,23 @@
 ---
 title: Duplicate Mutable Accounts
 objectives:
-- Explain the security risks associated with instructions that require two mutable accounts of the same type and how to avoid them
-- Implement a check for duplicate mutable accounts using long-form Rust
-- Implement a check for duplicate mutable accounts using Anchor constraints
+    - Explain the security risks associated with instructions that require two mutable accounts of the same type and how to avoid them
+    - Implement a check for duplicate mutable accounts using long-form Rust
+    - Implement a check for duplicate mutable accounts using Anchor constraints
 ---
 
 # TL;DR
 
-- When an instruction requires two mutable accounts of the same type, an attacker can pass in the same account twice, causing the account to be mutated in unintended ways.
-- To check for duplicate mutable accounts in Rust, simply compare the public keys of the two accounts and throw an error if they are the same.
+-   When an instruction requires two mutable accounts of the same type, an attacker can pass in the same account twice, causing the account to be mutated in unintended ways.
+-   To check for duplicate mutable accounts in Rust, simply compare the public keys of the two accounts and throw an error if they are the same.
 
-  ```rust
-  if ctx.accounts.account_one.key() == ctx.accounts.account_two.key() {
-      return Err(ProgramError::InvalidArgument)
-  }
-  ```
+    ```rust
+    if ctx.accounts.account_one.key() == ctx.accounts.account_two.key() {
+        return Err(ProgramError::InvalidArgument)
+    }
+    ```
 
-- In Anchor, you can use `constraint` to add an explicit constraint to an account checking that it is not the same as another account.
+-   In Anchor, you can use `constraint` to add an explicit constraint to an account checking that it is not the same as another account.
 
 # Overview
 
@@ -154,9 +154,9 @@ Let’s practice by creating a simple Rock Paper Scissors program to demonstrate
 
 This program will initialize “player” accounts and have a separate instruction that requires two player accounts to represent starting a game of rock paper scissors.
 
-- An `initialize` instruction to initialize a `PlayerState` account
-- A `rock_paper_scissors_shoot_insecure` instruction that requires two `PlayerState` accounts, but does not check that the accounts passed into the instruction are different
-- A `rock_paper_scissors_shoot_secure` instruction that is the same as the `rock_paper_scissors_shoot_insecure` instruction but adds a constraint that ensures the two player accounts are different
+-   An `initialize` instruction to initialize a `PlayerState` account
+-   A `rock_paper_scissors_shoot_insecure` instruction that requires two `PlayerState` accounts, but does not check that the accounts passed into the instruction are different
+-   A `rock_paper_scissors_shoot_secure` instruction that is the same as the `rock_paper_scissors_shoot_insecure` instruction but adds a constraint that ensures the two player accounts are different
 
 ### 1. Starter
 

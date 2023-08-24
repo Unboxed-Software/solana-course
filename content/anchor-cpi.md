@@ -1,18 +1,18 @@
 ---
 title: Anchor CPIs and Errors
 objectives:
-- Make Cross Program Invocations (CPIs) from an Anchor program
-- Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs
-- Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable
-- Create and return custom Anchor errors
+    - Make Cross Program Invocations (CPIs) from an Anchor program
+    - Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs
+    - Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable
+    - Create and return custom Anchor errors
 ---
 
 # TL;DR
 
-- Anchor provides a simplified way to create CPIs using a **`CpiContext`**
-- Anchor's **`cpi`** feature generates CPI helper functions for invoking instructions on existing Anchor programs
-- If you do not have access to CPI helper functions, you can still use `invoke` and `invoke_signed` directly
-- The **`error_code`** attribute macro is used to create custom Anchor Errors
+-   Anchor provides a simplified way to create CPIs using a **`CpiContext`**
+-   Anchor's **`cpi`** feature generates CPI helper functions for invoking instructions on existing Anchor programs
+-   If you do not have access to CPI helper functions, you can still use `invoke` and `invoke_signed` directly
+-   The **`error_code`** attribute macro is used to create custom Anchor Errors
 
 # Overview
 
@@ -34,10 +34,10 @@ The first step in making a CPI is to create an instance of `CpiContext`. `CpiCon
 
 The `CpiContext` type specifies non-argument inputs for cross program invocations:
 
-- `accounts` - the list of accounts required for the instruction being invoked
-- `remaining_accounts` - any remaining accounts
-- `program` - the program ID of the program being invoked
-- `signer_seeds` - if a PDA is signing, include the seeds required to derived the PDA
+-   `accounts` - the list of accounts required for the instruction being invoked
+-   `remaining_accounts` - any remaining accounts
+-   `program` - the program ID of the program being invoked
+-   `signer_seeds` - if a PDA is signing, include the seeds required to derived the PDA
 
 ```rust
 pub struct CpiContext<'a, 'b, 'c, 'info, T>
@@ -143,7 +143,7 @@ pub mod lootbox_program {
 
 ### Invoke an instruction on a non-Anchor program
 
-When the program you're calling is *not* an Anchor program, there are two possible options:
+When the program you're calling is _not_ an Anchor program, there are two possible options:
 
 1. It's possible that the program maintainers have published a crate with their own helper functions for calling into their program. For example, the `anchor_spl` crate provides helper functions that are virtually identical from a call-site perspective to what you would get with the `cpi` module of an Anchor program. E.g. you can mint using the [`mint_to` helper function](https://docs.rs/anchor-spl/latest/src/anchor_spl/token.rs.html#36-58) and use the [`MintTo` accounts struct](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.MintTo.html).
     ```rust
@@ -196,9 +196,9 @@ We're deep enough into Anchor at this point that it's important to know how to c
 
 Ultimately, all programs return the same error type: [`ProgramError`](https://docs.rs/solana-program/latest/solana_program/program_error/enum.ProgramError.html). However, when writing a program using Anchor you can use `AnchorError` as an abstraction on top of `ProgramError`. This abstraction provides additional information when a program fails, including:
 
-- The error name and number
-- Location in the code where the error was thrown
-- The account that violated a constraint
+-   The error name and number
+-   Location in the code where the error was thrown
+-   The account that violated a constraint
 
 ```rust
 pub struct AnchorError {
@@ -212,8 +212,8 @@ pub struct AnchorError {
 
 Anchor Errors can be divided into:
 
-- Anchor Internal Errors that the framework returns from inside its own code
-- Custom errors that you the developer can create
+-   Anchor Internal Errors that the framework returns from inside its own code
+-   Custom errors that you the developer can create
 
 You can add errors unique to your program by using the `error_code` attribute. Simply add this attribute to a custom `enum` type. You can then use the variants of the `enum` as errors in your program. Additionally, you can add an error message to each variant using the `msg` attribute. Clients can then display this error message if the error occurs.
 
@@ -342,11 +342,11 @@ Now that we've done some setup, let’s update the `add_movie_review` instructio
 
 Next, update the `AddMovieReview` context type to add the following accounts:
 
-- `token_program` - we'll be using the Token Program to mint tokens
-- `mint` - the mint account for the tokens that we'll mint to users when they add a movie review
-- `token_account` - the associated token account for the afforementioned `mint` and reviewer
-- `associated_token_program` - required because we'll be using the `associated_token` constraint on the `token_account`
-- `rent` - required because we are using the `init-if-needed` constraint on the `token_account`
+-   `token_program` - we'll be using the Token Program to mint tokens
+-   `mint` - the mint account for the tokens that we'll mint to users when they add a movie review
+-   `token_account` - the associated token account for the afforementioned `mint` and reviewer
+-   `associated_token_program` - required because we'll be using the `associated_token` constraint on the `token_account`
+-   `rent` - required because we are using the `init-if-needed` constraint on the `token_account`
 
 ```rust
 #[derive(Accounts)]
@@ -387,8 +387,8 @@ Again, some of the above constraints may be unfamiliar to you. The `associated_t
 
 Next, let’s update the `add_movie_review` instruction to do the following:
 
-- Check that `rating` is valid. If it is not a valid rating, return the `InvalidRating` error.
-- Make a CPI to the token program’s `mint_to` instruction using the mint authority PDA as a signer. Note that we'll mint 10 tokens to the user but need to adjust for the mint decimals by making it `10*10^6`.
+-   Check that `rating` is valid. If it is not a valid rating, return the `InvalidRating` error.
+-   Make a CPI to the token program’s `mint_to` instruction using the mint authority PDA as a signer. Note that we'll mint 10 tokens to the user but need to adjust for the mint decimals by making it `10*10^6`.
 
 Fortunately, we can use the `anchor_spl` crate to access helper functions and types like `mint_to` and `MintTo` for constructing our CPI to the Token Program. `mint_to` takes a `CpiContext` and integer as arguments, where the integer represents the number of tokens to mint. `MintTo` can be used for the list of accounts that the mint instruction needs.
 
@@ -494,39 +494,40 @@ With that done, add a test for the `initializeTokenMint` instruction:
 
 ```ts
 it("Initializes the reward token", async () => {
-    const tx = await program.methods.initializeTokenMint().rpc()
-})
+    const tx = await program.methods.initializeTokenMint().rpc();
+});
 ```
 
 Notice that we didn't have to add `.accounts` because they call be inferred, including the `mint` account (assuming you have seed inference enabled).
 
 Next, update the test for the `addMovieReview` instruction. The primary additions are:
+
 1. To get the associated token address that needs to be passed into the instruction as an account that cannot be inferred
 2. Check at the end of the test that the associated token account has 10 tokens
 
 ```ts
 it("Movie review is added`", async () => {
-  const tokenAccount = await getAssociatedTokenAddress(
-    mint,
-    provider.wallet.publicKey
-  )
-  
-  const tx = await program.methods
-    .addMovieReview(movie.title, movie.description, movie.rating)
-    .accounts({
-      tokenAccount: tokenAccount,
-    })
-    .rpc()
-  
-  const account = await program.account.movieAccountState.fetch(movie_pda)
-  expect(movie.title === account.title)
-  expect(movie.rating === account.rating)
-  expect(movie.description === account.description)
-  expect(account.reviewer === provider.wallet.publicKey)
+    const tokenAccount = await getAssociatedTokenAddress(
+        mint,
+        provider.wallet.publicKey,
+    );
 
-  const userAta = await getAccount(provider.connection, tokenAccount)
-  expect(Number(userAta.amount)).to.equal((10 * 10) ^ 6)
-})
+    const tx = await program.methods
+        .addMovieReview(movie.title, movie.description, movie.rating)
+        .accounts({
+            tokenAccount: tokenAccount,
+        })
+        .rpc();
+
+    const account = await program.account.movieAccountState.fetch(movie_pda);
+    expect(movie.title === account.title);
+    expect(movie.rating === account.rating);
+    expect(movie.description === account.description);
+    expect(account.reviewer === provider.wallet.publicKey);
+
+    const userAta = await getAccount(provider.connection, tokenAccount);
+    expect(Number(userAta.amount)).to.equal((10 * 10) ^ 6);
+});
 ```
 
 After that, neither the test for `updateMovieReview` nor the test for `deleteMovieReview` need any changes.

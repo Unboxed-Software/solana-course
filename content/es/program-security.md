@@ -10,11 +10,11 @@ title: Crear un Programa Básico, Parte 3 - Objetivos Básicos de Seguridad y Va
 
 # TL;DR
 
-- **Pensar como un atacante** significa preguntar "¿Cómo rompo esto?"
-- Realice **cheques de propietario** para asegurarse de que la cuenta proporcionada sea propiedad de la clave pública que espera, por ejemplo, asegurándose de que una cuenta que espera que sea un PDA sea propiedad de `program_id`
-- Realizar **cheques de firmante** para garantizar que cualquier modificación de la cuenta haya sido firmada por la parte o partes adecuadas
-- **Validación de la cuenta** implica garantizar que las cuentas proporcionadas sean las cuentas que espera que sean, por ejemplo, derivar PDA con las semillas esperadas para asegurarse de que la dirección coincida con la cuenta proporcionada
-- **Validación de datos** implica garantizar que cualquier dato proporcionado cumpla con los criterios requeridos por el programa
+-   **Pensar como un atacante** significa preguntar "¿Cómo rompo esto?"
+-   Realice **cheques de propietario** para asegurarse de que la cuenta proporcionada sea propiedad de la clave pública que espera, por ejemplo, asegurándose de que una cuenta que espera que sea un PDA sea propiedad de `program_id`
+-   Realizar **cheques de firmante** para garantizar que cualquier modificación de la cuenta haya sido firmada por la parte o partes adecuadas
+-   **Validación de la cuenta** implica garantizar que las cuentas proporcionadas sean las cuentas que espera que sean, por ejemplo, derivar PDA con las semillas esperadas para asegurarse de que la dirección coincida con la cuenta proporcionada
+-   **Validación de datos** implica garantizar que cualquier dato proporcionado cumpla con los criterios requeridos por el programa
 
 # Descripción general
 
@@ -28,9 +28,9 @@ Recuerde,**no tiene control sobre las transacciones que se enviarán a su progra
 
 [Neodyme](https://workshop.neodyme.io/) hizo una presentación en Breakpoint 2021 titulada "Think Like An Attacker: Bringing Smart Contracts to Their Break(ing) Point." Si hay una cosa que te llevas de esta lección, es que debes pensar como un atacante.
 
-En esta lección, por supuesto, no podemos cubrir todo lo que podría salir mal con sus programas. En última instancia, cada programa tendrá diferentes riesgos de seguridad asociados con él. Si bien la comprensión de los escollos comunes es *esencial* para diseñar buenos programas, es *insuficiente* para implementar los seguros. Para tener la cobertura de seguridad más amplia posible, debe acercarse a su código con la mentalidad correcta.
+En esta lección, por supuesto, no podemos cubrir todo lo que podría salir mal con sus programas. En última instancia, cada programa tendrá diferentes riesgos de seguridad asociados con él. Si bien la comprensión de los escollos comunes es _esencial_ para diseñar buenos programas, es _insuficiente_ para implementar los seguros. Para tener la cobertura de seguridad más amplia posible, debe acercarse a su código con la mentalidad correcta.
 
-Como Neodyme mencionó en su presentación, la mentalidad correcta requiere pasar de la pregunta "¿Esto está roto?" a "¿Cómo rompo esto? Este es el primer y más esencial paso para entender qué es *realmente lo hace* tu código en lugar de para qué lo escribiste.
+Como Neodyme mencionó en su presentación, la mentalidad correcta requiere pasar de la pregunta "¿Esto está roto?" a "¿Cómo rompo esto? Este es el primer y más esencial paso para entender qué es _realmente lo hace_ tu código en lugar de para qué lo escribiste.
 
 ### Todos los programas se pueden romper
 
@@ -50,7 +50,6 @@ Si bien la `solana_program` caja proporciona una `ProgramError` enumeración con
 
 Podemos definir nuestros propios errores creando un tipo de enumeración que enumere los errores que queremos usar. Por ejemplo, `NoteError` contiene variantes `Forbidden` y `InvalidLength`. La enum se convierte en un `Error` tipo de óxido mediante el uso de la macro de `derive` atributos para implementar el `Error` rasgo de la `thiserror` biblioteca. Cada tipo de error también tiene su propia `#[error("...")]` notación. Esto le permite proporcionar un mensaje de error para cada tipo de error en particular.
 
-
 ```rust
 use solana_program::{program_error::ProgramError};
 use thiserror::Error;
@@ -69,7 +68,6 @@ pub enum NoteError {
 
 El compilador espera que los errores devueltos por el programa sean de tipo `ProgramError` de la `solana_program` caja. Eso significa que no podremos devolver nuestro error personalizado a menos que tengamos una forma de convertirlo en este tipo. La siguiente implementación maneja la conversión entre nuestro error personalizado y el `ProgramError` tipo.
 
-
 ```rust
 impl From<NoteError> for ProgramError {
     fn from(e: NoteError) -> Self {
@@ -79,7 +77,6 @@ impl From<NoteError> for ProgramError {
 ```
 
 Para devolver el error personalizado del programa, simplemente use el `into()` método para convertir el error en una instancia de `ProgramError`.
-
 
 ```rust
 if pda != *note_pda.key {
@@ -91,10 +88,10 @@ if pda != *note_pda.key {
 
 Si bien estos no protegerán completamente su programa, hay algunos controles de seguridad que puede tener en cuenta para llenar algunos de los vacíos más grandes en su código:
 
-- Comprobaciones de propiedad: se utilizan para verificar que una cuenta es propiedad del programa.
-- Cheques de firmante: se utilizan para verificar que una cuenta ha firmado una transacción
-- Validación general de la cuenta: se utiliza para verificar que una cuenta es la cuenta esperada
-- Validación de datos: se utiliza para verificar las entradas proporcionadas por un usuario
+-   Comprobaciones de propiedad: se utilizan para verificar que una cuenta es propiedad del programa.
+-   Cheques de firmante: se utilizan para verificar que una cuenta ha firmado una transacción
+-   Validación general de la cuenta: se utiliza para verificar que una cuenta es la cuenta esperada
+-   Validación de datos: se utiliza para verificar las entradas proporcionadas por un usuario
 
 ### Comprobaciones de propiedad
 
@@ -103,7 +100,6 @@ Una verificación de propiedad verifica que una cuenta es propiedad de la clave 
 Cuando un usuario invoca la `update` instrucción, también proporciona una `pda_account`. Suponemos que el proporcionado `pda_account` es para la nota particular que desean actualizar, pero el usuario puede ingresar los datos de instrucción que desee. Incluso podrían enviar datos que coincidan con el formato de datos de una cuenta de notas, pero que no hayan sido creados por el programa de toma de notas. Esta vulnerabilidad de seguridad es una forma potencial de introducir código malicioso.
 
 La forma más sencilla de evitar este problema es comprobar siempre que el propietario de una cuenta es la clave pública que esperas que sea. En este caso, esperamos que la cuenta de la nota sea una cuenta PDA propiedad del propio programa. Cuando este no es el caso, podemos informarlo como un error en consecuencia.
-
 
 ```rust
 if note_pda.owner != program_id {
@@ -117,7 +113,6 @@ Como nota al margen, usar PDA siempre que sea posible es más seguro que confiar
 
 Un cheque de firmante simplemente verifica que las partes correctas hayan firmado una transacción. En la aplicación para tomar notas, por ejemplo, queremos verificar que el creador de la nota firmó la transacción antes de procesar la `update` instrucción. De lo contrario, cualquiera puede actualizar las notas de otro usuario simplemente pasando la clave pública del usuario como inicializador.
 
-
 ```rust
 if !initializer.is_signer {
     msg!("Missing required signature");
@@ -130,7 +125,6 @@ if !initializer.is_signer {
 Además de verificar a los firmantes y propietarios de las cuentas, es importante asegurarse de que las cuentas proporcionadas sean lo que su código espera que sean. Por ejemplo, desea validar que la dirección de una cuenta PDA proporcionada se puede derivar con las semillas esperadas. Esto asegura que sea la cuenta que esperas que sea.
 
 En el ejemplo de la aplicación para tomar notas, eso significaría asegurarse de que puede derivar un PDA coincidente utilizando la clave pública del creador de la nota y el ID como semillas (eso es lo que suponemos que se usó al crear la nota). De esa manera, un usuario no podría pasar accidentalmente en una cuenta PDA por la nota incorrecta o, lo que es más importante, que el usuario no está pasando en una cuenta PDA que representa la nota de otra persona por completo.
-
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
@@ -147,7 +141,6 @@ Al igual que la validación de cuentas, también debe validar los datos proporci
 
 Por ejemplo, puede tener un programa de juego donde un usuario puede asignar puntos de atributos de carácter a varias categorías. Es posible que tenga un límite máximo en cada categoría de 100, en cuyo caso querrá verificar que la asignación existente de puntos más la nueva asignación no exceda el máximo.
 
-
 ```rust
 if character.agility + new_agility > 100 {
     msg!("Attribute points cannot exceed 100");
@@ -156,7 +149,6 @@ if character.agility + new_agility > 100 {
 ```
 
 O bien, el personaje puede tener una asignación de puntos de atributo que puede asignar y desea asegurarse de que no excedan esa asignación.
-
 
 ```rust
 if attribute_allowance < new_agility {
@@ -177,7 +169,7 @@ Esto siempre es importante tenerlo en cuenta, pero especialmente cuando se trata
 
 Para evitar el desbordamiento y el desbordamiento de enteros:
 
-1. Tener lógica en su lugar que garantice que *no puede* ocurra un desbordamiento o subdesbordamiento o
+1. Tener lógica en su lugar que garantice que _no puede_ ocurra un desbordamiento o subdesbordamiento o
 2. Usa las matemáticas marcadas como `checked_add` en lugar de `+`
 
     ```rust
@@ -198,14 +190,14 @@ Al igual que antes, vamos [Parque infantil Solana](https://beta.solpg.io/) a ut
 
 Para empezar, puedes encontrar el código de inicio[here](https://beta.solpg.io/62b552f3f6273245aca4f5c9). Si has estado siguiendo junto con las demostraciones de Movie Review, notarás que hemos refactorizado nuestro programa.
 
-El código de inicio refactorizado es casi el mismo que antes. Dado que `lib.rs` se estaba volviendo bastante grande y difícil de manejar, hemos separado su código en 3 archivos: `lib.rs` `entrypoint.rs`,, y `processor.rs`. `lib.rs` ahora *solo* registra los módulos del código, `entrypoint.rs` *solo* define y establece el punto de entrada del programa y `processor.rs` maneja la lógica del programa para procesar instrucciones. También hemos añadido un `error.rs` archivo en el que vamos a definir errores personalizados. La estructura completa del archivo es la siguiente:
+El código de inicio refactorizado es casi el mismo que antes. Dado que `lib.rs` se estaba volviendo bastante grande y difícil de manejar, hemos separado su código en 3 archivos: `lib.rs` `entrypoint.rs`,, y `processor.rs`. `lib.rs` ahora _solo_ registra los módulos del código, `entrypoint.rs` _solo_ define y establece el punto de entrada del programa y `processor.rs` maneja la lógica del programa para procesar instrucciones. También hemos añadido un `error.rs` archivo en el que vamos a definir errores personalizados. La estructura completa del archivo es la siguiente:
 
-- **lib.rs** - Módulos de registro
-- punto de**entrypoint.rs -** entrada al programa
-- **instruction.rs -** serializar y deserializar datos de instrucción
-- lógica de**processor.rs -** programa para procesar instrucciones
-- **state.rs -** serializar y deserializar el estado
-- errores de programa**error.rs -** personalizados
+-   **lib.rs** - Módulos de registro
+-   punto de**entrypoint.rs -** entrada al programa
+-   **instruction.rs -** serializar y deserializar datos de instrucción
+-   lógica de**processor.rs -** programa para procesar instrucciones
+-   **state.rs -** serializar y deserializar el estado
+-   errores de programa**error.rs -** personalizados
 
 Además de algunos cambios en la estructura de archivos, hemos actualizado una pequeña cantidad de código que permitirá que esta demostración se centre más en la seguridad sin tener que escribir una placa de caldera innecesaria.
 
@@ -229,8 +221,7 @@ Finalmente, también hemos implementado algunas funcionalidades adicionales para
 
 Para nuestras reseñas de películas, queremos la capacidad de verificar si una cuenta ya se ha inicializado. Para ello, creamos una `is_initialized` función que comprueba el `is_initialized` campo en la `MovieAccountState` estructura.
 
- `Sealed` es la versión de Solana del  `Sized` rasgo de Rust. Esto simplemente especifica que `MovieAccountState` tiene un tamaño conocido y proporciona algunas optimizaciones del compilador.
-
+`Sealed` es la versión de Solana del  `Sized` rasgo de Rust. Esto simplemente especifica que `MovieAccountState` tiene un tamaño conocido y proporciona algunas optimizaciones del compilador.
 
 ```rust
 // inside state.rs
@@ -249,13 +240,12 @@ Antes de seguir adelante, asegúrese de tener una comprensión sólida del estad
 
 Comencemos escribiendo nuestros errores de programa personalizados. Necesitaremos errores que podamos usar en las siguientes situaciones:
 
-- La instrucción de actualización se ha invocado en una cuenta que aún no se ha inicializado
-- El PDA proporcionado no coincide con el PDA esperado o derivado
-- Los datos de entrada son más grandes de lo que permite el programa
-- La calificación proporcionada no cae en el rango 1-5
+-   La instrucción de actualización se ha invocado en una cuenta que aún no se ha inicializado
+-   El PDA proporcionado no coincide con el PDA esperado o derivado
+-   Los datos de entrada son más grandes de lo que permite el programa
+-   La calificación proporcionada no cae en el rango 1-5
 
 El código de inicio incluye un `error.rs` archivo vacío. Abra ese archivo y añada errores para cada uno de los casos anteriores.
-
 
 ```rust
 // inside error.rs
@@ -289,7 +279,6 @@ Tenga en cuenta que además de añadir los casos de error, también hemos añadi
 
 Antes de seguir adelante, vamos a `ReviewError` poner en alcance en el `processor.rs`. Utilizaremos estos errores en breve cuando agreguemos nuestros controles de seguridad.
 
-
 ```rust
 // inside processor.rs
 use crate::error::ReviewError;
@@ -302,7 +291,6 @@ Ahora que tenemos errores que usar, vamos a implementar algunas comprobaciones d
 ### Comprobación del firmante
 
 Lo primero que debemos hacer es asegurarnos `initializer` de que la revisión también sea un firmante de la transacción. Esto garantiza que no pueda enviar reseñas de películas que se hagan pasar por otra persona. Pondremos este cheque justo después de iterar a través de las cuentas.
-
 
 ```rust
 let account_info_iter = &mut accounts.iter();
@@ -321,7 +309,6 @@ if !initializer.is_signer {
 
 A continuación, asegurémonos de que el `pda_account` pasado por el usuario es el `pda` que esperamos. Recordemos que derivamos el `pda` para una revisión de la película usando el `initializer` y `title` como semillas. Dentro de nuestra instrucción vamos a derivar la `pda` otra vez y luego comprobar si coincide con la `pda_account`. Si las direcciones no coinciden, devolveremos nuestro `InvalidPDA` error personalizado.
 
-
 ```rust
 // Derive PDA and check that it matches client
 let (pda, _bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), account_data.title.as_bytes().as_ref(),], program_id);
@@ -338,7 +325,6 @@ Ahora vamos a realizar una validación de datos.
 
 Comenzaremos asegurándonos de que `rating` caiga dentro de la escala de 1 a 5. Si la calificación proporcionada por el usuario fuera de este rango, le devolveremos nuestro `InvalidRating` error personalizado.
 
-
 ```rust
 if rating > 5 || rating < 1 {
     msg!("Rating cannot be higher than 5");
@@ -347,7 +333,6 @@ if rating > 5 || rating < 1 {
 ```
 
 A continuación, verifiquemos que el contenido de la revisión no exceda los 1000 bytes que hemos asignado para la cuenta. Si el tamaño supera los 1000 bytes, devolveremos nuestro `InvalidDataLength` error personalizado.
-
 
 ```rust
 let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
@@ -359,7 +344,6 @@ if total_len > 1000 {
 
 Por último, vamos a comprobar si la cuenta ya se ha inicializado llamando a la `is_initialized` función que implementamos para nuestro `MovieAccountState`. Si la cuenta ya existe, devolveremos un error.
 
-
 ```rust
 if account_data.is_initialized() {
     msg!("Account already initialized");
@@ -368,7 +352,6 @@ if account_data.is_initialized() {
 ```
 
 En conjunto, la `add_movie_review` función debería verse algo como esto:
-
 
 ```rust
 pub fn add_movie_review(
@@ -459,7 +442,6 @@ Ahora que `add_movie_review` es más seguro, vamos a centrar nuestra atención e
 
 Empecemos por actualizar `instruction.rs`. Comenzaremos añadiendo una `UpdateMovieReview` variante `MovieInstruction` que incluya datos incrustados para el nuevo título, calificación y descripción.
 
-
 ```rust
 // inside instruction.rs
 pub enum MovieInstruction {
@@ -479,7 +461,6 @@ pub enum MovieInstruction {
 La estructura de carga útil puede permanecer igual ya que, aparte del tipo de variante, los datos de instrucción son los mismos que los que utilizamos `AddMovieReview`.
 
 Por último, en la `unpack` función tenemos que añadir `UpdateMovieReview` a la declaración de coincidencia.
-
 
 ```rust
 // inside instruction.rs
@@ -506,7 +487,6 @@ impl MovieInstruction {
 
 Ahora que podemos desempaquetar nuestro  `instruction_data`  y determinar qué instrucción del programa ejecutar, podemos agregar `UpdateMovieReview` a la instrucción match en la  `process_instruction`  función en el `processor.rs` archivo.
 
-
 ```rust
 // inside processor.rs
 pub fn process_instruction(
@@ -531,7 +511,6 @@ pub fn process_instruction(
 
 A continuación, podemos definir la nueva  `update_movie_review` función. La definición debe tener los mismos parámetros que la definición de `add_movie_review`.
 
-
 ```rust
 pub fn update_movie_review(
     program_id: &Pubkey,
@@ -549,7 +528,6 @@ pub fn update_movie_review(
 Todo lo que queda ahora es completar la lógica para actualizar una reseña de película. Solo hagámoslo seguro desde el principio.
 
 Al igual que la `add_movie_review` función, empecemos por iterar a través de las cuentas. Las únicas cuentas que necesitaremos son las dos primeras: `initializer` y `pda_account`.
-
 
 ```rust
 pub fn update_movie_review(
@@ -575,7 +553,6 @@ pub fn update_movie_review(
 
 Antes de continuar, vamos a implementar algunos controles de seguridad básicos. Comenzaremos con una verificación de propiedad `pda_account` para verificar que es propiedad de nuestro programa. Si no es así, devolveremos un `InvalidOwner` error.
 
-
 ```rust
 if pda_account.owner != program_id {
     return Err(ProgramError::InvalidOwner)
@@ -585,7 +562,6 @@ if pda_account.owner != program_id {
 ### Comprobación del firmante
 
 A continuación, vamos a realizar una verificación del firmante para verificar que la `initializer` de la instrucción de actualización también ha firmado la transacción. Dado que estamos actualizando los datos para una revisión de película, queremos asegurarnos de que el original `initializer` de la revisión haya aprobado los cambios firmando la transacción. Si `initializer` no ha firmado la transacción, le devolveremos un error.
-
 
 ```rust
 if !initializer.is_signer {
@@ -597,7 +573,6 @@ if !initializer.is_signer {
 ### Validación de la cuenta
 
 A continuación, comprobemos que el `pda_account` pasado por el usuario es el PDA que esperamos derivando el PDA usando `initializer` y `title` como semillas. Si las direcciones no coinciden, devolveremos nuestro `InvalidPDA` error personalizado. Implementaremos esto de la misma manera que lo hicimos en la `add_movie_review` función.
-
 
 ```rust
 // Derive PDA and check that it matches client
@@ -613,7 +588,6 @@ if pda != *pda_account.key {
 
 Ahora que nuestro código garantiza que podemos confiar en las cuentas pasadas, desempaquetemos `pda_account` y realicemos una validación de datos. Empezaremos por desempaquetarlo `pda_account` y asignarlo a una variable mutable `account_data`.
 
-
 ```rust
 msg!("unpacking state account");
 let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
@@ -621,7 +595,6 @@ msg!("borrowed account data");
 ```
 
 Ahora que tenemos acceso a la cuenta y sus campos, lo primero que tenemos que hacer es verificar que la cuenta ya ha sido inicializada. No se puede actualizar una cuenta no inicializada, por lo que el programa debe devolver nuestro `UninitializedAccount` error personalizado.
-
 
 ```rust
 if !account_data.is_initialized() {
@@ -631,7 +604,6 @@ if !account_data.is_initialized() {
 ```
 
 A continuación, tenemos que validar el `rating`, `title`, y `description` los datos al igual que en la `add_movie_review` función. Queremos limitar la `rating` a una escala de 1 a 5 y limitar el tamaño total de la revisión a menos de 1000 bytes. Si la calificación proporcionada por el usuario está fuera de este rango, le devolveremos nuestro `InvalidRating` error personalizado. Si la evaluación es demasiado larga, te devolveremos el `InvalidDataLength` error personalizado.
-
 
 ```rust
 if rating > 5 || rating < 1 {
@@ -650,7 +622,6 @@ if total_len > 1000 {
 
 Ahora que hemos implementado todos los controles de seguridad, finalmente podemos actualizar la cuenta de revisión de películas actualizándola `account_data` y volviendo a serializarla. En ese momento, podemos regresar `Ok` de nuestro programa.
 
-
 ```rust
 account_data.rating = rating;
 account_data.description = description;
@@ -661,7 +632,6 @@ Ok(())
 ```
 
 En conjunto, la `update_movie_review` función debe parecerse al fragmento de código a continuación. Hemos incluido algunos registros adicionales para mayor claridad en la depuración.
-
 
 ```rust
 pub fn update_movie_review(
@@ -737,7 +707,7 @@ pub fn update_movie_review(
 
 ## 7. Construir y actualizar
 
-¡Estamos listos para construir y actualizar nuestro programa! Puede probar su programa enviando una transacción con los datos de instrucción correctos. Para eso, siéntase libre de usar esto[frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews).  Recuerde, para asegurarse de que está probando el programa correcto, deberá reemplazarlo `MOVIE_REVIEW_PROGRAM_ID` con su ID de programa en `Form.tsx` y `MovieCoordinator.ts`.
+¡Estamos listos para construir y actualizar nuestro programa! Puede probar su programa enviando una transacción con los datos de instrucción correctos. Para eso, siéntase libre de usar esto[frontend](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-update-reviews). Recuerde, para asegurarse de que está probando el programa correcto, deberá reemplazarlo `MOVIE_REVIEW_PROGRAM_ID` con su ID de programa en `Form.tsx` y `MovieCoordinator.ts`.
 
 Si necesita más tiempo con este proyecto para sentirse cómodo con estos conceptos, eche un vistazo a la [código de solución](https://beta.solpg.io/62c8c6dbf6273245aca4f5e7) antes de continuar.
 

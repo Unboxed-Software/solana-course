@@ -1,18 +1,18 @@
 ---
 title: Deserialize Custom Account Data
 objectives:
-- Explain Program Derived Accounts
-- Derive PDAs given specific seeds
-- Fetch a program’s accounts
-- Use Borsh to deserialize custom data
+    - Explain Program Derived Accounts
+    - Derive PDAs given specific seeds
+    - Fetch a program’s accounts
+    - Use Borsh to deserialize custom data
 ---
 
 # TL;DR
 
-- **Program Derived Addresses**, or PDAs, are addresses that do not have a corresponding private key. The concept of PDAs allows for programs to sign for transactions themselves and allows for storing and locating data.
-- You can derive a PDA using the `findProgramAddress(seeds, programid)` method.
-- You can get an array of all the accounts belonging to a program using `getProgramAccounts(programId)`.
-- Account data needs to be deserialized using the same layout used to store it in the first place. You can use `@project-serum/borsh` to create a schema.
+-   **Program Derived Addresses**, or PDAs, are addresses that do not have a corresponding private key. The concept of PDAs allows for programs to sign for transactions themselves and allows for storing and locating data.
+-   You can derive a PDA using the `findProgramAddress(seeds, programid)` method.
+-   You can get an array of all the accounts belonging to a program using `getProgramAccounts(programId)`.
+-   Account data needs to be deserialized using the same layout used to store it in the first place. You can use `@project-serum/borsh` to create a schema.
 
 # Overview
 
@@ -26,7 +26,7 @@ Programs themselves, however, are stateless. They cannot modify the data within 
 
 ### PDA
 
-PDA stands for Program Derived Address. As the name suggests, it refers to an address (public key) derived from a program and some seeds. In a previous lesson, we discussed public/private keys and how they are used on Solana. Unlike a keypair, a PDA *does not* have a corresponding private key. The purpose of a PDA is to create an address that a program can sign for in the same way a user may sign for a transaction with their wallet.
+PDA stands for Program Derived Address. As the name suggests, it refers to an address (public key) derived from a program and some seeds. In a previous lesson, we discussed public/private keys and how they are used on Solana. Unlike a keypair, a PDA _does not_ have a corresponding private key. The purpose of a PDA is to create an address that a program can sign for in the same way a user may sign for a transaction with their wallet.
 
 When you submit a transaction to a program and expect the program to then update state or store data in some way, that program is using one or more PDAs. This is important to understand when developing client-side for two reasons:
 
@@ -35,9 +35,9 @@ When you submit a transaction to a program and expect the program to then update
 
 ### Finding PDAs
 
-PDAs are not technically created. Rather, they are *found* or *derived* based on one or more input seeds.
+PDAs are not technically created. Rather, they are _found_ or _derived_ based on one or more input seeds.
 
-Regular Solana keypairs lie on the ed2559 Elliptic Curve. This cryptographic function ensures that every point along the curve has a corresponding point somewhere else on the curve, allowing for public/private keys. PDAs are addresses that lie *off* the ed2559 Elliptic curve and therefore cannot be signed for by a private key (since there isn’t one). This ensures that the program is the only valid signer for that address.
+Regular Solana keypairs lie on the ed2559 Elliptic Curve. This cryptographic function ensures that every point along the curve has a corresponding point somewhere else on the curve, allowing for public/private keys. PDAs are addresses that lie _off_ the ed2559 Elliptic curve and therefore cannot be signed for by a private key (since there isn’t one). This ensures that the program is the only valid signer for that address.
 
 To find a public key that does not lie on the ed2559 curve, the program ID and seeds of the developer’s choice (like a string of text) are passed through the function [`findProgramAddress(seeds, programid)`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). This function combines the program ID, seeds, and a bump seed into a buffer and passes it into a SHA256 hash to see whether or not the resulting address is on the curve. If the address is on the curve (~50% chance it is), then the bump seed is decremented by 1 and the address is calculated again. The bump seed starts at 255 and progressively iterates down to `bump = 254`, `bump = 253`, etc. until an address is found with the given seeds and bump that does not lie on the ed2559 curve. The `findProgramAddress` function returns the resulting address and the bump used to kick it off the curve. This way, the address can be generated anywhere as long as you have the bump and seeds.
 
@@ -50,30 +50,28 @@ PDAs are a unique concept and are one of the hardest parts of Solana development
 The derivation of PDAs is important because the seeds used to find a PDA are what we use to locate the data. For example, a simple program that only uses a single PDA to store global program state might use a simple seed phrase like “GLOBAL_STATE”. If the client wanted to read data from this PDA, it could derive the address using the program ID and this same seed.
 
 ```tsx
-const [pda, bump] = await findProgramAddress(Buffer.from("GLOBAL_STATE"), programId)
+const [pda, bump] = await findProgramAddress(
+    Buffer.from("GLOBAL_STATE"),
+    programId,
+);
 ```
 
 In more complex programs that store user-specific data, it’s common to use a user’s public key as the seed. This separates each user’s data into its own PDA. The separation makes it possible for the client to locate each user’s data by finding the address using the program ID and the user’s public key.
 
 ```tsx
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
-	[
-		publicKey.toBuffer()
-	],
-	programId
-)
+    [publicKey.toBuffer()],
+    programId,
+);
 ```
 
 Also, when there are multiple accounts per user, a program may use one or more additional seeds to create and identify accounts. For example, in a note-taking app there may be one account per note where each PDA is derived with the user’s public key and the note’s title.
 
 ```tsx
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
-	[
-		publicKey.toBuffer(),
-		Buffer.from('First Note')
-	],
-	programId
-)
+    [publicKey.toBuffer(), Buffer.from("First Note")],
+    programId,
+);
 ```
 
 ### Getting Multiple Program Accounts
@@ -81,12 +79,12 @@ const [pda, bump] = await web3.PublicKey.findProgramAddress(
 In addition to deriving addresses, you can fetch all accounts created by a program using `connection.getProgramAccounts(programId)`. This returns an array of objects where each object has `pubkey` property representing the public key of the account and an `account` property of type `AccountInfo`. You can use the `account` property to get the account data.
 
 ```tsx
-const accounts = connection.getProgramAccounts(programId).then(accounts => {
-	accounts.map(({ pubkey, account }) => {
-		console.log('Account:', pubkey)
-		console.log('Data buffer:', account.data)
-	})
-})
+const accounts = connection.getProgramAccounts(programId).then((accounts) => {
+    accounts.map(({ pubkey, account }) => {
+        console.log("Account:", pubkey);
+        console.log("Data buffer:", account.data);
+    });
+});
 ```
 
 ## Deserializing custom account data
@@ -101,10 +99,10 @@ To properly deserialize data from an on-chain program, you will have to create a
 import * as borsh from "@project-serum/borsh";
 
 borshAccountSchema = borsh.struct([
-	borsh.bool('initialized'),
-	borsh.u16('playerId'),
-	borsh.str('name')
-])
+    borsh.bool("initialized"),
+    borsh.u16("playerId"),
+    borsh.str("name"),
+]);
 ```
 
 Once you have your layout defined, simply call `.decode(buffer)` on the schema.
@@ -113,12 +111,12 @@ Once you have your layout defined, simply call `.decode(buffer)` on the schema.
 import * as borsh from "@project-serum/borsh";
 
 borshAccountSchema = borsh.struct([
-	borsh.bool('initialized'),
-	borsh.u16('playerId'),
-	borsh.str('name')
-])
+    borsh.bool("initialized"),
+    borsh.u16("playerId"),
+    borsh.str("name"),
+]);
 
-const { playerId, name } = borshAccountSchema.decode(buffer)
+const { playerId, name } = borshAccountSchema.decode(buffer);
 ```
 
 # Demo
@@ -169,7 +167,7 @@ export class Movie {
 }
 ```
 
-Remember, the order here *matters*. It needs to match how the account data is structured.
+Remember, the order here _matters_. It needs to match how the account data is structured.
 
 ### 3. Create a method to deserialize data
 
@@ -215,35 +213,37 @@ The method first checks whether or not the buffer exists and returns `null` if i
 Now that we have a way to deserialize account data, we need to actually fetch the accounts. Open `MovieList.tsx` and import `@solana/web3.js`. Then, create a new `Connection` inside the `MovieList` component. Finally, replace the line `setMovies(Movie.mocks)` inside `useEffect` with a call to `connection.getProgramAccounts`. Take the resulting array and convert it into an array of movies and call `setMovies`.
 
 ```tsx
-import { Card } from './Card'
-import { FC, useEffect, useState } from 'react'
-import { Movie } from '../models/Movie'
-import * as web3 from '@solana/web3.js'
+import { Card } from "./Card";
+import { FC, useEffect, useState } from "react";
+import { Movie } from "../models/Movie";
+import * as web3 from "@solana/web3.js";
 
-const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN'
+const MOVIE_REVIEW_PROGRAM_ID = "CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN";
 
 export const MovieList: FC = () => {
-	const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
-	const [movies, setMovies] = useState<Movie[]>([])
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    const [movies, setMovies] = useState<Movie[]>([]);
 
-	useEffect(() => {
-		connection.getProgramAccounts(new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)).then(async (accounts) => {
-			const movies: Movie[] = accounts.map(({ account }) => {
-				return Movie.deserialize(account.data)
-			})
+    useEffect(() => {
+        connection
+            .getProgramAccounts(new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID))
+            .then(async (accounts) => {
+                const movies: Movie[] = accounts.map(({ account }) => {
+                    return Movie.deserialize(account.data);
+                });
 
-			setMovies(movies)
-		})
-	}, [])
+                setMovies(movies);
+            });
+    }, []);
 
-	return (
-		<div>
-			{
-				movies.map((movie, i) => <Card key={i} movie={movie} /> )
-			}
-		</div>
-	)
-}
+    return (
+        <div>
+            {movies.map((movie, i) => (
+                <Card key={i} movie={movie} />
+            ))}
+        </div>
+    );
+};
 ```
 
 At this point, you should be able to run the app and see the list of movie reviews retrieved from the program!
@@ -260,9 +260,9 @@ Now it’s your turn to build something independently. Last lesson, you worked o
 
 1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 2. Create the account buffer layout in `StudentIntro.ts`. The account data contains:
-   1. `initialized` as an unsigned, 8-bit integer representing the instruction to run (should be 1).
-   2. `name` as a string representing the student's name.
-   3. `message` as a string representing the message the student shared about their Solana journey.
+    1. `initialized` as an unsigned, 8-bit integer representing the instruction to run (should be 1).
+    2. `name` as a string representing the student's name.
+    3. `message` as a string representing the message the student shared about their Solana journey.
 3. Create a static method in `StudentIntro.ts` that will use the buffer layout to deserialize an account data buffer into a `StudentIntro` object.
 4. In the `StudentIntroList` component's `useEffect`, get the program's accounts and deserialize their data into a list of `StudentIntro` objects.
 5. Instead of mock data, you should now be seeing student introductions from the network!

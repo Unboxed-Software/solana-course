@@ -218,13 +218,11 @@ it("Insecure instructions allow attacker to win every time", async () => {
         fakeMetadataProgram.programId,
     );
 
-    const playerOneMetadata = await metadataProgram.account.metadata.fetch(
-        playerOneMetadataKey,
-    );
+    const playerOneMetadata =
+        await metadataProgram.account.metadata.fetch(playerOneMetadataKey);
 
-    const attackerMetadata = await fakeMetadataProgram.account.metadata.fetch(
-        attackerMetadataKey,
-    );
+    const attackerMetadata =
+        await fakeMetadataProgram.account.metadata.fetch(attackerMetadataKey);
 
     // The regular player should have health and power between 0 and 20
     expect(playerOneMetadata.health).to.be.lessThan(20);

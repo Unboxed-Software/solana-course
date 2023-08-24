@@ -1,26 +1,27 @@
 ---
 title: Create Tokens With The Token Program
 objectives:
-- Create token mints
-- Create token accounts
-- Mint tokens
-- Transfer tokens
-- Burn tokens
+    - Create token mints
+    - Create token accounts
+    - Mint tokens
+    - Transfer tokens
+    - Burn tokens
 ---
 
 # TL;DR
 
-- **SPL-Tokens** represent all non-native tokens on the Solana network. Both fungible and non-fungible tokens (NFTs) on Solana are SPL-Tokens
-- The **Token Program** contains instructions for creating and interacting with SPL-Tokens
-- **Token Mints** are accounts which hold data about a specific Token, but do not hold Tokens
-- **Token Accounts** are used to hold Tokens of a specific Token Mint
-- Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed, however, Token Mints currently cannot be closed
+-   **SPL-Tokens** represent all non-native tokens on the Solana network. Both fungible and non-fungible tokens (NFTs) on Solana are SPL-Tokens
+-   The **Token Program** contains instructions for creating and interacting with SPL-Tokens
+-   **Token Mints** are accounts which hold data about a specific Token, but do not hold Tokens
+-   **Token Accounts** are used to hold Tokens of a specific Token Mint
+-   Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed, however, Token Mints currently cannot be closed
 
 # Overview
 
 The Token Program is one of many programs made available by the Solana Program Library (SPL). It contains instructions for creating and interacting with SPL-Tokens. These tokens represent all non-native (i.e. not SOL) tokens on the Solana network.
 
 This lesson will focus on the basics of creating and managing a new SPL-Token using the Token Program:
+
 1. Creating a new Token Mint
 2. Creating Token Accounts
 3. Minting
@@ -45,38 +46,39 @@ const tokenMint = await createMint(
     payer,
     mintAuthority,
     freezeAuthority,
-    decimal
+    decimal,
 );
 ```
 
- The `createMint` function returns the `publicKey` of the new token mint. This function requires the following arguments:
+The `createMint` function returns the `publicKey` of the new token mint. This function requires the following arguments:
 
-- `connection` - the JSON-RPC connection to the cluster
-- `payer` - the public key of the payer for the transaction
-- `mintAuthority` - the account which is authorized to do the actual minting of tokens from the token mint.
-- `freezeAuthority` - an account authorized to freeze the tokens in a token account. If freezing is not a desired attribute, the parameter can be set to null
-- `decimals` - specifies the desired decimal precision of the token
+-   `connection` - the JSON-RPC connection to the cluster
+-   `payer` - the public key of the payer for the transaction
+-   `mintAuthority` - the account which is authorized to do the actual minting of tokens from the token mint.
+-   `freezeAuthority` - an account authorized to freeze the tokens in a token account. If freezing is not a desired attribute, the parameter can be set to null
+-   `decimals` - specifies the desired decimal precision of the token
 
 When creating a new mint from a script that has access to your secret key, you can simply use the `createMint` function. However, if you were to build a website to allow users to create a new token mint, you would need to do so with the user's secret key without making them expose it to the browser. In that case, you would want to build and submit a transaction with the right instructions.
 
 Under the hood, the `createMint` function is simply creating a transaction that contains two instructions:
+
 1. Create a new account
 2. Initialize a new mint
 
 This would look as follows:
 
 ```tsx
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
 
 async function buildCreateMintTransaction(
     connection: web3.Connection,
     payer: web3.PublicKey,
-    decimals: number
+    decimals: number,
 ): Promise<web3.Transaction> {
     const lamports = await token.getMinimumBalanceForRentExemptMint(connection);
     const accountKeypair = web3.Keypair.generate();
-    const programId = token.TOKEN_PROGRAM_ID
+    const programId = token.TOKEN_PROGRAM_ID;
 
     const transaction = new web3.Transaction().add(
         web3.SystemProgram.createAccount({
@@ -91,20 +93,22 @@ async function buildCreateMintTransaction(
             decimals,
             payer,
             payer,
-            programId
-        )
+            programId,
+        ),
     );
 
-    return transaction
+    return transaction;
 }
 ```
 
-When manually building the instructions to create a new token mint, make sure you add the instructions for creating the account and initializing the mint to the *same transaction*. If you were to do each step in a separate transaction, it's theoretically possible for somebody else to take the account you create and initialize it for their own mint.
+When manually building the instructions to create a new token mint, make sure you add the instructions for creating the account and initializing the mint to the _same transaction_. If you were to do each step in a separate transaction, it's theoretically possible for somebody else to take the account you create and initialize it for their own mint.
 
 ### Rent and Rent Exemption
+
 Note that the first line in the function body of the previous code snippet contains a call to `getMinimumBalanceForRentExemptMint`, the result of which is passed into the `createAccount` function. This is part of account initialization called rent exemption.
 
 Until recently, all accounts on Solana were required to do one of the following to avoid being deallocated:
+
 1. Pay rent at specific intervals
 2. Deposit enough SOL upon initialization to be considered rent-exempt
 
@@ -126,40 +130,41 @@ const tokenAccount = await createAccount(
     payer,
     mint,
     owner,
-    keypair
+    keypair,
 );
 ```
 
 The `createAccount` function returns the `publicKey` of the new token account. This function requires the following arguments:
 
-- `connection` - the JSON-RPC connection to the cluster
-- `payer` - the account of the payer for the transaction
-- `mint` - the token mint that the new token account is associated with
-- `owner` - the account of the owner of the new token account
-- `keypair` - this is an optional parameter for specifying the new token account address. If no keypair is provided, the `createAccount` function defaults to a derivation from the associated `mint` and `owner` accounts.
+-   `connection` - the JSON-RPC connection to the cluster
+-   `payer` - the account of the payer for the transaction
+-   `mint` - the token mint that the new token account is associated with
+-   `owner` - the account of the owner of the new token account
+-   `keypair` - this is an optional parameter for specifying the new token account address. If no keypair is provided, the `createAccount` function defaults to a derivation from the associated `mint` and `owner` accounts.
 
 Please note that this `createAccount` function is different from the `createAccount` function shown above when we looked under the hood of the `createMint` function. Previously we used the `createAccount` function on `SystemProgram` to return the instruction for creating all accounts. The `createAccount` function here is a helper function in the `spl-token` library that submits a transaction with two instructions. The first creates the account and the second initializes the account as a Token Account.
 
 Like with creating a Token Mint, if we needed to build the transaction for `createAccount` manually we could duplicate what the function is doing under the hood:
+
 1. Use `getMint` to retrieve the data associated with the `mint`
 2. Use `getAccountLenForMint` to calculate the space needed for the token account
 3. Use `getMinimumBalanceForRentExemption` to calculate the lamports needed for rent exemption
 4. Create a new transaction using `SystemProgram.createAccount` and `createInitializeAccountInstruction`. Note that this `createAccount` is from `@solana/web3.js` and used to create a generic new account. The `createInitializeAccountInstruction` uses this new account to initialize the new token account
 
 ```tsx
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
 
 async function buildCreateTokenAccountTransaction(
     connection: web3.Connection,
     payer: web3.PublicKey,
-    mint: web3.PublicKey
+    mint: web3.PublicKey,
 ): Promise<web3.Transaction> {
-    const mintState = await token.getMint(connection, mint)
-    const accountKeypair = await web3.Keypair.generate()
+    const mintState = await token.getMint(connection, mint);
+    const accountKeypair = await web3.Keypair.generate();
     const space = token.getAccountLenForMint(mintState);
     const lamports = await connection.getMinimumBalanceForRentExemption(space);
-    const programId = token.TOKEN_PROGRAM_ID
+    const programId = token.TOKEN_PROGRAM_ID;
 
     const transaction = new web3.Transaction().add(
         web3.SystemProgram.createAccount({
@@ -173,11 +178,11 @@ async function buildCreateTokenAccountTransaction(
             accountKeypair.publicKey,
             mint,
             payer,
-            programId
-        )
+            programId,
+        ),
     );
 
-    return transaction
+    return transaction;
 }
 ```
 
@@ -190,18 +195,18 @@ Similar to above, you can create an associated token account using the `spl-toke
 ```tsx
 const associatedTokenAccount = await createAssociatedTokenAccount(
     connection,
-	payer,
-	mint,
-	owner,
+    payer,
+    mint,
+    owner,
 );
 ```
 
 This function returns the `publicKey` of the new associated token account and requires the following arguments:
 
-- `connection` - the JSON-RPC connection to the cluster
-- `payer` - the account of the payer for the transaction
-- `mint` - the token mint that the new token account is associated with
-- `owner` - the account of the owner of the new token account
+-   `connection` - the JSON-RPC connection to the cluster
+-   `payer` - the account of the payer for the transaction
+-   `mint` - the token mint that the new token account is associated with
+-   `owner` - the account of the owner of the new token account
 
 You can also use `getOrCreateAssociatedTokenAccount` to get the Token Account associated with a given address or create it if it doesn't exist. For example, if you were writing code to airdrop tokens to a given user, you'd likely use this function to ensure that the token account associated with the given user gets created if it doesn't already exist.
 
@@ -211,25 +216,29 @@ Under the hood, `createAssociatedTokenAccount` is doing two things:
 2. Building a transaction using instructions from `createAssociatedTokenAccountInstruction`
 
 ```tsx
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
 
 async function buildCreateAssociatedTokenAccountTransaction(
     payer: web3.PublicKey,
-    mint: web3.PublicKey
+    mint: web3.PublicKey,
 ): Promise<web3.Transaction> {
-    const associatedTokenAddress = await token.getAssociatedTokenAddress(mint, payer, false);
+    const associatedTokenAddress = await token.getAssociatedTokenAddress(
+        mint,
+        payer,
+        false,
+    );
 
     const transaction = new web3.Transaction().add(
         token.createAssociatedTokenAccountInstruction(
             payer,
             associatedTokenAddress,
             payer,
-            mint
-        )
-    )
+            mint,
+        ),
+    );
 
-    return transaction
+    return transaction;
 }
 ```
 
@@ -246,43 +255,38 @@ const transactionSignature = await mintTo(
     mint,
     destination,
     authority,
-    amount
+    amount,
 );
 ```
 
 The `mintTo` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `mintTo` function requires the following arguments:
 
-- `connection` - the JSON-RPC connection to the cluster
-- `payer` - the account of the payer for the transaction
-- `mint` - the token mint that the new token account is associated with
-- `destination` - the token account that tokens will be minted to
-- `authority` - the account authorized to mint tokens
-- `amount` - the raw amount of tokens to mint outside of decimals, e.g. if Scrooge Coin mint's decimals property was set to 2 then to get 1 full Scrooge Coin you would need to set this property to 100
+-   `connection` - the JSON-RPC connection to the cluster
+-   `payer` - the account of the payer for the transaction
+-   `mint` - the token mint that the new token account is associated with
+-   `destination` - the token account that tokens will be minted to
+-   `authority` - the account authorized to mint tokens
+-   `amount` - the raw amount of tokens to mint outside of decimals, e.g. if Scrooge Coin mint's decimals property was set to 2 then to get 1 full Scrooge Coin you would need to set this property to 100
 
 It's not uncommon to update the mint authority on a token mint to null after the tokens have been minted. This would set a maximum supply and ensure no tokens can be minted in the future. Conversely, minting authority could be granted to a program so tokens could be automatically minted at regular intervals or according to programmable conditions.
 
 Under the hood, the `mintTo` function simply creates a transaction with the instructions obtained from the `createMintToInstruction` function.
 
 ```tsx
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
 
 async function buildMintToTransaction(
     authority: web3.PublicKey,
     mint: web3.PublicKey,
     amount: number,
-    destination: web3.PublicKey
+    destination: web3.PublicKey,
 ): Promise<web3.Transaction> {
     const transaction = new web3.Transaction().add(
-        token.createMintToInstruction(
-            mint,
-            destination,
-            authority,
-            amount
-        )
-    )
+        token.createMintToInstruction(mint, destination, authority, amount),
+    );
 
-    return transaction
+    return transaction;
 }
 ```
 
@@ -301,42 +305,36 @@ const transactionSignature = await transfer(
     source,
     destination,
     owner,
-    amount
-)
+    amount,
+);
 ```
 
 The `transfer` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `transfer` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `source` the token account sending tokens
-- `destination` the token account receiving tokens
-- `owner` the account of the owner of the `source` token account
-- `amount` the amount of tokens to transfer
-
+-   `connection` the JSON-RPC connection to the cluster
+-   `payer` the account of the payer for the transaction
+-   `source` the token account sending tokens
+-   `destination` the token account receiving tokens
+-   `owner` the account of the owner of the `source` token account
+-   `amount` the amount of tokens to transfer
 
 Under the hood, the `transfer` function simply creates a transaction with the instructions obtained from the `createTransferInstruction` function:
 
 ```tsx
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
 
 async function buildTransferTransaction(
     source: web3.PublicKey,
     destination: web3.PublicKey,
     owner: web3.PublicKey,
-    amount: number
+    amount: number,
 ): Promise<web3.Transaction> {
     const transaction = new web3.Transaction().add(
-        token.createTransferInstruction(
-            source,
-            destination,
-            owner,
-            amount,
-        )
-    )
+        token.createTransferInstruction(source, destination, owner, amount),
+    );
 
-    return transaction
+    return transaction;
 }
 ```
 
@@ -353,41 +351,36 @@ const transactionSignature = await burn(
     account,
     mint,
     owner,
-    amount
-)
+    amount,
+);
 ```
 
 The `burn` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `burn` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `account` the token account to burn tokens from
-- `mint` the token mint associated with the token account
-- `owner` the account of the owner of the token account
-- `amount` the amount of tokens to burn
+-   `connection` the JSON-RPC connection to the cluster
+-   `payer` the account of the payer for the transaction
+-   `account` the token account to burn tokens from
+-   `mint` the token mint associated with the token account
+-   `owner` the account of the owner of the token account
+-   `amount` the amount of tokens to burn
 
 Under the hood, the `burn` function creates a transaction with instructions obtained from the `createBurnInstruction` function:
 
 ```tsx
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
 
 async function buildBurnTransaction(
     account: web3.PublicKey,
     mint: web3.PublicKey,
     owner: web3.PublicKey,
-    amount: number
+    amount: number,
 ): Promise<web3.Transaction> {
     const transaction = new web3.Transaction().add(
-        token.createBurnInstruction(
-            account,
-            mint,
-            owner,
-            amount
-        )
-    )
+        token.createBurnInstruction(account, mint, owner, amount),
+    );
 
-    return transaction
+    return transaction;
 }
 ```
 
@@ -404,41 +397,36 @@ const transactionSignature = await approve(
     account,
     delegate,
     owner,
-    amount
-  )
+    amount,
+);
 ```
 
 The `approve` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `approve` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `account` the token account to delegate tokens from
-- `delegate` the account the owner is authorizing to transfer or burn tokens
-- `owner` the account of the owner of the token account
-- `amount` the maximum number of tokens the delegate may transfer or burn
+-   `connection` the JSON-RPC connection to the cluster
+-   `payer` the account of the payer for the transaction
+-   `account` the token account to delegate tokens from
+-   `delegate` the account the owner is authorizing to transfer or burn tokens
+-   `owner` the account of the owner of the token account
+-   `amount` the maximum number of tokens the delegate may transfer or burn
 
 Under the hood, the `approve` function creates a transaction with instructions obtained from the `createApproveInstruction` function:
 
 ```tsx
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
 
 async function buildApproveTransaction(
     account: web3.PublicKey,
     delegate: web3.PublicKey,
     owner: web3.PublicKey,
-    amount: number
+    amount: number,
 ): Promise<web3.Transaction> {
     const transaction = new web3.Transaction().add(
-        token.createApproveInstruction(
-            account,
-            delegate,
-            owner,
-            amount
-        )
-    )
+        token.createApproveInstruction(account, delegate, owner, amount),
+    );
 
-    return transaction
+    return transaction;
 }
 ```
 
@@ -449,39 +437,31 @@ A previously approved delegate for a token account can be later revoked. Once a 
 To revoke a delegate using the `spl-token` library, you use the `revoke` function.
 
 ```tsx
-const transactionSignature = await revoke(
-    connection,
-    payer,
-    account,
-    owner,
-  )
+const transactionSignature = await revoke(connection, payer, account, owner);
 ```
 
 The `revoke` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `revoke` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `account` the token account to revoke the delegate authority from
-- `owner` the account of the owner of the token account
+-   `connection` the JSON-RPC connection to the cluster
+-   `payer` the account of the payer for the transaction
+-   `account` the token account to revoke the delegate authority from
+-   `owner` the account of the owner of the token account
 
 Under the hood, the `revoke` function creates a transaction with instructions obtained from the `createRevokeInstruction` function:
 
 ```tsx
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
 
 async function buildRevokeTransaction(
     account: web3.PublicKey,
     owner: web3.PublicKey,
 ): Promise<web3.Transaction> {
     const transaction = new web3.Transaction().add(
-        token.createRevokeInstruction(
-            account,
-            owner,
-        )
-    )
+        token.createRevokeInstruction(account, owner),
+    );
 
-    return transaction
+    return transaction;
 }
 ```
 
@@ -502,7 +482,7 @@ You'll then need to add a dependency on `@solana/spl-token`. From the command li
 We'll be using the `@solana/spl-token` library, so let's start by importing it at the top of the file.
 
 ```tsx
-import * as token from '@solana/spl-token'
+import * as token from "@solana/spl-token";
 ```
 
 Next, declare a new function `createNewMint` with parameters `connection`, `payer`, `mintAuthority`, `freezeAuthority`, and `decimals`.
@@ -516,19 +496,18 @@ async function createNewMint(
     payer: web3.Keypair,
     mintAuthority: web3.PublicKey,
     freezeAuthority: web3.PublicKey,
-    decimals: number
+    decimals: number,
 ): Promise<web3.PublicKey> {
-
     const tokenMint = await token.createMint(
         connection,
         payer,
         mintAuthority,
         freezeAuthority,
-        decimals
+        decimals,
     );
 
     console.log(
-        `Token Mint: https://explorer.solana.com/address/${tokenMint}?cluster=devnet`
+        `Token Mint: https://explorer.solana.com/address/${tokenMint}?cluster=devnet`,
     );
 
     return tokenMint;
@@ -541,16 +520,16 @@ After creating the new mint, let's fetch the account data using the `getMint` fu
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    const user = await initializeKeypair(connection);
 
     const mint = await createNewMint(
         connection,
         user,
         user.publicKey,
         user.publicKey,
-        2
-    )
+        2,
+    );
 
     const mintInfo = await token.getMint(connection, mint);
 }
@@ -571,20 +550,20 @@ async function createTokenAccount(
     connection: web3.Connection,
     payer: web3.Keypair,
     mint: web3.PublicKey,
-    owner: web3.PublicKey
+    owner: web3.PublicKey,
 ) {
     const tokenAccount = await token.getOrCreateAssociatedTokenAccount(
         connection,
         payer,
         mint,
-        owner
-    )
+        owner,
+    );
 
     console.log(
-        `Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`
-    )
+        `Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`,
+    );
 
-    return tokenAccount
+    return tokenAccount;
 }
 ```
 
@@ -592,16 +571,16 @@ Add a call the `createTokenAccount` in `main`, passing in the mint we created in
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    const user = await initializeKeypair(connection);
 
     const mint = await createNewMint(
         connection,
         user,
         user.publicKey,
         user.publicKey,
-        2
-    )
+        2,
+    );
 
     const mintInfo = await token.getMint(connection, mint);
 
@@ -609,8 +588,8 @@ async function main() {
         connection,
         user,
         mint,
-        user.publicKey
-    )
+        user.publicKey,
+    );
 }
 ```
 
@@ -627,7 +606,7 @@ async function mintTokens(
     mint: web3.PublicKey,
     destination: web3.PublicKey,
     authority: web3.Keypair,
-    amount: number
+    amount: number,
 ) {
     const transactionSignature = await token.mintTo(
         connection,
@@ -635,12 +614,12 @@ async function mintTokens(
         mint,
         destination,
         authority,
-        amount
-    )
+        amount,
+    );
 
     console.log(
-        `Mint Token Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+        `Mint Token Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
+    );
 }
 ```
 
@@ -650,16 +629,16 @@ Note that we have to adjust the input `amount` for the decimal precision of the 
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    const user = await initializeKeypair(connection);
 
     const mint = await createNewMint(
         connection,
         user,
         user.publicKey,
         user.publicKey,
-        2
-    )
+        2,
+    );
 
     const mintInfo = await token.getMint(connection, mint);
 
@@ -667,8 +646,8 @@ async function main() {
         connection,
         user,
         mint,
-        user.publicKey
-    )
+        user.publicKey,
+    );
 
     await mintTokens(
         connection,
@@ -676,8 +655,8 @@ async function main() {
         mint,
         tokenAccount.address,
         user,
-        100 * 10 ** mintInfo.decimals
-    )
+        100 * 10 ** mintInfo.decimals,
+    );
 }
 ```
 
@@ -694,7 +673,7 @@ async function approveDelegate(
     account: web3.PublicKey,
     delegate: web3.PublicKey,
     owner: web3.Signer | web3.PublicKey,
-    amount: number
+    amount: number,
 ) {
     const transactionSignature = await token.approve(
         connection,
@@ -702,12 +681,12 @@ async function approveDelegate(
         account,
         delegate,
         owner,
-        amount
-  )
+        amount,
+    );
 
     console.log(
-        `Approve Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+        `Approve Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
+    );
 }
 ```
 
@@ -715,16 +694,16 @@ In `main`, lets generate a new `Keypair` to represent the delegate account. Then
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    const user = await initializeKeypair(connection);
 
     const mint = await createNewMint(
         connection,
         user,
         user.publicKey,
         user.publicKey,
-        2
-    )
+        2,
+    );
 
     const mintInfo = await token.getMint(connection, mint);
 
@@ -732,8 +711,8 @@ async function main() {
         connection,
         user,
         mint,
-        user.publicKey
-    )
+        user.publicKey,
+    );
 
     await mintTokens(
         connection,
@@ -741,19 +720,19 @@ async function main() {
         mint,
         tokenAccount.address,
         user,
-        100 * 10 ** mintInfo.decimals
-    )
+        100 * 10 ** mintInfo.decimals,
+    );
 
     const delegate = web3.Keypair.generate();
 
     await approveDelegate(
-      connection,
-      user,
-      tokenAccount.address,
-      delegate.publicKey,
-      user.publicKey,
-      50 * 10 ** mintInfo.decimals
-    )
+        connection,
+        user,
+        tokenAccount.address,
+        delegate.publicKey,
+        user.publicKey,
+        50 * 10 ** mintInfo.decimals,
+    );
 }
 ```
 
@@ -768,7 +747,7 @@ async function transferTokens(
     source: web3.PublicKey,
     destination: web3.PublicKey,
     owner: web3.Keypair,
-    amount: number
+    amount: number,
 ) {
     const transactionSignature = await token.transfer(
         connection,
@@ -776,12 +755,12 @@ async function transferTokens(
         source,
         destination,
         owner,
-        amount
-    )
+        amount,
+    );
 
     console.log(
-        `Transfer Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+        `Transfer Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
+    );
 }
 ```
 
@@ -793,23 +772,23 @@ Then, create a token account for the receiver. Finally, lets call our new `trans
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    const user = await initializeKeypair(connection);
 
     const mint = await createNewMint(
         connection,
         user,
         user.publicKey,
         user.publicKey,
-        2
-    )
+        2,
+    );
 
     const tokenAccount = await createTokenAccount(
         connection,
         user,
         mint,
-        user.publicKey
-    )
+        user.publicKey,
+    );
 
     const mintInfo = await token.getMint(connection, mint);
 
@@ -819,16 +798,16 @@ async function main() {
         mint,
         tokenAccount.address,
         user,
-        100 * 10 ** mintInfo.decimals
-    )
+        100 * 10 ** mintInfo.decimals,
+    );
 
-    const receiver = web3.Keypair.generate().publicKey
+    const receiver = web3.Keypair.generate().publicKey;
     const receiverTokenAccount = await createTokenAccount(
         connection,
         user,
         mint,
-        receiver
-    )
+        receiver,
+    );
 
     const delegate = web3.Keypair.generate();
     await approveDelegate(
@@ -837,8 +816,8 @@ async function main() {
         tokenAccount.address,
         delegate.publicKey,
         user.publicKey,
-        50 * 10 ** mintInfo.decimals
-    )
+        50 * 10 ** mintInfo.decimals,
+    );
 
     await transferTokens(
         connection,
@@ -846,8 +825,8 @@ async function main() {
         tokenAccount.address,
         receiverTokenAccount.address,
         delegate,
-        50 * 10 ** mintInfo.decimals
-    )
+        50 * 10 ** mintInfo.decimals,
+    );
 }
 ```
 
@@ -867,11 +846,11 @@ async function revokeDelegate(
         payer,
         account,
         owner,
-  )
+    );
 
     console.log(
-        `Revote Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+        `Revote Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
+    );
 }
 ```
 
@@ -879,16 +858,16 @@ Revoke will set delegate for the token account to null and reset the delegated a
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    const user = await initializeKeypair(connection);
 
     const mint = await createNewMint(
         connection,
         user,
         user.publicKey,
         user.publicKey,
-        2
-    )
+        2,
+    );
 
     const mintInfo = await token.getMint(connection, mint);
 
@@ -896,8 +875,8 @@ async function main() {
         connection,
         user,
         mint,
-        user.publicKey
-    )
+        user.publicKey,
+    );
 
     await mintTokens(
         connection,
@@ -905,16 +884,16 @@ async function main() {
         mint,
         tokenAccount.address,
         user,
-        100 * 10 ** mintInfo.decimals
-    )
+        100 * 10 ** mintInfo.decimals,
+    );
 
-    const receiver = web3.Keypair.generate().publicKey
+    const receiver = web3.Keypair.generate().publicKey;
     const receiverTokenAccount = await createTokenAccount(
         connection,
         user,
         mint,
-        receiver
-    )
+        receiver,
+    );
 
     const delegate = web3.Keypair.generate();
     await approveDelegate(
@@ -923,8 +902,8 @@ async function main() {
         tokenAccount.address,
         delegate.publicKey,
         user.publicKey,
-        50 * 10 ** mintInfo.decimals
-    )
+        50 * 10 ** mintInfo.decimals,
+    );
 
     await transferTokens(
         connection,
@@ -932,15 +911,15 @@ async function main() {
         tokenAccount.address,
         receiverTokenAccount.address,
         delegate,
-        50 * 10 ** mintInfo.decimals
-    )
+        50 * 10 ** mintInfo.decimals,
+    );
 
     await revokeDelegate(
         connection,
         user,
         tokenAccount.address,
         user.publicKey,
-    )
+    );
 }
 ```
 
@@ -957,7 +936,7 @@ async function burnTokens(
     account: web3.PublicKey,
     mint: web3.PublicKey,
     owner: web3.Keypair,
-    amount: number
+    amount: number,
 ) {
     const transactionSignature = await token.burn(
         connection,
@@ -965,12 +944,12 @@ async function burnTokens(
         account,
         mint,
         owner,
-        amount
-    )
+        amount,
+    );
 
     console.log(
-        `Burn Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+        `Burn Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
+    );
 }
 ```
 
@@ -978,16 +957,16 @@ Now call this new function in `main` to burn 25 of the user's tokens. Remember t
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+    const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+    const user = await initializeKeypair(connection);
 
     const mint = await createNewMint(
         connection,
         user,
         user.publicKey,
         user.publicKey,
-        2
-    )
+        2,
+    );
 
     const mintInfo = await token.getMint(connection, mint);
 
@@ -995,8 +974,8 @@ async function main() {
         connection,
         user,
         mint,
-        user.publicKey
-    )
+        user.publicKey,
+    );
 
     await mintTokens(
         connection,
@@ -1004,16 +983,16 @@ async function main() {
         mint,
         tokenAccount.address,
         user,
-        100 * 10 ** mintInfo.decimals
-    )
+        100 * 10 ** mintInfo.decimals,
+    );
 
-    const receiver = web3.Keypair.generate().publicKey
+    const receiver = web3.Keypair.generate().publicKey;
     const receiverTokenAccount = await createTokenAccount(
         connection,
         user,
         mint,
-        receiver
-    )
+        receiver,
+    );
 
     const delegate = web3.Keypair.generate();
     await approveDelegate(
@@ -1022,8 +1001,8 @@ async function main() {
         tokenAccount.address,
         delegate.publicKey,
         user.publicKey,
-        50 * 10 ** mintInfo.decimals
-    )
+        50 * 10 ** mintInfo.decimals,
+    );
 
     await transferTokens(
         connection,
@@ -1031,25 +1010,27 @@ async function main() {
         tokenAccount.address,
         receiverTokenAccount.address,
         delegate,
-        50 * 10 ** mintInfo.decimals
-    )
+        50 * 10 ** mintInfo.decimals,
+    );
 
     await revokeDelegate(
         connection,
         user,
         tokenAccount.address,
         user.publicKey,
-    )
+    );
 
     await burnTokens(
-        connection, 
-        user, 
-        tokenAccount.address, 
-        mint, user, 
-        25 * 10 ** mintInfo.decimals
-    )
+        connection,
+        user,
+        tokenAccount.address,
+        mint,
+        user,
+        25 * 10 ** mintInfo.decimals,
+    );
 }
 ```
+
 ### 9. Test it all out
 
 With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, approved a delegate, transferred 50 using a delegate, revoked the delegate, and burned 25 more. You're well on your way to being a token expert.
@@ -1066,15 +1047,16 @@ Note that you will not be able to directly use the helper functions we went over
 
 1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
 2. Create a new Token Mint in the `CreateMint` component.
-    If you need a refresher on how to send transactions to a wallet for approval, have a look at the [Wallets lesson](./interact-with-wallets.md).
+   If you need a refresher on how to send transactions to a wallet for approval, have a look at the [Wallets lesson](./interact-with-wallets.md).
 
     When creating a new mint, the newly generated `Keypair` will also have to sign the transaction. When additional signers are required in addition to the connected wallet, use the following format:
 
     ```tsx
     sendTransaction(transaction, connection, {
         signers: [Keypair],
-    })
+    });
     ```
+
 3. Create a new Token Account in the `CreateTokenAccount` component.
 4. Mint tokens in the `MintToForm` component.
 

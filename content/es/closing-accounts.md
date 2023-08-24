@@ -276,9 +276,8 @@ it("attacker  can close + refund lottery acct + claim multiple rewards", async (
     }
 
     const ata = await getAccount(provider.connection, attackerAta);
-    const lotteryEntry = await program.account.lotteryAccount.fetch(
-        attackerLotteryEntry,
-    );
+    const lotteryEntry =
+        await program.account.lotteryAccount.fetch(attackerLotteryEntry);
 
     expect(Number(ata.amount)).to.equal(
         lotteryEntry.timestamp.toNumber() * 10 * 2,

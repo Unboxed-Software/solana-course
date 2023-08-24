@@ -1,10 +1,10 @@
 ---
 title: Environment Variables in Solana Programs
 objectives:
-- Define program features in the `Cargo.toml` file
-- Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
-- Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
-- Create an admin-only instruction to set up a program account that can be used to store program configuration values
+    - Define program features in the `Cargo.toml` file
+    - Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
+    - Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
+    - Create an admin-only instruction to set up a program account that can be used to store program configuration values
 ---
 
 # TL;DR
@@ -315,7 +315,7 @@ Before we continue, take a few minutes to familiarize yourself with these files 
 
 Let's start by running the existing test.
 
-Make sure you use `yarn` or `npm install` to install the dependencies laid out in the `package.json` file. Then be sure to run `anchor keys list` to get the public key for your program printed to the console. This differs based on the keypair you have locally, so you need to update `lib.rs` and `Anchor.toml` to use *your* key.
+Make sure you use `yarn` or `npm install` to install the dependencies laid out in the `package.json` file. Then be sure to run `anchor keys list` to get the public key for your program printed to the console. This differs based on the keypair you have locally, so you need to update `lib.rs` and `Anchor.toml` to use _your_ key.
 
 Finally, run `anchor test` to start the test. It should fail with the following output:
 
@@ -323,11 +323,11 @@ Finally, run `anchor test` to start the test. It should fail with the following 
 Error: failed to send transaction: Transaction simulation failed: Error processing Instruction 0: incorrect program id for instruction
 ```
 
-The reason for this error is that we're attempting to use the mainnet USDC mint address (as hard-coded in the `lib.rs` file of the program), but that mint doesn't exist in the local environment. 
+The reason for this error is that we're attempting to use the mainnet USDC mint address (as hard-coded in the `lib.rs` file of the program), but that mint doesn't exist in the local environment.
 
 ### 3. Adding a `local-testing` feature
 
-To fix this, we need a mint we can use locally *and* hard-code into the program. Since the local environment is reset often during testing, you'll need to store a keypair that you can use to recreate the same mint address every time.
+To fix this, we need a mint we can use locally _and_ hard-code into the program. Since the local environment is reset often during testing, you'll need to store a keypair that you can use to recreate the same mint address every time.
 
 Additionally, you don't want to have to change the hard-coded address between local and mainnet builds since that could introduce human error (and is just annoying). So we'll create a `local-testing` feature that, when enabled, will make the program use our local mint but otherwise use the production USDC mint.
 
@@ -705,110 +705,111 @@ The first test initializes the program config account and verifies that the corr
 
 ```typescript
 it("Initialize Program Config Account", async () => {
-  const tx = await program.methods
-    .initializeProgramConfig()
-    .accounts({
-      programConfig: programConfig,
-      feeDestination: feeDestination,
-      authority: wallet.publicKey,
-      systemProgram: anchor.web3.SystemProgram.programId,
-    })
-    .rpc()
+    const tx = await program.methods
+        .initializeProgramConfig()
+        .accounts({
+            programConfig: programConfig,
+            feeDestination: feeDestination,
+            authority: wallet.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .rpc();
 
-  assert.strictEqual(
-    (
-      await program.account.programConfig.fetch(programConfig)
-    ).feeBasisPoints.toNumber(),
-    100
-  )
-  assert.strictEqual(
-    (
-      await program.account.programConfig.fetch(programConfig)
-    ).admin.toString(),
-    wallet.publicKey.toString()
-  )
-})
+    assert.strictEqual(
+        (
+            await program.account.programConfig.fetch(programConfig)
+        ).feeBasisPoints.toNumber(),
+        100,
+    );
+    assert.strictEqual(
+        (
+            await program.account.programConfig.fetch(programConfig)
+        ).admin.toString(),
+        wallet.publicKey.toString(),
+    );
+});
 ```
 
 The second test verifies that the payment instruction is working correctly, with the fee being sent to the fee destination and the remaining balance being transferred to the receiver. Here we update the existing test to include the `programConfig` account.
 
 ```typescript
 it("Payment completes successfully", async () => {
-  const tx = await program.methods
-    .payment(new anchor.BN(10000))
-    .accounts({
-      programConfig: programConfig,
-      feeDestination: feeDestination,
-      senderTokenAccount: senderTokenAccount,
-      receiverTokenAccount: receiverTokenAccount,
-      sender: sender.publicKey,
-    })
-    .transaction()
+    const tx = await program.methods
+        .payment(new anchor.BN(10000))
+        .accounts({
+            programConfig: programConfig,
+            feeDestination: feeDestination,
+            senderTokenAccount: senderTokenAccount,
+            receiverTokenAccount: receiverTokenAccount,
+            sender: sender.publicKey,
+        })
+        .transaction();
 
-  await anchor.web3.sendAndConfirmTransaction(connection, tx, [sender])
+    await anchor.web3.sendAndConfirmTransaction(connection, tx, [sender]);
 
-  assert.strictEqual(
-    (await connection.getTokenAccountBalance(senderTokenAccount)).value
-      .uiAmount,
-    0
-  )
+    assert.strictEqual(
+        (await connection.getTokenAccountBalance(senderTokenAccount)).value
+            .uiAmount,
+        0,
+    );
 
-  assert.strictEqual(
-    (await connection.getTokenAccountBalance(feeDestination)).value.uiAmount,
-    100
-  )
+    assert.strictEqual(
+        (await connection.getTokenAccountBalance(feeDestination)).value
+            .uiAmount,
+        100,
+    );
 
-  assert.strictEqual(
-    (await connection.getTokenAccountBalance(receiverTokenAccount)).value
-      .uiAmount,
-    9900
-  )
-})
+    assert.strictEqual(
+        (await connection.getTokenAccountBalance(receiverTokenAccount)).value
+            .uiAmount,
+        9900,
+    );
+});
 ```
 
 The third test attempts to update the fee on the program config account, which should be successful.
 
 ```typescript
 it("Update Program Config Account", async () => {
-  const tx = await program.methods
-    .updateProgramConfig(new anchor.BN(200))
-    .accounts({
-      programConfig: programConfig,
-      admin: wallet.publicKey,
-      feeDestination: feeDestination,
-      newAdmin: sender.publicKey,
-    })
-    .rpc()
+    const tx = await program.methods
+        .updateProgramConfig(new anchor.BN(200))
+        .accounts({
+            programConfig: programConfig,
+            admin: wallet.publicKey,
+            feeDestination: feeDestination,
+            newAdmin: sender.publicKey,
+        })
+        .rpc();
 
-  assert.strictEqual(
-    (
-      await program.account.programConfig.fetch(programConfig)
-    ).feeBasisPoints.toNumber(),
-    200
-  )
-})
+    assert.strictEqual(
+        (
+            await program.account.programConfig.fetch(programConfig)
+        ).feeBasisPoints.toNumber(),
+        200,
+    );
+});
 ```
 
 The fourth test tries to update the fee on the program config account, where the admin is not the one stored on the program config account, and this should fail.
 
 ```typescript
 it("Update Program Config Account with unauthorized admin (expect fail)", async () => {
-  try {
-    const tx = await program.methods
-      .updateProgramConfig(new anchor.BN(300))
-      .accounts({
-        programConfig: programConfig,
-        admin: sender.publicKey,
-        feeDestination: feeDestination,
-        newAdmin: sender.publicKey,
-      })
-      .transaction()
+    try {
+        const tx = await program.methods
+            .updateProgramConfig(new anchor.BN(300))
+            .accounts({
+                programConfig: programConfig,
+                admin: sender.publicKey,
+                feeDestination: feeDestination,
+                newAdmin: sender.publicKey,
+            })
+            .transaction();
 
-    await anchor.web3.sendAndConfirmTransaction(connection, tx, [sender])
-  } catch (err) {
-    expect(err)
-  }
-})
+        await anchor.web3.sendAndConfirmTransaction(connection, tx, [sender]);
+    } catch (err) {
+        expect(err);
+    }
+});
 ```
 
 Finally, run the test using the following command:
@@ -833,7 +834,7 @@ And that's it! You've made the program a lot easier to work with moving forward.
 
 # Challenge
 
-Now it's time for you to do some of this on your own. We mentioned being able to use the program's upgrade authority as the initial admin.  Go ahead and update the demo's `initialize_program_config` so that only the upgrade authority can call it rather than having a hardcoded `ADMIN`.
+Now it's time for you to do some of this on your own. We mentioned being able to use the program's upgrade authority as the initial admin. Go ahead and update the demo's `initialize_program_config` so that only the upgrade authority can call it rather than having a hardcoded `ADMIN`.
 
 Note that the `anchor test` command, when run on a local network, starts a new test validator using `solana-test-validator`. This test validator uses a non-upgradeable loader. The non-upgradeable loader makes it so the program's `program_data` account isn't initialized when the validator starts. You'll recall from the lesson that this account is how we access the upgrade authority from the program.
 

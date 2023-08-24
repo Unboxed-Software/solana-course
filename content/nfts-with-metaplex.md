@@ -1,20 +1,20 @@
 ---
 title: Create Solana NFTs With Metaplex
 objectives:
-- Explain NFTs and how they're represented on the Solana network
-- Explain the role of Metaplex in the Solana NFT ecosystem
-- Create and update NFTs using the Metaplex SDK
-- Explain the basic functionality of the Token Metadata program, Candy Machine program, and Sugar CLI as tools that assist in creating and distributing NFTs on Solana
+    - Explain NFTs and how they're represented on the Solana network
+    - Explain the role of Metaplex in the Solana NFT ecosystem
+    - Create and update NFTs using the Metaplex SDK
+    - Explain the basic functionality of the Token Metadata program, Candy Machine program, and Sugar CLI as tools that assist in creating and distributing NFTs on Solana
 ---
 
 # TL;DR
 
-- **Non-Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a maximum supply of 1
+-   **Non-Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a maximum supply of 1
 -   **Metaplex** offers a collection of tools that simplify the creation and distribution of NFTs on the Solana blockchain
-- The **Token Metadata** program standardizes the process of attaching metadata to SPL Tokens
-- The **Metaplex SDK** is a tool that offers user-friendly APIs to assist developers in utilizing the on-chain tools provided by Metaplex
-- The **Candy Machine** program is an NFT distribution tool used to create and mint NFTs from a collection
-- **Sugar CLI** is a tool that simplifies the process of uploading media/metadata files and creating a Candy Machine for a collection
+-   The **Token Metadata** program standardizes the process of attaching metadata to SPL Tokens
+-   The **Metaplex SDK** is a tool that offers user-friendly APIs to assist developers in utilizing the on-chain tools provided by Metaplex
+-   The **Candy Machine** program is an NFT distribution tool used to create and mint NFTs from a collection
+-   **Sugar CLI** is a tool that simplifies the process of uploading media/metadata files and creating a Candy Machine for a collection
 
 # Overview
 
@@ -24,7 +24,7 @@ In this lesson, we'll cover the basics of how NFTs are represented on Solana, ho
 
 ## NFTs on Solana
 
-A Solana NFT is a non-divisible token with associated metadata. Further, the token's mint has a maximum supply of 1. 
+A Solana NFT is a non-divisible token with associated metadata. Further, the token's mint has a maximum supply of 1.
 
 In other words, an NFT is a standard token from the Token Program but differs from what you might think of as "standard tokens" in that it:
 
@@ -161,7 +161,7 @@ const { collectionNft } = await metaplex.nfts().create(
         uri: uri,
         name: "My NFT Collection",
         sellerFeeBasisPoints: 0,
-        isCollection: true
+        isCollection: true,
     },
     { commitment: "finalized" },
 );
@@ -175,7 +175,7 @@ const { nft } = await metaplex.nfts().create(
         uri: uri,
         name: "My NFT",
         sellerFeeBasisPoints: 0,
-        collection: collectionNft.mintAddress
+        collection: collectionNft.mintAddress,
     },
     { commitment: "finalized" },
 );
@@ -197,10 +197,10 @@ await metaplex.nfts().verifyCollection({
     mintAddress: nft.address,
     collectionMintAddress: collectionNft.address,
     isSizedCollection: true,
-})
+});
 ```
 
-### Candy Machine 
+### Candy Machine
 
 When creating and distributing a bulk supply of NFT's, Metaplex makes it easy with their [Candy Machine](https://docs.metaplex.com/programs/candy-machine/overview) program and [Sugar CLI](https://docs.metaplex.com/developer-tools/sugar/).
 
@@ -208,8 +208,7 @@ Candy Machine is effectively a minting and distribution program to help launch N
 
 We won't cover these tools in-depth, but definitely check out how they work together [here](https://docs.metaplex.com/developer-tools/sugar/overview/introduction).
 
-To explore the full range of tools offered by Metaplex, you can view the [Metaplex repository](https://github.com/metaplex-foundation/metaplex) on GitHub. 
-
+To explore the full range of tools offered by Metaplex, you can view the [Metaplex repository](https://github.com/metaplex-foundation/metaplex) on GitHub.
 
 # Demo
 
@@ -233,13 +232,13 @@ interface NftData {
 }
 
 interface CollectionNftData {
-    name: string
-    symbol: string
-    description: string
-    sellerFeeBasisPoints: number
-    imageFile: string
-    isCollection: boolean
-    collectionAuthority: Signer
+    name: string;
+    symbol: string;
+    description: string;
+    sellerFeeBasisPoints: number;
+    imageFile: string;
+    isCollection: boolean;
+    collectionAuthority: Signer;
 }
 
 // example data for a new NFT
@@ -249,7 +248,7 @@ const nftData = {
     description: "Description",
     sellerFeeBasisPoints: 0,
     imageFile: "solana.png",
-}
+};
 
 // example data for updating an existing NFT
 const updateNftData = {
@@ -258,7 +257,7 @@ const updateNftData = {
     description: "Update Description",
     sellerFeeBasisPoints: 100,
     imageFile: "success.png",
-}
+};
 
 async function main() {
     // create a new connection to the cluster's API
@@ -475,7 +474,7 @@ First, let's create a helper function called `createCollectionNft`. Note that it
 async function createCollectionNft(
     metaplex: Metaplex,
     uri: string,
-    data: CollectionNftData
+    data: CollectionNftData,
 ): Promise<NftWithToken> {
     const { nft } = await metaplex.nfts().create(
         {
@@ -485,18 +484,18 @@ async function createCollectionNft(
             symbol: data.symbol,
             isCollection: true,
         },
-        { commitment: "finalized" }
-    )
+        { commitment: "finalized" },
+    );
 
     console.log(
-        `Collection Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
-    )
+        `Collection Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`,
+    );
 
-    return nft
+    return nft;
 }
 ```
 
-Next, we need to create the off-chain data for the collection. In `main` *before* the existing calls to `createNft`, add the following `collectionNftData`:
+Next, we need to create the off-chain data for the collection. In `main` _before_ the existing calls to `createNft`, add the following `collectionNftData`:
 
 ```tsx
 const collectionNftData = {
@@ -507,10 +506,10 @@ const collectionNftData = {
     imageFile: "success.png",
     isCollection: true,
     collectionAuthority: user,
-}
+};
 ```
 
-Now, let's call `uploadMetadata` with the `collectionNftData` and then call `createCollectionNft`. Again, do this *before* the code that creates an NFT. 
+Now, let's call `uploadMetadata` with the `collectionNftData` and then call `createCollectionNft`. Again, do this _before_ the code that creates an NFT.
 
 ```tsx
 async function main() {
@@ -536,9 +535,9 @@ Now that we have a collection, let's change our existing code so that newly crea
 
 ```tsx
 async function createNft(
-  metaplex: Metaplex,
-  uri: string,
-  nftData: NftData
+    metaplex: Metaplex,
+    uri: string,
+    nftData: NftData,
 ): Promise<NftWithToken> {
     const { nft } = await metaplex.nfts().create(
         {
@@ -547,21 +546,21 @@ async function createNft(
             sellerFeeBasisPoints: nftData.sellerFeeBasisPoints,
             symbol: nftData.symbol,
         },
-        { commitment: "finalized" }
-    )
+        { commitment: "finalized" },
+    );
 
     console.log(
-        `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}? cluster=devnet`
-    )
+        `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}? cluster=devnet`,
+    );
 
     //this is what verifies our collection as a Certified Collection
-    await metaplex.nfts().verifyCollection({    
+    await metaplex.nfts().verifyCollection({
         mintAddress: nft.mint.address,
         collectionMintAddress: collectionMint,
         isSizedCollection: true,
-    })
+    });
 
-    return nft
+    return nft;
 }
 ```
 

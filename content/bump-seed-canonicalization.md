@@ -1,18 +1,18 @@
 ---
 title: Bump Seed Canonicalization
 objectives:
-- Explain the vulnerabilities associated with using PDAs derived without the canonical bump
-- Initialize a PDA using Anchor’s `seeds` and `bump` constraints to automatically use the canonical bump
-- Use Anchor's `seeds` and `bump` constraints to ensure the canonical bump is always used in future instructions when deriving a PDA
+    - Explain the vulnerabilities associated with using PDAs derived without the canonical bump
+    - Initialize a PDA using Anchor’s `seeds` and `bump` constraints to automatically use the canonical bump
+    - Use Anchor's `seeds` and `bump` constraints to ensure the canonical bump is always used in future instructions when deriving a PDA
 ---
 
 # TL;DR
 
-- The [**`create_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) function derives a PDA without searching for the **canonical bump**. This means there are multiple valid bumps, all of which will produce different addresses.
-- Using [**`find_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) ensures that the highest valid bump, or canonical bump, is used for the derivation, thus creating a deterministic way to find an address given specific seeds.
-- Upon initialization, you can use Anchor's `seeds` and `bump` constraint to ensure that PDA derivations in the account validation struct always use the canonical bump
-- Anchor allows you to **specify a bump** with the `bump = <some_bump>` constraint when verifying the address of a PDA
-- Because `find_program_address` can be expensive, best practice is to store the derived bump in an account’s data field to be referenced later on when re-deriving the address for verification
+-   The [**`create_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) function derives a PDA without searching for the **canonical bump**. This means there are multiple valid bumps, all of which will produce different addresses.
+-   Using [**`find_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) ensures that the highest valid bump, or canonical bump, is used for the derivation, thus creating a deterministic way to find an address given specific seeds.
+-   Upon initialization, you can use Anchor's `seeds` and `bump` constraint to ensure that PDA derivations in the account validation struct always use the canonical bump
+-   Anchor allows you to **specify a bump** with the `bump = <some_bump>` constraint when verifying the address of a PDA
+-   Because `find_program_address` can be expensive, best practice is to store the derived bump in an account’s data field to be referenced later on when re-deriving the address for verification
     ```rust
     #[derive(Accounts)]
     pub struct VerifyAddress<'info> {
@@ -26,7 +26,7 @@ objectives:
 
 # Overview
 
-Bump seeds are a number between 0 and 255, inclusive, used to ensure that an address derived using [`create_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) is a valid PDA. The **canonical bump** is the highest bump value that produces a valid PDA. The standard in Solana is to *always use the canonical bump* when deriving PDAs, both for security and convenience. 
+Bump seeds are a number between 0 and 255, inclusive, used to ensure that an address derived using [`create_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) is a valid PDA. The **canonical bump** is the highest bump value that produces a valid PDA. The standard in Solana is to _always use the canonical bump_ when deriving PDAs, both for security and convenience.
 
 ## Insecure PDA derivation using `create_program_address`
 
@@ -75,9 +75,9 @@ If the seed mapping was meant to enforce a one-to-one relationship between PDA a
 
 ## Recommended derivation using `find_program_address`
 
-A simple way around this problem is to have the program expect only the canonical bump and use `find_program_address` to derive the PDA. 
+A simple way around this problem is to have the program expect only the canonical bump and use `find_program_address` to derive the PDA.
 
-The [`find_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) *always uses the canonical bump*. This function iterates through calling `create_program_address`, starting with a bump of 255 and decrementing the bump by one with each iteration. As soon as a valid address is found, the function returns both the derived PDA and the canonical bump used to derive it.
+The [`find_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) _always uses the canonical bump_. This function iterates through calling `create_program_address`, starting with a bump of 255 and decrementing the bump by one with each iteration. As soon as a valid address is found, the function returns both the derived PDA and the canonical bump used to derive it.
 
 This ensures a one-to-one mapping between your input seeds and the address they produce.
 
@@ -148,7 +148,7 @@ pub struct Data {
 
 If you aren't initializing an account, you can still validate PDAs with the `seeds` and `bump` constraints. This simply rederives the PDA and compares the derived address with the address of the account passed in.
 
-In this scenario, Anchor *does* allow you to specify the bump to use to derive the PDA with `bump = <some_bump>`. The intent here is not for you to use arbitrary bumps, but rather to let you optimize your program. The iterative nature of `find_program_address` makes it expensive, so best practice is to store the canonical bump in the PDA account's data upon initializing a PDA, allowing you to reference the bump stored when validating the PDA in subsequent instructions.
+In this scenario, Anchor _does_ allow you to specify the bump to use to derive the PDA with `bump = <some_bump>`. The intent here is not for you to use arbitrary bumps, but rather to let you optimize your program. The iterative nature of `find_program_address` makes it expensive, so best practice is to store the canonical bump in the PDA account's data upon initializing a PDA, allowing you to reference the bump stored when validating the PDA in subsequent instructions.
 
 When you specify the bump to use, Anchor uses `create_program_address` with the provided bump instead of `find_program_address`. This pattern of storing the bump in the account data ensures that your program always uses the canonical bump without degrading performance.
 
@@ -230,7 +230,7 @@ The instructions on the program are:
 1. `create_user_insecure`
 2. `claim_insecure`
 
-The `create_user_insecure` instruction simply creates a new account at a PDA derived using the signer's public key and a passed-in bump. 
+The `create_user_insecure` instruction simply creates a new account at a PDA derived using the signer's public key and a passed-in bump.
 
 The `claim_insecure` instruction mints 10 tokens to the user and then marks the account's rewards as claimed so that they can't claim again.
 
@@ -246,56 +246,59 @@ The test in the `tests` directory creates a new keypair called `attacker` to rep
 
 ```ts
 it("Attacker can claim more than reward limit with insecure instructions", async () => {
-    const attacker = Keypair.generate()
-    await safeAirdrop(attacker.publicKey, provider.connection)
-    const ataKey = await getAssociatedTokenAddress(mint, attacker.publicKey)
+    const attacker = Keypair.generate();
+    await safeAirdrop(attacker.publicKey, provider.connection);
+    const ataKey = await getAssociatedTokenAddress(mint, attacker.publicKey);
 
-    let numClaims = 0
+    let numClaims = 0;
 
     for (let i = 0; i < 256; i++) {
-      try {
-        const pda = createProgramAddressSync(
-          [attacker.publicKey.toBuffer(), Buffer.from([i])],
-          program.programId
-        )
-        await program.methods
-          .createUserInsecure(i)
-          .accounts({
-            user: pda,
-            payer: attacker.publicKey,
-          })
-          .signers([attacker])
-          .rpc()
-        await program.methods
-          .claimInsecure(i)
-          .accounts({
-            user: pda,
-            mint,
-            payer: attacker.publicKey,
-            userAta: ataKey,
-          })
-          .signers([attacker])
-          .rpc()
+        try {
+            const pda = createProgramAddressSync(
+                [attacker.publicKey.toBuffer(), Buffer.from([i])],
+                program.programId,
+            );
+            await program.methods
+                .createUserInsecure(i)
+                .accounts({
+                    user: pda,
+                    payer: attacker.publicKey,
+                })
+                .signers([attacker])
+                .rpc();
+            await program.methods
+                .claimInsecure(i)
+                .accounts({
+                    user: pda,
+                    mint,
+                    payer: attacker.publicKey,
+                    userAta: ataKey,
+                })
+                .signers([attacker])
+                .rpc();
 
-        numClaims += 1
-      } catch (error) {
-        if (
-          error.message !== "Invalid seeds, address must fall off the curve"
-        ) {
-          console.log(error)
+            numClaims += 1;
+        } catch (error) {
+            if (
+                error.message !==
+                "Invalid seeds, address must fall off the curve"
+            ) {
+                console.log(error);
+            }
         }
-      }
     }
 
-    const ata = await getAccount(provider.connection, ataKey)
+    const ata = await getAccount(provider.connection, ataKey);
 
     console.log(
-      `Attacker claimed ${numClaims} times and got ${Number(ata.amount)} tokens`
-    )
+        `Attacker claimed ${numClaims} times and got ${Number(
+            ata.amount,
+        )} tokens`,
+    );
 
-    expect(numClaims).to.be.greaterThan(1)
-    expect(Number(ata.amount)).to.be.greaterThan(10)
-})
+    expect(numClaims).to.be.greaterThan(1);
+    expect(Number(ata.amount)).to.be.greaterThan(10);
+});
 ```
 
 Run `anchor test` to see that this test passes, showing that the attacker is successful. Since the test calles the instructions for every valid bump, it takes a bit to run, so be patient.
@@ -418,70 +421,70 @@ Notice that if you start to loop through using multiple PDAs like the old test, 
 
 ```ts
 it.only("Attacker can only claim once with secure instructions", async () => {
-    const attacker = Keypair.generate()
-    await safeAirdrop(attacker.publicKey, provider.connection)
-    const ataKey = await getAssociatedTokenAddress(mint, attacker.publicKey)
+    const attacker = Keypair.generate();
+    await safeAirdrop(attacker.publicKey, provider.connection);
+    const ataKey = await getAssociatedTokenAddress(mint, attacker.publicKey);
     const [userPDA] = findProgramAddressSync(
-      [attacker.publicKey.toBuffer()],
-      program.programId
-    )
+        [attacker.publicKey.toBuffer()],
+        program.programId,
+    );
 
     await program.methods
-      .createUserSecure()
-      .accounts({
-        payer: attacker.publicKey,
-      })
-      .signers([attacker])
-      .rpc()
-
-    await program.methods
-      .claimSecure()
-      .accounts({
-        payer: attacker.publicKey,
-        userAta: ataKey,
-        mint,
-        user: userPDA,
-      })
-      .signers([attacker])
-      .rpc()
-
-    let numClaims = 1
-
-    for (let i = 0; i < 256; i++) {
-      try {
-        const pda = createProgramAddressSync(
-          [attacker.publicKey.toBuffer(), Buffer.from([i])],
-          program.programId
-        )
-        await program.methods
-          .createUserSecure()
-          .accounts({
-            user: pda,
+        .createUserSecure()
+        .accounts({
             payer: attacker.publicKey,
-          })
-          .signers([attacker])
-          .rpc()
+        })
+        .signers([attacker])
+        .rpc();
 
-        await program.methods
-          .claimSecure()
-          .accounts({
+    await program.methods
+        .claimSecure()
+        .accounts({
             payer: attacker.publicKey,
             userAta: ataKey,
             mint,
-            user: pda,
-          })
-          .signers([attacker])
-          .rpc()
+            user: userPDA,
+        })
+        .signers([attacker])
+        .rpc();
 
-        numClaims += 1
-      } catch {}
+    let numClaims = 1;
+
+    for (let i = 0; i < 256; i++) {
+        try {
+            const pda = createProgramAddressSync(
+                [attacker.publicKey.toBuffer(), Buffer.from([i])],
+                program.programId,
+            );
+            await program.methods
+                .createUserSecure()
+                .accounts({
+                    user: pda,
+                    payer: attacker.publicKey,
+                })
+                .signers([attacker])
+                .rpc();
+
+            await program.methods
+                .claimSecure()
+                .accounts({
+                    payer: attacker.publicKey,
+                    userAta: ataKey,
+                    mint,
+                    user: pda,
+                })
+                .signers([attacker])
+                .rpc();
+
+            numClaims += 1;
+        } catch {}
     }
 
-    const ata = await getAccount(provider.connection, ataKey)
+    const ata = await getAccount(provider.connection, ataKey);
 
-    expect(Number(ata.amount)).to.equal(10)
-    expect(numClaims).to.equal(1)
-})
+    expect(Number(ata.amount)).to.equal(10);
+    expect(numClaims).to.equal(1);
+});
 ```
 
 ```bash

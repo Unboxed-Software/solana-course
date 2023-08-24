@@ -1,33 +1,31 @@
 ---
 title: Account Data Matching
 objectives:
-- Explain the security risks associated with missing data validation checks
-- Implement data validation checks using long-form Rust
-- Implement data validation checks using Anchor constraints
+    - Explain the security risks associated with missing data validation checks
+    - Implement data validation checks using long-form Rust
+    - Implement data validation checks using Anchor constraints
 ---
 
 # TL;DR
 
-- Use **data validation checks** to verify that account data matches an expected value**.** Without appropriate data validations checks, unexpected accounts may be used in an instruction.
-- To implement data validations checks in Rust, simply compare the data stored on an account to an expected value.
-    
+-   Use **data validation checks** to verify that account data matches an expected value**.** Without appropriate data validations checks, unexpected accounts may be used in an instruction.
+-   To implement data validations checks in Rust, simply compare the data stored on an account to an expected value.
     ```rust
     if ctx.accounts.user.key() != ctx.accounts.user_data.user {
         return Err(ProgramError::InvalidAccountData.into());
     }
     ```
-    
-- In Anchor, you can use `constraint` to checks whether the given expression evaluates to true. Alternatively, you can use `has_one` to check that a target account field stored on the account matches the key of an account in the `Accounts` struct.
+-   In Anchor, you can use `constraint` to checks whether the given expression evaluates to true. Alternatively, you can use `has_one` to check that a target account field stored on the account matches the key of an account in the `Accounts` struct.
 
 # Overview
 
-Account data matching refers to data validation checks used to verify the data stored on an account matches an expected value. Data validation checks provide a way to include additional constraints to ensure the appropriate accounts are passed into an instruction. 
+Account data matching refers to data validation checks used to verify the data stored on an account matches an expected value. Data validation checks provide a way to include additional constraints to ensure the appropriate accounts are passed into an instruction.
 
 This can be useful when accounts required by an instruction have dependencies on values stored in other accounts or if an instruction is dependent on the data stored in an account.
 
 ### Missing data validation check
 
-The example below includes an `update_admin` instruction that updates the `admin` field stored on an `admin_config` account. 
+The example below includes an `update_admin` instruction that updates the `admin` field stored on an `admin_config` account.
 
 The instruction is missing a data validation check to verify the `admin` account signing the transaction matches the `admin` stored on the `admin_config` account. This means any account signing the transaction and passed into the instruction as the `admin` account can update the `admin_config` account.
 
@@ -110,7 +108,7 @@ pub struct AdminConfig {
 
 Anchor simplifies this with the `has_one` constraint. You can use the `has_one` constraint to move the data validation check from the instruction logic to the `UpdateAdmin` struct.
 
-In the example below, `has_one = admin` specifies that the `admin` account signing the transaction must match the `admin` field stored on the `admin_config` account. To use the `has_one` constraint, the naming convention of the data field on the account must be consistent with the naming on the account validation struct. 
+In the example below, `has_one = admin` specifies that the `admin` account signing the transaction must match the `admin` field stored on the `admin_config` account. To use the `has_one` constraint, the naming convention of the data field on the account must be consistent with the naming on the account validation struct.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -167,15 +165,15 @@ For this demo we’ll create a simple “vault” program similar to the program
 
 ### 1. Starter
 
-To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-account-data-matching). The starter code includes a program with two instructions and the boilerplate setup for the test file. 
+To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-account-data-matching). The starter code includes a program with two instructions and the boilerplate setup for the test file.
 
 The `initialize_vault` instruction initializes a new `Vault` account and a new `TokenAccount`. The `Vault` account will store the address of a token account, the authority of the vault, and a withdraw destination token account.
 
-The authority of the new token account will be set as the `vault`, a PDA of the program. This allows the `vault` account to sign for the transfer of tokens from the token account. 
+The authority of the new token account will be set as the `vault`, a PDA of the program. This allows the `vault` account to sign for the transfer of tokens from the token account.
 
-The `insecure_withdraw` instruction transfers all the tokens in the `vault` account’s token account to a `withdraw_destination` token account. 
+The `insecure_withdraw` instruction transfers all the tokens in the `vault` account’s token account to a `withdraw_destination` token account.
 
-Notice that this instruction ****does**** have a signer check for `authority` and an owner check for `vault`. However, nowhere in the account validation or instruction logic is there code that checks that the `authority` account passed into the instruction matches the `authority` account on the `vault`.
+Notice that this instruction \***\*does\*\*** have a signer check for `authority` and an owner check for `vault`. However, nowhere in the account validation or instruction logic is there code that checks that the `authority` account passed into the instruction matches the `authority` account on the `vault`.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -423,7 +421,7 @@ describe("account-data-matching", () => {
 })
 ```
 
-Run `anchor test` to see that the transaction using an incorrect authority account will now return an Anchor Error  while the transaction using correct accounts completes successfully.
+Run `anchor test` to see that the transaction using an incorrect authority account will now return an Anchor Error while the transaction using correct accounts completes successfully.
 
 ```bash
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]',
@@ -444,7 +442,7 @@ Note that Anchor specifies in the logs the account that causes the error (`Ancho
 ✔ Secure withdraw (10073ms)
 ```
 
-And just like that, you've closed up the security loophole. The theme across most of these potential exploits is that they're quite simple. However, as your programs grow in scope and complexity, it becomse increasingly easy to miss possible exploits. It's great to get in a habit of writing tests that send instructions that *shouldn't* work. The more the better. That way you catch problems before you deploy.
+And just like that, you've closed up the security loophole. The theme across most of these potential exploits is that they're quite simple. However, as your programs grow in scope and complexity, it becomse increasingly easy to miss possible exploits. It's great to get in a habit of writing tests that send instructions that _shouldn't_ work. The more the better. That way you catch problems before you deploy.
 
 If you want to take a look at the final solution code you can find it on the `solution` branch of [the repository](https://github.com/Unboxed-Software/solana-account-data-matching/tree/solution).
 

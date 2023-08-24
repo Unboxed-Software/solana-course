@@ -1,10 +1,10 @@
 ---
 title: Versioned Transactions and Lookup Tables
 objectives:
-- Create versioned transactions
-- Create lookup tables
-- Extend lookup tables
-- Use lookup tables with versioned transactions
+    - Create versioned transactions
+    - Create lookup tables
+    - Extend lookup tables
+    - Use lookup tables with versioned transactions
 ---
 
 # TL;DR

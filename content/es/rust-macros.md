@@ -1,9 +1,9 @@
 ---
 title: Rust Procedural Macros
 objectives:
-- Create and use **Procedural Macros** in Rust
-- Explain and work with a Rust Abstract Syntax Tree (AST)
-- Describe how procedural macros are used in the Anchor framework
+    - Create and use **Procedural Macros** in Rust
+    - Explain and work with a Rust Abstract Syntax Tree (AST)
+    - Describe how procedural macros are used in the Anchor framework
 ---
 
 # TL;DR

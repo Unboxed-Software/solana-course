@@ -1,21 +1,21 @@
 ---
 title: Create a Basic Program, Part 1 - Handle Instruction Data
 objectives:
-- Assign mutable and immutable variables in Rust
-- Create and use Rust structs and enums
-- Use Rust match statements
-- Add implementations to Rust types
-- Deserialize instruction data into Rust data types
-- Execute different program logic for different types of instructions
-- Explain the structure of a smart contract on Solana
+    - Assign mutable and immutable variables in Rust
+    - Create and use Rust structs and enums
+    - Use Rust match statements
+    - Add implementations to Rust types
+    - Deserialize instruction data into Rust data types
+    - Execute different program logic for different types of instructions
+    - Explain the structure of a smart contract on Solana
 ---
 
 # TL;DR
 
-- Most programs support **multiple discrete instructions** - you decide when writing your program what these instructions are and what data must accompany them
-- Rust **enums** are often used to represent discrete program instructions
-- You can use the `borsh` crate and the `derive` attribute to provide Borsh deserialization and serialization functionality to Rust structs
-- Rust `match` expressions help create conditional code paths based on the provided instruction
+-   Most programs support **multiple discrete instructions** - you decide when writing your program what these instructions are and what data must accompany them
+-   Rust **enums** are often used to represent discrete program instructions
+-   You can use the `borsh` crate and the `derive` attribute to provide Borsh deserialization and serialization functionality to Rust structs
+-   Rust `match` expressions help create conditional code paths based on the provided instruction
 
 # Overview
 
@@ -302,8 +302,8 @@ The [Hello World lesson’s](hello-world-program.md) program was simple enough t
 
 For example, a good portion of the code we've worked through so far has to do with defining and deserializing instructions. That code should live in its own file rather than be written in the same file as the entry point. By doing so, we would then have 2 files, one with the program entry point and the other with the instruction code:
 
-- **lib.rs**
-- **instruction.rs**
+-   **lib.rs**
+-   **instruction.rs**
 
 Once you start splitting your program up like this you will need to make sure you register all of the files in one central location. We’ll be doing this in `lib.rs`. **You must register every file in your program like this.**
 

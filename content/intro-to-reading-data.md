@@ -1,35 +1,37 @@
 ---
 title: Read Data From The Solana Network
 objectives:
-- Explain accounts
-- Explain SOL and lamports
-- Explain public keys
-- Explain the JSON RPC API
-- Explain web3.js
-- Install web3.js
-- Use web3.js to create a connection to a Solana node
-- Use web3.js to read data from the blockchain (balance, account info, etc.)
+    - Explain accounts
+    - Explain SOL and lamports
+    - Explain public keys
+    - Explain the JSON RPC API
+    - Explain web3.js
+    - Install web3.js
+    - Use web3.js to create a connection to a Solana node
+    - Use web3.js to read data from the blockchain (balance, account info, etc.)
 ---
 
 ## TL;DR
 
-- **Accounts** are like the files in Solana’s network ledger. All state data is stored in an account. Accounts can be used for many things, but for now we’ll focus on the aspect of accounts which store SOL.
-- **SOL** is the name of Solana’s native token.
-- **Lamports** are fractional SOL and are named after [Leslie Lamport](https://en.wikipedia.org/wiki/Leslie_Lamport).
-- **Public keys**, often referred to as addresses, point to accounts on the Solana network. While you must have a specific secret key to perform certain functions within accounts, anyone can read account data with a public key.
-- **JSON RPC API**: all interactions with the Solana network happens through the [JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api). This is effectively an HTTP POST with a JSON body that represents the method you want to call.
-- **@solana/web3.js** is an abstraction on top of the JSON RPC API. It can be installed with `npm` and allows you to call Solana methods as JavaScript functions. For example, you can use it to query the SOL balance of any account:
+-   **Accounts** are like the files in Solana’s network ledger. All state data is stored in an account. Accounts can be used for many things, but for now we’ll focus on the aspect of accounts which store SOL.
+-   **SOL** is the name of Solana’s native token.
+-   **Lamports** are fractional SOL and are named after [Leslie Lamport](https://en.wikipedia.org/wiki/Leslie_Lamport).
+-   **Public keys**, often referred to as addresses, point to accounts on the Solana network. While you must have a specific secret key to perform certain functions within accounts, anyone can read account data with a public key.
+-   **JSON RPC API**: all interactions with the Solana network happens through the [JSON RPC API](https://docs.solana.com/developing/clients/jsonrpc-api). This is effectively an HTTP POST with a JSON body that represents the method you want to call.
+-   **@solana/web3.js** is an abstraction on top of the JSON RPC API. It can be installed with `npm` and allows you to call Solana methods as JavaScript functions. For example, you can use it to query the SOL balance of any account:
 
     ```tsx
     async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
-        const connection = new Connection(clusterApiUrl('devnet'));
+        const connection = new Connection(clusterApiUrl("devnet"));
         return connection.getBalance(address);
     }
 
-    const publicKey = new PublicKey('7C4jsPZpht42Tw6MjXWF56Q5RQUocjBBmciEjDa8HRtp')
-    getBalanceUsingWeb3(publicKey).then(balance => {
-        console.log(balance)
-    })
+    const publicKey = new PublicKey(
+        "7C4jsPZpht42Tw6MjXWF56Q5RQUocjBBmciEjDa8HRtp",
+    );
+    getBalanceUsingWeb3(publicKey).then((balance) => {
+        console.log(balance);
+    });
     ```
 
 # Overview
@@ -54,46 +56,44 @@ All client interaction with the Solana network happens through Solana’s [JSON 
 
 Per the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification)
 
-> *JSON-RPC is a stateless, light-weight remote procedure call (RPC) protocol. Primarily this specification defines several data structures and the rules around their processing. It is transport agnostic in that the concepts can be used within the same process, over sockets, over http, or in many various message passing environments. It uses [JSON](http://www.json.org/) ([RFC 4627](http://www.ietf.org/rfc/rfc4627.txt)) as data format.*
->
+> _JSON-RPC is a stateless, light-weight remote procedure call (RPC) protocol. Primarily this specification defines several data structures and the rules around their processing. It is transport agnostic in that the concepts can be used within the same process, over sockets, over http, or in many various message passing environments. It uses [JSON](http://www.json.org/) ([RFC 4627](http://www.ietf.org/rfc/rfc4627.txt)) as data format._
 
 In practice, this specification simply involves sending a JSON object representing a method you want to call. You can do this with sockets, http, and more.
 
 This JSON object needs four members:
 
-- `jsonrpc` - The JSON RPC version number. This needs to be *exactly* `"2.0"`.
-- `id` - An identifier that you choose for identifying the call. This can be a string or a whole number.
-- `method` - The name of the method you want to invoke.
-- `params` - An array containing the parameters to use during the method invocation.
+-   `jsonrpc` - The JSON RPC version number. This needs to be _exactly_ `"2.0"`.
+-   `id` - An identifier that you choose for identifying the call. This can be a string or a whole number.
+-   `method` - The name of the method you want to invoke.
+-   `params` - An array containing the parameters to use during the method invocation.
 
 So, if you want to call the `getBalance` method on the Solana network, you could send an HTTP call to a Solana cluster as follows:
 
 ```tsx
 async function getBalanceUsingJSONRPC(address: string): Promise<number> {
-    const url = clusterApiUrl('devnet')
+    const url = clusterApiUrl("devnet");
     console.log(url);
     return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "getBalance",
-            "params": [
-                address
-            ]
-        })
-    }).then(response => response.json())
-    .then(json => {
-        if (json.error) {
-            throw json.error
-        }
+            jsonrpc: "2.0",
+            id: 1,
+            method: "getBalance",
+            params: [address],
+        }),
+    })
+        .then((response) => response.json())
+        .then((json) => {
+            if (json.error) {
+                throw json.error;
+            }
 
-        return json['result']['value'] as number;
-    })
-    .catch(error => {
-        throw error
-    })
+            return json["result"]["value"] as number;
+        })
+        .catch((error) => {
+            throw error;
+        });
 }
 ```
 
@@ -116,7 +116,7 @@ To install `@solana/web3.js`, set up your project the way you normally would the
 Every interaction with the Solana network using `@solana/web3.js` is going to happen through a `Connection` object. This object establishes a JSON-RPC connection with a Solana cluster (more on clusters later). For now, we’re going to use the url for the Devnet cluster rather than Mainnet. As the name suggests, this cluster is designed for developer use and testing.
 
 ```tsx
-const connection = new Connection(clusterApiUrl('devnet'));
+const connection = new Connection(clusterApiUrl("devnet"));
 ```
 
 ### Read from the Network
@@ -125,7 +125,7 @@ Once you have a `Connection` object, querying the network is as simple as callin
 
 ```tsx
 async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
-    const connection = new Connection(clusterApiUrl('devnet'));
+    const connection = new Connection(clusterApiUrl("devnet"));
     return connection.getBalance(address);
 }
 ```
@@ -197,19 +197,19 @@ To fix this, let’s wrap everything in a `try-catch` block and alert the user i
 
 ```tsx
 const addressSubmittedHandler = (address: string) => {
-  try {
-    setAddress(address)
-    const key = new Web3.PublicKey(address)
-    const connection = new Web3.Connection(Web3.clusterApiUrl('devnet'))
-    connection.getBalance(key).then(balance => {
-      setBalance(balance / Web3.LAMPORTS_PER_SOL)
-    })
-  } catch (error) {
-    setAddress('')
-    setBalance(0)
-    alert(error)
-  }
-}
+    try {
+        setAddress(address);
+        const key = new Web3.PublicKey(address);
+        const connection = new Web3.Connection(Web3.clusterApiUrl("devnet"));
+        connection.getBalance(key).then((balance) => {
+            setBalance(balance / Web3.LAMPORTS_PER_SOL);
+        });
+    } catch (error) {
+        setAddress("");
+        setBalance(0);
+        alert(error);
+    }
+};
 ```
 
 Notice that in the catch block we also cleared out the address and balance to avoid confusion.
@@ -220,7 +220,7 @@ We did it! We have a functioning site that reads SOL balances from the Solana ne
 
 Since this is the first challenge, we’ll keep it simple. Go ahead and add on to the frontend we’ve already created by including a line item after “Balance”. Have the line item display whether or not the account is an executable account or not. Hint: there’s a `getAccountInfo` method.
 
-Your standard wallet address will *not* be executable, so if you want an address that *will* be executable for testing, use `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
+Your standard wallet address will _not_ be executable, so if you want an address that _will_ be executable for testing, use `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
 ![Screenshot of final challenge solution](../assets/intro-frontend-challenge.png)
 

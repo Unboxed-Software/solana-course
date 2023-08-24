@@ -7,17 +7,16 @@ title: Objetivos de coincidencia de datos de cuenta
 
 # TL;DR
 
-- Usar **comprobaciones de validación de datos** para verificar que los datos de la cuenta coincidan con un valor esperado**.** Sin las comprobaciones de validación de datos apropiadas, se pueden usar cuentas inesperadas en una instrucción.
-- Para implementar comprobaciones de validación de datos en Rust, simplemente compare los datos almacenados en una cuenta con un valor esperado.
+-   Usar **comprobaciones de validación de datos** para verificar que los datos de la cuenta coincidan con un valor esperado**.** Sin las comprobaciones de validación de datos apropiadas, se pueden usar cuentas inesperadas en una instrucción.
+-   Para implementar comprobaciones de validación de datos en Rust, simplemente compare los datos almacenados en una cuenta con un valor esperado.
 
-    
     ```rust
     if ctx.accounts.user.key() != ctx.accounts.user_data.user {
         return Err(ProgramError::InvalidAccountData.into());
     }
     ```
-    
-- En Anchor, puede usar `constraint` para comprobar si la expresión dada se evalúa como verdadera. Alternativamente, puede usar `has_one` para verificar que un campo de cuenta de destino almacenado en la cuenta coincida con la clave de una cuenta en la `Accounts` estructura.
+
+-   En Anchor, puede usar `constraint` para comprobar si la expresión dada se evalúa como verdadera. Alternativamente, puede usar `has_one` para verificar que un campo de cuenta de destino almacenado en la cuenta coincida con la clave de una cuenta en la `Accounts` estructura.
 
 # Descripción general
 
@@ -30,7 +29,6 @@ Esto puede ser útil cuando las cuentas requeridas por una instrucción tienen d
 El siguiente ejemplo incluye una `update_admin` instrucción que actualiza el `admin` campo almacenado en una `admin_config` cuenta.
 
 A la instrucción le falta una verificación de validación de datos para verificar que la `admin` cuenta que firma la transacción coincide con la `admin` almacenada en la `admin_config` cuenta. Esto significa que cualquier cuenta que firme la transacción y pase a la instrucción, ya que la `admin` cuenta puede actualizar la `admin_config` cuenta.
-
 
 ```rust
 use anchor_lang::prelude::*;
@@ -66,7 +64,6 @@ pub struct AdminConfig {
 
 El enfoque básico de Rust para resolver este problema es simplemente comparar la `admin` clave pasada con la `admin` clave almacenada en la `admin_config` cuenta, lanzando un error si no coinciden.
 
-
 ```rust
 if ctx.accounts.admin.key() != ctx.accounts.admin_config.admin {
     return Err(ProgramError::InvalidAccountData.into());
@@ -74,7 +71,6 @@ if ctx.accounts.admin.key() != ctx.accounts.admin_config.admin {
 ```
 
 Al agregar una verificación de validación de datos, la `update_admin` instrucción solo se procesaría si el `admin` firmante de la transacción coincidiera con el `admin` almacenado en la `admin_config` cuenta.
-
 
 ```rust
 use anchor_lang::prelude::*;
@@ -115,7 +111,6 @@ Anchor simplifica esto con la `has_one` restricción. Puede usar la `has_one` re
 
 En el siguiente ejemplo, se `has_one = admin` especifica que la `admin` cuenta que firma la transacción debe coincidir con el `admin` campo almacenado en la `admin_config` cuenta. Para usar la `has_one` restricción, la convención de nomenclatura del campo de datos en la cuenta debe ser coherente con la nomenclatura en la estructura de validación de cuenta.
 
-
 ```rust
 use anchor_lang::prelude::*;
 
@@ -151,7 +146,6 @@ pub struct AdminConfig {
 
 Alternativamente, puede usar `constraint` para añadir manualmente una expresión que debe evaluarse a true para que la ejecución continúe. Esto es útil cuando por alguna razón el nombre no puede ser consistente o cuando necesita una expresión más compleja para validar completamente los datos entrantes.
 
-
 ```rust
 #[derive(Accounts)]
 pub struct UpdateAdmin<'info> {
@@ -180,8 +174,7 @@ La autoridad de la nueva cuenta de token se establecerá como `vault` PDA del pr
 
 La `insecure_withdraw` instrucción transfiere todos los tokens en la `vault` cuenta de tokens de la cuenta a una cuenta de `withdraw_destination` tokens.
 
-Tenga en cuenta que esta instrucción ****lo hace**** tiene una verificación de firmante `authority` y una verificación de propietario `vault`. Sin embargo, en ninguna parte de la validación de la cuenta o la lógica de la instrucción hay código que compruebe que la `authority` cuenta pasada a la instrucción coincida con la `authority` cuenta en el `vault`.
-
+Tenga en cuenta que esta instrucción \***\*lo hace\*\*** tiene una verificación de firmante `authority` y una verificación de propietario `vault`. Sin embargo, en ninguna parte de la validación de la cuenta o la lógica de la instrucción hay código que compruebe que la `authority` cuenta pasada a la instrucción coincida con la `authority` cuenta en el `vault`.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -276,7 +269,7 @@ pub struct Vault {
 }
 ```
 
-### 2.  `insecure_withdraw` Instrucciones de prueba
+### 2. `insecure_withdraw` Instrucciones de prueba
 
 Para demostrar que esto es un problema, escribamos una prueba donde una cuenta que no sea la de la bóveda `authority` intente retirarse de la bóveda.
 
@@ -285,7 +278,6 @@ El archivo de prueba incluye el código para invocar la `initialize_vault` instr
 Añadir una prueba para invocar la `insecure_withdraw` instrucción. Utilice `withdrawDestinationFake` como la `withdrawDestination` cuenta y `walletFake` como el `authority`. Luego envíe la transacción usando `walletFake`.
 
 Dado que no hay comprobaciones de que la `authority` cuenta pasada a la instrucción coincida con los valores almacenados en la `vault` cuenta inicializada en la primera prueba, la instrucción se procesará con éxito y los tokens se transferirán a la `withdrawDestinationFake` cuenta.
-
 
 ```tsx
 describe("account-data-matching", () => {
@@ -311,7 +303,6 @@ describe("account-data-matching", () => {
 
 Ejecutar `anchor test` para ver que ambas transacciones se completarán con éxito.
 
-
 ```bash
 account-data-matching
   ✔ Initialize Vault (811ms)
@@ -323,7 +314,6 @@ account-data-matching
 Vamos a implementar una versión segura de esta instrucción llamada `secure_withdraw`.
 
 Esta instrucción será idéntica a la `insecure_withdraw` instrucción, excepto que usaremos la `has_one` restricción en la estructura de validación de cuenta ( `SecureWithdraw`) para verificar que la `authority` cuenta pasada a la instrucción coincida con la `authority` cuenta de la `vault` cuenta. De esa manera, solo la cuenta de autoridad correcta puede retirar los tokens de la bóveda.
-
 
 ```rust
 use anchor_lang::prelude::*;
@@ -380,10 +370,9 @@ pub struct SecureWithdraw<'info> {
 }
 ```
 
-### 4.  `secure_withdraw` Instrucciones de prueba
+### 4. `secure_withdraw` Instrucciones de prueba
 
 Ahora probemos la `secure_withdraw` instrucción con dos pruebas: una que usa `walletFake` como autoridad y otra que usa `wallet` como autoridad. Esperamos que la primera invocación devuelva un error y la segunda tenga éxito.
-
 
 ```tsx
 describe("account-data-matching", () => {
@@ -435,7 +424,6 @@ describe("account-data-matching", () => {
 
 Ejecute `anchor test` para ver que la transacción con una cuenta de autoridad incorrecta ahora devolverá un error de anclaje mientras la transacción con las cuentas correctas se completa con éxito.
 
-
 ```bash
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]',
 'Program log: Instruction: SecureWithdraw',
@@ -450,13 +438,12 @@ Ejecute `anchor test` para ver que la transacción con una cuenta de autoridad i
 
 Tenga en cuenta que Anchor especifica en los registros la cuenta que causa el error ( `AnchorError caused by account: vault`).
 
-
 ```bash
 ✔ Secure withdraw, expect error (77ms)
 ✔ Secure withdraw (10073ms)
 ```
 
-Y así, has cerrado la brecha de seguridad. El tema en la mayoría de estos exploits potenciales es que son bastante simples. Sin embargo, a medida que sus programas crecen en alcance y complejidad, es cada vez más fácil perderse posibles exploits. Es genial tener el hábito de escribir pruebas que envíen instrucciones que *no debería* funcionen. Cuanto más, mejor. De esa forma detectas problemas antes de desplegarte.
+Y así, has cerrado la brecha de seguridad. El tema en la mayoría de estos exploits potenciales es que son bastante simples. Sin embargo, a medida que sus programas crecen en alcance y complejidad, es cada vez más fácil perderse posibles exploits. Es genial tener el hábito de escribir pruebas que envíen instrucciones que _no debería_ funcionen. Cuanto más, mejor. De esa forma detectas problemas antes de desplegarte.
 
 Si desea echar un vistazo al código de la solución final, puede encontrarlo en la `solution` rama de[el repositorio](https://github.com/Unboxed-Software/solana-account-data-matching/tree/solution).
 
