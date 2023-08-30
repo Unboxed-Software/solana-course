@@ -49,9 +49,7 @@ The byte buffer lets you pass external data to a program.
 
 You can include multiple instructions in a single transaction. The Solana runtime will process these instructions in order and atomically. In other words, if every instruction succeeds then the transaction as a whole will be successful, but if a single instruction fails then the entire transaction will fail immediately with no side-effects.
 
-A note on the account array and optimization:
-
-It is not just an array of the accounts’ public keys. Each object in the array includes the account’s public key, whether or not it is a signer on the transaction, and whether or not it is writable. Including whether or not an account is writable during the execution of an instruction allows the runtime to facilitate parallel processing of smart contracts. Because you must define which accounts are read-only and which you will write to, the runtime can determine which transactions are non-overlapping or read-only and allow them to execute concurrently. To learn more about the Solana’s runtime, check out this [blog post](https://solana.com/news/sealevel---parallel-processing-thousands-of-smart-contracts).
+The account array is not just an array of the accounts’ public keys. Each object in the array includes the account’s public key, whether or not it is a signer on the transaction, and whether or not it is writable. Including whether or not an account is writable during the execution of an instruction allows the runtime to facilitate parallel processing of smart contracts. Because you must define which accounts are read-only and which you will write to, the runtime can determine which transactions are non-overlapping or read-only and allow them to execute concurrently. To learn more about the Solana’s runtime, check out this [blog post](https://solana.com/news/sealevel---parallel-processing-thousands-of-smart-contracts).
 
 ### Instruction Data
 
@@ -99,7 +97,7 @@ const equipPlayerSchema = borsh.struct([
 ])
 ```
 
-You can then encode data using this schema with the `encode` method. This method accepts as arguments an object representing the data to be serialized and a buffer. In the below example, we allocate a new buffer that’s much larger than needed, then encode the data into that buffer and slice it down into a new buffer that’s only as large as needed.
+You can then encode data using this schema with the `encode` method. This method accepts as arguments an object representing the data to be serialized and a buffer. In the below example, we allocate a new buffer that’s much larger than needed, then encode the data into that buffer and slice the original buffer down into a new buffer that’s only as large as needed.
 
 ```tsx
 import * as borsh from '@project-serum/borsh'
@@ -392,7 +390,7 @@ Now it’s your turn to build something independently. Create an application tha
 
 ![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
 
-1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/starter).
+1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/starter).
 2. Create the instruction buffer layout in `StudentIntro.ts`. The program expects instruction data to contain:
    1. `variant` as an unsigned, 8-bit integer representing the instruction to run (should be 0).
    2. `name` as a string representing the student's name.
@@ -401,6 +399,6 @@ Now it’s your turn to build something independently. Create an application tha
 4. In the `Form` component, implement the `handleTransactionSubmit` function so that it serializes a `StudentIntro`, builds the appropriate transaction and transaction instructions, and submits the transaction to the user's wallet.
 5. You should now be able to submit introductions and have the information stored on chain! Be sure to log the transaction ID and look at it in Solana Explorer to verify that it worked.
 
-If you get really stumped, you can check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
+If you get really stumped, you can [check out the solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 
 Feel free to get creative with these challenges and take them even further. The instructions aren't here to hold you back!

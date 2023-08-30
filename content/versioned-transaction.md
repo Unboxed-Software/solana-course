@@ -664,7 +664,7 @@ async function initializeLookupTable(
 }
 ```
 
-Congratulations! If you feel good about this demo, you're probably ready to work with lookup tables and versioned transactions on your own. If you want to take a look at the final solution code you can find it on the solution branch [here](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/solution).
+Congratulations! If you feel good about this demo, you're probably ready to work with lookup tables and versioned transactions on your own. If you want to take a look at the final solution code you can [find it on the solution branch](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/solution).
 
 # Challenge
 

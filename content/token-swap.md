@@ -415,7 +415,7 @@ transaction.add(instruction)
 
 ## Curves
 
-Trading curves are at the core of how swap pools and AMMs (Automated Market Makers) operate. The trading curve is the function that the Token Swap Program uses to calculate how much of a destination token will be provided given an amount of source token. The curve effectively sets the market price of the tokens in the pool.
+Trading curves are at the core of how swap pools and AMMs (Automated Market Makers) operate. The trading curve is the function that the Token Swap Program uses to calculate how much of a destination token will be provided given an amount of source token. The curve sets the market price of the tokens in the pool.
 
 The pool we’ll be interacting with in this lesson employs a [Constant Product](https://spl.solana.com/token-swap#curves) Curve Function. The constant product curve is the well-known Uniswap and Balancer style curve that preserves an invariant on all swaps. This invariant can be expressed as the product of the quantity of token A and token B in the swap pool.
 

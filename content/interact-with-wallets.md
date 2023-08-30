@@ -51,12 +51,13 @@ Finally, there are packages that are adapters for specific wallets, including Ph
 
 ### Install Wallet-Adapter Libraries
 
-When adding wallet support to an existing react app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`, the package(s) for the wallet(s) you want to support, and `@solana/wallet-adapter-react-ui` if you plan to use the provided react components, e.g.
+When adding wallet support to an existing react app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`. If you plan to use the provided react components, you'll also need to add `@solana/wallet-adapter-react-ui`.
+
+All wallets that support [wallet standard](https://github.com/wallet-standard/wallet-standard) are supported out of the box, and nearly all current Solana wallets support wallet standard. However if you wish to add support for any wallets that don't support the standard, add a package for them.
 
 ```
 npm install @solana/wallet-adapter-base \
     @solana/wallet-adapter-react \
-    @solana/wallet-adapter-phantom \
     @solana/wallet-adapter-react-ui
 ```
 
@@ -94,7 +95,7 @@ export const Home: NextPage = (props) => {
 
 Note that `ConnectionProvider` requires an `endpoint` property and that `WalletProvider` requires a `wallets` property. We’re continuing to use the endpoint for the Devnet cluster, and for now we’re only using the `PhantomWalletAdapter` for `wallets`.
 
-At this point you can connect with `wallet.connect()`, which will effectively instruct the wallet to prompt the user for permission to view their public key and request approval for transactions.
+At this point you can connect with `wallet.connect()`, which will instruct the wallet to prompt the user for permission to view their public key and request approval for transactions.
 
 ![Screenshot of wallet connection prompt](../assets/wallet-connect-prompt.png)
 
@@ -224,7 +225,7 @@ Once you have a wallet, click the settings gear on the bottom right in the Phant
 
 ### 2. Download the starter code
 
-Download the starter code for this project [here](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo.
+Download the [starter code for this project](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo.
 
 You can see its current state with the command `npm run dev` in the console.
 
@@ -459,7 +460,7 @@ And that’s it! If you refresh the page, connect your wallet, and click the pin
 
 There’s a lot you could do to make the user experience here even better. For example, you could change the UI to only show you the Ping button when a wallet is connected and display some other prompt otherwise. You could link to the transaction on Solana Explorer after a user confirms a transaction so they can easily go look at the transaction details. The more you experiment with it, the more comfortable you’ll get, so get creative!
 
-If you need to spend some time looking at the full source code from this demo to understand all of this in context, check that out [here](https://github.com/Unboxed-Software/solana-ping-frontend).
+You can also download the [full source code from this demo](https://github.com/Unboxed-Software/solana-ping-frontend) to understand all of this in context.
 
 # Challenge
 
@@ -467,9 +468,9 @@ Now it’s your turn to build something independently. Create an application tha
 
 ![Screenshot of Send Sol App](../assets/solana-send-sol-app.png)
 
-1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/starter).
+1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/starter).
 2. Wrap the starter application in the appropriate context providers.
 3. In the form component, set up the transaction and send it to the user’s wallet for approval.
 4. Get creative with the user experience. Add a link to let the user view the transaction on Solana Explorer or something else that seems cool to you!
 
-If you get really stumped, feel free to check out the solution code [here](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/main).
+If you get really stumped, feel free to [check out the solution code](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/main).
