@@ -56,7 +56,7 @@ The example below shows an `admin_instruction` intended to be accessible only by
 
 Although the instruction checks the `admin` account signed the transaction and matches the `admin` field stored on the `admin_config` account, there is no owner check to verify the `admin_config` account passed into the instruction is owned by the executing program.
 
-Since the `admin_config` is unchecked as indicated by the `AccountInfo` type, a fake `admin_config` account owned by a different program could be used in the `admin_instruction`. This means that an attacker could create a program with an `admin_config` whose data structure matches the `admin_config` of your program, set their public key as the `admin` and pass their `admin_config` account into your program. This would let them effectively spoof your program into thinking that they are the authorized admin for your program.
+Since the `admin_config` is unchecked as indicated by the `AccountInfo` type, a fake `admin_config` account owned by a different program could be used in the `admin_instruction`. This means that an attacker could create a program with an `admin_config` whose data structure matches the `admin_config` of your program, set their public key as the `admin` and pass their `admin_config` account into your program. This would let them spoof your program into thinking that they are the authorized admin for your program.
 
 This simplified example only prints the `admin` to the program logs. However, you can imagine how a missing owner check could allow fake accounts to exploit an instruction.
 

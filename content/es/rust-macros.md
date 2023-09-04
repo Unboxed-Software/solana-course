@@ -518,7 +518,7 @@ impl Config {
 
 The `programs/admin/src/lib.rs` file contains the program entrypoint with the definitions of the program's instructions. Currently, the program has instructions to initialize this account and then one instruction per account field for updating the field.
 
-The `programs/admin/src/admin_config` directory contains the program's instruction logic and state. Take a look through each of these files. You'll notice that instruction logic for each field is effectively duplicated for each instruction.
+The `programs/admin/src/admin_config` directory contains the program's instruction logic and state. Take a look through each of these files. You'll notice that instruction logic for each field is duplicated for each instruction.
 
 The goal of this demo is to implement a procedural macro that will allow us to replace all of the instruction logic functions and automatically generate functions for each instruction.
 

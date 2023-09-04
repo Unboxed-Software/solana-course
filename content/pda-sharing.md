@@ -210,7 +210,7 @@ After that, there are two more tests to show how the instructions are vulnerable
 
 The first test invokes the `initialize_pool` instruction to create a "fake" `pool` account using the same `vault` token account, but a different `withdraw_destination`.
 
-The second test withdraws from this pool, effectively stealing funds from the vault.
+The second test withdraws from this pool, stealing funds from the vault.
 
 ```tsx
 it("Insecure initialize allows pool to be initialized with wrong vault", async () => {

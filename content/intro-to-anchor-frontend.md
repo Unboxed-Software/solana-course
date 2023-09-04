@@ -207,7 +207,7 @@ Once you have the IDL and a provider, you can create an instance of `Program`. T
 - `programId` - the on-chain address of the program as a `string` or `PublicKey`
 - `Provider` - the provider discussed in the previous section
 
-The `Program` object creates a custom API you can use to interact with a Solana program. This API is the one stop shop for all things related to communicating with on-chain programs. Among other things, you can send transactions, fetch deserialized accounts, decode instruction data, subscribe to account changes, and listen to events. You can learn more about the `Program` class [here](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
+The `Program` object creates a custom API you can use to interact with a Solana program. This API is the one stop shop for all things related to communicating with on-chain programs. Among other things, you can send transactions, fetch deserialized accounts, decode instruction data, subscribe to account changes, and listen to events. You can also [learn more about the `Program` class](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
 
 To create the `Program` object, first import `Program` and `Idl` from `@project-serum/anchor`. `Idl` is a type you can used when working with Typescript.
 
@@ -344,7 +344,7 @@ Let’s practice this together by building a frontend for the Counter program fr
 
 ### 1. Download the starter code
 
-Download the starter code for this project [here](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/starter). Once you have the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`.
+Download [the starter code for this project](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/starter). Once you have the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`.
 
 This project is a simple Next.js application. It includes the `WalletContextProvider` we created in the [Wallets lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets.md), the `idl.json` file for the Counter program, and the `Initialize` and `Increment` components we’ll be building throughout this demo. The `programId` of the program we’ll be invoking is also included in the starter code.
 
@@ -508,6 +508,6 @@ Before building the component in the frontend, you’ll first need to:
 2. Update the IDL file in the frontend with the one from your new program
 3. Update the `programId` with the one from your new program
 
-If you need some help, feel free to reference this program [here](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
+If you need some help, feel free to [reference this program](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/solution-decrement).

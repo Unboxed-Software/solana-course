@@ -129,7 +129,7 @@ pub fn invoke_signed(
 ) -> ProgramResult
 ```
 
-For this lesson we will use `invoke_signed`. Unlike a regular signature where a private key is used to sign, `invoke_signed` uses the optional seeds, bump seed, and program ID to derive a PDA and sign an instruction. This is done by comparing the derived PDA against all accounts passed into the instruction. If any of the accounts match the PDA, then the signer field for that account is set to true.
+For this lesson we will use `invoke_signed`. Unlike a regular signature where a secret key is used to sign, `invoke_signed` uses the optional seeds, bump seed, and program ID to derive a PDA and sign an instruction. This is done by comparing the derived PDA against all accounts passed into the instruction. If any of the accounts match the PDA, then the signer field for that account is set to true.
 
 A program can securely sign transactions this way because `invoke_signed` generates the PDA used for signing with the program ID of the program invoking the instruction. Therefore, it is not possible for one program to generate a matching PDA to sign for an account with a PDA derived using another program ID.
 
@@ -178,7 +178,7 @@ This is done with the `serialize` function on the instance of the Rust type you 
 account_data.serialize(&mut &mut note_pda_account.data.borrow_mut()[..])?;
 ```
 
-The above example converts the `account_data` object to a byte array and sets it to the `data` property on `note_pda_account`. This effectively saves the updated `account_data` variable to the data field of the new account. Now when a user fetches the `note_pda_account` and deserializes the data, it will display the updated data we’ve serialized into the account.
+The above example converts the `account_data` object to a byte array and sets it to the `data` property on `note_pda_account`. This saves the updated `account_data` variable to the data field of the new account. Now when a user fetches the `note_pda_account` and deserializes the data, it will display the updated data we’ve serialized into the account.
 
 ## Iterators
 
@@ -211,7 +211,7 @@ At that point, instead of using the iterator directly, we pass it to the `next_a
 
 For example, the instruction to create a new note in a note-taking program would at minimum require the accounts for the user creating the note, a PDA to store the note, and the `system_program` to initialize a new account. All three accounts would be passed into the program entry point through the `accounts` argument. An iterator of `accounts` is then used to separate out the `AccountInfo` associated with each account to process the instruction.
 
-Note that `&mut` means a mutable reference to the `accounts` argument. You can read more about references in Rust [here](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and the `mut` keyword [here](https://doc.rust-lang.org/std/keyword.mut.html).
+Note that `&mut` means a mutable reference to the `accounts` argument. You can read more about [references in Rust](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and [the `mut` keyword](https://doc.rust-lang.org/std/keyword.mut.html).
 
 ```rust
 // Get Account iterator
@@ -231,7 +231,7 @@ As a refresher, we are building a Solana program which lets users review movies.
 
 ### 1. Get the starter code
 
-If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can reference the starter code [here](https://beta.solpg.io/6295b25b0e6ab1eb92d947f7).
+If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can reference [the starter code](https://beta.solpg.io/6295b25b0e6ab1eb92d947f7).
 
 Our program currently includes the `instruction.rs` file we use to deserialize the `instruction_data` passed into the program entry point. We have also completed `lib.rs` file to the point where we can print our deserialized instruction data to the program log using the `msg!` macro.
 
@@ -269,7 +269,7 @@ pub struct MovieAccountState {
 
 ### 3. Update `lib.rs`
 
-Next, let’s update our `lib.rs` file. First, we’ll bring into scope everything we will need to complete our Movie Review program. You can read more about the details each item we are using from the `solana_program` crate [here](https://docs.rs/solana-program/latest/solana_program/).
+Next, let’s update our `lib.rs` file. First, we’ll bring into scope everything we will need to complete our Movie Review program. You can read more about the details each item we are using from [the `solana_program` crate](https://docs.rs/solana-program/latest/solana_program/).
 
 ```rust
 use solana_program::{

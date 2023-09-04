@@ -9,7 +9,7 @@ objectives:
 
 # TL;DR
 
-- **Program Derived Addresses**, or PDAs, are addresses that do not have a corresponding private key. The concept of PDAs allows for programs to sign for transactions themselves and allows for storing and locating data.
+- **Program Derived Addresses**, or PDAs, are addresses that do not have a corresponding secret key. The concept of PDAs allows for programs to sign for transactions themselves and allows for storing and locating data.
 - You can derive a PDA using the `findProgramAddress(seeds, programid)` method.
 - You can get an array of all the accounts belonging to a program using `getProgramAccounts(programId)`.
 - Account data needs to be deserialized using the same layout used to store it in the first place. You can use `@project-serum/borsh` to create a schema.
@@ -26,7 +26,7 @@ Programs themselves, however, are stateless. They cannot modify the data within 
 
 ### PDA
 
-PDA stands for Program Derived Address. As the name suggests, it refers to an address (public key) derived from a program and some seeds. In a previous lesson, we discussed public/private keys and how they are used on Solana. Unlike a keypair, a PDA *does not* have a corresponding private key. The purpose of a PDA is to create an address that a program can sign for in the same way a user may sign for a transaction with their wallet.
+PDA stands for Program Derived Address. As the name suggests, it refers to an address derived from a program and some seeds. In a previous lesson, we discussed public/secret keys and how they are used on Solana. Unlike a keypair, a PDA *is not* a public key and *does not* have a corresponding secret key. The purpose of a PDA is to create an address that a program can sign for in the same way a user may sign for a transaction with their wallet.
 
 When you submit a transaction to a program and expect the program to then update state or store data in some way, that program is using one or more PDAs. This is important to understand when developing client-side for two reasons:
 
@@ -37,7 +37,7 @@ When you submit a transaction to a program and expect the program to then update
 
 PDAs are not technically created. Rather, they are *found* or *derived* based on one or more input seeds.
 
-Regular Solana keypairs lie on the ed2559 Elliptic Curve. This cryptographic function ensures that every point along the curve has a corresponding point somewhere else on the curve, allowing for public/private keys. PDAs are addresses that lie *off* the ed2559 Elliptic curve and therefore cannot be signed for by a private key (since there isn’t one). This ensures that the program is the only valid signer for that address.
+Regular Solana keypairs lie on the ed2559 Elliptic Curve. This cryptographic function ensures that every point along the curve has a corresponding point somewhere else on the curve, allowing for public/secret keys. PDAs are addresses that lie *off* the ed2559 Elliptic curve and therefore cannot be signed for by a secret key (since there isn’t one). This ensures that the program is the only valid signer for that address.
 
 To find a public key that does not lie on the ed2559 curve, the program ID and seeds of the developer’s choice (like a string of text) are passed through the function [`findProgramAddress(seeds, programid)`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress). This function combines the program ID, seeds, and a bump seed into a buffer and passes it into a SHA256 hash to see whether or not the resulting address is on the curve. If the address is on the curve (~50% chance it is), then the bump seed is decremented by 1 and the address is calculated again. The bump seed starts at 255 and progressively iterates down to `bump = 254`, `bump = 253`, etc. until an address is found with the given seeds and bump that does not lie on the ed2559 curve. The `findProgramAddress` function returns the resulting address and the bump used to kick it off the curve. This way, the address can be generated anywhere as long as you have the bump and seeds.
 
@@ -258,7 +258,7 @@ Now it’s your turn to build something independently. Last lesson, you worked o
 
 ![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
 
-1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
+1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 2. Create the account buffer layout in `StudentIntro.ts`. The account data contains:
    1. `initialized` as an unsigned, 8-bit integer representing the instruction to run (should be 1).
    2. `name` as a string representing the student's name.
@@ -267,6 +267,6 @@ Now it’s your turn to build something independently. Last lesson, you worked o
 4. In the `StudentIntroList` component's `useEffect`, get the program's accounts and deserialize their data into a list of `StudentIntro` objects.
 5. Instead of mock data, you should now be seeing student introductions from the network!
 
-If you get really stumped, feel free to check out the solution code [here](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data).
+If you get really stumped, feel free to [check out the solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data).
 
 As always, get creative with these challenges and take them beyond the instructions if you want!
