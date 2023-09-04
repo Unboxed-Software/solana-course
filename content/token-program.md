@@ -493,7 +493,7 @@ We’re going to create a script that interacts with instructions on the Token P
 
 Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the `@solana/web3.js` and `@solana/spl-token` packages.
 
-You can use `npx create-solana-client [INSERT_NAME_HERE] --initialize-keypair` in the command line to clone the template we'll be starting from. Or you can manually clone the template [here](https://github.com/Unboxed-Software/solana-npx-client-template/tree/with-keypair-env). Note if you use the git repository directly as your starting point that we'll be starting from the `with-keypair-env` branch.
+You can use `npx create-solana-client [INSERT_NAME_HERE] --initialize-keypair` in the command line to clone the template we'll be starting from. Or you can [manually clone the template](https://github.com/Unboxed-Software/solana-npx-client-template/tree/with-keypair-env). Note if you use the git repository directly as your starting point that we'll be starting from the `with-keypair-env` branch.
 
 You'll then need to add a dependency on `@solana/spl-token`. From the command line inside the newly created directory, use the command `npm install @solana/spl-token`.
 
@@ -1064,7 +1064,7 @@ Note that you will not be able to directly use the helper functions we went over
 
 ![Screenshot of Token Program Challenge Frontend](../assets/token-program-frontend.png)
 
-1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
+1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
 2. Create a new Token Mint in the `CreateMint` component.
     If you need a refresher on how to send transactions to a wallet for approval, have a look at the [Wallets lesson](./interact-with-wallets.md).
 

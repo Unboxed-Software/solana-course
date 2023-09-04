@@ -26,7 +26,7 @@ As a refresher, CPIs allow programs to invoke instructions on other programs usi
 
 While making CPIs directly using `invoke` or `invoke_signed` is still an option, Anchor also provides a simplified way to make CPIs by using a `CpiContext`.
 
-In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token Program. You can explore what's available in the `anchor_spl` crate [here](https://docs.rs/anchor-spl/latest/anchor_spl/#).
+In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token Program. You can [explore what's available in the `anchor_spl` crate](https://docs.rs/anchor-spl/latest/anchor_spl/#).
 
 ### `CpiContext`
 
@@ -275,7 +275,7 @@ In this demo we’ll update the program to mint tokens to users when they submit
 
 ### 1. Starter
 
-To get started, we will be using the final state of the Anchor Movie Review program from the previous lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can download the starter code [here](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas). We'll be using the `solution-pdas` branch as our starting point.
+To get started, we will be using the final state of the Anchor Movie Review program from the previous lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can [download the starter code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas). We'll be using the `solution-pdas` branch as our starting point.
 
 ### 2. Add dependencies to `Cargo.toml`
 

@@ -235,7 +235,7 @@ The `#[account]` attribute is applied to structs representing the data structure
 - `Discriminator`
 - `Owner`
 
-You can read more about the details of each trait [here](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). However, mostly what you need to know is that the `#[account]` attribute enables serialization and deserialization, and implements the discriminator and owner traits for an account.
+You can read more about the [details of each trait](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). However, mostly what you need to know is that the `#[account]` attribute enables serialization and deserialization, and implements the discriminator and owner traits for an account.
 
 The discriminator is an 8 byte unique identifier for an account type derived from the first 8 bytes of the SHA256 hash of the account type's name. When implementing account serialization traits, the first 8 bytes are reserved for the account discriminator.
 
@@ -313,7 +313,7 @@ You are now ready to build your own Solana program using the Anchor framework!
 
 # Demo
 
-Before we begin, install Anchor by following the steps [here](https://www.anchor-lang.com/docs/installation).
+Before we begin, install Anchor by [following the steps from the Anchor docs](https://www.anchor-lang.com/docs/installation).
 
 For this demo we'll create a simple counter program with two instructions:
 
