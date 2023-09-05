@@ -1067,10 +1067,10 @@ describe("burry-escrow", () => {
 
 With that all written you should be able to run `anchor test` in your terminal and get 4 passing tests!
 
-If you don’t something is wrong, feel free to check the working code [here](https://github.com/CoachChuckFF/Micheal-Burry-Escrow).
+If you don’t something is wrong, feel free to check the working code [here](https://github.com/Unboxed-Software/micheal-burry-escrow).
 
 ## Challenge
 
 As a challenge to take what you’ve learned in this lesson and apply it, create a fallback plan if the data feed ever goes down. If the Oracle queue has not updated the aggregator account in X time or if the data feed account does not exist anymore, withdraw the user’s escrowed funds.
 
-A potential solution to this challenge can be found [here](https://github.com/CoachChuckFF/Micheal-Burry-Escrow/tree/solution).
+A potential solution to this challenge can be found [here](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/solution).
