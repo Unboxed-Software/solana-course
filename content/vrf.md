@@ -1335,7 +1335,7 @@ With that in place, you should be able to run
 
 `anchor test`
 
-If something is not working feel free to try out the code [here](https://github.com/CoachChuckFF/Micheal-Burry-Escrow/tree/vrf). Remember to update your program keys and wallet path like we did in the ***Setup***.
+If something is not working feel free to try out the code [here](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf). Remember to update your program keys and wallet path like we did in the ***Setup***.
 
 ### Challenge
 
