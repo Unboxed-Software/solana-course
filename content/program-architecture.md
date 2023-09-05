@@ -26,8 +26,8 @@ This lesson is going to be accompanied by little snippets of Solana program code
 ### Setting up the Accompanying Code
 
 1.  **Clone and Build**
-    1.  `git clone [https://github.com/CoachChuckFF/Advance-Program-Architecture.git](https://github.com/CoachChuckFF/Advance-Program-Architecture.git)`
-    2. `cd Advance-Program-Architecture`
+    1. `git clone https://github.com/Unboxed-Software/advance-program-architecture.git`
+    2. `cd advance-program-architecture`
     3. `yarn install`
     4. `anchor build`
 2. **Setup Program Environment**
@@ -281,13 +281,13 @@ The `flags` is variable length, which means when this struct is serialized the `
 
 ```rust
 0000:   74 e4 28 4e    d9 ec 31 0a  -> Account Discriminator (8)
-0008:	  04 00 00 00    11 22 33 44  -> Vec Size (4) | Data 4*(1)
+0008:	04 00 00 00    11 22 33 44  -> Vec Size (4) | Data 4*(1)
 0010:   DE AD BE EF                 -> id (4)
 
 --- vs ---
 
 0000:   74 e4 28 4e    d9 ec 31 0a  -> Account Discriminator (8)
-0008:	  08 00 00 00    11 22 33 44  -> Vec Size (8) | Data 4*(1)
+0008:	08 00 00 00    11 22 33 44  -> Vec Size (8) | Data 4*(1)
 0010:   55 66 77 88    DE AD BE EF  -> Data 4*(1) | id (4)
 ```
 
@@ -1432,4 +1432,4 @@ Now it’s your turn. Can you find any optimizations in the RPG code that you co
 
 I have provided a some example modifications in the `solution` branch of the provided code from the lesson. Take a look out for `// SOLUTION EDIT:`s to see what I changed or added
 
-[https://github.com/CoachChuckFF/Advance-Program-Architecture/tree/solution](https://github.com/CoachChuckFF/Advance-Program-Architecture/tree/solution)
+[https://github.com/Unboxed-Software/Advance-Program-Architecture/tree/solution](https://github.com/Unboxed-Software/Advance-Program-Architecture/tree/solution)
