@@ -5,89 +5,101 @@
 *By the end of this lesson, you will be able to:*
 
 - Use **Box** and **Zero Copy** to work with large data on-chain
-- Make PDA design decisions
-
+- Make better PDA design decisions
 - Future-proof your programs
 - Deal with concurrency issues
 
 # TL;DR
 
 - If your data accounts are too large, wrap them in Box
-- Zero-Copy is how you deal with large accounts ( < 10MB )
+- Zero-Copy is how you deal with large accounts (< 10MB)
 - The size and the order of structs in an account matters
 - Solana can process in parallel, but you can still run into bottlenecks
 
 # Overview
 
-Program Architecture is what separates the hobbiest from the professional. See, crafting programs has very little to do with the code and it has everything to do with the ******design****** of the system. And you, as the designer, needs to think about: what your code needs to do, what possible implementations there are, and what are the tradeoffs. These questions are even more important when developing for Solana. You are dealing with people’s assets; code has cost now. Additionally, the Solana runtime is not like your normal computer - it’s limited in nature. When I say limited, I mean there are limitations on how much data can be stored on the chain, the cost to store that data and a limited number of compute units per transaction. We have to be mindful of these limitations to create programs that are affordable, fast, safe and functional. Today we will be delving into some of the more advance considerations that should be taken when creating Solana programs.
+Program Architecture is what separates the hobbyist from the professional. Crafting performant programs has more to do with system **design** than it does with the code. And you, as the designer, need to think about: 
 
-This lesson is going to be accompanied by little snippets of Solana program code. I have wrapped these snippets into an actual Solana program and written accompanying tests. When you go through the lesson, I want you to play with the corresponding program and test code. Play with values, try to break it, see how everything works. At the end, we will put all of these concepts to use when making a little Solana RPG game engine. 
+    1. What your code needs to do
+    2. What possible implementations there are
+    3. What are the tradeoffs between different implementations
 
-### Setting up the Accompanying Code
+These questions are even more important when developing for a blockchain. Not only are resources more limited than in a typical computing environment, you're also dealing with people’s assets; code has a cost now.
 
-1.  **Clone and Build**
-    1. `git clone https://github.com/Unboxed-Software/advance-program-architecture.git`
-    2. `cd advance-program-architecture`
+We'll leave most of the asset handling discussion to [security lessons](./security-intro.md), but it's important to note the nature of resource limitations in Solana development. There are, of course, limitations in a typical development environment, but there are limitations unique to blockchain and Solana development such as how much data can be stored in an account, the cost to store that data, and how many compute units are available per transaction. You, the program designer, have to be mindful of these limitations to create programs that are affordable, fast, safe, and functional. Today we will be delving into some of the more advance considerations that should be taken when creating Solana programs. 
+
+## Prerequisite Setup
+
+This lesson is going to be accompanied by code snippets from a Solana program. Each of these snippets is part of an actual Solana program that has accompanying tests. When you go through the lesson, take the time to interact with the corresponding program and test code. Change existing values, try to break the program, and generally try to understand how everything works. At the end the lesson, we'll put all of these concepts together to make a little Solana RPG game engine.
+
+Before we begin, follow these steps to get the program up and running in your local environment.
+
+1. **Clone and Build** - Run each of the following commands in your command line:
+    1. `git clone https://github.com/Unboxed-Software/advanced-program-architecture.git`
+    2. `cd advanced-program-architecture`
     3. `yarn install`
     4. `anchor build`
-2. **Setup Program Environment**
-    1. `anchor keys list` take the output key from that command and paste it in 2 places:
+2. **Setup Program Environment** - Update the following config values:
+    1. Run `anchor keys list` in the command line, then take the output key from that command and paste it in 2 places:
         1. `programs/architecture/src/lib.rs` → `declare_id!("YOUR_KEY_HERE");`
         2. `Anchor.toml` → `architecture = "YOUR_KEY_HERE"`
-    2.  Change the `Anchor.toml` file provider section to your Solana CLI wallet path ( run `solana config get` ) 
-        
+    2.  Change the `Anchor.toml` file provider section to your Solana CLI wallet path (run `solana config get` to see your path) 
         ```rust
         [provider]
         cluster = "Localnet"
-        wallet = "/Users/coach/.config/solana/id.json" <--- Change This
+        wallet = "/Users/coach/.config/solana/id.json" <--- Change This To Your Wallet Path
         ```
-        
 3. **Verify**
-    1. `anchor test`
+    1. Run `anchor test` to verify that all of the tests are passing (they should all pass)
 
-The tests should take a couple of minutes to run, but they should all pass. 
+### How to Use the Accompanying Code
 
-### How to use the Accompanying Code
+When going through the lesson, each concept we cover will have a corresponding program and test file. For example, the first concept we'll look at will have the header **Concept: Sizes**. The files for this can be found in:
 
-When going through the lesson each concept will have a corresponding program and test file. For example, we will be first be looking at the different data sizes in Solana, the header will be **Concept Sizes**. The files for this can be found in:
+**program -** `programs/architecture/src/concepts/sizes.rs`
 
-**program -** `programs/architecture/src/concepts/concept_sizes.rs`
+**test -** `cd tests/sizes.ts`
 
-**test -** `cd tests/conceptSizes.ts`
+While reading, you should have the files open so you can play with them. Experimenting with the code will be the crux of your learning here; don’t skip it!
 
-I will want you to have the files open so you can play with them. Playing with the code will be the crux of your learning here - so it is important, please don’t skip the playing! Now you probably don’t want to run all the tests over and over again, so you can single them out. So when you’re playing with a concept, you can rebuild and test quickly to see the changes. To do this we want to change the test file you are currently working on.
+You won't want to run every test while experimenting with only one concept. For example, if you modify something related to the size concept, you'll likely only want to run related tests. In that case, all you have to do is open up `tests/sizes.ts` and change the `describe(...`  function and change it to `describe.only(...`.
 
-So let’s say you want to only run the `tests/conceptSizes.ts` concept. All you have to do is open it up and change the `describe(...`  function and change it to `describe.only(...`
-
-```rust
+```typescript
 ...
 describe.only("Concept Sizes", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 ...
+})
 ```
 
-Then run `anchor test` it will rebuild and run only that group of tests for you. 
+Then when you run `anchor test` it will rebuild and run only that group of tests for you. 
 
 When you are done playing, be sure to remove the `.only` and move onto the next concept!
 
-With all of that out of the way! Let’s move into our first grouping of considerations! Data Sizes!
+Now let’s move onto our first grouping of considerations! Data Sizes!
 
 ## Dealing with Data Size
 
-In modern programming, specifically when creating applications, we don’t really have to think about the size of the data structs we are using. You want to make a string? Put a 4000 character limit on it, just so people don’t abuse it. Want an int? They’re pretty much always 32bit for connivence. In high level languages, you are in the data-land-o-plenty! Now, in Solana land, we pay per byte stored ( rent ), have have limited heap, stack and account sizes, we have to be a little more crafty with our bytes. There are two main concerns we are going to be looking at in this section: 
+In modern application programming, we don’t often have to think about the size of the data structures we are using. You want to make a string? You can put a 4000 character limit on it if you want to avoid abuse, but it's probably not an issue. Want an integer? They’re pretty much always 32-bit for convenience.
 
-1. Since we pay-per-byte, we generally want to keep our footprint as small as possible. We will delve more into optimization in another section, but I’ll introduce you to the concept of data sizes here.
+In high level languages, you are in the data-land-o-plenty! Now, in Solana land, we pay per byte stored (rent) and have limits on heap, stack and account sizes. We have to be a little more crafty with our bytes. There are two main concerns we are going to be looking at in this section: 
+
+1. Since we pay-per-byte, we generally want to keep our footprint as small as possible. We will delve more into optimization in another section, but we'll introduce you to the concept of data sizes here.
 
 2. When operating on larger data, we run into [Stack](https://docs.solana.com/developing/on-chain-programs/faq#stack) and [Heap](https://docs.solana.com/developing/on-chain-programs/faq#heap-size) constraints - to get around these, we’ll look at using Box and Zero-Copy.
 
-### Concept Sizes
+### Concept: Sizes
 
-**program -** `programs/architecture/src/concepts/concept_sizes.rs`
+**program -** `programs/architecture/src/concepts/sizes.rs`
 
-**test -** `cd tests/conceptSizes.ts`
+**test -** `cd tests/sizes.ts`
 
-In Solana we pay, or your user pays, for each byte stored on the Solana blockchain. We call this [rent](https://docs.solana.com/developing/intro/rent). Side note, I think the term rent is a little misleading - they don’t take money out the account, once you pay, that data is there forever ( unless you choose the close the account ). It has to do with what’s called minimum rent exemption, which is enforced, I suggest reading about it [here](https://docs.solana.com/developing/intro/rent). Anyways, data on the blockchain is expensive ( it’s why NFT data, like the image, is stored off-chain ). We want to strike a balance of having all the bells and whistles we want in a program without becoming so expensive that our users don’t want to pay to open the data account. The first thing you need to know before you can start optimizing for space in your program is knowing how many bytes each of your structs take up. Below is a very helpful list from the [Anchor Book](https://book.anchor-lang.com/anchor_references/space.html). 
+In Solana a transaction's fee payer pays for each byte stored on-chain. We call this [rent](https://docs.solana.com/developing/intro/rent). Side note: rent is a bit of a misnomer since it never actually gets permanently taken. Once you deposit rent into the account, that data can stay there forever or you can get refunded the rent if you close the account. Rent used to be an actual thing, but now there's an enforced minimum rent exemption. You can read about it in [the Solana documentation](https://docs.solana.com/developing/intro/rent).
+
+Rent etymology aside, putting data on the blockchain can be expensive. It’s why NFT attributes and associated files, like the image, are stored off-chain. You ultimately want to strike a balance that leaves your program highly functional without becoming so expensive that your users don’t want to pay to open the data account.
+
+The first thing you need to know before you can start optimizing for space in your program is the size of each of your structs.. Below is a very helpful list from the [Anchor Book](https://book.anchor-lang.com/anchor_references/space.html). 
 
 | Types | Space in bytes | Details/Example |
 | --- | --- | --- |
@@ -105,20 +117,18 @@ In Solana we pay, or your user pays, for each byte stored on the Solana blockcha
 | Enum | 1 + Largest Variant Size | e.g. Enum { A, B { val: u8 }, C { val: u16 } } -> 1 + space(u16) = 3 |
 | f32 | 4 | serialization will fail for NaN |
 | f64 | 8 | serialization will fail for NaN |
-| Accounts | 8 + space(T) | #[account()] 
+| Accounts | 8 + space(T) | #[account()]
 pub struct T { …  |
 | Data Structs | space(T) | #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct T { … } |
 
-Knowing these, I want you to start thinking about little optimizations you might take in a program. For example, if you use a variable that will only ever reach 100, don’t use a u64/i64, use a u8. Why? Because a u64 takes up 8 bytes, with a max value of 2^64 or 1.84 * 10^19. Thats a waste, since you only need up to 100, which 1 byte with a max value of 255 would be totally sufficient. 
-
-And general rule of thumb, use u8 ( unsigned ) vs i8 ( signed ). If you don’t know the difference it would be a perfect question for chatGPT!
+Knowing these, start thinking about little optimizations you might take in a program. For example, if you have an integer field that will only ever reach 100, don’t use a u64/i64, use a u8. Why? Because a u64 takes up 8 bytes, with a max value of 2^64 or 1.84 * 10^19. Thats a waste of space since you only need to accommodate numbers up to 100. A single byte will give you a max value of 255 which, in this case, would be sufficient. Similarly, there's no reason to use i8 if you'll never have negative numbers.
 
 If your unfamiliar with max values for each data type or what’s possible, play around with the accompanying code! There are a lot of good comments there to show you the space each struct takes up. 
 
-Last little challenge, in the test code, see what happens if you add 1 to a u8 with a value of 0xFF. We call this an overflow, make sure it’s desired behaviour - this is how system shattering bugs are made. If you want context, look up the **[Y2K bug](https://www.nationalgeographic.org/encyclopedia/Y2K-bug/#:~:text=As%20the%20year%202000%20approached%2C%20computer%20programmers%20realized%20that%20computers,would%20be%20damaged%20or%20flawed.).** 
+Be careful with small number types, though. You can quickly run into unexpected behavior due to overflow. For example, a u8 type that is iteratively incremented will reach 255 and then go back to 0 instead of 256. For more real-world context, look up the **[Y2K bug](https://www.nationalgeographic.org/encyclopedia/Y2K-bug/#:~:text=As%20the%20year%202000%20approached%2C%20computer%20programmers%20realized%20that%20computers,would%20be%20damaged%20or%20flawed.).** 
 
-If you want to read more about sizes pertaining to anchor, take a look [here](https://www.sec3.dev/blog/all-about-anchor-account-size) 
+If you want to read more about Anchor sizes, take a look at [Sec3's blog post about it](https://www.sec3.dev/blog/all-about-anchor-account-size) .
 
 ### Box
 
@@ -166,7 +176,7 @@ pub struct SomeFunctionContext<'info> {
 
 In Anchor, **`Box<T>`** is used to allocate the account to the Heap, not the Stack. Which is great since the Heap gives us 32KB to work with. And, the best part, you don’t have to do anything different within the function! Literally, if you get that compiler warning, just slap a Box<…> around all of your big data accounts!
 
-But Box is not perfect. You can still overflow the stack with sufficiently big or numerous accounts. ( I implore you to try in the accompanying code - break the stack ). We can also run out of Heap memory as well, the answer to this is called `zero-copy` which we will look at next. It’s what allows us to manipulate accounts with the maximum size of 10MB. 
+But Box is not perfect. You can still overflow the stack with sufficiently big or numerous accounts. (I implore you to try in the accompanying code - break the stack). We can also run out of Heap memory as well, the answer to this is called `zero-copy` which we will look at next. It’s what allows us to manipulate accounts with the maximum size of 10MB. 
 
 ### Zero Copy
 
@@ -212,7 +222,7 @@ pub struct ConceptZeroCopy<'info> {
 }
 ```
 
-Why is this? Because there is a CPI ( Cross Program Invocation ) limit on accounts bigger than 10KB. And the `init` macro CPIs into the system program to reserve `space` amount of bytes. So, Instead you have to create the large account and pay for it’s rent in a separate transaction.
+Why is this? Because there is a CPI (Cross Program Invocation) limit on accounts bigger than 10KB. And the `init` macro CPIs into the system program to reserve `space` amount of bytes. So, Instead you have to create the large account and pay for it’s rent in a separate transaction.
 
 ```tsx
 const accountSize = 16_384 + 8
@@ -293,7 +303,7 @@ The `flags` is variable length, which means when this struct is serialized the `
 
 The first 8 bytes are the account discriminator, the next 4 represent the size of the `flags` Vec, followed by the data in the `flags`Vec: 11, 22, 33… lastly we have the last four bytes of the `id` DEAD_BEEF. As you can see the `id` moved from address 0x0010 to 0x0014, when we increased the number of flags.
 
-The main problem with this is lookup. When we query Solana we use filters to look at the raw data within the account. This filter is called a `memcmp` or memory compare. We give it an `offset` ( address ) and the `bytes` we want to compare. For example, we know that the `flags` struct will always start at address 0x0008. So we could query all accounts where `flags` length is equal to 4.
+The main problem with this is lookup. When we query Solana we use filters to look at the raw data within the account. This filter is called a `memcmp` or memory compare. We give it an `offset` (address) and the `bytes` we want to compare. For example, we know that the `flags` struct will always start at address 0x0008. So we could query all accounts where `flags` length is equal to 4.
 
 ```rust
 const states = await program.account.badState.all([
@@ -332,7 +342,7 @@ pub struct GameState {
 }
 ```
 
-We have a simple game state here, a character has `health` and some `mana`. You build the game and now you have thousands of players. Now, let’s say you want to add an `experince` field. So you add  `pub experince: u64`. The problem is, all of your existing players paid rent for 24 bytes of storage ( 8 account discriminator + 8 health + 8 mana ). The old and the new `GameState` with `experince` in it are no longer compatible. You’d probably have to create a system to migrate their accounts, which sounds like a really big pain in the ass. The old accounts will not serialize. The fix?
+We have a simple game state here, a character has `health` and some `mana`. You build the game and now you have thousands of players. Now, let’s say you want to add an `experince` field. So you add  `pub experince: u64`. The problem is, all of your existing players paid rent for 24 bytes of storage (8 account discriminator + 8 health + 8 mana). The old and the new `GameState` with `experince` in it are no longer compatible. You’d probably have to create a system to migrate their accounts, which sounds like a really big pain in the ass. The old accounts will not serialize. The fix?
 
 ```rust
 #[account]
@@ -449,7 +459,7 @@ Say you wanted to make a podcasting platform. You’d probably want two differen
 
 - **Channel Account**
     - Name
-    - Episodes Created ( u64 )
+    - Episodes Created (u64)
 - **Podcast Account(s)**
     - Name
     - Audio URL
@@ -561,7 +571,7 @@ pub fn run_concept_shared_account_bottleneck(ctx: Context<ConceptSharedAccountBo
 }
 ```
 
-You can see that the transfer to the `community_wallet` ( Hardcoded ) happens in the same function that you update the tally information. Again, this is the most straightforward solution, but if you run the tests for this section, you’ll see the slowdown. Now, let’s look at the more complex, non-bottleneck solution
+You can see that the transfer to the `community_wallet` (Hardcoded) happens in the same function that you update the tally information. Again, this is the most straightforward solution, but if you run the tests for this section, you’ll see the slowdown. Now, let’s look at the more complex, non-bottleneck solution
 
 ```rust
 pub fn run_concept_shared_account(ctx: Context<ConceptSharedAccount>, lamports_to_donate: u64) -> Result<()> {
@@ -605,7 +615,7 @@ pub fn run_concept_shared_account_redeem(ctx: Context<ConceptSharedAccountRedeem
 }
 ```
 
-Here, in the `run_concept_shared_account` function, instead of transferring to the bottleneck, we transfer to the `donation_tally` PDA! This way, we’re only effecting the donators account and their PDA - so no bottleneck! Additionally, we keep an internal tally of how many lamports need to be redeemed, ie be transferred from the PDA to the community wallet at a later time. At some point in the future, the community wallet will go around and clean up all the straggling lamports. ( Probably a good job for [clockwork](https://www.clockwork.xyz/) ) It’s important to note that anyone should be able to sign for the redeem function, since the PDA has permission over itself.
+Here, in the `run_concept_shared_account` function, instead of transferring to the bottleneck, we transfer to the `donation_tally` PDA! This way, we’re only effecting the donators account and their PDA - so no bottleneck! Additionally, we keep an internal tally of how many lamports need to be redeemed, ie be transferred from the PDA to the community wallet at a later time. At some point in the future, the community wallet will go around and clean up all the straggling lamports. (Probably a good job for [clockwork](https://www.clockwork.xyz/)) It’s important to note that anyone should be able to sign for the redeem function, since the PDA has permission over itself.
 
 So there you go, if you want to avoid bottlenecks at all costs, this would be one way to tackle it. However, this is a design decision, for most cases, I think you should use the simpler first option that has the potential to be bottlenecked. It’s simpler and it doesn’t need a bunch of secondary transactions to actually receive the funds. If you feel like this bottleneck may be a potential problem, I would run a simulation much like the accompanying code does and look at your worst, best and median cases. 
 
@@ -617,7 +627,7 @@ So there you have it! A smattering of program architecture considerations. We ta
 
 ### Program Setup
 
-Today we will be taking all of the concepts above to create a simple RPG game engine in Solana. In this program you will create a `Game` where anyone can create a `Player` account. When they have that, they can spend `action_points` ( lamports ) that go to the `Game`'s treasury wallet. Actions include spawning and attacking `Monster` accounts. Let’s get started!
+Today we will be taking all of the concepts above to create a simple RPG game engine in Solana. In this program you will create a `Game` where anyone can create a `Player` account. When they have that, they can spend `action_points` (lamports) that go to the `Game`'s treasury wallet. Actions include spawning and attacking `Monster` accounts. Let’s get started!
 
 ```powershell
 anchor init rpg
@@ -715,11 +725,11 @@ pub struct Monster { // 8 bytes
 
 Let’s take a look at each.
 
-`Game` - This account holds two really important things, the `treasury` wallet for all players to pay their `action_points` ( lamports ) into. And the `game_config` which allows the game to be customizable across all players and monsters. You may have noticed I added in a `for_future_use` section - a game can be expanded, we’d want to make room for that!
+`Game` - This account holds two really important things, the `treasury` wallet for all players to pay their `action_points` (lamports) into. And the `game_config` which allows the game to be customizable across all players and monsters. You may have noticed I added in a `for_future_use` section - a game can be expanded, we’d want to make room for that!
 
 `Player` - This account will be PDA’d off of the `game` account and the `player`'s wallet. It holds all sorts of goodies pertaining that a player in an RPG may need. Again, we have the `for_future_use` section just in case.
 
-`Monster` - This account is spawned by the player so it is PDA’d off of the `game`, `player`, and an index ( which we store as `next_monster_index` in the `Player` account )
+`Monster` - This account is spawned by the player so it is PDA’d off of the `game`, `player`, and an index (which we store as `next_monster_index` in the `Player` account)
 
 ### Game Config
 
@@ -808,7 +818,7 @@ pub fn spend_action_point<'info>(
 // ----------- CREATE GAME ----------
 ```
 
-This helper is really just to save space since every action the `Player` takes will cost `action_points`. It just transfers the `actions_points` ( lamports ) to the `player` account to act as an escrow until the `game` account can be bothered to collect all of the funds. If you’re not sure why we’re doing this, revisit the **Dealing with Concurrency** section.
+This helper is really just to save space since every action the `Player` takes will cost `action_points`. It just transfers the `actions_points` (lamports) to the `player` account to act as an escrow until the `game` account can be bothered to collect all of the funds. If you’re not sure why we’re doing this, revisit the **Dealing with Concurrency** section.
 
 ### Create Game
 
@@ -1060,7 +1070,7 @@ pub fn run_attack_monster(ctx: Context<AttackMonster>) -> Result<()> {
 // ----------- REDEEM TO TREASUREY ----------
 ```
 
-Each rpg account is now `Box<>`'d. Basically, you spend an `action_point` to attack and you gain `experince` if you kill the monster your `kill` count goes up! Quick aside, you might be wondering why I use `saturating_add` - this is so the number will never overflow. Say the `kills` was a u8 and my current kill count was 255 (0xFF). If I killed another and added normally… 255 + 1 = 0 ( 0xFF + 0x01 = 0x00 ). `saturating_add` will keep it at it’s max if it’s about to roll over, so 255 + 1 = 255. `checked_add` will throw an error if it’s about to overflow. Keep this in mind - even though `kills` is a u64 and will never roll with it’s current programming, it’s a good practice to think about roll-overs.
+Each rpg account is now `Box<>`'d. Basically, you spend an `action_point` to attack and you gain `experince` if you kill the monster your `kill` count goes up! Quick aside, you might be wondering why I use `saturating_add` - this is so the number will never overflow. Say the `kills` was a u8 and my current kill count was 255 (0xFF). If I killed another and added normally… 255 + 1 = 0 (0xFF + 0x01 = 0x00). `saturating_add` will keep it at it’s max if it’s about to roll over, so 255 + 1 = 255. `checked_add` will throw an error if it’s about to overflow. Keep this in mind - even though `kills` is a u64 and will never roll with it’s current programming, it’s a good practice to think about roll-overs.
 
 ### Redeem to Treasury
 
