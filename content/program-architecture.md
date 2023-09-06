@@ -130,13 +130,13 @@ Be careful with small number types, though. You can quickly run into unexpected 
 
 If you want to read more about Anchor sizes, take a look at [Sec3's blog post about it](https://www.sec3.dev/blog/all-about-anchor-account-size) .
 
-### Box
+### Concept: Box
 
-**program -** `programs/architecture/src/concepts/concept_box.rs`
+**program -** `programs/architecture/src/concepts/_box.rs`
 
-**test -** `cd tests/conceptBox.ts`
+**test -** `cd tests/box.ts`
 
-Now that you know a little bit about data sizes, let’s skip forward a little bit and look at a problem you’ll run into if you want to deal with larger data accounts. Say we have the following data account: 
+Now that you know a little bit about data sizes, let’s skip forward and look at a problem you’ll run into if you want to deal with larger data accounts. Say you have the following data account: 
 
 ```rust
 #[account]
@@ -158,9 +158,9 @@ And if you try to run the program it will just hang and fail.
 
 Why is this?
 
-It has to do with the Stack. Every time you call a function in Solana it gets a 4KB stack frame. This is static memory allocation for local variables. So this is where that entire `SomeBigDataStruct` is stored in memory and since 5000 bytes or 5KB > 4KB, it will throw a stack error. So how do we reduce this?
+It has to do with the Stack. Every time you call a function in Solana it gets a 4KB stack frame. This is static memory allocation for local variables. This is where that entire `SomeBigDataStruct` gets stored in memory and since 5000 bytes, or 5KB, is greater than the 4KB limit, it will throw a stack error. So how do we fix this?
 
-The answer is **`Box<T>`!**
+The answer is the **`Box<T>`** type!
 
 ```rust
 #[account]
@@ -174,25 +174,28 @@ pub struct SomeFunctionContext<'info> {
 }
 ```
 
-In Anchor, **`Box<T>`** is used to allocate the account to the Heap, not the Stack. Which is great since the Heap gives us 32KB to work with. And, the best part, you don’t have to do anything different within the function! Literally, if you get that compiler warning, just slap a Box<…> around all of your big data accounts!
+In Anchor, **`Box<T>`** is used to allocate the account to the Heap, not the Stack. Which is great since the Heap gives us 32KB to work with. The best part is you don’t have to do anything different within the function. All you need to do is add `Box<…>` around all of your big data accounts! Go test this in the accompanying code.
 
-But Box is not perfect. You can still overflow the stack with sufficiently big or numerous accounts. (I implore you to try in the accompanying code - break the stack). We can also run out of Heap memory as well, the answer to this is called `zero-copy` which we will look at next. It’s what allows us to manipulate accounts with the maximum size of 10MB. 
+But Box is not perfect. You can still overflow the stack with sufficiently large accounts. We'll learn how to fix this in the next section.
 
-### Zero Copy
+### Concept: Zero Copy
 
-**program -** `programs/architecture/src/concepts/concept_zero_copy.rs`
+**program -** `programs/architecture/src/concepts/zero_copy.rs`
 
-**test -** `cd tests/conceptZeroCopy.ts`
+**test -** `cd tests/zeroCopy.ts`
 
-Okay, so now we we can deal with medium sized accounts using `Box<>`. But what if we want to play with big accounts, like the max sized account of 10MB? We’ll need another tact. Take the following:
+Okay, so now you can deal with medium sized accounts using `Box`. But what if you need to use really big accounts like the max size of 10MB? Take the following as an example:
 
 ```rust
+#[account]
 pub struct SomeReallyBigDataStruct {
     pub really_big_data: [u128; 1024], // 16,384 bytes
 }
 ```
 
-This will fail, even wrapped in a `Box<>` - you should verify this playing with the accompanying code. So how can initialize or edit the data here? The answer is `zero_copy` and `AccountLoader`.
+This account will make your program fail, even wrapped in a `Box`. You can verify this with the accompanying code.
+
+To get around this, you can use `zero_copy` and `AccountLoader`. Simply add `zero_copy` to your account struct, add `zero` as a constraint in the account validation struct, and wrap the account type in the account validation struct in an `AccountLoader`.
 
 ```rust
 #[account(zero_copy)]
@@ -206,14 +209,13 @@ pub struct ConceptZeroCopy<'info> {
 }
 ```
 
-How does zero_copy do this? Let’s take a look at their rust [documentation](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html)
+To understand what's happening here, take a look at the [rust Anchor documentation](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html)
 
-> Other than being more efficient [zero_copy], the most salient benefit this provides is the ability to define account types larger than the max stack or heap size. When using borsh, the account has to be copied and deserialized into a new data structure and thus is constrained by stack and heap limits imposed by the BPF VM. With zero copy deserialization, all bytes from the account’s backing `RefCell<&mut [u8]>` are simply re-interpreted as a reference to the data structure. No allocations or copies necessary. Hence the ability to get around stack and heap limitations.
-> 
+> Other than being more efficient, the most salient benefit [`zero_copy`] provides is the ability to define account types larger than the max stack or heap size. When using borsh, the account has to be copied and deserialized into a new data structure and thus is constrained by stack and heap limits imposed by the BPF VM. With zero copy deserialization, all bytes from the account’s backing `RefCell<&mut [u8]>` are simply re-interpreted as a reference to the data structure. No allocations or copies necessary. Hence the ability to get around stack and heap limitations.
 
-So basically, we never actually load the data into the stack or heap. We’re instead given access to the raw data, and the folks at Anchor made the super nice `AccountLoader` to help us with that.
+Basically, your program never actually loads zero-copy account data into the stack or heap. It instead gets pointer access to the raw data. The `AccountLoader` ensures this doesn't change too much about how you interact with the account from your code.
 
-There are a couple of caveats using `zero_copy`. First, you cannot call init in the context like you may be used to.
+There are a couple of caveats using `zero_copy`. First, you cannot use the `init` constraint in the account validation struct like you may be used to. This is due to there being a CPI limit on accounts bigger than 10KB.
 
 ```rust
 pub struct ConceptZeroCopy<'info> {
@@ -222,72 +224,68 @@ pub struct ConceptZeroCopy<'info> {
 }
 ```
 
-Why is this? Because there is a CPI (Cross Program Invocation) limit on accounts bigger than 10KB. And the `init` macro CPIs into the system program to reserve `space` amount of bytes. So, Instead you have to create the large account and pay for it’s rent in a separate transaction.
+Instead, your client has to create the large account and pay for it’s rent in a separate instruction.
 
 ```tsx
 const accountSize = 16_384 + 8
-    const ix = anchor.web3.SystemProgram.createAccount({
-      fromPubkey: wallet.publicKey,
-      newAccountPubkey: someReallyBigData.publicKey,
-      lamports: await program.provider.connection.getMinimumBalanceForRentExemption(accountSize),
-      space: accountSize,
-      programId: program.programId,
-    });
+const ix = anchor.web3.SystemProgram.createAccount({
+  fromPubkey: wallet.publicKey,
+  newAccountPubkey: someReallyBigData.publicKey,
+  lamports: await program.provider.connection.getMinimumBalanceForRentExemption(accountSize),
+  space: accountSize,
+  programId: program.programId,
+});
 
-    const txHash = await program.methods.conceptZeroCopy().accounts({
-      owner: wallet.publicKey,
-      someReallyBigData: someReallyBigData.publicKey,
-    }).signers([
-      someReallyBigData,
-    ]).preInstructions([
-      ix
-    ])
-    .rpc()
+const txHash = await program.methods.conceptZeroCopy().accounts({
+  owner: wallet.publicKey,
+  someReallyBigData: someReallyBigData.publicKey,
+}).signers([
+  someReallyBigData,
+]).preInstructions([
+  ix
+])
+.rpc()
 ```
 
-And then, in the actual rust function, you’ll have to call one of 3 methods from the rust docs:
+The second caveat is that your'll have to call one of the following methods from inside your rust instruction function to load the account:
 
-> - `load_init` after initializing an account (this will ignore the missing account discriminator that gets added only after the user’s instruction code)
-> 
-> 
-> - `load` when the account is not mutable
-> 
-> - `load_mut` when the account is mutable
-> 
+- `load_init` when first initializing an account (this will ignore the missing account discriminator that gets added only after the user’s instruction code)
+- `load` when the account is not mutable
+- `load_mut` when the account is mutable
 
 For example, if you wanted to init and manipulate the `SomeReallyBigDataStruct` from above, you’d call the following in the function
 
-`let some_really_big_data = &mut ctx.accounts.some_really_big_data.load_init()?;`
+```rust
+let some_really_big_data = &mut ctx.accounts.some_really_big_data.load_init()?;
+```
 
-After you do that, then you can treat the account like normal! I urge you to play around with this in the code yourself to see everything in action!
+After you do that, then you can treat the account like normal! Go ahead and experiment with this in the code yourself to see everything in action!
 
-For a better understanding on how this all works, Solana put together a really nice video and code explaining Box and Zero-Copy in vanilla Solana.
-
-video - [https://www.youtube.com/watch?v=zs_yU0IuJxc&feature=youtu.be](https://www.youtube.com/watch?v=zs_yU0IuJxc&feature=youtu.be)
-
-code - [https://github.com/solana-developers/anchor-zero-copy-example](https://github.com/solana-developers/anchor-zero-copy-example)
+For a better understanding on how this all works, Solana put together a really nice [video](https://www.youtube.com/watch?v=zs_yU0IuJxc&feature=youtu.be) and [code](https://github.com/solana-developers/anchor-zero-copy-example) explaining Box and Zero-Copy in vanilla Solana.
 
 ## Dealing with Accounts
 
-Now that we’ve talked about the nuts and bolts of space consideration on Solana, let’s look into some higher level considerations. In Solana, everything is an account, so every byte you save, is in an account, everything you interact with is an account. So for the next couple sections we will be looking at some account architecture concepts.
+Now that you know the nuts and bolts of space consideration on Solana, let’s look at some higher level considerations. In Solana, everything is an account, so for the next couple sections we'll look at some account architecture concepts.
 
-### Data Order
+### Concept: Data Order
 
-**program -** `programs/architecture/src/concepts/concept_data_order.rs`
+**program -** `programs/architecture/src/concepts/data_order.rs`
 
-**test -** `cd tests/conceptDataOrder.ts`
+**test -** `cd tests/dataOrder.ts`
 
-This first consideration is fairly simple. As a rule of thumb, keep all variable length structs at the end of the account. What do I mean by this? Take a look at the following:
+This first consideration is fairly simple. As a rule of thumb, keep all variable length fields at the end of the account. Take a look at the following:
 
 ```rust
-#[account] // Anchor hides the account disriminator
+#[account] // Anchor hides the account discriminator
 pub struct BadState {
     pub flags: Vec<u8>, // 0x11, 0x22, 0x33 ...
     pub id: u32         // 0xDEAD_BEEF
 }
 ```
 
-The `flags` is variable length, which means when this struct is serialized the `id` bytes get pushed farther into the memory map. To make this more clear, lets look at what this account looks like on-chain. Assume you have two of the `BadState` data accounts on-chain, one with four flags, the other with eight. If you were to call `solana account ACCOUNT_KEY` you’d get a data dump like the following: 
+The `flags` field is variable length. This makes looking up a specific account by the `id` field very difficult, as an update to the data in `flags` changes the location of `id` on the memory map.
+
+To make this more clear, observe what this account's data looks like on-chain when `flags` has four items in the vector vs eight items. If you were to call `solana account ACCOUNT_KEY` you’d get a data dump like the following: 
 
 ```rust
 0000:   74 e4 28 4e    d9 ec 31 0a  -> Account Discriminator (8)
@@ -301,36 +299,40 @@ The `flags` is variable length, which means when this struct is serialized the `
 0010:   55 66 77 88    DE AD BE EF  -> Data 4*(1) | id (4)
 ```
 
-The first 8 bytes are the account discriminator, the next 4 represent the size of the `flags` Vec, followed by the data in the `flags`Vec: 11, 22, 33… lastly we have the last four bytes of the `id` DEAD_BEEF. As you can see the `id` moved from address 0x0010 to 0x0014, when we increased the number of flags.
+In both cases, the first eight bytes are the Anchor account discriminator. In the first case, the next four bytes represent the size of the `flags` vector, followed by another four bytes for the data, and finally the `id` field's data.
 
-The main problem with this is lookup. When we query Solana we use filters to look at the raw data within the account. This filter is called a `memcmp` or memory compare. We give it an `offset` (address) and the `bytes` we want to compare. For example, we know that the `flags` struct will always start at address 0x0008. So we could query all accounts where `flags` length is equal to 4.
+In the second case, the `id` field moved from address 0x0010 to 0x0014 because the data in the `flags` field took up four more bytes.
 
-```rust
+The main problem with this is lookup. When you query Solana, you use filters that look at the raw data of an account. These are called a `memcmp` filters, or memory compare filters. You give the filter an `offset` and `bytes`, and the filter then looks directly at the memory, offsetting from the start by the `offset` you provide, and compares the bytes in memory to the `bytes` you provide.
+
+For example, you know that the `flags` struct will always start at address 0x0008 since the first 8 bytes contain the account discriminator. Querying all accounts where the `flags` length is equal to four is possible because we *know* that the four bytes at 0x0008 represent the length of the data in `flags`. Since the account discriminator is 
+
+```typescript
 const states = await program.account.badState.all([
-      {memcmp: {
-        offset: 8,
-        bytes: bs58.encode([0x04])
-      }}
-    ]);
+  {memcmp: {
+    offset: 8,
+    bytes: bs58.encode([0x04])
+  }}
+]);
 ```
 
-However, how would you do this if you wanted to query by the `id`? Currently you would not be able to, because its position in the data struct is not static - you’d have no way of knowing where it was unless you also knew the `flags` length. That doesn’t seem very helpful, IDs are usually there to query. The simple fix? Flip the order!
+However, if you wanted to query by the `id`, you wouldn't know what to put for the `offset` since the location of `id` is variable based on the length of `flags`. That doesn’t seem very helpful. IDs are usually there to help with queries! The simple fix is to flip the order.
 
 ```rust
 #[account] // Anchor hides the account disriminator
 pub struct GoodState {
-		pub id: u32         // 0xDEAD_BEEF
+	pub id: u32         // 0xDEAD_BEEF
     pub flags: Vec<u8>, // 0x11, 0x22, 0x33 ...
 }
 ```
 
-Now you always know where the `id` is, and can query it. Plus, you can still query by the `flags` length. So to echo the beginning of this section: As a rule of thumb, keep all variable length structs at the end of the account.
+With variable length fields at the end of the struct, you can always query accounts based on all the fields up to the first variable length field. To echo the beginning of this section: As a rule of thumb, keep all variable length structs at the end of the account.
 
-### For Future Use
+### Concept: For Future Use
 
-**program -** `programs/architecture/src/concepts/concept_for_future_use.rs`
+**program -** `programs/architecture/src/concepts/for_future_use.rs`
 
-**test -** `cd tests/conceptForFutureUse.ts`
+**test -** `cd tests/forFutureUse.ts`
 
 This is another fairly simple concept. When designing Solana programs you may want to consider adding in `for_future_use` bytes. If you’ve ever been involved in protocol development you may have seen them. They are used for flexibility and backwards compatibility. The tradeoff is you pay for bytes you don’t use. So why would you want to add them? Let’s take the following example:
 
@@ -367,17 +369,15 @@ If you put in the `for_future_use` bytes you can now use up those bytes in futur
 
 So general rule of thumb - anytime you think your program has the potential to change, add in some `for_future_use` bytes. The trade off, your end user will have to pay more. 
 
-### Data Optimization
+### Concept: Data Optimization
 
-**program -** `programs/architecture/src/concepts/concept_data_optimization.rs`
+**program -** `programs/architecture/src/concepts/data_optimization.rs`
 
-**test -** `cd tests/conceptDataOptimization.ts`
+**test -** `cd tests/dataOptimization.ts`
 
-The general theme here is pick the right data struct for the job. More specifically, don’t waste bits if you don’t have to. 
+The idea here is to be aware of wasted bits. For example, if you have a field that represents the month of the year, don’t use a `u64`. There will only ever be 12 months. Use a `u8`. Better yet, use a `u8` Enum and label the months. 
 
-For example, if you have variable for what month it is, don’t use a `u64` there only ever be 12 months, use a `u8`. Better yet use a `u8` Enum and label the months. 
-
-That may seem obvious, but there is another consideration, flags - a variable can mean many different things depending on each bit. Take for example this game state where the character may have several status effects.
+To get even more aggressive on bit savings, be careful with booleans. Look at the below struct composed of eight boolean flags. While a boolean *can* be represented as a single bit, borsh deserialization will allocate an entire byte to each of these fields. that means that eight booleans winds up being eight bytes instead of eight bits, an eight times increase in size.
 
 ```rust
 #[account]
@@ -393,7 +393,7 @@ pub struct BadGameFlags { // 8 bytes
 }
 ```
 
-You could assign a `bool` to each one - taking up 1 byte each. OR you could make a status_flag variable and cut it down, effectively turning each bit into a bool.
+To optimize this, you could have a single field as a `u8`. Then you can use bitwise operations to look at each bit and determine if it's "toggled on" or not.
 
 ```rust
 const IS_FROZEN_FLAG: u8 = 1 << 0;
@@ -411,51 +411,48 @@ pub struct GoodGameFlags { // 1 byte
 } 
 ```
 
-See! You just saved 8 bytes of data you could put to good `for_future_use`. The tradeoff, of course, is now you have to do bitwise operations. Just another tool for your toolkit!
+That saves you 7 bytes of data! The tradeoff, of course, is now you have to do bitwise operations. But that's worth having in your toolkit.
 
-### Indexing
+### Concept: Indexing
 
-**program -** `programs/architecture/src/concepts/concept_indexing.rs`
+**program -** `programs/architecture/src/concepts/indexing.rs`
 
-**test -** `cd tests/conceptIndexing.ts`
+**test -** `cd tests/indexing.ts`
 
-This last account concept is kinda fun, I hope it shows you the power of PDAs. When creating program accounts you can specify the seeds that make it up. This is exceptionally powerful, because now, we can derive our account addresses without having to remember them all!
+This last account concept is fun and illustrates the power of PDAs. When creating program accounts, you can specify the seeds used to derive the PDA. This is exceptionally powerful since it lets you derive your account addresses rather than store them.
 
 The best example of this is good ‘ol Associated Token Accounts (ATAs)!
 
-```rust
+```typescript
 function findAssociatedTokenAddress(
-    walletAddress: PublicKey,
-    tokenMintAddress: PublicKey
+  walletAddress: PublicKey,
+  tokenMintAddress: PublicKey
 ): PublicKey {
-    return PublicKey.findProgramAddressSync(
-        [
-            walletAddress.toBuffer(),
-            TOKEN_PROGRAM_ID.toBuffer(),
-            tokenMintAddress.toBuffer(),
-        ],
-        SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
-    )[0];
+  return PublicKey.findProgramAddressSync(
+    [
+      walletAddress.toBuffer(),
+      TOKEN_PROGRAM_ID.toBuffer(),
+      tokenMintAddress.toBuffer(),
+    ],
+    SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
+  )[0];
 }
 ```
 
-This is how most of your SPL tokens are stored. The only thing you have to know is your wallet address and the mint address - the ATA hashes these together and viola! Your token account!
+This is how most of your SPL tokens are stored. Rather than keep a database table of SPL token account addresses, the only thing you have to know is your wallet address and the mint address. The ATA address can be calculated by hashing these together and viola! You have your token account address.
 
-But that’s not where the wonderment of PDAs stop! Depending on the seeding you can make many relationships!
+Depending on the seeding you can create all sorts of relationships:
 
-- Single Account - Here you provide a private key, and there will only ever be one like it! This would be like a `mint` account! There can only be one mint per currency.
-- Global Account - If you create an account with a determined `seeds=[b"ONE PER PROGRAM"]` only one can ever exist for that seed in that program. Say you wanted to make a lookup table that you stored on the Solana for your program. You could seed it with `seeds=[b"Lookup"]`, you probably want to make sure that only you have access to it.
-- One-Per-Owner - Say you’re creating a video game player account and you only want one player account per wallet. Then you’d seed the account with `seeds=[b"PLAYER", owner.key().as_ref()]` This way, you’ll always know where to look for a wallet’s player account ****and**** there can only ever be one of them!
-- Multiple-Per-Owner - Okay, but what if you want multiple accounts per wallet? Say you want to mint podcast episodes and you can index them by episode number? Well, then you could seed your `Podcast` account like this: `seeds=[b"Podcast", owner.key().as_ref(), episode_number.to_be_bytes().as_ref()]` Now, if you want to lookup episode 50, you can! And you can have as many episodes as you want per one owner!
+- One-Per-Program (Global Account) - If you create an account with a determined `seeds=[b"ONE PER PROGRAM"]`, only one can ever exist for that seed in that program. For example, if your program needs a lookup table, you could seed it with `seeds=[b"Lookup"]`. Just be careful to provide appropriate access restrictions.
+- One-Per-Owner - Say you’re creating a video game player account and you only want one player account per wallet. Then you’d seed the account with `seeds=[b"PLAYER", owner.key().as_ref()]`. This way, you’ll always know where to look for a wallet’s player account **and** there can only ever be one of them.
+- Multiple-Per-Owner - Okay, but what if you want multiple accounts per wallet? Say you want to mint podcast episodes. Then you could seed your `Podcast` account like this: `seeds=[b"Podcast", owner.key().as_ref(), episode_number.to_be_bytes().as_ref()]`. Now, if you want to look up episode 50 from a specific wallet, you can! And you can have as many episodes as you want per owner.
 - One-Per-Owner-Per-Account - This is effectively the ATA example we saw above. Where we have one token account per wallet and mint account. `seeds=[b"Mock ATA", owner.key().as_ref(), mint.key().as_ref()]`
 
 From there you can mix and match in all sorts of clever ways! But the preceding list should give you enough to get started. 
 
-The big benefit of really paying attention to this aspect of design is answering the ‘indexing’ problem. Without PDAs and seeds, all users would have to keep track of all of the addresses of all of the accounts they’ve ever used! This would be a major headache - you’d probably have to store everything in a database with which account did which! PDAs are a much better solution. 
+The big benefit of really paying attention to this aspect of design is answering the ‘indexing’ problem. Without PDAs and seeds, all users would have to keep track of all of the addresses of all of the accounts they’ve ever used. This isn't feasible for users, so they'd have to depend on a centralized entity to store their addresses in a database. In many ways that defeats the purpose of a globally distributed network. PDAs are a much better solution. 
 
-To drive this all home, let me share with you a scheme that I’ve used in a production program - the creator/creation account scheme:
-
-Say you wanted to make a podcasting platform. You’d probably want two different account types:
+To drive this all home, here's an example of a scheme from a production podcasting program. The program needed the following accounts:
 
 - **Channel Account**
     - Name
@@ -464,9 +461,7 @@ Say you wanted to make a podcasting platform. You’d probably want two differen
     - Name
     - Audio URL
 
-Take a second and see if you could come up with a good seeding scheme for these guys. And ask yourself, why would you store how many episodes created in the Channel account.
-
-Here is what I came up with:
+In order to properly index each account address, the accounts use the following seeds:
 
 ```rust
 // Channel Account
@@ -476,7 +471,7 @@ seeds=[b"Channel", owner.key().as_ref()]
 seeds=[b"Podcast", channel_account.key().as_ref(), episode_number.to_be_bytes().as_ref()]
 ```
 
-And the reason you’d want to store the amount of podcasts created is so you know the upper bound of where to search. Additionally you’d always know what index to create a new episode at! index = episodes_created
+You can always find the channel account for a particular owner. And since the channel stores the number of episodes created, you always know the upper bound of where to search for queries. Additionally you always know what index to create a new episode at: `index = episodes_created`.
 
 ```rust
 Podcast 0: seeds=[b"Podcast", channel_account.key().as_ref(), 0.to_be_bytes().as_ref()] 
@@ -490,17 +485,19 @@ If you want to play with these relationships more, please play with the accompan
 
 ## Dealing with Concurrency
 
-We come to our last section of this lesson - we are going to talk about what happens when multiple people try to interact - more specifically, change the same account at the same time. Solana has parallel transaction execution, but only when two people are not trying to change the same account. We will talk about this and potential work arounds.
+One of the main reasons to choose Solana for your blockchain environment is its parallel transaction execution. That is, Solana can run transactions in parallel as long as those transactions aren't trying to write data to the same account. This improves program throughput out of the box, but with some proper planning you can avoid concurrency issues and really boost your program's performance.
 
-### Shared Accounts
+### Concept: Shared Accounts
 
-**program -** `programs/architecture/src/concepts/concept_shared_account.rs`
+**program -** `programs/architecture/src/concepts/shared_account.rs`
 
-**test -** `cd tests/conceptSharedAccount.ts`
+**test -** `cd tests/sharedAccount.ts`
 
-If you’ve been around Solana for a while, you may have experienced a mint event. A new NFT project is coming out, everyone is really excited for it, and then the candymachine goes live. It’s a mad dash to click `accept transaction` as fast as you can. If you were clever, you may have written a bot to enter in the transactions faster that the website’s UI could. This mad rush to mint creates a lot of failed transactions, why? Because everyone was trying to effect the same Candy Machine account. Why does this happen? Let’s take a look at a simpler example:
+If you’ve been around crypto for a while, you may have experienced a big NFT mint event. A new NFT project is coming out, everyone is really excited for it, and then the candymachine goes live. It’s a mad dash to click `accept transaction` as fast as you can. If you were clever, you may have written a bot to enter in the transactions faster that the website’s UI could. This mad rush to mint creates a lot of failed transactions. But why? Because everyone is trying to write data to the same Candy Machine account.
 
-Alice and Bob are trying to pay their friends Carol and Dean respectively. All four accounts change, but neither depend on each other, so they can all go in the same block. They can be processed individually.
+Take a look at a simple example:
+
+Alice and Bob are trying to pay their friends Carol and Dean respectively. All four accounts change, but neither depend on each other. Both transactions can run at the same time.
 
 ```rust
 Alice -- pays --> Carol
@@ -508,28 +505,30 @@ Alice -- pays --> Carol
 Bob ---- pays --> Dean
 ```
 
-Now, let’s look at what happens when Alice and Bob try to pay Carol at the same time. 
+But if Alice and Bob both try to pay Carol at the same time, they'll run into issues.
 
 ```rust
 Alice -- pays --> |
-									-- > Carol
+						-- > Carol
 Bob   -- pays --- |
 ```
 
-States in the blockchain are atomic, so only one of these gets through at a time. Fortunately Solana is wicked fast, so it’ll probably seem like they get paid at the same time. But what happens if more than just Alice and Bob try to pay Carol?
+Since both of these transactions write to Carol's token account, only one of them can go through at a time. Fortunately, Solana is wicked fast, so it’ll probably seem like they get paid at the same time. But what happens if more than just Alice and Bob try to pay Carol?
 
 ```rust
 Alice -- pays --> |
-									-- > Carol
+						-- > Carol
 x1000 -- pays --- | 
 Bob   -- pays --- |
 ```
 
-What if 1000 people try to pay Carol at the same time? Those payments will slow down, or just fail. If you want to see what that looks like in practice, play with the accompanying code - and play around with the numbers.
+What if 1000 people try to pay Carol at the same time? Each of the 1000 instructions will be queued up to run in sequence. To some of them, the payment will seem like it went through right away. They'll be the lucky ones whose instruction got included early. But some of them will end up waiting quite a bit. And for some, their transaction will simply fail. If you want to see what that looks like in practice, experiment with the accompanying code and play around with the numbers.
 
-Why bring up this specific scenario? Simply: Community Wallets. Say you create a super popular program and you want to take a fee on every transaction you process. For accounting reasons you want all of those fees to go to one wallet. With that setup, on a surge of users, your protocol will become slow and or become unreliable. Not great. So what’s the solution? Separate the data transaction from the fee transaction. Let’s take a look at the accompanying code for a better idea of what I mean here.
+While it seems unlikely for 1000 people to pay Carol at the same time, it's actually very common to have an event, like an NFT mint, where many people are trying to write data to the same account all at once.
 
-Say I have a data account called `DonationTally` and it’s only function is to record how much you have donated to a specific hard-coded community wallet.
+Imagine you create a super popular program and you want to take a fee on every transaction you process. For accounting reasons, you want all of those fees to go to one wallet. With that setup, on a surge of users, your protocol will become slow and or become unreliable. Not great. So what’s the solution? Separate the data transaction from the fee transaction. Let’s take a look at the accompanying code for a better idea of what this means.
+
+Say you have a data account called `DonationTally`. Its only function is to record how much you have donated to a specific hard-coded community wallet.
 
 ```rust
 #[account]
@@ -541,7 +540,7 @@ pub struct DonationTally {
 }
 ```
 
-First let’s look at the bottleneck solution that - it’s simpler, but on surges it’s prone to slow down.
+First let’s look at the suboptimal solution.
 
 ```rust
 pub fn run_concept_shared_account_bottleneck(ctx: Context<ConceptSharedAccountBottleneck>, lamports_to_donate: u64) -> Result<()> {
@@ -571,7 +570,9 @@ pub fn run_concept_shared_account_bottleneck(ctx: Context<ConceptSharedAccountBo
 }
 ```
 
-You can see that the transfer to the `community_wallet` (Hardcoded) happens in the same function that you update the tally information. Again, this is the most straightforward solution, but if you run the tests for this section, you’ll see the slowdown. Now, let’s look at the more complex, non-bottleneck solution
+You can see that the transfer to the hardcoded `community_wallet` happens in the same function that you update the tally information. This is the most straightforward solution, but if you run the tests for this section, you’ll see the slowdown.
+
+Now look at the optimized solution:
 
 ```rust
 pub fn run_concept_shared_account(ctx: Context<ConceptSharedAccount>, lamports_to_donate: u64) -> Result<()> {
@@ -615,13 +616,13 @@ pub fn run_concept_shared_account_redeem(ctx: Context<ConceptSharedAccountRedeem
 }
 ```
 
-Here, in the `run_concept_shared_account` function, instead of transferring to the bottleneck, we transfer to the `donation_tally` PDA! This way, we’re only effecting the donators account and their PDA - so no bottleneck! Additionally, we keep an internal tally of how many lamports need to be redeemed, ie be transferred from the PDA to the community wallet at a later time. At some point in the future, the community wallet will go around and clean up all the straggling lamports. (Probably a good job for [clockwork](https://www.clockwork.xyz/)) It’s important to note that anyone should be able to sign for the redeem function, since the PDA has permission over itself.
+Here, in the `run_concept_shared_account` function, instead of transferring to the bottleneck, we transfer to the `donation_tally` PDA. This way, we’re only effecting the donator's account and their PDA - so no bottleneck! Additionally, we keep an internal tally of how many lamports need to be redeemed, ie be transferred from the PDA to the community wallet at a later time. At some point in the future, the community wallet will go around and clean up all the straggling lamports (probably a good job for [clockwork](https://www.clockwork.xyz/)). It’s important to note that anyone should be able to sign for the redeem function, since the PDA has permission over itself.
 
-So there you go, if you want to avoid bottlenecks at all costs, this would be one way to tackle it. However, this is a design decision, for most cases, I think you should use the simpler first option that has the potential to be bottlenecked. It’s simpler and it doesn’t need a bunch of secondary transactions to actually receive the funds. If you feel like this bottleneck may be a potential problem, I would run a simulation much like the accompanying code does and look at your worst, best and median cases. 
+If you want to avoid bottlenecks at all costs, this is one way to tackle it. Ultimately this is a design decision and the simpler, less optimal solution might be okay for some programs. But if your program is going to have high traffic, it's worth trying to optimize. You can always run a simulation like the accompanying code to see your worst, best and median cases.
 
 ## Conclusion
 
-So there you have it! A smattering of program architecture considerations. We talked about bytes, accounts and bottlenecks. This specific considerations may not come up, but I hope the lesson has sparked some thought. And remember, at the end of the day, you are the designer of the system. Your job is to weigh the pros and cons. Be forward thinking, but be practical. There is no one good way to design anything, just know the trade-offs.
+We've talked about quite a few program architecture considerations: bytes, accounts, bottlenecks, and more. Whether you wind up running into any of these specific considerations or not, hopefully the examples and discussion sparked some thought. At the end of the day, you are the designer of your system. Your job is to weigh the pros and cons of various solutions. Be forward thinking, but be practical. There is no "one good way" to design anything. Just know the trade-offs.
 
 # Demo
 
