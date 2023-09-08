@@ -243,9 +243,9 @@ When choosing a feed, we should look at the details of any feed we consider usin
 
 ![Oracle Configs](../assets/oracle-configs.png)
 
-The BTC_USD feed has Min Update Delay = 6 seconds. This means that the price of BTC is only updated at a minimum of every 6 seconds on this feed. This is probably fine for most use cases, but if you wanted to use this feed for something latency sensitive, it’s probably not a good choice as the data will be a few seconds stale majority of the time.
+The BTC_USD feed has Min Update Delay = 6 seconds. This means that the price of BTC is only updated at a minimum of every 6 seconds on this feed. This is probably fine for most use cases, but if you wanted to use this feed for something latency sensitive, it’s probably not a good choice.
 
-It’s also worthwhile to audit the sources the oracles are configured to fetch the data from in the Jobs section of the oracle explorer. Since the value that is persisted on-chain is the weighted median result the oracles pull from each source, the sources directly influence what is stored in the feed.
+It’s also worthwhile to audit the sources the oracles are configured to fetch the data from in the Jobs section of the oracle explorer. Since the value that is persisted on-chain is the weighted median result the oracles pull from each source, the sources directly influence what is stored in the feed. Check for shady links and poteintally run the API's yourself.
 
 Once you have found a feed that fits your needs, there are still some things that you should verify on-chain in your program before consuming the data in the feed. Since the feed is just an account, any account can be passed in the instruction, so we should verify it’s the account we expected it to be. In Anchor, if you deserialize the account to the `AggregatorAccountData` type from the `switchboard_v2` crate, Anchor inherently checks that the account is owned by the Switchboard program. If your program expects that only a specific data feed will be passed in the instruction, then you can also verify the public key of the account passed in matches what it should be. One way to do this is to hard code the address in the program somewhere and use account constraints to verify the address passed in matches what is expected.
 
@@ -273,7 +273,7 @@ pub struct TestInstruction<'info> {
 
 After auditing the actual data feed you want to use and verifying that the account passed in to your program is what you expect, you can also do some checks on the data stored in the feed in the program logic. Two common things to check for are data staleness and the confidence interval.
 
-Each data feed updates the current value stored in it when triggered by the oracles. This means the updates are dependent on the oracles in the queue that it’s assigned to. Depending on what you intend to use the data feed for, it may be beneficial to verify that the value stored in the account was updated recently. How recent really depends on what the data is and how it’s being used. For a lending protocol that needs to determine if a loan’s collateral has fallen below a certain level, the most recent update should be within the last few seconds. Luckily, the timestamp of the most recent update is stored on the aggregator account in unix time. The following code snippet checks that the timestamp of the most recent update on the data feed was no more than 30 seconds ago.
+Each data feed updates the current value stored in it when triggered by the oracles. This means the updates are dependent on the oracles in the queue that it’s assigned to. Depending on what you intend to use the data feed for, it may be beneficial to verify that the value stored in the account was updated recently. For example, a lending protocol that needs to determine if a loan’s collateral has fallen below a certain level, the most recent update should be within the last few seconds. Luckily, the timestamp of the most recent update is stored on the aggregator account in unix time. The following code snippet checks that the timestamp of the most recent update on the data feed was no more than 30 seconds ago.
 
 ```rust
 use {
@@ -329,11 +329,10 @@ pub struct AggregatorRound {
 }
 ```
 
-There are some other relevant fields that may be of interest to you on the `AggregatorRound` struct like `num_success`,`medians_data`, `std_deviation`, etc. `num_success` is the number of successful responses received from oracles in this round of updates. `medians_data` is an array of all of the successful responses received from oracles this round, this is ultimately the dataset that is used to derive the median and final result. `std_deviation` is the standard deviation of the accepted results in this round. The switchboard program is in charge of updating the relevant fields on this struct every time it receives an update from an oracle.
+There are some other relevant fields that may be of interest to you in the Aggregator account like `num_success`,`medians_data`, `std_deviation`, etc. `num_success` is the number of successful responses received from oracles in this round of updates. `medians_data` is an array of all of the successful responses received from oracles this round, this is ultimately the dataset that is used to derive the median and final result. `std_deviation` is the standard deviation of the accepted results in this round. You'd be looking for a low standard deviation, which means that all of the oracle responses were similar. The switchboard program is in charge of updating the relevant fields on this struct every time it receives an update from an oracle.
+
 
 The `AggregatorAccountData` also has a `check_confidence_interval()` method that you can use as another verification on the data stored in the feed. The method allows you to pass in a `max_confidence_interval` and if the standard deviation of the results received from the oracle is greater than the given `max_confidence_interval`, it returns an error.
-
- 
 
 ```rust
 // https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L228
@@ -369,13 +368,11 @@ feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_inter
     .map_err(|_| error!(ErrorCode::ConfidenceIntervalExceeded))?;
 ```
 
-Standard deviation is a measure of how spread out a set of data is. It is calculated by finding the average distance of each data point from the mean. A low standard deviation indicates that the data points are clustered around the mean, while a high standard deviation indicates that the data points are more spread out. In the context of oracle results, a low standard deviation means that all of the oracle responses were similar. A higher standard deviation indicates a wider differential between oracle responses. This method can be used to ensure that all of the oracles provided relatively similar responses.
-
-Lastly, it’ll be important to plan for worst-case scenarios in your programs. What happens if there is a stale feed? What happens if the feed closes? Plan for each edge case, you’re dealing with people’s assets.
+Lastly, it’ll be important to plan for worst-case scenarios in your programs. Plan for feeds going stale and plan for feed accounts closing. Plan for each edge case, you’re dealing with people’s assets.
 
 ### Conclusion
 
-At the end of the day, you want non-native data on-chain, you’re going to have to use oracles. And though they are usually financially incentivized, you have to do your own diligence trusting them. Fortunately, Switchboard makes that easier for us by providing all of the info we need to make an informed decision. ( assuming you trust switchboard ) Consuming the data on-chain is fairly straight forward, but make sure to do the right checks. 
+At the end of the day, if you want non-native data on-chain, you’re going to have to use oracles. And though they are usually financially incentivized, you have to do your own diligence trusting them. Fortunately, Switchboard makes that easier for us by providing all of the info we need to make informed decisions. Consuming the data on-chain is fairly straight forward, but make sure to do the right checks.
 
 ## Demo
 
