@@ -51,7 +51,7 @@ Pyth and Switchboard are the two main oracle providers on Solana today. They’r
 
 **Pyth** is primarily focused on financial data published from top tier financial institutions. Pyth’s data providers publish the market data updates. These updates are then aggregated and published on-chain by the Pyth program. The data sourced from Pyth is not completely decentralized, only approved data providers can publish data. The selling point of Pyth is that its data is vetted directly by the platform and sourced from financial institutions, ensuring higher quality.
 
-**Switchboard** is a completely decentralized oracle network and has data of all kinds available, not just financial data. Anyone can run a Switchboard oracle, and anyone can consume their data. Here, you are potentally trusting unkonwn providers, we will cover what to look for later in the lesson.
+**Switchboard** is a completely decentralized oracle network and has data of all kinds available, not just financial data. Check out all of the feeds [here](https://app.switchboard.xyz/solana/devnet/explore) Additonally, anyone can run a Switchboard oracle, and anyone can consume their data. This means you'll have to be dilligent onthe feeds you trust, we'll talk more about what to look for later in the lesson.
 
 Switchboard follows a variation of the stake weighted oracle network described in the third option of the previous section. It does so by introducing what are called TEEs (Trusted Execution Enviroments). TEEs are secure environments isolated from the rest of the system where sensitive code can be executed. In simple terms, given a program and an input, TEEs can execute and generate an output along with a proof. If you’d like to learn more about TEEs, please read [Switchboard’s docs](https://docs.switchboard.xyz/functions).
 
@@ -59,27 +59,21 @@ By introducing TEEs on top of stake weighted oracles, Switchboard is able to ver
 
 ### Switchboard Oracles
 
-Switchboard oracles store data on Solana via what are called data feeds. A data feed is a regular Solana account owned by the Switchboard program. When an oracle publishes data, it updates and stores the data on the data feed account.
+Switchboard oracles store data on Solana using data feeds, which are regular Solana accounts called Aggregators managed by the Switchboard program. When an oracle updates, it writes the data directly to these Aggregator accounts. Let's go over this account and other terms to understand how Switchboard works.
 
-Switchboard provides various data feeds on Solana via its many oracles, see a list of available Switchboard feeds here:
-
-[https://app.switchboard.xyz/solana/devnet/explore](https://app.switchboard.xyz/solana/devnet/explore)
-
-There are a few key terms we need to know to understand how Switchboard works:
-
-- **[Aggregator (Data Feed)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contains the data feed configuration, dictating how data feed updates get requested, updated, and resolved on-chain from it’s assigned source. An aggregator is an account owned by the Switchboard Solana program and is where the data is published on-chain.
+- **[Aggregator (Data Feed)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contains the data feed configuration, dictating how data feed updates get requested, updated, and resolved on-chain from it’s assigned source. The Aggregator is the account owned by the Switchboard Solana program and is where the data is published on-chain.
 - **[Job](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/job.rs)** - Each data source should correspond to a job account, which is just a collection of Switchboard tasks, used to instruct the oracles on how to fetch and transform data. In other words, it stores the blueprints for how data is fetched off-chain for a particular data source.
-- **Oracle -** A separate program that sits between the internet and a blockchain and facilitates the flow of information. An oracle reads in a feed’s job definitions, calculates the result, and submits its response on-chain.
+- **Oracle -** A separate program that sits between the internet and the blockchain and facilitates the flow of information. An oracle reads in a feed’s job definitions, calculates the result, and submits its response on-chain.
 - **Oracle Queue -** A group of oracles that get assigned to update requests in a round-robin fashion. The oracles in the queue must be actively heartbeating on-chain in order to provide updates. Data and configurations for this queue are stored on-chain in an [account owned by the Switchboard program](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/accounts/OracleQueueAccountData.ts#L8).
 - **Oracle Consensus** - Determines how oracles come to agreement on the accepted on-chain result. Switchboard oracles use the median oracle response as the accepted result. A feed authority can control how many oracles are requested and how many must respond to influence its security.
 
-Switchboard oracles are incentivized to update data feeds because they are rewarded for doing so accurately. Each data feed has a LeaseContract, which is a pre-funded escrow account to reward oracles for fulfilling update requests. Only the predefined `leaseAuthority` can withdraw funds from the contract, but anyone can contribute to it. When a new round of updates is requested for a data feed, the user who requested the update is rewarded from the escrow. This is to incentivize users and crank turners (anyone who runs software to systematically send update requests to Oracles) to keep feeds updating based on a feed’s configurations. Once an update request has been successfully fulfilled and submitted on-chain by the oracles in the queue, the oracles are transferred a reward from the escrow as well. This is to incentivize users to keep running the oracles themselves.
+Switchboard oracles are incentivized to update data feeds because they are rewarded for doing so accurately. Each data feed has a `LeaseContract`, which is a pre-funded escrow account to reward oracles for fulfilling update requests. Only the predefined `leaseAuthority` can withdraw funds from the contract, but anyone can contribute to it. When a new round of updates is requested for a data feed, the user who requested the update is rewarded from the escrow. This is to incentivize users and crank turners (anyone who runs software to systematically send update requests to Oracles) to keep feeds updating based on a feed’s configurations. Once an update request has been successfully fulfilled and submitted on-chain by the oracles in the queue, the oracles are transferred a reward from the escrow as well. This is to incentivize users to keep running the oracles themselves.
 
 Additionally, oracles are required to stake tokens before they can service update requests and submit responses on-chain. If an oracle submits a result on-chain that is outside the queue’s configured parameters, their stake will be slashed ( if the queue has `slashingEnabled` ). This helps ensure that oracles are responding in good faith with accurate information.
 
 Now that we understand the terminology and economics, let’s take a look at how data is published on-chain:
 
-1. Oracle queue is set up. An oracle queue is a round-robin queue of oracles actively heartbeating on-chain. When an update is requested from a queue, the next N oracles are assigned to the update request and cycled to the back of the queue. Each oracle queue in the Switchboard network is independent and maintain their own configurations which influences its level of security. This design choice enables users to tailor the oracle queue's behavior to match their specific use case. An Oracle queue is stored on-chain as an account and contains metadata about the queue. A queue is created by invoking the [oracleQueueInit instruction](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/instructions/oracleQueueInit.ts#L13) on the Switchboard Solana program.
+1. Oracle queue is set up. When an update is requested from a queue, the next N oracles are assigned to the update request and cycled to the back of the queue. Each oracle queue in the Switchboard network is independent and maintain their own configurations which influences its level of security. This design choice enables users to tailor the oracle queue's behavior to match their specific use case. An Oracle queue is stored on-chain as an account and contains metadata about the queue. A queue is created by invoking the [oracleQueueInit instruction](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/instructions/oracleQueueInit.ts#L13) on the Switchboard Solana program.
     1. Some relevant Oracle Queue configurations:
         1. `oracle_timeout` - Interval when stale oracles will be removed if they fail to heartbeat.
         2. `reward` - Rewards to provide oracles and round openers on this queue.
@@ -94,9 +88,9 @@ Now that we understand the terminology and economics, let’s take a look at how
 
 ### How to use Switchboard Oracles
 
-To use Switchboard oracles and incorporate off-chain data into a Solana program, we first have to find a feed that provides the data we need. Switchboard feeds are public and there are many [already available that we can pick from](https://app.switchboard.xyz/solana/devnet/explore) for most basic needs.  When looking for a feed, you have to decide how accurate/reliable you want the feed, where you want to source the data from, as well as the feed’s update cadence. When consuming a publicly available feed, you have no control over these things, so choose carefully!
+To use Switchboard oracles and incorporate off-chain data into a Solana program, we first have to find a feed that provides the data we need. Switchboard feeds are public and there are many [already available that we can pick from](https://app.switchboard.xyz/solana/devnet/explore). When looking for a feed, you have to decide how accurate/reliable you want the feed, where you want to source the data from, as well as the feed’s update cadence. When consuming a publicly available feed, you have no control over these things, so choose carefully!
 
-For example, here is a Switchboard sponsored [BTC_USD feed](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee) available on Solana devnet/mainnet with pubkey `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee` this is the aggregator/feed account. This feed provides the current price of Bitcoin in USD on-chain. The feed is simply a regular Solana account owned by the Switchboard program.
+For example, here is a Switchboard sponsored [BTC_USD feed](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee) available on Solana devnet/mainnet with pubkey `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee`. This feed provides the current price of Bitcoin in USD on-chain.
 
 The actual on-chain data for a Switchboard feed account looks a little like this:
 
@@ -122,7 +116,7 @@ pub struct AggregatorAccountData {
     /// Change percentage required between a previous round and the current round. If variance percentage is not met, reject new oracle responses.
     pub variance_threshold: SwitchboardDecimal,
     ...
-		/// Latest confirmed update request result that has been accepted as valid.
+		/// Latest confirmed update request result that has been accepted as valid. This is where you will find the data you are requesting in latest_confirmed_round.result
 	  pub latest_confirmed_round: AggregatorRound,
 		...
     /// The previous confirmed round result.
@@ -140,12 +134,12 @@ Some relevant fields and configurations on the `AggregatorAccountData` type are:
 - `min_oracle_results` - Minimum number of oracle responses required before a round is validated.
 - `min_job_results` - Minimum number of job results before an oracle accepts a result.
 - `variance_threshold` - Change percentage required between a previous round and the current round. If variance percentage is not met, reject new oracle responses.
-- `latest_confirmed_round` - Latest confirmed update request result that has been accepted as valid.
+- `latest_confirmed_round` - Latest confirmed update request result that has been accepted as valid. This is where you will find the data of the feed in `latest_confirmed_round.result`
 - `min_update_delay_seconds` - Minimum number of seconds required between aggregator rounds.
 
-The first three configs listed above are directly related to the accuracy and reliability of a data feed. `min_job_results` is essentially the minimum amount of successful responses from data sources an oracle must receive before it can submit its response on-chain. Meaning if `min_job_results` is three, each oracle has to pull from three sources. The higher this number, the more reliable and accurate the data on the feed will be. This limits the impact that a single data source can have on the result. `min_oracle_results` is the minimum amount of oracle responses required for a round to be successful. Remember, each oracle in a queue pulls data from each source defined as a job. The oracle then takes the weighted median of the responses from the sources and submits that median on-chain to the Switchboard program. The program then waits for `min_oracle_results` of weighted medians and takes the median of that, which is the final result stored in the data feed account if `min_oracle_results` has been met. `min_update_delay_seconds` is directly related to a feed’s update cadence. `min_update_delay_seconds` must have passed between one round of updates and the next one before the Switchboard program will accept results.
+The first three configs listed above are directly related to the accuracy and reliability of a data feed. `min_job_results` is the minimum amount of successful responses from data sources an oracle must receive before it can submit its response on-chain. Meaning if `min_job_results` is three, each oracle has to pull from three job sources. The higher this number, the more reliable and accurate the data on the feed will be. This also limits the impact that a single data source can have on the result. `min_oracle_results` is the minimum amount of oracle responses required for a round to be successful. Remember, each oracle in a queue pulls data from each source defined as a job. The oracle then takes the weighted median of the responses from the sources and submits that median on-chain. The program then waits for `min_oracle_results` of weighted medians and takes the median of that, which is the final result stored in the data feed account. `min_update_delay_seconds` is directly related to a feed’s update cadence. `min_update_delay_seconds` must have passed between one round of updates and the next one before the Switchboard program will accept results.
 
-Take a look at the jobs tab at the bottom of the BTC_USD feed in the explorer. Each job listed defines the source the oracles will fetch data from and the weighting of each source. You can view the actual API endpoints that provide the data for this specific feed. When determining what data feed to use in your program, things like this are very important to consider.
+Take a look at the jobs tab at the bottom of the [BTC_USD](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee) feed in the explorer. Each job listed defines the source the oracles will fetch data from and the weighting of each source. You can view the actual API endpoints that provide the data for this specific feed. When determining what data feed to use in your program, things like this are very important to consider.
 
 For example, we can see two of the sources of data for the BTC_USD feed are [MEXC](https://www.mexc.com/) and [Coinbase](https://www.coinbase.com/).
 
@@ -178,9 +172,9 @@ Notice that we use the `AccountLoader` here instead of the normal `Account` to d
 - `load` when the account is not mutable
 - `load_mut` when the account is mutable
 
-Refer here for more information on [the `AccountLoader` type](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/account_loader/struct.AccountLoader.html) or [Zero copy deserialization](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). If you’d like to learn more, check out the Advance Program Architecture lesson of this module where we touch on the `AccountLoader` type as well.
+Refer here for more information on [the `AccountLoader` type](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/account_loader/struct.AccountLoader.html) or [Zero copy deserialization](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). If you’d like to learn more, check out the [Advance Program Architecture lesson](./program-architecture.md) of this module where we touch on `Zero-Copy` and the `AccountLoader`.
 
-Once you’ve got the account passed in and deserialized, in your program logic you can utilize some methods defined on the `AggregatorAccountData` type in the Switchboard program to get the most up to date result.
+Once you’ve got passed in and deserialized the account, you can use your to utilize some methods defined on the `AggregatorAccountData` to get the most up to date result.
 
 ```rust
 // inside an Anchor program
@@ -191,7 +185,7 @@ let feed = &ctx.accounts.feed_aggregator.load()?;
 let val: f64 = feed.get_result()?.try_into()?;
 ```
 
-Notice we utilize the `get_result()` method defined on the `AggregatorAccountData` struct instead of just checking one of the fields on the account. This is because Switchboard was kind enough to build a helper function that has some built in checks for us.
+We will use the `get_result()` method defined on the `AggregatorAccountData` struct instead of just fetching the data with `latest_confirmed_round.result`. We do this because Switchboard has implemeted some nifty safety checks.
 
 ```rust
 // from switchboard program
@@ -210,7 +204,7 @@ pub fn get_result(&self) -> anchor_lang::Result<SwitchboardDecimal> {
 }
 ```
 
-The `latest_confirmed_round.result` contains the actual most up to date result stored on-chain, but using the `get_result()` method we get some added safety checks inherently.
+You could just use `latest_confirmed_round.result`, but `get_result()` will be safer.
 
 You can also view the current value stored in an `AggregatorAccountData` account client side in Typescript.
 
