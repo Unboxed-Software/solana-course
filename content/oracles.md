@@ -848,7 +848,7 @@ We’re going to kinda speedrun the tests here. But we will be building 4 tests 
 
 Note that there can only be one escrow per user, so the above order matters.
 
-```bash
+```typescript
 // tests/burry-escrow.ts
 
 import * as anchor from "@coral-xyz/anchor";
