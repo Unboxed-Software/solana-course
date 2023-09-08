@@ -3,10 +3,7 @@
 ## TL;DR
 
 - Oracles are services that provide external data to a blockchain network
-- There are two main Oracle providers on Solana:
-    
-    **Switchboard** and **Pyth**
-    
+- There are two main Oracle providers on Solana: **Switchboard** and **Pyth**
 - You can build your own Oracle to create a custom data feed
 - You have to be careful when choosing your data feed providers
 
@@ -14,9 +11,7 @@
 
 ### What is an Oracle?
 
-Oracles are services that provide external data to a blockchain network. The implementation of this will differ from blockchain to blockchain, as each chain has unique constraints that must be accounted for in order to provide data on-chain. 
-
-Blockchains by nature are siloed environments that have no knowledge of the outside world. This constraint inherently puts a limit on the use cases for consumer applications built as dApps (decentralized applications). Oracles provide a solution to this limitation by creating a decentralized way to get real-world data on-chain.
+Oracles are services that provide external data to a blockchain network. Blockchains by nature are siloed environments that have no knowledge of the outside world. This constraint inherently puts a limit on the use cases for consumer applications built as dApps (decentralized applications). Oracles provide a solution to this limitation by creating a decentralized way to get real-world data on-chain.
 
 Oracles can provide just about any type of data on-chain, for example:
 
@@ -26,13 +21,17 @@ Oracles can provide just about any type of data on-chain, for example:
 - market data
 - randomness
 
-While the exact implementation may differ from blockchain to blockchain, generally Oracles will publish this data on-chain via transactions. Once published, smart contracts can utilize this data to make decisions and execute logic.
+While the exact implementation may differ from blockchain to blockchain, generally Oracles work as follows:
 
-How can we place our trust in an oracle? How can we have confidence in the integrity of the data they store on-chain? The answer: Oracle Networks and financial incentives. 
+1. Data is sourced off-chain.
+2. That data is published on-chain in a transaction and stored in an account.
+3. Programs can read the data stored in the account and use it in its logic.
+
+However, Oracles need to be trusted. We need to have confindence in the integrety of the data that they post on-chain. We do this by understanding their decentralized nature, financial incentives and doing our own due-diligence.
 
 ### Oracle Network
 
-Since blockchains execute irreversible financial transactions, developers and users must be able to trust the validity and accuracy of the data provided by oracles. How can an oracle or network of oracles accomplish this? There are a few possible solutions with pros and cons:
+Since blockchains execute irreversible financial transactions, developers and users must be able to trust the validity and accuracy of the data provided by oracles. The first step in trusting them is understanding how the Oracle Network is implimented. Here are some possible solutions with pros and cons:
 
 1. Single centralized oracle publishes data on-chain.
     1. Pro: It’s simple, one source of truth.
@@ -42,25 +41,21 @@ Since blockchains execute irreversible financial transactions, developers and us
     2. Con: There is no way to disincentivize bad actors if they do publish inaccurate data.
 3. Require oracles to stake in order to participate in the consensus mechanism. On every response, if an oracle deviates by some threshold from the accepted range of results, their stake is taken by the protocol and can no longer report.
     1. Pro: Ensures no single oracle can influence the final result too drastically, while also incentivizing honest and accurate actions. By introducing a staking mechanism, it’s in the oracle providers best interest to ensure their data is accurate in order to keep their staked funds.
-    2. Con: If the total value involved of the downstream applications are greater than the oracles' allocated stake, how can we still ensure oracles are not incentivized to collude?
+    2. Con: If the total value involved of the downstream applications are greater than the oracle's allocated stake, they could be incentivized to collude.
+
+It is your job to know how the Oracle Network is configured and make a judgement call on if they can be trusted. Generally, Oracles should only be used for non mission-critical functions and worst-case scenarios should be accounted for.
 
 ### Oracles on Solana
 
-Pyth and Switchboard are the two main oracle providers on Solana today. They’re each unique and follow slightly different design choices. Although they are different, there are some similarities between the two. Generally, oracle networks on Solana work like so:
+Pyth and Switchboard are the two main oracle providers on Solana today. They’re each unique and follow slightly different design choices.
 
-1. Data is sourced off-chain.
-2. That data is published on-chain in a transaction and stored in an account.
-3. Programs can read the data stored in the account and use it in its logic.
+**Pyth** is primarily focused on financial data published from top tier financial institutions. Pyth’s data providers publish the market data updates. These updates are then aggregated and published on-chain by the Pyth program. The data sourced from Pyth is not completely decentralized, only approved data providers can publish data. The selling point of Pyth is that its data is vetted directly by the platform and sourced from financial institutions, ensuring higher quality.
 
-**Pyth** is primarily focused on financial data as it stands today and utilizes data published from top tier financial institutions. Pyth’s data providers publish the market data updates that they see for financial assets, these updates are aggregated and published on-chain by the Pyth program. The data sourced from Pyth is not completely decentralized, only approved data providers can publish data. The selling point behind Pyth is that because the data is published directly by financial institutions, it is of higher quality.
+**Switchboard** is a completely decentralized oracle network and has data of all kinds available, not just financial data. Anyone can run a Switchboard oracle, and anyone can consume their data. Here, you are potentally trusting unkonwn providers, we will cover what to look for later in the lesson.
 
-**Switchboard** is a completely decentralized oracle network and has data of all kinds available, not just financial data. Anyone can run a Switchboard oracle, but you don’t have to run your own oracle to consume the data if you don’t want to. If you decide not to run your own oracle, then it’s important to note that you are inherently trusting the oracle network to publish accurate data.
-
-Switchboard follows a variation of the stake weighted oracle network described in the third option of the previous section by introducing what are called TEEs (Trusted Execution Enviroments). TEEs are secure environments isolated from the rest of the system where sensitive code can be executed. In simple terms, given a program and an input, TEEs can execute and generate an output along with a proof. If you’d like to learn more about TEEs, please read [Switchboard’s docs](https://docs.switchboard.xyz/functions)!
+Switchboard follows a variation of the stake weighted oracle network described in the third option of the previous section. It does so by introducing what are called TEEs (Trusted Execution Enviroments). TEEs are secure environments isolated from the rest of the system where sensitive code can be executed. In simple terms, given a program and an input, TEEs can execute and generate an output along with a proof. If you’d like to learn more about TEEs, please read [Switchboard’s docs](https://docs.switchboard.xyz/functions).
 
 By introducing TEEs on top of stake weighted oracles, Switchboard is able to verify each oracle’s software to allow participation in the network. If an oracle operator acts maliciously and attempts to change the operation of the approved code, a data quote verification will fail. This allows Switchboard oracles to operate beyond quantitative value reporting, such as functions -- running off-chain custom and confidential computations.
-
-You may also be wondering how this oracle gets paid? We’ll talk more about this in the next section.
 
 ### Switchboard Oracles
 
@@ -1067,10 +1062,10 @@ describe("burry-escrow", () => {
 
 With that all written you should be able to run `anchor test` in your terminal and get 4 passing tests!
 
-If you don’t something is wrong, feel free to check the working code [here](https://github.com/Unboxed-Software/micheal-burry-escrow).
+If you don’t something is wrong, feel free to check the working code [here](https://github.com/CoachChuckFF/Micheal-Burry-Escrow).
 
 ## Challenge
 
 As a challenge to take what you’ve learned in this lesson and apply it, create a fallback plan if the data feed ever goes down. If the Oracle queue has not updated the aggregator account in X time or if the data feed account does not exist anymore, withdraw the user’s escrowed funds.
 
-A potential solution to this challenge can be found [here](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/solution).
+A potential solution to this challenge can be found [here](https://github.com/CoachChuckFF/Micheal-Burry-Escrow/tree/solution).
