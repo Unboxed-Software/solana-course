@@ -378,20 +378,20 @@ At the end of the day, if you want non-native data on-chain, you’re going to h
 
 ### Program Setup
 
-We’ll be building a ‘Burry Escrow’ program. The goal of this program is to allow users to lock up SOL in an escrow account that does not unlock until the price of SOL is above a certain price in USD. We will be using the devnet [SOL_USD](https://app.switchboard.xyz/solana/devnet/feed/GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR) oracle from switchboard. The program will have two main methods:
+We’ll be building a "Micheal Burry Escrow" program. The goal of this program is to allow users to lock up SOL in an escrow account that does not unlock until the price of SOL is above a certain price in USD. We will be using the devnet [SOL_USD](https://app.switchboard.xyz/solana/devnet/feed/GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR) oracle from switchboard. The program will have two main methods:
 
-- Deposit
-- Withdraw
+- Deposit - Lock up the SOL and set a USD price to unlock it at.
+- Withdraw - Check the USD price and withdraw the SOL if the price is met.
 
 To get started, let’s create the program with
 
-```powershell
+```zsh
 anchor init burry-escrow
 ```
 
 Once you have the project created, add the following to the bottom of your Anchor.toml file. This will tell Anchor how to configure our local testing environment. This will allow us to test our program locally without having to deploy and send transactions to devnet.
 
-```powershell
+```zsh
 // bottom of Anchor.toml
 [test.validator]
 url="https://api.devnet.solana.com"
@@ -739,7 +739,7 @@ pub fn withdraw_handler(ctx: Context<Withdraw>, params: WithdrawParams) -> Resul
 
 To finish the logic off, we will execute the transfer, this time we will have to transfer the funds in a different way. Because we are transferring from an account that also holds data we cannot use the `system_program::transfer` method like before. If we try to, the instruction will fail to execute with the following error.
 
-```powershell
+```zsh
 'Transfer: `from` must not carry data'
 ```
 
