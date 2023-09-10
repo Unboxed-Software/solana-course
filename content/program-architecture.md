@@ -11,10 +11,10 @@
 
 # TL;DR
 
-- If your data accounts are too large, wrap them in Box
-- Zero-Copy is how you deal with large accounts (< 10MB)
-- The size and the order of structs in an account matters
-- Solana can process in parallel, but you can still run into bottlenecks
+- If your data accounts are too large for the Stack, wrap them in `Box` to allocate them to the Heap
+- Use Zero-Copy to deal with accounts that are too large for `Box` (< 10MB)
+- The size and the order of fields in an account matter; put variable length fields at the end
+- Solana can process in parallel, but you can still run into bottlenecks; be mindful of "shared" accounts that all users interacting with the program have to write to
 
 # Overview
 
@@ -28,58 +28,7 @@ These questions are even more important when developing for a blockchain. Not on
 
 We'll leave most of the asset handling discussion to [security lessons](./security-intro.md), but it's important to note the nature of resource limitations in Solana development. There are, of course, limitations in a typical development environment, but there are limitations unique to blockchain and Solana development such as how much data can be stored in an account, the cost to store that data, and how many compute units are available per transaction. You, the program designer, have to be mindful of these limitations to create programs that are affordable, fast, safe, and functional. Today we will be delving into some of the more advance considerations that should be taken when creating Solana programs. 
 
-## Prerequisite Setup
-
-This lesson is going to be accompanied by code snippets from a Solana program. Each of these snippets is part of an actual Solana program that has accompanying tests. When you go through the lesson, take the time to interact with the corresponding program and test code. Change existing values, try to break the program, and generally try to understand how everything works. At the end the lesson, we'll put all of these concepts together to make a little Solana RPG game engine.
-
-Before we begin, follow these steps to get the program up and running in your local environment.
-
-1. **Clone and Build** - Run each of the following commands in your command line:
-    1. `git clone https://github.com/Unboxed-Software/advanced-program-architecture.git`
-    2. `cd advanced-program-architecture`
-    3. `yarn install`
-    4. `anchor build`
-2. **Setup Program Environment** - Update the following config values:
-    1. Run `anchor keys list` in the command line, then take the output key from that command and paste it in 2 places:
-        1. `programs/architecture/src/lib.rs` → `declare_id!("YOUR_KEY_HERE");`
-        2. `Anchor.toml` → `architecture = "YOUR_KEY_HERE"`
-    2.  Change the `Anchor.toml` file provider section to your Solana CLI wallet path (run `solana config get` to see your path) 
-        ```rust
-        [provider]
-        cluster = "Localnet"
-        wallet = "/Users/coach/.config/solana/id.json" <--- Change This To Your Wallet Path
-        ```
-3. **Verify**
-    1. Run `anchor test` to verify that all of the tests are passing (they should all pass)
-
-### How to Use the Accompanying Code
-
-When going through the lesson, each concept we cover will have a corresponding program and test file. For example, the first concept we'll look at will have the header **Concept: Sizes**. The files for this can be found in:
-
-**program -** `programs/architecture/src/concepts/sizes.rs`
-
-**test -** `cd tests/sizes.ts`
-
-While reading, you should have the files open so you can play with them. Experimenting with the code will be the crux of your learning here; don’t skip it!
-
-You won't want to run every test while experimenting with only one concept. For example, if you modify something related to the size concept, you'll likely only want to run related tests. In that case, all you have to do is open up `tests/sizes.ts` and change the `describe(...`  function and change it to `describe.only(...`.
-
-```typescript
-...
-describe.only("Concept Sizes", () => {
-  // Configure the client to use the local cluster.
-  anchor.setProvider(anchor.AnchorProvider.env());
-...
-})
-```
-
-Then when you run `anchor test` it will rebuild and run only that group of tests for you. 
-
-When you are done playing, be sure to remove the `.only` and move onto the next concept!
-
-Now let’s move onto our first grouping of considerations! Data Sizes!
-
-## Dealing with Data Size
+## Dealing With Large Accounts
 
 In modern application programming, we don’t often have to think about the size of the data structures we are using. You want to make a string? You can put a 4000 character limit on it if you want to avoid abuse, but it's probably not an issue. Want an integer? They’re pretty much always 32-bit for convenience.
 
@@ -89,11 +38,7 @@ In high level languages, you are in the data-land-o-plenty! Now, in Solana land,
 
 2. When operating on larger data, we run into [Stack](https://docs.solana.com/developing/on-chain-programs/faq#stack) and [Heap](https://docs.solana.com/developing/on-chain-programs/faq#heap-size) constraints - to get around these, we’ll look at using Box and Zero-Copy.
 
-### Concept: Sizes
-
-**program -** `programs/architecture/src/concepts/sizes.rs`
-
-**test -** `cd tests/sizes.ts`
+### Sizes
 
 In Solana a transaction's fee payer pays for each byte stored on-chain. We call this [rent](https://docs.solana.com/developing/intro/rent). Side note: rent is a bit of a misnomer since it never actually gets permanently taken. Once you deposit rent into the account, that data can stay there forever or you can get refunded the rent if you close the account. Rent used to be an actual thing, but now there's an enforced minimum rent exemption. You can read about it in [the Solana documentation](https://docs.solana.com/developing/intro/rent).
 
@@ -122,19 +67,13 @@ pub struct T { …  |
 | Data Structs | space(T) | #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct T { … } |
 
-Knowing these, start thinking about little optimizations you might take in a program. For example, if you have an integer field that will only ever reach 100, don’t use a u64/i64, use a u8. Why? Because a u64 takes up 8 bytes, with a max value of 2^64 or 1.84 * 10^19. Thats a waste of space since you only need to accommodate numbers up to 100. A single byte will give you a max value of 255 which, in this case, would be sufficient. Similarly, there's no reason to use i8 if you'll never have negative numbers.
-
-If your unfamiliar with max values for each data type or what’s possible, play around with the accompanying code! There are a lot of good comments there to show you the space each struct takes up. 
+Knowing these, start thinking about little optimizations you might take in a program. For example, if you have an integer field that will only ever reach 100, don’t use a u64/i64, use a u8. Why? Because a u64 takes up 8 bytes, with a max value of 2^64 or 1.84 * 10^19. Thats a waste of space since you only need to accommodate numbers up to 100. A single byte will give you a max value of 255 which, in this case, would be sufficient. Similarly, there's no reason to use i8 if you'll never have negative numbers. 
 
 Be careful with small number types, though. You can quickly run into unexpected behavior due to overflow. For example, a u8 type that is iteratively incremented will reach 255 and then go back to 0 instead of 256. For more real-world context, look up the **[Y2K bug](https://www.nationalgeographic.org/encyclopedia/Y2K-bug/#:~:text=As%20the%20year%202000%20approached%2C%20computer%20programmers%20realized%20that%20computers,would%20be%20damaged%20or%20flawed.).** 
 
 If you want to read more about Anchor sizes, take a look at [Sec3's blog post about it](https://www.sec3.dev/blog/all-about-anchor-account-size) .
 
-### Concept: Box
-
-**program -** `programs/architecture/src/concepts/_box.rs`
-
-**test -** `cd tests/box.ts`
+### Box
 
 Now that you know a little bit about data sizes, let’s skip forward and look at a problem you’ll run into if you want to deal with larger data accounts. Say you have the following data account: 
 
@@ -174,15 +113,11 @@ pub struct SomeFunctionContext<'info> {
 }
 ```
 
-In Anchor, **`Box<T>`** is used to allocate the account to the Heap, not the Stack. Which is great since the Heap gives us 32KB to work with. The best part is you don’t have to do anything different within the function. All you need to do is add `Box<…>` around all of your big data accounts! Go test this in the accompanying code.
+In Anchor, **`Box<T>`** is used to allocate the account to the Heap, not the Stack. Which is great since the Heap gives us 32KB to work with. The best part is you don’t have to do anything different within the function. All you need to do is add `Box<…>` around all of your big data accounts.
 
 But Box is not perfect. You can still overflow the stack with sufficiently large accounts. We'll learn how to fix this in the next section.
 
-### Concept: Zero Copy
-
-**program -** `programs/architecture/src/concepts/zero_copy.rs`
-
-**test -** `cd tests/zeroCopy.ts`
+### Zero Copy
 
 Okay, so now you can deal with medium sized accounts using `Box`. But what if you need to use really big accounts like the max size of 10MB? Take the following as an example:
 
@@ -193,9 +128,7 @@ pub struct SomeReallyBigDataStruct {
 }
 ```
 
-This account will make your program fail, even wrapped in a `Box`. You can verify this with the accompanying code.
-
-To get around this, you can use `zero_copy` and `AccountLoader`. Simply add `zero_copy` to your account struct, add `zero` as a constraint in the account validation struct, and wrap the account type in the account validation struct in an `AccountLoader`.
+This account will make your program fail, even wrapped in a `Box`. To get around this, you can use `zero_copy` and `AccountLoader`. Simply add `zero_copy` to your account struct, add `zero` as a constraint in the account validation struct, and wrap the account type in the account validation struct in an `AccountLoader`.
 
 ```rust
 #[account(zero_copy)]
@@ -267,11 +200,7 @@ For a better understanding on how this all works, Solana put together a really n
 
 Now that you know the nuts and bolts of space consideration on Solana, let’s look at some higher level considerations. In Solana, everything is an account, so for the next couple sections we'll look at some account architecture concepts.
 
-### Concept: Data Order
-
-**program -** `programs/architecture/src/concepts/data_order.rs`
-
-**test -** `cd tests/dataOrder.ts`
+### Data Order
 
 This first consideration is fairly simple. As a rule of thumb, keep all variable length fields at the end of the account. Take a look at the following:
 
@@ -328,52 +257,53 @@ pub struct GoodState {
 
 With variable length fields at the end of the struct, you can always query accounts based on all the fields up to the first variable length field. To echo the beginning of this section: As a rule of thumb, keep all variable length structs at the end of the account.
 
-### Concept: For Future Use
+### For Future Use
 
-**program -** `programs/architecture/src/concepts/for_future_use.rs`
-
-**test -** `cd tests/forFutureUse.ts`
-
-This is another fairly simple concept. When designing Solana programs you may want to consider adding in `for_future_use` bytes. If you’ve ever been involved in protocol development you may have seen them. They are used for flexibility and backwards compatibility. The tradeoff is you pay for bytes you don’t use. So why would you want to add them? Let’s take the following example:
+In certain cases, consider adding extra, unused bytes to you accounts. These are held in reserve for flexibility and backward compatibility. Take the following example:
 
 ```rust
 #[account]
 pub struct GameState {
     pub health: u64,
     pub mana: u64,
+    pub event_log: Vec<string>
 }
 ```
 
-We have a simple game state here, a character has `health` and some `mana`. You build the game and now you have thousands of players. Now, let’s say you want to add an `experince` field. So you add  `pub experince: u64`. The problem is, all of your existing players paid rent for 24 bytes of storage (8 account discriminator + 8 health + 8 mana). The old and the new `GameState` with `experince` in it are no longer compatible. You’d probably have to create a system to migrate their accounts, which sounds like a really big pain in the ass. The old accounts will not serialize. The fix?
+In this simple game state, a character has `health`, `mana`, and an event log. If at some point you are making game improvements and want to add an `experience` field, you'd hit a snag. The `experience` field should be a number like a `u64`, which is simple enough to add. You can [reallocate the account](./anchor-pdas.md#realloc) and add space.
+
+However, in order to keep dynamic length fields, like `event_log`, at the end of the struct, you would need to do some memory manipulation on all reallocated accounts to move the location of `event_log`. This can be complicated and makes querying accounts far more difficult. You'll end up in a state where non-migrated accounts have `event_log` in one location and migrated accounts in another. The old `GameState` without `experience` and the new `GameState` with `experience` in it are no longer compatible. Old accounts won't serialize when used where new accounts are expected. Queries will be far more difficult. You'll likely need to create a migration system and ongoing logic to maintain backward compatibility. Ultimately, it begins to seem like a bad idea.
+
+Fortunately, if you think ahead, you can add a `for_future_use` field that reserves some bytes where you expect to need them most.
 
 ```rust
 #[account]
 pub struct GameState { //V1
     pub health: u64,
     pub mana: u64,
-		pub for_future_use: [u8; 128],
+	pub for_future_use: [u8; 128],
+    pub event_log: Vec<string>
 }
+```
 
---->
+That way, when you go to add `experience` or something similar, it looks like this and both the old and new accounts are compatible.
 
+```rust
 #[account]
 pub struct GameState { //V2
     pub health: u64,
     pub mana: u64,
-		pub experince: u64,
-		pub for_future_use: [u8; 120],
+	pub experience: u64,
+	pub for_future_use: [u8; 120],
+    pub event_log: Vec<string>
 }
 ```
 
-If you put in the `for_future_use` bytes you can now use up those bytes in future updates without ever having to migrate accounts! Personally, this has saved my butt. 
+These extra bytes do add to the cost of using your program. However, it seems well worth the benefit in most cases.
 
-So general rule of thumb - anytime you think your program has the potential to change, add in some `for_future_use` bytes. The trade off, your end user will have to pay more. 
+So as a general rule of thumb: anytime you think your account types have the potential to change in a way that will require some kind of complex migration, add in some `for_future_use` bytes.
 
-### Concept: Data Optimization
-
-**program -** `programs/architecture/src/concepts/data_optimization.rs`
-
-**test -** `cd tests/dataOptimization.ts`
+### Data Optimization
 
 The idea here is to be aware of wasted bits. For example, if you have a field that represents the month of the year, don’t use a `u64`. There will only ever be 12 months. Use a `u8`. Better yet, use a `u8` Enum and label the months. 
 
@@ -413,11 +343,7 @@ pub struct GoodGameFlags { // 1 byte
 
 That saves you 7 bytes of data! The tradeoff, of course, is now you have to do bitwise operations. But that's worth having in your toolkit.
 
-### Concept: Indexing
-
-**program -** `programs/architecture/src/concepts/indexing.rs`
-
-**test -** `cd tests/indexing.ts`
+### Indexing
 
 This last account concept is fun and illustrates the power of PDAs. When creating program accounts, you can specify the seeds used to derive the PDA. This is exceptionally powerful since it lets you derive your account addresses rather than store them.
 
@@ -481,17 +407,11 @@ Podcast 2: seeds=[b"Podcast", channel_account.key().as_ref(), 2.to_be_bytes().as
 Podcast X: seeds=[b"Podcast", channel_account.key().as_ref(), X.to_be_bytes().as_ref()] 
 ```
 
-If you want to play with these relationships more, please play with the accompanying code. 
-
 ## Dealing with Concurrency
 
 One of the main reasons to choose Solana for your blockchain environment is its parallel transaction execution. That is, Solana can run transactions in parallel as long as those transactions aren't trying to write data to the same account. This improves program throughput out of the box, but with some proper planning you can avoid concurrency issues and really boost your program's performance.
 
-### Concept: Shared Accounts
-
-**program -** `programs/architecture/src/concepts/shared_account.rs`
-
-**test -** `cd tests/sharedAccount.ts`
+### Shared Accounts
 
 If you’ve been around crypto for a while, you may have experienced a big NFT mint event. A new NFT project is coming out, everyone is really excited for it, and then the candymachine goes live. It’s a mad dash to click `accept transaction` as fast as you can. If you were clever, you may have written a bot to enter in the transactions faster that the website’s UI could. This mad rush to mint creates a lot of failed transactions. But why? Because everyone is trying to write data to the same Candy Machine account.
 
@@ -522,13 +442,13 @@ x1000 -- pays --- |
 Bob   -- pays --- |
 ```
 
-What if 1000 people try to pay Carol at the same time? Each of the 1000 instructions will be queued up to run in sequence. To some of them, the payment will seem like it went through right away. They'll be the lucky ones whose instruction got included early. But some of them will end up waiting quite a bit. And for some, their transaction will simply fail. If you want to see what that looks like in practice, experiment with the accompanying code and play around with the numbers.
+What if 1000 people try to pay Carol at the same time? Each of the 1000 instructions will be queued up to run in sequence. To some of them, the payment will seem like it went through right away. They'll be the lucky ones whose instruction got included early. But some of them will end up waiting quite a bit. And for some, their transaction will simply fail.
 
 While it seems unlikely for 1000 people to pay Carol at the same time, it's actually very common to have an event, like an NFT mint, where many people are trying to write data to the same account all at once.
 
-Imagine you create a super popular program and you want to take a fee on every transaction you process. For accounting reasons, you want all of those fees to go to one wallet. With that setup, on a surge of users, your protocol will become slow and or become unreliable. Not great. So what’s the solution? Separate the data transaction from the fee transaction. Let’s take a look at the accompanying code for a better idea of what this means.
+Imagine you create a super popular program and you want to take a fee on every transaction you process. For accounting reasons, you want all of those fees to go to one wallet. With that setup, on a surge of users, your protocol will become slow and or become unreliable. Not great. So what’s the solution? Separate the data transaction from the fee transaction.
 
-Say you have a data account called `DonationTally`. Its only function is to record how much you have donated to a specific hard-coded community wallet.
+For example, imagine you have a data account called `DonationTally`. Its only function is to record how much you have donated to a specific hard-coded community wallet.
 
 ```rust
 #[account]
@@ -618,26 +538,48 @@ pub fn run_concept_shared_account_redeem(ctx: Context<ConceptSharedAccountRedeem
 
 Here, in the `run_concept_shared_account` function, instead of transferring to the bottleneck, we transfer to the `donation_tally` PDA. This way, we’re only effecting the donator's account and their PDA - so no bottleneck! Additionally, we keep an internal tally of how many lamports need to be redeemed, ie be transferred from the PDA to the community wallet at a later time. At some point in the future, the community wallet will go around and clean up all the straggling lamports (probably a good job for [clockwork](https://www.clockwork.xyz/)). It’s important to note that anyone should be able to sign for the redeem function, since the PDA has permission over itself.
 
-If you want to avoid bottlenecks at all costs, this is one way to tackle it. Ultimately this is a design decision and the simpler, less optimal solution might be okay for some programs. But if your program is going to have high traffic, it's worth trying to optimize. You can always run a simulation like the accompanying code to see your worst, best and median cases.
+If you want to avoid bottlenecks at all costs, this is one way to tackle it. Ultimately this is a design decision and the simpler, less optimal solution might be okay for some programs. But if your program is going to have high traffic, it's worth trying to optimize. You can always run a simulation to see your worst, best and median cases.
+
+## See it in Action
+
+All of the code snippets from this lesson are part of a [Solana program we created to illustrate these concepts](https://github.com/Unboxed-Software/advanced-program-architecture.git). Each concept has an accompanying program and test file. For example, the **Sizes** concept can be found in:
+
+**program -** `programs/architecture/src/concepts/sizes.rs`
+
+**test -** `cd tests/sizes.ts`
+
+Now that you've read about each of these concepts, feel free to jump into the code to experiment a little. You can change existing values, try to break the program, and generally try to understand how everything works.
+
+You can fork and/or clone [this program from Github](https://github.com/Unboxed-Software/advanced-program-architecture.git) to get started. Before building and running the test suite, remember to update the `lib.rs` and `Anchor.toml` with your local program ID.
+
+You can run the entire test suite or add `.only` to the `describe` call in a specific test file to only run that file's tests. Feel free to customize it and make it your own.
 
 ## Conclusion
 
-We've talked about quite a few program architecture considerations: bytes, accounts, bottlenecks, and more. Whether you wind up running into any of these specific considerations or not, hopefully the examples and discussion sparked some thought. At the end of the day, you are the designer of your system. Your job is to weigh the pros and cons of various solutions. Be forward thinking, but be practical. There is no "one good way" to design anything. Just know the trade-offs.
+We've talked about quite a few program architecture considerations: bytes, accounts, bottlenecks, and more. Whether you wind up running into any of these specific considerations or not, hopefully the examples and discussion sparked some thought. At the end of the day, you're the designer of your system. Your job is to weigh the pros and cons of various solutions. Be forward thinking, but be practical. There is no "one good way" to design anything. Just know the trade-offs.
 
 # Demo
 
-### Program Setup
+Let's use all of these concepts to create a simple, but optimized, RPG game engine in Solana. This program will have the following features:
+- Let users create a game (`Game` account) and become a "game master" (the authority over the game)
+- Game masters are in charge of their game's configuration
+- Anyone from the public can join a game as a player - each player/game combination will have a `Player` account
+- Players can spawn and fight monsters (`Monster` account) by spending action points; we'll use lamports as the action points
+- Spent action points go to a game's treasury as listed in the `Game` account
 
-Today we will be taking all of the concepts above to create a simple RPG game engine in Solana. In this program you will create a `Game` where anyone can create a `Player` account. When they have that, they can spend `action_points` (lamports) that go to the `Game`'s treasury wallet. Actions include spawning and attacking `Monster` accounts. Let’s get started!
+We'll walk through the tradeoffs of various design decisions as we go to give you a sense for why we do things. Let’s get started!
+
+### 1. Program Setup
+
+We'll build this from scratch. Start by creating a new Anchor project:
 
 ```powershell
 anchor init rpg
-anchor build
 ```
 
-Everything should be ready for us to start writing our program. We are going to keep it simple and keep everything in the `lib.rs` file so you can see all of the interactions.
+Next, replace the program ID in `programs/rpg/lib.rs` and `Anchor.toml` with the program ID shown when you run `anchor keys list`.
 
-But to make it easier we are going to section off the program with comments. Additionally, we are going to remove the default `initialize` function and add the `Transfer` and `sol_log_compute_units` imports. Change your `lib.rs` to reflect the following:
+Finally, let's scaffold out the program in the `lib.rs` file. To make following along easier, we're going to keep everything in one file. We'll augment this with section comments for better organization and navigation. Copy the following into your file before we get started:
 
 ```rust
 use anchor_lang::prelude::*;
@@ -664,7 +606,7 @@ declare_id!("YOUR_KEY_HERE__YOUR_KEY_HERE");
 
 // ----------- ATTACK MONSTER ----------
 
-// ----------- REDEEM TO TREASUREY ----------
+// ----------- REDEEM TO TREASURY ----------
 
 #[program]
 pub mod rpg {
@@ -673,11 +615,32 @@ pub mod rpg {
 }
 ```
 
-Be sure to replace `YOUR_KEY_HERE__YOUR_KEY_HERE` with your program key that you get from running `anchor keys list`
+### 2. Create Account Structures
 
-### Accounts
+Now that our initial setup is ready, let's create our accounts. We'll have 3:
 
-The first thing we need to do is create the Accounts. We will have 3: `Game`, `Player`, `Monster`
+1. `Game` - This account represents and manages a game. It includes the treasury for game participants to pay into and a configuration struct that game masters can use to customize the game. It should include the following fields:
+    - `game_master` - effectively the owner/authority
+    - `treasury` - the treasury to which players will send action points (we'll just be using lamports for action points)
+    - `action_points_collected` - tracks the number of action points collected by the treasury
+    - `game_config` - a config struct for customizing the game
+2. `Player` - A PDA account whose address is derived using the game account address and the player's wallet address as seeds. It has a lot of fields needed to track the player's game state:
+    - `player` - the player's public key
+    - `game` - the address of the corresponding game account
+    - `action_points_spent` - the number of action points spent
+    - `action_points_to_be_collected` - the number of action points that still need to be collected
+    - `status_flag` - the player's status           
+    - `experience` - the player's experience
+    - `kills` - number of monsters killed
+    - `next_monster_index` - the index of the next monster to face
+    - `for_future_use` - 256 bytes reserved for future use
+    - `inventory` - a vector of the player's inventory
+3. `Monster` - A PDA account whose address is derived using the game account address, the player's wallet address, and an index (the one stored as `next_monster_index` in the `Player` account). 
+    - `player` - the player the monster is facing
+    - `game` - the game the monster is associated with 
+    - `hitpoints` - how many hit points the monster has left
+
+When added to the program, the accounts should look like this:
 
 ```rust
 // ----------- ACCOUNTS ----------
@@ -689,8 +652,6 @@ pub struct Game { // 8 bytes
     pub action_points_collected: u64,   // 8 bytes
     
     pub game_config: GameConfig,
-
-    pub for_future_use: [u8; 256],      // Rewards?? Creators?? NFT?? ?? RNG Seeds??
 }
 
 #[account]
@@ -702,7 +663,7 @@ pub struct Player { // 8 bytes
     pub action_points_to_be_collected: u64,     // 8 bytes
 
     pub status_flag: u8,                // 8 bytes
-    pub experince: u64,                 // 8 bytes
+    pub experience: u64,                 // 8 bytes
     pub kills: u64,                     // 8 bytes
     pub next_monster_index: u64,        // 8 bytes
 
@@ -717,24 +678,18 @@ pub struct Monster { // 8 bytes
     pub game: Pubkey,                   // 32 bytes
 
     pub hitpoints: u64,                 // 8 bytes
-
-    pub for_future_use: [u8; 256],      // Items to drop?? Hitpoints?? Metadata?? Hitpoints??
 }
-
-// ----------- GAME CONFIG ----------
 ```
 
-Let’s take a look at each.
+There aren't a lot of complicated design decisions here, but let's talk about the `inventory` and `for_future_use` fields on the `Player` struct. Since `inventory` is variable in length we decided to place it at the end of the account to make querying easier. We've also decided it's worth spending a little extra money on rent exemption to have 256 bytes of reserved space in the `for_future_use` field. We could exclude this and simply reallocate accounts if we need to add fields in the future, but adding it now simplifies things for us in the future.
 
-`Game` - This account holds two really important things, the `treasury` wallet for all players to pay their `action_points` (lamports) into. And the `game_config` which allows the game to be customizable across all players and monsters. You may have noticed I added in a `for_future_use` section - a game can be expanded, we’d want to make room for that!
+If we chose to reallocate in the future, we'd need to write more complicated queries and likely couldn't query in a single call based on `inventory`. Reallocating and adding a field would move the memory position of `inventory`, leaving us to write complex logic to query accounts with various structures.
 
-`Player` - This account will be PDA’d off of the `game` account and the `player`'s wallet. It holds all sorts of goodies pertaining that a player in an RPG may need. Again, we have the `for_future_use` section just in case.
+### 3. Create ancillary types
 
-`Monster` - This account is spawned by the player so it is PDA’d off of the `game`, `player`, and an index (which we store as `next_monster_index` in the `Player` account)
+The next thing we need to do is add some of the types our accounts reference that we haven't created yet.
 
-### Game Config
-
-The second thing we need to add is the game config struct - technically, this could have gone in the `Game` account, but I wanted the nice separation.
+Let's start with the game config struct. Technically, this could have gone in the `Game` account, but it's nice to have some separation and encapsulation. This struct should store the max items allowed per player and some bytes for future use. Again, the bytes for future use here help us avoid complexity in the future. Reallocating accounts works best when you're adding fields at the end of an account rather than in the middle. If you anticipate adding fields in the middle of existing date, it might make sense to add some "future use" bytes up front.
 
 ```rust
 // ----------- GAME CONFIG ----------
@@ -742,15 +697,11 @@ The second thing we need to add is the game config struct - technically, this co
 #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct GameConfig {
     pub max_items_per_player: u8,
-    pub for_future_use: [u64; 16], // Health of Enimies?? Experince per item?? Action Points per Action??
+    pub for_future_use: [u64; 16], // Health of Enemies?? Experience per item?? Action Points per Action??
 }
-
-// ----------- STATUS ----------
 ```
 
-Right now, we only dictate how many items a player can carry, but with the `for_future_use` we could expand the game’s rules.
-
-### Statuses
+Next, let's create our status flags. Remember, we *could* store our flags as booleans but we save space by storing multiple flags in a single byte. Each flag takes up a different bit within the byte. We can use the `<<` operator to place `1` in the correct bit.
 
 ```rust
 // ----------- STATUS ----------
@@ -764,13 +715,9 @@ const IS_STUNNED_FLAG: u8 = 1 << 5;
 const IS_SLOWED_FLAG: u8 = 1 << 6;
 const IS_BLEEDING_FLAG: u8 = 1 << 7;
 const NO_EFFECT_FLAG: u8 = 0b00000000;
-
-// ----------- INVENTORY ----------
 ```
 
-Just to show off some bit magic, we have statuses. This is so we can fit all of the statuses in one byte, where each bit corresponds to a different status.
-
-### Inventory
+Finally, let's create our `InventoryItem`. This should have fields for the item's name, amount, and some bytes reserved for future use.
 
 ```rust
 // ----------- INVENTORY ----------
@@ -781,20 +728,20 @@ pub struct InventoryItem {
     pub amount: u64,
     pub for_future_use: [u8; 128], // Metadata?? // Effects // Flags?
 }
-
-// ----------- HELPER ----------
 ```
 
-To show data ordering we have an inventory system. You may have seen it’s at the bottom of the `Player` account. You might think that 128 bytes is a little overkill on the `for_future_use` - maybe, that’s the design decision you have to come up with.  One suggestion, if each Item was an NFT, you’d want to store the `mint` pubkey here, which is 32 bytes.
+### 4. Create helper function for spending action points
 
-### Helper
+The last thing we'll do before writing the program's instructions is create a helper function for spending action points. Players will send action points (lamports) to the game treasury as payment for performing actions in the game.
 
-This is the last piece to setup before we get into the actual functions.
+Since sending lamports to a treasury requires writing data to that treasury account, we could easily end up with a performance bottleneck if many players are trying to write to the same treasury concurrently (See [Dealing With Concurrency](#dealing-with-concurrency)).
+
+Instead, we'll send them to the player PDA account and create an instruction that will send the lamports from that account to the treasury in one fell swoop. This alleviates any concurrency issues since every player has their own account, but also allows the program to retrieve those lamports at any time.
 
 ```rust
 // ----------- HELPER ----------
 
-pub fn spend_action_point<'info>(
+pub fn spend_action_points<'info>(
     action_points: u64, 
     player_account: &mut Account<'info, Player>,
     player: &AccountInfo<'info>, 
@@ -816,14 +763,15 @@ pub fn spend_action_point<'info>(
 
     Ok(())
 }
-// ----------- CREATE GAME ----------
 ```
 
-This helper is really just to save space since every action the `Player` takes will cost `action_points`. It just transfers the `actions_points` (lamports) to the `player` account to act as an escrow until the `game` account can be bothered to collect all of the funds. If you’re not sure why we’re doing this, revisit the **Dealing with Concurrency** section.
+### 5. Create Game
 
-### Create Game
+Our first instruction will create the `game` account. Anyone can be a `game_master` and create their own game, but once a game has been created there are certain constraints.
 
-Our first function will create the `game` account. 
+For one, the `game` account is a PDA using its `treasury` wallet. This ensures that the same `game_master` can run multiple games if they use a different treasury for each.
+
+Also note that the `treasury` is a signer on the instruction. This is to make sure whoever is creating the game has the private keys to the `treasury`. This is a design decision rather than "the right way." Ultimately, it's a security measure to ensure the game master will be able to retrieve their funds.
 
 ```rust
 // ----------- CREATE GAME ----------
@@ -859,15 +807,15 @@ pub fn run_create_game(ctx: Context<CreateGame>, max_items_per_player: u8) -> Re
 
     Ok(())
 }
-
-// ----------- CREATE PLAYER ----------
 ```
 
-Note that account is PDA’d off of the `treasury` wallet. This way, if a `game_master` wanted to run multiple games they could. Notice that the `treasury` is also a signer. This is to make sure whoever is creating the game has the private keys to the `treasury` - again this is a design decision. I do it out of protection, but maybe you wanted to run a charity game and put their wallet as the treasury.
+### 6. Create Player
 
-### Create Player
+Our second instruction will create the `player` account. There are three tradeoffs to note about this instruction:
 
-Our second function will be to create the `player` account.
+1. The player account is a PDA account derived using the `game` and `player` wallet. This let's players participate in multiple games but only have one player account per game.
+2. We wrap the `game` account in a `Box` to place it on the heap, ensuring we don't max out the Stack.
+3. The first action any player makes is spawning themselves in, so we call `spend_action_points`. Right now we hardcode `action_points_to_spend` to be 100 lamports, but this could be something added to the game config in the future.
 
 ```rust
 // ----------- CREATE PLAYER ----------
@@ -900,16 +848,16 @@ pub fn run_create_player(ctx: Context<CreatePlayer>) -> Result<()> {
     ctx.accounts.player_account.game = ctx.accounts.game.key().clone();
 
     ctx.accounts.player_account.status_flag = NO_EFFECT_FLAG;
-    ctx.accounts.player_account.experince = 0;
+    ctx.accounts.player_account.experience = 0;
     ctx.accounts.player_account.kills = 0;
 
     msg!("Hero has entered the game!");
 
     {   // Spend 100 lamports to create player
-        let action_point_to_spend = 100;
+        let action_points_to_spend = 100;
 
-        spend_action_point(
-            action_point_to_spend, 
+        spend_action_points(
+            action_points_to_spend, 
             &mut ctx.accounts.player_account,
             &ctx.accounts.player.to_account_info(), 
             &ctx.accounts.system_program.to_account_info()
@@ -918,15 +866,13 @@ pub fn run_create_player(ctx: Context<CreatePlayer>) -> Result<()> {
 
     Ok(())
 }
-
-// ----------- SPAWN MONSTER ----------
 ```
 
-Note how the player is PDA’d off of the `game` and `player` wallet. Notice how we `Box` the `game` account. Additionally, the first action any player makes is spawning themselves in, so we do call `spend_action_point`. Right now we hardcode `action_point_to_spend` to be 100 lamports - I wonder if there would be a place to put to make the `game` more customizable *cough *cough `game_config`. Of which, we use to set how many inventory slots the player has.
+### 7. Spawn Monster
 
-### Spawn Monster
-
-The following will allow us to spawn in a monster.
+Now that we have a way to create players, we need a way to spawn monsters for them to fight. This instruction will create a new `Monster` account whose address is a PDA derived with the `game` account, `player` account, and an index representing the number of monsters the player has faced. There are two design decisions here we should talk about:
+1. The PDA seeds let us keep track of all the monsters a player has spawned
+2. We wrap both the `game` and `player` accounts in `Box` to allocate them to the Heap
 
 ```rust
 // ----------- SPAWN MONSTER ----------
@@ -977,7 +923,7 @@ pub fn run_spawn_monster(ctx: Context<SpawnMonster>) -> Result<()> {
     {   // Spend 5 lamports to spawn monster
         let action_point_to_spend = 5;
 
-        spend_action_point(
+        spend_action_points(
             action_point_to_spend, 
             &mut ctx.accounts.player_account,
             &ctx.accounts.player.to_account_info(), 
@@ -987,15 +933,19 @@ pub fn run_spawn_monster(ctx: Context<SpawnMonster>) -> Result<()> {
 
     Ok(())
 }
-
-// ----------- ATTACK MONSTER ----------
 ```
 
-We are now boxing both the `game` and the `player` account. Look at how the monster is PDA’d with `game`, `player`, and an index. This is so that each player can keep track of all of the monsters they’ve spawned! Could you think of a better way to keep track of all of your monsters?
-
-### Attack Monster
+### 8. Attack Monster
 
 Now! Let’s attack those monsters and start gaining some exp!
+
+The logic here is as follows:
+- Players spend 1 `action_point` to attack and gain 1 `experience`
+- If the player kills the monster, their `kill` count goes up
+
+As far as design decisions, we've wrapped each of the rpg accounts in `Box` to allocate them to the Heap. Additionally, we've used `saturating_add` when incrementing experience and kill counts.
+
+The `saturating_add` function ensures the number will never overflow. Say the `kills` was a u8 and my current kill count was 255 (0xFF). If I killed another and added normally, e.g. `255 + 1 = 0 (0xFF + 0x01 = 0x00) = 0`, the kill count would end up as 0. `saturating_add` will keep it at its max if it’s about to roll over, so `255 + 1 = 255`. The `checked_add` function will throw an error if it’s about to overflow. Keep this in mind when doing math in Rust. Even though `kills` is a u64 and will never roll with it’s current programming, it’s good practice to use safe math and consider roll-overs.
 
 ```rust
 // ----------- ATTACK MONSTER ----------
@@ -1045,7 +995,7 @@ pub fn run_attack_monster(ctx: Context<AttackMonster>) -> Result<()> {
     }
 
     {
-        ctx.accounts.player_account.experince = ctx.accounts.player_account.experince.saturating_add(1);
+        ctx.accounts.player_account.experience = ctx.accounts.player_account.experience.saturating_add(1);
         msg!("+1 EXP");
 
         if did_kill {
@@ -1057,7 +1007,7 @@ pub fn run_attack_monster(ctx: Context<AttackMonster>) -> Result<()> {
     {   // Spend 1 lamports to attack monster
         let action_point_to_spend = 1;
 
-        spend_action_point(
+        spend_action_points(
             action_point_to_spend, 
             &mut ctx.accounts.player_account,
             &ctx.accounts.player.to_account_info(), 
@@ -1067,15 +1017,13 @@ pub fn run_attack_monster(ctx: Context<AttackMonster>) -> Result<()> {
 
     Ok(())
 }
-
-// ----------- REDEEM TO TREASUREY ----------
 ```
-
-Each rpg account is now `Box<>`'d. Basically, you spend an `action_point` to attack and you gain `experince` if you kill the monster your `kill` count goes up! Quick aside, you might be wondering why I use `saturating_add` - this is so the number will never overflow. Say the `kills` was a u8 and my current kill count was 255 (0xFF). If I killed another and added normally… 255 + 1 = 0 (0xFF + 0x01 = 0x00). `saturating_add` will keep it at it’s max if it’s about to roll over, so 255 + 1 = 255. `checked_add` will throw an error if it’s about to overflow. Keep this in mind - even though `kills` is a u64 and will never roll with it’s current programming, it’s a good practice to think about roll-overs.
 
 ### Redeem to Treasury
 
-Our last function! This one simply allows anyone to send the spent `action_points` to the `treasury` wallet.
+This is our last instruction. This instruction lets anyone send the spent `action_points` to the `treasury` wallet.
+
+Again, let's box the rpg accounts and use safe math.
 
 ```rust
 // ----------- REDEEM TO TREASUREY ----------
@@ -1120,7 +1068,7 @@ pub fn run_collect_action_points(ctx: Context<CollectActionPoints>) -> Result<()
 
 ### Putting it all Together
 
-The last thing we have to do is fill in the functions to out program. I personally like to see how many compute units each function takes. 
+Now that all of our instruction logic is written, let's add these functions to actual instructions in the program. It can also be helpful to log compute units for each instruction. 
 
 ```rust
 #[program]
@@ -1160,15 +1108,17 @@ pub mod rpg {
 }
 ```
 
-Now if you added in all of the sections correctly, you should be able to run:
+If you added in all of the sections correctly, you should be able to build successfully.
 
-`anchor build`
-
-You should get a completed build!
+```shell
+anchor build
+```
 
 ### Testing
 
-Now, let’s see this baby work! Let’s setup the `tests/rpg.ts` file. 
+Now, let’s see this baby work!
+
+Let’s set up the `tests/rpg.ts` file. We will be filling out each test in turn. But first, we needed to set up a couple of different accounts. Mainly the `gameMaster` and the `treasury`.
 
 ```tsx
 import * as anchor from "@coral-xyz/anchor";
@@ -1202,9 +1152,7 @@ it("Deposit Action Points", async () => {});
 });
 ```
 
-We will be filling out each test in turn. But first we needed to setup a couple of different accounts. Mainly the `gameMaster` and the `treasury`.
-
-Now lets add in the `Create Game` test.
+Now lets add in the `Create Game` test. Just call `createGame` with eight items, be sure to pass in all the accounts, and make sure the `treasury` account signs the transaction.
 
 ```tsx
 it("Create Game", async () => {
@@ -1234,20 +1182,18 @@ it("Create Game", async () => {
   });
 ```
 
-This one is pretty straight forward. Make sure to pass the `treasury` into the signers array. I personally like to test that tests run as I write them. So now would be a good time to run:
+Go ahead and check that your test runs:
 
 ```tsx
 yarn install
 anchor test
 ```
 
-just to make sure everything is running smoothly. 
-
 **Hacky workaround:** If for some reason, the `yarn install` command results in some `.pnp.*` files and no `node_modules`, you may want to call `rm -rf .pnp.*` followed by `npm i` and then `yarn install`. That should work.
 
-Now that everything is running, let’s implement the `Create Player` test.
+Now that everything is running, let’s implement the `Create Player`, `Spawn Monster`, and `Attack Monster` tests. Run each test as you complete them to make sure things are running smoothly.
 
-```
+```typescript
 it("Create Player", async () => {
     const [gameKey] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("GAME"), treasury.publicKey.toBuffer()],
@@ -1274,14 +1220,8 @@ it("Create Player", async () => {
     // Print out if you'd like
     // const account = await program.account.player.fetch(playerKey);
 
-  });
-```
+});
 
- 
-
-Again pretty straight forward. Run `anchor test` to make sure she’s running.
-
-```tsx
 it("Spawn Monster", async () => {
     const [gameKey] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("GAME"), treasury.publicKey.toBuffer()],
@@ -1316,12 +1256,8 @@ it("Spawn Monster", async () => {
     // Print out if you'd like
     // const account = await program.account.monster.fetch(monsterKey);
 
-  });
-```
+});
 
-Monster Spawned! Notice, the player only needs to know their own wallet and the game wallet for all of this to work! Run `anchor test` to make sure, because now we get into the fun stuff!
-
-```tsx
 it("Attack Monster", async () => {
     const [gameKey] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("GAME"), treasury.publicKey.toBuffer()],
@@ -1357,18 +1293,17 @@ it("Attack Monster", async () => {
 
     const monsterAccount = await program.account.monster.fetch(monsterKey);
     assert(monsterAccount.hitpoints.eqn(99));
-
-  });
+});
 ```
 
-Notice the monster that we choose to attack is `playerAccount.nextMonsterIndex.subn(1).toBuffer('le', 8)` - this effectively allows us to attack the most recent monster spawned. Anything below the `nextMonsterIndex` should be okay. Lastly, since seeds are just an array of bytes we have to turn the index into the u64, which is little endian `le` at 8 bytes.
+Notice the monster that we choose to attack is `playerAccount.nextMonsterIndex.subn(1).toBuffer('le', 8)`. This allows us to attack the most recent monster spawned. Anything below the `nextMonsterIndex` should be okay. Lastly, since seeds are just an array of bytes we have to turn the index into the u64, which is little endian `le` at 8 bytes.
 
 Run `anchor test` to deal some damage!
 
+Finally, let's write a test to gather all the deposited action points. This test may feel complex for what it's doing. That's because we're generating some new accounts to show that anyone could call the redeem function `depositActionPoints`. We use names like `clockwork` for these because if this game were running continuously, it probably makes sense to use something like [clockwork](https://www.clockwork.xyz/) cron jobs.
+
 ```tsx
 it("Deposit Action Points", async () => {
-    
-
     const [gameKey] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("GAME"), treasury.publicKey.toBuffer()],
       program.programId
@@ -1417,9 +1352,9 @@ it("Deposit Action Points", async () => {
     await program.provider.connection.confirmTransaction(txHash);
 
     const expectedActionPoints = 100 + 5 + 1; // Player Create ( 100 ) + Monster Spawn ( 5 ) + Monster Attack ( 1 )
-    const treasuryBalace = await program.provider.connection.getBalance(treasury.publicKey);
+    const treasuryBalance = await program.provider.connection.getBalance(treasury.publicKey);
     assert(
-        treasuryBalace == 
+        treasuryBalance == 
         (amountToInitialize + expectedActionPoints) // Player Create ( 100 ) + Monster Spawn ( 5 ) + Monster Attack ( 1 )
     );
 
@@ -1430,17 +1365,19 @@ it("Deposit Action Points", async () => {
     assert(playerAccount.actionPointsSpent.eqn(expectedActionPoints));
     assert(playerAccount.actionPointsToBeCollected.eqn(0));
 
-  });
+});
 ```
 
-This last test may feel a little too complex for the actual function it’s calling. But I wanted to show that anyone could call the redeem function `depositActionPoints` and I hint to using something like [clockwork](https://www.clockwork.xyz/) chron jobs to accomplish this.
+Finally, run `anchor test` to see everything working.
 
-Finally run `anchor test` to see everything working! And Ta-da! you have a mini RPG game engine!
+Congratulations! This was a lot to cover, but you now have a mini RPG game engine. If things aren't quite working, go back through the demo and find where you went wrong. If you need, you can refer to the [`main` branch of the solution code](https://github.com/Unboxed-Software/anchor-rpg).
+
+Be sure to put these concepts into practice in your own programs. Each little optimization adds up!
 
 # Challenge
 
-Now it’s your turn. Can you find any optimizations in the RPG code that you could make? Are there any expansions to the code? Would you want to implement any new systems? Now is your time to try it out! 
+Now it’s your turn to practice independently. Go back through the Demo code looking for additional optimizations and/or expansion you can make. Think through new systems and features you would add and how you would optimize them.
 
-I have provided a some example modifications in the `solution` branch of the provided code from the lesson. Take a look out for `// SOLUTION EDIT:`s to see what I changed or added
+You can find some example modifications on the `challenge-solution` branch of the [RPG repository](https://github.com/Unboxed-Software/anchor-rpg).
 
-[https://github.com/Unboxed-Software/Advance-Program-Architecture/tree/solution](https://github.com/Unboxed-Software/Advance-Program-Architecture/tree/solution)
+Finally, go through one of your own programs and think about optimizations you can make to improve memory management, storage size, and/or concurrency.
