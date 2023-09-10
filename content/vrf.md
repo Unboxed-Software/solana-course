@@ -38,13 +38,11 @@ VRFs are not specific to Solana and have been utilized on other blockchains to g
 
 ### Switchboard VRF Implementation
 
-Switchboard is a decentralized Oracle network that offers VRFs on Solana. Oracles are services that provide external data to a blockchain, allowing them to interact with and respond to real-world events. The Switchboard network is made up of many different individual oracles run by third parties to provide external data and service requests on-chain. To learn more about Switchboard’s Oracle network, please refer to our [Oracle lesson](https://www.notion.so/Oracles-ede44a3d96ff46bf98a149ecbdabd870?pvs=21).
+Switchboard is a decentralized Oracle network that offers VRFs on Solana. Oracles are services that provide external data to a blockchain, allowing them to interact with and respond to real-world events. The Switchboard network is made up of many different individual oracles run by third parties to provide external data and service requests on-chain. To learn more about Switchboard’s Oracle network, please refer to our [Oracle lesson](./oracles.md).
 
-Switchboard's VRF allows a user to request an oracle to produce a randomness output on-chain. Once an oracle has been assigned the request, the proof of the VRF result must be verified on-chain before it can be used. The VRF proof takes 276 instructions (~48 transactions) to fully verify on-chain. Once the proof is verified, the Switchboard program will execute the callback defined by the VRF Account during account creation.
+Switchboard's VRF allows users to request an oracle to produce a randomness output on-chain. Once an oracle has been assigned the request, the proof of the VRF result must be verified on-chain before it can be used. The VRF proof takes 276 instructions (~48 transactions) to fully verify on-chain. Once the proof is verified, the Switchboard program will execute a on-chain callback defined by the VRF Account during account creation. From there the program can consume the random data.
 
-When requesting randomness from Switchboard’s VRF, you must define a callback instruction. In this case, the callback is just another instruction in a program that you’d like the Switchboard program to invoke with the VRF result. Most likely, we will want the callback to be another instruction that we define in our program to consume the randomness. So, when working with VRFs, our program will actually need two separate instructions. One to make the VRF request to the Switchboard program and another one that the Switchboard program will invoke once the VRF result has been proven. The second instruction will contain the business logic to actually consume and use the random value we get back from Switchboard.
-
-Lastly, you might be wondering how they get paid. ( Always follow the money if you need to trust something ) In switchboard’s VRF implementation, you actually pay per request.  
+You might be wondering how they get paid. In switchboard’s VRF implementation, you actually pay per request. // NEEDS more data
 
 ### Requesting and Consuming VRF
 
