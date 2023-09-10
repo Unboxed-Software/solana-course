@@ -48,17 +48,112 @@ You might be wondering how they get paid. In switchboard’s VRF implementation,
 
 Now that we know what a VRF is and how it fits into the Switchboard Oracle network, let’s take a closer look at how to actually request and consume randomness from a Solana program. At a high level, the process for requesting and consuming randomness from Switchboard looks like this:
 
-1. Derive PDA that will be used as the program authority and sign on behalf of the program.
-2. Create a Switchboard VRF Account with the `programAuthority` PDA described in the previous step as the authority. This will allow the client program to sign and request randomness.
-3. Invoke `request_randomness` instruction on the Switchboard program. The program will assign an oracle to our VRF request.
+1. Create a `programAuthority` PDA that will be used as the program authority and sign on behalf of the program.
+2. Create a Switchboard VRF Account with the `programAuthority` as the `authority` and specify the `callback` function the VRF will return the data to.
+3. Invoke the `request_randomness` instruction on the Switchboard program. The program will assign an oracle to our VRF request.
 4. Oracle serves the request and responds to the Switchboard program with the proof calculated using its secret key.
 5. Oracle executes the 276 instructions to verify the VRF proof.
-6. Once VRF proof is verified, the Switchboard program will invoke the instruction that was passed in as the callback in the initial request with the pseudorandom number returned from the Oracle.
+6. Once VRF proof is verified, the Switchboard program will invoke the `callback` that was passed in as the callback in the initial request with the pseudorandom number returned from the Oracle.
 7. Program consumes the random number and can execute business logic with it!
 
-Now, don’t worry if there was anything in that process that was not clear - we will be going through each step of the process in detail.
 
-So, you can request randomness from an on-chain program by making a cross program invocation (CPI) into the Switchboard program. In order to make this CPI, you must pass in the correct accounts. Let’s take a look at what accounts are required for this request by checking out the Account struct definition in the actual [Switchboard program itself.](https://github.com/switchboard-xyz/solana-sdk/blob/fbef37e4a78cbd8b8b6346fcb96af1e20204b861/rust/switchboard-solana/src/oracle_program/instructions/vrf_request_randomness.rs#L8) 
+There are a lot of steps here, but don’t worry, we'll be going through each step of the process in detail. 
+
+First there are a couple of accounts that we will have to create ourselves in order to request randomness, specifically the `authority` and `vrf` accounts. The `authority` account is a PDA derived from our program that is requesting the randomness. So the PDA we create will have our own seeds for our own needs. For now, we'll simply set them at `VRFAUTH`.
+
+```tsx
+// derive PDA
+[vrfAuthorityKey, vrfAuthoritySecret] = anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("VRFAUTH")],
+    program.programId
+  )
+```
+
+Then, we need to initialize a `vrf` account that is owned by the Switchboard program and mark the PDA we just derived as its authority. The `vrf` account has the following data structure.
+
+```rust
+pub struct VrfAccountData {
+    /// The current status of the VRF account.
+    pub status: VrfStatus,
+    /// Incremental counter for tracking VRF rounds.
+    pub counter: u128,
+    /// On-chain account delegated for making account changes. <-- This is our PDA
+    pub authority: Pubkey,
+    /// The OracleQueueAccountData that is assigned to fulfill VRF update request.
+    pub oracle_queue: Pubkey,
+    /// The token account used to hold funds for VRF update request.
+    pub escrow: Pubkey,
+    /// The callback that is invoked when an update request is successfully verified.
+    pub callback: CallbackZC,
+    /// The number of oracles assigned to a VRF update request.
+    pub batch_size: u32,
+    /// Struct containing the intermediate state between VRF crank actions.
+    pub builders: [VrfBuilder; 8],
+    /// The number of builders.
+    pub builders_len: u32,
+    pub test_mode: bool,
+    /// Oracle results from the current round of update request that has not been accepted as valid yet
+    pub current_round: VrfRound,
+    /// Reserved for future info.
+    pub _ebuf: [u8; 1024],
+}
+```
+
+Some important fields on this account are `authority`, `oracle_queue`, and `callback`. The `authority` should be a PDA of the program that has the ability to request randomness on this `vrf` account. That way, only that program can provide the signature needed for the vrf request. The `oracle_queue` field allows you to specify which specific oracle queue you’d like to service the vrf requests made with this account. If you aren’t familiar with oracle queues on Switchboard, checkout the [Oracles lesson in this module](./oracles.md)! Lastly, the `callback` field is where you define the callback instruction the Switchboard program should invoke once the randomness result has be verified.
+
+The `callback` field is of type `[CallbackZC](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/rust/switchboard-solana/src/oracle_program/accounts/ecvrf.rs#L25)`.
+
+```rust
+#[zero_copy(unsafe)]
+#[repr(packed)]
+pub struct CallbackZC {
+    /// The program ID of the callback program being invoked.
+    pub program_id: Pubkey,
+    /// The accounts being used in the callback instruction.
+    pub accounts: [AccountMetaZC; 32],
+    /// The number of accounts used in the callback
+    pub accounts_len: u32,
+    /// The serialized instruction data.
+    pub ix_data: [u8; 1024],
+    /// The number of serialized bytes in the instruction data.
+    pub ix_data_len: u32,
+}
+```
+
+This is how you define the Callback struct client side.
+
+```tsx
+// example
+import Callback from '@switchboard-xyz/solana.js'
+...
+...
+
+const vrfCallback: Callback = {
+      programId: program.programId,
+      accounts: [
+        // ensure all accounts in consumeRandomness are populated
+        { pubkey: clientState, isSigner: false, isWritable: true },
+        { pubkey: vrfClientKey, isSigner: false, isWritable: true },
+        { pubkey: vrfSecret.publicKey, isSigner: false, isWritable: true },
+      ],
+			// use name of instruction
+      ixData: vrfIxCoder.encode("consumeRandomness", ""), // pass any params for instruction here
+    }
+```
+
+Now, you can create the `vrf` account.
+
+```tsx
+// Create Switchboard VRF
+  [vrfAccount] = await switchboard.queue.createVrf({
+    callback: vrfCallback,
+    authority: vrfAuthorityKey, // vrf authority
+    vrfKeypair: vrfSecret,
+    enable: !queue.unpermissionedVrfEnabled, // only set permissions if required
+  })
+```
+
+Now that we have all of our needed accounts we can finally call the `request_randomness` instruction on the Switchboard program. It's important to note you can invoke the `request_randomness` in a client or within a program with a cross program invocation (CPI). Let’s take a look at what accounts are required for this request by checking out the Account struct definition in the actual [Switchboard program](https://github.com/switchboard-xyz/solana-sdk/blob/fbef37e4a78cbd8b8b6346fcb96af1e20204b861/rust/switchboard-solana/src/oracle_program/instructions/vrf_request_randomness.rs#L8). 
 
 ```rust
 // from the Switchboard program
@@ -113,105 +208,7 @@ That’s a lot of accounts, let’s walk through each one and give them some con
 - Recent Blockhashes Program - [Recent Blockhashes Solana program](https://docs.rs/solana-program/latest/solana_program/sysvar/recent_blockhashes/index.html)
 - Token Program - Solana Token Program
 
-That’s all the accounts needed for just the randomness request. This does not include any other accounts that you need for your own program’s logic. 
-
-There are a couple of accounts that we will have to create ourselves in order to request randomness, specifically the `authority` and `vrf` accounts. The `authority` account is a PDA derived from our program that is requesting the randomness. So, we must derive the PDA using specific seeds.
-
-```tsx
-// derive PDA
-[vrfAuthorityKey, vrfAuthoritySecret] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("VRFAUTH")],
-    program.programId
-  )
-```
-
-Then, we need to initialize a `vrf` account that is owned by the Switchboard program and mark the PDA we just derived as its authority. The `vrf` account has the following data structure.
-
-```rust
-pub struct VrfAccountData {
-    /// The current status of the VRF account.
-    pub status: VrfStatus,
-    /// Incremental counter for tracking VRF rounds.
-    pub counter: u128,
-    /// On-chain account delegated for making account changes. <-- This is our PDA
-    pub authority: Pubkey,
-    /// The OracleQueueAccountData that is assigned to fulfill VRF update request.
-    pub oracle_queue: Pubkey,
-    /// The token account used to hold funds for VRF update request.
-    pub escrow: Pubkey,
-    /// The callback that is invoked when an update request is successfully verified.
-    pub callback: CallbackZC,
-    /// The number of oracles assigned to a VRF update request.
-    pub batch_size: u32,
-    /// Struct containing the intermediate state between VRF crank actions.
-    pub builders: [VrfBuilder; 8],
-    /// The number of builders.
-    pub builders_len: u32,
-    pub test_mode: bool,
-    /// Oracle results from the current round of update request that has not been accepted as valid yet
-    pub current_round: VrfRound,
-    /// Reserved for future info.
-    pub _ebuf: [u8; 1024],
-}
-```
-
-Some important fields on this account are `authority`, `oracle_queue`, and `callback`. The `authority` should be a PDA of the program that has the ability to request randomness on this `vrf` account. That way, only that program can provide the signature needed for the vrf request. The `oracle_queue` field allows you to specify which specific oracle queue you’d like to service the vrf requests made with this account. If you aren’t familiar with oracle queues on Switchboard, checkout the [Oracles lesson in this module](https://www.notion.so/Oracles-ede44a3d96ff46bf98a149ecbdabd870?pvs=21)! Lastly, the `callback` field is where you define the callback instruction the Switchboard program should invoke once the randomness result has be verified.
-
-The `callback` field is of type `[CallbackZC](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/rust/switchboard-solana/src/oracle_program/accounts/ecvrf.rs#L25)`.
-
-```rust
-#[zero_copy(unsafe)]
-#[repr(packed)]
-pub struct CallbackZC {
-    /// The program ID of the callback program being invoked.
-    pub program_id: Pubkey,
-    /// The accounts being used in the callback instruction.
-    pub accounts: [AccountMetaZC; 32],
-    /// The number of accounts used in the callback
-    pub accounts_len: u32,
-    /// The serialized instruction data.
-    pub ix_data: [u8; 1024],
-    /// The number of serialized bytes in the instruction data.
-    pub ix_data_len: u32,
-}
-```
-
-To create the `vrf` account, you must also define this data struct. This is how you define the Callback struct to be used in the `vrf` account.
-
-```tsx
-// example
-import Callback from '@switchboard-xyz/solana.js'
-...
-...
-
-const vrfCallback: Callback = {
-      programId: program.programId,
-      accounts: [
-        // ensure all accounts in consumeRandomness are populated
-        { pubkey: clientState, isSigner: false, isWritable: true },
-        { pubkey: vrfClientKey, isSigner: false, isWritable: true },
-        { pubkey: vrfSecret.publicKey, isSigner: false, isWritable: true },
-      ],
-			// use name of instruction
-      ixData: vrfIxCoder.encode("consumeRandomness", ""), // pass any params for instruction here
-    }
-```
-
-Then, you can actually create the `vrf` account.
-
-```tsx
-// Create Switchboard VRF
-  [vrfAccount] = await switchboard.queue.createVrf({
-    callback: vrfCallback,
-    authority: vrfAuthorityKey, // vrf authority
-    vrfKeypair: vrfSecret,
-    enable: !queue.unpermissionedVrfEnabled, // only set permissions if required
-  })
-```
-
-Once the required accounts have been created and passed into your program, you can make the CPI to invoke the Switchboard program and request for randomness. When the request is sent, the Switchboard program will validate the request then assign an oracle from the queue passed in at the initialization of the `vrf` account to fulfill the randomness request. That seems pretty straightforward, but let’s unpack it a little and take a closer look.
-
-In order to properly request randomness from the Switchboard program, we need to pass the expected accounts into the CPI and invoke the `VrfRequestRandomness` instruction of the Switchboard program.
+That’s all the accounts needed for just the randomness request, now let's see what it looks like in a Solana program via CPI. To do this, we make use of the `VrfRequestRandomness` data struct from the [SwitchboardV2 rust crate.](https://github.com/switchboard-xyz/solana-sdk/blob/main/rust/switchboard-solana/src/oracle_program/instructions/vrf_request_randomness.rs) This struct has some built-in capabilities to make our lives easier here, most notably the account structure is defined for us and we can easily call `invoke` or `invoke_signed` on the object.
 
 ```rust
 // our client program
@@ -251,11 +248,9 @@ Ok(())
 }
 ```
 
-To do this, we make use of the `VrfRequestRandomness` data struct from the [SwitchboardV2 rust crate.](https://github.com/switchboard-xyz/solana-sdk/blob/main/rust/switchboard-solana/src/oracle_program/instructions/vrf_request_randomness.rs) This struct has some built-in capabilities to make our lives easier here, most notably the account structure is defined for us and we can easily call `invoke` or `invoke_signed` on the object.
-
 Once the Switchboard program is invoked, it does some logic on its end and assigns an oracle in the `vrf` account’s defined oracle queue to serve the randomness request. The assigned oracle then calculates a random value and sends it back to the Switchboard program.
 
-Once the result is verified, the Switchboard program then invokes the callback instruction defined in the `vrf` account. The callback instruction is where you can write your business logic on how you want to utilize the random number in your program. The callback should expect the `vrf` account be passed in, as that is the account the Switchboard program will store the random result in. An example may look like this.
+Once the result is verified, the Switchboard program then invokes the `callback` instruction defined in the `vrf` account. The callback instruction is where you would have written your business logic using the random numbers. In the following code we store the resulting randomness in our `vrf_auth` PDA from our first step.
 
 ```rust
 // our client program
@@ -294,12 +289,20 @@ pub fn handler(ctx: Context<ConsumeRandomness>) -> Result <()> {
 }
 ```
 
-That looks pretty straightforward, but there is something we have not talked about yet and that’s how the randomness result is stored. The example code takes the `result_buffer` which is the return value from the `[get_result()](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/rust/switchboard-solana/src/oracle_program/accounts/vrf.rs#L122)` method. This method just returns the `current_round.result` field of the `vrf` account SwitchboardDecimal format, which is a buffer of `[u8](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/rust/switchboard-solana/src/oracle_program/accounts/ecvrf.rs#L65C26-L65C26)` unsigned-integers. The switchboard program stores the randomness result on-chain as a byte buffer, not an integer. So, the random value that is returned is really a buffer of 32 `u8` random unsigned-integers. You can use these unsigned-integers however you see fit in your program, but a very common method is to treat each integer in the buffer as its own random number. Meaning a single VRF request returns 32 8-bit random numbers. Since a byte buffer does not really play well with normal integers, this is an easy way to simplify the result into a more usable format.
+Now you have randomness! Hooray! But there is one last thing we have not talked about yet and that’s how the randomness is returned. Switchboard, gives you your randomness calling `[get_result()](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/rust/switchboard-solana/src/oracle_program/accounts/vrf.rs#L122)`. This method returns the `current_round.result` field of the `vrf` account SwitchboardDecimal format, which is really just a buffer of 32 random `[u8](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/rust/switchboard-solana/src/oracle_program/accounts/ecvrf.rs#L65C26-L65C26)` unsigned-integers. You can use these unsigned-integers however you see fit in your program, but a very common method is to treat each integer in the buffer as its own random number. For example, if you need a dice roll (1-6) just take the first byte of the array, module it with 6 and add one.
 
 ```rust
 // slice byte buffer to store the first value
-let random_value = result_buffer[0];
+let dice_roll = (result_buffer[0] % 6) + 1;
 ```
+
+> Christian's fun facts: this is actually a bad option for a dice roll, because you have 256 options in a u8. When modulo'd by 6, the number zero has a slight advantage in the distribution (256 is not divisable by 6).
+> Number of 0s: (255-0)/6 + 1 = 43
+> Number of 1s: (256-1)/6 = 42.6667, so 42 occurrences of 1
+> Number of 2s: (257-2)/6 = 42.5, so 42 occurrences of 2
+> Number of 3s: (258-3)/6 = 42.5, so 42 occurrences of 3
+> Number of 4s: (259-4)/6 = 42.5, so 42 occurrences of 4
+> Number of 5s: (260-5)/6 = 42.5, so 42 occurrences of 5
 
 What you do with the random values from there is completely up to you! 
 
