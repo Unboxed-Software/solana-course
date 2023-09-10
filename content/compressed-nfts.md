@@ -1,11 +1,5 @@
 # Compressed NFTs
 
-### List links for further reading here:
-
-- [https://docs.solana.com/developing/guides/compressed-nfts#transfer-compressed-nfts](https://docs.solana.com/developing/guides/compressed-nfts#transfer-compressed-nfts)
-- [https://docs.solana.com/learn/state-compression](https://docs.solana.com/learn/state-compression)
-- [https://developers.metaplex.com/bubblegum](https://developers.metaplex.com/bubblegum)
-
 # Lesson Objectives
 
 *By the end of this lesson, you will be able to:*
@@ -17,10 +11,10 @@
 
 # TL;DR
 
-- **********************************************Compressed NFTs (cNFTs)********************************************** use **********************************State Compression********************************** to hash NFT data and store the hash on-chain in an account using a **concurrent merkle tree** structure
-- The cNFT data hash can’t be used to infer the cNFT data, but it can be used to ************verify************ if the cNFT data you’re seeing is correct
-- Supporting RPC providers **********index********** cNFT data off-chain when the cNFT is minted so that you can use the ****************Read API**************** to access the data
-- The **Metaplex Bubblegum program** is an abstraction on top of the **********************************State Compression********************************** program that enables you to more simply create, mint, and manage cNFT collections
+- **Compressed NFTs (cNFTs)** use **State Compression** to hash NFT data and store the hash on-chain in an account using a **concurrent merkle tree** structure
+- The cNFT data hash can’t be used to infer the cNFT data, but it can be used to **verify** if the cNFT data you’re seeing is correct
+- Supporting RPC providers **index** cNFT data off-chain when the cNFT is minted so that you can use the **Read API** to access the data
+- The **Metaplex Bubblegum program** is an abstraction on top of the **State Compression** program that enables you to more simply create, mint, and manage cNFT collections
 
 # Overview
 
@@ -32,7 +26,7 @@ However, cNFTs can be tricky to work with. Eventually, the tooling required to w
 
 ## A theoretical overview of cNFTs
 
-Most of the costs associated with traditional NFTs come down to account storage space. Compressed NFTs use a concept called State Compression to store data in the blockchain’s cheaper **ledger state**, using more expensive account space only to store a “fingerprint”, or ********hash********, of the data. This hash allows you to cryptographically verify that data has not been tampered with.
+Most of the costs associated with traditional NFTs come down to account storage space. Compressed NFTs use a concept called State Compression to store data in the blockchain’s cheaper **ledger state**, using more expensive account space only to store a “fingerprint”, or **hash**, of the data. This hash allows you to cryptographically verify that data has not been tampered with.
 
 To both store hashes and enable verification, we use a special binary tree structure known as a **concurrent merkle tree**. This tree structure lets us hash data together in a deterministic way to compute a single, final hash that gets stored on-chain. This final hash is significantly smaller in size than all the original data combined, hence the “compression.” The steps to this process are:
 
@@ -48,7 +42,7 @@ To both store hashes and enable verification, we use a special binary tree struc
 
 One problem not addressed in the above is how to make data available if it can’t be fetched from an account. Since this hashing process occurs on chain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from origin. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the on-chain root hash.
 
-This process is *************very complex*************. We’ll cover some of the key concepts below but don’t worry if you don’t understand it right away. We’ll talk more theory in the state compression lesson and focus primarily on application to NFTs in this lesson. You’ll be able to work with cNFTs by the end of this lesson even if you don’t fully understand every piece of the state compression puzzle.
+This process is *very complex*. We’ll cover some of the key concepts below but don’t worry if you don’t understand it right away. We’ll talk more theory in the state compression lesson and focus primarily on application to NFTs in this lesson. You’ll be able to work with cNFTs by the end of this lesson even if you don’t fully understand every piece of the state compression puzzle.
 
 ### Concurrent Merkle Trees
 
@@ -68,7 +62,7 @@ The **max depth** is the maximum number of hops to get from any leaf to the root
 
 The **max buffer size** is effectively the maximum number of concurrent changes that you can make to a tree within a single slot with the root hash still being valid.
 
-The ****************************canopy depth**************************** is the number of proof nodes that are stored on chain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit without caching proof nodes on-chain.
+The **canopy depth** is the number of proof nodes that are stored on chain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit without caching proof nodes on-chain.
 
 Each of these three values, max depth, max buffer size, and canopy depth, comes with a tradeoff. Increasing the value of any of these values increases the size of the account used to store the tree, thus increasing the cost to create the tree. 
 
@@ -96,7 +90,7 @@ As mentioned above, the data now exists in the ledger state rather than in an ac
 
 To save space and be more performant, validators don’t retain every transaction back to the genesis block. The specific amount of time you’ll be able to access the Noop instruction logs related to your data will vary based on the validator, but eventually you’ll lose access to it if you’re relying directly on instruction logs.
 
-Technically, you ***can*** replay transaction state back to the genesis block but the average team isn’t going to do that, and it certainly won’t be performant. Instead, you should use an indexer that will observe the events sent to the Noop program and store the relevant data off chain. That way you don’t need to worry about old data becoming inaccessible.
+Technically, you *can* replay transaction state back to the genesis block but the average team isn’t going to do that, and it certainly won’t be performant. Instead, you should use an indexer that will observe the events sent to the Noop program and store the relevant data off chain. That way you don’t need to worry about old data becoming inaccessible.
 
 ## Create a cNFT Collection
 
@@ -105,7 +99,7 @@ With the theoretical background out of the way, let’s turn our attention to th
 Fortunately, you can use tools created by Solana Foundation, the Solana developer community, and Metaplex to simplify the process. Specifically, we’ll be using the `@solana/spl-account-compression` SDK, the Metaplex Bubblegum program, and the Bubblegum program’s corresponding TS SDK `@metaplex-foundation/mpl-bugglegum`.
 
 <aside>
-💡 At the time of writing, the Metaplex team is transitioning to a new bubblegum client SDK that supports umi, their modular framework for building and using JS clients for Solana programs. We ****************will not**************** be using the umi version of the SDK in this lesson. Rather, we’ll be hardcoding our dependency to version 0.7 (`@metaplex-foundation/mpl-bubblegum@0.7`). This version provides simple helper functions for building Bubblegum instructions.
+💡 At the time of writing, the Metaplex team is transitioning to a new bubblegum client SDK that supports umi, their modular framework for building and using JS clients for Solana programs. We will not be using the umi version of the SDK in this lesson. Rather, we’ll be hardcoding our dependency to version 0.7 (`@metaplex-foundation/mpl-bubblegum@0.7`). This version provides simple helper functions for building Bubblegum instructions.
 
 </aside>
 
@@ -141,7 +135,7 @@ Depending on your use case, you may be able to generate this dynamically or you 
 
 ### Create Collection NFT
 
-If you want your cNFTs to be part of a collection, you’ll need to create a Collection NFT ******before****** you start minting cNFTs. This is a traditional NFT that acts as the reference binding your cNFTs together into a single collection. You can create this NFT using the `@metaplex-foundation/js` library. Just make sure you set `isCollection` to `true`.
+If you want your cNFTs to be part of a collection, you’ll need to create a Collection NFT **before** you start minting cNFTs. This is a traditional NFT that acts as the reference binding your cNFTs together into a single collection. You can create this NFT using the `@metaplex-foundation/js` library. Just make sure you set `isCollection` to `true`.
 
 ```tsx
 const collectionNft = await metaplex.nfts().create({
@@ -363,7 +357,7 @@ const mintWithoutCollectionIx = createMintV1Instruction(
 
 ## Interact with cNFTs
 
-It’s important to note that cNFTs *******are not******* SPL tokens. That means your code needs to follow different conventions in order to handle cNFT functionality like fetching, querying, transferring, etc.
+It’s important to note that cNFTs *are not* SPL tokens. That means your code needs to follow different conventions in order to handle cNFT functionality like fetching, querying, transferring, etc.
 
 ### Fetch cNFT data
 
@@ -374,7 +368,7 @@ In order to use the Read API to fetch a specific cNFT, you need to have the cNFT
 1. The transaction signature
 2. The leaf index (possibly)
 
-The only real guarantee is that you’ll have the transaction signature. It is ********possible******** to locate the leaf index from there, but it involves some fairly complex parsing. The short story is you must retrieve the relevant instruction logs from the Noop program and parse them to find the leaf index. We’ll cover this more in depth in a future lesson. For now, we’ll assume you know the leaf index.
+The only real guarantee is that you’ll have the transaction signature. It is **possible** to locate the leaf index from there, but it involves some fairly complex parsing. The short story is you must retrieve the relevant instruction logs from the Noop program and parse them to find the leaf index. We’ll cover this more in depth in a future lesson. For now, we’ll assume you know the leaf index.
 
 This is a reasonable assumption for most mints given that the minting will be controlled by your code and can be set up sequentially so that your code can track which index is going to be used for each mint. I.e. the first mint will use index 0, the second index 1, etc.
 
@@ -586,7 +580,7 @@ We will be writing all of our code in the `index.ts`.
 
 ### 2. Create the merkle tree account
 
-We’ll start by creating the merkle tree account. Let’s encapsulate this in a function that will eventually create ***and*** initialize the account. We’ll put it below our `main` function in `index.ts`. Let’s call it `createAndInitializeTree`. For this function to work, it will need the following parameters:
+We’ll start by creating the merkle tree account. Let’s encapsulate this in a function that will eventually create *and* initialize the account. We’ll put it below our `main` function in `index.ts`. Let’s call it `createAndInitializeTree`. For this function to work, it will need the following parameters:
 
 - `connection` - a `Connection` to use for interacting with the network.
 - `payer` - a `Keypair` that will pay for transactions.
@@ -617,7 +611,7 @@ async function createAndInitializeTree(
 
 ### 3. Use Bubblegum to initialize the merkle tree and create the tree config account
 
-With the instruction for creating the tree ready to go, we can create an instruction for invoking `create_tree` on the Bubblegum program. This will initialize the merkle tree account ***and*** create a new tree config account on the Bubblegum program.
+With the instruction for creating the tree ready to go, we can create an instruction for invoking `create_tree` on the Bubblegum program. This will initialize the merkle tree account *and* create a new tree config account on the Bubblegum program.
 
 This instruction needs us to provide the following:
 
@@ -1026,7 +1020,7 @@ Remember, the Read API also includes ways to get multiple assets, query by owner
 
 The last thing we’re going to add to our script is a cNFT transfer. Just as with a standard SPL token transfer, security is paramount. Unlike with a standard SPL token transfer, however, in order to build a secure transfer with state compression of any kind, the program performing the transfer needs the entire asset data.
 
-The program, Bubblegum in this case, needs to be provided with the entire data that was hashed and stored on the corresponding leaf ***and*** needs to be given the “proof path” for the leaf in question. That makes cNFT transfers a bit trickier than SPL token transfers.
+The program, Bubblegum in this case, needs to be provided with the entire data that was hashed and stored on the corresponding leaf *and* needs to be given the “proof path” for the leaf in question. That makes cNFT transfers a bit trickier than SPL token transfers.
 
 Remember, the general steps are:
 
