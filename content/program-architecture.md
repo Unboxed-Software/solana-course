@@ -1378,6 +1378,6 @@ Be sure to put these concepts into practice in your own programs. Each little op
 
 Now it’s your turn to practice independently. Go back through the Demo code looking for additional optimizations and/or expansion you can make. Think through new systems and features you would add and how you would optimize them.
 
-You can find some example modifications on the `challenge-solution` branch of the [RPG repository](https://github.com/Unboxed-Software/anchor-rpg).
+You can find some example modifications on the `challenge-solution` branch of the [RPG repository](https://github.com/Unboxed-Software/anchor-rpg/tree/challenge-solution).
 
 Finally, go through one of your own programs and think about optimizations you can make to improve memory management, storage size, and/or concurrency.
