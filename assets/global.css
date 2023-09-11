@@ -1,0 +1,47 @@
+:root {
+  --single-column: 700px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+div,
+article,
+section,
+button {
+  display: grid;
+}
+
+article {
+  justify-items: center;
+}
+
+article a {
+  text-decoration: underline;
+}
+
+pre {
+  padding: 0;
+}
+
+code {
+  /* highlight.js likes to override this */
+  background-color: hsl(0, 0%, 96.5%) !important;
+  font-size: 14px;
+  line-height: 18px;
+  border-radius: 12px;
+}

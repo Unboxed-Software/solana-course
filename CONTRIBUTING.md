@@ -48,9 +48,50 @@ General flow for making a contribution:
 4. Push your work back up to your fork on GitHub
 5. Submit a Pull request so that we can review your changes
 
+## Config
 
+Content is controlled by the config file `course-structure.json`. All content is in the `content` dir sorted by the slug in `course-structure.json`. 
 
 ## Writing Content for this Guide
+
+Use the terms at https://docs.solana.com/terminology
+
+## Static Assets
+
+The old hosting used `assets` as the static asset dir.
+
+The new hosting uses `src/lib/assets` for most assets. The `static` folder is used for rarely updated assets. See https://stackoverflow.com/questions/71789244/where-to-put-images-with-sveltekit.
+
+TODO: create a solution for the transition period.
+
+## Development
+
+```
+npm run dev -- --open
+```
+
+### Developing
+
+Once you've created a project and installed dependencies with `npm install`, start a development server:
+
+```bash
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+### Building
+
+To create a production version of your app:
+
+```bash
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 ### Localization
 
