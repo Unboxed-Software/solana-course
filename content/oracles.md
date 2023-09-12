@@ -1,5 +1,5 @@
 ---
-title: Oracles
+title: Oracles and Oracle Networks
 objectives:
 - Explain why on-chain programs cannot readily access real-world data on their own
 - Explain how oracles solve the problem to accessing real-world data on-chain
