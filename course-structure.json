@@ -221,5 +221,31 @@
                 "number": 11
             }
         ]
+    },
+    {
+        "title": "Advance Solana Programming",
+        "number": 8,
+        "lessons": [
+            {
+                "title": "Program architecture",
+                "slug": "program-architecture",
+                "number": 1
+            },
+            {
+                "title": "Oracles and oracle networks",
+                "slug": "oracles",
+                "number": 2
+            },
+            {
+                "title": "Verifiable randomness functions",
+                "slug": "vrf",
+                "number": 3
+            },
+            {
+                "title": "Compressed NFTs",
+                "slug": "compressed-nfts",
+                "number": 4
+            }
+        ]
     }
 ]
