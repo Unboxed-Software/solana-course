@@ -1,13 +1,11 @@
-# Compressed NFTs
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Compressed NFTs
+objectives:
 - Create a compressed NFT collection using Metaplex’s Bubblegum program
 - Mint compressed NFTs using the Bubblegum TS SDK
 - Transfer compressed NFTs using the Bubblegum TS SDK
 - Read compressed NFT data using the Read API
+---
 
 # TL;DR
 
