@@ -1365,3 +1365,5 @@ If something is not working feel free to try out the code [here](https://github.
 ## Challenge
 
 The challenge for this lesson is to add some logic to the program to track how many times a user rolls. If they roll 3 times without rolling doubles, they should be able to withdraw their funds.
+
+If you get stuck, we have the solution in the `vrf-challenge-solution` branch [here](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf-challenge-solution).
