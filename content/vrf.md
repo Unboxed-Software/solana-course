@@ -1,12 +1,12 @@
 # Verifiable Random Function
 
-# **TL;DR**
+# TL;DR
 
 - VRFs gives developers the opportunity to incorporate random numbers in their on-chain programs in a secure manner
 - A Verifiable Random Function (VRF) is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly
 - Switchboard offers a VRF for the Solana ecosystem
 
-# **Overview**
+# Overview
 
 ## Randomness On-Chain
 
