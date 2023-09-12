@@ -44,7 +44,7 @@ Para crear una transacción versionada, simplemente cree una `TransactionMessage
 
 A continuación, transforme este objeto de mensaje en una `0` transacción de versión utilizando el `compileToV0Message()` método.
 
-```ts
+```typescript
 import * as web3 from "@solana/web3.js";
 
 // Example transfer instruction
@@ -69,7 +69,7 @@ const message = new web3.TransactionMessage({
 
 Finalmente, pasa el mensaje compilado al `VersionedTransaction` constructor para crear una nueva transacción versionada. Su código puede firmar y enviar la transacción a la red, similar a una transacción heredada.
 
-```ts
+```typescript
 // Create the versioned transaction using the message
 const transaction = new web3.VersionedTransaction(message);
 
@@ -104,7 +104,7 @@ Utiliza el `createLookupTable` método para construir la instrucción que crea u
 
 La función devuelve tanto la instrucción para crear la tabla de consulta como la dirección de la tabla de consulta.
 
-```ts
+```typescript
 // Get the current slot
 const slot = await connection.getSlot();
 
@@ -120,7 +120,7 @@ const [lookupTableInst, lookupTableAddress] =
 
 Bajo el capó, la dirección de la tabla de búsqueda es simplemente un PDA derivado usando el `authority` y `recentSlot` como semillas.
 
-```ts
+```typescript
 const [lookupTableAddress, bumpSeed] = PublicKey.findProgramAddressSync(
     [params.authority.toBuffer(), toBufferLE(BigInt(params.recentSlot), 8)],
     this.programId,
@@ -146,7 +146,7 @@ Utilice el `extendLookupTable` método para crear una instrucción que añada di
 
 La función devuelve una instrucción para extender la tabla de búsqueda.
 
-```ts
+```typescript
 const addresses = [
     new web3.PublicKey("31Jy3nFeb5hKVdB4GS4Y7MhU7zhNMFxwF7RGVhPc1TzR"),
     new web3.PublicKey("HKSeapcvwJ7ri6mf3HwBtspLFTDKqaJrMsozdfXfg5y2"),
@@ -168,7 +168,7 @@ Tenga en cuenta que al extender una tabla de búsqueda, el número de direccione
 
 Después de crear las instrucciones, puede añadirlas a una transacción y enviarlas a la red.
 
-```ts
+```typescript
 // Get the latest blockhash
 let { blockhash } = await connection.getLatestBlockhash();
 
@@ -191,7 +191,7 @@ const transactionSignature = await connection.sendTransaction(transaction);
 
 Tenga en cuenta que cuando crea o extiende una tabla de búsqueda por primera vez o cuando, necesita "calentarse" para una ranura antes de que el LUT o las nuevas direcciones se puedan usar en las transacciones. En otras palabras, solo puede usar tablas de búsqueda y direcciones de acceso que se hayan añadido antes de la ranura actual.
 
-```ts
+```typescript
 SendTransactionError: failed to send transaction: invalid transaction: Transaction address table lookup uses an invalid index
 ```
 
@@ -206,7 +206,7 @@ Para desactivar una LUT, utilice el `deactivateLookupTable` método y pase los s
 -   `lookupTable` - la dirección de la LUT a desactivar
 -   `authority` - la cuenta con permiso para desactivar el LUT
 
-```ts
+```typescript
 const deactivateInstruction =
     web3.AddressLookupTableProgram.deactivateLookupTable({
         lookupTable: lookupTableAddress, // The address of the lookup table to deactivate
@@ -222,7 +222,7 @@ Para cerrar una tabla de consulta después de su periodo de desactivación, util
 -   `authority` - la cuenta con permiso para cerrar el LUT
 -   `recipient` - la cuenta que recibirá el saldo de alquiler reclamado
 
-```ts
+```typescript
 const closeInstruction = web3.AddressLookupTableProgram.closeLookupTable({
     lookupTable: lookupTableAddress, // The address of the lookup table to close
     authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
@@ -247,7 +247,7 @@ Congela una tabla de búsqueda con el `freezeLookupTable` método. Toma los sigu
 -   `lookupTable` - la dirección del LUT que se va a congelar
 -   `authority` - la cuenta con permiso para congelar el LUT
 
-```ts
+```typescript
 const freezeInstruction = web3.AddressLookupTableProgram.freezeLookupTable({
     lookupTable: lookupTableAddress, // The address of the lookup table to freeze
     authority: user.publicKey, // The authority (i.e., the account with permission to modify the lookup table)
@@ -266,7 +266,7 @@ Una vez que se congela un LUT, cualquier intento adicional de modificarlo dará 
 
 Para utilizar una tabla de búsqueda en una transacción versionada, debe recuperar la cuenta de la tabla de búsqueda utilizando su dirección.
 
-```ts
+```typescript
 const lookupTableAccount = (
     await connection.getAddressLookupTable(lookupTableAddress)
 ).value;
@@ -274,7 +274,7 @@ const lookupTableAccount = (
 
 A continuación, puede crear una lista de instrucciones para incluir en una transacción como de costumbre. Al crear el `TransactionMessage`, puede incluir cualquier cuenta de tabla de búsqueda pasándolas como una matriz al `compileToV0Message()` método. También puede proporcionar varias cuentas de tabla de búsqueda.
 
-```ts
+```typescript
 const message = new web3.TransactionMessage({
     payerKey: payer.publicKey, // The payer (i.e., the account that will pay for the transaction fees)
     recentBlockhash: blockhash, // The blockhash of the most recent block
@@ -376,7 +376,7 @@ En los siguientes pasos, repasaremos cómo usar tablas de búsqueda con transacc
 
 Antes de comenzar, siga adelante y elimine el contenido de la `main` función para dejar solo lo siguiente:
 
-```ts
+```typescript
 async function main() {
     // Connect to the devnet cluster
     const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
@@ -408,7 +408,7 @@ A continuación, la función realiza las siguientes tareas:
 -   Confirma la transacción
 -   Registra la URL de la transacción en Solana Explorer
 
-```ts
+```typescript
 async function sendV0Transaction(
     connection: web3.Connection,
     user: web3.Keypair,
@@ -458,7 +458,7 @@ Recuerde que las tablas de búsqueda y las direcciones contenidas en ellas no se
 
 Esta función tendrá parámetros para una conexión y una altura de bloque objetivo. A continuación, se inicia un intervalo que comprueba la altura de bloque actual de la red cada 1000 ms. Una vez que la nueva altura del bloque excede la altura objetivo, el intervalo se borra y la promesa se resuelve.
 
-```ts
+```typescript
 function waitForNewBlock(connection: web3.Connection, targetHeight: number) {
     console.log(`Waiting for ${targetHeight} new blocks`);
     return new Promise(async (resolve: any) => {
@@ -493,7 +493,7 @@ Ahora que tenemos algunas funciones auxiliares listas para funcionar, declare un
 4. Enviar y confirmar una transacción con las instrucciones para crear y ampliar la tabla de búsqueda
 5. Devuelve la dirección de la tabla de búsqueda
 
-```ts
+```typescript
 async function initializeLookupTable(
     user: web3.Keypair,
     connection: web3.Connection,
@@ -539,7 +539,7 @@ Ahora que podemos inicializar una tabla de búsqueda con todas las direcciones d
 4. Crear la instrucción de transferencia para cada destinatario
 5. Enviar la transacción v0 con todas las instrucciones de transferencia
 
-```ts
+```typescript
 async function main() {
     // Connect to the devnet cluster
     const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
@@ -611,7 +611,7 @@ Todo lo que tenemos que hacer es entrar `initializeLookupTable` y hacer dos cosa
 1. Modificar la llamada existente `extendLookupTable` a para añadir solo las primeras 30 direcciones (no más de eso y la transacción será demasiado grande)
 2. Añadir un bucle que seguirá extendiendo una tabla de búsqueda 30 direcciones a la vez hasta que todas las direcciones se han añadido
 
-```ts
+```typescript
 async function initializeLookupTable(
     user: web3.Keypair,
     connection: web3.Connection,

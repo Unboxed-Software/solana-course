@@ -244,7 +244,7 @@ Since the instructions don't explicitly require the `user` PDA to use the canoni
 
 The test in the `tests` directory creates a new keypair called `attacker` to represent an attacker. It then loops through all possible bumps and calls `create_user_insecure` and `claim_insecure`. By the end, the test expects that the attacker has been able to claim rewards multiple times and has earned more than the 10 tokens allotted per user.
 
-```ts
+```typescript
 it("Attacker can claim more than reward limit with insecure instructions", async () => {
     const attacker = Keypair.generate()
     await safeAirdrop(attacker.publicKey, provider.connection)
@@ -416,7 +416,7 @@ Let's go ahead and write a test to show that the attacker can no longer claim mo
 
 Notice that if you start to loop through using multiple PDAs like the old test, you can't even pass the non-canonical bump to the instructions. However, you can still loop through using the various PDAs and at the end check that only 1 claim happened for a total of 10 tokens. Your final test will look something like this:
 
-```ts
+```typescript
 it.only("Attacker can only claim once with secure instructions", async () => {
     const attacker = Keypair.generate()
     await safeAirdrop(attacker.publicKey, provider.connection)

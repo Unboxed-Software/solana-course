@@ -380,7 +380,7 @@ local-testing = []
 
 A continuación, actualice el archivo `config.ts` de prueba para crear un Mint utilizando el par de claves generado. Comience por eliminar la `mint` constante.
 
-```ts
+```typescript
 const mint = new anchor.web3.PublicKey(
     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 );
@@ -388,7 +388,7 @@ const mint = new anchor.web3.PublicKey(
 
 A continuación, actualice la prueba para crear una Mint utilizando el par de claves, lo que nos permitirá reutilizar la misma dirección Mint cada vez que se ejecuten las pruebas. Recuerde reemplazar el nombre del archivo con el que se generó en el paso anterior.
 
-```ts
+```typescript
 let mint: anchor.web3.PublicKey
 
 before(async () => {
@@ -683,7 +683,7 @@ pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
 
 Ahora que hemos terminado de implementar nuestra nueva estructura e instrucciones de configuración del programa, pasemos a probar nuestro programa actualizado. Para comenzar, añada el PDA de la cuenta de configuración del programa al archivo de prueba.
 
-```ts
+```typescript
 describe("config", () => {
   ...
   const programConfig = findProgramAddressSync(

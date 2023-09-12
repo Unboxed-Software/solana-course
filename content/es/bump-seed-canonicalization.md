@@ -244,7 +244,7 @@ Dado que las instrucciones no requieren explícitamente que la `user` PDA use el
 
 La prueba en el `tests` directorio crea un nuevo par de claves llamado `attacker` para representar a un atacante. Luego recorre todos los posibles golpes y llamadas `create_user_insecure` y `claim_insecure`. Al final, la prueba espera que el atacante haya podido reclamar recompensas varias veces y haya ganado más de los 10 tokens asignados por usuario.
 
-```ts
+```typescript
 it("Attacker can claim more than reward limit with insecure instructions", async () => {
     const attacker = Keypair.generate();
     await safeAirdrop(attacker.publicKey, provider.connection);
@@ -419,7 +419,7 @@ Vamos a escribir una prueba para demostrar que el atacante ya no puede reclamar 
 
 Tenga en cuenta que si comienza a pasar a través del uso de múltiples PDA como la prueba anterior, ni siquiera puede pasar el golpe no canónico a las instrucciones. Sin embargo, aún puede recorrer el uso de los diversos PDA y al final verificar que solo ocurrió 1 reclamo para un total de 10 tokens. Su prueba final se verá algo como esto:
 
-```ts
+```typescript
 it.only("Attacker can only claim once with secure instructions", async () => {
     const attacker = Keypair.generate();
     await safeAirdrop(attacker.publicKey, provider.connection);

@@ -234,7 +234,7 @@ El archivo de prueba incluye el código para invocar la `initialize` instrucció
 
 Agregue una prueba para invocar la `rock_paper_scissors_shoot_insecure` instrucción pasando el `playerOne.publicKey` for como ambos `playerOne` y `playerTwo`.
 
-```ts
+```typescript
 describe("duplicate-mutable-accounts", () => {
 	...
 	it("Invoke insecure instruction", async () => {
@@ -301,7 +301,7 @@ pub struct RockPaperScissorsSecure<'info> {
 
 Para probar la `rock_paper_scissors_shoot_secure` instrucción, vamos a invocar la instrucción dos veces. En primer lugar, vamos a invocar la instrucción utilizando dos cuentas de jugador diferentes para comprobar que la instrucción funciona según lo previsto. Luego, invocaremos la instrucción usando las cuentas `playerOne.publicKey` as both player, que esperamos que fallen.
 
-```ts
+```typescript
 describe("duplicate-mutable-accounts", () => {
 	...
     it("Invoke secure instruction", async () => {
