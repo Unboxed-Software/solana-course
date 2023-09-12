@@ -1,5 +1,5 @@
 ---
-title: Verifiable Random Function
+title: Verifiable Randomness Functions
 objectives:
 - Explain the limitations of generating random numbers on-chain
 - Explain how Verifiable Randomness works
