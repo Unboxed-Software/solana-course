@@ -1,18 +1,18 @@
 # Verifiable Random Function
 
-## **TL;DR**
+# **TL;DR**
 
 - VRFs gives developers the opportunity to incorporate random numbers in their on-chain programs in a secure manner
 - A Verifiable Random Function (VRF) is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly
 - Switchboard offers a VRF for the Solana ecosystem
 
-## **Overview**
+# **Overview**
 
-### Randomness On-Chain
+## Randomness On-Chain
 
 Random numbers are ***not*** natively allowed on-chain. This is because Solana is deterministic, every validator runs your code and needs to have the same result. So if you wanted to create a raffle program, you'd have to look outside of the blockchain for your randomness. This is where Verifiable Random Functions (VRFs) come in. VRFs offer developers a secure means of integrating randomness on-chain in a decentralized fashion.
 
-### Pseudorandomness
+## Types of Randomness
 
 Before we dive into how random numbers can be generated for a blockchain, we must first understand how they are generated on traditional computer systems. There are really two types of random numbers: *true random* and *pseudorandom*. The difference between the two lies in how the numbers are generated. 
 
@@ -22,7 +22,7 @@ Computers can aquire *true random* numbers by taking some type of physical measu
 
 Unfortunately, neither type of randomness is natively available in Solana programs, because these programs have to be deterministic. All validators need to come to the same conclusion. There is no way they’d all draw the same random number, and if they used a seed, it’d be prone to attacks. See the [Solana FAQs](https://docs.solana.com/developing/on-chain-programs/developing-rust#depending-on-rand) for more. So we’ll have to look outside of the blockchain for randomness with VRFs.
 
-### What is Verifiable Randomness?
+## What is Verifiable Randomness?
 
 A Verifiable Random Function (VRF) is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly. This means we can use a cryptographic keypair to generate a random number with a proof, which can then be validated by anyone to ensure the value was calculated correctly without the possibility of leaking the producer’s secret key. Once validated, the random value is stored on-chain in an account.
 
@@ -36,7 +36,7 @@ There are three key properties of a VRF:
 
 VRFs are not specific to Solana and have been utilized on other blockchains to generate pseudorandom numbers. Fortunately switchboard offers their implementation of VRF to Solana.
 
-### Switchboard VRF Implementation
+## Switchboard VRF Implementation
 
 Switchboard is a decentralized Oracle network that offers VRFs on Solana. Oracles are services that provide external data to a blockchain, allowing them to interact with and respond to real-world events. The Switchboard network is made up of many different individual oracles run by third parties to provide external data and service requests on-chain. To learn more about Switchboard’s Oracle network, please refer to our [Oracle lesson](./oracles.md).
 
@@ -44,7 +44,7 @@ Switchboard's VRF allows users to request an oracle to produce a randomness outp
 
 You might be wondering how they get paid. In switchboard’s VRF implementation, you actually pay per request. // NEEDS more data
 
-### Requesting and Consuming VRF
+## Requesting and Consuming VRF
 
 Now that we know what a VRF is and how it fits into the Switchboard Oracle network, let’s take a closer look at how to actually request and consume randomness from a Solana program. At a high level, the process for requesting and consuming randomness from Switchboard looks like this:
 
@@ -310,7 +310,7 @@ That is the essence of requesting randomness with a Switchboard VRF. To recap th
 
 ![VRF Diagram](../assets/vrf-diagram.png)
 
-### Demo
+# Demo
 
 For this lesson’s demo, we will be picking up where the Challenge of the Oracle lesson left off. If you have not completed the Oracle lesson and demo, we strongly recommend you do as there are a lot of overlapping concepts and we’ll be starting from the Oracle lesson’s codebase.
 
@@ -320,7 +320,7 @@ The repo contains a burry escrow program. This is a program that allows a user t
 
 The dice rolling functionality will simply be generating two random numbers between 1 and 6 using a VRF from Switchboard. If the two random numbers match, then the user has successfully rolled doubles!
 
-### Setup
+## Setup
 
 If you are cloning the repo from the previous lesson make sure to do the following:
 
@@ -555,7 +555,7 @@ if !escrow_state.out_of_jail {
 
 If `out_of_jail` is true it will skip the check and go right to the withdraw!
 
-### Init VRF Client
+## Using VRF
 
 Now that we have the boilerplate out of the way, let’s move on to our first addition - Initializing our VRF Client. So let’s create a new file called `init_vrf_client.rs` in out `/instructions` folder.
 
@@ -955,7 +955,7 @@ And that is it for the get out jail functionality! Congrats, you have just built
 
 `anchor build`
 
-### Testing
+## Testing
 
 Alright, let’s test this bad boy. Historically, testing the VRF would have had to be done on devnet, fortunately the folks at switchboard has created some really nice functions to run our own VRF oracle locally! So to test our program, we’ll need to setup our local server, grab all of the right accounts and then call our program!
 
@@ -1336,6 +1336,6 @@ With that in place, you should be able to run
 
 If something is not working feel free to try out the code [here](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf). Remember to update your program keys and wallet path like we did in the ***Setup***.
 
-### Challenge
+## Challenge
 
 The challenge for this lesson is to add some logic to the program to track how many times a user rolls. If they roll 3 times without rolling doubles, they should be able to withdraw their funds.
