@@ -1,13 +1,11 @@
-# Program Architecture
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
-- Use **Box** and **Zero Copy** to work with large data on-chain
+---
+title: Program Architecture
+objectives:
+- Use Box and Zero Copy to work with large data on-chain
 - Make better PDA design decisions
 - Future-proof your programs
 - Deal with concurrency issues
+---
 
 # TL;DR
 
