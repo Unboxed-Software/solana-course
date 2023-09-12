@@ -312,30 +312,27 @@ That is the essence of requesting randomness with a Switchboard VRF. To recap th
 
 # Demo
 
-For this lesson’s demo, we will be picking up where the Challenge of the Oracle lesson left off. If you have not completed the Oracle lesson and demo, we strongly recommend you do as there are a lot of overlapping concepts and we’ll be starting from the Oracle lesson’s codebase.
+For this lesson’s demo, we will be picking up where we left off in the [Oracle lesson](./oracle.md). If you have not completed the Oracle lesson and demo, we strongly recommend you do as there are a lot of overlapping concepts and we’ll be starting from the Oracle lesson’s codebase.
 
-If you do not want to complete the Oracle lesson, the starter code for this demo is provided for you [here](https://github.com/CoachChuckFF/Micheal-Burry-Escrow). We will be starting where we left off at the end of the lesson.
+If you do not want to complete the Oracle lesson, the starter code for this demo is provided for you [here](https://github.com/CoachChuckFF/Micheal-Burry-Escrow).
 
-The repo contains a burry escrow program. This is a program that allows a user to lock up some funds in escrow that cannot be withdrawn until SOL has reached a price chosen by the user. We will be adding some additional functionality to this program to allow the user a get out of jail free card. This will allow the user to roll a pair of dice and if they roll doubles, then they can withdraw their funds from escrow regardless of the price of SOL.
-
-The dice rolling functionality will simply be generating two random numbers between 1 and 6 using a VRF from Switchboard. If the two random numbers match, then the user has successfully rolled doubles!
+The repo contains a "Michael Burry" escrow program. This is a program that allows a user to lock up some solana funds in escrow that cannot be withdrawn until SOL has reached a price in USD chosen by the user. We will be adding VRF functionality to this program to allow the user to "Get out of jail" by rolling doubles. Our demo today will allow the user to roll two virtual dice, if they roll doubles (the two dice match), the user can  withdraw their funds from escrow regardless of the price of SOL.
 
 ## Setup
 
 If you are cloning the repo from the previous lesson make sure to do the following:
 
-1. `git clone [https://github.com/CoachChuckFF/Micheal-Burry-Escrow.git](https://github.com/CoachChuckFF/Micheal-Burry-Escrow.git)`
-2. `cd Micheal-Burry-Escrow`
+1. `git clone [https://github.com/Unboxed-Software/michael-burry-escrow](https://github.com/Unboxed-Software/michael-burry-escrow)`
+2. `cd michael-burry-escrow`
 3. `anchor build`
-4. `anchor keys list` 
+4. `anchor keys list`
     1. Take the resulting key and put it into `Anchor.toml` and `programs/burry-escrow/src/lib.rs`
 5. `solana config get`
     1. Take your **Keypair Path** and change the `wallet` field in your `Anchor.toml`
 6. `yarn install`
 7. `anchor test`
-    1. You may need to run `npm i` then `yarn install` if you run into issues.
 
-If they all pass we’re ready to begin! We will start by filling in some boilerplate stuff, then we’ll implement the functions.
+When all tests pass we’re ready to begin. We will start by filling in some boilerplate stuff, then we’ll implement the functions.
 
 ### Cargo.toml
 
@@ -350,7 +347,10 @@ switchboard-v2 = "0.4.0"
 
 ### Lib.rs
 
-Then, we are going to edit `lib.rs` to add in the additional functions we will be building today.
+Then, we are going to edit `lib.rs` to add in the additional functions we will be building today. The functions are as follows:
+- `init_vrf_client` - Creates the VRF authority PDA, which will sign for and consume the randomness.
+- `get_out_of_jail` - Requests the randomness from the VRF, effectively rolling the dice.
+- `consume_randomess` - The callback function for the VRF where we will check for the dice rolls.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -397,15 +397,11 @@ mod burry_escrow {
 
 We are adding the following:
 
-- `init_vrf_client` - This will initialize the data account we’ll use to keep track of our dice rolls.
-- `get_out_of_jail` - This will effectively request randomness, as if we were rolling dice.
-- `consume_randomness` - This is the callback function we give to the VRF to record the result of the dice roll.
-
 Make sure you replace `YOUR_KEY_HERE` with your own program key.
 
 ### State.rs
 
-Next, in `state.rs` we are going add a `out_of_jail` flag to `EscrowState`. When we finally roll two matching die, we will flip this flag so when the  `withdraw` function is called we can transfer the funds.
+Next, in `state.rs` we are going add a `out_of_jail` flag to `EscrowState`. When we finally roll two matching die, we will flip this flag so when the  `withdraw` function is called we can transfer the funds without checking the price.
 
 ```rust
 // state.rs
@@ -417,7 +413,17 @@ pub struct EscrowState {
 }
 ```
 
-Then we are going to create our second data account for this program `VrfClientState`. This will hold the state of our dice rolls:
+Then we are going to create our second data account for this program `VrfClientState`. This will hold the state of our dice rolls. It will have the following fields:
+
+- `bump` - Stores the bump of the account for easy signing later. Technically, we don’t need it since we can always look it up.
+- `result_buffer` - This is where the VRF function will dump the raw randomness data.
+- `dice_type` - We will set this to 6 as in a 6-sided die.
+- `die_result_1` and `die_result_2` - The results of our dice roll.
+- `timestamp` - Keeps track of when our last roll was.
+- `vrf` - Our VRF owned by the Switchboard program, we will create this before we call `VrfClientState`'s initalization function. 
+- `escrow` - Our burry escrow account.
+
+We are also going to make the `VrfClientState` context a `zero_copy` struct. This means that we will initalize it with `load_init()` and pass it into accounts with `AccountLoader`. We do this because VRF functions are very account intesnsive and we need to be mindful of the stack. If you'd like to learn more about `zero_copy`, take a look at our [Program Architecture lesson](./program-architecture.md).
 
 ```rust
 // state.rs
@@ -437,21 +443,15 @@ pub struct VrfClientState {
 }
 ```
 
-- `bump` - stores the bump of the account for easy signing later. Technically, we don’t need it since we can always look it up.
-- `result_buffer` - This is where the VRF function will dump the raw randomness data.
-- `dice_type` - We will set this to 6 as in a 6-sided die. This program can support up to a 255 sided die.
-- `die_result_1` and `die_result_2` - The results of our dice roll.
-- `timestamp` - Keeps track of when our last roll was.
-- `vrf` - Our VRF account.
-- `escrow` - Our escrow account.
 
-Lastly we are going to add the `VRF_STATE_SEED` to PDA our VRF Client
+
+Lastly we are going to add the `VRF_STATE_SEED` to PDA our VRF Client account.
 
 ```rust
 pub const VRF_STATE_SEED: &[u8] = b"VRFCLIENT";
 ```
 
-Your `[state.rs](http://state.rs)` file should look like this:
+Your `state.rs` file should look like this:
 
 ```rust
 use anchor_lang::prelude::*;
@@ -484,7 +484,7 @@ pub struct VrfClientState {
 
 ### Errors.rs
 
-Next we are going to take a quick pitstop and add one last error to `errors.rs` to check that the VRF authority is correct.
+Next we are going to take a quick pitstop and add one last error `InvalidVrfAuthorityError` to `errors.rs` to check that the VRF authority is correct.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -559,6 +559,16 @@ If `out_of_jail` is true it will skip the check and go right to the withdraw!
 
 Now that we have the boilerplate out of the way, let’s move on to our first addition - Initializing our VRF Client. So let’s create a new file called `init_vrf_client.rs` in out `/instructions` folder.
 
+We will be adding the needed crates. Then we are going to create the `InitVrfClient` context. We'll need the following accounts:
+
+- `user` - the signer who has funds in escrow.
+- `escrow_account` - the burry escrow account created when the user locked their funds up.
+- `vrf_client_state` - account we will be creating in this instruction to hold state about the user’s dice rolls.
+- `vrf` - Our VRF owned by the Switchboard program, we will create this account clientside before we call `init_vrf_client`.
+- `system_program` - The system program since we use the init macro for `vrf_state`, which calls `create_account` under the hood. 
+
+
+
 ```rust
 use crate::state::*;
 use crate::errors::*;
@@ -601,17 +611,9 @@ pub struct InitVrfClient<'info> {
 }
 ```
 
-We are requiring the following accounts in this instruction
-
-- `user` - the user who has funds in escrow
-- `escrow_account` - the escrow account created when the user locked their funds up
-- `vrf_client_state` - account we will be creating in this instruction to hold state about the user’s dice rolls
-- `vrf` - the vrf account we covered in the lesson, this is owned by Switchboard and must be created ahead of time
-- `system_program` - ya know, Solana, since we need to init the `vrf_state`
-
 Notice the `vrf_state` account is a PDA derived with the `VRF_STATE_SEED` string and the `user`, `escrow_account`, and `vrf` public keys as seeds. This means a single user can only initialize a single `vrf_state` account, just like they can only have one `escrow_account`. Since there is only one, If you wanted to be thorough, you might want to implement a `close_vrf_state` function to get your rent back.
 
-Now, let’s write the super simple logic for this function:
+Now, let’s write the super simple initalization logic for this function. First we will load and inialize our `vrf_state` account by calling `load_init()`. Then we fill in the values for each field.
 
 ```rust
 pub fn init_vrf_client_handler(ctx: Context<InitVrfClient>) -> Result<()> {
@@ -620,7 +622,6 @@ pub fn init_vrf_client_handler(ctx: Context<InitVrfClient>) -> Result<()> {
     let mut vrf_state = ctx.accounts.vrf_state.load_init()?;
     *vrf_state = VrfClientState::default();
     vrf_state.bump = ctx.bumps.get("vrf_state").unwrap().clone();
-    vrf_state.vrf = ctx.accounts.vrf.key();
     vrf_state.escrow = ctx.accounts.escrow_account.key();
     vrf_state.die_result_1 = 0;
     vrf_state.die_result_2 = 0;
@@ -633,7 +634,30 @@ pub fn init_vrf_client_handler(ctx: Context<InitVrfClient>) -> Result<()> {
 
 ### Get Out of Jail
 
-Now that we have this account initialized with some data, we can use it in the get out of jail instruction. Create a new file called `get_out_of_jail.rs` in the `/instructions` folder. This is the instruction that will make the VRF request to Switchboard, so we will need all of the required accounts passed into it. We will also need any accounts relevant to our program’s business logic.
+Now that we have the `VrfClientState` account initialized, we can use it in the `get_out_jail` instruction. Create a new file called `get_out_of_jail.rs` in the `/instructions` folder.
+
+The `get_out_jail` instruction will make our VRF request to Switchboard. We will need to pass in all of the accounts needed for both the VRF request and our buisness logic callback funciton.
+
+VRF Accounts:
+- `payer_wallet` - the token wallet that will pay for the VRF request, the `user` must be the owner of this account.
+- `vrf` - The VRF account which we'll create clientside.
+- `oracle_queue` - The Oracle queue that will field your result.
+- `queue_authority` - The authority over the queue.
+- `data_buffer` - The Queue's account to hold the randomness.
+- `permission` - Created when creating the `vrf` account. Is derived from several of the other accounts.
+- `switchboard_escrow` - Where the payer sends the tokens for requests.
+- `program_state` - State of the Switchboard program.
+
+Programs:
+- `switchboard_program`
+- `recent_blockhashes`
+- `token_program`
+- `system_program`
+
+Buisness Logic Accounts:
+- `user` - The user account who has escrowed the funds.
+- `escrow_account` - The burry escrow state account for user.
+- `vrf_state` - The VRF client state account initialized in the `init_vrf_client` instruction.
 
 ```rust
 use crate::state::*;
@@ -714,7 +738,11 @@ pub struct RequestRandomness<'info> {
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>
 }
+```
 
+Lastly, we'll create a new struct `RequestRandomnessParams`. We’ll be passing in some accounts bumps client-side.
+
+```rust
 #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct RequestRandomnessParams {
     pub permission_bump: u8,
@@ -722,18 +750,7 @@ pub struct RequestRandomnessParams {
 }
 ```
 
-The `RequestRandomness` context is kinda a beast. In addition to the accounts required for the VRF request, this instruction also needs:
-
-- `user` - the user account who has escrowed the funds
-- `payer_wallet` - the wallet that will pay for the VRF request, the user must be the owner of this account
-- `escrow_account` - escrow state account for user
-- `vrf_state` - vrf client state account that is initialized in the `init_vrf_client` instruction
-
-The rest of the accounts are specifically for the VRF request. Take a look back at the main lesson if you want a refresher on the needed VRF accounts.
-
-Also notice, we’ve added the `RequestRandomnessParams` struct, we’ll be passing in the bumps from the client-side.
-
-Now, we can work on the logic of this instruction.
+Now, we can work on the logic of this instruction, which is gathering all of the accounts needed and passing them to `[VrfRequestRandomness](https://github.com/switchboard-xyz/solana-sdk/blob/fbef37e4a78cbd8b8b6346fcb96af1e20204b861/rust/switchboard-solana/src/oracle_program/instructions/vrf_request_randomness.rs#L8)`, which is a really nice struct from Switchboard. Then we'll sign the request and send it on it's way.
 
 ```rust
 pub fn get_out_of_jail_handler(ctx: Context<RequestRandomness>, params: RequestRandomnessParams) -> Result <()> {
@@ -785,11 +802,17 @@ pub fn get_out_of_jail_handler(ctx: Context<RequestRandomness>, params: RequestR
 }
 ```
 
-We make use of the `[RequestRandomness](https://github.com/switchboard-xyz/solana-sdk/blob/fbef37e4a78cbd8b8b6346fcb96af1e20204b861/rust/switchboard-solana/src/oracle_program/instructions/vrf_request_randomness.rs#L8)` struct from the Switchboard Rust Crate that was imported in the first step of this demo. We can use this to easily put together the account structure needed to invoke the Switchboard VRF request instruction. Then, we use the necessary public keys to construct the seeds needed for the program to sign on behalf of the `vrf_state` account. The `vrf_state` account must be the authority of the given `vrf` account, that allows for the program to sign in this request. Finally, we use the `invoke_signed` method of the `vrf_request_randomness` object to send the instruction to the Switchboard program.
-
 ### Consume Randomness
 
-Now that we have built the logic to request a VRF from Switchboard, we must build the callback instruction the Switchboard program will call once the VRF has been verified. Create a new file called `consume_randomness.rs` in the `/instructions` directory. 
+Now that we have built the logic to request a VRF from Switchboard, we must build the callback instruction the Switchboard program will call once the VRF has been verified. Create a new file called `consume_randomness.rs` in the `/instructions` directory.
+
+This function will use the randomness to determine what dice have been rolled. If doubles are rolled, set the `out_of_jail` field on `vrf_state` to true.
+
+First, let's create the `ConsumeRandomness` context. Fortunately, it only takes three accounts.
+
+- `escrow_account` - state account for user’s escrowed funds.
+- `vrf_state` - state account to hold information about dice roll.
+- `vrf` - account with the random number that was just calculated by the Switchboard network.
 
 ```rust
 // insde consume_randomness.rs
@@ -815,15 +838,9 @@ pub struct ConsumeRandomness<'info> {
 }
 ```
 
-We only need three accounts in this instruction. 
+Now let's write the logic for our `consume_randomness_handler`. We will first fetch the reuslts from the `vrf` account. 
 
-- `escrow_account` - state account for user’s escrowed funds
-- `vrf_state` - state account to hold information about dice roll
-- `vrf` - account with the random number that was just calculated by the Switchboard network
-
-This will be the callback instruction passed to the Switchboard program in the `vrf` account. The purpose of this instruction is to retrieve the random value stored in the `vrf` account and use that to “roll the dice”. If the values of the two die are equal, then the user will be allowed to withdraw their funds.
-
-Now that we have the accounts, we can get started on the logic.
+We need to call `load()` because the `vrf` is passed in as an `AccountLoader`, which anchor provides to avoid stack and heap overflows for large accounts. Then, we call `get_result()`, to grab the randomness from inside the `VrfAccountData` struct. Finally, we'll check if the resulting buffer is zeroed out. If it's all zeros, it means the Oracles have not yet verified and deposited the randomness in the account.
 
 ```rust
 // inside consume_randomness.rs
@@ -843,7 +860,7 @@ pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result <()
 }
 ```
 
-Here we are simply loading the `vrf` account in our program with the `load()` method on the `AccountLoader` struct. Once loaded, we can call the `get_result` method on the `vrf` account. Remember, this is a method provided by the Switchboard program we covered earlier. This returns the most recent calculated random value as a byte buffer. Finally, we just manually check ourselves that the byte buffer is not all 0’s.
+Then we will load our `vrf_state` using `load_mut` since we will be storing the randomness and dice rolls within it. We also want to check the that the `result_buffer` returned from the `vrf` does not match byte for byte the `result_buffer` from the `vrf_state`. If they do match, we know the returned randomness is stale.
 
 ```rust
 pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result <()> {
@@ -868,7 +885,7 @@ pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result <()
 }
 ```
 
-Next, we load the `vrf_state` account that we created earlier. This account will hold state about each roll per user. Here we are just checking that the random value has actually last roll. If it hasn’t, then someone is calling this instruction manually without calling `get_out_of_jail`. That is not the intended functionality, so if that happens we should not do anything.
+Now it’s time to actually use the random result. Since we only use two dice we only need the first two bytes of the buffer. To convert these random values into “dice rolls”, we use modular arithmetic. For anyone not familiar with modular arithmetic, see [here](https://en.wikipedia.org/wiki/Modular_arithmetic). In modular arithmetic, numbers "wrap around" upon reaching a given fixed quantity (this given quantity is known as the modulus) to leave a remainder. Here, the modulus is the `dice_type` stored on the `vrf_state` account - which was hard coded to 6 to represent a 6 sided in die when the account was initialized. We then add one, to make the resulting possibilities 1-6.
 
 ```rust
 pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result <()> {
@@ -902,9 +919,17 @@ pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result <()
 }
 ```
 
-Now it’s time to actually use the random result. Since we only use two dice we only need the first two bytes of the buffer. To convert these random values into “die rolls”, we use modular arithmetic. For anyone not familiar with modular arithmetic, see [here](https://en.wikipedia.org/wiki/Modular_arithmetic). In modular arithmetic, numbers "wrap around" upon reaching a given fixed quantity (this given quantity is known as the modulus) to leave a remainder. Here, the modulus is the `dice_type` stored on the `vrf_state` account - which was hard coded to 6 to represent a 6 sided in die when the account was initialized.
+> Christian's fun fact: one byte per roll is actually a slightly bad option for a dice roll. (Good enough to demo) You have 256 options in a u8. When modulo'd by 6, the number zero has a slight advantage in the distribution (256 is not divisable by 6).
+> Number of 0s: (255-0)/6 + 1 = 43
+> Number of 1s: (256-1)/6 = 42.6, so 42 occurrences of 1
+> Number of 2s: (257-2)/6 = 42.5, so 42 occurrences of 2
+> Number of 3s: (258-3)/6 = 42.5, so 42 occurrences of 3
+> Number of 4s: (259-4)/6 = 42.5, so 42 occurrences of 4
+> Number of 5s: (260-5)/6 = 42.5, so 42 occurrences of 5
 
-Lastly, we need to update the state of the `vrf_state` account and determine if the user rolled doubles.
+The very last thing we have to do is update the fields in `vrf_state` and determine is the user rolled doubles. If so, flip the `out_of_jail` flag to true.
+
+If the `out_of_jail` becomes true, the user can then call the `withdraw` instruction and it will skip over the price check.
 
 ```rust
 pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result <()> {
@@ -949,15 +974,13 @@ pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result <()
 }
 ```
 
-Notice, if the user does roll doubles, we do not execute the transfer of funds for them. Instead, we just mark the `escrow_state.out_of_jail` field as true. The user will be required to call the `withdraw` instruction themselves. and `lib.rs` files.
-
 And that is it for the get out jail functionality! Congrats, you have just built a program that can consume Switchboard data feeds and submit VRF requests. Please make sure your program builds successfully by running:
 
 `anchor build`
 
 ## Testing
 
-Alright, let’s test this bad boy. Historically, testing the VRF would have had to be done on devnet, fortunately the folks at switchboard has created some really nice functions to run our own VRF oracle locally! So to test our program, we’ll need to setup our local server, grab all of the right accounts and then call our program!
+Alright, let’s test this bad boy. Historically, testing the VRF would have had to be done on devnet, fortunately the folks at switchboard has created some really nice functions to run our own VRF oracle locally. So to test our program, we’ll need to setup our local server, grab all of the right accounts and then call our program.
 
 The first thing we’ll want to do is pull in some more accounts in our `Anchor.toml` file:
 
@@ -973,7 +996,7 @@ address = "5ExuoQR69trmKQfB95fDsUGsUrrChbGq9PFgt8qouncz"
 address = "CyZuD7RPDcrqCGbNvLCyqk6Py9cEZTKmNKujfPi3ynDd"
 ```
 
-Then we are going to create a new test file called `vrf-test.ts`. Paste the following:
+Then we are going to create a new test file called `vrf-test.ts`. Then we are going to copy and paste the code below. It copies over the last two tests from the oracle lesson, adds some imports and a new function `delay`.
 
 ```tsx
 import * as anchor from "@coral-xyz/anchor";
@@ -1092,8 +1115,6 @@ describe("burry-escrow-vrf", () => {
 });
 ```
 
-Most of this should look familiar. It copies over the last two tests from the oracle lesson, adds some imports and a new function `delay`. 
-
 > Quick note: if you only want to run the vrf tests, change
 > 
 > 
@@ -1104,7 +1125,7 @@ Most of this should look familiar. It copies over the last two tests from the or
 > `describe.only("burry-escrow-vrf", () => {`
 > 
 
-Now, lets setup the vrf oracle.
+Now, we are going to seup our local VRF Oracle server using `SwitchboardTestContext`. This will give us a `switchboard` context and an `oracle` node. We call the initalization functions in the `before()` function - which will run and complete before any tests are run. Lastly, we will add `oracle?.stop()` to the `after()` funciton to clean everything up.
 
 ```tsx
 describe.only("burry-escrow-vrf", () => {
@@ -1173,9 +1194,7 @@ describe.only("burry-escrow-vrf", () => {
 }
 ```
 
-We are really letting switchboard do a lot of the heavy lifting here.
-
-Lastly, let’s add the actual test:
+Now let's run the actual test. We are going to keep rolling dice until we get doubles, then we will check that we can withdraw the funds. First we will gather all of the accounts we will need, to which the `switchboard` test context gives us a lot of. Then we will need to call our `initVrfClient` function. Then finally we will roll our dice in a loop and check for doubles. 
 
 ```tsx
 it("Roll till you can withdraw", async () => {
@@ -1328,9 +1347,16 @@ it("Roll till you can withdraw", async () => {
   })
 ```
 
-This test is a beast. Basically, it rolls dice until you “get-out-of-jail”, then it withdraws the funds. There are so many accounts needed for the VRF to work properly. Take a moment to run through it and cross-refrence the accounts with today’s lesson.
+One function I want to call attention to is where we get our `payerTokenWallet`. VRF actually requires some the requester to pay some wrapped SOL to the oracles. Fortunately with testing, switchbaord gave us this really nice function to create and fund our test wallet.
 
-With that in place, you should be able to run
+```typescript
+  const [payerTokenWallet] = await switchboard.program.mint.getOrCreateWrappedUser(
+    switchboard.program.walletPubkey,
+    { fundUpTo: 1.0 }
+  );
+```
+
+And there you have it! You should be able to run and pass all of the tests using:
 
 `anchor test`
 
