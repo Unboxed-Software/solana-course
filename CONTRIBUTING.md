@@ -4,7 +4,7 @@ Hey, thanks for contributing!
 
 ## How Can I Contribute?
 
-Content is controlled by the config file `course-structure.json`. All content is in the `content` dir sorted by the slug in `course-structure.json`. Static assets are in the `assets` directory.
+Content presentation is controlled by the config file `course-structure.json`. All content is in the `content` directory sorted by the slug in `course-structure.json`. Static assets are in the `assets` directory.
 
 ### Adding Content
 
