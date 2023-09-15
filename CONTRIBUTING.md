@@ -26,7 +26,7 @@ Use language consistent with [TERMINOLOGY](https://github.com/solana-foundation/
 - Use 'secret key' rather than 'private key'. 
 - Use 'wallet app' for software. 'wallet' for the address that holds value.
 - PDAs are not public keys. It is not possible to have a public key without a private key. A public key is derived from a private key, and it is not possible to generate a public key without first generating a private key.
-- Do not use the term 'token account'. The term 'token account' is vague, and could be interpreted as either 'associated token account' or 'token mint account', or some new thing that doesn't exist. Instead use 'associated token account' or 'token mint account' depending on what is being referred to.
+- Use the specific term 'associated token account' if that's what you're referring to, same for 'token mint account'. A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than say swapping between 'associated token account' and 'token account' makes this clearer.
 
 Code examples should be formatted as follows:
  - JS/TS - two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
