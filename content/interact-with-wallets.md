@@ -167,6 +167,14 @@ export const BalanceDisplay: FC = () => {
     useEffect(() => {
         if (!connection || !publicKey) { return }
 
+        connection.onAccountChange(
+            publicKey, 
+            (updatedAccountInfo) => {
+                setBalance(updatedAccountInfo.lamports / LAMPORTS_PER_SOL)
+            }, 
+            'confirmed'
+        )
+
         connection.getAccountInfo(publicKey).then(info => {
             setBalance(info.lamports)
         })
@@ -179,6 +187,8 @@ export const BalanceDisplay: FC = () => {
     )
 }
 ```
+
+Note the call to connection.onAccountChange(), which updates the account balance shown once the network confirms the transaction.
 
 ### Send Transactions
 
