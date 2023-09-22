@@ -456,7 +456,7 @@ Those are all of the changes we need to make to the program! Now, let’s update
 
 Start by making sure your imports nad `describe` function look like this:
 
-```ts
+```typescript
 import * as anchor from "@project-serum/anchor"
 import { Program } from "@project-serum/anchor"
 import { expect } from "chai"
@@ -492,7 +492,7 @@ describe("anchor-movie-review-program", () => {
 
 With that done, add a test for the `initializeTokenMint` instruction:
 
-```ts
+```typescript
 it("Initializes the reward token", async () => {
     const tx = await program.methods.initializeTokenMint().rpc()
 })
@@ -504,7 +504,7 @@ Next, update the test for the `addMovieReview` instruction. The primary addition
 1. To get the associated token address that needs to be passed into the instruction as an account that cannot be inferred
 2. Check at the end of the test that the associated token account has 10 tokens
 
-```ts
+```typescript
 it("Movie review is added`", async () => {
   const tokenAccount = await getAssociatedTokenAddress(
     mint,

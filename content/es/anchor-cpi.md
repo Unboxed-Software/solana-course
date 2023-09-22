@@ -458,7 +458,7 @@ pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, descr
 
 Comience asegurándose de que su `describe` función NAD de importaciones se vea así:
 
-```ts
+```typescript
 import * as anchor from "@project-serum/anchor"
 import { Program } from "@project-serum/anchor"
 import { expect } from "chai"
@@ -494,7 +494,7 @@ describe("anchor-movie-review-program", () => {
 
 Una vez hecho esto, añada una prueba para la `initializeTokenMint` instrucción:
 
-```ts
+```typescript
 it("Initializes the reward token", async () => {
     const tx = await program.methods.initializeTokenMint().rpc();
 });
@@ -507,7 +507,7 @@ A continuación, actualice la prueba para la `addMovieReview` instrucción. Las 
 1. Para obtener la dirección del token asociado que debe pasar a la instrucción como una cuenta que no se puede inferir
 2. Compruebe al final de la prueba que la cuenta de token asociada tiene 10 tokens
 
-```ts
+```typescript
 it("Movie review is added`", async () => {
     const tokenAccount = await getAssociatedTokenAddress(
         mint,

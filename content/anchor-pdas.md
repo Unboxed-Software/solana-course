@@ -540,7 +540,7 @@ Here we:
 - Derive the movie review account PDA
 - Create placeholders for tests
 
-```ts
+```typescript
 import * as anchor from "@project-serum/anchor"
 import { Program } from "@project-serum/anchor"
 import { assert, expect } from "chai"
@@ -577,7 +577,7 @@ Next, let's create the first test for the `addMovieReview` instruction. Note tha
 
 Once the instruction runs, we then fetch the `movieReview` account and check that the data stored on the account match the expected values.
 
-```ts
+```typescript
 it("Movie review is added`", async () => {
   // Add your test here.
   const tx = await program.methods
@@ -594,7 +594,7 @@ it("Movie review is added`", async () => {
 
 Next, let's create the test for the `updateMovieReview` instruction following the same process as before.
 
-```ts
+```typescript
 it("Movie review is updated`", async () => {
   const newDescription = "Wow this is new"
   const newRating = 4
@@ -613,7 +613,7 @@ it("Movie review is updated`", async () => {
 
 Next, create the test for the `deleteMovieReview` instruction
 
-```ts
+```typescript
 it("Deletes a movie review", async () => {
   const tx = await program.methods
     .deleteMovieReview(movie.title)

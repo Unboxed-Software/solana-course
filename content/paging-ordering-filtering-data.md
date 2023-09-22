@@ -1,5 +1,5 @@
 ---
-title: Page, Order, and Filter Custom Account Data
+title: Page, Order, and Filter Program Data
 objectives:
 - Page, order, and filter accounts
 - Prefetch accounts without data
@@ -32,14 +32,14 @@ When you include a `dataSlice` in the configuration object, the function will on
 
 ### Paging Accounts
 
-One area this becomes helpful is with paging. If you want to have a list that displays all accounts but there are so many accounts that you don’t want to pull all the data at once, you can fetch all of the accounts with no data. You can then map the result to a list of account keys whose data you can fetch only when needed.
+One area this becomes helpful is with paging. If you want to have a list that displays all accounts but there are so many accounts that you don’t want to pull all the data at once, you can fetch all of the accounts but not fetch their data by using a `dataSlice` of `{ offset: 0, length: 0 }`. You can then map the result to a list of account keys whose data you can fetch only when needed.
 
 ```tsx
 const accountsWithoutData = await connection.getProgramAccounts(
-	programId,
-	{
-		dataSlice: { offset: 0, length: 0 }
-	}
+  programId,
+  {
+    dataSlice: { offset: 0, length: 0 }
+  }
 )
 
 const accountKeys = accountsWithoutData.map(account => account.pubkey)
@@ -51,7 +51,7 @@ With this list of keys, you can then fetch account data in “pages” using the
 const paginatedKeys = accountKeys.slice(0, 10)
 const accountInfos = await connection.getMultipleAccountsInfo(paginatedKeys)
 const deserializedObjects = accountInfos.map((accountInfo) => {
-	// put logic to deserialize accountInfo.data here
+  // put logic to deserialize accountInfo.data here
 })
 ```
 
@@ -74,24 +74,24 @@ Once you’ve fetched accounts with the given data slice, you can use the `sort`
 
 ```tsx
 const accounts = await connection.getProgramAccounts(
-	programId,
-	{
-		dataSlice: { offset: 13, length: 15 }
-	}
+  programId,
+  {
+    dataSlice: { offset: 13, length: 15 }
+  }
 )
 
-	accounts.sort( (a, b) => {
-		const lengthA = a.account.data.readUInt32LE(0)
-		const lengthB = b.account.data.readUInt32LE(0)
-		const dataA = a.account.data.slice(4, 4 + lengthA)
-		const dataB = b.account.data.slice(4, 4 + lengthB)
-		return dataA.compare(dataB)
-	})
+  accounts.sort( (a, b) => {
+    const lengthA = a.account.data.readUInt32LE(0)
+    const lengthB = b.account.data.readUInt32LE(0)
+    const dataA = a.account.data.slice(4, 4 + lengthA)
+    const dataB = b.account.data.slice(4, 4 + lengthB)
+    return dataA.compare(dataB)
+  })
 
 const accountKeys = accounts.map(account => account.pubkey)
 ```
 
-Note that in the snippet above we don’t compare the data as given. This is because for dynamically sized types like strings, Borsh places an unsigned, 32-bit integer at the start to indicate the length of the data representing that field. So to compare the first names directly, we need to get the length for each, then create a data slice with a 4 byte offset and the proper length.
+Note that in the snippet above we don’t compare the data as given. This is because for dynamically sized types like strings, Borsh places an unsigned, 32-bit (4 byte) integer at the start to indicate the length of the data representing that field. So to compare the first names directly, we need to get the length for each, then create a data slice with a 4 byte offset and the proper length.
 
 ## Use `filters` to only retrieve specific accounts
 
@@ -108,21 +108,21 @@ For example, you could search through a list of contacts by including a `memcmp`
 
 ```tsx
 async function fetchMatchingContactAccounts(connection: web3.Connection, search: string): Promise<(web3.AccountInfo<Buffer> | null)[]> {
-	const accounts = await connection.getProgramAccounts(
-		programId,
-		{
-			dataSlice: { offset: 0, length: 0 },
-			filters: [
-				{
-					memcmp:
-						{
-							offset: 13,
-							bytes: bs58.encode(Buffer.from(search))
-						}
-				}
-			]
-		}
-	)
+  const accounts = await connection.getProgramAccounts(
+    programId,
+    {
+      dataSlice: { offset: 0, length: 0 },
+      filters: [
+        {
+          memcmp:
+            {
+              offset: 13,
+              bytes: bs58.encode(Buffer.from(search))
+            }
+        }
+      ]
+    }
+  )
 }
 ```
 
@@ -164,15 +164,15 @@ import { Movie } from '../models/Movie'
 const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN'
 
 export class MovieCoordinator {
-	static accounts: web3.PublicKey[] = []
+  static accounts: web3.PublicKey[] = []
 
-	static async prefetchAccounts(connection: web3.Connection) {
+  static async prefetchAccounts(connection: web3.Connection) {
 
-	}
+  }
 
-	static async fetchPage(connection: web3.Connection, page: number, perPage: number): Promise<Movie[]> {
+  static async fetchPage(connection: web3.Connection, page: number, perPage: number): Promise<Movie[]> {
 
-	}
+  }
 }
 ```
 
@@ -180,14 +180,14 @@ The key to paging is to prefetch all the accounts without data. Let’s fill in 
 
 ```tsx
 static async prefetchAccounts(connection: web3.Connection) {
-	const accounts = await connection.getProgramAccounts(
-		new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID),
-		{
-			dataSlice: { offset: 0, length: 0 },
-		}
-	)
+  const accounts = await connection.getProgramAccounts(
+    new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID),
+    {
+      dataSlice: { offset: 0, length: 0 },
+    }
+  )
 
-	this.accounts = accounts.map(account => account.pubkey)
+  this.accounts = accounts.map(account => account.pubkey)
 }
 ```
 
@@ -195,31 +195,31 @@ Now, let’s fill in the `fetchPage` method. First, if the accounts haven’t be
 
 ```tsx
 static async fetchPage(connection: web3.Connection, page: number, perPage: number): Promise<Movie[]> {
-	if (this.accounts.length === 0) {
-		await this.prefetchAccounts(connection)
-	}
+  if (this.accounts.length === 0) {
+    await this.prefetchAccounts(connection)
+  }
 
-	const paginatedPublicKeys = this.accounts.slice(
-		(page - 1) * perPage,
-		page * perPage,
-	)
+  const paginatedPublicKeys = this.accounts.slice(
+    (page - 1) * perPage,
+    page * perPage,
+  )
 
-	if (paginatedPublicKeys.length === 0) {
-            return []
-	}
+  if (paginatedPublicKeys.length === 0) {
+    return []
+  }
 
-	const accounts = await connection.getMultipleAccountsInfo(paginatedPublicKeys)
+  const accounts = await connection.getMultipleAccountsInfo(paginatedPublicKeys)
 
-	const movies = accounts.reduce((accum: Movie[], account) => {
-		const movie = Movie.deserialize(account?.data)
-		if (!movie) {
-			return accum
-		}
+  const movies = accounts.reduce((accum: Movie[], account) => {
+    const movie = Movie.deserialize(account?.data)
+    if (!movie) {
+      return accum
+    }
 
-		return [...accum, movie]
-	}, [])
+    return [...accum, movie]
+  }, [])
 
-	return movies
+  return movies
 }
 ```
 
@@ -231,11 +231,11 @@ const [movies, setMovies] = useState<Movie[]>([])
 const [page, setPage] = useState(1)
 
 useEffect(() => {
-	MovieCoordinator.fetchPage(
-		connection,
-		page,
-		10
-	).then(setMovies)
+  MovieCoordinator.fetchPage(
+    connection,
+    page,
+    10
+  ).then(setMovies)
 }, [page, search])
 ```
 
@@ -243,23 +243,23 @@ Lastly, we need to add buttons to the bottom of the list for navigating to diffe
 
 ```tsx
 return (
-	<div>
-		{
-			movies.map((movie, i) => <Card key={i} movie={movie} /> )
-		}
-		<Center>
-			<HStack w='full' mt={2} mb={8} ml={4} mr={4}>
-				{
-					page > 1 && <Button onClick={() => setPage(page - 1)}>Previous</Button>
-				}
-				<Spacer />
-				{
-					MovieCoordinator.accounts.length > page * 2 &&
-						<Button onClick={() => setPage(page + 1)}>Next</Button>
-				}
-			</HStack>
-		</Center>
-	</div>
+  <div>
+    {
+      movies.map((movie, i) => <Card key={i} movie={movie} /> )
+    }
+    <Center>
+      <HStack w='full' mt={2} mb={8} ml={4} mr={4}>
+        {
+          page > 1 && <Button onClick={() => setPage(page - 1)}>Previous</Button>
+        }
+        <Spacer />
+        {
+          MovieCoordinator.accounts.length > page * 2 &&
+            <Button onClick={() => setPage(page + 1)}>Next</Button>
+        }
+      </HStack>
+    </Center>
+  </div>
 )
 ```
 
@@ -282,22 +282,22 @@ Now that we’ve thought through this, let’s modify the implementation of `pre
 
 ```tsx
 static async prefetchAccounts(connection: web3.Connection, filters: AccountFilter[]) {
-	const accounts = await connection.getProgramAccounts(
-		new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID),
-		{
-			dataSlice: { offset: 2, length: 18 },
-		}
-	)
+  const accounts = await connection.getProgramAccounts(
+    new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID),
+    {
+      dataSlice: { offset: 2, length: 18 },
+    }
+  )
 
-    accounts.sort( (a, b) => {
-        const lengthA = a.account.data.readUInt32LE(0)
-        const lengthB = b.account.data.readUInt32LE(0)
-        const dataA = a.account.data.slice(4, 4 + lengthA)
-        const dataB = b.account.data.slice(4, 4 + lengthB)
-        return dataA.compare(dataB)
-    })
+  accounts.sort( (a, b) => {
+    const lengthA = a.account.data.readUInt32LE(0)
+    const lengthB = b.account.data.readUInt32LE(0)
+    const dataA = a.account.data.slice(4, 4 + lengthA)
+    const dataB = b.account.data.slice(4, 4 + lengthB)
+    return dataA.compare(dataB)
+  })
 
-	this.accounts = accounts.map(account => account.pubkey)
+  this.accounts = accounts.map(account => account.pubkey)
 }
 ```
 
@@ -315,31 +315,31 @@ import bs58 from 'bs58'
 ...
 
 static async prefetchAccounts(connection: web3.Connection, search: string) {
-	const accounts = await connection.getProgramAccounts(
-		new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID),
-		{
-			dataSlice: { offset: 2, length: 18 },
-			filters: search === '' ? [] : [
-				{
-					memcmp:
-						{
-							offset: 6,
-							bytes: bs58.encode(Buffer.from(search))
-						}
-				}
-			]
-		}
-	)
+  const accounts = await connection.getProgramAccounts(
+    new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID),
+    {
+      dataSlice: { offset: 2, length: 18 },
+      filters: search === '' ? [] : [
+        {
+          memcmp:
+            {
+              offset: 6,
+              bytes: bs58.encode(Buffer.from(search))
+            }
+        }
+      ]
+    }
+  )
 
-    accounts.sort( (a, b) => {
-        const lengthA = a.account.data.readUInt32LE(0)
-        const lengthB = b.account.data.readUInt32LE(0)
-        const dataA = a.account.data.slice(4, 4 + lengthA)
-        const dataB = b.account.data.slice(4, 4 + lengthB)
-        return dataA.compare(dataB)
-    })
+  accounts.sort( (a, b) => {
+    const lengthA = a.account.data.readUInt32LE(0)
+    const lengthB = b.account.data.readUInt32LE(0)
+    const dataA = a.account.data.slice(4, 4 + lengthA)
+    const dataB = b.account.data.slice(4, 4 + lengthB)
+    return dataA.compare(dataB)
+  })
 
-	this.accounts = accounts.map(account => account.pubkey)
+  this.accounts = accounts.map(account => account.pubkey)
 }
 ```
 
@@ -347,31 +347,31 @@ Now, add a `search` parameter to `fetchPage` and update its call to `prefetchAcc
 
 ```tsx
 static async fetchPage(connection: web3.Connection, page: number, perPage: number, search: string, reload: boolean = false): Promise<Movie[]> {
-	if (this.accounts.length === 0 || reload) {
-		await this.prefetchAccounts(connection, search)
-	}
+  if (this.accounts.length === 0 || reload) {
+    await this.prefetchAccounts(connection, search)
+  }
 
-	const paginatedPublicKeys = this.accounts.slice(
-		(page - 1) * perPage,
-		page * perPage,
-	)
+  const paginatedPublicKeys = this.accounts.slice(
+    (page - 1) * perPage,
+    page * perPage,
+  )
 
-	if (paginatedPublicKeys.length === 0) {
-		return []
-	}
+  if (paginatedPublicKeys.length === 0) {
+    return []
+  }
 
-	const accounts = await connection.getMultipleAccountsInfo(paginatedPublicKeys)
+  const accounts = await connection.getMultipleAccountsInfo(paginatedPublicKeys)
 
-	const movies = accounts.reduce((accum: Movie[], account) => {
-		const movie = Movie.deserialize(account?.data)
-		if (!movie) {
-			return accum
-		}
+  const movies = accounts.reduce((accum: Movie[], account) => {
+    const movie = Movie.deserialize(account?.data)
+    if (!movie) {
+      return accum
+    }
 
-		return [...accum, movie]
-	}, [])
+    return [...accum, movie]
+  }, [])
 
-	return movies
+  return movies
 }
 ```
 
@@ -386,13 +386,13 @@ const [page, setPage] = useState(1)
 const [search, setSearch] = useState('')
 
 useEffect(() => {
-	MovieCoordinator.fetchPage(
-		connection,
-		page,
-		2,
-		search,
-		search !== ''
-	).then(setMovies)
+  MovieCoordinator.fetchPage(
+    connection,
+    page,
+    2,
+    search,
+    search !== ''
+  ).then(setMovies)
 }, [page, search])
 ```
 
@@ -400,22 +400,22 @@ Finally, add a search bar that will set the value of `search`:
 
 ```tsx
 return (
-	<div>
-		<Center>
-			<Input
-				id='search'
-				color='gray.400'
-				onChange={event => setSearch(event.currentTarget.value)}
-				placeholder='Search'
-				w='97%'
-				mt={2}
-				mb={2}
-			/>
-		</Center>
+  <div>
+    <Center>
+      <Input
+        id='search'
+        color='gray.400'
+        onChange={event => setSearch(event.currentTarget.value)}
+        placeholder='Search'
+        w='97%'
+        mt={2}
+        mb={2}
+      />
+    </Center>
 
-...
+  ...
 
-	</div>
+  </div>
 )
 ```
 
