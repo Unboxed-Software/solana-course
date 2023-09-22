@@ -235,7 +235,7 @@ The test file includes the code to invoke the `initialize` instruction twice to 
 
 Add a test to invoke the `rock_paper_scissors_shoot_insecure` instruction by passing in the `playerOne.publicKey` for as both `playerOne` and `playerTwo`.
 
-```ts
+```typescript
 describe("duplicate-mutable-accounts", () => {
 	...
 	it("Invoke insecure instruction", async () => {
@@ -302,7 +302,7 @@ pub struct RockPaperScissorsSecure<'info> {
 
 To test the `rock_paper_scissors_shoot_secure` instruction, we’ll invoke the instruction twice. First, we’ll invoke the instruction using two different player accounts to check that the instruction works as intended. Then, we’ll invoke the instruction using the `playerOne.publicKey` as both player accounts, which we expect to fail.
 
-```ts
+```typescript
 describe("duplicate-mutable-accounts", () => {
 	...
     it("Invoke secure instruction", async () => {

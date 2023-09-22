@@ -26,6 +26,12 @@ button {
   display: grid;
 }
 
+h1 {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+}
+
 article {
   justify-items: center;
 }
@@ -41,7 +47,7 @@ pre {
 code {
   /* highlight.js likes to override this */
   background-color: hsl(0, 0%, 96.5%) !important;
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 18px;
+  line-height: 24px;
   border-radius: 12px;
 }

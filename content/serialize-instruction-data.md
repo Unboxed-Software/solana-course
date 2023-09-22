@@ -5,14 +5,14 @@ objectives:
 - Explain transaction instructions
 - Explain the basics of Solana's runtime optimizations
 - Explain Borsh
-- Use Borsh to serialize custom instruction data
+- Use Borsh to serialize program data
 ---
 
 # TL;DR
 
 - Transactions are made up of an array of instructions, a single transaction can have any number of instructions in it, each targeting its own program. When a transaction is submitted, the Solana runtime will process its instructions in order and atomically, meaning that if any of the instructions fail for any reason, the entire transaction will fail to be processed.
 - Every *instruction* is made up of 3 components: the intended program's ID, an array of all account’s involved, and a byte buffer of instruction data.
-- Every *transaction* contains: an array of all accounts it intends to read from or write to, one or more instructions, a recent blockhash, and one or more signatures.
+- Every *transaction* contains: an array of all accounts it intends to read or write, one or more instructions, a recent blockhash, and one or more signatures.
 - In order to pass instruction data from a client, it must be serialized into a byte buffer. To facilitate this process of serialization, we will be using [Borsh](https://borsh.io/).
 - Transactions can fail to be processed by the blockchain for any number of reasons, we’ll discuss some of the most common ones here.
 
@@ -26,7 +26,7 @@ Transactions are how we send information to the blockchain in order to be proces
 
 Every transaction contains:
 
-- An array that includes every account it intends to read from or write to
+- An array that includes every account it intends to read or write
 - One or more instructions
 - A recent blockhash
 - One or more signatures
@@ -49,7 +49,7 @@ The byte buffer lets you pass external data to a program.
 
 You can include multiple instructions in a single transaction. The Solana runtime will process these instructions in order and atomically. In other words, if every instruction succeeds then the transaction as a whole will be successful, but if a single instruction fails then the entire transaction will fail immediately with no side-effects.
 
-The account array is not just an array of the accounts’ public keys. Each object in the array includes the account’s public key, whether or not it is a signer on the transaction, and whether or not it is writable. Including whether or not an account is writable during the execution of an instruction allows the runtime to facilitate parallel processing of smart contracts. Because you must define which accounts are read-only and which you will write to, the runtime can determine which transactions are non-overlapping or read-only and allow them to execute concurrently. To learn more about the Solana’s runtime, check out this [blog post](https://solana.com/news/sealevel---parallel-processing-thousands-of-smart-contracts).
+The account array is not just an array of the accounts’ public keys. Each object in the array includes the account’s public key, whether or not it is a signer on the transaction, and whether or not it is writable. Including whether or not an account is writable during the execution of an instruction allows the runtime to facilitate parallel processing of smart contracts. Because you must define which accounts are read-only and which you will write to, the runtime can determine which transactions are non-overlapping or read-only and allow them to execute concurrently. To learn more about the Solana’s runtime, check out this [blog post](https://solana.com/news/sealevel-\--parallel-processing-thousands-of-smart-contracts).
 
 ### Instruction Data
 
@@ -91,9 +91,9 @@ All of this will be passed as a byte buffer that will be read in order, so ensur
 import * as borsh from '@project-serum/borsh'
 
 const equipPlayerSchema = borsh.struct([
-	borsh.u8('variant'),
-	borsh.u16('playerId'),
-	borsh.u256('itemId')
+  borsh.u8('variant'),
+  borsh.u16('playerId'),
+  borsh.u256('itemId')
 ])
 ```
 
@@ -103,9 +103,9 @@ You can then encode data using this schema with the `encode` method. This method
 import * as borsh from '@project-serum/borsh'
 
 const equipPlayerSchema = borsh.struct([
-	borsh.u8('variant'),
-	borsh.u16('playerId'),
-	borsh.u256('itemId')
+  borsh.u8('variant'),
+  borsh.u16('playerId'),
+  borsh.u256('itemId')
 ])
 
 const buffer = Buffer.alloc(1000)
@@ -126,9 +126,9 @@ import * as borsh from '@project-serum/borsh'
 import * as web3 from '@solana/web3.js'
 
 const equipPlayerSchema = borsh.struct([
-	borsh.u8('variant'),
-	borsh.u16('playerId'),
-	borsh.u256('itemId')
+  borsh.u8('variant'),
+  borsh.u16('playerId'),
+  borsh.u256('itemId')
 ])
 
 const buffer = Buffer.alloc(1000)
@@ -141,8 +141,8 @@ const connection = new web3.Connection(endpoint)
 
 const transaction = new web3.Transaction()
 const instruction = new web3.TransactionInstruction({
-	keys: [
-		{
+  keys: [
+    {
       pubkey: player.publicKey,
       isSigner: true,
       isWritable: false,
@@ -157,15 +157,15 @@ const instruction = new web3.TransactionInstruction({
       isSigner: false,
       isWritable: false,
     }
-	],
-	data: instructionBuffer,
-	programId: PROGRAM_ID
+  ],
+  data: instructionBuffer,
+  programId: PROGRAM_ID
 })
 
 transaction.add(instruction)
 
 web3.sendAndConfirmTransaction(connection, transaction, [player]).then((txid) => {
-	console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+  console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
 })
 ```
 
@@ -173,7 +173,11 @@ web3.sendAndConfirmTransaction(connection, transaction, [player]).then((txid) =>
 
 Let’s practice this together by building a Movie Review app that lets users submit a movie review and have it stored on Solana’s network. We’ll build this app a little bit at a time over the next few lessons, adding new functionality each lesson.
 
-![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
+![Movie review frontend](../assets/movie-reviews-frontend.png)
+
+Here's a quick diagram of the program we'll build:
+
+![Solana stores data items in PDAs, which can be found by their seeds](../assets/movie-review-program.svg)
 
 The public key of the Solana program we’ll use for this application is `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
@@ -200,18 +204,18 @@ Let’s configure a `borsh` layout in the `Movie` class. Start by importing `@pr
 import * as borsh from '@project-serum/borsh'
 
 export class Movie {
-	title: string;
-	rating: number;
-	description: string;
+  title: string;
+  rating: number;
+  description: string;
 
-	...
+  ...
 
-	borshInstructionSchema = borsh.struct([
-		borsh.u8('variant'),
-		borsh.str('title'),
-		borsh.u8('rating'),
-		borsh.str('description'),
-	])
+  borshInstructionSchema = borsh.struct([
+    borsh.u8('variant'),
+    borsh.str('title'),
+    borsh.u8('rating'),
+    borsh.str('description'),
+  ])
 }
 ```
 
@@ -225,24 +229,24 @@ Now that we have the buffer layout set up, let’s create a method in `Movie` ca
 import * as borsh from '@project-serum/borsh'
 
 export class Movie {
-	title: string;
-	rating: number;
-	description: string;
+  title: string;
+  rating: number;
+  description: string;
 
-	...
+  ...
 
-	borshInstructionSchema = borsh.struct([
-		borsh.u8('variant'),
-		borsh.str('title'),
-		borsh.u8('rating'),
-		borsh.str('description'),
-	])
+  borshInstructionSchema = borsh.struct([
+    borsh.u8('variant'),
+    borsh.str('title'),
+    borsh.u8('rating'),
+    borsh.str('description'),
+  ])
 
-	serialize(): Buffer {
-		const buffer = Buffer.alloc(1000)
-		this.borshInstructionSchema.encode({ ...this, variant: 0 }, buffer)
-		return buffer.slice(0, this.borshInstructionSchema.getSpan(buffer))
-	}
+  serialize(): Buffer {
+    const buffer = Buffer.alloc(1000)
+    this.borshInstructionSchema.encode({ ...this, variant: 0 }, buffer)
+    return buffer.slice(0, this.borshInstructionSchema.getSpan(buffer))
+  }
 }
 ```
 
@@ -278,20 +282,20 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN'
 
 export const Form: FC = () => {
-	const [title, setTitle] = useState('')
-	const [rating, setRating] = useState(0)
-	const [message, setMessage] = useState('')
+  const [title, setTitle] = useState('')
+  const [rating, setRating] = useState(0)
+  const [message, setMessage] = useState('')
 
-	const { connection } = useConnection();
-	const { publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
 
-	const handleSubmit = (event: any) => {
-		event.preventDefault()
-		const movie = new Movie(title, rating, description)
-		handleTransactionSubmit(movie)
-	}
+  const handleSubmit = (event: any) => {
+    event.preventDefault()
+    const movie = new Movie(title, rating, description)
+    handleTransactionSubmit(movie)
+  }
 
-	...
+  ...
 }
 ```
 
@@ -300,7 +304,7 @@ Before we implement `handleTransactionSubmit`, let’s talk about what needs to 
 1. Check that `publicKey` exists to ensure that the user has connected their wallet.
 2. Call `serialize()` on `movie` to get a buffer representing the instruction data.
 3. Create a new `Transaction` object.
-4. Get all of the accounts that the transaction will read from or write to.
+4. Get all of the accounts that the transaction will read or write.
 5. Create a new `Instruction` object that includes all of these accounts in the `keys` argument, includes the buffer in the `data` argument, and includes the program’s public key in the `programId` argument.
 6. Add the instruction from the last step to the transaction.
 7. Call `sendTransaction`, passing in the assembled transaction.
@@ -309,22 +313,22 @@ That’s quite a lot to process! But don’t worry, it gets easier the more you 
 
 ```tsx
 const handleTransactionSubmit = async (movie: Movie) => {
-	if (!publicKey) {
-		alert('Please connect your wallet!')
-		return
-	}
+  if (!publicKey) {
+    alert('Please connect your wallet!')
+    return
+  }
 
-	const buffer = movie.serialize()
-	const transaction = new web3.Transaction()
+  const buffer = movie.serialize()
+  const transaction = new web3.Transaction()
 }
 ```
 
-The next step is to get all of the accounts that the transaction will read from or write to. In past lessons, the account where data will be stored has been given to you. This time, the account’s address is more dynamic, so it needs to be computed. We’ll cover this in depth in the next lesson, but for now you can use the following, where `pda` is the address to the account where data will be stored:
+The next step is to get all of the accounts that the transaction will read or write. In past lessons, the account where data will be stored has been given to you. This time, the account’s address is more dynamic, so it needs to be computed. We’ll cover this in depth in the next lesson, but for now you can use the following, where `pda` is the address to the account where data will be stored:
 
 ```tsx
 const [pda] = await web3.PublicKey.findProgramAddress(
-	[publicKey.toBuffer(), Buffer.from(movie.title)],
-	new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+  [publicKey.toBuffer(), Buffer.from(movie.title)],
+  new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
 )
 ```
 
@@ -334,49 +338,49 @@ With that, we can finish the remaining steps:
 
 ```tsx
 const handleTransactionSubmit = async (movie: Movie) => {
-	if (!publicKey) {
-		alert('Please connect your wallet!')
-		return
-	}
+  if (!publicKey) {
+    alert('Please connect your wallet!')
+    return
+  }
 
-	const buffer = movie.serialize()
-	const transaction = new web3.Transaction()
+  const buffer = movie.serialize()
+  const transaction = new web3.Transaction()
 
-	const [pda] = await web3.PublicKey.findProgramAddress(
-		[publicKey.toBuffer(), new TextEncoder().encode(movie.title)],
-		new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-	)
+  const [pda] = await web3.PublicKey.findProgramAddress(
+    [publicKey.toBuffer(), new TextEncoder().encode(movie.title)],
+    new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+  )
 
-	const instruction = new web3.TransactionInstruction({
-		keys: [
-			{
-				pubkey: publicKey,
-				isSigner: true,
-				isWritable: false,
-			},
-			{
-				pubkey: pda,
-				isSigner: false,
-				isWritable: true
-			},
-			{
-				pubkey: web3.SystemProgram.programId,
-				isSigner: false,
-				isWritable: false
-			}
-		],
-		data: buffer,
-		programId: new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-	})
+  const instruction = new web3.TransactionInstruction({
+    keys: [
+      {
+        pubkey: publicKey,
+        isSigner: true,
+        isWritable: false,
+      },
+      {
+        pubkey: pda,
+        isSigner: false,
+        isWritable: true
+      },
+      {
+        pubkey: web3.SystemProgram.programId,
+        isSigner: false,
+        isWritable: false
+      }
+    ],
+    data: buffer,
+    programId: new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+  })
 
-	transaction.add(instruction)
+  transaction.add(instruction)
 
-	try {
-		let txid = await sendTransaction(transaction, connection)
-		console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
-	} catch (e) {
-		alert(JSON.stringify(e))
-	}
+  try {
+    let txid = await sendTransaction(transaction, connection)
+    console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+  } catch (e) {
+    alert(JSON.stringify(e))
+  }
 }
 ```
 

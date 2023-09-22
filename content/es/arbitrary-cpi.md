@@ -183,7 +183,7 @@ El último programa, `fake-metadata` es un programa de metadatos "falso" destina
 
 Ya hay una prueba en el `tests` directorio para esto. Es largo, pero tómese un minuto para verlo antes de que hablemos juntos:
 
-```ts
+```typescript
 it("Insecure instructions allow attacker to win every time", async () => {
     // Initialize player one with real metadata program
     await gameplayProgram.methods
@@ -315,7 +315,7 @@ pub fn create_character_secure(ctx: Context<CreateCharacterSecure>) -> Result<()
 
 Ahora que tenemos una forma segura de inicializar un nuevo personaje, vamos a crear una nueva prueba. Esta prueba solo necesita intentar inicializar el carácter del atacante y esperar que se arroje un error.
 
-```ts
+```typescript
 it("Secure character creation doesn't allow fake program", async () => {
     try {
         await gameplayProgram.methods

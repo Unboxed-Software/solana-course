@@ -32,7 +32,7 @@ Common uses of web3 include:
 
 - Selling good and services online with near-zero fees and instant settlement.
 
-- Selling digital art, ensuring that work is genuine and that copies are distingisable from real works purchased from the artist.
+- Selling digital or physical items, ensuring that each item is genuine and that copies are distinguishable from original items. 
 
 - Instant global payments, without the time and expense of 'money transfer' companies.
 
@@ -44,9 +44,9 @@ Compared to older platforms like Bitcoin and Ethereum, Solana is:
 
 - Significantly faster - most transactions complete in a second or two.
 
-- Has massively reduced costs - transaction fees (referred to as 'gas fees' in older networks) are typically $0.000025 (yes, far less than one penny) regardless of the value of what's being transferred.
+- Massively cheaper - transaction fees (referred to as 'gas fees' in older networks) are typically $0.000025 (yes, far less than one penny) regardless of the value of what's being transferred.
 
-- Highly decentralised, having one of the highest Nakamoto coefficient (decentraliation score) of any proof-of-stake network.
+- Highly decentralized, having one of the highest Nakamoto coefficient (decentralization score) of any proof-of-stake network.
 
 Many of the common use cases on Solana are only possible on Solana, due to the high costs and slow transation times of older blockchains.
 
@@ -81,7 +81,7 @@ Each lesson starts by listing the lesson objectives - ie, what you'll be learnin
 
 Then there's a brief 'TL;DR' so that you can glance through, get a sense of what the lesson covers, and decide if the lesson is for you or not.
 
-Thne each lesson has three sections:
+Then each lesson has three sections:
 
 - **Overview** - the overview contains explanatory text, examples, and code snippets. You are _not_ expected to code along with any of the examples shown here. The goal is to simply read through and get initial exposure to the lesson topics.
 

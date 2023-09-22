@@ -540,7 +540,7 @@ Aquí tenemos:
 -   Derivar la cuenta de revisión de películas PDA
 -   Crear marcadores de posición para las pruebas
 
-```ts
+```typescript
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { assert, expect } from "chai";
@@ -577,7 +577,7 @@ A continuación, vamos a crear la primera prueba para la `addMovieReview` instru
 
 Una vez que se ejecuta la instrucción, buscamos la `movieReview` cuenta y comprobamos que los datos almacenados en la cuenta coinciden con los valores esperados.
 
-```ts
+```typescript
 it("Movie review is added`", async () => {
     // Add your test here.
     const tx = await program.methods
@@ -594,7 +594,7 @@ it("Movie review is added`", async () => {
 
 A continuación, vamos a crear la prueba para la `updateMovieReview` instrucción siguiendo el mismo proceso que antes.
 
-```ts
+```typescript
 it("Movie review is updated`", async () => {
     const newDescription = "Wow this is new";
     const newRating = 4;
@@ -613,7 +613,7 @@ it("Movie review is updated`", async () => {
 
 A continuación, cree la prueba para la `deleteMovieReview` instrucción
 
-```ts
+```typescript
 it("Deletes a movie review", async () => {
     const tx = await program.methods.deleteMovieReview(movie.title).rpc();
 });
