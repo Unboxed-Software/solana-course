@@ -1,5 +1,6 @@
 ---
 title: Introducción a los objetivos de desarrollo de Anchor del lado del cliente
+objectives:
 - Utilice un IDL para interactuar con un programa Solana del cliente
 - Explicar un `Provider` objeto de anclaje
 - Explicar un `Program` objeto de anclaje

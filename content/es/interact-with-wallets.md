@@ -1,5 +1,6 @@
 ---
 title: Interactúa con los objetivos de Wallets
+objectives:
 - Explicar monederos
 - Instalar extensión fantasma
 - Establecer cartera fantasma en [Devnet](https://api.devnet.solana.com/)

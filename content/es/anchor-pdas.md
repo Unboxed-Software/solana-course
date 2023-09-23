@@ -1,5 +1,6 @@
 ---
 title: Anclar los PDA y los objetivos de las cuentas
+objectives:
 - Utilice las `bump` restricciones `seeds` y para trabajar con cuentas PDA en Anchor
 - Habilitar y usar la `init_if_needed` restricción
 - Utilice la `realloc` restricción para reasignar espacio en una cuenta existente

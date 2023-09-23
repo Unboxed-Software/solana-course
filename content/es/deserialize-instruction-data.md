@@ -1,5 +1,6 @@
 ---
 title: Crear un Programa Básico, Parte 1 - Manejar los objetivos de los Datos de Instrucción
+objectives:
 - Asignar variables mutables e inmutables en Rust
 - Crear y usar estructuras y enumeraciones de óxido
 - Usar declaraciones de coincidencia de óxido

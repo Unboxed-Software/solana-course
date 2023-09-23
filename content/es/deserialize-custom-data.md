@@ -1,5 +1,6 @@
 ---
 title: Deserializar los objetivos de los datos de la cuenta personalizada
+objectives:
 - Explicar cuentas derivadas del programa
 - Derivar PDAs dadas semillas específicas
 - Obtener las cuentas de un programa

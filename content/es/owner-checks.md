@@ -1,5 +1,6 @@
 ---
 title: El propietario comprueba los objetivos
+objectives:
 - Explicar los riesgos de seguridad asociados con no realizar las comprobaciones apropiadas del propietario
 - Implementar comprobaciones de propietario usando Rust de formato largo
 - Utilice el `Account<'info, T>` envoltorio de Anchor y un tipo de cuenta para automatizar los cheques de propietario

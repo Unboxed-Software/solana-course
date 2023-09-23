@@ -1,5 +1,6 @@
 ---
-title: Reinicialización Ataques objetivos:
+title: Reinicialización Ataques
+objectives:
 - Explicar los riesgos de seguridad asociados con una vulnerabilidad de reinicialización
 - Utilice la comprobación de óxido de formato largo si una cuenta ya se ha inicializado
 - Usar la `init` restricción de Anchor para inicializar cuentas, que establece automáticamente un discriminador de cuenta que se comprueba para evitar la reinicialización de una cuenta

@@ -1,5 +1,6 @@
 ---
 título: Objetivos de desarrollo del programa local
+objectives:
 - Crear un entorno local para el desarrollo del programa Solana
 - Usar comandos CLI básicos de Solana
 - Ejecutar un validador de prueba local

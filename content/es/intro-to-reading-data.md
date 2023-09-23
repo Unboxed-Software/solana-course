@@ -1,5 +1,6 @@
 ---
 title: Lea los datos de los objetivos de la red Solana
+objectives:
 - Explicar cuentas
 - Explicar SOL y lamports
 - Explicar claves públicas
