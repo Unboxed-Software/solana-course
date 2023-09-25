@@ -1,5 +1,6 @@
 ---
 title: Crear Tokens con los objetivos del Programa Token
+objectives:
 - Crear fichas de menta
 - Crear cuentas de token
 - Tokens de menta

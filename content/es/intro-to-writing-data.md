@@ -1,5 +1,6 @@
 ---
 title: Escribir datos a los objetivos de la red Solana
+objectives:
 - Explicar el par de teclas
 - Utilizar `@solana/web3.js` para generar un par de claves
 - Usar `@solana/web3.js` para crear un par de claves usando una clave secreta

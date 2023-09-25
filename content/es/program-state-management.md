@@ -1,5 +1,6 @@
 ---
-title: Crear un Programa Básico, Parte 2 - Objetivos de la Administración del Estado:
+title: Crear un Programa Básico, Parte 2 - Objetivos de la Administración del Estado
+objectives:
 - Describir el proceso de creación de una nueva cuenta utilizando una dirección derivada del programa (PDA)
 - Usar semillas para derivar un PDA
 - Utilice el espacio requerido por una cuenta para calcular la cantidad de alquiler (en lamports) que un usuario debe asignar

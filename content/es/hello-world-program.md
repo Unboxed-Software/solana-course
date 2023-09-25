@@ -1,5 +1,6 @@
 ---
 title: Objetivos de Hello World
+objectives:
 - Utilice el sistema del módulo Rust
 - Definir una función en Rust
 - Explicar el `Result` tipo
