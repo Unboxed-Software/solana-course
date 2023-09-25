@@ -506,7 +506,7 @@ Run `anchor build` to build the program.
 
 Anchor tests are typically Typescript integration tests that use the mocha test framework. We'll learn more about testing later, but for now navigate to `anchor-counter.ts` and replace the default test code with the following:
 
-```ts
+```typescript
 import * as anchor from "@project-serum/anchor"
 import { Program } from "@project-serum/anchor"
 import { expect } from "chai"
@@ -531,7 +531,7 @@ The above code generates a new keypair for the `counter` account we'll be initia
 
 Next, create the first test for the `initialize` instruction:
 
-```ts
+```typescript
 it("Is initialized!", async () => {
   // Add your test here.
   const tx = await program.methods
@@ -547,7 +547,7 @@ it("Is initialized!", async () => {
 
 Next, create the second test for the `increment` instruction:
 
-```ts
+```typescript
 it("Incremented the count", async () => {
   const tx = await program.methods
     .increment()

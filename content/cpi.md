@@ -60,7 +60,7 @@ invoke(
 ```
 
 - `program_id` - the public key of the program you are going to invoke
-- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to
+- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read or write
 - `data` - a byte buffer representing the data being passed to the callee program as a vector
 
 The `Instruction` type has the following definition:
@@ -128,7 +128,7 @@ The [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#me
 
 ### Pass a list of accounts
 
-In addition to the instruction, both `invoke` and `invoke_signed` also require a list of `account_info` objects. Just like the list of `AccountMeta` objects you added to the instruction, you must include all of the accounts that the program you're calling will read from or write to.
+In addition to the instruction, both `invoke` and `invoke_signed` also require a list of `account_info` objects. Just like the list of `AccountMeta` objects you added to the instruction, you must include all of the accounts that the program you're calling will read or write.
 
 By the time you make a CPI in your program, you should have already grabbed all the `account_info` objects that were passed into your program and stored them in variables. You'll construct your list of `account_info` objects for the CPI by choosing which of these accounts to copy and send along.
 

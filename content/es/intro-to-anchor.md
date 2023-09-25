@@ -504,7 +504,7 @@ Ejecutar `anchor build` para construir el programa.
 
 Las pruebas de anclaje son típicamente pruebas de integración de Typescript que utilizan el marco de prueba mocha. Aprenderemos más sobre las pruebas más adelante, pero por ahora navegue `anchor-counter.ts` y reemplace el código de prueba predeterminado con lo siguiente:
 
-```ts
+```typescript
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { expect } from "chai";
@@ -529,7 +529,7 @@ El código anterior genera un nuevo par de claves para la `counter` cuenta que i
 
 A continuación, cree la primera prueba para la `initialize` instrucción:
 
-```ts
+```typescript
 it("Is initialized!", async () => {
     // Add your test here.
     const tx = await program.methods
@@ -545,7 +545,7 @@ it("Is initialized!", async () => {
 
 A continuación, cree la segunda prueba para la `increment` instrucción:
 
-```ts
+```typescript
 it("Incremented the count", async () => {
     const tx = await program.methods
         .increment()

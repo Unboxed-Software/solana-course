@@ -1,37 +1,81 @@
 [
     {
-        "title": "Client Interaction with the Solana Network",
+        "title": "Introduction",
+        "number": 0,
+        "lessons": [
+            {
+                "title": "Getting started",
+                "slug": "getting-started",
+                "objectives": [
+                    "understand what web3 is",
+                    "understand what Solana is",
+                    "learn how this course is structured",
+                    "know how to get the most from this course"
+                ],
+                "number": 1
+            }
+        ]
+    },
+    {
+        "title": "Introduction to cryptography and Solana clients",
         "number": 1,
         "lessons": [
             {
+                "title": "Cryptography fundamentals",
+                "slug": "intro-to-cryptography",
+                "objectives": [
+                    "Understand symmetric and asymmetric cryptography",
+                    "Explain keypairs",
+                    "Use `@solana/web3.js` to generate a new keypair",
+                    "Use `@solana-developers/node-helpers` to load a keypair from an env file"
+                ],
+                "number": 1
+            },
+            {
                 "title": "Read data from the network",
                 "slug": "intro-to-reading-data",
-                "number": 1
+                "objectives": [
+                    "Understand accounts",
+                    "Understand SOL and lamports",
+                    "Understand the JSON RPC API",
+                    "Understand web3.js",
+                    "Install web3.js",
+                    "Use web3.js to create a connection to a Solana node",
+                    "Use web3.js to read data from the blockchain (balance, account info, etc.)"
+                ],
+                "number": 2
             },
             {
                 "title": "Write data to the network",
                 "slug": "intro-to-writing-data",
-                "number": 2
+                "objectives": [
+                    "Explain transactions",
+                    "Explain transaction fees",
+                    "Use `@solana/web3.js` to send SOL",
+                    "Use `@solana/web3.js` to sign transactions",
+                    "Use Solana explorer to view transactions"
+                ],
+                "number": 3
             },
             {
                 "title": "Interact with wallets",
                 "slug": "interact-with-wallets",
-                "number": 3
-            },
-            {
-                "title": "Serialize custom instruction data",
-                "slug": "serialize-instruction-data",
                 "number": 4
             },
             {
-                "title": "Deserialize custom account data",
-                "slug": "deserialize-custom-data",
+                "title": "Serialize program data",
+                "slug": "serialize-instruction-data",
                 "number": 5
             },
             {
-                "title": "Page, Order, and Filter custom account data",
-                "slug": "paging-ordering-filtering-data",
+                "title": "Deserialize program data",
+                "slug": "deserialize-custom-data",
                 "number": 6
+            },
+            {
+                "title": "Page, Order, and Filter program data",
+                "slug": "paging-ordering-filtering-data",
+                "number": 7
             }
         ]
     },
