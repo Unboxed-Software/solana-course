@@ -1,0 +1,10 @@
+{
+  "content_missing_translation": {
+    "en": "Some content may not be available in english.",
+    "es": "Algunos contenidos pueden no estar disponibles en español."
+  },
+  "missing_translation": {
+    "en": "English version is being displayed because no translated content is available.",
+    "es": "Se muestra la versión en inglés porque no hay contenido traducido disponible."
+  }
+}
