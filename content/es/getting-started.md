@@ -1,5 +1,6 @@
 ---
 title: Objetivos de la guía del curso
+objectives:
 - explicar cómo está estructurado este curso de Solana
 ---
 

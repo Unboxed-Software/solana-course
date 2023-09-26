@@ -1,5 +1,6 @@
 ---
 título: Bump Seed Canonicalization objetivos
+objectives:
 - Explicar las vulnerabilidades asociadas con el uso de PDA derivados sin el bache canónico
 - Inicializar un PDA usando Anchor 's `seeds` y `bump` restricciones para usar automáticamente el bache canónico
 - Use Anchor 's `seeds` y `bump` restricciones para asegurarse de que la protuberancia canónica siempre se use en futuras instrucciones al derivar un PDA

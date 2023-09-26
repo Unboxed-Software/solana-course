@@ -185,7 +185,7 @@ async function buildCreateTokenAccountTransaction(
 
 An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
 
-![ATAs are PDAs](../../assets/atas-are-pdas.svg)
+![ATAs are PDAs](../assets/atas-are-pdas.svg)
 
 Similar to above, you can create an associated token account using the `spl-token` library's `createAssociatedTokenAccount` function.
 

@@ -1,5 +1,6 @@
 ---
 title: Serializar los objetivos de los datos de instrucción personalizados
+objectives:
 - Explicar el contenido de una transacción
 - Explicar las instrucciones de transacción
 - Explicar los conceptos básicos de las optimizaciones de tiempo de ejecución de Solana

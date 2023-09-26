@@ -1,5 +1,6 @@
 ---
 title: Cómo abordar los objetivos del módulo de seguridad del programa
+objectives:
 - entender cómo abordar el Módulo de seguridad del programa
 ---
 

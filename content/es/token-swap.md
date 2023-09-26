@@ -1,5 +1,6 @@
 ---
 title: Tokens de intercambio con los objetivos del Programa de intercambio de tokens
+objectives:
 - Crear un grupo de intercambio de tokens
 - Liquidez de depósitos
 - Retirar liquidez

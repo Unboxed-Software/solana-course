@@ -1,5 +1,6 @@
 ---
-title: Objetivos del PDAS:
+title: PDAS
+objectives:
 - Explicar las direcciones derivadas del programa (PDA)
 - Explicar varios casos de uso de PDA
 - Describir cómo se derivan los PDA

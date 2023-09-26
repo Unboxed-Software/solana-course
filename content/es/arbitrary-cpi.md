@@ -1,5 +1,6 @@
 ---
 title: Objetivos arbitrarios del IPC
+objectives:
 - Explicar los riesgos de seguridad asociados con la invocación de un IPC a un programa desconocido
 - Muestre cómo el módulo CPI de Anchor evita que esto suceda al realizar un CPI de un programa de Anchor a otro
 - Hacer de forma segura un CPI de un programa de anclaje a un programa arbitrario que no sea de anclaje

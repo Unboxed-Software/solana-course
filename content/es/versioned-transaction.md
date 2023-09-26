@@ -1,5 +1,6 @@
 ---
 title: Objetivos de Transacciones Versionadas y Tablas de Búsqueda
+objectives:
 - Crear transacciones versionadas
 - Crear tablas de búsqueda
 - Extender tablas de búsqueda

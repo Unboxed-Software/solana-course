@@ -1,5 +1,6 @@
 ---
 title: Crear NFT de Solana con objetivos Metaplex
+objectives:
 - Explicar los NFT y cómo están representados en la red de Solana
 - Explicar el papel de Metaplex en el ecosistema NFT de Solana
 - Crear y actualizar NFTs usando el SDK Metaplex

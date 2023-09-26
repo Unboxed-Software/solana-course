@@ -28,7 +28,7 @@ Use language consistent with [TERMINOLOGY](https://github.com/solana-foundation/
 - Use 'wallet app' for software. 'wallet' for the address that holds value.
 - Use 'SOL' rather than 'Sol' to refer to Solana's native token
 - PDAs are not public keys. It is not possible to have a public key without a secret key. A public key is derived from a secret key, and it is not possible to generate a public key without first generating a secret key.
-- Avoid using the term 'token account' if something more specific will suffice. [The term 'token account' can refer to many types of Solana account that have the bytecode format of token accounts](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account/7521#7521). Instead use a more specific term like 'associated token account' or 'token mint account' depending on what is being referred to if possible.
+- Use the specific term 'associated token account' if that's what you're referring to, same for 'token mint account'. A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than say swapping between 'associated token account' and 'token account' makes this clearer.
 - Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
 
 Code examples should be formatted as follows:

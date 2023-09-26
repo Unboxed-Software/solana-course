@@ -1,5 +1,6 @@
 ---
-title: Objetivos de PDA Sharing:
+title: PDA Sharing
+objectives:
 - Explicar los riesgos de seguridad asociados con el uso compartido de PDA
 - Derivar PDA que tienen dominios de autoridad discretos
 - Usar Anchor 's `seeds` y `bump` restricciones para validar cuentas PDA

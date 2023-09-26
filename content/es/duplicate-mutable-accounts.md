@@ -1,5 +1,6 @@
 ---
 title: Objetivos de las cuentas mutables duplicadas
+objectives:
 - Explicar los riesgos de seguridad asociados con las instrucciones que requieren dos cuentas mutables del mismo tipo y cómo evitarlos
 - Implementar una verificación de cuentas mutables duplicadas utilizando Rust de formato largo
 - Implementar una verificación de cuentas mutables duplicadas utilizando las restricciones de Anchor

@@ -1,5 +1,6 @@
 ---
-title: Crear un Programa Básico, Parte 3 - Objetivos Básicos de Seguridad y Validación:
+title: Crear un Programa Básico, Parte 3 - Objetivos Básicos de Seguridad y Validación
+objectives:
 - Explicar la importancia de "pensar como un atacante"
 - Comprender las prácticas básicas de seguridad
 - Realizar comprobaciones del propietario
