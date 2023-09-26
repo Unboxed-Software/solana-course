@@ -15,7 +15,7 @@ objectives:
 
 # Overview
 
-Solana has gone mobile! You are now able to create native Solana mobile dApps using the Solana Mobile Stack (SMS). SMS consists of the [Mobile Wallet Adapter (MWA)](https://docs.solanamobile.com/getting-started/overview#mobile-wallet-adapter), [Seed Vault](https://docs.solanamobile.com/getting-started/overview#seed-vault) and the [Solana dApp Store](https://docs.solanamobile.com/getting-started/overview#solana-dapp-store). Today we will be focusing on the MWA because it allows us to use our React and Solana knowledge to jump right into Android mobile development! If you’re not familiar with React or Solana programming, please take a look at our earlier lessons. 
+Solana has gone mobile! You are now able to create native Solana mobile dApps using the Solana Mobile Stack (SMS). SMS consists of the [Mobile Wallet Adapter (MWA)](https://docs.solanamobile.com/getting-started/overview#mobile-wallet-adapter), [Seed Vault](https://docs.solanamobile.com/getting-started/overview#seed-vault) and the [Solana dApp Store](https://docs.solanamobile.com/getting-started/overview#solana-dapp-store). Today we will be focusing on the MWA because it allows us to use our React and Solana knowledge to jump right into Android mobile development! If you’re not familiar with React or Solana programming, please take a look at [our earlier lessons](https://www.soldev.app/course/intro-to-reading-data). 
 
 MWA is a huge innovation. The crypto mobile market is pure untapped potential, and now, everyone can walk around with the power of Solana in their pockets. If you need a little inspiration, here are some ideas of what this unlocks:
 
@@ -169,7 +169,7 @@ Today we’ll be building a simple Android mobile counter dApp with React Native
 
 React Native allows us to write mobile applications like we’re used to on the web. However there are some parts that have to be compiled down to languages that phones understand, this means we have some setup to do before we can start.
 
-1. [Setup a React Native dev environment](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application). Go through the ***[entire article](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application)*** and accomplish the following for **************Android**************:
+1. [Setup a React Native dev environment](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application). Go through the ***[entire article](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application)*** and accomplish the following for **Android**:
     1. Install dependancies
     2. Installing Android Studio
     3. Configuring **ANDROID_HOME** environment variable 
@@ -222,7 +222,7 @@ This should open and run the app in your Android emulator. If you run into probl
 
 **Note:** We are making everything from scratch today, however if you just want to start with React Native development with Solana, check out [Solana Mobile’s React Native template](https://docs.solanamobile.com/react-native/react-native-scaffold).
 
-### 3. Install Dependancies
+### 3. Install Dependencies
 
 We’ll need to add in our Solana dependencies. Fortunately [Solana Mobile gives](https://docs.solanamobile.com/react-native/expo) us a really nice list of what packages we need and why we need them: 
 
@@ -513,12 +513,12 @@ We do this by providing the following in our `AuthProvider`:
 - `accounts`: If the user has multiple wallets, different accounts are maintained in this array of Accounts.
 - `selectedAccount`: The current selected account for the transaction.
 - `authorizeSession(wallet)`: Authorizes (or reauthorizes, if token is expired) the wallet for the user and returns an account which will act as the selected account for the session.
-- `deuthorizeSession(wallet)`: Deauthorizes the `selectedAccount`.
+- `deauthorizeSession(wallet)`: Deauthorizes the `selectedAccount`.
 - `onChangeAccount`: Acts as an handler when `selectedAccount` is changed.
 
 We’re also going to throw in some utility methods:
 
-- `getPublicKeyFromAddresss(base64Addess)`: Create a new Public Key object from the Base64 address.
+- `getPublicKeyFromAddress(base64Address)`: Create a new Public Key object from the Base64 address.
 - `getAuthorizationFromAuthResult`: Handles the authorization result, extracts relevant data from the result and returns the `Authorization` context object.
 
 We’ll expose all of this through a `useAuthorization` hook.
