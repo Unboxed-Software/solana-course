@@ -1,6 +1,7 @@
 import modules from "../../../course-structure.json";
-import type { NodeError } from "$lib/types";
+import type { Lesson, NodeError } from "$lib/types";
 import { error as makeSvelteError } from "@sveltejs/kit";
+import type { PageData } from "$lib/types";
 // I assure you, node still has an fs module.
 // @ts-ignore
 import { readFile } from "node:fs/promises";
@@ -15,14 +16,9 @@ const cleanContent = (content: string) => {
   return content.replaceAll("../assets", "");
 };
 
-// Ignore 'hidden' for now.
-interface Lesson {
-  title: string;
-  slug: string;
-}
-
-export async function load({ params }) {
-  const lessons = modules.flatMap((module) => module.lessons);
+// See https://kit.svelte.dev/docs/load
+export async function load({ params }): Promise<PageData> {
+  const lessons = modules.flatMap((module) => module.lessons) as Array<Lesson>;
 
   const hasThisSlug = (lesson: Lesson) => lesson.slug === params.slug;
 
