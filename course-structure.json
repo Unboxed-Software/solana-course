@@ -12,7 +12,8 @@
                     "learn how this course is structured",
                     "know how to get the most from this course"
                 ],
-                "number": 1
+                "number": 1,
+                "hidden": false
             }
         ]
     },
@@ -29,7 +30,8 @@
                     "Use `@solana/web3.js` to generate a new keypair",
                     "Use `@solana-developers/node-helpers` to load a keypair from an env file"
                 ],
-                "number": 1
+                "number": 1,
+                "hidden": false
             },
             {
                 "title": "Read data from the network",
@@ -43,7 +45,8 @@
                     "Use web3.js to create a connection to a Solana node",
                     "Use web3.js to read data from the blockchain (balance, account info, etc.)"
                 ],
-                "number": 2
+                "number": 2,
+                "hidden": false
             },
             {
                 "title": "Write data to the network",
@@ -55,27 +58,32 @@
                     "Use `@solana/web3.js` to sign transactions",
                     "Use Solana explorer to view transactions"
                 ],
-                "number": 3
+                "number": 3,
+                "hidden": false
             },
             {
                 "title": "Interact with wallets",
                 "slug": "interact-with-wallets",
-                "number": 4
+                "number": 4,
+                "hidden": false
             },
             {
                 "title": "Serialize program data",
                 "slug": "serialize-instruction-data",
-                "number": 5
+                "number": 5,
+                "hidden": false
             },
             {
                 "title": "Deserialize program data",
                 "slug": "deserialize-custom-data",
-                "number": 6
+                "number": 6,
+                "hidden": false
             },
             {
                 "title": "Page, Order, and Filter program data",
                 "slug": "paging-ordering-filtering-data",
-                "number": 7
+                "number": 7,
+                "hidden": false
             }
         ]
     },
@@ -86,17 +94,20 @@
             {
                 "title": "Create tokens with the Token Program",
                 "slug": "token-program",
-                "number": 1
+                "number": 1,
+                "hidden": false
             },
             {
                 "title": "Swap tokens with the Token Swap Program",
                 "slug": "token-swap",
-                "number": 2
+                "number": 2,
+                "hidden": false
             },
             {
                 "title": "Create Solana NFTs With Metaplex",
                 "slug": "nfts-with-metaplex",
-                "number": 3
+                "number": 3,
+                "hidden": false
             }
         ]
     },
@@ -107,22 +118,26 @@
             {
                 "title": "Hello World",
                 "slug": "hello-world-program",
-                "number": 1
+                "number": 1,
+                "hidden": false
             },
             {
                 "title": "Handle Instruction Data",
                 "slug": "deserialize-instruction-data",
-                "number": 2
+                "number": 2,
+                "hidden": false
             },
             {
                 "title": "State Management",
                 "slug": "program-state-management",
-                "number": 3
+                "number": 3,
+                "hidden": false
             },
             {
                 "title": "Basic Security and Validation",
                 "slug": "program-security",
-                "number": 4
+                "number": 4,
+                "hidden": false
             }
         ]
     },
@@ -133,17 +148,20 @@
             {
                 "title": "Local Program Development",
                 "slug": "local-setup",
-                "number": 1
+                "number": 1,
+                "hidden": false
             },
             {
                 "title": "Program Derived Addresses",
                 "slug": "pda",
-                "number": 2
+                "number": 2,
+                "hidden": false
             },
             {
                 "title": "Cross Program Invocations",
                 "slug": "cpi",
-                "number": 3
+                "number": 3,
+                "hidden": false
             },
             {
                 "title": "Program Testing - COMING SOON",
@@ -160,22 +178,26 @@
             {
                 "title": "Intro to Anchor development",
                 "slug": "intro-to-anchor",
-                "number": 1
+                "number": 1,
+                "hidden": false
             },
             {
                 "title": "Intro to client-side Anchor development",
                 "slug": "intro-to-anchor-frontend",
-                "number": 2
+                "number": 2,
+                "hidden": false
             },
             {
                 "title": "Anchor PDAs and accounts",
                 "slug": "anchor-pdas",
-                "number": 3
+                "number": 3,
+                "hidden": false
             },
             {
                 "title": "Anchor CPIs and errors",
                 "slug": "anchor-cpi",
-                "number": 4
+                "number": 4,
+                "hidden": false
             }
         ]
     },
@@ -186,22 +208,26 @@
             {
                 "title": "Environment variables in Solana programs",
                 "slug": "env-variables",
-                "number": 1
+                "number": 1,
+                "hidden": false
             },
             {
                 "title": "Solana Pay",
                 "slug": "solana-pay",
-                "number": 2
+                "number": 2,
+                "hidden": false
             },
             {
                 "title": "Versioned transactions and lookup tables",
                 "slug": "versioned-transaction",
-                "number": 3
+                "number": 3,
+                "hidden": false
             },
             {
                 "title": "Rust procedural macros",
                 "slug": "rust-macros",
-                "number": 4
+                "number": 4,
+                "hidden": false
             }
         ]
     },
@@ -212,57 +238,68 @@
             {
                 "title": "How to approach the Program Security module",
                 "slug": "security-intro",
-                "number": 1
+                "number": 1,
+                "hidden": false
             },
             {
                 "title": "Signer authorization",
                 "slug": "signer-auth",
-                "number": 2
+                "number": 2,
+                "hidden": false
             },
             {
                 "title": "Owner checks",
                 "slug": "owner-checks",
-                "number": 3
+                "number": 3,
+                "hidden": false
             },
             {
                 "title": "Account data matching",
                 "slug": "account-data-matching",
-                "number": 4
+                "number": 4,
+                "hidden": false
             },
             {
                 "title": "Reinitialization attacks",
                 "slug": "reinitialization-attacks",
-                "number": 5
+                "number": 5,
+                "hidden": false
             },
             {
                 "title": "Duplicate mutable accounts",
                 "slug": "duplicate-mutable-accounts",
-                "number": 6
+                "number": 6,
+                "hidden": false
             },
             {
                 "title": "Type cosplay",
                 "slug": "type-cosplay",
-                "number": 7
+                "number": 7,
+                "hidden": false
             },
             {
                 "title": "Arbitrary CPIs",
                 "slug": "arbitrary-cpi",
-                "number": 8
+                "number": 8,
+                "hidden": false
             },
             {
                 "title": "Bump seed canonicalization",
                 "slug": "bump-seed-canonicalization",
-                "number": 9
+                "number": 9,
+                "hidden": false
             },
             {
                 "title": "Closing accounts and revival attacks",
                 "slug": "closing-accounts",
-                "number": 10
+                "number": 10,
+                "hidden": false
             },
             {
                 "title": "PDA sharing",
                 "slug": "pda-sharing",
-                "number": 11
+                "number": 11,
+                "hidden": false
             }
         ]
     },
@@ -273,22 +310,26 @@
             {
                 "title": "Program architecture",
                 "slug": "program-architecture",
-                "number": 1
+                "number": 1,
+                "hidden": false
             },
             {
                 "title": "Oracles and oracle networks",
                 "slug": "oracles",
-                "number": 2
+                "number": 2,
+                "hidden": false
             },
             {
                 "title": "Verifiable randomness functions",
                 "slug": "vrf",
-                "number": 3
+                "number": 3,
+                "hidden": false
             },
             {
                 "title": "Compressed NFTs",
                 "slug": "compressed-nfts",
-                "number": 4
+                "number": 4,
+                "hidden": false
             }
         ]
     }

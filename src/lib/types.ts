@@ -5,7 +5,7 @@ export type Module = {
   lessons: Array<{
     title: string;
     slug: string;
-    hidden?: boolean;
+    hidden: boolean;
   }>;
 };
 
