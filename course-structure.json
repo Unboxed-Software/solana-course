@@ -14,7 +14,7 @@
                 ],
                 "number": 1,
                 "hidden": false,
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos de la guía del curso",
                         "objectives": [
@@ -39,7 +39,8 @@
                     "Load a keypair from an env file"
                 ],
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "translations": {}
             },
             {
                 "title": "Read data from the network",
@@ -51,7 +52,7 @@
                 ],
                 "number": 2,
                 "hidden": false,
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Lea los datos de los objetivos de la red Solana",
                         "objectives": [
@@ -79,7 +80,7 @@
                 ],
                 "number": 3,
                 "hidden": false,
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Escribir datos a los objetivos de la red Solana",
                         "objectives": [
@@ -106,7 +107,7 @@
                     "Set Phantom wallet to [Devnet](https://api.devnet.solana.com/)",
                     "Use wallet-adapter to have users sign transactions"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Interactúa con los objetivos de Wallets",
                         "objectives": [
@@ -130,7 +131,7 @@
                     "Explain Borsh",
                     "Use Borsh to serialize program data"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Serializar los objetivos de los datos de instrucción personalizados",
                         "objectives": [
@@ -154,7 +155,7 @@
                     "Fetch a program’s accounts",
                     "Use Borsh to deserialize custom data"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Deserializar los objetivos de los datos de la cuenta personalizada",
                         "objectives": [
@@ -179,7 +180,7 @@
                     "Fetch only accounts whose data matches specific criteria",
                     "Fetch a subset of total accounts using `getMultipleAccounts`"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Page, Order, and Filter Program Data",
                         "objectives": [
@@ -211,7 +212,7 @@
                     "Transfer tokens",
                     "Burn tokens"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Crear Tokens con los objetivos del Programa Token",
                         "objectives": [
@@ -235,7 +236,7 @@
                     "Withdraw liquidity",
                     "Swap tokens"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Tokens de intercambio con los objetivos del Programa de intercambio de tokens",
                         "objectives": [
@@ -258,7 +259,7 @@
                     "Create and update NFTs using the Metaplex SDK",
                     "Explain the basic functionality of the Token Metadata program, Candy Machine program, and Sugar CLI as tools that assist in creating and distributing NFTs on Solana"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Crear NFT de Solana con objetivos Metaplex",
                         "objectives": [
@@ -289,7 +290,7 @@
                     "Build and deploy a basic Solana program",
                     "Submit a transaction to invoke our “Hello, world!” program"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos de Hello World",
                         "objectives": [
@@ -317,7 +318,7 @@
                     "Execute different program logic for different types of instructions",
                     "Explain the structure of a smart contract on Solana"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Crear un Programa Básico, Parte 1 - Manejar los objetivos de los Datos de Instrucción",
                         "objectives": [
@@ -344,7 +345,7 @@
                     "Use a Cross Program Invocation (CPI) to initialize an account with a PDA as the address of the new account",
                     "Explain how to update the data stored on a new account"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Crear un Programa Básico, Parte 2 - Objetivos de la Administración del Estado",
                         "objectives": [
@@ -370,7 +371,7 @@
                     "Validate accounts passed into the program",
                     "Perform basic data validation"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Crear un Programa Básico, Parte 3 - Objetivos Básicos de Seguridad y Validación",
                         "objectives": [
@@ -402,7 +403,7 @@
                     "Use Rust and the Solana CLI to deploy a Solana program from your local development environment",
                     "Use the Solana CLI to view program logs"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "objectives": [
                             "Crear un entorno local para el desarrollo del programa Solana",
@@ -425,7 +426,7 @@
                     "Describe how PDAs are derived",
                     "Use PDA derivations to locate and retrieve data"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "PDAS",
                         "objectives": [
@@ -448,7 +449,7 @@
                     "Explain how a program provides a signature for a PDA",
                     "Avoid common pitfalls and troubleshoot common errors associated with CPIs"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos de las Invocaciones del Programa Cruzado",
                         "objectives": [
@@ -463,8 +464,10 @@
             {
                 "title": "Program Testing - COMING SOON",
                 "slug": "",
+                "number": 4,
                 "hidden": true,
-                "number": 4
+                "objectives": [],
+                "translations": {}
             }
         ]
     },
@@ -482,7 +485,7 @@
                     "Describe the basic structure of an Anchor program",
                     "Explain how to implement basic account validation and security checks with Anchor"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Introducción a los objetivos de desarrollo de Anchor",
                         "objectives": [
@@ -506,7 +509,7 @@
                     "Use Anchor to fetch accounts",
                     "Set up a frontend to invoke instructions using Anchor and an IDL"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Introducción a los objetivos de desarrollo de Anchor del lado del cliente",
                         "objectives": [
@@ -531,7 +534,7 @@
                     "Use the `realloc` constraint to reallocate space on an existing account",
                     "Use the `close` constraint to close an existing account"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Anclar los PDA y los objetivos de las cuentas",
                         "objectives": [
@@ -554,7 +557,7 @@
                     "Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable",
                     "Create and return custom Anchor errors"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Anclar los objetivos de IPC y Errores.",
                         "objectives": [
@@ -583,7 +586,7 @@
                     "Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled",
                     "Create an admin-only instruction to set up a program account that can be used to store program configuration values"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Variables de entorno en los objetivos de los Programas Solana",
                         "objectives": [
@@ -605,7 +608,7 @@
                     "Use the `@solana/pay` library to help with the creation of Solana Pay transaction requests",
                     "Partially sign transactions and implement transaction gating based on certain conditions"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Crear Tokens con los objetivos del Programa Token",
                         "objectives": [
@@ -629,7 +632,7 @@
                     "Extend lookup tables",
                     "Use lookup tables with versioned transactions"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos de Transacciones Versionadas y Tablas de Búsqueda",
                         "objectives": [
@@ -651,7 +654,7 @@
                     "Explain and work with a Rust Abstract Syntax Tree (AST)",
                     "Describe how procedural macros are used in the Anchor framework"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Rust Procedural Macros",
                         "objectives": [
@@ -676,7 +679,7 @@
                 "objectives": [
                     "understand how to approach the Program Security Module"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Cómo abordar los objetivos del módulo de seguridad del programa",
                         "objectives": [
@@ -696,7 +699,7 @@
                     "Implement signer checks using Anchor’s `Signer` type",
                     "Implement signer checks using Anchor’s `#[account(signer)]` constraint"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos de la autorización del firmante",
                         "objectives": [
@@ -719,7 +722,7 @@
                     "Use Anchor’s `Account<'info, T>` wrapper and an account type to automate owner checks",
                     "Use Anchor’s `#[account(owner = <expr>)]` constraint to explicitly define an external program that should own an account"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "El propietario comprueba los objetivos",
                         "objectives": [
@@ -741,7 +744,7 @@
                     "Implement data validation checks using long-form Rust",
                     "Implement data validation checks using Anchor constraints"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos de coincidencia de datos de cuenta",
                         "objectives": [
@@ -762,7 +765,7 @@
                     "Use long-form Rust check if an account has already been initialized",
                     "Using Anchor’s `init` constraint to initialize accounts, which automatically sets an account discriminator that is checked to prevent the reinitialization of an account"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Reinicialización Ataques",
                         "objectives": [
@@ -783,7 +786,7 @@
                     "Implement a check for duplicate mutable accounts using long-form Rust",
                     "Implement a check for duplicate mutable accounts using Anchor constraints"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos de las cuentas mutables duplicadas",
                         "objectives": [
@@ -805,7 +808,7 @@
                     "Use Anchor's `init` constraint to initialize accounts",
                     "Use Anchor's `Account` type for account validation"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Tipo Objetivos del cosplay",
                         "objectives": [
@@ -827,7 +830,7 @@
                     "Showcase how Anchor’s CPI module prevents this from happening when making a CPI from one Anchor program to another",
                     "Safely and securely make a CPI from an Anchor program to an arbitrary non-anchor program"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos arbitrarios del IPC",
                         "objectives": [
@@ -848,7 +851,7 @@
                     "Initialize a PDA using Anchor’s `seeds` and `bump` constraints to automatically use the canonical bump",
                     "Use Anchor's `seeds` and `bump` constraints to ensure the canonical bump is always used in future instructions when deriving a PDA"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "objectives": [
                             "Explicar las vulnerabilidades asociadas con el uso de PDA derivados sin el bache canónico",
@@ -868,7 +871,7 @@
                     "Close program accounts safely and securely using native Rust",
                     "Close program accounts safely and securely using the Anchor `close` constraint"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "Objetivos de las cuentas de cierre y los ataques de reactivación",
                         "objectives": [
@@ -889,7 +892,7 @@
                     "Derive PDAs that have discrete authority domains",
                     "Use Anchor’s `seeds` and `bump` constraints to validate PDA accounts"
                 ],
-                "transations": {
+                "translations": {
                     "es": {
                         "title": "PDA Sharing",
                         "objectives": [
