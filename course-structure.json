@@ -405,6 +405,7 @@
                 ],
                 "translations": {
                     "es": {
+                        "title": "Objetivos de desarrollo del programa local",
                         "objectives": [
                             "Crear un entorno local para el desarrollo del programa Solana",
                             "Usar comandos CLI básicos de Solana",
@@ -853,6 +854,7 @@
                 ],
                 "translations": {
                     "es": {
+                        "title": "Bump Seed Canonicalization objetivos",
                         "objectives": [
                             "Explicar las vulnerabilidades asociadas con el uso de PDA derivados sin el bache canónico",
                             "Inicializar un PDA usando Anchor 's `seeds` y `bump` restricciones para usar automáticamente el bache canónico",
@@ -919,7 +921,8 @@
                     "Make better PDA design decisions",
                     "Future-proof your programs",
                     "Deal with concurrency issues"
-                ]
+                ],
+                "translations": {}
             },
             {
                 "title": "Oracles and oracle networks",
@@ -932,7 +935,8 @@
                     "Explain how incentivized oracle networks make data more trustworthy",
                     "Effectively weigh the tradeoffs between using various types of oracles",
                     "Use oracles from an on-chain program to access real-world data"
-                ]
+                ],
+                "translations": {}
             },
             {
                 "title": "Verifiable randomness functions",
@@ -943,7 +947,8 @@
                     "Explain the limitations of generating random numbers on-chain",
                     "Explain how Verifiable Randomness works",
                     "Use Switchboard's VRF oracle queue to generate and consume randomness from an on-chain program"
-                ]
+                ],
+                "translations": {}
             },
             {
                 "title": "Compressed NFTs",
@@ -955,7 +960,8 @@
                     "Mint compressed NFTs using the Bubblegum TS SDK",
                     "Transfer compressed NFTs using the Bubblegum TS SDK",
                     "Read compressed NFT data using the Read API"
-                ]
+                ],
+                "translations": {}
             }
         ]
     }

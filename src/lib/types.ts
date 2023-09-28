@@ -1,4 +1,4 @@
-type Translation = Record<
+type TranslationsByLanguage = Record<
   string,
   {
     title: string;
@@ -12,13 +12,14 @@ export type Lesson = {
   objectives: Array<string>;
   number: number;
   hidden: boolean;
-  translations: Array<Translation>;
+  translations: TranslationsByLanguage | {};
 };
 
 // TODO: we can remove the 'number' key from course-structure.json
 // as it duplicates the index, once we move the site to solana.com
 export type Module = {
   title: string;
+  number: number;
   lessons: Array<Lesson>;
 };
 

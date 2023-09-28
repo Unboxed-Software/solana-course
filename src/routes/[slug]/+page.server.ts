@@ -18,7 +18,9 @@ const cleanContent = (content: string) => {
 
 // See https://kit.svelte.dev/docs/load
 export async function load({ params }): Promise<PageData> {
-  const lessons = modules.flatMap((module) => module.lessons) as Array<Lesson>;
+  const allLessons = modules.flatMap((module) => module.lessons);
+
+  const lessons = allLessons.filter((lesson) => !lesson.hidden);
 
   const hasThisSlug = (lesson: Lesson) => lesson.slug === params.slug;
 
