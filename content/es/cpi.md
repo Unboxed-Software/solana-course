@@ -1,12 +1,3 @@
----
-title: Objetivos de las Invocaciones del Programa Cruzado
-objectives:
-- Explicar las invocaciones de programas cruzados (CPI)
-- Describir cómo construir y usar los IPC
-- Explicar cómo un programa proporciona una firma para un PDA
-- Evite las trampas comunes y solucione los errores comunes asociados con los IPC
----
-
 # TL;DR
 
 -   A **Invocación de programa cruzado (CPI)** es una llamada de un programa a otro, dirigida a una instrucción específica en el programa llamado

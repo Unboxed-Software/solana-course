@@ -1,12 +1,3 @@
----
-title: Objetivos de la autorización del firmante
-objectives:
-- Explicar los riesgos de seguridad asociados con no realizar las comprobaciones apropiadas del firmante
-- Implementar comprobaciones de firmantes utilizando Rust de formato largo
-- Implementar comprobaciones de firmantes utilizando el `Signer` tipo de Anchor
-- Implementar comprobaciones de firmantes utilizando la `#[account(signer)]` restricción de Anchor
----
-
 # TL;DR
 
 -   Utilícelo **Comprobaciones del firmante** para verificar que cuentas específicas hayan firmado una transacción. Sin las comprobaciones apropiadas del firmante, las cuentas pueden ser capaces de ejecutar instrucciones que no deberían estar autorizadas a realizar.

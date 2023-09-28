@@ -1,13 +1,3 @@
----
-title: Oracles and Oracle Networks
-objectives:
-- Explain why on-chain programs cannot readily access real-world data on their own
-- Explain how oracles solve the problem to accessing real-world data on-chain
-- Explain how incentivized oracle networks make data more trustworthy
-- Effectively weigh the tradeoffs between using various types of oracles
-- Use oracles from an on-chain program to access real-world data
----
-
 # TL;DR
 
 - Oracles are services that provide external data to a blockchain network

@@ -1,13 +1,3 @@
----
-title: PDAS
-objectives:
-- Explicar las direcciones derivadas del programa (PDA)
-- Explicar varios casos de uso de PDA
-- Describir cómo se derivan los PDA
-- Utilice las derivaciones de PDA para localizar y recuperar datos
----
-
-
 # TL;DR
 
 - A **Dirección derivada del programa** (PDA) se deriva de a **iD del programa** y una lista opcional de **semillas**

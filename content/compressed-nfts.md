@@ -1,12 +1,3 @@
----
-title: Compressed NFTs
-objectives:
-- Create a compressed NFT collection using Metaplex’s Bubblegum program
-- Mint compressed NFTs using the Bubblegum TS SDK
-- Transfer compressed NFTs using the Bubblegum TS SDK
-- Read compressed NFT data using the Read API
----
-
 # TL;DR
 
 - **Compressed NFTs (cNFTs)** use **State Compression** to hash NFT data and store the hash on-chain in an account using a **concurrent merkle tree** structure

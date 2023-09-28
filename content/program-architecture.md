@@ -1,12 +1,3 @@
----
-title: Program Architecture
-objectives:
-- Use Box and Zero Copy to work with large data on-chain
-- Make better PDA design decisions
-- Future-proof your programs
-- Deal with concurrency issues
----
-
 # TL;DR
 
 - If your data accounts are too large for the Stack, wrap them in `Box` to allocate them to the Heap

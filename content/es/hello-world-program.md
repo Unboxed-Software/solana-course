@@ -1,14 +1,3 @@
----
-title: Objetivos de Hello World
-objectives:
-- Utilice el sistema del módulo Rust
-- Definir una función en Rust
-- Explicar el `Result` tipo
-- Explicar el punto de entrada a un programa de Solana
-- Construir e implementar un programa básico de Solana
-- Envíe una transacción para invocar nuestro programa "¡Hola, mundo!"
----
-
 # TL;DR
 
 -   **Programas** en Solana son un tipo particular de cuenta que almacena y ejecuta lógica de instrucciones

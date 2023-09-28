@@ -1,13 +1,3 @@
----
-title: PDAs
-objectives:
-- Explain Program Derived Addresses (PDAs)
-- Explain various use cases of PDAs
-- Describe how PDAs are derived
-- Use PDA derivations to locate and retrieve data
----
-
-
 # TL;DR
 
 - A **Program Derived Address** (PDA) is derived from a **program ID** and an optional list of **seeds**

@@ -1,13 +1,3 @@
----
-title: Create a Basic Program, Part 2 - State Management
-objectives:
-- Describe the process of creating a new account using a Program Derived Address (PDA)
-- Use seeds to derive a PDA
-- Use the space required by an account to calculate the amount of rent (in lamports) a user must allocate
-- Use a Cross Program Invocation (CPI) to initialize an account with a PDA as the address of the new account
-- Explain how to update the data stored on a new account
----
-
 # TL;DR
 
 - Program state is stored in other accounts rather than in the program itself

@@ -1,12 +1,3 @@
----
-title: Variables de entorno en los objetivos de los Programas Solana
-objectives:
-- Definir características del programa en el `Cargo.toml` archivo
-- Utilice el `cfg` atributo Rust para compilar código condicionalmente en función de qué características están o no habilitadas
-- Utilice la `cfg!` macro Rust para compilar código condicionalmente en función de qué características están o no habilitadas
-- Crear una instrucción de solo administrador para configurar una cuenta de programa que se pueda usar para almacenar valores de configuración del programa
----
-
 # TL;DR
 
 -   No hay soluciones "listas para usar" para crear entornos distintos en un programa en cadena, pero puede lograr algo similar a las variables de entorno si se vuelve creativo.

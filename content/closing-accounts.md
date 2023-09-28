@@ -1,11 +1,3 @@
----
-title: Closing Accounts and Revival Attacks
-objectives:
-- Explain the various security vulnerabilities associated with closing program accounts incorrectly
-- Close program accounts safely and securely using native Rust
-- Close program accounts safely and securely using the Anchor `close` constraint
----
-
 # TL;DR
 
 - **Closing an account** improperly creates an opportunity for reinitialization/revival attacks

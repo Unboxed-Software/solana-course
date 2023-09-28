@@ -1,12 +1,3 @@
----
-title: Deserializar los objetivos de los datos de la cuenta personalizada
-objectives:
-- Explicar cuentas derivadas del programa
-- Derivar PDAs dadas semillas específicas
-- Obtener las cuentas de un programa
-- Usar Borsh para deserializar datos personalizados
----
-
 # TL;DR
 
 -   **Direcciones derivadas del programa**, o PDA, son direcciones que no tienen una clave privada correspondiente. El concepto de PDA permite que los programas firmen transacciones por sí mismos y permite almacenar y localizar datos.

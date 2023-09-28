@@ -1,14 +1,3 @@
----
-title: Page, Order, and Filter Program Data
-objectives:
-- Page, order, and filter accounts
-- Prefetch accounts without data
-- Determine where in an account’s buffer layout specific data is stored
-- Prefetch accounts with a subset of data that can be used to order accounts
-- Fetch only accounts whose data matches specific criteria
-- Fetch a subset of total accounts using `getMultipleAccounts`
----
-
 # TL;DR
 
 - This lesson delves into some functionality of the RPC calls that we used in the deserializing account data lesson

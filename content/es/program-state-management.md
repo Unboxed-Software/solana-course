@@ -1,13 +1,3 @@
----
-title: Crear un Programa Básico, Parte 2 - Objetivos de la Administración del Estado
-objectives:
-- Describir el proceso de creación de una nueva cuenta utilizando una dirección derivada del programa (PDA)
-- Usar semillas para derivar un PDA
-- Utilice el espacio requerido por una cuenta para calcular la cantidad de alquiler (en lamports) que un usuario debe asignar
-- Utilice una Invocación de programa cruzado (CPI) para inicializar una cuenta con un PDA como la dirección de la nueva cuenta
-- Explicar cómo actualizar los datos almacenados en una nueva cuenta
----
-
 # TL;DR
 
 -   El estado del programa se almacena en otras cuentas en lugar de en el propio programa.

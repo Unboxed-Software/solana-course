@@ -1,13 +1,3 @@
----
-title: Serializar los objetivos de los datos de instrucción personalizados
-objectives:
-- Explicar el contenido de una transacción
-- Explicar las instrucciones de transacción
-- Explicar los conceptos básicos de las optimizaciones de tiempo de ejecución de Solana
-- Explicar Borsh
-- Utilice Borsh para serializar datos de instrucciones personalizadas
----
-
 # TL;DR
 
 -   Las transacciones se componen de una serie de instrucciones, una sola transacción puede tener cualquier número de instrucciones, cada una dirigida a su propio programa. Cuando se envía una transacción, el tiempo de ejecución de Solana procesará sus instrucciones en orden y de forma atómica, lo que significa que si alguna de las instrucciones falla por cualquier motivo, toda la transacción no se procesará.

@@ -1,14 +1,3 @@
----
-title: Introducción a los objetivos de desarrollo de Anchor del lado del cliente
-objectives:
-- Utilice un IDL para interactuar con un programa Solana del cliente
-- Explicar un `Provider` objeto de anclaje
-- Explicar un `Program` objeto de anclaje
-- Utilice el Ancla `MethodsBuilder` para crear instrucciones y transacciones
-- Usar Anchor para recuperar cuentas
-- Configurar un frontend para invocar instrucciones usando Anchor y un IDL
----
-
 # TL;DR
 
 -   An **IDL** es un archivo que representa la estructura de un programa de Solana. Los programas escritos y construidos usando Anchor generan automáticamente un IDL correspondiente. IDL son las siglas de Interface Description Language.

@@ -1,14 +1,3 @@
----
-title: Page, Order, and Filter Program Data 
-objectives:
-- Páginas, pedidos y filtros de cuentas
-- Obtener cuentas sin datos
-- Determinar dónde se almacenan los datos específicos en el diseño del búfer de una cuenta
-- Obtener cuentas con un subconjunto de datos que se pueden utilizar para ordenar cuentas
-- Obtener solo cuentas cuyos datos coincidan con criterios específicos
-- Obtener un subconjunto de cuentas totales usando `getMultipleAccounts`
----
-
 # TL;DR
 
 -   Esta lección profundiza en algunas funcionalidades de las llamadas RPC que utilizamos en la lección de datos de cuenta de deserialización

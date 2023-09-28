@@ -1,11 +1,3 @@
----
-title: Rust Procedural Macros
-objectives:
-- Create and use **Procedural Macros** in Rust
-- Explain and work with a Rust Abstract Syntax Tree (AST)
-- Describe how procedural macros are used in the Anchor framework
----
-
 # TL;DR
 
 -   **Procedural macros** are a special kind of Rust macro that allow the programmer to generate code at compile time based on custom input.

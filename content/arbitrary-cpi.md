@@ -1,11 +1,3 @@
----
-title: Arbitrary CPI
-objectives:
-- Explain the security risks associated with invoking a CPI to an unknown program
-- Showcase how Anchor’s CPI module prevents this from happening when making a CPI from one Anchor program to another
-- Safely and securely make a CPI from an Anchor program to an arbitrary non-anchor program
----
-
 # TL;DR
 
 - To generate a CPI, the target program must be passed into the invoking instruction as an account. This means that any target program could be passed into the instruction. Your program should check for incorrect or unexpected programs.

@@ -1,12 +1,3 @@
----
-title: Anchor CPIs and Errors
-objectives:
-- Make Cross Program Invocations (CPIs) from an Anchor program
-- Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs
-- Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable
-- Create and return custom Anchor errors
----
-
 # TL;DR
 
 - Anchor provides a simplified way to create CPIs using a **`CpiContext`**

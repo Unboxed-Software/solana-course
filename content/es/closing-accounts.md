@@ -1,11 +1,3 @@
----
-title: Objetivos de las cuentas de cierre y los ataques de reactivación
-objectives:
-- Explicar las diversas vulnerabilidades de seguridad asociadas con el cierre incorrecto de las cuentas del programa
-- Cierre las cuentas del programa de forma segura con Rust nativo
-- Cierre las cuentas del programa de forma segura utilizando la `close` restricción Anchor
----
-
 # TL;DR
 
 -   crea **Cerrar una cuenta** incorrectamente una oportunidad para ataques de reinicialización/reactivación

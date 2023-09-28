@@ -1,14 +1,3 @@
----
-title: Intro to client-side Anchor development
-objectives:
-- Use an IDL to interact with a Solana program from the client
-- Explain an Anchor `Provider` object
-- Explain an Anchor `Program` object
-- Use the Anchor `MethodsBuilder` to build instructions and transactions
-- Use Anchor to fetch accounts
-- Set up a frontend to invoke instructions using Anchor and an IDL
----
-
 # TL;DR
 
 - An **IDL** is a file representing the structure of a Solana program. Programs written and built using Anchor automatically generate a corresponding IDL. IDL stands for Interface Description Language.

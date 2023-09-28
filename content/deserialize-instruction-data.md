@@ -1,15 +1,3 @@
----
-title: Create a Basic Program, Part 1 - Handle Instruction Data
-objectives:
-- Assign mutable and immutable variables in Rust
-- Create and use Rust structs and enums
-- Use Rust match statements
-- Add implementations to Rust types
-- Deserialize instruction data into Rust data types
-- Execute different program logic for different types of instructions
-- Explain the structure of a smart contract on Solana
----
-
 # TL;DR
 
 - Most programs support **multiple discrete instructions** - you decide when writing your program what these instructions are and what data must accompany them

@@ -1,12 +1,3 @@
----
-title: Cryptography and the Solana Network
-objectives:
-- Understand symmetric and asymmetric cryptography
-- Explain keypairs
-- Generate a new keypair
-- Load a keypair from an env file
----
-
 # TL;DR
 
 - A **keypair** is a matching pair of **public key** and **secret key**. 

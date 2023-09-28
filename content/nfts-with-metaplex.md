@@ -1,12 +1,3 @@
----
-title: Create Solana NFTs With Metaplex
-objectives:
-- Explain NFTs and how they're represented on the Solana network
-- Explain the role of Metaplex in the Solana NFT ecosystem
-- Create and update NFTs using the Metaplex SDK
-- Explain the basic functionality of the Token Metadata program, Candy Machine program, and Sugar CLI as tools that assist in creating and distributing NFTs on Solana
----
-
 # TL;DR
 
 - **Non-Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a maximum supply of 1

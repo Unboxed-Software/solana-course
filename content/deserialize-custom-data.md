@@ -1,12 +1,3 @@
----
-title: Deserialize Program Data
-objectives:
-- Explain Program Derived Accounts
-- Derive PDAs given specific seeds
-- Fetch a program’s accounts
-- Use Borsh to deserialize custom data
----
-
 # TL;DR
 
 - Programs store data in PDAs, which stands for **Program Derived Address**. 

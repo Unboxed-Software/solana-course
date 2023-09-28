@@ -1,12 +1,3 @@
----
-title: Anclar los objetivos de IPC y Errores.
-objectives:
-- Haga Invocaciones de Programas Cruzados (CPI) de un programa Anchor
-- Utilice la `cpi` función para generar funciones auxiliares para invocar instrucciones en los programas de Anchor existentes
-- Usar `invoke` y `invoke_signed` hacer CPI donde las funciones de ayuda de CPI no están disponibles
-- Crear y devolver errores de anclaje personalizados
----
-
 # TL;DR
 
 -   Anchor proporciona una forma simplificada de crear IPC utilizando un ** `CpiContext` **

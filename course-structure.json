@@ -13,7 +13,15 @@
                     "know how to get the most from this course"
                 ],
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "transations": {
+                    "es": {
+                        "title": "Objetivos de la guía del curso",
+                        "objectives": [
+                            "explicar cómo está estructurado este curso de Solana"
+                        ]
+                    }
+                }
             }
         ]
     },
@@ -27,8 +35,8 @@
                 "objectives": [
                     "Understand symmetric and asymmetric cryptography",
                     "Explain keypairs",
-                    "Use `@solana/web3.js` to generate a new keypair",
-                    "Use `@solana-developers/node-helpers` to load a keypair from an env file"
+                    "Generate a new keypair",
+                    "Load a keypair from an env file"
                 ],
                 "number": 1,
                 "hidden": false
@@ -37,16 +45,27 @@
                 "title": "Read data from the network",
                 "slug": "intro-to-reading-data",
                 "objectives": [
-                    "Understand accounts",
+                    "Understand accounts and their addresses",
                     "Understand SOL and lamports",
-                    "Understand the JSON RPC API",
-                    "Understand web3.js",
-                    "Install web3.js",
-                    "Use web3.js to create a connection to a Solana node",
-                    "Use web3.js to read data from the blockchain (balance, account info, etc.)"
+                    "Use web3.js to connect to Solana and read an account balance"
                 ],
                 "number": 2,
-                "hidden": false
+                "hidden": false,
+                "transations": {
+                    "es": {
+                        "title": "Lea los datos de los objetivos de la red Solana",
+                        "objectives": [
+                            "Explicar cuentas",
+                            "Explicar SOL y lamports",
+                            "Explicar claves públicas",
+                            "Explicar la API de JSON RPC",
+                            "Explicar web3.js",
+                            "Instalar web3.js",
+                            "Utilice web3.js para crear una conexión a un nodo de Solana",
+                            "Utilice web3.js para leer datos de la cadena de bloques (saldo, información de la cuenta, etc.)"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Write data to the network",
@@ -59,31 +78,120 @@
                     "Use Solana explorer to view transactions"
                 ],
                 "number": 3,
-                "hidden": false
+                "hidden": false,
+                "transations": {
+                    "es": {
+                        "title": "Escribir datos a los objetivos de la red Solana",
+                        "objectives": [
+                            "Explicar el par de teclas",
+                            "Utilizar `@solana/web3.js` para generar un par de claves",
+                            "Usar `@solana/web3.js` para crear un par de claves usando una clave secreta",
+                            "Explicar transacciones",
+                            "Explicar las tarifas de transacción",
+                            "Usar `@solana/web3.js` para enviar sol",
+                            "Utilizar `@solana/web3.js` para firmar transacciones",
+                            "Utilice Solana Explorer para ver las transacciones"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Interact with wallets",
                 "slug": "interact-with-wallets",
                 "number": 4,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain wallets",
+                    "Install Phantom extension",
+                    "Set Phantom wallet to [Devnet](https://api.devnet.solana.com/)",
+                    "Use wallet-adapter to have users sign transactions"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Interactúa con los objetivos de Wallets",
+                        "objectives": [
+                            "Explicar monederos",
+                            "Instalar extensión fantasma",
+                            "Establecer cartera fantasma en [Devnet](https://api.devnet.solana.com/)",
+                            "Utilice el adaptador de billetera para que los usuarios firmen transacciones"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Serialize program data",
                 "slug": "serialize-instruction-data",
                 "number": 5,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the contents of a transaction",
+                    "Explain transaction instructions",
+                    "Explain the basics of Solana's runtime optimizations",
+                    "Explain Borsh",
+                    "Use Borsh to serialize program data"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Serializar los objetivos de los datos de instrucción personalizados",
+                        "objectives": [
+                            "Explicar el contenido de una transacción",
+                            "Explicar las instrucciones de transacción",
+                            "Explicar los conceptos básicos de las optimizaciones de tiempo de ejecución de Solana",
+                            "Explicar Borsh",
+                            "Utilice Borsh para serializar datos de instrucciones personalizadas"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Deserialize program data",
                 "slug": "deserialize-custom-data",
                 "number": 6,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain Program Derived Accounts",
+                    "Derive PDAs given specific seeds",
+                    "Fetch a program’s accounts",
+                    "Use Borsh to deserialize custom data"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Deserializar los objetivos de los datos de la cuenta personalizada",
+                        "objectives": [
+                            "Explicar cuentas derivadas del programa",
+                            "Derivar PDAs dadas semillas específicas",
+                            "Obtener las cuentas de un programa",
+                            "Usar Borsh para deserializar datos personalizados"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Page, Order, and Filter program data",
                 "slug": "paging-ordering-filtering-data",
                 "number": 7,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Page, order, and filter accounts",
+                    "Prefetch accounts without data",
+                    "Determine where in an account’s buffer layout specific data is stored",
+                    "Prefetch accounts with a subset of data that can be used to order accounts",
+                    "Fetch only accounts whose data matches specific criteria",
+                    "Fetch a subset of total accounts using `getMultipleAccounts`"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Page, Order, and Filter Program Data",
+                        "objectives": [
+                            "Páginas, pedidos y filtros de cuentas",
+                            "Obtener cuentas sin datos",
+                            "Determinar dónde se almacenan los datos específicos en el diseño del búfer de una cuenta",
+                            "Obtener cuentas con un subconjunto de datos que se pueden utilizar para ordenar cuentas",
+                            "Obtener solo cuentas cuyos datos coincidan con criterios específicos",
+                            "Obtener un subconjunto de cuentas totales usando `getMultipleAccounts`"
+                        ]
+                    }
+                }
             }
         ]
     },
@@ -95,19 +203,72 @@
                 "title": "Create tokens with the Token Program",
                 "slug": "token-program",
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Create token mints",
+                    "Create token accounts",
+                    "Mint tokens",
+                    "Transfer tokens",
+                    "Burn tokens"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Crear Tokens con los objetivos del Programa Token",
+                        "objectives": [
+                            "Crear fichas de menta",
+                            "Crear cuentas de token",
+                            "Tokens de menta",
+                            "Transferir tokens",
+                            "Quemar tokens"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Swap tokens with the Token Swap Program",
                 "slug": "token-swap",
                 "number": 2,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Create a token swap pool",
+                    "Deposit liquidity",
+                    "Withdraw liquidity",
+                    "Swap tokens"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Tokens de intercambio con los objetivos del Programa de intercambio de tokens",
+                        "objectives": [
+                            "Crear un grupo de intercambio de tokens",
+                            "Liquidez de depósitos",
+                            "Retirar liquidez",
+                            "Tokens de swap"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Create Solana NFTs With Metaplex",
                 "slug": "nfts-with-metaplex",
                 "number": 3,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain NFTs and how they're represented on the Solana network",
+                    "Explain the role of Metaplex in the Solana NFT ecosystem",
+                    "Create and update NFTs using the Metaplex SDK",
+                    "Explain the basic functionality of the Token Metadata program, Candy Machine program, and Sugar CLI as tools that assist in creating and distributing NFTs on Solana"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Crear NFT de Solana con objetivos Metaplex",
+                        "objectives": [
+                            "Explicar los NFT y cómo están representados en la red de Solana",
+                            "Explicar el papel de Metaplex en el ecosistema NFT de Solana",
+                            "Crear y actualizar NFTs usando el SDK Metaplex",
+                            "Explicar la funcionalidad básica del programa Token Metadata, el programa Candy Machine y Sugar CLI como herramientas que ayudan a crear y distribuir NFT en Solana"
+                        ]
+                    }
+                }
             }
         ]
     },
@@ -119,25 +280,109 @@
                 "title": "Hello World",
                 "slug": "hello-world-program",
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Use the Rust module system",
+                    "Define a function in Rust",
+                    "Explain the `Result` type",
+                    "Explain the entry point to a Solana program",
+                    "Build and deploy a basic Solana program",
+                    "Submit a transaction to invoke our “Hello, world!” program"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Objetivos de Hello World",
+                        "objectives": [
+                            "Utilice el sistema del módulo Rust",
+                            "Definir una función en Rust",
+                            "Explicar el `Result` tipo",
+                            "Explicar el punto de entrada a un programa de Solana",
+                            "Construir e implementar un programa básico de Solana",
+                            "Envíe una transacción para invocar nuestro programa \"¡Hola, mundo!\""
+                        ]
+                    }
+                }
             },
             {
                 "title": "Handle Instruction Data",
                 "slug": "deserialize-instruction-data",
                 "number": 2,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Assign mutable and immutable variables in Rust",
+                    "Create and use Rust structs and enums",
+                    "Use Rust match statements",
+                    "Add implementations to Rust types",
+                    "Deserialize instruction data into Rust data types",
+                    "Execute different program logic for different types of instructions",
+                    "Explain the structure of a smart contract on Solana"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Crear un Programa Básico, Parte 1 - Manejar los objetivos de los Datos de Instrucción",
+                        "objectives": [
+                            "Asignar variables mutables e inmutables en Rust",
+                            "Crear y usar estructuras y enumeraciones de óxido",
+                            "Usar declaraciones de coincidencia de óxido",
+                            "Añadir implementaciones a los tipos de óxido",
+                            "Deserializar los datos de instrucción en tipos de datos de óxido",
+                            "Ejecutar diferentes lógicas de programa para diferentes tipos de instrucciones",
+                            "Explicar la estructura de un contrato inteligente en Solana"
+                        ]
+                    }
+                }
             },
             {
                 "title": "State Management",
                 "slug": "program-state-management",
                 "number": 3,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Describe the process of creating a new account using a Program Derived Address (PDA)",
+                    "Use seeds to derive a PDA",
+                    "Use the space required by an account to calculate the amount of rent (in lamports) a user must allocate",
+                    "Use a Cross Program Invocation (CPI) to initialize an account with a PDA as the address of the new account",
+                    "Explain how to update the data stored on a new account"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Crear un Programa Básico, Parte 2 - Objetivos de la Administración del Estado",
+                        "objectives": [
+                            "Describir el proceso de creación de una nueva cuenta utilizando una dirección derivada del programa (PDA)",
+                            "Usar semillas para derivar un PDA",
+                            "Utilice el espacio requerido por una cuenta para calcular la cantidad de alquiler (en lamports) que un usuario debe asignar",
+                            "Utilice una Invocación de programa cruzado (CPI) para inicializar una cuenta con un PDA como la dirección de la nueva cuenta",
+                            "Explicar cómo actualizar los datos almacenados en una nueva cuenta"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Basic Security and Validation",
                 "slug": "program-security",
                 "number": 4,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the importance of \"thinking like an attacker\"",
+                    "Understand basic security practices",
+                    "Perform owner checks",
+                    "Perform signer checks",
+                    "Validate accounts passed into the program",
+                    "Perform basic data validation"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Crear un Programa Básico, Parte 3 - Objetivos Básicos de Seguridad y Validación",
+                        "objectives": [
+                            "Explicar la importancia de \"pensar como un atacante\"",
+                            "Comprender las prácticas básicas de seguridad",
+                            "Realizar comprobaciones del propietario",
+                            "Realizar comprobaciones del firmante",
+                            "Validar cuentas pasadas al programa",
+                            "Realizar validación de datos básicos"
+                        ]
+                    }
+                }
             }
         ]
     },
@@ -149,19 +394,71 @@
                 "title": "Local Program Development",
                 "slug": "local-setup",
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Set up a local environment for Solana program development",
+                    "Use basic Solana CLI commands",
+                    "Run a local test validator",
+                    "Use Rust and the Solana CLI to deploy a Solana program from your local development environment",
+                    "Use the Solana CLI to view program logs"
+                ],
+                "transations": {
+                    "es": {
+                        "objectives": [
+                            "Crear un entorno local para el desarrollo del programa Solana",
+                            "Usar comandos CLI básicos de Solana",
+                            "Ejecutar un validador de prueba local",
+                            "Utilice Rust y Solana CLI para implementar un programa Solana desde su entorno de desarrollo local",
+                            "Utilice la CLI de Solana para ver los registros del programa"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Program Derived Addresses",
                 "slug": "pda",
                 "number": 2,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain Program Derived Addresses (PDAs)",
+                    "Explain various use cases of PDAs",
+                    "Describe how PDAs are derived",
+                    "Use PDA derivations to locate and retrieve data"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "PDAS",
+                        "objectives": [
+                            "Explicar las direcciones derivadas del programa (PDA)",
+                            "Explicar varios casos de uso de PDA",
+                            "Describir cómo se derivan los PDA",
+                            "Utilice las derivaciones de PDA para localizar y recuperar datos"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Cross Program Invocations",
                 "slug": "cpi",
                 "number": 3,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain Cross-Program Invocations (CPIs)",
+                    "Describe how to construct and use CPIs",
+                    "Explain how a program provides a signature for a PDA",
+                    "Avoid common pitfalls and troubleshoot common errors associated with CPIs"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Objetivos de las Invocaciones del Programa Cruzado",
+                        "objectives": [
+                            "Explicar las invocaciones de programas cruzados (CPI)",
+                            "Describir cómo construir y usar los IPC",
+                            "Explicar cómo un programa proporciona una firma para un PDA",
+                            "Evite las trampas comunes y solucione los errores comunes asociados con los IPC"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Program Testing - COMING SOON",
@@ -179,25 +476,95 @@
                 "title": "Intro to Anchor development",
                 "slug": "intro-to-anchor",
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Use the Anchor framework to build a basic program",
+                    "Describe the basic structure of an Anchor program",
+                    "Explain how to implement basic account validation and security checks with Anchor"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Introducción a los objetivos de desarrollo de Anchor",
+                        "objectives": [
+                            "Usar el framework de Anchor para construir un programa básico",
+                            "Describir la estructura básica de un programa de anclaje",
+                            "Explicar cómo implementar la validación básica de la cuenta y los controles de seguridad con Anchor"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Intro to client-side Anchor development",
                 "slug": "intro-to-anchor-frontend",
                 "number": 2,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Use an IDL to interact with a Solana program from the client",
+                    "Explain an Anchor `Provider` object",
+                    "Explain an Anchor `Program` object",
+                    "Use the Anchor `MethodsBuilder` to build instructions and transactions",
+                    "Use Anchor to fetch accounts",
+                    "Set up a frontend to invoke instructions using Anchor and an IDL"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Introducción a los objetivos de desarrollo de Anchor del lado del cliente",
+                        "objectives": [
+                            "Utilice un IDL para interactuar con un programa Solana del cliente",
+                            "Explicar un `Provider` objeto de anclaje",
+                            "Explicar un `Program` objeto de anclaje",
+                            "Utilice el Ancla `MethodsBuilder` para crear instrucciones y transacciones",
+                            "Usar Anchor para recuperar cuentas",
+                            "Configurar un frontend para invocar instrucciones usando Anchor y un IDL"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Anchor PDAs and accounts",
                 "slug": "anchor-pdas",
                 "number": 3,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Use the `seeds` and `bump` constraints to work with PDA accounts in Anchor",
+                    "Enable and use the `init_if_needed` constraint",
+                    "Use the `realloc` constraint to reallocate space on an existing account",
+                    "Use the `close` constraint to close an existing account"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Anclar los PDA y los objetivos de las cuentas",
+                        "objectives": [
+                            "Utilice las `bump` restricciones `seeds` y para trabajar con cuentas PDA en Anchor",
+                            "Habilitar y usar la `init_if_needed` restricción",
+                            "Utilice la `realloc` restricción para reasignar espacio en una cuenta existente",
+                            "Utilice la `close` restricción para cerrar una cuenta existente"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Anchor CPIs and errors",
                 "slug": "anchor-cpi",
                 "number": 4,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Make Cross Program Invocations (CPIs) from an Anchor program",
+                    "Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs",
+                    "Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable",
+                    "Create and return custom Anchor errors"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Anclar los objetivos de IPC y Errores.",
+                        "objectives": [
+                            "Haga Invocaciones de Programas Cruzados (CPI) de un programa Anchor",
+                            "Utilice la `cpi` función para generar funciones auxiliares para invocar instrucciones en los programas de Anchor existentes",
+                            "Usar `invoke` y `invoke_signed` hacer CPI donde las funciones de ayuda de CPI no están disponibles",
+                            "Crear y devolver errores de anclaje personalizados"
+                        ]
+                    }
+                }
             }
         ]
     },
@@ -209,25 +576,91 @@
                 "title": "Environment variables in Solana programs",
                 "slug": "env-variables",
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Define program features in the `Cargo.toml` file",
+                    "Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled",
+                    "Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled",
+                    "Create an admin-only instruction to set up a program account that can be used to store program configuration values"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Variables de entorno en los objetivos de los Programas Solana",
+                        "objectives": [
+                            "Definir características del programa en el `Cargo.toml` archivo",
+                            "Utilice el `cfg` atributo Rust para compilar código condicionalmente en función de qué características están o no habilitadas",
+                            "Utilice la `cfg!` macro Rust para compilar código condicionalmente en función de qué características están o no habilitadas",
+                            "Crear una instrucción de solo administrador para configurar una cuenta de programa que se pueda usar para almacenar valores de configuración del programa"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Solana Pay",
                 "slug": "solana-pay",
                 "number": 2,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Use the Solana Pay specification to build payment requests and initiate transactions using URLs encoded as QR codes",
+                    "Use the `@solana/pay` library to help with the creation of Solana Pay transaction requests",
+                    "Partially sign transactions and implement transaction gating based on certain conditions"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Crear Tokens con los objetivos del Programa Token",
+                        "objectives": [
+                            "Crear fichas de menta",
+                            "Crear cuentas de token",
+                            "Tokens de menta",
+                            "Transferir tokens",
+                            "Quemar tokens"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Versioned transactions and lookup tables",
                 "slug": "versioned-transaction",
                 "number": 3,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Create versioned transactions",
+                    "Create lookup tables",
+                    "Extend lookup tables",
+                    "Use lookup tables with versioned transactions"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Objetivos de Transacciones Versionadas y Tablas de Búsqueda",
+                        "objectives": [
+                            "Crear transacciones versionadas",
+                            "Crear tablas de búsqueda",
+                            "Extender tablas de búsqueda",
+                            "Usar tablas de búsqueda con transacciones versionadas"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Rust procedural macros",
                 "slug": "rust-macros",
                 "number": 4,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Create and use **Procedural Macros** in Rust",
+                    "Explain and work with a Rust Abstract Syntax Tree (AST)",
+                    "Describe how procedural macros are used in the Anchor framework"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Rust Procedural Macros",
+                        "objectives": [
+                            "Create and use **Procedural Macros** in Rust",
+                            "Explain and work with a Rust Abstract Syntax Tree (AST)",
+                            "Describe how procedural macros are used in the Anchor framework"
+                        ]
+                    }
+                }
             }
         ]
     },
@@ -239,67 +672,233 @@
                 "title": "How to approach the Program Security module",
                 "slug": "security-intro",
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "understand how to approach the Program Security Module"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Cómo abordar los objetivos del módulo de seguridad del programa",
+                        "objectives": [
+                            "entender cómo abordar el Módulo de seguridad del programa"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Signer authorization",
                 "slug": "signer-auth",
                 "number": 2,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the security risks associated with not performing appropriate signer checks",
+                    "Implement signer checks using long-form Rust",
+                    "Implement signer checks using Anchor’s `Signer` type",
+                    "Implement signer checks using Anchor’s `#[account(signer)]` constraint"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Objetivos de la autorización del firmante",
+                        "objectives": [
+                            "Explicar los riesgos de seguridad asociados con no realizar las comprobaciones apropiadas del firmante",
+                            "Implementar comprobaciones de firmantes utilizando Rust de formato largo",
+                            "Implementar comprobaciones de firmantes utilizando el `Signer` tipo de Anchor",
+                            "Implementar comprobaciones de firmantes utilizando la `#[account(signer)]` restricción de Anchor"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Owner checks",
                 "slug": "owner-checks",
                 "number": 3,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the security risks associated with not performing appropriate owner checks",
+                    "Implement owner checks using long-form Rust",
+                    "Use Anchor’s `Account<'info, T>` wrapper and an account type to automate owner checks",
+                    "Use Anchor’s `#[account(owner = <expr>)]` constraint to explicitly define an external program that should own an account"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "El propietario comprueba los objetivos",
+                        "objectives": [
+                            "Explicar los riesgos de seguridad asociados con no realizar las comprobaciones apropiadas del propietario",
+                            "Implementar comprobaciones de propietario usando Rust de formato largo",
+                            "Utilice el `Account<'info, T>` envoltorio de Anchor y un tipo de cuenta para automatizar los cheques de propietario",
+                            "Utilice la `#[account(owner = <expr>)]` restricción de Anchor para definir explícitamente un programa externo que debería poseer una cuenta."
+                        ]
+                    }
+                }
             },
             {
                 "title": "Account data matching",
                 "slug": "account-data-matching",
                 "number": 4,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the security risks associated with missing data validation checks",
+                    "Implement data validation checks using long-form Rust",
+                    "Implement data validation checks using Anchor constraints"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Objetivos de coincidencia de datos de cuenta",
+                        "objectives": [
+                            "Explicar los riesgos de seguridad asociados con la falta de comprobaciones de validación de datos",
+                            "Implementar comprobaciones de validación de datos utilizando Rust de formato largo",
+                            "Implementar comprobaciones de validación de datos utilizando restricciones de anclaje"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Reinitialization attacks",
                 "slug": "reinitialization-attacks",
                 "number": 5,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain security risks associated with a reinitialization vulnerability",
+                    "Use long-form Rust check if an account has already been initialized",
+                    "Using Anchor’s `init` constraint to initialize accounts, which automatically sets an account discriminator that is checked to prevent the reinitialization of an account"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Reinicialización Ataques",
+                        "objectives": [
+                            "Explicar los riesgos de seguridad asociados con una vulnerabilidad de reinicialización",
+                            "Utilice la comprobación de óxido de formato largo si una cuenta ya se ha inicializado",
+                            "Usar la `init` restricción de Anchor para inicializar cuentas, que establece automáticamente un discriminador de cuenta que se comprueba para evitar la reinicialización de una cuenta"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Duplicate mutable accounts",
                 "slug": "duplicate-mutable-accounts",
                 "number": 6,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the security risks associated with instructions that require two mutable accounts of the same type and how to avoid them",
+                    "Implement a check for duplicate mutable accounts using long-form Rust",
+                    "Implement a check for duplicate mutable accounts using Anchor constraints"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Objetivos de las cuentas mutables duplicadas",
+                        "objectives": [
+                            "Explicar los riesgos de seguridad asociados con las instrucciones que requieren dos cuentas mutables del mismo tipo y cómo evitarlos",
+                            "Implementar una verificación de cuentas mutables duplicadas utilizando Rust de formato largo",
+                            "Implementar una verificación de cuentas mutables duplicadas utilizando las restricciones de Anchor"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Type cosplay",
                 "slug": "type-cosplay",
                 "number": 7,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the security risks associated with not checking account types",
+                    "Implement an account type discriminator using long-form Rust",
+                    "Use Anchor's `init` constraint to initialize accounts",
+                    "Use Anchor's `Account` type for account validation"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Tipo Objetivos del cosplay",
+                        "objectives": [
+                            "Explicar los riesgos de seguridad asociados con no verificar los tipos de cuenta",
+                            "Implementar un discriminador de tipo de cuenta usando Rust de formato largo",
+                            "Utilice la `init` restricción de Anchor para inicializar cuentas",
+                            "Usar el `Account` tipo de Ancla para la validación de la cuenta"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Arbitrary CPIs",
                 "slug": "arbitrary-cpi",
                 "number": 8,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the security risks associated with invoking a CPI to an unknown program",
+                    "Showcase how Anchor’s CPI module prevents this from happening when making a CPI from one Anchor program to another",
+                    "Safely and securely make a CPI from an Anchor program to an arbitrary non-anchor program"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Objetivos arbitrarios del IPC",
+                        "objectives": [
+                            "Explicar los riesgos de seguridad asociados con la invocación de un IPC a un programa desconocido",
+                            "Muestre cómo el módulo CPI de Anchor evita que esto suceda al realizar un CPI de un programa de Anchor a otro",
+                            "Hacer de forma segura un CPI de un programa de anclaje a un programa arbitrario que no sea de anclaje"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Bump seed canonicalization",
                 "slug": "bump-seed-canonicalization",
                 "number": 9,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the vulnerabilities associated with using PDAs derived without the canonical bump",
+                    "Initialize a PDA using Anchor’s `seeds` and `bump` constraints to automatically use the canonical bump",
+                    "Use Anchor's `seeds` and `bump` constraints to ensure the canonical bump is always used in future instructions when deriving a PDA"
+                ],
+                "transations": {
+                    "es": {
+                        "objectives": [
+                            "Explicar las vulnerabilidades asociadas con el uso de PDA derivados sin el bache canónico",
+                            "Inicializar un PDA usando Anchor 's `seeds` y `bump` restricciones para usar automáticamente el bache canónico",
+                            "Use Anchor 's `seeds` y `bump` restricciones para asegurarse de que la protuberancia canónica siempre se use en futuras instrucciones al derivar un PDA"
+                        ]
+                    }
+                }
             },
             {
                 "title": "Closing accounts and revival attacks",
                 "slug": "closing-accounts",
                 "number": 10,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the various security vulnerabilities associated with closing program accounts incorrectly",
+                    "Close program accounts safely and securely using native Rust",
+                    "Close program accounts safely and securely using the Anchor `close` constraint"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "Objetivos de las cuentas de cierre y los ataques de reactivación",
+                        "objectives": [
+                            "Explicar las diversas vulnerabilidades de seguridad asociadas con el cierre incorrecto de las cuentas del programa",
+                            "Cierre las cuentas del programa de forma segura con Rust nativo",
+                            "Cierre las cuentas del programa de forma segura utilizando la `close` restricción Anchor"
+                        ]
+                    }
+                }
             },
             {
                 "title": "PDA sharing",
                 "slug": "pda-sharing",
                 "number": 11,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the security risks associated with PDA sharing",
+                    "Derive PDAs that have discrete authority domains",
+                    "Use Anchor’s `seeds` and `bump` constraints to validate PDA accounts"
+                ],
+                "transations": {
+                    "es": {
+                        "title": "PDA Sharing",
+                        "objectives": [
+                            "Explicar los riesgos de seguridad asociados con el uso compartido de PDA",
+                            "Derivar PDA que tienen dominios de autoridad discretos",
+                            "Usar Anchor 's `seeds` y `bump` restricciones para validar cuentas PDA"
+                        ]
+                    }
+                }
             }
         ]
     },
@@ -311,25 +910,49 @@
                 "title": "Program architecture",
                 "slug": "program-architecture",
                 "number": 1,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Use Box and Zero Copy to work with large data on-chain",
+                    "Make better PDA design decisions",
+                    "Future-proof your programs",
+                    "Deal with concurrency issues"
+                ]
             },
             {
                 "title": "Oracles and oracle networks",
                 "slug": "oracles",
                 "number": 2,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain why on-chain programs cannot readily access real-world data on their own",
+                    "Explain how oracles solve the problem to accessing real-world data on-chain",
+                    "Explain how incentivized oracle networks make data more trustworthy",
+                    "Effectively weigh the tradeoffs between using various types of oracles",
+                    "Use oracles from an on-chain program to access real-world data"
+                ]
             },
             {
                 "title": "Verifiable randomness functions",
                 "slug": "vrf",
                 "number": 3,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Explain the limitations of generating random numbers on-chain",
+                    "Explain how Verifiable Randomness works",
+                    "Use Switchboard's VRF oracle queue to generate and consume randomness from an on-chain program"
+                ]
             },
             {
                 "title": "Compressed NFTs",
                 "slug": "compressed-nfts",
                 "number": 4,
-                "hidden": false
+                "hidden": false,
+                "objectives": [
+                    "Create a compressed NFT collection using Metaplex’s Bubblegum program",
+                    "Mint compressed NFTs using the Bubblegum TS SDK",
+                    "Transfer compressed NFTs using the Bubblegum TS SDK",
+                    "Read compressed NFT data using the Read API"
+                ]
             }
         ]
     }

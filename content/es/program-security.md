@@ -1,14 +1,3 @@
----
-title: Crear un Programa Básico, Parte 3 - Objetivos Básicos de Seguridad y Validación
-objectives:
-- Explicar la importancia de "pensar como un atacante"
-- Comprender las prácticas básicas de seguridad
-- Realizar comprobaciones del propietario
-- Realizar comprobaciones del firmante
-- Validar cuentas pasadas al programa
-- Realizar validación de datos básicos
----
-
 # TL;DR
 
 - **Pensar como un atacante** significa preguntar "¿Cómo rompo esto?"

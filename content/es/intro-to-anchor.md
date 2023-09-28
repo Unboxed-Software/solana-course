@@ -1,11 +1,3 @@
----
-title: Introducción a los objetivos de desarrollo de Anchor
-objectives:
-- Usar el framework de Anchor para construir un programa básico
-- Describir la estructura básica de un programa de anclaje
-- Explicar cómo implementar la validación básica de la cuenta y los controles de seguridad con Anchor
----
-
 # TL;DR
 
 -   **Ancla** es un marco para construir programas Solana

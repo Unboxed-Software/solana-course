@@ -1,9 +1,3 @@
----
-title: Objetivos de la guía del curso
-objectives:
-- explicar cómo está estructurado este curso de Solana
----
-
 ## ¿Cómo está estructurado este curso?
 
 Me alegra que hayas preguntado. Cada lección comienza con una lista de los objetivos de la lección. Estas son declaraciones breves que indican lo que aprenderá a lo largo de la lección.

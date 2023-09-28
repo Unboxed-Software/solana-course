@@ -1,12 +1,3 @@
----
-title: Interactúa con los objetivos de Wallets
-objectives:
-- Explicar monederos
-- Instalar extensión fantasma
-- Establecer cartera fantasma en [Devnet](https://api.devnet.solana.com/)
-- Utilice el adaptador de billetera para que los usuarios firmen transacciones
----
-
 # TL;DR
 
 -   **Carteras** almacenar su clave secreta y manejar la firma de transacciones seguras

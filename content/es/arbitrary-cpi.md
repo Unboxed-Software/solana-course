@@ -1,11 +1,3 @@
----
-title: Objetivos arbitrarios del IPC
-objectives:
-- Explicar los riesgos de seguridad asociados con la invocación de un IPC a un programa desconocido
-- Muestre cómo el módulo CPI de Anchor evita que esto suceda al realizar un CPI de un programa de Anchor a otro
-- Hacer de forma segura un CPI de un programa de anclaje a un programa arbitrario que no sea de anclaje
----
-
 # TL;DR
 
 -   Para generar un CPI, el programa de destino debe pasar a la instrucción de invocación como una cuenta. Esto significa que cualquier programa objetivo podría pasar a la instrucción. Su programa debe verificar si hay programas incorrectos o inesperados.

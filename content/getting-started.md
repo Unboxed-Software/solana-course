@@ -1,13 +1,3 @@
----
-title: Course Guide
-objectives:
-- understand what web3 is
-- understand what Solana is
-- learn how this course is structured
-- know how to get the most from this course
----
-
-
 ## Welcome!
 
 Welcome to the best starting point for developers looking to learn web3 and blockchain!

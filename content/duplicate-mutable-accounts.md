@@ -1,11 +1,3 @@
----
-title: Duplicate Mutable Accounts
-objectives:
-- Explain the security risks associated with instructions that require two mutable accounts of the same type and how to avoid them
-- Implement a check for duplicate mutable accounts using long-form Rust
-- Implement a check for duplicate mutable accounts using Anchor constraints
----
-
 # TL;DR
 
 - When an instruction requires two mutable accounts of the same type, an attacker can pass in the same account twice, causing the account to be mutated in unintended ways.

@@ -1,9 +1,3 @@
----
-title: Cómo abordar los objetivos del módulo de seguridad del programa
-objectives:
-- entender cómo abordar el Módulo de seguridad del programa
----
-
 El objetivo de este módulo es exponerlo a una amplia variedad de exploits de seguridad comunes que son exclusivos del desarrollo de Solana. Hemos modelado fuertemente este módulo a partir de un repositorio público de GitHub llamado Sealevel Attacks creado por el gran Armani Ferrante.
 
 Podrías estar pensando: "¿No tuvimos una lección de seguridad en el módulo 3?" Sí, ciertamente lo hicimos. Queríamos asegurarnos de que cualquiera que implementara programas en Mainnet fuera de las puertas tuviera al menos una comprensión básica de la seguridad. Y si ese es usted, entonces espero que los principios fundamentales que aprendió en esa lección lo hayan llevado a evitar algunas hazañas comunes de Solana por su cuenta.

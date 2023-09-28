@@ -1,11 +1,3 @@
----
-title: PDA Sharing
-objectives:
-- Explain the security risks associated with PDA sharing
-- Derive PDAs that have discrete authority domains
-- Use Anchor’s `seeds` and `bump` constraints to validate PDA accounts
----
-
 # TL;DR
 
 - Using the same PDA for multiple authority domains opens your program up to the possibility of users accessing data and funds that don't belong to them

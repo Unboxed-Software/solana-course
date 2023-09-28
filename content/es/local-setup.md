@@ -1,13 +1,3 @@
----
-título: Objetivos de desarrollo del programa local
-objectives:
-- Crear un entorno local para el desarrollo del programa Solana
-- Usar comandos CLI básicos de Solana
-- Ejecutar un validador de prueba local
-- Utilice Rust y Solana CLI para implementar un programa Solana desde su entorno de desarrollo local
-- Utilice la CLI de Solana para ver los registros del programa
----
-
 # TL;DR
 
 -   Para comenzar con Solana localmente, primero deberá instalar **Herrumbre** y **Solana CLI**

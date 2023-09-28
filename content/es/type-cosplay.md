@@ -1,12 +1,3 @@
----
-title: Tipo Objetivos del cosplay
-objectives:
-- Explicar los riesgos de seguridad asociados con no verificar los tipos de cuenta
-- Implementar un discriminador de tipo de cuenta usando Rust de formato largo
-- Utilice la `init` restricción de Anchor para inicializar cuentas
-- Usar el `Account` tipo de Ancla para la validación de la cuenta
----
-
 # TL;DR
 
 -   Usar discriminadores para distinguir entre diferentes tipos de cuentas

@@ -1,12 +1,3 @@
----
-title: Tokens de intercambio con los objetivos del Programa de intercambio de tokens
-objectives:
-- Crear un grupo de intercambio de tokens
-- Liquidez de depósitos
-- Retirar liquidez
-- Tokens de swap
----
-
 # TL;DR
 
 -   El **Programa de intercambio de tokens** es un contrato SPL implementado en Devnet disponible para pruebas y experimentación por parte de desarrolladores y protocolos. Para casos de uso de producción, utilice su propia implementación o una mantenida regularmente por un servicio de buena reputación.

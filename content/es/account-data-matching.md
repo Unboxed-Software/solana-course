@@ -1,11 +1,3 @@
----
-title: Objetivos de coincidencia de datos de cuenta
-objectives:
-- Explicar los riesgos de seguridad asociados con la falta de comprobaciones de validación de datos
-- Implementar comprobaciones de validación de datos utilizando Rust de formato largo
-- Implementar comprobaciones de validación de datos utilizando restricciones de anclaje
----
-
 # TL;DR
 
 - Usar **comprobaciones de validación de datos** para verificar que los datos de la cuenta coincidan con un valor esperado**.** Sin las comprobaciones de validación de datos apropiadas, se pueden usar cuentas inesperadas en una instrucción.

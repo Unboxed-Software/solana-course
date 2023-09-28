@@ -1,11 +1,3 @@
----
-título: Bump Seed Canonicalization objetivos
-objectives:
-- Explicar las vulnerabilidades asociadas con el uso de PDA derivados sin el bache canónico
-- Inicializar un PDA usando Anchor 's `seeds` y `bump` restricciones para usar automáticamente el bache canónico
-- Use Anchor 's `seeds` y `bump` restricciones para asegurarse de que la protuberancia canónica siempre se use en futuras instrucciones al derivar un PDA
----
-
 # TL;DR
 
 -   La función [** `create_program_address` **](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) deriva un PDA sin buscar el**protuberancia canónica**. Esto significa que hay múltiples baches válidos, todos los cuales producirán diferentes direcciones.

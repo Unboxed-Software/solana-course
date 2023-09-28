@@ -1,12 +1,3 @@
----
-title: Type Cosplay
-objectives:
-- Explain the security risks associated with not checking account types
-- Implement an account type discriminator using long-form Rust
-- Use Anchor's `init` constraint to initialize accounts
-- Use Anchor's `Account` type for account validation
----
-
 # TL;DR
 
 - Use discriminators to distinguish between different account types

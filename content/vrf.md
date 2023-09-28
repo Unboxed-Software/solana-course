@@ -1,11 +1,3 @@
----
-title: Verifiable Randomness Functions
-objectives:
-- Explain the limitations of generating random numbers on-chain
-- Explain how Verifiable Randomness works
-- Use Switchboard's VRF oracle queue to generate and consume randomness from an on-chain program
----
-
 # TL;DR
 
 - Attempts at generating randomness withing your program are likely to be guessable by users given there's no true randomness on-chain.

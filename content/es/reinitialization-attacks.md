@@ -1,11 +1,3 @@
----
-title: Reinicialización Ataques
-objectives:
-- Explicar los riesgos de seguridad asociados con una vulnerabilidad de reinicialización
-- Utilice la comprobación de óxido de formato largo si una cuenta ya se ha inicializado
-- Usar la `init` restricción de Anchor para inicializar cuentas, que establece automáticamente un discriminador de cuenta que se comprueba para evitar la reinicialización de una cuenta
----
-
 # TL;DR
 
 - Use un discriminador de cuenta o una bandera de inicialización para verificar si una cuenta ya se ha inicializado para evitar que una cuenta se reinicie y anule los datos de cuenta existentes.

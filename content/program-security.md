@@ -1,14 +1,3 @@
----
-title: Create a Basic Program, Part 3 - Basic Security and Validation
-objectives:
-- Explain the importance of "thinking like an attacker"
-- Understand basic security practices
-- Perform owner checks
-- Perform signer checks
-- Validate accounts passed into the program
-- Perform basic data validation
----
-
 # TL;DR
 
 - **Thinking like an attacker** means asking "How do I break this?"

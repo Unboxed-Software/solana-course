@@ -1,15 +1,3 @@
----
-title: Crear un Programa Básico, Parte 1 - Manejar los objetivos de los Datos de Instrucción
-objectives:
-- Asignar variables mutables e inmutables en Rust
-- Crear y usar estructuras y enumeraciones de óxido
-- Usar declaraciones de coincidencia de óxido
-- Añadir implementaciones a los tipos de óxido
-- Deserializar los datos de instrucción en tipos de datos de óxido
-- Ejecutar diferentes lógicas de programa para diferentes tipos de instrucciones
-- Explicar la estructura de un contrato inteligente en Solana
----
-
 # TL;DR
 
 -   La mayoría de los programas admiten**instrucciones discretas múltiples** : usted decide al escribir su programa cuáles son estas instrucciones y qué datos deben acompañarlas.

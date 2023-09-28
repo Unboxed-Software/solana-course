@@ -1,12 +1,3 @@
----
-title: Swap Tokens With The Token Swap Program
-objectives:
-- Create a token swap pool
-- Deposit liquidity
-- Withdraw liquidity
-- Swap tokens
----
-
 # TL;DR
 
 - The **Token Swap Program** is an SPL contract deployed to Devnet available for testing and experimentation by developers and protocols. For production use cases, use your own deployment or one regularly maintained by a reputable service.

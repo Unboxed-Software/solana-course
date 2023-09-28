@@ -1,11 +1,3 @@
----
-title: Read Data From The Solana Network
-objectives:
-- Understand accounts and their addresses
-- Understand SOL and lamports
-- Use web3.js to connect to Solana and read an account balance
----
-
 ## TL;DR
 
 - **SOL** is the name of Solana’s native token. Each Sol is made from 1 billion **Lamports**. 

@@ -1,12 +1,3 @@
----
-title: El propietario comprueba los objetivos
-objectives:
-- Explicar los riesgos de seguridad asociados con no realizar las comprobaciones apropiadas del propietario
-- Implementar comprobaciones de propietario usando Rust de formato largo
-- Utilice el `Account<'info, T>` envoltorio de Anchor y un tipo de cuenta para automatizar los cheques de propietario
-- Utilice la `#[account(owner = <expr>)]` restricción de Anchor para definir explícitamente un programa externo que debería poseer una cuenta.
----
-
 # TL;DR
 
 -   Se utiliza **Cheques del propietario** para verificar que las cuentas son propiedad del programa esperado. Sin cheques de propietario apropiados, las cuentas propiedad de programas inesperados podrían usarse en una instrucción.

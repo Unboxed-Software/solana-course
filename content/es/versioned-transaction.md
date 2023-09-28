@@ -1,12 +1,3 @@
----
-title: Objetivos de Transacciones Versionadas y Tablas de Búsqueda
-objectives:
-- Crear transacciones versionadas
-- Crear tablas de búsqueda
-- Extender tablas de búsqueda
-- Usar tablas de búsqueda con transacciones versionadas
----
-
 # TL;DR
 
 -   **Transacciones Versionadas** se refiere a una forma de admitir versiones heredadas y versiones más nuevas de formatos de transacción. El formato de transacción original es "legado" y las nuevas versiones de transacción comienzan en la versión 0. Las transacciones versionadas se implementaron para admitir el uso de tablas de búsqueda de direcciones (también llamadas tablas de búsqueda o LUT).

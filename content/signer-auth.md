@@ -1,12 +1,3 @@
----
-title: Signer Authorization
-objectives:
-- Explain the security risks associated with not performing appropriate signer checks
-- Implement signer checks using long-form Rust
-- Implement signer checks using Anchor’s `Signer` type
-- Implement signer checks using Anchor’s `#[account(signer)]` constraint
----
-
 # TL;DR
 
 - Use **Signer Checks** to verify that specific accounts have signed a transaction. Without appropriate signer checks, accounts may be able to execute instructions they shouldn’t be authorized to perform.

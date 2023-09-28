@@ -1,13 +1,3 @@
----
-title: Crear Tokens con los objetivos del Programa Token
-objectives:
-- Crear fichas de menta
-- Crear cuentas de token
-- Tokens de menta
-- Transferir tokens
-- Quemar tokens
----
-
 # TL;DR
 
 -   **SPL-Tokens** representan todos los tokens no nativos en la red Solana. Tanto las fichas fungibles como las no fungibles (NFT) en Solana son SPL-Tokens

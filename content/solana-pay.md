@@ -1,11 +1,3 @@
----
-title: Solana Pay
-objectives:
-- Use the Solana Pay specification to build payment requests and initiate transactions using URLs encoded as QR codes
-- Use the `@solana/pay` library to help with the creation of Solana Pay transaction requests
-- Partially sign transactions and implement transaction gating based on certain conditions
----
-
 # TL;DR
 
 -   **Solana Pay** is a specification for encoding Solana transaction requests within URLs, enabling standardized transaction requests across different Solana apps and wallets

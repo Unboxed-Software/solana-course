@@ -1,11 +1,3 @@
----
-title: Intro to Anchor development
-objectives:
-- Use the Anchor framework to build a basic program
-- Describe the basic structure of an Anchor program
-- Explain how to implement basic account validation and security checks with Anchor
----
-
 # TL;DR
 
 - **Anchor** is a framework for building Solana programs

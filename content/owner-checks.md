@@ -1,12 +1,3 @@
----
-title: Owner Checks
-objectives:
-- Explain the security risks associated with not performing appropriate owner checks
-- Implement owner checks using long-form Rust
-- Use Anchor’s `Account<'info, T>` wrapper and an account type to automate owner checks
-- Use Anchor’s `#[account(owner = <expr>)]` constraint to explicitly define an external program that should own an account
----
-
 # TL;DR
 
 - Use **Owner Checks** to verify that accounts are owned by the expected program. Without appropriate owner checks, accounts owned by unexpected programs could be used in an instruction.

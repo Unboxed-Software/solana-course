@@ -1,16 +1,3 @@
----
-title: Escribir datos a los objetivos de la red Solana
-objectives:
-- Explicar el par de teclas
-- Utilizar `@solana/web3.js` para generar un par de claves
-- Usar `@solana/web3.js` para crear un par de claves usando una clave secreta
-- Explicar transacciones
-- Explicar las tarifas de transacción
-- Usar `@solana/web3.js` para enviar sol
-- Utilizar `@solana/web3.js` para firmar transacciones
-- Utilice Solana Explorer para ver las transacciones
----
-
 # TL;DR
 
 -   **Par de llaves** se refiere a un emparejamiento de claves públicas y secretas. La clave pública se utiliza como una "dirección" que apunta a una cuenta en la red Solana. La clave secreta se utiliza para verificar la identidad o la autoridad. Como su nombre indica, siempre debe mantener las claves secretas*privado*. `@solana/web3.js` Proporciona funciones de ayuda para crear un nuevo par de claves o para construir un par de claves utilizando una clave secreta existente.

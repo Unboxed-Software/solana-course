@@ -1,13 +1,3 @@
----
-title: Create Tokens With The Token Program
-objectives:
-- Create token mints
-- Create token accounts
-- Mint tokens
-- Transfer tokens
-- Burn tokens
----
-
 # TL;DR
 
 - **SPL-Tokens** represent all non-native tokens on the Solana network. Both fungible and non-fungible tokens (NFTs) on Solana are SPL-Tokens

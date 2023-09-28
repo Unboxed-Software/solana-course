@@ -1,16 +1,3 @@
----
-title: Lea los datos de los objetivos de la red Solana
-objectives:
-- Explicar cuentas
-- Explicar SOL y lamports
-- Explicar claves públicas
-- Explicar la API de JSON RPC
-- Explicar web3.js
-- Instalar web3.js
-- Utilice web3.js para crear una conexión a un nodo de Solana
-- Utilice web3.js para leer datos de la cadena de bloques (saldo, información de la cuenta, etc.)
----
-
 ## TL;DR
 
 -   **Cuentas** son como los archivos en el libro mayor de red de Solana. Todos los datos de estado se almacenan en una cuenta. Las cuentas se pueden usar para muchas cosas, pero por ahora nos centraremos en el aspecto de las cuentas que almacenan SOL.

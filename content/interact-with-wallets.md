@@ -1,12 +1,3 @@
----
-title: Interact With Wallets
-objectives:
-- Explain wallets
-- Install Phantom extension
-- Set Phantom wallet to [Devnet](https://api.devnet.solana.com/)
-- Use wallet-adapter to have users sign transactions
----
-
 # TL;DR
 
 - **Wallets** store your secret key and handle secure transaction signing
