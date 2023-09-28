@@ -8,18 +8,11 @@ import { readFile } from "node:fs/promises";
 import { marked } from "marked";
 
 const cleanContent = (content: string) => {
-  // There's a bunch of metadata in the content that should really be in the course structure.
-  // let's strip that out.
-  // TODO: remove this content permanently after we retire Soldev
-  let cleanContent = content.split("---").reverse()[0];
-
   // Paths in the content need adjusting from the old soldev-ui location
   // TODO: fix this in the actual content.
   // TODO: we may also wish to move the content to the lib/assets directory
   // at the same time.
-  cleanContent = cleanContent.replaceAll("../assets", "");
-
-  return cleanContent;
+  return content.replaceAll("../assets", "");
 };
 
 // Ignore 'hidden' for now.
