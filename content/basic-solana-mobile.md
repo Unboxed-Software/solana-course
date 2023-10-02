@@ -175,20 +175,20 @@ Getting started with mobile Solana development is fairly straightforward thanks 
 
 # Demo
 
-Today we’ll be building a simple Android mobile counter dApp with React Native. The app will interact with the [Anchor counter program](https://www.soldev.app/course/intro-to-anchor-frontend) that we made in the [Intro to client-side Anchor development](https://www.soldev.app/course/intro-to-anchor-frontend) lesson. In this app, we’ll be able to see the current count, connect our wallet and increment it. We’ll be doing this all on devnet, and will be compiling only for Android. 
+Let's practice this together by building a simple Android mobile counter dApp with React Native. The app will interact with the [Anchor counter program](https://www.soldev.app/course/intro-to-anchor-frontend) that we made in the [Intro to client-side Anchor development](https://www.soldev.app/course/intro-to-anchor-frontend) lesson. In this app, we’ll be able to see the current count, connect our wallet, and increment the count. We’ll be doing this all on Devnet, and will be compiling only for Android. 
 
-**Note:** We’ll be writing this application in vanilla React Native. If you’re looking to use Expo, we will be covering that in our Solana Advance dApp lesson.
+We’ll write this application in vanilla React Native without a starting template. Solana Mobile provides a [React Native template](https://docs.solanamobile.com/react-native/react-native-scaffold) that shortcuts some of the boilerplate, but there's no better way to learn than to do something from scratch.
 
 ### 1. Prerequisites
 
-React Native allows us to write mobile applications like we’re used to on the web. However there are some parts that have to be compiled down to languages that phones understand, this means we have some setup to do before we can start.
+React Native allows us to write mobile applications using similar patterns as React. However, under the hood our React code needs to be compiled down to languages and frameworks that work with the device's native OS. This requires a few prerequisite setup items:
 
-1. [Setup a React Native dev environment](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application). Go through the ***[entire article](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application)*** and accomplish the following for **Android**:
-    1. Install dependancies
-    2. Installing Android Studio
-    3. Configuring **ANDROID_HOME** environment variable 
-    4. Create a new sample project (only for setting up the emulator)
-        1. If you run into an error `✖ Copying template`, add the `--npm` flag at the end
+1. [Setup a React Native dev environment](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application). Go through the ***entire article*** following the steps using Android as the target OS. For convenience, we've typed out the high level steps below. Keep in mind that the source article might change from the time of writing to when you're reading this. The source article is your source of truth here.
+    1. Install dependencies
+    2. Install Android Studio
+    3. Configure **ANDROID_HOME** environment variable 
+    4. Create a new sample project (this is only used to set up the emulator)
+        1. If you run into the error `✖ Copying template`, add the `--npm` flag at the end
         
         ```bash
         npx react-native@latest init AwesomeProject
@@ -200,7 +200,7 @@ React Native allows us to write mobile applications like we’re used to on the 
         ✔ Copying template
         ```
         
-    5. Run and compile the sample project on an emulator 
+    5. Run and compile the sample project on your emulator 
 2. Install and run the Solana fake wallet
     1. Install the repo
         
@@ -208,7 +208,7 @@ React Native allows us to write mobile applications like we’re used to on the 
         git clone https://github.com/solana-mobile/mobile-wallet-adapter.git
         ```
         
-    2. In Android Studio, `Open project > Navigate to the cloned directory > Select mobile-wallet-adapter/android/build.gradle`
+    2. In Android Studio, `Open project > Navigate to the cloned directory > Select mobile-wallet-adapter/android`
     3. After Android Studio finishes loading the project, select `fakewallet` in the build/run configuration dropdown in the top right
         
         ![Fake Wallet](../assets/basic-solana-mobile-fake-wallet.png)
@@ -219,13 +219,15 @@ Lastly, if you run into Java versioning issues - you’ll want to be on Java ver
 
 ### 2. Create the App
 
-Let’s create our app with the following:
+Now that you've got some of the basic setup down, let’s create a new app with the following command:
 
 ```bash
 npx react-native@latest init counter --npm
 ```
 
-Then let’s make sure everything is setup properly by starting the default app and running it on our android emulator.
+This scaffolds a new React Native project for us called `counter`.
+
+Let's make sure everything is set up properly by starting the default app and running it on our android emulator.
 
 ```bash
 cd counter
@@ -234,11 +236,9 @@ npm run android
 
 This should open and run the app in your Android emulator. If you run into problems, check to make sure you’ve accomplished everything in the prerequisite section.
 
-**Note:** We are making everything from scratch today, however if you just want to start with React Native development with Solana, check out [Solana Mobile’s React Native template](https://docs.solanamobile.com/react-native/react-native-scaffold).
-
 ### 3. Install Dependencies
 
-We’ll need to add in our Solana dependencies. Fortunately [Solana Mobile gives](https://docs.solanamobile.com/react-native/expo) us a really nice list of what packages we need and why we need them: 
+We’ll need to add in our Solana dependencies. [The Solana Mobile docs provide a nice list of packages](https://docs.solanamobile.com/react-native/setup) we need and why we need them: 
 
 - `@solana-mobile/mobile-wallet-adapter-protocol`: A React Native/Javascript API enabling interaction with MWA-compatible wallets.
 - `@solana-mobile/mobile-wallet-adapter-protocol-web3js`: A convenience wrapper to use common primitives from [@solana/web3.js](https://github.com/solana-labs/solana-web3.js) – such as `Transaction` and `Uint8Array`.
@@ -246,7 +246,13 @@ We’ll need to add in our Solana dependencies. Fortunately [Solana Mobile gives
 - `react-native-get-random-values` Secure random number generator polyfill for `web3.js` underlying Crypto library on React Native.
 - `buffer` Buffer polyfill also needed for `web3.js` on React Native.
 
-We are also going to add two of our own `@project-serum/anchor` to allow us to interact with our counter program, and `assert` as a polyfill to allow our anchor package to do it’s thing.
+In addition to this list, we'll add two more packages:
+- `@coral-xyz/anchor`: The Anchor TS client.
+- `assert`: A polyfill that lets Anchor do its thing.
+
+If you’re not familiar: polyfills actively replace node-native libraries to make them work anywhere Node is not running. We’ll finish our polyfill setup shortly.
+
+For now, install dependencies using the following command:
 
 ```bash
 npm install \
@@ -255,230 +261,13 @@ npm install \
   @solana-mobile/mobile-wallet-adapter-protocol \
   react-native-get-random-values \
   buffer \
-	@project-serum/anchor \
-	assert
+  @coral-xyz/anchor \
+  assert
 ```
 
-If you’re not familiar; polyfills actively replace node-native libraries to make them work anywhere Node is not running. We’ll be adding the appropriate polyfills to our `App.tsx` in a couple of steps. But in case you’re curious now, we’ll be adding the following:
+### 4. ConnectionProvider.tsx
 
-```tsx
-// Top of App.tsx
-import 'react-native-get-random-values';
-import { Buffer } from "buffer";
-global.Buffer = Buffer;
-```
-
-### 4. Counter Program IDL
-
-We want the IDL from our counter program for some nice auto-completion and compilation features. Create a folder `models` and create the file `anchor-counter.ts` file inside. Now, fill it with the IDL from the  [Anchor counter program](https://www.soldev.app/course/intro-to-anchor-frontend) by pasting in the following:
-
-```tsx
-export type AnchorCounter = {
-  version: '0.1.0';
-  name: 'anchor_counter';
-  instructions: [
-    {
-      name: 'initialize';
-      accounts: [
-        {
-          name: 'counter';
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                type: 'string';
-                value: 'counter';
-              },
-            ];
-          };
-        },
-        {
-          name: 'user';
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: 'systemProgram';
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [];
-    },
-    {
-      name: 'increment';
-      accounts: [
-        {
-          name: 'counter';
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                type: 'string';
-                value: 'counter';
-              },
-            ];
-          };
-        },
-        {
-          name: 'user';
-          isMut: false;
-          isSigner: true;
-        },
-      ];
-      args: [];
-    },
-    {
-      name: 'decrement';
-      accounts: [
-        {
-          name: 'counter';
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                type: 'string';
-                value: 'counter';
-              },
-            ];
-          };
-        },
-        {
-          name: 'user';
-          isMut: false;
-          isSigner: true;
-        },
-      ];
-      args: [];
-    },
-  ];
-  accounts: [
-    {
-      name: 'counter';
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'count';
-            type: 'u64';
-          },
-        ];
-      };
-    },
-  ];
-};
-
-export const IDL: AnchorCounter = {
-  version: '0.1.0',
-  name: 'anchor_counter',
-  instructions: [
-    {
-      name: 'initialize',
-      accounts: [
-        {
-          name: 'counter',
-          isMut: true,
-          isSigner: false,
-          pda: {
-            seeds: [
-              {
-                kind: 'const',
-                type: 'string',
-                value: 'counter',
-              },
-            ],
-          },
-        },
-        {
-          name: 'user',
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-    },
-    {
-      name: 'increment',
-      accounts: [
-        {
-          name: 'counter',
-          isMut: true,
-          isSigner: false,
-          pda: {
-            seeds: [
-              {
-                kind: 'const',
-                type: 'string',
-                value: 'counter',
-              },
-            ],
-          },
-        },
-        {
-          name: 'user',
-          isMut: false,
-          isSigner: true,
-        },
-      ],
-      args: [],
-    },
-    {
-      name: 'decrement',
-      accounts: [
-        {
-          name: 'counter',
-          isMut: true,
-          isSigner: false,
-          pda: {
-            seeds: [
-              {
-                kind: 'const',
-                type: 'string',
-                value: 'counter',
-              },
-            ],
-          },
-        },
-        {
-          name: 'user',
-          isMut: false,
-          isSigner: true,
-        },
-      ],
-      args: [],
-    },
-  ],
-  accounts: [
-    {
-      name: 'counter',
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'count',
-            type: 'u64',
-          },
-        ],
-      },
-    },
-  ],
-};
-```
-
-### 5. ConnectionProvider.tsx
-
-Let’s start adding our Solana functionality. Create a new folder called `components` and within it, a file called `ConnectionProvider.tsx`. This provider will wrap around our main application and will give us our `Connection` class we’re used to in `@solana/web3.js`. This is no different from our web programming, so just make sure your code matches below.
+Let’s start adding our Solana functionality. Create a new folder called `components` and within it, a file called `ConnectionProvider.tsx`. This provider will wrap the entire application and make our `Connection` object available throughout. Hopefully you're noticing a pattern: this is identical to the React patterns we've used throughout the course.
 
 ```tsx
 import {Connection, ConnectionConfig} from '@solana/web3.js';
@@ -516,11 +305,9 @@ export const useConnection = (): ConnectionContextState =>
   useContext(ConnectionContext);
 ```
 
-Remember, everything we are doing in the app will be on Devnet. So in our `App.tsx` we’ll be passing in the endpoint for a Devnet validator.
+### 5. AuthProvider.tsx
 
-### 6. AuthProvider.tsx
-
-The next Solana provision we’ll need is the auth provider. This is the main difference between mobile and web development. What we’re implementing here is roughly equivalent to `WalletProvider` that we’re used to in web apps. However, since we are using Android and its natively installed wallets, the flow to connect and utilize them is a bit different. Most notably, we need to follow the mobile wallet adapter protocol (MWA). 
+The next Solana provision we’ll need is the auth provider. This is the main difference between mobile and web development. What we’re implementing here is roughly equivalent to the `WalletProvider` that we’re used to in web apps. However, since we're using Android and its natively installed wallets, the flow to connect and utilize them is a bit different. Most notably, we need to follow the mobile wallet adapter protocol (MWA). 
 
 We do this by providing the following in our `AuthProvider`:
 
@@ -532,14 +319,14 @@ We do this by providing the following in our `AuthProvider`:
 
 We’re also going to throw in some utility methods:
 
-- `getPublicKeyFromAddress(base64Address)`: Create a new Public Key object from the Base64 address.
-- `getAuthorizationFromAuthResult`: Handles the authorization result, extracts relevant data from the result and returns the `Authorization` context object.
+- `getPublicKeyFromAddress(base64Address)`: Creates a new Public Key object from the Base64 address.
+- `getAuthorizationFromAuthResult`: Handles the authorization result, extracts relevant data from the result, and returns the `Authorization` context object.
 
 We’ll expose all of this through a `useAuthorization` hook.
 
-For today, we are just going to implement what you need, to get up and running. We will dive more into all of the bits of MWA in the next lesson. 
+Since this provider is the same across virtually all apps, we're going to give you the full implementation that you can copy/paste. We'll dig into the details of MWA in a future lesson. 
 
-Create the file `AuthProvider.tsx` and fill in the following:
+Create the file `AuthProvider.tsx` and paste in the following:
 
 ```tsx
 import {Cluster, PublicKey} from '@solana/web3.js';
@@ -725,12 +512,16 @@ export function AuthorizationProvider(props: AuthProviderProps) {
 export const useAuthorization = () => React.useContext(AuthorizationContext);
 ```
 
-### 7. Program Provider
+### 6. Program Provider
 
-The last provider we need is our program provider. This will expose our counter program we want to interact with. This is no different from what we’re used to in web. Create the file `ProgramProvider.tsx`, and past the following:
+The last provider we need is our program provider. This will expose the counter program we want to interact with.
+
+Since we're using the Anchor TS client to interact with our program, we need the program's IDL. Start by creating a root-level folder called `models`, then create a new file `anchor-counter.ts`. Paste the contents of the [Anchor Counter IDL](../assets/counter-rn-idl.ts) into this new file.
+
+Next, create the file `ProgramProvider.tsx` inside of `components`. Inside we'll create the program provider to surface our program and the counter PDA.
 
 ```tsx
-import {AnchorProvider, IdlAccounts, Program, setProvider} from '@project-serum/anchor';
+import {AnchorProvider, IdlAccounts, Program, setProvider} from '@coral-xyz/anchor';
 import {Keypair, PublicKey} from '@solana/web3.js';
 import {AnchorCounter, IDL} from '../models/anchor-counter';
 import React, {
@@ -815,14 +606,16 @@ export function ProgramProvider(props: ProgramProviderProps) {
 export const useProgram = () => useContext(ProgramContext);
 ```
 
-### 8. App.tsx
+### 7. App.tsx
 
-Now that everything is setup, let’s wrap our providers around our main application. We are going to re-write the default `App.tsx`. The basic changes we are making are:
+Now that we have all our providers, let’s wrap our app with them. We're going to re-write the default `App.tsx` with the following changes:
 
 - Import our providers and add in our polyfills
-- Wrap the app first with out `ConnectionProvider` then `AuthorizationProvider` and finally `ProgramProvider`.
-- Pass in our devnet endpoint to our `ConnectionProvider`, and our cluster to `AuthorizationProvider`
-- Replace the default internal `<View>` with `<MainScreen />` which we will build next.
+- Wrap the app first with `ConnectionProvider`, then `AuthorizationProvider`, and finally `ProgramProvider`.
+- Pass in our Devnet endpoint to the `ConnectionProvider`, and our cluster to `AuthorizationProvider`
+- Replace the default internal `<View>` with `<MainScreen />` which we'll build in the next step
+
+We'll start by importing our polyfills, replacing our global `Buffer` with the one from the `buffer` library, and adding the rest of our imports:
 
 ```tsx
 // Polyfills at the top
@@ -836,10 +629,12 @@ import { AuthorizationProvider } from "./components/AuthProvider";
 import { ProgramProvider } from "./components/ProgramProvider";
 import { MainScreen } from "./screens/MainScreen"; // Going to make this
 import React from "react";
+```
 
+Then we can replace the contents of `App` with our providers wrapped around `MainScreen`. Remember, `MainScreen` doesn't exist yet, but we'll come back to it in the next step!
+
+```tsx
 export default function App() {
-  // const cluster = "localhost" as any;
-  // const endpoint = 'http://10.0.2.2:8899';
   const cluster = "devnet";
   const endpoint = clusterApiUrl(cluster);
 
@@ -858,9 +653,9 @@ export default function App() {
 }
 ```
 
-### 9. MainScreen.tsx
+### 8. MainScreen.tsx
 
-Now, let’s put everything together. Create a new folder `screens` and a new file `MainScreen.tsx` inside it. In this file we are only structuring the screen and showing two, yet-to-be created components: `CounterView` and `CounterButton`.
+Now, let’s put everything together to create our UI. Create a new folder `screens` and a new file `MainScreen.tsx` inside it. In this file, we are only structuring the screen to display two yet-to-be created components: `CounterView` and `CounterButton`.
 
 ```tsx
 import {StatusBar, StyleSheet, View} from 'react-native';
@@ -902,9 +697,9 @@ export function MainScreen() {
 }
 ```
 
-### 10. CounterView.tsx
+### 9. CounterView.tsx
 
-The `CounterView` is the first of our two program-specific files. It’s only job is to fetch and listen for updates on our `Counter` account. Since, we’re only listening here, we don’t have to do anything MWA related, so it should look identical to a web application. 
+The `CounterView` is the first of our two program-specific files. Its only job is to fetch and listen for updates on our `Counter` account. Since we’re only listening here, we don’t have to do anything MWA related. It should look identical to a web application. 
 
 ```tsx
 import {View, Text, StyleSheet} from 'react-native';
@@ -965,9 +760,9 @@ export function CounterView() {
 }
 ```
 
-### 11. CounterButton.tsx
+### 10. CounterButton.tsx
 
-Finally we have our last component, the `CounterButton`. This button will do the following:
+Finally, we have our last component, the `CounterButton`. This button will do the following:
 
 - Call `transact` to get access to a mobile wallet
 - Authorize the session with `authorizeSession`
@@ -978,120 +773,122 @@ Create the file `CounterButton.tsx` and fill in the following:
 
 ```tsx
 import {
-    Alert,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    ToastAndroid,
-  } from 'react-native';
-  import {useAuthorization} from './AuthProvider';
-  import {useProgram} from './ProgramProvider';
-  import {useConnection} from './ConnectionProvider';
-  import {
-    transact,
-    Web3MobileWallet,
-  } from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
-  import {LAMPORTS_PER_SOL, Transaction} from '@solana/web3.js';
-  import {useState} from 'react';
+  Alert,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+} from 'react-native';
+import {useAuthorization} from './AuthProvider';
+import {useProgram} from './ProgramProvider';
+import {useConnection} from './ConnectionProvider';
+import {
+  transact,
+  Web3MobileWallet,
+} from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
+import {LAMPORTS_PER_SOL, Transaction} from '@solana/web3.js';
+import {useState} from 'react';
 import React from 'react';
-  
 
-  const floatingActionButtonStyle = StyleSheet.create({
-    container: {
-      height: 64,
-      width: 64,
-      alignItems: 'center',
-      borderRadius: 40,
-      justifyContent: 'center',
-      elevation: 4,
-      marginBottom: 4,
-      backgroundColor: 'blue',
-    },
-  
-    text: {
-      fontSize: 24,
-      color: 'white',
-    },
-  });
-  
-  export function CounterButton(){
-    const {authorizeSession} = useAuthorization();
-    const {program, counterAddress} = useProgram();
-    const {connection} = useConnection();
-    const [isTransactionInProgress, setIsTransactionInProgress] = useState(false);
+const floatingActionButtonStyle = StyleSheet.create({
+  container: {
+    height: 64,
+    width: 64,
+    alignItems: 'center',
+    borderRadius: 40,
+    justifyContent: 'center',
+    elevation: 4,
+    marginBottom: 4,
+    backgroundColor: 'blue',
+  },
 
-    const showToastOrAlert = (message: string) => {
-        if (Platform.OS == 'android') {
-          ToastAndroid.show(message, ToastAndroid.SHORT);
-        } else {
-          Alert.alert(message);
-        }
+  text: {
+    fontSize: 24,
+    color: 'white',
+  },
+});
+
+export function CounterButton() {
+  const {authorizeSession} = useAuthorization();
+  const {program, counterAddress} = useProgram();
+  const {connection} = useConnection();
+  const [isTransactionInProgress, setIsTransactionInProgress] = useState(false);
+
+  const showToastOrAlert = (message: string) => {
+    if (Platform.OS == 'android') {
+      ToastAndroid.show(message, ToastAndroid.SHORT);
+    } else {
+      Alert.alert(message);
     }
-  
-    const incrementCounter = () => {
-
-        if (!program || !counterAddress) return;
-
-        if (!isTransactionInProgress) {
-            setIsTransactionInProgress(true);
-
-            transact(async (wallet: Web3MobileWallet) => {
-                const authResult = await authorizeSession(wallet);
-                const latestBlockhashResult = await connection.getLatestBlockhash();
-
-                const ix = await program.methods
-                .increment()
-                .accounts({counter: counterAddress, user: authResult.publicKey})
-                .instruction();
-
-                const balance = await connection.getBalance(authResult.publicKey);
-                console.log(`Wallet ${authResult.publicKey} has a balance of ${balance}`);
-
-                // When on Devnet you may want to transfer SOL manually per session, due to Devnet's airdrop rate limit
-                const minBalance = LAMPORTS_PER_SOL / 1000;
-                if(balance < minBalance){
-                  console.log(`requesting airdrop for ${authResult.publicKey} on ${connection.rpcEndpoint}`);
-                  await connection.requestAirdrop(authResult.publicKey, minBalance * 2);
-                }
-
-                const transaction = new Transaction({
-                    ...latestBlockhashResult,
-                    feePayer: authResult.publicKey,
-                }).add(ix);
-
-                const signature = await wallet.signAndSendTransactions({
-                    transactions: [transaction],
-                });
-
-                showToastOrAlert(`Transaction successful! ${signature}`);
-
-            }).catch((e)=>{
-                console.log(e);
-                showToastOrAlert(`Error: ${JSON.stringify(e)}`);
-            }).finally(()=>{
-                setIsTransactionInProgress(false);
-            })
-        }
-    };
-  
-    return (
-      <>
-        <Pressable
-          style={floatingActionButtonStyle.container}
-          onPress={incrementCounter}>
-          <Text style={floatingActionButtonStyle.text}>
-            +
-          </Text>
-        </Pressable>
-      </>
-    );
   };
+
+  const incrementCounter = () => {
+    if (!program || !counterAddress) return;
+
+    if (!isTransactionInProgress) {
+      setIsTransactionInProgress(true);
+
+      transact(async (wallet: Web3MobileWallet) => {
+        const authResult = await authorizeSession(wallet);
+        const latestBlockhashResult = await connection.getLatestBlockhash();
+
+        const ix = await program.methods
+          .increment()
+          .accounts({counter: counterAddress, user: authResult.publicKey})
+          .instruction();
+
+        const balance = await connection.getBalance(authResult.publicKey);
+
+        console.log(
+          `Wallet ${authResult.publicKey} has a balance of ${balance}`,
+        );
+
+        // When on Devnet you may want to transfer SOL manually per session, due to Devnet's airdrop rate limit
+        const minBalance = LAMPORTS_PER_SOL / 1000;
+
+        if (balance < minBalance) {
+          console.log(
+            `requesting airdrop for ${authResult.publicKey} on ${connection.rpcEndpoint}`,
+          );
+          await connection.requestAirdrop(authResult.publicKey, minBalance * 2);
+        }
+
+        const transaction = new Transaction({
+          ...latestBlockhashResult,
+          feePayer: authResult.publicKey,
+        }).add(ix);
+        const signature = await wallet.signAndSendTransactions({
+          transactions: [transaction],
+        });
+
+        showToastOrAlert(`Transaction successful! ${signature}`);
+      })
+        .catch(e => {
+          console.log(e);
+          showToastOrAlert(`Error: ${JSON.stringify(e)}`);
+        })
+        .finally(() => {
+          setIsTransactionInProgress(false);
+        });
+    }
+  };
+
+  return (
+    <>
+      <Pressable
+        style={floatingActionButtonStyle.container}
+        onPress={incrementCounter}>
+        <Text style={floatingActionButtonStyle.text}>+</Text>
+      </Pressable>
+    </>
+  );
+}
 ```
 
-### 12. Build and Run
+### 11. Build and Run
 
-Now it’s time to test that everything works!
+Now it’s time to test that everything works! Build and run with the following command:
 
 ```bash
 npm run android
@@ -1105,12 +902,12 @@ If you run into some problems here are what they could be:
 
 - Application does not build → Exit Metro with ctrl+c and try again
 - Nothing happens when you press the `CounterButton` → Make sure you have Solana wallet installed ( like the fake wallet we installed in Prerequisites )
-- You get stuck in a forever loop while calling `increment` → This is likely due to you reaching a Devnet airdrop rate limit. Take out the airdrop section in `CounterButton` and manually send some devnet sol to your wallet’s address (printed in the console)
+- You get stuck in a forever loop while calling `increment` → This is likely due to you reaching a Devnet airdrop rate limit. Take out the airdrop section in `CounterButton` and manually send some Devnet sol to your wallet’s address (printed in the console)
 
-If you get stuck, feel free to check out the [completed code](https://github.com/Unboxed-Software/solana-react-native-counter).
+If you get stuck, feel free to check out the [full solution code](https://github.com/Unboxed-Software/solana-react-native-counter) on the `main` branch of the repository.
 
 # Challenge
 
-You’re challenge today is to take our app and add a decrement function. Simply add another button and call the `decrement` function on our program.
+You’re challenge today is to take our app and add a decrement function. Simply add another button and call the `decrement` function on our program. This instruction already exists on the program and its IDL, so you simply need to write client code to call the instruction.
 
-If you want, take a look at the [solution code](https://github.com/Unboxed-Software/solana-react-native-counter/tree/solution).
+If you want, take a look at the [solution code on the `solution` branch](https://github.com/Unboxed-Software/solana-react-native-counter/tree/solution).
