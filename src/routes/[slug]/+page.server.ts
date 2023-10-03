@@ -32,7 +32,7 @@ export async function load({ params }): Promise<PageData> {
 
   const lessonIndex = lessons.findIndex(hasThisSlug);
 
-  const lesson = lessons.find(hasThisSlug);
+  const lesson = lessons[lessonIndex];
 
   const previousSlug = lessons[lessonIndex - 1]?.slug || null;
 
