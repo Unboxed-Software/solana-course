@@ -8,7 +8,7 @@ objectives:
 
 # TL;DR
 
-- Attempts at generating randomness withing your program are likely to be guessable by users given there's no true randomness on-chain.
+- Attempts at generating randomness within your program are likely to be guessable by users given there's no true randomness on-chain.
 - Verifiable Random Functions (VRFs) give developers the opportunity to incorporate securely generated random numbers in their on-chain programs.
 - A VRF is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly.
 - Switchboard offers a developer-friendly VRF for the Solana ecosystem.
