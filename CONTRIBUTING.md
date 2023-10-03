@@ -10,7 +10,9 @@ Content presentation is controlled by the config file `course-structure.json`. A
 
 If you'd like to add content, please start by [creating an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and tagging @jamesrp13 to discuss your reasoning, plan, and timeline.
 
-Once a plan has been discussed and agreed to, you can start working on content. When you're done, create a PR to the `draft` branch.
+Once a plan has been discussed and agreed to, you can start working on content. 
+
+When you're done, create a PR to the `draft` branch.
 
 Create new modules in the same format as the existing modules - see [Getting Started](./content/getting-started.md)
 ### Editing Existing Content
@@ -38,8 +40,8 @@ Code examples should be formatted as follows:
 
 Diagrams:
 - If you draw Solana elliptic curves, these are [Edwards curves](https://en.wikipedia.org/wiki/Edwards_curve)
-- Use SVG so diagrams look good on different resolutions
 - We like [Whimsical](https://whimsical.com/) for diagrams
+- Use SVG where possible (they'll look better on different screens). You can get an SVG export from Whimsical by appending `/svg` to the end of a Whimsical URL.
  
 Note that while `prettier` can format Markdown, [prettier doesn't support language-specific settings inside Markdown files](https://github.com/prettier/prettier/issues/5378) so you'll need to format the code yourself for now.
 
@@ -65,13 +67,19 @@ Content is controlled by the config file `course-structure.json`. All content is
 
 Use the terms at https://docs.solana.com/terminology
 
+Lessons should follow the format:
+
+ - **Overview** section is a conceptual overview. The equivalent would be when a teacher in a classroom says "don't do this yet, just watch.". The overview is intentionally not meant to be something readers code along with.
+
+ - **Demo** section is then meant to be when students code along and should follow a step-by-step process.
+
 ## Static Assets
 
 Static assets are in `assets`. This is set in `svelte.config.js` to match the older soldev-ui directory. 
 
 ![Some alt text](../assets/somefile.svg)
 
-Use SVG where possible (they'll look better on different screens). You ca get an SVG export from Whimsical by appending `/svg` to the end of a Whimsical URL.
+
 ## Components
 
 Components are individual Svelte files, in the `/src/lib/components` directory.
