@@ -23,6 +23,7 @@
   },
   "type": "module",
   "dependencies": {
+    "gray-matter": "^4.0.3",
     "highlight.js": "^11.8.0",
     "marked": "^7.0.4"
   }
