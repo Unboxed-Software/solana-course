@@ -1,6 +1,7 @@
 import modules from "../../../course-structure.json";
-import type { NodeError } from "$lib/types";
+import type { Lesson, NodeError } from "$lib/types";
 import { error as makeSvelteError } from "@sveltejs/kit";
+import type { PageData } from "$lib/types";
 import greyMatter from "gray-matter";
 // I assure you, node still has an fs module.
 // @ts-ignore
@@ -21,14 +22,11 @@ const cleanContent = (content: string) => {
   return cleanContent.replaceAll("../assets", "");
 };
 
-// Ignore 'hidden' for now.
-interface Lesson {
-  title: string;
-  slug: string;
-}
+// See https://kit.svelte.dev/docs/load
+export async function load({ params }): Promise<PageData> {
+  const allLessons = modules.flatMap((module) => module.lessons);
 
-export async function load({ params }) {
-  const lessons = modules.flatMap((module) => module.lessons);
+  const lessons = allLessons.filter((lesson) => !lesson.hidden);
 
   const hasThisSlug = (lesson: Lesson) => lesson.slug === params.slug;
 

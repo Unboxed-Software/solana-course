@@ -1,7 +1,7 @@
 <script lang="ts">
   import Header from "$lib/components/header.svelte";
   import Navigation from "$lib/components/navigation.svelte";
-  import type { Lesson } from "$lib/types";
+  import type { PageData } from "$lib/types";
   import { onMount, tick } from "svelte";
   import hljs from "highlight.js";
   // Highlight JS theme
@@ -9,7 +9,8 @@
   import "highlight.js/styles/stackoverflow-light.css";
   import { log } from "$lib/functions";
 
-  export let data: Lesson;
+  // 'data' is a bad variable name, but it's what SvelteKit uses
+  export let data: PageData;
 
   const highlight = async () => {
     if (!globalThis.document) {
