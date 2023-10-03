@@ -1,9 +1,10 @@
 <script lang="ts">
-  import type { Lesson } from "$lib/types";
+  import type { PageData } from "$lib/types";
   import leftImage from "$lib/assets/left.svg";
   import rightImage from "$lib/assets/right.svg";
 
-  export let data: Lesson;
+  // 'data' is a bad variable name, but it's what SvelteKit uses
+  export let data: PageData;
 
   const UP = "../";
 </script>

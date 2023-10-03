@@ -3,6 +3,7 @@
   import Header from "$lib/components/header.svelte";
   import type { Module as ModuleType } from "$lib/types";
 
+  // 'data' is a bad variable name, but it's what SvelteKit uses
   export let data: {
     modules: Array<ModuleType>;
   };

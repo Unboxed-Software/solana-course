@@ -1,6 +1,8 @@
 import modules from "../../../course-structure.json";
-import type { NodeError } from "$lib/types";
+import type { Lesson, NodeError } from "$lib/types";
 import { error as makeSvelteError } from "@sveltejs/kit";
+import type { PageData } from "$lib/types";
+import greyMatter from "gray-matter";
 // I assure you, node still has an fs module.
 // @ts-ignore
 import { readFile } from "node:fs/promises";
@@ -8,28 +10,23 @@ import { readFile } from "node:fs/promises";
 import { marked } from "marked";
 
 const cleanContent = (content: string) => {
-  // There's a bunch of metadata in the content that should really be in the course structure.
+  // There's a bunch of metadata in the content that should really be elsewhere.
   // let's strip that out.
-  // TODO: remove this content permanently after we retire Soldev
-  let cleanContent = content.split("---").reverse()[0];
+  // TODO: remove this content permanently after we retire soldev-ui
+  let cleanContent = greyMatter(content).content;
 
   // Paths in the content need adjusting from the old soldev-ui location
   // TODO: fix this in the actual content.
   // TODO: we may also wish to move the content to the lib/assets directory
   // at the same time.
-  cleanContent = cleanContent.replaceAll("../assets", "");
-
-  return cleanContent;
+  return cleanContent.replaceAll("../assets", "");
 };
 
-// Ignore 'hidden' for now.
-interface Lesson {
-  title: string;
-  slug: string;
-}
+// See https://kit.svelte.dev/docs/load
+export async function load({ params }): Promise<PageData> {
+  const allLessons = modules.flatMap((module) => module.lessons);
 
-export async function load({ params }) {
-  const lessons = modules.flatMap((module) => module.lessons);
+  const lessons = allLessons.filter((lesson) => !lesson.hidden);
 
   const hasThisSlug = (lesson: Lesson) => lesson.slug === params.slug;
 

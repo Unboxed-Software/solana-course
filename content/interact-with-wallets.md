@@ -494,7 +494,7 @@ You can also download the [full source code from this demo](https://github.com/U
 
 Now it’s your turn to build something independently. Create an application that lets a user connect their Phantom wallet and send SOL to another account.
 
-![Screenshot of Send Sol App](../assets/solana-send-sol-app.png)
+![Screenshot of Send SOL App](../assets/solana-send-sol-app.png)
 
 1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/starter).
 2. Wrap the starter application in the appropriate context providers.

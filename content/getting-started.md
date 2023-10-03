@@ -48,7 +48,7 @@ Compared to older platforms like Bitcoin and Ethereum, Solana is:
 
 - Highly decentralized, having one of the highest Nakamoto coefficient (decentralization score) of any proof-of-stake network.
 
-Many of the common use cases on Solana are only possible on Solana, due to the high costs and slow transation times of older blockchains.
+Many of the common use cases on Solana are only possible on Solana, due to the high costs and slow translation times of older blockchains.
 
 ## What will I learn on this course?
 

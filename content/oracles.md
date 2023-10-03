@@ -836,9 +836,9 @@ Error: Function _ZN86_$LT$switchboard_v2..aggregator..AggregatorAccountData$u20$
 
 Let's write some tests. We should have four of them:
 
-- Creating an Escrow with the unlock price ***below*** the current Sol price so we can test withdrawing it
+- Creating an Escrow with the unlock price ***below*** the current SOL price so we can test withdrawing it
 - Withdrawing and closing from the above escrow
-- Creating an Escrow with the unlock price ***above*** the current Sol price so we can test withdrawing it
+- Creating an Escrow with the unlock price ***above*** the current SOL price so we can test withdrawing it
 - Withdrawing and failing from the above escrow
 
 Note that there can only be one escrow per user, so the above order matters.

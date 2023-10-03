@@ -8,7 +8,7 @@ objectives:
 
 ## TL;DR
 
-- **SOL** is the name of Solana’s native token. Each Sol is made from 1 billion **Lamports**. 
+- **SOL** is the name of Solana’s native token. Each SOL is made from 1 billion **Lamports**. 
 - **Accounts** store tokens, NFTs, programs, and data. For now we’ll focus on accounts that store SOL. 
 - **Addresses** point to accounts on the Solana network. Anyone can read the data in a given address. Most addresses are also **public keys**
 
@@ -76,7 +76,7 @@ console.log(`The balance of the account at ${address} is ${balance} lamports`);
 console.log(`✅ Finished!`)
 ```
 
-The balance returned is in *lamports*. A lamport is the minor unit for Sol, like cents is to US Dollars, or pence is to British pounds. A single lamport represents 0.000000001 SOL. Most of the time we'll transfer, spend, store and handle SOL as Lamports, only converting to full SOL to display to users. Web3.js provides the constant `LAMPORTS_PER_SOL` for making quick conversions.
+The balance returned is in *lamports*. A lamport is the minor unit for SOL, like cents is to US Dollars, or pence is to British pounds. A single lamport represents 0.000000001 SOL. Most of the time we'll transfer, spend, store and handle SOL as Lamports, only converting to full SOL to display to users. Web3.js provides the constant `LAMPORTS_PER_SOL` for making quick conversions.
 
 ```typescript
 import { Connection, PublicKey, clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -147,7 +147,7 @@ const Home: NextPage = () => {
 }
 ```
 
-Most of the time when dealing with SOL, the system will use lamports instead of SOL. Since computers are better at handing whole numbers than fractions, we generally do most of our transactions in whole lamports, only converting back to Sol to display the value to users. This is why we take the balance returned by Solana and divide it by `LAMPORTS_PER_SOL`. 
+Most of the time when dealing with SOL, the system will use lamports instead of SOL. Since computers are better at handing whole numbers than fractions, we generally do most of our transactions in whole lamports, only converting back to SOL to display the value to users. This is why we take the balance returned by Solana and divide it by `LAMPORTS_PER_SOL`. 
 
 Before setting it to our state, we also convert it to SOL using the `LAMPORTS_PER_SOL` constant.
 
