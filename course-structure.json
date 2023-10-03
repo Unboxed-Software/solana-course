@@ -4,7 +4,7 @@
         "number": 0,
         "lessons": [
             {
-                "title": "Getting started",
+                "title": "Get started",
                 "slug": "getting-started",
                 "number": 1
             }
@@ -82,17 +82,17 @@
                 "number": 1
             },
             {
-                "title": "Create a Basic Program, Part 1 - Handle Instruction Data",
+                "title": "Handle Instruction Data",
                 "slug": "deserialize-instruction-data",
                 "number": 2
             },
             {
-                "title": "Create a Basic Program, Part 2 - State Management",
+                "title": "State Management",
                 "slug": "program-state-management",
                 "number": 3
             },
             {
-                "title": "Create a Basic Program, Part 3 - Basic Security and Validation",
+                "title": "Basic Security and Validation",
                 "slug": "program-security",
                 "number": 4
             }
