@@ -7,7 +7,7 @@
   // Highlight JS theme
   // Styles are in ./node_modules/highlight.js/styles
   import "highlight.js/styles/stackoverflow-light.css";
-  import { log, sleep } from "$lib/functions";
+  import { log } from "$lib/functions";
 
   export let data: Lesson;
 
