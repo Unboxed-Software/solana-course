@@ -166,7 +166,7 @@ async function post(
 ) {
     const { account, reference } = req.body
 
-    const connection = new Connection(clusterApiUrl("devnet"));
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
     const { blockhash } = await connection.getLatestBlockhash();
 

@@ -68,7 +68,7 @@ import {
 } from "@metaplex-foundation/js";
 import { Connection, clusterApiUrl, Keypair } from "@solana/web3.js";
 
-const connection = new Connection(clusterApiUrl("devnet"));
+const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 const wallet = Keypair.generate();
 
 const metaplex = Metaplex.make(connection)
@@ -263,7 +263,7 @@ const updateNftData = {
 
 async function main() {
     // create a new connection to the cluster's API
-    const connection = new Connection(clusterApiUrl("devnet"));
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
     // initialize a keypair for the user
     const user = await initializeKeypair(connection);
@@ -291,7 +291,7 @@ Before we start creating and updating NFTs, we need to set up the Metaplex insta
 ```tsx
 async function main() {
     // create a new connection to the cluster's API
-    const connection = new Connection(clusterApiUrl("devnet"));
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
     // initialize a keypair for the user
     const user = await initializeKeypair(connection);

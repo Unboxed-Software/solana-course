@@ -22,7 +22,7 @@ objectives:
 
     ```tsx
     async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
-        const connection = new Connection(clusterApiUrl("devnet"));
+        const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
         return connection.getBalance(address);
     }
 
@@ -116,7 +116,7 @@ Para instalarlo `@solana/web3.js`, configure su proyecto de la manera que normal
 Cada interacción con la red Solana `@solana/web3.js` va a ocurrir a través de un `Connection` objeto. Este objeto establece una conexión JSON-RPC con un clúster de Solana (más sobre clústeres más adelante). Por ahora, vamos a usar la URL para el clúster de Devnet en lugar de Mainnet. Como su nombre indica, este clúster está diseñado para uso y pruebas de desarrolladores.
 
 ```tsx
-const connection = new Connection(clusterApiUrl("devnet"));
+const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 ```
 
 ### Leer desde la red
@@ -125,7 +125,7 @@ Una vez que tienes un `Connection` objeto, consultar la red es tan simple como l
 
 ```tsx
 async function getBalanceUsingWeb3(address: PublicKey): Promise<number> {
-    const connection = new Connection(clusterApiUrl("devnet"));
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
     return connection.getBalance(address);
 }
 ```
