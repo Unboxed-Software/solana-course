@@ -9,7 +9,7 @@ objectives:
 # TL;DR
 
 - The Mobile Wallet Adapter can be used to create mobile dApps
-- Web and Mobile Solana programming differ only in how wallets are connected
+- Web and Mobile Solana programming differ mostly in how wallets are connected
 
 # Overview
 
@@ -75,24 +75,18 @@ To keep the development experience as close as possible with other lessons, we'l
 
 ## React to React Native
 
-React Native takes the React web framework and applies it to mobile applications. However, while React and React Native feel very similar, there are differences:
+React Native takes the React web framework and applies it to mobile applications. However, while React and React Native feel very similar, there are differences. The best way to understand the differences is to code. But, to give you a head start here is a list of some differences to keep in mind:
 
 - React Native compiles down to native iOS and Android applications while react complies down to a collection of web pages. 
 - In React, you program with HTML and CSS, with React Native you use native UI components. Instead of `<div>`, `<p>` and `<img>` you'll be using `<View>`, `<Text>` and `<Image>`.
 - Interactions are different, instead of `onClick`, you'll use `onPress` and other gestures.
 - A lot of packages you may be used to in React may not be compatible with React Native. Fortunately, there are a React Native counterparts to many popular libraries.
 - Setting up a development environment in React Native is more involved. This will require setting up Android Studio to compile to Android and XCode for iOS. React Native has a [really good guide](https://reactnative.dev/docs/environment-setup?guide=native) for this.
-- In React Native, you'll use a physical mobile device or an emulator to run your code using a tool called Metro that comes pre-installed.
+- In React Native, you'll use a physical mobile device or an emulator to run your code using a tool called Metro that comes pre-installed. How to set this up is also apart of React Native's [really good guide](https://reactnative.dev/docs/environment-setup?guide=native)
 - React Native gives you access to the phone's hardware, so you can use things like the phone's sensors or hard drive.
-- React Native has more config files and build folders. For example `ios` and `android` contain platform specific information, then then we have config files like `Gemfile` and `metro.config.js`. Generally, leave all configurations alone and just worry about writing your code in `App.tsx`.
+- React Native introduces more config files and build folders. For example `ios` and `android` contain platform specific information, then then we have config files like `Gemfile` and `metro.config.js`. Generally, leave all configurations alone and just worry about writing your code in `App.tsx`.
 
 This is all to say, if you're used to React, React Native may feel a bit jarring. Give it the time to setup the environment and play around. It'll feel familiar in no time!
-
-## Intro to React Native
-### Project Structure
-### Edit/Build/Test
-### How it Differs
-
 
 ## Creating a Solana dApp with React Native
 
@@ -236,12 +230,13 @@ React Native allows us to write mobile applications using similar patterns as Re
         ![Fake Wallet](../assets/basic-solana-mobile-fake-wallet.png)
         
     4. For debugging, you’ll want to use `Logcat`. Now that your fake wallet is running on the emulator, go to `View -> Tool Windows -> Logcat`. This will open up a console logging out what’s happening with fake wallet.
+ 3. (Optional) Install other Solana wallets like Phantom on the Google Play store.
 
 Lastly, if you run into Java versioning issues - you’ll want to be on Java version 11. To check what you’re currently running type `java --version` in your terminal.
 
 ### 1. Plan out App Structure
 
-Before we do anything let's conceptualize the outline of the app. Again, this app will take connect to and interact with our Devent deployed counter program. At a high level we will need the following:
+Before we do anything let's conceptualize the outline of the app. Again, this app will connect to and interact with our Devent deployed counter program. To do this we'll need the following:
 
 - Backend
   - `Connection` object to interact with Solana. (`ConnectionProvider.tsx`)
