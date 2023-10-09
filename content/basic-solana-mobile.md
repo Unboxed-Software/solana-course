@@ -2,15 +2,18 @@
 title: Introduction to Solana Mobile
 objectives:
 
+- Explain the benefits of creating mobile-first dApp experiences
 - Explain the high level Mobile Wallet Adapter (MWA) flow
-- Create an Android Solana dApp using React Native from scratch
+- Explain the high level differences between React and React native
+- Create a simple Android Solana dApp using React Native
 ---
 
 # TL;DR
 
-- The Mobile Wallet Adapter can be used to create mobile dApps
-- The Solana Mobile React Native package is the easiest way to 
-- Web and Mobile Solana programming differ mostly in how wallets are connected
+- The Solana Mobile Wallet Adapter introduces a new protocol and flow for mobile apps to interact with wallets\
+  - The Mobile Wallet Adapter creates a web socket connection between mobile apps and mobile wallets, allowing apps to submit transactions for signing
+- The simplest way to get started creating Solana mobile applications is with Solana Mobile's React Native packages `@solana-mobile/mobile-wallet-adapter-protocol` and `@solana-mobile/mobile-wallet-adapter-protocol-web3js`
+  - React native is very similar to React with a few mobile quirks
 
 # Overview
 
