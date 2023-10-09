@@ -9,18 +9,22 @@ objectives:
 # TL;DR
 
 - The Mobile Wallet Adapter can be used to create mobile dApps
+- The Solana Mobile React Native package is the easiest way to 
 - Web and Mobile Solana programming differ mostly in how wallets are connected
 
 # Overview
 
 Solana has gone mobile! For a long time, dApps were web-first rather than mobile-first. That started to change with the announcement of the Solana Mobile Stack (SMS) in 2022. This stack is designed to create dApps that provide a seamless mobile UX. It consists of the [Mobile Wallet Adapter (MWA)](https://docs.solanamobile.com/getting-started/overview#mobile-wallet-adapter), [Seed Vault](https://docs.solanamobile.com/getting-started/overview#seed-vault) and the [Solana dApp Store](https://docs.solanamobile.com/getting-started/overview#solana-dapp-store).
 
-Our mobile lessons primarily focus on the Mobile Wallet Adapter as it's the most broadly applicable part of the stack. The simplest way to get started is to use the Mobile Wallet Adapter and React Native to create a simple Android app. This lesson assumes you're familiar with React and Solana programming. If that's not necessarily the case, [start our course from the beginning](./intro-to-cryptography.md) and come back here when you feel ready!.
+Most relevant to your development journey is the Mobile Wallet Adapter. The simplest way to get started is to use the Mobile Wallet Adapter with React Native to create a simple Android app. This lesson assumes you're familiar with React and Solana programming. If that's not the case, [start our course from the beginning](./intro-to-cryptography.md) and come back here when you feel ready!
 
 ## Intro To Solana Mobile
+
+Between the Solana Mobile Stack and the Saga mobile device, Solana Mobile has a lot of connotations. For the purposes of this course, we'll be focused on mobile application development where the apps interact with the Solana network. This opens up a whole new paradigm of Crypto use cases and behaviors.
+
 ### Solana Mobile Use Cases
 
-MWA is a huge innovation. The crypto mobile market is pure untapped potential, and now, everyone can walk around with the power of Solana in their pockets. Here are a few examples of what Solana mobile unlocks:
+The crypto mobile market has a lot of untapped potential. With the right apps, everyone can walk around with the power of Solana in their pockets. Here are a few examples of what Solana mobile development can unlock:
 
 **Mobile Banking and Trading (DeFi)**
 
@@ -75,18 +79,18 @@ To keep the development experience as close as possible with other lessons, we'l
 
 ## React to React Native
 
-React Native takes the React web framework and applies it to mobile applications. However, while React and React Native feel very similar, there are differences. The best way to understand the differences is to code. But, to give you a head start here is a list of some differences to keep in mind:
+React Native takes the React web framework and applies it to mobile applications. However, while React and React Native feel very similar, there are differences. The best way to understand these differences is to experience them while coding. But, to give you a head start here is a list of some differences to keep in mind:
 
-- React Native compiles down to native iOS and Android applications while react complies down to a collection of web pages. 
-- In React, you program with HTML and CSS, with React Native you use native UI components. Instead of `<div>`, `<p>` and `<img>` you'll be using `<View>`, `<Text>` and `<Image>`.
-- Interactions are different, instead of `onClick`, you'll use `onPress` and other gestures.
-- A lot of packages you may be used to in React may not be compatible with React Native. Fortunately, there are a React Native counterparts to many popular libraries.
-- Setting up a development environment in React Native is more involved. This will require setting up Android Studio to compile to Android and XCode for iOS. React Native has a [really good guide](https://reactnative.dev/docs/environment-setup?guide=native) for this.
-- In React Native, you'll use a physical mobile device or an emulator to run your code using a tool called Metro that comes pre-installed. How to set this up is also apart of React Native's [really good guide](https://reactnative.dev/docs/environment-setup?guide=native)
-- React Native gives you access to the phone's hardware, so you can use things like the phone's sensors or hard drive.
-- React Native introduces more config files and build folders. For example `ios` and `android` contain platform specific information, then then we have config files like `Gemfile` and `metro.config.js`. Generally, leave all configurations alone and just worry about writing your code in `App.tsx`.
+- React Native compiles down to native iOS and Android applications while React compiles down to a collection of web pages. 
+- In React, you use JSX to program with HTML and CSS, with React Native you use similar syntax to manipulate native UI components. Instead of `<div>`, `<p>` and `<img>` you'll be using `<View>`, `<Text>` and `<Image>`.
+- Interactions are different. Instead of `onClick`, you'll use `onPress` and other gestures.
+- Many standard React packages may not be compatible with React Native. Fortunately, there are a React Native counterparts to most popular libraries.
+- Setting up a development environment in React Native can be challenging. This will require setting up Android Studio to compile to Android and XCode for iOS. React Native has a [really good guide](https://reactnative.dev/docs/environment-setup?guide=native) for this.
+- For regular development and testing, you'll use a physical mobile device or an emulator to run your code. This relies on a tool called Metro that comes pre-installed. React native's setup guide also covers this.
+- React Native gives you access to the phone's hardware that React can't provide. This includes things like the phone's accelerometer, allocated storage, and more.
+- React Native introduces new config files and build folders. For example `ios` and `android` contain platform specific information, then then we have config files like `Gemfile` and `metro.config.js`. Generally, leave all configurations alone and just worry about writing your code, the starting point for which will be in `App.tsx`.
 
-This is all to say, if you're used to React, React Native may feel a bit jarring. Give it the time to setup the environment and play around. It'll feel familiar in no time!
+There is a learning curve, but if you know React you're not nearly as far from being able to develop mobile apps as you think! It may feel jarring to start, but after a few hours of React native development you'll start to feel much more comfortable. You'll likely feel much more confident after [this lesson's demo](#demo).
 
 ## Creating a Solana dApp with React Native
 
@@ -236,21 +240,19 @@ Lastly, if you run into Java versioning issues - you’ll want to be on Java ver
 
 ### 1. Plan out App Structure
 
-Before we do anything let's conceptualize the outline of the app. Again, this app will connect to and interact with our Devent deployed counter program. To do this we'll need the following:
+Before we do any coding, let's conceptualize the outline of the app. Again, this app will connect to and interact with the counter program we've already deployed to Devnet. To do this, we'll need the following:
 
-- Backend
-  - `Connection` object to interact with Solana. (`ConnectionProvider.tsx`)
-  - Access to our counter program. (`ProgramProvider.tsx`)
-  - Connection to a wallet to sign and send requests. (`AuthProvider.tsx`)
-- Frontend
-  - Text to display our counter value (`CounterView.tsx`)
-  - A button to press to increment our count (`CounterButton.tsx`)
+- A `Connection` object to interact with Solana. (`ConnectionProvider.tsx`)
+- Access to our counter program. (`ProgramProvider.tsx`)
+- Connection to a wallet to sign and send requests. (`AuthProvider.tsx`)
+- Text to display our counter value (`CounterView.tsx`)
+- A button to press to increment our count (`CounterButton.tsx`)
   
-There will be more files and considerations, but this should be enough for now to see what we are doing.
+There will be more files and considerations, but these are the most important files we'll be creating and working with.
 
 ### 2. Create the App
 
-Now that you've got some of the basic setup down, let’s create a new app with the following command:
+Now that you've got some of the basic setup and structure down, let’s create a new app with the following command:
 
 ```bash
 npx react-native@latest init counter --npm
