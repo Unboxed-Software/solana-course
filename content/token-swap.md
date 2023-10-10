@@ -297,7 +297,7 @@ We can deposit both tokens at the same time using the `TokenSwap.depositAllToken
 11. `tokenProgramId` - the address of the Token Program
 12. `poolTokenAmount` - amount of LP-token the depositor expects to receive
 13. `maximumTokenA` - maximum amount of token A allowed to deposit
-14. `maximumTokenB` - maximum amount of token A allowed to deposit
+14. `maximumTokenB` - maximum amount of token B allowed to deposit
 
 The `maximumTokenA` and `maximumTokenB` arguments are used to prevent slippage. The higher the number, the more slippage can possibly occur without a transaction failure. For simplicity, we'll use a very large number for these arguments.
 
