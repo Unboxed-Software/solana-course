@@ -11,9 +11,9 @@
 
 <article>
   <Header
-    title="Introduction to Solana"
+    title="Solana Course"
     subtitles={[
-      "Welcome to the best starting point to learn Web3 development.",
+      "Welcome to the best place to learn Web3 development.",
       "Solana's high speed, low cost, and energy efficiency",
       "make it the ideal network to build on.",
     ]}

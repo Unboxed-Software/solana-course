@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from "$lib/types";
   import leftImage from "$lib/assets/left.svg";
+  import upImage from "$lib/assets/up.svg";
   import rightImage from "$lib/assets/right.svg";
 
   // 'data' is a bad variable name, but it's what SvelteKit uses
@@ -15,6 +16,13 @@
       ? "Previous"
       : "Back to contents"}</a
   >
+
+  {#if data.nextSlug && data.previousSlug}
+    <a href={UP} class="up"
+      ><img class="arrow" alt="an arrow" src={upImage} />Home</a
+    >
+  {/if}
+
   <a href={data.nextSlug || UP} class="next"
     >{data.nextSlug ? "Next" : "Back to contents"}<img
       class="arrow"
@@ -26,7 +34,7 @@
 
 <style>
   .navigate {
-    grid-template-columns: 1fr 1fr;
+    grid-auto-flow: column;
     gap: 12px;
   }
 
