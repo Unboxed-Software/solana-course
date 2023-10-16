@@ -215,7 +215,7 @@ If you don't specify the bump on the `bump` constraint, Anchor will still use `f
 
 On the other hand, if you only need to verify the address of a PDA passed in without initializing an account, you'll be forced to either let Anchor derive the canonical bump or expose your program to unecessary risks. In that case, please use the canonical bump despite the slight mark against performance.
 
-# Demo
+# Lab
 
 To demonstrate the security exploits possible when you don't check for the canonical bump, let's work with a program that lets each program user "claim" rewards on time.
 

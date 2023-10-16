@@ -1,11 +1,11 @@
 <script lang="ts">
   import Module from "$lib/components/module.svelte";
   import Header from "$lib/components/header.svelte";
-  import type { Module as ModuleType } from "$lib/types";
+  import type { CourseStructure } from "$lib/types";
 
   // 'data' is a bad variable name, but it's what SvelteKit uses
   export let data: {
-    modules: Array<ModuleType>;
+    courseStucture: CourseStructure;
   };
 </script>
 
@@ -20,8 +20,11 @@
   />
 
   <div class="modules">
-    {#each data.modules as module, moduleIndex}
-      <Module {module} {moduleIndex} />
+    {#each data.courseStucture.tracks as track, trackIndex}
+      <h2>{track.title}</h2>
+      {#each track.modules as module, moduleIndex}
+        <Module {module} {moduleIndex} />
+      {/each}
     {/each}
   </div>
 </article>
@@ -30,5 +33,9 @@
   .modules {
     padding: 24px 0;
     max-width: var(--single-column);
+  }
+
+  h2 {
+    font-size: 48px;
   }
 </style>

@@ -148,7 +148,7 @@ pub struct User {
 }
 ```
 
-# Demo
+# Lab
 
 Let’s practice by creating a simple Rock Paper Scissors program to demonstrate how failing to check for duplicate mutable accounts can cause undefined behavior within your program.
 

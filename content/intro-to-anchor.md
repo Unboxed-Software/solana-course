@@ -311,11 +311,11 @@ pub struct AccountStruct {
 
 You are now ready to build your own Solana program using the Anchor framework!
 
-# Demo
+# Lab
 
 Before we begin, install Anchor by [following the steps from the Anchor docs](https://www.anchor-lang.com/docs/installation).
 
-For this demo we'll create a simple counter program with two instructions:
+For this lab we'll create a simple counter program with two instructions:
 
 - The first instruction will initialize a counter account
 - The second instruction will increment the count stored on a counter account
@@ -580,7 +580,7 @@ Now it’s your turn to build something independently. Because we're starting wi
 
 1. Write a new program that initializes a `counter` account
 2. Implement both an `increment` and `decrement` instruction
-3. Build and deploy your program like we did in the demo
+3. Build and deploy your program like we did in the lab
 4. Test your newly deployed program and use Solana Explorer to check the program logs
 
 As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!

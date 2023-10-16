@@ -235,7 +235,7 @@ When this function is called, the connected wallet will display the transaction 
 
 ![Screenshot of wallet transaction approval prompt](../assets/wallet-transaction-approval-prompt.png)
 
-# Demo
+# Lab
 
 Let’s take the Ping program from last lesson and build a frontend that lets users approve a transaction that pings the program. As a reminder, the program’s public key is `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and the public key for the data account is `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
@@ -245,11 +245,11 @@ Let’s take the Ping program from last lesson and build a frontend that lets us
 
 If you don’t already have it, download the [Phantom browser extension](https://phantom.app/download). At the time of writing, it supports Chrome, Brave, Firefox, and Edge browsers, so you’ll also need to have one of those browsers installed. Follow Phantom’s instructions for creating a new account and a new wallet.
 
-Once you have a wallet, click the settings gear on the bottom right in the Phantom UI. Scroll down and click on the line item “Change Network” and select “Devnet.” This ensures that Phantom will be connected to the same network we’ll be using in this demo.
+Once you have a wallet, click the settings gear on the bottom right in the Phantom UI. Scroll down and click on the line item “Change Network” and select “Devnet.” This ensures that Phantom will be connected to the same network we’ll be using in this lab.
 
 ### 2. Download the starter code
 
-Download the [starter code for this project](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo.
+Download the [starter code for this project](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this lab.
 
 You can see its current state with the command `npm run dev` in the console.
 
@@ -488,7 +488,7 @@ And that’s it! If you refresh the page, connect your wallet, and click the pin
 
 There’s a lot you could do to make the user experience here even better. For example, you could change the UI to only show you the Ping button when a wallet is connected and display some other prompt otherwise. You could link to the transaction on Solana Explorer after a user confirms a transaction so they can easily go look at the transaction details. The more you experiment with it, the more comfortable you’ll get, so get creative!
 
-You can also download the [full source code from this demo](https://github.com/Unboxed-Software/solana-ping-frontend) to understand all of this in context.
+You can also download the [full source code from this lab](https://github.com/Unboxed-Software/solana-ping-frontend) to understand all of this in context.
 
 # Challenge
 

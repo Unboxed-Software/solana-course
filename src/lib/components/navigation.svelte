@@ -35,6 +35,7 @@
 <style>
   .navigate {
     grid-auto-flow: column;
+    grid-auto-columns: 1fr;
     gap: 12px;
   }
 

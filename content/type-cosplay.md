@@ -202,9 +202,9 @@ pub struct UserConfig {
 
 It’s important to note that this is a vulnerability you don’t really have to worry about when using Anchor - that’s the whole point of it in the first place! After going through how this can be exploited if not handled properly in a native rust program, hopefully you have a much better understanding of what the purpose of the account discriminator is in an Anchor account. The fact that Anchor sets and checks this discriminator automatically means that developers can spend more time focusing on their product, but it’s still very important to understand what Anchor is doing behind the scenes to develop robust Solana programs.
 
-# Demo
+# Lab
 
-For this demo we’ll create two programs to demonstrate a type cosplay vulnerability.
+For this lab we’ll create two programs to demonstrate a type cosplay vulnerability.
 
 - The first program will initialize program accounts without a discriminator
 - The second program will initialize program accounts using Anchor’s `init` constraint which automatically sets an account discriminator

@@ -153,7 +153,7 @@ If you have access to an Anchor program's CPI module, you typically can import i
 use other_program::program::OtherProgram;
 ```
 
-# Demo
+# Lab
 
 To show the importance of checking with program you use for CPIs, we're going to work with a simplified and somewhat contrived game. This game represents characters with PDA accounts, and uses a separate "metadata" program to manage character metadata and attributes like health and power.
 

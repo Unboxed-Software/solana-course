@@ -45,20 +45,9 @@
 
 <style>
   section {
-    max-width: var(--single-column);
     padding: 36px;
     font-size: 18px;
     line-height: 27px;
-    /* Use traditional HTML layout for non-UI content */
-    display: block;
-  }
-
-  :global(img) {
-    max-width: 100%;
-  }
-
-  /* inline code =*/
-  :global(p code) {
-    padding: 3px;
+    justify-items: center;
   }
 </style>

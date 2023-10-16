@@ -162,9 +162,9 @@ For example, if the account stores an `authority` field that gets set in the ins
 
 In most cases, it’s safer to have a separate instruction for initializing account data.
 
-# Demo
+# Lab
 
-For this demo we’ll create a simple program that does nothing but initialize accounts. We’ll include two instructions:
+For this lab we’ll create a simple program that does nothing but initialize accounts. We’ll include two instructions:
 
 - `insecure_initialization` - initializes an account that can be reinitialized
 - `recommended_initialization` - initialize an account using Anchor’s `init` constraint

@@ -309,11 +309,11 @@ That is the essence of requesting randomness with a Switchboard VRF. To recap th
 
 ![VRF Diagram](../assets/vrf-diagram.png)
 
-# Demo
+# Lab
 
-For this lesson’s demo, we will be picking up where we left off in the [Oracle lesson](./oracle.md). If you have'nt completed the Oracle lesson and demo, we strongly recommend you do as there are a lot of overlapping concepts and we’ll be starting from the Oracle lesson’s codebase.
+For this lesson’s lab, we will be picking up where we left off in the [Oracle lesson](./oracle.md). If you have'nt completed the Oracle lesson and demo, we strongly recommend you do as there are a lot of overlapping concepts and we’ll be starting from the Oracle lesson’s codebase.
 
-If you don't want to complete the Oracle lesson, the starter code for this demo is provided for you in [the main branch of the demo Github repository](https://github.com/Unboxed-Software/michael-burry-escrow).
+If you don't want to complete the Oracle lesson, the starter code for this lab is provided for you in [the main branch of the lab Github repository](https://github.com/Unboxed-Software/michael-burry-escrow).
 
 The repo contains a "Michael Burry" escrow program. This is a program that allows a user to lock up some solana funds in escrow that cannot be withdrawn until SOL has reached a predefined price in USD chosen by the user. We will be adding VRF functionality to this program to allow the user to "Get out of jail" by rolling doubles. Our demo today will allow the user to roll two virtual dice, if they roll doubles (the two dice match), the user can withdraw their funds from escrow regardless of the SOL price.
 

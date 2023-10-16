@@ -204,7 +204,7 @@ pub struct CloseAccount {
 
 The `force_defund` instruction is an optional addition that you’ll have to implement on your own if you’d like to utilize it.
 
-# Demo
+# Lab
 
 To clarify how an attacker might take advantage of a revival attack, let's work with a simple lottery program that uses program account state to manage a user's participation in the lottery.
 

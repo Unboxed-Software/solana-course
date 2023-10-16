@@ -230,9 +230,9 @@ pub struct AdminConfig {
 }
 ```
 
-# Demo
+# Lab
 
-In this demo we’ll use two programs to demonstrate how a missing owner check could allow a fake account to drain the tokens from a simplified token “vault” account (note that this is very similar to the demo from the Signer Authorization lesson).
+In this lab we’ll use two programs to demonstrate how a missing owner check could allow a fake account to drain the tokens from a simplified token “vault” account (note that this is very similar to the lab from the Signer Authorization lesson).
 
 To help illustrate this, one program will be missing an account owner check on the vault account it withdraws tokens to.
 

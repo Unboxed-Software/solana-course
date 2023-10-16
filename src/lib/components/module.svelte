@@ -15,7 +15,7 @@
 
   <div class="lessons">
     {#each module.lessons as lesson, lessonIndex}
-      <div class="lesson">
+      <div class="lesson {lesson.hidden ? 'hidden' : ''}">
         <!-- Lessons are 1-indexed -->
         <button class="lesson-complete-button">{lessonIndex + 1}</button>
         <a href={lesson.slug}>
@@ -24,7 +24,7 @@
               {lesson.title}
               <img class="arrow" alt="an arrow" src={linkImage} />
             </div>
-            <div class="lesson-index">Lesson {lessonIndex + 1}</div>
+            <div class="lab">{lesson.lab ? `Lab: ${lesson.lab}` : ""}</div>
           </div>
         </a>
       </div>
@@ -65,6 +65,10 @@
     padding: 24px 0;
   }
 
+  .lesson.hidden {
+    filter: blur(4px);
+  }
+
   .lesson a {
     text-decoration: none;
   }
@@ -92,7 +96,7 @@
     transform: translateY(3px);
   }
 
-  .lesson-index {
+  .lab {
     color: mediumgray;
   }
 </style>
