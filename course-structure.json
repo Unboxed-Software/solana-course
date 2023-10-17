@@ -1,267 +1,279 @@
-[
-    {
-        "title": "Introduction",
-        "number": 0,
-        "lessons": [
-            {
-                "title": "Get started",
-                "slug": "getting-started",
-                "number": 1
-            }
-        ]
-    },
-    {
-        "title": "Introduction to cryptography and Solana clients",
-        "number": 1,
-        "lessons": [
-            {
-                "title": "Cryptography fundamentals",
-                "slug": "intro-to-cryptography",
-                "number": 1
-            },
-            {
-                "title": "Read data from the network",
-                "slug": "intro-to-reading-data",
-                "number": 2
-            },
-            {
-                "title": "Write data to the network",
-                "slug": "intro-to-writing-data",
-                "number": 3
-            },
-            {
-                "title": "Interact with wallets",
-                "slug": "interact-with-wallets",
-                "number": 4
-            },
-            {
-                "title": "Serialize program data",
-                "slug": "serialize-instruction-data",
-                "number": 5
-            },
-            {
-                "title": "Deserialize program data",
-                "slug": "deserialize-custom-data",
-                "number": 6
-            },
-            {
-                "title": "Page, Order, and Filter program data",
-                "slug": "paging-ordering-filtering-data",
-                "number": 7
-            }
-        ]
-    },
-    {
-        "title": "Client Interaction with Common Solana Programs",
-        "number": 2,
-        "lessons": [
-            {
-                "title": "Create tokens with the Token Program",
-                "slug": "token-program",
-                "number": 1
-            },
-            {
-                "title": "Swap tokens with the Token Swap Program",
-                "slug": "token-swap",
-                "number": 2
-            },
-            {
-                "title": "Create Solana NFTs With Metaplex",
-                "slug": "nfts-with-metaplex",
-                "number": 3
-            }
-        ]
-    },
-    {
-        "title": "Basic Solana Program Development",
-        "number": 3,
-        "lessons": [
-            {
-                "title": "Hello World",
-                "slug": "hello-world-program",
-                "number": 1
-            },
-            {
-                "title": "Handle Instruction Data",
-                "slug": "deserialize-instruction-data",
-                "number": 2
-            },
-            {
-                "title": "State Management",
-                "slug": "program-state-management",
-                "number": 3
-            },
-            {
-                "title": "Basic Security and Validation",
-                "slug": "program-security",
-                "number": 4
-            }
-        ]
-    },
-    {
-        "title": "Intermediate Solana Program Development",
-        "number": 4,
-        "lessons": [
-            {
-                "title": "Local Program Development",
-                "slug": "local-setup",
-                "number": 1
-            },
-            {
-                "title": "Program Derived Addresses",
-                "slug": "pda",
-                "number": 2
-            },
-            {
-                "title": "Cross Program Invocations",
-                "slug": "cpi",
-                "number": 3
-            },
-            {
-                "title": "Program Testing - COMING SOON",
-                "slug": "",
-                "hidden": true,
-                "number": 4
-            }
-        ]
-    },
-    {
-        "title": "Anchor Program Development",
-        "number": 5,
-        "lessons": [
-            {
-                "title": "Intro to Anchor development",
-                "slug": "intro-to-anchor",
-                "number": 1
-            },
-            {
-                "title": "Intro to client-side Anchor development",
-                "slug": "intro-to-anchor-frontend",
-                "number": 2
-            },
-            {
-                "title": "Anchor PDAs and accounts",
-                "slug": "anchor-pdas",
-                "number": 3
-            },
-            {
-                "title": "Anchor CPIs and errors",
-                "slug": "anchor-cpi",
-                "number": 4
-            }
-        ]
-    },
-    {
-        "title": "Beyond the Basics",
-        "number": 6,
-        "lessons": [
-            {
-                "title": "Environment variables in Solana programs",
-                "slug": "env-variables",
-                "number": 1
-            },
-            {
-                "title": "Solana Pay",
-                "slug": "solana-pay",
-                "number": 2
-            },
-            {
-                "title": "Versioned transactions and lookup tables",
-                "slug": "versioned-transaction",
-                "number": 3
-            },
-            {
-                "title": "Rust procedural macros",
-                "slug": "rust-macros",
-                "number": 4
-            }
-        ]
-    },
-    {
-        "title": "Solana Program Security",
-        "number": 7,
-        "lessons": [
-            {
-                "title": "How to approach the Program Security module",
-                "slug": "security-intro",
-                "number": 1
-            },
-            {
-                "title": "Signer authorization",
-                "slug": "signer-auth",
-                "number": 2
-            },
-            {
-                "title": "Owner checks",
-                "slug": "owner-checks",
-                "number": 3
-            },
-            {
-                "title": "Account data matching",
-                "slug": "account-data-matching",
-                "number": 4
-            },
-            {
-                "title": "Reinitialization attacks",
-                "slug": "reinitialization-attacks",
-                "number": 5
-            },
-            {
-                "title": "Duplicate mutable accounts",
-                "slug": "duplicate-mutable-accounts",
-                "number": 6
-            },
-            {
-                "title": "Type cosplay",
-                "slug": "type-cosplay",
-                "number": 7
-            },
-            {
-                "title": "Arbitrary CPIs",
-                "slug": "arbitrary-cpi",
-                "number": 8
-            },
-            {
-                "title": "Bump seed canonicalization",
-                "slug": "bump-seed-canonicalization",
-                "number": 9
-            },
-            {
-                "title": "Closing accounts and revival attacks",
-                "slug": "closing-accounts",
-                "number": 10
-            },
-            {
-                "title": "PDA sharing",
-                "slug": "pda-sharing",
-                "number": 11
-            }
-        ]
-    },
-    {
-        "title": "Advanced Solana Programming",
-        "number": 8,
-        "lessons": [
-            {
-                "title": "Program architecture",
-                "slug": "program-architecture",
-                "number": 1
-            },
-            {
-                "title": "Oracles and oracle networks",
-                "slug": "oracles",
-                "number": 2
-            },
-            {
-                "title": "Verifiable randomness functions",
-                "slug": "vrf",
-                "number": 3
-            },
-            {
-                "title": "Compressed NFTs",
-                "slug": "compressed-nfts",
-                "number": 4
-            }
-        ]
-    }
-]
+{
+    "tracks": [
+        {
+            "title": "Introduction",
+            "units": [
+                {
+                    "title": "Introduction",
+                    "lessons": [
+                        {
+                            "title": "Get started",
+                            "slug": "getting-started"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "dApp development",
+            "units": [
+                {
+                    "title": "Introduction to cryptography and Solana clients",
+
+                    "lessons": [
+                        {
+                            "title": "Cryptography fundamentals",
+                            "slug": "intro-to-cryptography",
+                            "lab": "Create and load keypairs"
+                        },
+                        {
+                            "title": "Read data from the network",
+                            "slug": "intro-to-reading-data",
+                            "lab": "Connect to Solana and check account balances"
+                        },
+                        {
+                            "title": "Write data to the network",
+                            "slug": "intro-to-writing-data",
+                            "lab": "Make transactions and use Explorer"
+                        },
+                        {
+                            "title": "Interact with wallets",
+                            "slug": "interact-with-wallets",
+                            "lab": "Make a React frontend to the Ping program"
+                        },
+                        {
+                            "title": "Serialize program data",
+                            "slug": "serialize-instruction-data",
+                            "lab": "Build a React frontend to submit movie reviews"
+                        },
+                        {
+                            "title": "Deserialize program data",
+                            "slug": "deserialize-custom-data",
+                            "lab": "Build a React frontend to show movie reviews"
+                        },
+                        {
+                            "title": "Page, Order, and Filter program data",
+                            "slug": "paging-ordering-filtering-data",
+                            "lab": "Adding paging, ordering and searching to the movie reviews frontend"
+                        }
+                    ]
+                },
+                {
+                    "title": "Client Interaction with Common Solana Programs",
+
+                    "lessons": [
+                        {
+                            "title": "Create tokens with the Token Program",
+                            "slug": "token-program",
+                            "lab": "Mint, transfer and burn tokens"
+                        },
+                        {
+                            "title": "Swap tokens with the Token Swap Program",
+                            "slug": "token-swap",
+                            "lab": "Creating instructions to add, withdraw and swap tokens"
+                        },
+                        {
+                            "title": "Create Solana NFTs With Metaplex",
+                            "slug": "nfts-with-metaplex",
+                            "lab": "Mint NFTs, update their metadata, and associate with a collection"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "On-chain program development",
+            "units": [
+                {
+                    "title": "Basic Solana Program Development",
+
+                    "lessons": [
+                        {
+                            "title": "Hello World",
+                            "slug": "hello-world-program",
+                            "lab": "Create and deploy a 'hello world' on-chain program"
+                        },
+                        {
+                            "title": "Handle Instruction Data",
+                            "slug": "deserialize-instruction-data",
+                            "lab": "Make an on-chain program that recieves movie reviews and deserialises them"
+                        },
+                        {
+                            "title": "State Management",
+                            "slug": "program-state-management",
+                            "lab": "Make an on-chain program that stores movie reviews"
+                        },
+                        {
+                            "title": "Basic Security and Validation",
+                            "slug": "program-security",
+                            "lab": "Add security checks and updates to the movie reviews program"
+                        }
+                    ]
+                },
+                {
+                    "title": "Intermediate Solana Program Development",
+
+                    "lessons": [
+                        {
+                            "title": "Local Program Development",
+                            "slug": "local-setup",
+                            "lab": "Configure Windows, Mac and Linux for localhost Solana development"
+                        },
+                        {
+                            "title": "Program Derived Addresses",
+                            "slug": "pda",
+                            "lab": "Use PDAs to store comments for the movie reviews program"
+                        },
+                        {
+                            "title": "Cross Program Invocations",
+                            "slug": "cpi",
+                            "lab": "Use CPIs to mint token rewards for reviews and comments"
+                        },
+                        {
+                            "title": "Program Testing",
+                            "slug": "",
+                            "hidden": true
+                        }
+                    ]
+                },
+                {
+                    "title": "Anchor Program Development",
+
+                    "lessons": [
+                        {
+                            "title": "Intro to Anchor development",
+                            "slug": "intro-to-anchor",
+                            "lab": "Create and deploy a ping-counter on-chain app using Anchor"
+                        },
+                        {
+                            "title": "Intro to client-side Anchor development",
+                            "slug": "intro-to-anchor-frontend",
+                            "lab": "Create a React and Anchor frontend for the ping-counter app"
+                        },
+                        {
+                            "title": "Anchor PDAs and accounts",
+                            "slug": "anchor-pdas",
+                            "lab": "Use Anchor to create a Movie Review program"
+                        },
+                        {
+                            "title": "Anchor CPIs and errors",
+                            "slug": "anchor-cpi",
+                            "lab": "Mint token rewards for reviews"
+                        }
+                    ]
+                },
+                {
+                    "title": "Beyond the Basics",
+                    "lessons": [
+                        {
+                            "title": "Environment variables in Solana programs",
+                            "slug": "env-variables",
+                            "lab": "Create feature flags to help test locally"
+                        },
+                        {
+                            "title": "Solana Pay",
+                            "slug": "solana-pay",
+                            "lab": "Use QR codes to create payment requests"
+                        },
+                        {
+                            "title": "Versioned transactions and lookup tables",
+                            "slug": "versioned-transaction",
+                            "lab": "Using a lookup table to handle many accounts in a single transaction"
+                        },
+                        {
+                            "title": "Rust procedural macros",
+                            "slug": "rust-macros",
+                            "lab": "Use Rust macros to generate program code"
+                        }
+                    ]
+                },
+                {
+                    "title": "Solana Program Security",
+
+                    "lessons": [
+                        {
+                            "title": "How to approach the Program Security unit",
+                            "slug": "security-intro"
+                        },
+                        {
+                            "title": "Signer authorization",
+                            "slug": "signer-auth",
+                            "lab": "Check signers are correct before processing transactions"
+                        },
+                        {
+                            "title": "Owner checks",
+                            "slug": "owner-checks",
+                            "lab": "Check owners are correct before processing transactions"
+                        },
+                        {
+                            "title": "Account data matching",
+                            "slug": "account-data-matching",
+                            "lab": "Check account data is correct before processing transactions"
+                        },
+                        {
+                            "title": "Reinitialization attacks",
+                            "slug": "reinitialization-attacks",
+                            "lab": "Ensure accounts can only be initialised once to prevent overriding existing data"
+                        },
+                        {
+                            "title": "Duplicate mutable accounts",
+                            "slug": "duplicate-mutable-accounts",
+                            "lab": "Ensure accounts are distinct"
+                        },
+                        {
+                            "title": "Type cosplay",
+                            "slug": "type-cosplay",
+                            "lab": "Implement checks for correct account types"
+                        },
+                        {
+                            "title": "Arbitrary CPIs",
+                            "slug": "arbitrary-cpi",
+                            "lab": "Ensure CPIs are only called by the correct program"
+                        },
+                        {
+                            "title": "Bump seed canonicalization",
+                            "slug": "bump-seed-canonicalization",
+                            "lab": "Ensure bump seeds are always canonical"
+                        },
+                        {
+                            "title": "Closing accounts and revival attacks",
+                            "slug": "closing-accounts",
+                            "lab": "Ensure accounts that are closed can't be reused"
+                        },
+                        {
+                            "title": "PDA sharing",
+                            "slug": "pda-sharing",
+                            "lab": "Ensure PDA design avoids shared accounts"
+                        }
+                    ]
+                },
+                {
+                    "title": "Advanced Solana Programming",
+
+                    "lessons": [
+                        {
+                            "title": "Program architecture",
+                            "slug": "program-architecture",
+                            "lab": "Create an optimized on-chain RPG game"
+                        },
+                        {
+                            "title": "Oracles and oracle networks",
+                            "slug": "oracles",
+                            "lab": "Use Switchboard to create an Escrow program"
+                        },
+                        {
+                            "title": "Verifiable randomness functions",
+                            "slug": "vrf",
+                            "lab": "Add randomness to the Escrow program"
+                        },
+                        {
+                            "title": "Compressed NFTs",
+                            "slug": "compressed-nfts",
+                            "lab": "Mint, read and transfer NFTs at scale with Bubblegum"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

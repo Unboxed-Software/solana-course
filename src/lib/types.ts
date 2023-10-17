@@ -1,15 +1,22 @@
+export type CourseStructure = {
+  tracks: Array<Track>;
+};
+
+export type Track = {
+  title: string;
+  units: Array<Unit>;
+};
+
 export type Lesson = {
   title: string;
   slug: string;
-  number: number;
+  lab?: string;
   hidden?: boolean;
 };
 
-// TODO: we can remove the 'number' key from course-structure.json
-// as it duplicates the index, once we move the site to solana.com
-export type Module = {
+// Formerly 'Module'
+export type Unit = {
   title: string;
-  number: number;
   lessons: Array<Lesson>;
 };
 

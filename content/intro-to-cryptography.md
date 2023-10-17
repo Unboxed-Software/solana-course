@@ -34,7 +34,7 @@ There's a variety of symmetric cryptography algorithms, but the most common you'
 - There's a variety of symmetric cryptography algorithms, but the most common you'll see today are variants of ECC or RSA.
 
 Asymmetric encryption is very popular: 
- - You bank card has a secret key inside it, that's used to sign transactions.
+ - Your bank card has a secret key inside it, that's used to sign transactions.
 
    Your bank can confirm you made the transaction by checking them with the matching public key.
  - Websites include a public key in their certificate, your browser will use this public key to encrypt the data (like personal information, login details, and credit card numbers) it sends to the web page. 
@@ -104,7 +104,7 @@ const keypair = getKeypairFromEnvironment("SECRET_KEY");
 
 You know how to make and load keypairs! Let’s practice what we’ve learned.
 
-# Demo
+# Lab
 
 ### Installation
 

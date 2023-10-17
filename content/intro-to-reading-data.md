@@ -99,7 +99,7 @@ The balance of the account at CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN is 0.
 
 ...and just like that, we are reading data from the Solana blockchain! 
 
-# Demo
+# Lab
 
 Let’s practice what we’ve learned, and create a simple website that lets users check the balance at a particular address.
 

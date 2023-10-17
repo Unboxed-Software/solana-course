@@ -14,7 +14,9 @@ Once a plan has been discussed and agreed to, you can start working on content.
 
 When you're done, create a PR to the `draft` branch.
 
-Create new modules in the same format as the existing modules - see [Getting Started](./content/getting-started.md)
+Create new modules in the same format as the existing modules - see [Getting Started](./content/getting-started.md).
+
+This structure leans into a pedagogical technique call IWY loops. IWY stands for "I do, We do, You do." Each step along the way increases the audiences exposure to the topic _and_ reduces the amount of handholding you're given.
 ### Editing Existing Content
 
 If you want to fix a typo or otherwise improve on existing content, follow a similar process as with adding content:
@@ -67,18 +69,27 @@ Content is controlled by the config file `course-structure.json`. All content is
 
 Use the terms at https://docs.solana.com/terminology
 
+A **Track** is a provable skill. Right now the tracks are simply front end Solana development and on-chain Solana development.
+
+A **Unit** is a group of lessons. 
+
+Each **Lesson** is a block of added understanding, starting from scratch and building on the previous lesson to take students to mastery of a topic. 
+
 Lessons should follow the format:
 
  - **Overview** section is a conceptual overview. The equivalent would be when a teacher in a classroom says "don't do this yet, just watch.". The overview is intentionally not meant to be something readers code along with.
 
- - **Demo** section is then meant to be when students code along and should follow a step-by-step process.
+ - **Lab** section is when students code along and should follow a step-by-step process.
 
 ## Static Assets
 
 Static assets are in `assets`. This is set in `svelte.config.js` to match the older soldev-ui directory. 
 
-![Some alt text](../assets/somefile.svg)
+To include an image:
 
+```
+![Some alt text](../assets/somefile.svg)
+```
 
 ## Components
 

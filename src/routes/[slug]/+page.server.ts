@@ -1,13 +1,14 @@
-import modules from "../../../course-structure.json";
+import courseStuctureUntyped from "../../../course-structure.json";
+import type { CourseStructure } from "../../lib/types";
 import type { Lesson, NodeError } from "$lib/types";
 import { error as makeSvelteError } from "@sveltejs/kit";
 import type { PageData } from "$lib/types";
 import greyMatter from "gray-matter";
-// I assure you, node still has an fs module.
-// @ts-ignore
 import { readFile } from "node:fs/promises";
 
 import { marked } from "marked";
+
+const courseStucture: CourseStructure = courseStuctureUntyped;
 
 const cleanContent = (content: string) => {
   // There's a bunch of metadata in the content that should really be elsewhere.
@@ -24,7 +25,9 @@ const cleanContent = (content: string) => {
 
 // See https://kit.svelte.dev/docs/load
 export async function load({ params }): Promise<PageData> {
-  const allLessons = modules.flatMap((module) => module.lessons);
+  const allLessons = courseStucture.tracks.flatMap((track) =>
+    track.units.flatMap((module) => module.lessons),
+  );
 
   const lessons = allLessons.filter((lesson) => !lesson.hidden);
 

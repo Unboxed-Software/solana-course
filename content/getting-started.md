@@ -7,7 +7,6 @@ objectives:
 - know how to get the most from this course
 ---
 
-
 ## Welcome!
 
 Welcome to the best starting point for developers looking to learn web3 and blockchain!
@@ -57,7 +56,7 @@ In this course you'll:
  - Create web apps that allow people to log on using web3 wallets
  - Transfer tokens (like USDC, a token that represents US dollars) between people
  - Learn to integrate tools like Solana pay into your existing apps 
- - Build a film review application, that runs in real time on the Solana blockchain. You'll build both a web front end, and the backend program and database for the app
+ - Build a film review application, that runs in real time on the Solana blockchain. You'll build both a web front end, and the backend (on-chain) program and database for the app.
  - Mint large-scale NFT collections
 
 And much more. We're keeping this course updated so as new tech joins the Solana ecosystem you'll find a course right here.
@@ -75,6 +74,11 @@ You **don't** need previous blockchain experience to follow this course!
 
 ## How is this course structured?
 
+There are three tracks:
+ - **dApp development** - building web and mobile apps that interact with popular on-chain Solana programs. These cover things like token transfers, minting, and creating clients for arbitrary programs. if you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with,   
+ - **On-chain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana on-chain, or use the blockchain to store arbitrary data, this track is for you. 
+ - **Network infrastructure** - covers running Solana itself, as an RPC or validator.
+
 Modules cover a particular topic. These are broken down into individual lessons.
 
 Each lesson starts by listing the lesson objectives - ie, what you'll be learning in the lesson.
@@ -85,11 +89,9 @@ Then each lesson has three sections:
 
 - **Overview** - the overview contains explanatory text, examples, and code snippets. You are _not_ expected to code along with any of the examples shown here. The goal is to simply read through and get initial exposure to the lesson topics.
 
-- **Demo** - the demo is a tutorial-style project. You _absolutely should_ code along with this section. This is your second exposure to the content as well as your first opportunity to dive in and _do the thing_.
+- **Lab** - a practical project you _absolutely should_ code along with. This is your second exposure to the content as well as your first opportunity to dive in and _do the thing_.
 
-- **Challenge** - the challenge contains a similar project to the demo only instead of walking you through it, the lesson leaves just a few simple prompts that you should then take and implement independently.
-
-This structure leans into a pedagogical technique call IWY loops. IWY stands for "I do, We do, You do." Each step along the way increases your exposure to the topic _and_ reduces the amount of handholding you're given.
+- **Challenge** - another projectm, with just a few simple prompts that you should take and implement independently.
 
 ## How do I use the course effectively?
 
@@ -97,8 +99,8 @@ The lessons here are very effective, but everyone comes from different backgroun
 
 1. **Be brutally honest with yourself** - this may sound a little vague, but being honest with yourself about how well you understand a certain topic is essential to mastering it. It's really easy to read a thing and think "yeah, yeah I get it," only to realize later that you actually didn't. Be honest with yourself while going through each lesson. Please don't hesitate to repeat sections if you need to or do outside research when the lesson phrasing doesn't quite work for you.
 
-2. **Do every demo and challenge** - this supports the first point. It's pretty tough to lie to yourself about how well you know something when you make yourself try to do it. Do every demo and every challenge to test where you're at and repeat them as needed. We provide solution code for everything, but be sure to use it as a helpful resource rather than a crutch.
+2. **Do every lab and challenge** - this supports the first point. It's pretty tough to lie to yourself about how well you know something when you make yourself try to do it. Do every lab and every challenge to test where you're at and repeat them as needed. We provide solution code for everything, but be sure to use it as a helpful resource rather than a crutch.
 
-3. **Go above and beyond** - sounds cliche, I know, but don't just stop at what the demo and challenges ask you to do. Get creative! Take the projects and make them your own. Build past them. The more you practice the better you get.
+3. **Go above and beyond** - this sounds cliche, but don't just stop at what the lab and challenges ask you to do. Get creative! Take the projects and make them your own. Build past them. The more you practice the better you get.
 
-Alright, that's it for my pep talk. Get after it!
+Alright, that's it for the pep talk. Get after it!

@@ -169,7 +169,7 @@ web3.sendAndConfirmTransaction(connection, transaction, [player]).then((txid) =>
 })
 ```
 
-# Demo
+# Lab
 
 Let’s practice this together by building a Movie Review app that lets users submit a movie review and have it stored on Solana’s network. We’ll build this app a little bit at a time over the next few lessons, adding new functionality each lesson.
 
