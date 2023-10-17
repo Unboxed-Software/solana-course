@@ -20,7 +20,7 @@ objectives:
 
 Solana maintains speed, efficiency, and extensibility in part by making programs stateless. Rather than having state stored on the program itself, programs use Solana's account model to read state from and write state to separate PDA accounts.
 
-While this is an extremely flexible model, it's also a paradigm that can be difficult to work in if its unfamiliar. But don't worry! We'll start simple in this lesson and work up to more complex programs in the next module.
+While this is an extremely flexible model, it's also a paradigm that can be difficult to work in if its unfamiliar. But don't worry! We'll start simple in this lesson and work up to more complex programs in the next unit.
 
 In this lesson we'll learn the basics of state management for a Solana program, including representing state as a Rust type, creating accounts using Program Derived Addresses, and serializing account data.
 

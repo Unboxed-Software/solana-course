@@ -1,20 +1,20 @@
 <script lang="ts">
   import linkImage from "$lib/assets/link.svg";
-  import type { Module } from "../types";
+  import type { Unit } from "../types";
 
-  export let moduleIndex: number;
-  export let module: Module;
+  export let unitIndex: number;
+  export let unit: Unit;
 </script>
 
-<div class="module">
-  <div class="module-title">
-    <!-- Modules are 1-indexed -->
-    <div class="module-index">Module {moduleIndex + 1}</div>
-    <div class="module-name">{module.title}</div>
+<div class="unit">
+  <div class="unit-title">
+    <!-- Units are 1-indexed -->
+    <div class="unit-index">Unit {unitIndex + 1}</div>
+    <div class="unit-name">{unit.title}</div>
   </div>
 
   <div class="lessons">
-    {#each module.lessons as lesson, lessonIndex}
+    {#each unit.lessons as lesson, lessonIndex}
       <div class="lesson {lesson.hidden ? 'hidden' : ''}">
         <!-- Lessons are 1-indexed -->
         <button class="lesson-complete-button">{lessonIndex + 1}</button>
@@ -33,22 +33,23 @@
 </div>
 
 <style>
-  .module {
+  .unit {
     width: 100%;
   }
-  .module-title {
+
+  .unit-title {
     grid-auto-flow: column;
     justify-content: start;
     gap: 24px;
     padding: 24px 0;
   }
 
-  .module-index {
+  .unit-index {
     text-transform: uppercase;
     align-content: center;
   }
 
-  .module-name {
+  .unit-name {
     font-weight: 600;
     font-size: 24px;
   }

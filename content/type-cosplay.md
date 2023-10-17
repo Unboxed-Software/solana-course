@@ -433,7 +433,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that account types have a discriminator and that those are checked for each account and instruction. Since standard Anchor types handle this check automatically, you're more likely to find a vulnerability in a native program.
 

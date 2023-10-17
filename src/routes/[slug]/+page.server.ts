@@ -26,7 +26,7 @@ const cleanContent = (content: string) => {
 // See https://kit.svelte.dev/docs/load
 export async function load({ params }): Promise<PageData> {
   const allLessons = courseStucture.tracks.flatMap((track) =>
-    track.modules.flatMap((module) => module.lessons),
+    track.units.flatMap((module) => module.lessons),
   );
 
   const lessons = allLessons.filter((lesson) => !lesson.hidden);

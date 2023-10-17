@@ -4,7 +4,7 @@ export type CourseStructure = {
 
 export type Track = {
   title: string;
-  modules: Array<Module>;
+  units: Array<Unit>;
 };
 
 export type Lesson = {
@@ -14,7 +14,8 @@ export type Lesson = {
   hidden?: boolean;
 };
 
-export type Module = {
+// Formerly 'Module'
+export type Unit = {
   title: string;
   lessons: Array<Lesson>;
 };

@@ -2,7 +2,7 @@
     "tracks": [
         {
             "title": "Introduction",
-            "modules": [
+            "units": [
                 {
                     "title": "Introduction",
                     "lessons": [
@@ -16,7 +16,7 @@
         },
         {
             "title": "dApp development",
-            "modules": [
+            "units": [
                 {
                     "title": "Introduction to cryptography and Solana clients",
 
@@ -83,7 +83,7 @@
         },
         {
             "title": "On-chain program development",
-            "modules": [
+            "units": [
                 {
                     "title": "Basic Solana Program Development",
 
@@ -192,7 +192,7 @@
 
                     "lessons": [
                         {
-                            "title": "How to approach the Program Security module",
+                            "title": "How to approach the Program Security unit",
                             "slug": "security-intro"
                         },
                         {

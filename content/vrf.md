@@ -106,7 +106,7 @@ pub struct VrfAccountData {
 }
 ```
 
-Some important fields on this account are `authority`, `oracle_queue`, and `callback`. The `authority` should be a PDA of the program that has the ability to request randomness on this `vrf` account. That way, only that program can provide the signature needed for the vrf request. The `oracle_queue` field allows you to specify which specific oracle queue you’d like to service the vrf requests made with this account. If you aren’t familiar with oracle queues on Switchboard, checkout the [Oracles lesson in this module](./oracles.md)! Lastly, the `callback` field is where you define the callback instruction the Switchboard program should invoke once the randomness result has be verified.
+Some important fields on this account are `authority`, `oracle_queue`, and `callback`. The `authority` should be a PDA of the program that has the ability to request randomness on this `vrf` account. That way, only that program can provide the signature needed for the vrf request. The `oracle_queue` field allows you to specify which specific oracle queue you’d like to service the vrf requests made with this account. If you aren’t familiar with oracle queues on Switchboard, checkout the [Oracles lesson in this unit](./oracles.md)! Lastly, the `callback` field is where you define the callback instruction the Switchboard program should invoke once the randomness result has be verified.
 
 The `callback` field is of type `[CallbackZC](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/rust/switchboard-solana/src/oracle_program/accounts/ecvrf.rs#L25)`.
 

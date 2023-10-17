@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Module from "$lib/components/module.svelte";
+  import Unit from "$lib/components/unit.svelte";
   import Header from "$lib/components/header.svelte";
   import type { CourseStructure } from "$lib/types";
 
@@ -19,18 +19,18 @@
     ]}
   />
 
-  <div class="modules">
+  <div class="units">
     {#each data.courseStucture.tracks as track, trackIndex}
       <h2>{track.title}</h2>
-      {#each track.modules as module, moduleIndex}
-        <Module {module} {moduleIndex} />
+      {#each track.units as unit, unitIndex}
+        <Unit {unit} {unitIndex} />
       {/each}
     {/each}
   </div>
 </article>
 
 <style>
-  .modules {
+  .units {
     padding: 24px 0;
     max-width: var(--single-column);
   }

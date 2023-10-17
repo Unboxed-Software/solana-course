@@ -71,7 +71,7 @@ Use the terms at https://docs.solana.com/terminology
 
 A **Track** is a provable skill. Right now the tracks are simply front end Solana development and on-chain Solana development.
 
-A **Module** is a group of lessons. 
+A **Unit** is a group of lessons. 
 
 Each **Lesson** is a block of added understanding, starting from scratch and building on the previous lesson to take students to mastery of a topic. 
 
