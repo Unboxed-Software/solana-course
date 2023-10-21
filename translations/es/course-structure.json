@@ -1,0 +1,267 @@
+[
+  {
+      "title": "Introducción",
+      "number": 0,
+      "lessons": [
+          {
+              "title": "Empezando",
+              "slug": "getting-started",
+              "number": 1
+          }
+      ]
+  },
+  {
+      "title": "Introducción a la criptografía y Solana",
+      "number": 1,
+      "lessons": [
+          {
+              "title": "Fundamentos de criptografía",
+              "slug": "intro-to-cryptography",
+              "number": 1
+          },
+          {
+              "title": "Leer los datos de la red Solana",
+              "slug": "intro-to-reading-data",
+              "number": 2
+          },
+          {
+              "title": "Escribir datos en la red Solana",
+              "slug": "intro-to-writing-data",
+              "number": 3
+          },
+          {
+              "title": "Interactuar con Wallets",
+              "slug": "interact-with-wallets",
+              "number": 4
+          },
+          {
+              "title": "Serializar datos de programas",
+              "slug": "serialize-instruction-data",
+              "number": 5
+          },
+          {
+              "title": "Deserializar datos de programas",
+              "slug": "deserialize-custom-data",
+              "number": 6
+          },
+          {
+              "title": "Paginar, ordernar y filtrar datos de programas",
+              "slug": "paging-ordering-filtering-data",
+              "number": 7
+          }
+      ]
+  },
+  {
+      "title": "Interacción del cliente con programas comunes de Solana",
+      "number": 2,
+      "lessons": [
+          {
+              "title": "Crear tokens con el Programa de Tokens",
+              "slug": "token-program",
+              "number": 1
+          },
+          {
+              "title": "Intercambia tokens con el Programa de Intercambio de Tokens",
+              "slug": "token-swap",
+              "number": 2
+          },
+          {
+              "title": "Cree NFTs de Solana con Metaplex",
+              "slug": "nfts-with-metaplex",
+              "number": 3
+          }
+      ]
+  },
+  {
+      "title": "Desarrollo básico de programas en Solana",
+      "number": 3,
+      "lessons": [
+          {
+              "title": "Hola Mundo",
+              "slug": "hello-world-program",
+              "number": 1
+          },
+          {
+              "title": "Crear un programa básico, Parte 1 - Manejar datos de instrucciones",
+              "slug": "deserialize-instruction-data",
+              "number": 2
+          },
+          {
+              "title": "Crear un programa básico, Parte 2 - Gestión de estado",
+              "slug": "program-state-management",
+              "number": 3
+          },
+          {
+              "title": "Crear un programa básico, Parte 3 - Seguridad básica y validación",
+              "slug": "program-security",
+              "number": 4
+          }
+      ]
+  },
+  {
+      "title": "Desarrollo intermedio de programas en Solana",
+      "number": 4,
+      "lessons": [
+          {
+              "title": "Desarrollo de programas locales",
+              "slug": "local-setup",
+              "number": 1
+          },
+          {
+              "title": "PDAs",
+              "slug": "pda",
+              "number": 2
+          },
+          {
+              "title": "Invocaciones de programas externos",
+              "slug": "cpi",
+              "number": 3
+          },
+          {
+              "title": "Prueba de programas - PROXIMAMENTE",
+              "slug": "",
+              "hidden": true,
+              "number": 4
+          }
+      ]
+  },
+  {
+      "title": "Desarrollo de programas con Anchor",
+      "number": 5,
+      "lessons": [
+          {
+              "title": "Introducción al desarrollo con Anchor",
+              "slug": "intro-to-anchor",
+              "number": 1
+          },
+          {
+              "title": "Introducción al desarrollo con Anchor del lado del cliente",
+              "slug": "intro-to-anchor-frontend",
+              "number": 2
+          },
+          {
+              "title": "Anchor PDAs y cuentas",
+              "slug": "anchor-pdas",
+              "number": 3
+          },
+          {
+              "title": "Anchor CPIs y errores",
+              "slug": "anchor-cpi",
+              "number": 4
+          }
+      ]
+  },
+  {
+      "title": "Mas allá de lo básico",
+      "number": 6,
+      "lessons": [
+          {
+              "title": "Variables de entorno en programas Solana",
+              "slug": "env-variables",
+              "number": 1
+          },
+          {
+              "title": "Solana Pay",
+              "slug": "solana-pay",
+              "number": 2
+          },
+          {
+              "title": "Transacciones versionadas y tablas de búsqueda",
+              "slug": "versioned-transaction",
+              "number": 3
+          },
+          {
+              "title": "Macros de procedimiento de Rust",
+              "slug": "rust-macros",
+              "number": 4
+          }
+      ]
+  },
+  {
+      "title": "Seguridad de programas en Solana",
+      "number": 7,
+      "lessons": [
+          {
+              "title": "Seguridad de programas en Solana",
+              "slug": "security-intro",
+              "number": 1
+          },
+          {
+              "title": "Autorización del firmante",
+              "slug": "signer-auth",
+              "number": 2
+          },
+          {
+              "title": "Comprobaciones del proprietario",
+              "slug": "owner-checks",
+              "number": 3
+          },
+          {
+              "title": "Correspondencia de datos de cuentas",
+              "slug": "account-data-matching",
+              "number": 4
+          },
+          {
+              "title": "Ataques de reinicialización",
+              "slug": "reinitialization-attacks",
+              "number": 5
+          },
+          {
+              "title": "Duplicado de cuentas mutables",
+              "slug": "duplicate-mutable-accounts",
+              "number": 6
+          },
+          {
+              "title": "Type cosplay",
+              "slug": "type-cosplay",
+              "number": 7
+          },
+          {
+              "title": "CPIs arbitrarios",
+              "slug": "arbitrary-cpi",
+              "number": 8
+          },
+          {
+              "title": "Canonicalización de bump seed",
+              "slug": "bump-seed-canonicalization",
+              "number": 9
+          },
+          {
+              "title": "Cerrar cuentas y ataques de reactivación",
+              "slug": "closing-accounts",
+              "number": 10
+          },
+          {
+              "title": "Compartir PDA",
+              "slug": "pda-sharing",
+              "number": 11
+          }
+      ]
+  },
+  {
+      "title": "Programación en Solana avanzada",
+      "number": 8,
+      "lessons": [
+          {
+              "title": "Arquitectura del programa",
+              "slug": "program-architecture",
+              "number": 1
+          },
+          {
+              "title": "Oráculos y redes de oráculos",
+              "slug": "oracles",
+              "number": 2
+          },
+          {
+              "title": "Funciones de aleatoriedad verificables",
+              "slug": "vrf",
+              "number": 3
+          },
+          {
+              "title": "NFTs comprimidos",
+              "slug": "compressed-nfts",
+              "number": 4
+          }
+      ]
+  }
+]
