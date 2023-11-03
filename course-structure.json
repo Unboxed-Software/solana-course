@@ -2,13 +2,15 @@
     "tracks": [
         {
             "title": "Introduction",
+            "slug": "introduction",
             "units": [
                 {
                     "title": "Introduction",
+                    "slug": "introduction",
                     "lessons": [
                         {
                             "title": "Get started",
-                            "slug": "getting-started"
+                            "slug": "get-started"
                         }
                     ]
                 }
@@ -16,10 +18,11 @@
         },
         {
             "title": "dApp development",
+            "slug": "dapp-development",
             "units": [
                 {
                     "title": "Introduction to cryptography and Solana clients",
-
+                    "slug": "introduction-to-cryptography",
                     "lessons": [
                         {
                             "title": "Cryptography fundamentals",
@@ -60,7 +63,7 @@
                 },
                 {
                     "title": "Client Interaction with Common Solana Programs",
-
+                    "slug": "client-interaction-with-solana",
                     "lessons": [
                         {
                             "title": "Create tokens with the Token Program",
@@ -83,10 +86,11 @@
         },
         {
             "title": "On-chain program development",
+            "slug": "on-chain-program-development",
             "units": [
                 {
                     "title": "Basic Solana Program Development",
-
+                    "slug": "basic-solana-program-development",
                     "lessons": [
                         {
                             "title": "Hello World",
@@ -112,7 +116,7 @@
                 },
                 {
                     "title": "Intermediate Solana Program Development",
-
+                    "slug": "intermediate-solana-program-development",
                     "lessons": [
                         {
                             "title": "Local Program Development",
@@ -131,14 +135,14 @@
                         },
                         {
                             "title": "Program Testing",
-                            "slug": "",
+                            "slug": "program-testing",
                             "hidden": true
                         }
                     ]
                 },
                 {
                     "title": "Anchor Program Development",
-
+                    "slug": "anchor-program-development",
                     "lessons": [
                         {
                             "title": "Intro to Anchor development",
@@ -164,6 +168,7 @@
                 },
                 {
                     "title": "Beyond the Basics",
+                    "slug": "beyond-the-basics",
                     "lessons": [
                         {
                             "title": "Environment variables in Solana programs",
@@ -189,7 +194,7 @@
                 },
                 {
                     "title": "Solana Program Security",
-
+                    "slug": "solana-program-security",
                     "lessons": [
                         {
                             "title": "How to approach the Program Security unit",
@@ -249,7 +254,7 @@
                 },
                 {
                     "title": "Advanced Solana Programming",
-
+                    "slug": "advanced-solana-programming",
                     "lessons": [
                         {
                             "title": "Program architecture",
