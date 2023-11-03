@@ -6,10 +6,11 @@
             "units": [
                 {
                     "title": "Introduction",
+                    "slug": "introduction",
                     "lessons": [
                         {
                             "title": "Get started",
-                            "slug": "getting-started"
+                            "slug": "get-started"
                         }
                     ]
                 }
@@ -134,7 +135,7 @@
                         },
                         {
                             "title": "Program Testing",
-                            "slug": "",
+                            "slug": "program-testing",
                             "hidden": true
                         }
                     ]
