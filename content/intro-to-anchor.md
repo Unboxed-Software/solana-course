@@ -328,10 +328,10 @@ Create a new project called `anchor-counter` by running `anchor init`:
 anchor init anchor-counter
 ```
 
-Next, run `anchor-build`
+Next, run `anchor build`
 
 ```console
-anchor-build
+anchor build
 ```
 
 Then, run `anchor keys list`
