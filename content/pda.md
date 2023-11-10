@@ -24,7 +24,7 @@ Program Derived Addresses (PDAs) are account addresses designed to be signed for
 
 PDAs serve two main functions:
 
-1. Provide a deterministic way to find the address of a program-owned account
+1. Provide a deterministic way to find a given item of data for a program
 2. Authorize the program from which a PDA was derived to sign on its behalf in the same way a user may sign with their secret key
 
 In this lesson we'll focus on using PDAs to find and store data. We'll discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
