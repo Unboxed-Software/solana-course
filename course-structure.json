@@ -35,9 +35,14 @@
                             "lab": "Connect to Solana and check account balances"
                         },
                         {
-                            "title": "Write data to the network",
+                            "title": "Create transactions on the Solana Network",
                             "slug": "intro-to-writing-data",
                             "lab": "Make transactions and use Explorer"
+                        },
+                        {
+                            "title": "Create transactions for custom on-chain programs",
+                            "slug": "intro-to-custom-on-chain-programs",
+                            "lab": "Make transactions for a custom onchain program"
                         },
                         {
                             "title": "Interact with wallets",
