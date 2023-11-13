@@ -161,7 +161,7 @@ We’re going to create a script to ping an on-chain program that increments a c
 We'll start by using the same packages and `.env` file we made earlier in [intro to cryptography](./intro-to-cryptography.md):
 
 ```typescript
-import { Keypair } from "@solana/web3.js";
+import * as web3 from "@solana/web3.js";
 import * as dotenv from "dotenv";
 import base58 from "bs58";
 import { getKeypairFromEnvironment } from "@solana-developers/node-helpers"
