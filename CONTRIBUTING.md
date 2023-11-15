@@ -69,7 +69,9 @@ Use the terms at https://docs.solana.com/terminology
 
 Static assets are in `assets`. This is set in `svelte.config.js` to match the older soldev-ui directory. 
 
+```markdown
 ![Some alt text](../assets/somefile.svg)
+```
 
 Use SVG where possible (they'll look better on different screens). You ca get an SVG export from Whimsical by appending `/svg` to the end of a Whimsical URL.
 ## Components
