@@ -231,11 +231,11 @@ const [movies, setMovies] = useState<Movie[]>([])
 const [page, setPage] = useState(1)
 
 useEffect(() => {
-	MovieCoordinator.fetchPage(
-		connection,
-		page,
-		10
-	).then(setMovies)
+  MovieCoordinator.fetchPage(
+    connection,
+    page,
+    10
+  ).then(setMovies)
 }, [page])
 ```
 
