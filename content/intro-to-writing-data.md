@@ -70,7 +70,7 @@ const secretKey = Uint8Array.from(secret)
 const keypairFromSecretKey = Keypair.fromSecretKey(secretKey)
 ```
 
-You can refer to all the methods and accessors of the Keypair class [here](https://solana-labs.github.io/solana-web3.js/classes/Keypair.html)
+See the Solana Docs for more information on [the methods and accessors of the Keypair class](https://solana-labs.github.io/solana-web3.js/classes/Keypair.html)
 
 ## Transactions
 
@@ -206,7 +206,7 @@ All transactions on the blockchain are publicly viewable on the [Solana Explorer
 
 ![Screenshot of Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
 
-You can refer to all the methods and accessors of the Transaction class [here](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html)
+See the Solana Docs for [more information on the Transaction clas](https://solana-labs.github.io/solana-web3.js/classes/Transaction.html).
 
 # Demo
 
