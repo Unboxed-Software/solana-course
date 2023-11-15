@@ -1,15 +1,13 @@
-# Create a Basic Program, Part 3 - Basic Security and Validation
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Create a Basic Program, Part 3 - Basic Security and Validation
+objectives:
 - Explain the importance of "thinking like an attacker"
 - Understand basic security practices
 - Perform owner checks
 - Perform signer checks
 - Validate accounts passed into the program
 - Perform basic data validation
+---
 
 # TL;DR
 
@@ -100,7 +98,7 @@ While these won't comprehensively secure your program, there are a few security 
 
 An ownership check verifies that an account is owned by the expected public key. Let's use the note-taking app example that we've referenced in previous lessons. In this app, users can create, update, and delete notes that are stored by the program in PDA accounts.
 
-When a user invokes the `update` instruction, they also provide a `pda_account`. We presume the provided `pda_account` is for the particular movie review they want to update, but the user can input any instruction data they want. They could even potentially send data which matches the data format of a note account but was not also created by the note-taking program. This security vulnerability is one potential way to introduce malicious code.
+When a user invokes the `update` instruction, they also provide a `pda_account`. We presume the provided `pda_account` is for the particular note they want to update, but the user can input any instruction data they want. They could even potentially send data which matches the data format of a note account but was not also created by the note-taking program. This security vulnerability is one potential way to introduce malicious code.
 
 The simplest way to avoid this problem is to always check that the owner of an account is the public key you expect it to be. In this case, we expect the note account to be a PDA account owned by the program itself. When this is not the case, we can report it as an error accordingly.
 
@@ -127,10 +125,10 @@ if !initializer.is_signer {
 
 In addition to checking the signers and owners of accounts, it's important to ensure that the provided accounts are what your code expects them to be. For example, you would want to validate that a provided PDA account's address can be derived with the expected seeds. This ensures that it is the account you expect it to be.
 
-In the note-taking app example, that would mean ensuring that you can derive a matching PDA using the `initializer` and `title` as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
+In the note-taking app example, that would mean ensuring that you can derive a matching PDA using the note creator's public key and the ID as seeds (that's what we're assuming was used when creating the note). That way a user couldn't accidentally pass in a PDA account for the wrong note or, more importantly, that the user isn't passing in a PDA account that represents somebody else's note entirely.
 
 ```rust
-let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
+let (pda, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
 
 if pda != *note_pda.key {
     msg!("Invalid seeds for PDA");
@@ -154,7 +152,7 @@ if character.agility + new_agility > 100 {
 Or, the character may have an allowance of attribute points they can allocate and you want to make sure they don't exceed that allowance.
 
 ```rust
-if attribute_allowance > new_agility {
+if attribute_allowance < new_agility {
     msg!("Trying to allocate more points than allowed");
     return Err(AttributeError::ExceedsAllowance.into())
 }
@@ -180,7 +178,7 @@ To avoid integer overflow and underflow, either:
     let sum = first_int.checked_add(second_int);
     ```
 
-# Demo
+# Lab
 
 Let’s practice together with the Movie Review program we've worked on in previous lessons. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way.
 
@@ -190,7 +188,7 @@ Just as before, we'll be using [Solana Playground](https://beta.solpg.io/) to w
 
 ## 1. Get the starter code
 
-To begin, you can find the starter code [here](https://beta.solpg.io/62b552f3f6273245aca4f5c9). If you've been following along with the Movie Review demos, you'll notice that we've refactored our program.
+To begin, you can find [the movie review starter code](https://beta.solpg.io/62b552f3f6273245aca4f5c9). If you've been following along with the Movie Review labs, you'll notice that we've refactored our program.
 
 The refactored starter code is almost the same as what it was before. Since `lib.rs` was getting rather large and unwieldy, we've separated its code into 3 files: `lib.rs`, `entrypoint.rs`, and `processor.rs`. `lib.rs` now *only* registers the code's modules, `entrypoint.rs` *only* defines and sets the program's entrypoint, and `processor.rs` handles the program logic for processing instructions. We've also added an `error.rs` file where we'll be defining custom errors. The complete file structure is as follows:
 
@@ -201,7 +199,7 @@ The refactored starter code is almost the same as what it was before. Since `lib
 - **state.rs -** serialize and deserialize state
 - **error.rs -** custom program errors
 
-In addition to some changes to file structure, we've updated a small amount of code that will let this demo be more focused on security without having you write unnecessary boiler plate.
+In addition to some changes to file structure, we've updated a small amount of code that will let this lab be more focused on security without having you write unnecessary boiler plate.
 
 Since we'll be allowing updates to movie reviews, we also changed `account_len` in the `add_movie_review` function (now in `processor.rs`). Instead of calculating the size of the review and setting the account length to only as large as it needs to be, we're simply going to allocate 1000 bytes to each review account. This way, we don’t have to worry about reallocating size or re-calculating rent when a user updates their movie review.
 
@@ -215,7 +213,7 @@ To this:
 let account_len: usize = 1000;
 ```
 
-The [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) method was just recently enabled by Solana Labs which allows you to dynamically change the size of your accounts. We will not be using this method for this demo, but it’s something to be aware of.
+The [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) method was just recently enabled by Solana Labs which allows you to dynamically change the size of your accounts. We will not be using this method for this lab, but it’s something to be aware of.
 
 Finally, we've also implemented some additional functionality for our `MovieAccountState` struct in `state.rs` using the `impl` keyword.
 
@@ -335,7 +333,7 @@ if rating > 5 || rating < 1 {
 Next, let’s check that the content of the review does not exceed the 1000 bytes we’ve allocated for the account. If the size exceeds 1000 bytes, we’ll return our custom `InvalidDataLength` error.
 
 ```rust
-let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len())
+let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
 if total_len > 1000 {
     msg!("Data length is larger than 1000 bytes");
     return Err(ReviewError::InvalidDataLength.into())
@@ -722,4 +720,4 @@ Using what you've learned in this lesson, try applying what you've learned to th
 1. Add an instruction allowing students to update their message
 2. Implement the basic security checks we've learned in this lesson
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62c9120df6273245aca4f5e8). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write.
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62c9120df6273245aca4f5e8). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write. Once you complete Module 3, we'd love to know more about your experience! Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%203), so that we can continue to improve the course.

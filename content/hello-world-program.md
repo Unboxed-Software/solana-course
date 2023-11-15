@@ -1,15 +1,13 @@
-# Hello World
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Hello World
+objectives:
 - Use the Rust module system
 - Define a function in Rust
 - Explain the `Result` type
 - Explain the entry point to a Solana program
 - Build and deploy a basic Solana program
 - Submit a transaction to invoke our “Hello, world!” program
+---
 
 # TL;DR
 
@@ -129,7 +127,7 @@ Recall that all data stored on the Solana network are contained in what are refe
 
 ### Solana Program Crate
 
-To write Solana programs with Rust, we use the `solana_program` library crate. The `solana_program` crate acts as a standard library for Solana programs. This standard library contains the modules and macros that we'll use to develop our Solana programs. If you want to dig deeper `solana_program` crate, have a look [here](https://docs.rs/solana-program/latest/solana_program/index.html).
+To write Solana programs with Rust, we use the `solana_program` library crate. The `solana_program` crate acts as a standard library for Solana programs. This standard library contains the modules and macros that we'll use to develop our Solana programs. If you want to dig deeper into the `solana_program` crate, have a look [at the `solana_program` crate documentation](https://docs.rs/solana-program/latest/solana_program/index.html).
 
 For a basic program we will need to bring into scope the following items from the `solana_program` crate:
 
@@ -173,17 +171,17 @@ Recall that Solana program accounts only store the logic to process instructions
 
 In order to process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
 
-Following program execution, the program must return a value of type `ProgramResult`. This type is a `Result` where the embedded value of a success case is `()` and the embedded value of a failure case is `ProgramError`. `()` is effectively an empty value and `ProgramError` is an error type defined in the `solana_program` crate.
+Following program execution, the program must return a value of type `ProgramResult`. This type is a `Result` where the embedded value of a success case is `()` and the embedded value of a failure case is `ProgramError`. `()` is an empty value and `ProgramError` is an error type defined in the `solana_program` crate.
 
 ...and there you have it - you now know all the things you need for the foundations of creating a Solana program using Rust. Let’s practice what we’ve learned so far!
 
-# Demo
+# Lab
 
 We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser.
 
 ### 1. Setup
 
-Click [here](https://beta.solpg.io/) to open Solana Playground. Next, go ahead and delete everything in the default `lib.rs` file and create a Playground wallet.
+Open the [Solana Playground](https://beta.solpg.io/). Next, go ahead and delete everything in the default `lib.rs` file and create a Playground wallet.
 
 ![Gif Solana Playground Create Wallet](../assets/hello-world-create-wallet.gif)
 
@@ -251,19 +249,19 @@ Now let's build and deploy our program using Solana Playground.
 
 ### 5. Invoke Program
 
-Finally, let's invoke our program from the client side. Download the code [here](https://github.com/Unboxed-Software/solana-hello-world-client).
+Finally, let's invoke our program from the client side. The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided [the client code to invoke our “Hello, world!” program](https://github.com/Unboxed-Software/solana-hello-world-client) for you to download.
 
-The focus of this lesson is to build our Solana program, so we’ve gone ahead and provided the client code to invoke our “Hello, world!” program. The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
+The code provided includes a `sayHello` helper function that builds and submits our transaction. We then call `sayHello` in the main function and print a Solana Explorer URL to view our transaction details in the browser.
 
-Open the `index.ts` file you should see a variable named `programId`. Go ahead and update this with the program Id of the “Hello, world!" program you just deployed using Solana Playground.
+Open the `index.ts` file you should see a variable named `programId`. Go ahead and update this with the program ID of the “Hello, world!" program you just deployed using Solana Playground.
 
 ```tsx
 let programId = new web3.PublicKey("<YOUR_PROGRAM_ID>");
 ```
 
-You can locate the program Id on Solana Playground referencing the image below.
+You can locate the program ID on Solana Playground referencing the image below.
 
-![Gif Solana Playground Program Id](../assets/hello-world-program-id.gif)
+![Gif Solana Playground Program ID](../assets/hello-world-program-id.gif)
 
 Next, install the Node modules with `npm i`.
 
@@ -284,7 +282,7 @@ Congratulations, you’ve just successfully built and deployed a Solana program!
 Now it’s your turn to build something independently. Because we're starting with very simple programs, yours will look almost identical to what we just created. It's useful to try and get to the point where you can write it from scratch without referencing prior code, so try not to copy and paste here.
 
 1. Write a new program that uses the `msg!` macro to print your own message to the program log.
-2. Build and deploy your program like we did in the demo.
+2. Build and deploy your program like we did in the lab.
 3. Invoke your newly deployed program and use Solana Explorer to check that your message was printed in the program log.
 
 As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!

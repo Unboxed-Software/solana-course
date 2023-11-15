@@ -1,9 +1,6 @@
-# Create a Basic Program, Part 1 - Handle Instruction Data
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Create a Basic Program, Part 1 - Handle Instruction Data
+objectives:
 - Assign mutable and immutable variables in Rust
 - Create and use Rust structs and enums
 - Use Rust match statements
@@ -11,6 +8,7 @@
 - Deserialize instruction data into Rust data types
 - Execute different program logic for different types of instructions
 - Explain the structure of a smart contract on Solana
+---
 
 # TL;DR
 
@@ -80,6 +78,7 @@ user1.age = 37;
 ```
 
 ### Enumerations
+
 Enumerations (or Enums) are a data struct that allow you to define a type by enumerating its possible variants. An example of an enum may look like:
 
 ```rust
@@ -91,9 +90,9 @@ enum LightStatus {
 
 The `LightStatus` enum has two possible variants in this situation: it's either `On` or `Off`.
 
-You can also embed values into enum variants, similar to adding fields to a struct. 
+You can also embed values into enum variants, similar to adding fields to a struct.
 
-```rust 
+```rust
 enum LightStatus {
     On {
         color: String
@@ -179,7 +178,7 @@ When you add the [`derive` attribute](https://doc.rust-lang.org/rust-by-example/
 
 Now that we've covered the Rust basics, let's apply them to Solana programs.
 
-More often than not, programs will have more than one function. For example, you may have a program that acts as the backend for a note-taking app. Assume this program accepts instructions for creating a new note, updating an existing note, and deleting an existing note. 
+More often than not, programs will have more than one function. For example, you may have a program that acts as the backend for a note-taking app. Assume this program accepts instructions for creating a new note, updating an existing note, and deleting an existing note.
 
 Since instructions have discrete types, they're usually a great fit for an enum data type.
 
@@ -207,9 +206,9 @@ Notice that each variant of the `NoteInstruction` enum comes with embedded data 
 
 Instruction data is passed to the program as a byte array, so you need a way to deterministically convert that array into an instance of the instruction enum type.
 
-In previous modules, we used Borsh for client-side serialization and deserialization. To use Borsh program-side, we use the `borsh` crate. This crate provides traits for `BorshDeserialize` and `BorshSerialize` that you can apply to your types using the `derive` attribute. 
+In previous units, we used Borsh for client-side serialization and deserialization. To use Borsh program-side, we use the `borsh` crate. This crate provides traits for `BorshDeserialize` and `BorshSerialize` that you can apply to your types using the `derive` attribute.
 
-To make deserializing instruction data simple, you can create a struct representing the data and use the `derive` attribute to apply the `BorshDeserialize` trait to the struct. This implements the methods defined in `BorshDeserialize`, including the the `try_from_slice` method that we'll be using to deserialize the instruction data.
+To make deserializing instruction data simple, you can create a struct representing the data and use the `derive` attribute to apply the `BorshDeserialize` trait to the struct. This implements the methods defined in `BorshDeserialize`, including the `try_from_slice` method that we'll be using to deserialize the instruction data.
 
 Remember, the struct itself needs to match the structure of the data in the byte array.
 
@@ -260,7 +259,7 @@ impl NoteInstruction {
 
 There's a lot in this example so let's take it one step at a time:
 
-1. This function starts by using the `split_first` function on the `input` parameter to return a tuple. The first element, `variant`, is the first byte from the byte array and the second element, `rest`, is the rest of the byte array. 
+1. This function starts by using the `split_first` function on the `input` parameter to return a tuple. The first element, `variant`, is the first byte from the byte array and the second element, `rest`, is the rest of the byte array.
 2. The function then uses the `try_from_slice` method on `NoteInstructionPayload` to deserialize the rest of the byte array into an instance of `NoteInstructionPayload` called `payload`
 3. Finally, the function uses a `match` statement on `variant` to create and return the appropriate enum instance using information from `payload`
 
@@ -319,9 +318,9 @@ Additionally, any declarations that you would like to be available through `use`
 pub enum NoteInstruction { ... }
 ```
 
-## Demo
+## Lab
 
-For this lesson’s demo, we’ll be building out the first half of the Movie Review program that we worked with in Module 1. This program stores movie reviews submitted by users.
+For this lesson’s lab, we’ll be building out the first half of the Movie Review program that we worked with in Module 1. This program stores movie reviews submitted by users.
 
 For now, we'll focus on deserializing the instruction data. The following lesson will focus on the second half of this program.
 
@@ -349,7 +348,7 @@ pub fn process_instruction(
     accounts: &[AccountInfo],
     instruction_data: &[u8]
 ) -> ProgramResult {
-    
+
     Ok(())
 }
 ```
@@ -464,13 +463,13 @@ pub fn process_instruction(
 }
 ```
 
-And just like that, your program should be functional enough to log the instruction data passed in when a transaction is submitted! 
+And just like that, your program should be functional enough to log the instruction data passed in when a transaction is submitted!
 
 Build and deploy your program from Solana Program just like in the last lesson. If you haven't changed the program ID since going through the last lesson, it will automatically deploy to the same ID. If you'd like it to have a separate address you can generate a new program ID from the playground before deploying.
 
 You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
 
-If you need to spend some more time with this demo before moving on, please do! You can also have a look at the program [solution code](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) if you get stuck.
+If you need to spend some more time with this lab before moving on, please do! You can also have a look at the program [solution code](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) if you get stuck.
 
 # Challenge
 
@@ -478,6 +477,6 @@ For this lesson's challenge, try replicating the Student Intro program from Modu
 
 Using what you've learned in this lesson, build the Student Intro program to the point where you can print the `name` and `message` provided by the user to the program logs when the program is invoked.
 
-You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) we created in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md) and then checking the program logs on Solana Explorer. Remember to replace the program ID in the frontend code with the one you've deployed. 
+You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) we created in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md) and then checking the program logs on Solana Explorer. Remember to replace the program ID in the frontend code with the one you've deployed.
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b0ce53f6273245aca4f5b0).
