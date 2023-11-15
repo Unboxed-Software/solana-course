@@ -328,35 +328,41 @@ Create a new project called `anchor-counter` by running `anchor init`:
 anchor init anchor-counter
 ```
 
-Next, run `anchor-build`
+Next, run `anchor build`
 
 ```console
-anchor-build
+anchor build
 ```
 
-Then, run `anchor keys list`
+Anchor build will also generate a keypair for your new program - the keys are saved in the `target/deploy` directory.
 
-```console
-anchor keys list
-```
-
-Copy the program ID output from `anchor keys list`
-
-```
-anchor_counter: BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
-```
-
-Then update `declare_id!` in `lib.rs`
+Open the file `lib.rs` and look at `declare_id!`: 
 
 ```rust
 declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
 ```
 
-And also update `Anchor.toml`
+Run `anchor keys sync`
 
+```console
+anchor keys sync
 ```
-[programs.localnet]
-anchor_counter = "BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr"
+
+You'll see the Anchor updates both:
+
+ - The key used in `declare_id!()` in `lib.rs` 
+ - The key in `Anchor.toml` 
+
+To match the key generated during `anchor build`:
+
+```console
+Found incorrect program id declaration in "anchor-counter/programs/anchor-counter/src/lib.rs"
+Updated to BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
+
+Found incorrect program id declaration in Anchor.toml for the program `anchor_counter`
+Updated to BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
+
+All program id declarations are synced.
 ```
 
 Finally, delete the default code in `lib.rs` until all that is left is the following:
@@ -364,7 +370,7 @@ Finally, delete the default code in `lib.rs` until all that is left is the follo
 ```rust
 use anchor_lang::prelude::*;
 
-declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
+declare_id!("your-private-key");
 
 #[program]
 pub mod anchor_counter {

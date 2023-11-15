@@ -8,7 +8,7 @@ import { readFile } from "node:fs/promises";
 
 import { marked } from "marked";
 
-const courseStucture: CourseStructure = courseStuctureUntyped;
+const courseStructure: CourseStructure = courseStuctureUntyped;
 
 const cleanContent = (content: string) => {
   // There's a bunch of metadata in the content that should really be elsewhere.
@@ -25,7 +25,7 @@ const cleanContent = (content: string) => {
 
 // See https://kit.svelte.dev/docs/load
 export async function load({ params }): Promise<PageData> {
-  const allLessons = courseStucture.tracks.flatMap((track) =>
+  const allLessons = courseStructure.tracks.flatMap((track) =>
     track.units.flatMap((module) => module.lessons),
   );
 
