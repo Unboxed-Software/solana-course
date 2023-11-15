@@ -183,7 +183,11 @@ async function buildCreateTokenAccountTransaction(
 
 ### Associated Token Account
 
-An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
+An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. 
+
+Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
+- If not for associated token account, a user may own many token accounts belonging to the same mint leading to confusion as to where to send tokens to.
+- Associated token account allows a user to send tokens to another user if the recipient doesn't yet have the token account for that token mint.  
 
 ![ATAs are PDAs](../assets/atas-are-pdas.svg)
 
