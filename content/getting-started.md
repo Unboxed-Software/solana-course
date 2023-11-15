@@ -66,7 +66,7 @@ And much more. We're keeping this course updated so as new tech joins the Solana
 You **don't** need previous blockchain experience to follow this course! 
 
 - Linux, Mac or a Windows computer. 
-  Windows machines should have Windows Terminal WSL installed.
+  Windows machines should have Windows Terminal and WSL installed.
 - Basic JavaScript / TypeScript programming experience. We'll also use some Rust but we'll explain the Rust as we go. 
 - node.js 18 installed
 - Rust installed
@@ -91,7 +91,7 @@ Then each lesson has three sections:
 
 - **Lab** - a practical project you _absolutely should_ code along with. This is your second exposure to the content as well as your first opportunity to dive in and _do the thing_.
 
-- **Challenge** - another projectm, with just a few simple prompts that you should take and implement independently.
+- **Challenge** - another project, with just a few simple prompts that you should take and implement independently.
 
 ## How do I use the course effectively?
 
