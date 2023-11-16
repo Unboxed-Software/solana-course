@@ -1,14 +1,12 @@
-# Local Program Development
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Local Program Development
+objectives:
 - Set up a local environment for Solana program development
 - Use basic Solana CLI commands
 - Run a local test validator
 - Use Rust and the Solana CLI to deploy a Solana program from your local development environment
 - Use the Solana CLI to view program logs
+---
 
 # TL;DR
 
@@ -48,17 +46,17 @@ If you are on Windows 10 version 2004 and higher (Build 19041 and higher) or Win
 wsl --install
 ```
 
-If you are running an older version of Windows, follow the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install-manual).
+If you are running an older version of Windows, follow [the instructions for older versions of Windows](https://docs.microsoft.com/en-us/windows/wsl/install-manual).
 
-You can read more about installing WSL [here](https://docs.microsoft.com/en-us/windows/wsl/install).
+You can [read more about installing WSL from Microsoft](https://docs.microsoft.com/en-us/windows/wsl/install).
 
 ### Download Ubuntu
 
-Next, download Ubuntu [here](https://apps.microsoft.com/store/detail/ubuntu-2004/9N6SVWS3RX71?hl=en-us&gl=US). Ubuntu provides a terminal that allows you to run Linux on a Windows computer. This is where you’ll be running Solana CLI commands.
+Next, [download Ubuntu](https://apps.microsoft.com/store/detail/ubuntu-2004/9N6SVWS3RX71?hl=en-us&gl=US). Ubuntu provides a terminal that allows you to run Linux on a Windows computer. This is where you’ll be running Solana CLI commands.
 
 ### Download Rust (for WSL)
 
-Next, open an Ubuntu terminal and download Rust for WSL using the following command. You can read more about downloading Rust [here](https://www.rust-lang.org/learn/get-started).
+Next, open an Ubuntu terminal and download Rust for WSL using the following command. You can read more about [downloading Rust from the docs](https://www.rust-lang.org/learn/get-started).
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -66,7 +64,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ### Download Solana CLI
 
-Now we are ready to download Solana CLI for Linux. Go ahead and run the following command in an Ubuntu terminal. You can read more about downloading Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
+Now we are ready to download Solana CLI for Linux. Go ahead and run the following command in an Ubuntu terminal. You can read more about [downloading Solana CLI from the docs](https://docs.solana.com/cli/install-solana-cli-tools).
 
 ```bash
 sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
@@ -76,7 +74,7 @@ sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 
 ### Download Rust
 
-First, download Rust by following the instructions [here](https://www.rust-lang.org/tools/install)
+First, download Rust by [following the instructions](https://www.rust-lang.org/tools/install)
 
 ### Download the Solana CLI
 
@@ -86,7 +84,7 @@ Next, download the Solana CLI by running the following command in your terminal.
 sh -c "$(curl -sSfL https://release.solana.com/v1.10.31/install)"
 ```
 
-You can read more about downloading the Solana CLI [here](https://docs.solana.com/cli/install-solana-cli-tools).
+You can read more about [downloading the Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools).
 
 ## Solana CLI basics
 
@@ -235,7 +233,7 @@ When you are ready to deploy the program, use the `solana program deploy` comman
 solana program deploy <PATH>
 ```
 
-# Demo
+# Lab
 
 Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program.md).
 
@@ -334,7 +332,7 @@ Before we invoke our program, open a separate terminal and run the `solana logs`
 solana logs <PROGRAM_ID>
 ```
 
-With the test validator still running, try invoking your program using the client-side script [here](https://github.com/Unboxed-Software/solana-hello-world-client).
+With the test validator still running, try invoking your program using [this client-side script](https://github.com/Unboxed-Software/solana-hello-world-client).
 
 Replace the program ID in `index.ts` with the one from the program you just deployed, then run `npm install` followed by `npm start`. This will return a Solana Explorer URL. Copy the URL into the browser to look up the transaction on Solana Explorer and check that “Hello, world!” was printed to the program log. Alternatively, you can view the program logs in the terminal where you ran the `solana logs` command.
 
@@ -346,7 +344,7 @@ Now it’s your turn to build something independently. Try to create a new progr
 
 Remember to update your `RPC URL` to Devnet using the `solana config set --url` command.
 
-You can invoke the program using the same client-side script from the demo as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
+You can invoke the program using the same client-side script from the lab as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
 
 ```tsx
 let connection = new web3.Connection(web3.clusterApiUrl("devnet"));

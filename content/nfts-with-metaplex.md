@@ -1,13 +1,11 @@
-# Create Solana NFTs With Metaplex
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Create Solana NFTs With Metaplex
+objectives:
 - Explain NFTs and how they're represented on the Solana network
 - Explain the role of Metaplex in the Solana NFT ecosystem
 - Create and update NFTs using the Metaplex SDK
 - Explain the basic functionality of the Token Metadata program, Candy Machine program, and Sugar CLI as tools that assist in creating and distributing NFTs on Solana
+---
 
 # TL;DR
 
@@ -37,11 +35,12 @@ In other words, an NFT is a standard token from the Token Program but differs fr
 
 While the first three points are features that can be achieved with the SPL Token Program, the associated metadata requires some additional functionality.
 
-Typically, an NFT’s metadata has both an on-chain and off-chain component. The on-chain metadata is stored in an account associated with the token mint. One of its fields is URI that typically points to an off-chain JSON file (see [this link](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6n4x0GanLnSbeoT1EVvNuw) as an example). The off-chain component stores additional data and a link to the image. Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.
-
-Below is an example of the relationship between on-chain and off-chain metadata. The on-chain metadata contains a URI field that points to an off-chain `.json` file that stores the link to the image of the NFT and additional metadata.
+Typically, an NFT’s metadata has both an on-chain and off-chain component. See the diagram below:
 
 ![Screenshot of Metadata](../assets/solana-nft-metaplex-metadata.png)
+
+ - The **on-chain metadata** is stored in an account associated with the token mint. The on-chain metadata contains a URI field that points to an off-chain `.json` file.
+ - The **off-chain metadata** in the JSON file stores the link to the media (images, videos, 3D files) of the NFT, any traits the NFT may have, and additional metadata (see [this example JSON file](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6n4x0GanLnSbeoT1EVvNuw)). Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.
 
 ## **Metaplex**
 
@@ -208,14 +207,14 @@ When creating and distributing a bulk supply of NFT's, Metaplex makes it easy wi
 
 Candy Machine is effectively a minting and distribution program to help launch NFT collections. Sugar is a command line interface that helps you create a candy machine, prepare assets, and create NFTs at scale. The steps covered above for creating an NFT would be incredibly tedious to execute for thousands of NFTs in one go. Candy Machine and Sugar solve this and help ensure a fair launch by offering a number of safeguards.
 
-We won't cover these tools in-depth, but definitely check out how they work together [here](https://docs.metaplex.com/developer-tools/sugar/overview/introduction).
+We won't cover these tools in-depth, but definitely check out [how Candy Machine and Sugar work together from the Metaplex docs](https://docs.metaplex.com/developer-tools/sugar/overview/introduction).
 
 To explore the full range of tools offered by Metaplex, you can view the [Metaplex repository](https://github.com/metaplex-foundation/metaplex) on GitHub. 
 
 
-# Demo
+# Lab
 
-In this demo, we'll go through the steps to create an NFT using the Metaplex SDK, update the NFT's metadata after the fact, then associate the NFT with a collection. By the end, you will have a basic understanding of how to use the Metaplex SDK interact with NFTs on Solana.
+In this lab, we'll go through the steps to create an NFT using the Metaplex SDK, update the NFT's metadata after the fact, then associate the NFT with a collection. By the end, you will have a basic understanding of how to use the Metaplex SDK interact with NFTs on Solana.
 
 ### 1. Starter
 
@@ -579,4 +578,4 @@ To deepen your understanding of the Metaplex tools, dive into the Metaplex docum
 
 Once you have an understanding of how the the Candy Machine program works, put your knowledge to the test by using the Sugar CLI to create a Candy Machine for your own collection. This hands-on experience will not only reinforce your understanding of the tools, but also boost your confidence in your ability to use them effectively in the future.
 
-Have some fun with this! This will be your first independently created NFT collection! With this, you'll complete Module 2. Hope you're feeling the process! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202) so that we can continue to improve the course!
+Have some fun with this! This will be your first independently created NFT collection! With this, you'll complete Module 2. Hope you're feeling the process! Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202) so that we can continue to improve the course!

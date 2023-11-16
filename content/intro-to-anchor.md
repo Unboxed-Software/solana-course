@@ -1,12 +1,10 @@
-# Intro to Anchor development
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Intro to Anchor development
+objectives:
 - Use the Anchor framework to build a basic program
 - Describe the basic structure of an Anchor program
 - Explain how to implement basic account validation and security checks with Anchor
+---
 
 # TL;DR
 
@@ -237,7 +235,7 @@ The `#[account]` attribute is applied to structs representing the data structure
 - `Discriminator`
 - `Owner`
 
-You can read more about the details of each trait [here](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). However, mostly what you need to know is that the `#[account]` attribute enables serialization and deserialization, and implements the discriminator and owner traits for an account.
+You can read more about the [details of each trait](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). However, mostly what you need to know is that the `#[account]` attribute enables serialization and deserialization, and implements the discriminator and owner traits for an account.
 
 The discriminator is an 8 byte unique identifier for an account type derived from the first 8 bytes of the SHA256 hash of the account type's name. When implementing account serialization traits, the first 8 bytes are reserved for the account discriminator.
 
@@ -313,11 +311,11 @@ pub struct AccountStruct {
 
 You are now ready to build your own Solana program using the Anchor framework!
 
-# Demo
+# Lab
 
-Before we begin, install Anchor by following the steps [here](https://www.anchor-lang.com/docs/installation).
+Before we begin, install Anchor by [following the steps from the Anchor docs](https://www.anchor-lang.com/docs/installation).
 
-For this demo we'll create a simple counter program with two instructions:
+For this lab we'll create a simple counter program with two instructions:
 
 - The first instruction will initialize a counter account
 - The second instruction will increment the count stored on a counter account
@@ -330,36 +328,42 @@ Create a new project called `anchor-counter` by running `anchor init`:
 anchor init anchor-counter
 ```
 
-Change directory, then run `anchor build`
+Change into the new directory, then run `anchor build`
 
 ```console
 cd anchor-counter
 anchor build
 ```
 
-Then, run `anchor keys list`
+Anchor build will also generate a keypair for your new program - the keys are saved in the `target/deploy` directory.
 
-```console
-anchor keys list
-```
-
-Copy the program ID output from `anchor keys list`
-
-```
-anchor_counter: BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
-```
-
-Then update `declare_id!` in `lib.rs`
+Open the file `lib.rs` and look at `declare_id!`: 
 
 ```rust
 declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
 ```
 
-And also update `Anchor.toml`
+Run `anchor keys sync`
 
+```console
+anchor keys sync
 ```
-[programs.localnet]
-anchor_counter = "BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr"
+
+You'll see the Anchor updates both:
+
+ - The key used in `declare_id!()` in `lib.rs` 
+ - The key in `Anchor.toml` 
+
+To match the key generated during `anchor build`:
+
+```console
+Found incorrect program id declaration in "anchor-counter/programs/anchor-counter/src/lib.rs"
+Updated to BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
+
+Found incorrect program id declaration in Anchor.toml for the program `anchor_counter`
+Updated to BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
+
+All program id declarations are synced.
 ```
 
 Finally, delete the default code in `lib.rs` until all that is left is the following:
@@ -367,7 +371,7 @@ Finally, delete the default code in `lib.rs` until all that is left is the follo
 ```rust
 use anchor_lang::prelude::*;
 
-declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
+declare_id!("your-private-key");
 
 #[program]
 pub mod anchor_counter {
@@ -509,7 +513,7 @@ Run `anchor build` to build the program.
 
 Anchor tests are typically Typescript integration tests that use the mocha test framework. We'll learn more about testing later, but for now navigate to `anchor-counter.ts` and replace the default test code with the following:
 
-```ts
+```typescript
 import * as anchor from "@project-serum/anchor"
 import { Program } from "@project-serum/anchor"
 import { expect } from "chai"
@@ -534,7 +538,7 @@ The above code generates a new keypair for the `counter` account we'll be initia
 
 Next, create the first test for the `initialize` instruction:
 
-```ts
+```typescript
 it("Is initialized!", async () => {
   // Add your test here.
   const tx = await program.methods
@@ -550,7 +554,7 @@ it("Is initialized!", async () => {
 
 Next, create the second test for the `increment` instruction:
 
-```ts
+```typescript
 it("Incremented the count", async () => {
   const tx = await program.methods
     .increment()
@@ -583,7 +587,7 @@ Now it’s your turn to build something independently. Because we're starting wi
 
 1. Write a new program that initializes a `counter` account
 2. Implement both an `increment` and `decrement` instruction
-3. Build and deploy your program like we did in the demo
+3. Build and deploy your program like we did in the lab
 4. Test your newly deployed program and use Solana Explorer to check the program logs
 
 As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!

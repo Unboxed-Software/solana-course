@@ -1,13 +1,11 @@
-# Owner Checks
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Owner Checks
+objectives:
 - Explain the security risks associated with not performing appropriate owner checks
 - Implement owner checks using long-form Rust
 - Use Anchor’s `Account<'info, T>` wrapper and an account type to automate owner checks
 - Use Anchor’s `#[account(owner = <expr>)]` constraint to explicitly define an external program that should own an account
+---
 
 # TL;DR
 
@@ -58,7 +56,7 @@ The example below shows an `admin_instruction` intended to be accessible only by
 
 Although the instruction checks the `admin` account signed the transaction and matches the `admin` field stored on the `admin_config` account, there is no owner check to verify the `admin_config` account passed into the instruction is owned by the executing program.
 
-Since the `admin_config` is unchecked as indicated by the `AccountInfo` type, a fake `admin_config` account owned by a different program could be used in the `admin_instruction`. This means that an attacker could create a program with an `admin_config` whose data structure matches the `admin_config` of your program, set their public key as the `admin` and pass their `admin_config` account into your program. This would let them effectively spoof your program into thinking that they are the authorized admin for your program.
+Since the `admin_config` is unchecked as indicated by the `AccountInfo` type, a fake `admin_config` account owned by a different program could be used in the `admin_instruction`. This means that an attacker could create a program with an `admin_config` whose data structure matches the `admin_config` of your program, set their public key as the `admin` and pass their `admin_config` account into your program. This would let them spoof your program into thinking that they are the authorized admin for your program.
 
 This simplified example only prints the `admin` to the program logs. However, you can imagine how a missing owner check could allow fake accounts to exploit an instruction.
 
@@ -232,9 +230,9 @@ pub struct AdminConfig {
 }
 ```
 
-# Demo
+# Lab
 
-In this demo we’ll use two programs to demonstrate how a missing owner check could allow a fake account to drain the tokens from a simplified token “vault” account (note that this is very similar to the demo from the Signer Authorization lesson).
+In this lab we’ll use two programs to demonstrate how a missing owner check could allow a fake account to drain the tokens from a simplified token “vault” account (note that this is very similar to the lab from the Signer Authorization lesson).
 
 To help illustrate this, one program will be missing an account owner check on the vault account it withdraws tokens to.
 
@@ -579,7 +577,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that proper owner checks are performed on the accounts passed into each instruction.
 

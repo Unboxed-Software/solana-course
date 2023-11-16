@@ -1,12 +1,10 @@
-# Arbitrary CPI
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Arbitrary CPI
+objectives:
 - Explain the security risks associated with invoking a CPI to an unknown program
 - Showcase how Anchor’s CPI module prevents this from happening when making a CPI from one Anchor program to another
 - Safely and securely make a CPI from an Anchor program to an arbitrary non-anchor program
+---
 
 # TL;DR
 
@@ -155,7 +153,7 @@ If you have access to an Anchor program's CPI module, you typically can import i
 use other_program::program::OtherProgram;
 ```
 
-# Demo
+# Lab
 
 To show the importance of checking with program you use for CPIs, we're going to work with a simplified and somewhat contrived game. This game represents characters with PDA accounts, and uses a separate "metadata" program to manage character metadata and attributes like health and power.
 
@@ -186,7 +184,7 @@ The last program, `fake-metadata` is a "fake" metadata program meant to illustra
 
 There is already a test in the `tests` directory for this. It's long, but take a minute to look at it before we talk through it together:
 
-```ts
+```typescript
 it("Insecure instructions allow attacker to win every time", async () => {
     // Initialize player one with real metadata program
     await gameplayProgram.methods
@@ -239,7 +237,7 @@ it("Insecure instructions allow attacker to win every time", async () => {
 })
 ```
 
-This test effectively walks through the scenario where a regular player and an attacker both create their characters. Only the attacker passes in the program ID of the fake metadata program rather than the actual metadata program. And since the `create_character_insecure` instruction has no program checks, it still executes.
+This test walks through the scenario where a regular player and an attacker both create their characters. Only the attacker passes in the program ID of the fake metadata program rather than the actual metadata program. And since the `create_character_insecure` instruction has no program checks, it still executes.
 
 The result is that the regular character has the appropriate amount of health and power: each a value between 0 and 20. But the attacker's health and power are each 255, making the attacker unbeatable.
 
@@ -318,7 +316,7 @@ pub fn create_character_secure(ctx: Context<CreateCharacterSecure>) -> Result<()
 
 Now that we have a secure way of initializing a new character, let's create a new test. This test just needs to attempt to initialize the attacker's character and expect an error to be thrown.
 
-```ts
+```typescript
 it("Secure character creation doesn't allow fake program", async () => {
     try {
       await gameplayProgram.methods
@@ -354,7 +352,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that program checks are in place for every program passed into the instructions, particularly those that are invoked via CPI.
 

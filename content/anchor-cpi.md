@@ -1,13 +1,11 @@
-# Anchor CPIs and Errors
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
+---
+title: Anchor CPIs and Errors
+objectives:
 - Make Cross Program Invocations (CPIs) from an Anchor program
 - Use the `cpi` feature to generate helper functions for invoking instructions on existing Anchor programs
 - Use `invoke` and `invoke_signed` to make CPIs where CPI helper functions are unavailable
 - Create and return custom Anchor errors
+---
 
 # TL;DR
 
@@ -28,7 +26,7 @@ As a refresher, CPIs allow programs to invoke instructions on other programs usi
 
 While making CPIs directly using `invoke` or `invoke_signed` is still an option, Anchor also provides a simplified way to make CPIs by using a `CpiContext`.
 
-In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token Program. You can explore what's available in the `anchor_spl` crate [here](https://docs.rs/anchor-spl/latest/anchor_spl/#).
+In this lesson, you'll use the `anchor_spl` crate to make CPIs to the SPL Token Program. You can [explore what's available in the `anchor_spl` crate](https://docs.rs/anchor-spl/latest/anchor_spl/#).
 
 ### `CpiContext`
 
@@ -269,15 +267,15 @@ pub enum MyError {
 }
 ```
 
-# Demo
+# Lab
 
 Let’s practice the concepts we’ve gone over in this lesson by building on top of the Movie Review program from previous lessons.
 
-In this demo we’ll update the program to mint tokens to users when they submit a new movie review.
+In this lab we’ll update the program to mint tokens to users when they submit a new movie review.
 
 ### 1. Starter
 
-To get started, we will be using the final state of the Anchor Movie Review program from the previous lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can download the starter code [here](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas). We'll be using the `solution-pdas` branch as our starting point.
+To get started, we will be using the final state of the Anchor Movie Review program from the previous lesson. So, if you just completed that lesson then you’re all set and ready to go. If you are just jumping in here, no worries, you can [download the starter code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas). We'll be using the `solution-pdas` branch as our starting point.
 
 ### 2. Add dependencies to `Cargo.toml`
 
@@ -458,7 +456,7 @@ Those are all of the changes we need to make to the program! Now, let’s update
 
 Start by making sure your imports nad `describe` function look like this:
 
-```ts
+```typescript
 import * as anchor from "@project-serum/anchor"
 import { Program } from "@project-serum/anchor"
 import { expect } from "chai"
@@ -494,7 +492,7 @@ describe("anchor-movie-review-program", () => {
 
 With that done, add a test for the `initializeTokenMint` instruction:
 
-```ts
+```typescript
 it("Initializes the reward token", async () => {
     const tx = await program.methods.initializeTokenMint().rpc()
 })
@@ -506,7 +504,7 @@ Next, update the test for the `addMovieReview` instruction. The primary addition
 1. To get the associated token address that needs to be passed into the instruction as an account that cannot be inferred
 2. Check at the end of the test that the associated token account has 10 tokens
 
-```ts
+```typescript
 it("Movie review is added`", async () => {
   const tokenAccount = await getAssociatedTokenAddress(
     mint,
@@ -545,10 +543,10 @@ anchor-movie-review-program
   5 passing (2s)
 ```
 
-If you need more time with the concepts from this lesson or got stuck along the way, feel free to take a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
+If you need more time with the concepts from this lesson or got stuck along the way, feel free to take a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-add-tokens). Note that the solution to this lab is on the `solution-add-tokens` branch.
 
 # Challenge
 
-To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves.
+To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the lab here and add some functionality to mint tokens to users when they introduce themselves.
 
 Try to do this independently if you can! But if you get stuck, feel free to reference this [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge). Note that your code may look slightly different than the solution code depending on your implementation.

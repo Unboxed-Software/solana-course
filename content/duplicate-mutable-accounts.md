@@ -1,12 +1,10 @@
-# Duplicate Mutable Accounts
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Duplicate Mutable Accounts
+objectives:
 - Explain the security risks associated with instructions that require two mutable accounts of the same type and how to avoid them
 - Implement a check for duplicate mutable accounts using long-form Rust
 - Implement a check for duplicate mutable accounts using Anchor constraints
+---
 
 # TL;DR
 
@@ -150,7 +148,7 @@ pub struct User {
 }
 ```
 
-# Demo
+# Lab
 
 Let’s practice by creating a simple Rock Paper Scissors program to demonstrate how failing to check for duplicate mutable accounts can cause undefined behavior within your program.
 
@@ -237,7 +235,7 @@ The test file includes the code to invoke the `initialize` instruction twice to 
 
 Add a test to invoke the `rock_paper_scissors_shoot_insecure` instruction by passing in the `playerOne.publicKey` for as both `playerOne` and `playerTwo`.
 
-```ts
+```typescript
 describe("duplicate-mutable-accounts", () => {
 	...
 	it("Invoke insecure instruction", async () => {
@@ -304,7 +302,7 @@ pub struct RockPaperScissorsSecure<'info> {
 
 To test the `rock_paper_scissors_shoot_secure` instruction, we’ll invoke the instruction twice. First, we’ll invoke the instruction using two different player accounts to check that the instruction works as intended. Then, we’ll invoke the instruction using the `playerOne.publicKey` as both player accounts, which we expect to fail.
 
-```ts
+```typescript
 describe("duplicate-mutable-accounts", () => {
 	...
     it("Invoke secure instruction", async () => {
@@ -355,7 +353,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that any instructions with two same-typed mutable accounts are properly constrained to avoid duplicates.
 

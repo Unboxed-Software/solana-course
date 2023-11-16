@@ -1,12 +1,12 @@
-# Create a Basic Program, Part 2 - State Management
-
-# Lesson Objectives
-
+---
+title: Create a Basic Program, Part 2 - State Management
+objectives:
 - Describe the process of creating a new account using a Program Derived Address (PDA)
 - Use seeds to derive a PDA
 - Use the space required by an account to calculate the amount of rent (in lamports) a user must allocate
 - Use a Cross Program Invocation (CPI) to initialize an account with a PDA as the address of the new account
 - Explain how to update the data stored on a new account
+---
 
 # TL;DR
 
@@ -20,7 +20,7 @@
 
 Solana maintains speed, efficiency, and extensibility in part by making programs stateless. Rather than having state stored on the program itself, programs use Solana's account model to read state from and write state to separate PDA accounts.
 
-While this is an extremely flexible model, it's also a paradigm that can be difficult to work in if its unfamiliar. But don't worry! We'll start simple in this lesson and work up to more complex programs in the next module.
+While this is an extremely flexible model, it's also a paradigm that can be difficult to work in if its unfamiliar. But don't worry! We'll start simple in this lesson and work up to more complex programs in the next unit.
 
 In this lesson we'll learn the basics of state management for a Solana program, including representing state as a Rust type, creating accounts using Program Derived Addresses, and serializing account data.
 
@@ -129,7 +129,7 @@ pub fn invoke_signed(
 ) -> ProgramResult
 ```
 
-For this lesson we will use `invoke_signed`. Unlike a regular signature where a private key is used to sign, `invoke_signed` uses the optional seeds, bump seed, and program ID to derive a PDA and sign an instruction. This is done by comparing the derived PDA against all accounts passed into the instruction. If any of the accounts match the PDA, then the signer field for that account is set to true.
+For this lesson we will use `invoke_signed`. Unlike a regular signature where a secret key is used to sign, `invoke_signed` uses the optional seeds, bump seed, and program ID to derive a PDA and sign an instruction. This is done by comparing the derived PDA against all accounts passed into the instruction. If any of the accounts match the PDA, then the signer field for that account is set to true.
 
 A program can securely sign transactions this way because `invoke_signed` generates the PDA used for signing with the program ID of the program invoking the instruction. Therefore, it is not possible for one program to generate a matching PDA to sign for an account with a PDA derived using another program ID.
 
@@ -178,7 +178,7 @@ This is done with the `serialize` function on the instance of the Rust type you 
 account_data.serialize(&mut &mut note_pda_account.data.borrow_mut()[..])?;
 ```
 
-The above example converts the `account_data` object to a byte array and sets it to the `data` property on `note_pda_account`. This effectively saves the updated `account_data` variable to the data field of the new account. Now when a user fetches the `note_pda_account` and deserializes the data, it will display the updated data we’ve serialized into the account.
+The above example converts the `account_data` object to a byte array and sets it to the `data` property on `note_pda_account`. This saves the updated `account_data` variable to the data field of the new account. Now when a user fetches the `note_pda_account` and deserializes the data, it will display the updated data we’ve serialized into the account.
 
 ## Iterators
 
@@ -211,7 +211,7 @@ At that point, instead of using the iterator directly, we pass it to the `next_a
 
 For example, the instruction to create a new note in a note-taking program would at minimum require the accounts for the user creating the note, a PDA to store the note, and the `system_program` to initialize a new account. All three accounts would be passed into the program entry point through the `accounts` argument. An iterator of `accounts` is then used to separate out the `AccountInfo` associated with each account to process the instruction.
 
-Note that `&mut` means a mutable reference to the `accounts` argument. You can read more about references in Rust [here](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and the `mut` keyword [here](https://doc.rust-lang.org/std/keyword.mut.html).
+Note that `&mut` means a mutable reference to the `accounts` argument. You can read more about [references in Rust](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) and [the `mut` keyword](https://doc.rust-lang.org/std/keyword.mut.html).
 
 ```rust
 // Get Account iterator
@@ -223,7 +223,7 @@ let note_pda_account = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-# Demo
+# Lab
 
 This overview covered a lot of new concepts. Let’s practice them together by continuing to work on the Movie Review program from the last lesson. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way. We'll be using the [Solana Playground](https://beta.solpg.io) to write, build, and deploy our code.
 
@@ -231,7 +231,7 @@ As a refresher, we are building a Solana program which lets users review movies.
 
 ### 1. Get the starter code
 
-If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can reference the starter code [here](https://beta.solpg.io/6295b25b0e6ab1eb92d947f7).
+If you didn’t complete the lab from the last lesson or just want to make sure that you didn’t miss anything, you can reference [the starter code](https://beta.solpg.io/6295b25b0e6ab1eb92d947f7).
 
 Our program currently includes the `instruction.rs` file we use to deserialize the `instruction_data` passed into the program entry point. We have also completed `lib.rs` file to the point where we can print our deserialized instruction data to the program log using the `msg!` macro.
 
@@ -269,7 +269,7 @@ pub struct MovieAccountState {
 
 ### 3. Update `lib.rs`
 
-Next, let’s update our `lib.rs` file. First, we’ll bring into scope everything we will need to complete our Movie Review program. You can read more about the details each item we are using from the `solana_program` crate [here](https://docs.rs/solana-program/latest/solana_program/).
+Next, let’s update our `lib.rs` file. First, we’ll bring into scope everything we will need to complete our Movie Review program. You can read more about the details each item we are using from [the `solana_program` crate](https://docs.rs/solana-program/latest/solana_program/).
 
 ```rust
 use solana_program::{
@@ -313,7 +313,7 @@ Next, within our `add_movie_review` function, let’s independently derive the P
 Note that we derive the PDA for each new account using the initializer’s public key and the movie title as optional seeds. Setting up the PDA this way restricts each user to only one review for any one movie title. However, it still allows the same user to review movies with different titles and different users to review movies with the same title.
 
 ```rust
-// Derive PDA and check that it matches client
+// Derive PDA
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
 ```
 
@@ -399,7 +399,7 @@ Using what you've learned in this lesson, build out this program. In addition to
 1. Create a separate account for each student
 2. Store `is_initialized` as a boolean, `name` as a string, and `msg` as a string in each account
 
-You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) we created in the [Page, Order, and Filter Custom Account Data lesson](./paging-ordering-filtering-data.md). Remember to replace the program ID in the frontend code with the one you've deployed. 
+You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) we created in the [Page, Order, and Filter Program Data lesson](./paging-ordering-filtering-data.md). Remember to replace the program ID in the frontend code with the one you've deployed. 
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
 

@@ -1,13 +1,11 @@
-# Cross Program Invocations
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Cross Program Invocations
+objectives:
 - Explain Cross-Program Invocations (CPIs)
 - Describe how to construct and use CPIs
 - Explain how a program provides a signature for a PDA
 - Avoid common pitfalls and troubleshoot common errors associated with CPIs
+---
 
 # TL;DR
 
@@ -62,7 +60,7 @@ invoke(
 ```
 
 - `program_id` - the public key of the program you are going to invoke
-- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read from or write to
+- `account` - a list of account metadata as a vector. You need to include every account that the invoked program will read or write
 - `data` - a byte buffer representing the data being passed to the callee program as a vector
 
 The `Instruction` type has the following definition:
@@ -76,7 +74,7 @@ pub struct Instruction {
 ```
 
 
-Depending on the program you're making the call to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
+Depending on the program you're making the call to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's lab we'll be using the `spl_token` crate to create minting instructions.
 In all other cases, you'll need to create the `Instruction` instance from scratch.
 
 While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
@@ -130,7 +128,7 @@ The [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.html#me
 
 ### Pass a list of accounts
 
-In addition to the instruction, both `invoke` and `invoke_signed` also require a list of `account_info` objects. Just like the list of `AccountMeta` objects you added to the instruction, you must include all of the accounts that the program you're calling will read from or write to.
+In addition to the instruction, both `invoke` and `invoke_signed` also require a list of `account_info` objects. Just like the list of `AccountMeta` objects you added to the instruction, you must include all of the accounts that the program you're calling will read or write.
 
 By the time you make a CPI in your program, you should have already grabbed all the `account_info` objects that were passed into your program and stored them in variables. You'll construct your list of `account_info` objects for the CPI by choosing which of these accounts to copy and send along.
 
@@ -160,7 +158,7 @@ There's no need to include a signature because the Solana runtime passes along t
 ### CPI with `invoke_signed`
 
 
-Using `invoke_signed` is a little different just because there is an additional field that requires the seeds used to derive any PDAs that must sign the transaction. You may recall from previous lessons that PDAs do not lie on the Ed25519 curve and, therefore, do not have a corresponding private key. You’ve been told that programs can provide signatures for their PDAs, but have not learned how that actually happens - until now. Programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` field that comes into play here.
+Using `invoke_signed` is a little different just because there is an additional field that requires the seeds used to derive any PDAs that must sign the transaction. You may recall from previous lessons that PDAs do not lie on the Ed25519 curve and, therefore, do not have a corresponding secret key. You’ve been told that programs can provide signatures for their PDAs, but have not learned how that actually happens - until now. Programs provide signatures for their PDAs with the `invoke_signed` function. The first two fields of `invoke_signed` are the same as `invoke`, but there is an additional `signers_seeds` field that comes into play here.
 
 
 ```rust
@@ -173,7 +171,7 @@ invoke_signed(
 )?;
 ```
 
-While PDAs have no private keys of their own, they can be used by a program to issue an instruction that includes the PDA as a signer. The only way for the runtime to verify that the PDA belongs to the calling program is for the calling program to supply the seeds used to generate the address in the `signers_seeds` field.
+While PDAs have no secret keys of their own, they can be used by a program to issue an instruction that includes the PDA as a signer. The only way for the runtime to verify that the PDA belongs to the calling program is for the calling program to supply the seeds used to generate the address in the `signers_seeds` field.
 
 The Solana runtime will internally call [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) using the seeds provided and the `program_id` of the calling program. It can then compare the result against the addresses supplied in the instruction. If any of the addresses match, then the runtime knows that indeed the program associated with this address is the caller and thus is authorized to be a signer.
 
@@ -195,7 +193,7 @@ EF1M4SPfKcchb6scq297y8FPCaLvj5kGjwMzjTM68wjA's signer privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
 
-This message is a little misleading, because “signer privilege escalated” does not seem like a problem but, in reality, it means that you are incorrectly signing for the address in the message. If you are using `invoke_signed` and receive this error, then it likely means that the seeds you are providing are incorrect. An example transaction that failed with this error can be found [here](https://explorer.solana.com/tx/3mxbShkerH9ZV1rMmvDfaAhLhJJqrmMjcsWzanjkARjBQurhf4dounrDCUkGunH1p9M4jEwef9parueyHVw6r2Et?cluster=devnet).
+This message is a little misleading, because “signer privilege escalated” does not seem like a problem but, in reality, it means that you are incorrectly signing for the address in the message. If you are using `invoke_signed` and receive this error, then it likely means that the seeds you are providing are incorrect. You can also find [an example transaction that failed with this error](https://explorer.solana.com/tx/3mxbShkerH9ZV1rMmvDfaAhLhJJqrmMjcsWzanjkARjBQurhf4dounrDCUkGunH1p9M4jEwef9parueyHVw6r2Et?cluster=devnet).
 
 Another similar error is thrown when an account that's written to isn't marked as `writable` inside the `AccountMeta` struct.
 
@@ -215,13 +213,13 @@ CPIs are a very important feature of the Solana ecosystem and they make all prog
 
 Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate transactions with valid signatures for those addresses. This can be *very* useful for many applications in Web3 (e.g. DeFi, NFTs, etc.) Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs!)
 
-# Demo
+# Lab
 
 Now let's get some hands on experience with CPIs by making some additions to the Movie Review program again. If you're dropping into this lesson without having gone through prior lessons, the Movie Review program allows users to submit movie reviews and have them stored in PDA accounts.
 
 Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to work on having the program mint tokens to the reviewer or commenter anytime a review or comment is submitted.
 
-To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token Program lesson](./token-program.md) before moving forward with this demo.
+To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token Program lesson](./token-program.md) before moving forward with this lab.
 
 ### 1. Get starter code and add dependencies
 
@@ -611,12 +609,12 @@ Once you've initialized your token mint, you can use the [Movie Review frontend]
 
 After submitting a review, you should see 10 new tokens in your wallet! When you add a comment, you should receive 5 tokens. They won't have a fancy name or image since we didn't add any metadata to the token, but you get the idea.
 
-If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
+If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Note that the solution to this lab is on the `solution-add-tokens` branch.
 
 # Challenge
 
-To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.
+To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the lab here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.
 
 A great example would be to build a decentralized Stack Overflow. The program could use tokens to determine a user's overall rating, mint tokens when questions are answered correctly, allow users to upvote answers, etc. All of that is possible and you now have the skills and knowledge to go and build something like it on your own!
 
-Congratulations on reaching the end of Module 4! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%204), so that we can continue to improve the course.
+Congratulations on reaching the end of Module 4! Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%204), so that we can continue to improve the course.

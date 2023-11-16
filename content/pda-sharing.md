@@ -1,12 +1,10 @@
-# PDA Sharing
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: PDA Sharing
+objectives:
 - Explain the security risks associated with PDA sharing
 - Derive PDAs that have discrete authority domains
 - Use Anchor’s `seeds` and `bump` constraints to validate PDA accounts
+---
 
 # TL;DR
 
@@ -190,9 +188,9 @@ pub struct TokenPool {
 }
 ```
 
-# Demo
+# Lab
 
-Let’s practice by creating a simple program to demonstrate how a PDA sharing can allow an attacker to withdraw tokens that don’t belong to them. This demo expands on the examples above by including the instructions to initialize the required program accounts.
+Let’s practice by creating a simple program to demonstrate how a PDA sharing can allow an attacker to withdraw tokens that don’t belong to them. this lab expands on the examples above by including the instructions to initialize the required program accounts.
 
 ### 1. Starter
 
@@ -212,7 +210,7 @@ After that, there are two more tests to show how the instructions are vulnerable
 
 The first test invokes the `initialize_pool` instruction to create a "fake" `pool` account using the same `vault` token account, but a different `withdraw_destination`.
 
-The second test withdraws from this pool, effectively stealing funds from the vault.
+The second test withdraws from this pool, stealing funds from the vault.
 
 ```tsx
 it("Insecure initialize allows pool to be initialized with wrong vault", async () => {
@@ -477,7 +475,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and look for potential vulnerabilities in its PDA structure. PDAs used for signing should be narrow and focused on a single domain as much as possible.
 

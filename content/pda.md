@@ -1,13 +1,12 @@
-# PDAs
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: PDAs
+objectives:
 - Explain Program Derived Addresses (PDAs)
 - Explain various use cases of PDAs
 - Describe how PDAs are derived
 - Use PDA derivations to locate and retrieve data
+---
+
 
 # TL;DR
 
@@ -25,8 +24,8 @@ Program Derived Addresses (PDAs) are account addresses designed to be signed for
 
 PDAs serve two main functions:
 
-1. Provide a deterministic way to find the address of a program-owned account
-2. Authorize the program from which a PDA was derived to sign on its behalf in the same way a user may sign with their private key
+1. Provide a deterministic way to find a given item of data for a program
+2. Authorize the program from which a PDA was derived to sign on its behalf in the same way a user may sign with their secret key
 
 In this lesson we'll focus on using PDAs to find and store data. We'll discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
 
@@ -34,9 +33,9 @@ In this lesson we'll focus on using PDAs to find and store data. We'll discuss s
 
 PDAs are not technically created. Rather, they are *found* or *derived* based on a program ID and one or more input seeds.
 
-Solana keypairs can be found on what is called the Ed25519 Elliptic Curve (Ed25519). Ed25519 is a deterministic signature scheme that Solana uses to generate corresponding public and private keys. Together, we call these keypairs.
+Solana keypairs can be found on what is called the Ed25519 Elliptic Curve (Ed25519). Ed25519 is a deterministic signature scheme that Solana uses to generate corresponding public and secret keys. Together, we call these keypairs.
 
-Alternatively, PDAs are addresses that lie *off* the Ed25519 curve. This effectively means they are public keys *without* a corresponding private key. This property of PDAs is essential for programs to be able to sign on their behalf, but we'll cover that in a future lesson.
+Alternatively, PDAs are addresses that lie *off* the Ed25519 curve. This means PDAs are not public keys, and don't have private keys. This property of PDAs is essential for programs to be able to sign on their behalf, but we'll cover that in a future lesson.
 
 To find a PDA within a Solana program, we'll use the `find_program_address` function. This function takes an optional list of “seeds” and a program ID as inputs, and then returns the PDA and a bump seed.
 
@@ -48,7 +47,7 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_in
 
 “Seeds” are optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and no additional seeds. Using seeds to find our PDAs, however, allows us to create an arbitrary number of accounts that our program can own.
 
-While you, the developer, determine the seeds to pass into the `find_program_address` function, the function itself provides an additional seed called a "bump seed." The cryptographic function for deriving a PDA results in a key that lies *on* the Ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the Ed25519 curve and therefore does not have a private key, the `find_program_address` function adds a numeric seed called a bump seed.
+While you, the developer, determine the seeds to pass into the `find_program_address` function, the function itself provides an additional seed called a "bump seed." The cryptographic function for deriving a PDA results in a key that lies *on* the Ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the Ed25519 curve and therefore does not have a secret key, the `find_program_address` function adds a numeric seed called a bump seed.
 
 The function starts by using the value `255` as the bump seed, then checks to see if the output is a valid PDA. If the result is not a valid PDA, the function decreases the bump seed by 1 and tries again (`255`, `254`, `253`, et cetera). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
@@ -196,19 +195,19 @@ The mappings between seeds and PDA accounts that you use will be highly dependen
 - Be thoughtful about the data structure used within each account
 - Simpler is usually better
 
-# Demo
+# Lab
 
 Let’s practice together with the Movie Review program we've worked on in previous lessons. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way.
 
 As a refresher, the Movie Review program lets users create movie reviews. These reviews are stored in an account using a PDA derived with the initializer’s public key and the title of the movie they are reviewing.
 
-Previously, we finished implementing the ability to update a movie review in a secure manner. In this demo, we'll add the ability for users to comment on a movie review. We'll use building this feature as an opportunity to work through how to structure the comment storage using PDA accounts.
+Previously, we finished implementing the ability to update a movie review in a secure manner. In this lab, we'll add the ability for users to comment on a movie review. We'll use building this feature as an opportunity to work through how to structure the comment storage using PDA accounts.
 
 ### 1. Get the starter code
 
-To begin, you can find the starter code [here](https://github.com/Unboxed-Software/solana-movie-program/tree/starter) on the `starter` branch.
+To begin, you can find [the movie program starter code](https://github.com/Unboxed-Software/solana-movie-program/tree/starter) on the `starter` branch.
 
-If you've been following along with the Movie Review demos, you'll notice that this is the program we’ve built out so far. Previously, we used [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code. In this lesson, we’ll build and deploy the program locally.
+If you've been following along with the Movie Review labs, you'll notice that this is the program we’ve built out so far. Previously, we used [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code. In this lesson, we’ll build and deploy the program locally.
 
 Open the folder, then run `cargo-build-bpf` to build the program. The `cargo-build-bpf` command will output instruction to deploy the program.
 

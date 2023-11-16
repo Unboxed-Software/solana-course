@@ -1,17 +1,15 @@
-# Account Data Matching
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Account Data Matching
+objectives:
 - Explain the security risks associated with missing data validation checks
 - Implement data validation checks using long-form Rust
 - Implement data validation checks using Anchor constraints
+---
 
 # TL;DR
 
-- Use **data validation checks** to verify that account data matches an expected value**.** Without appropriate data validations checks, unexpected accounts may be used in an instruction.
-- To implement data validations checks in Rust, simply compare the data stored on an account to an expected value.
+- Use **data validation checks** to verify that account data matches an expected value. Without appropriate data validation checks, unexpected accounts may be used in an instruction.
+- To implement data validation checks in Rust, simply compare the data stored on an account to an expected value.
     
     ```rust
     if ctx.accounts.user.key() != ctx.accounts.user_data.user {
@@ -163,9 +161,9 @@ pub struct UpdateAdmin<'info> {
 }
 ```
 
-# Demo
+# Lab
 
-For this demo we’ll create a simple “vault” program similar to the program we used in the Signer Authorization lesson and the Owner Check lesson. Similar to those demos, we’ll show in this demo how a missing data validation check could allow the vault to be drained.
+For this lab we’ll create a simple “vault” program similar to the program we used in the Signer Authorization lesson and the Owner Check lesson. Similar to those labs, we’ll show in this lab how a missing data validation check could allow the vault to be drained.
 
 ### 1. Starter
 
@@ -452,7 +450,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that proper data checks are in place to avoid security exploits.
 

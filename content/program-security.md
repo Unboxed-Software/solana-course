@@ -1,15 +1,13 @@
-# Create a Basic Program, Part 3 - Basic Security and Validation
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Create a Basic Program, Part 3 - Basic Security and Validation
+objectives:
 - Explain the importance of "thinking like an attacker"
 - Understand basic security practices
 - Perform owner checks
 - Perform signer checks
 - Validate accounts passed into the program
 - Perform basic data validation
+---
 
 # TL;DR
 
@@ -180,7 +178,7 @@ To avoid integer overflow and underflow, either:
     let sum = first_int.checked_add(second_int);
     ```
 
-# Demo
+# Lab
 
 Let’s practice together with the Movie Review program we've worked on in previous lessons. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way.
 
@@ -190,7 +188,7 @@ Just as before, we'll be using [Solana Playground](https://beta.solpg.io/) to w
 
 ## 1. Get the starter code
 
-To begin, you can find the starter code [here](https://beta.solpg.io/62b552f3f6273245aca4f5c9). If you've been following along with the Movie Review demos, you'll notice that we've refactored our program.
+To begin, you can find [the movie review starter code](https://beta.solpg.io/62b552f3f6273245aca4f5c9). If you've been following along with the Movie Review labs, you'll notice that we've refactored our program.
 
 The refactored starter code is almost the same as what it was before. Since `lib.rs` was getting rather large and unwieldy, we've separated its code into 3 files: `lib.rs`, `entrypoint.rs`, and `processor.rs`. `lib.rs` now *only* registers the code's modules, `entrypoint.rs` *only* defines and sets the program's entrypoint, and `processor.rs` handles the program logic for processing instructions. We've also added an `error.rs` file where we'll be defining custom errors. The complete file structure is as follows:
 
@@ -201,7 +199,7 @@ The refactored starter code is almost the same as what it was before. Since `lib
 - **state.rs -** serialize and deserialize state
 - **error.rs -** custom program errors
 
-In addition to some changes to file structure, we've updated a small amount of code that will let this demo be more focused on security without having you write unnecessary boiler plate.
+In addition to some changes to file structure, we've updated a small amount of code that will let this lab be more focused on security without having you write unnecessary boiler plate.
 
 Since we'll be allowing updates to movie reviews, we also changed `account_len` in the `add_movie_review` function (now in `processor.rs`). Instead of calculating the size of the review and setting the account length to only as large as it needs to be, we're simply going to allocate 1000 bytes to each review account. This way, we don’t have to worry about reallocating size or re-calculating rent when a user updates their movie review.
 
@@ -215,7 +213,7 @@ To this:
 let account_len: usize = 1000;
 ```
 
-The [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) method was just recently enabled by Solana Labs which allows you to dynamically change the size of your accounts. We will not be using this method for this demo, but it’s something to be aware of.
+The [realloc](https://docs.rs/solana-sdk/latest/solana_sdk/account_info/struct.AccountInfo.html#method.realloc) method was just recently enabled by Solana Labs which allows you to dynamically change the size of your accounts. We will not be using this method for this lab, but it’s something to be aware of.
 
 Finally, we've also implemented some additional functionality for our `MovieAccountState` struct in `state.rs` using the `impl` keyword.
 
@@ -722,4 +720,4 @@ Using what you've learned in this lesson, try applying what you've learned to th
 1. Add an instruction allowing students to update their message
 2. Implement the basic security checks we've learned in this lesson
 
-Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62c9120df6273245aca4f5e8). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write. Once you complete Module 3, we'd love to know more about your experience! Feel free to share some quick feedback [here](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%203), so that we can continue to improve the course.
+Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62c9120df6273245aca4f5e8). Note that your code may look slightly different than the solution code depending on the checks you implement and the errors you write. Once you complete Module 3, we'd love to know more about your experience! Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%203), so that we can continue to improve the course.

@@ -1,12 +1,10 @@
-# Closing Accounts and Revival Attacks
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Closing Accounts and Revival Attacks
+objectives:
 - Explain the various security vulnerabilities associated with closing program accounts incorrectly
 - Close program accounts safely and securely using native Rust
 - Close program accounts safely and securely using the Anchor `close` constraint
+---
 
 # TL;DR
 
@@ -206,7 +204,7 @@ pub struct CloseAccount {
 
 The `force_defund` instruction is an optional addition that you’ll have to implement on your own if you’d like to utilize it.
 
-# Demo
+# Lab
 
 To clarify how an attacker might take advantage of a revival attack, let's work with a simple lottery program that uses program account state to manage a user's participation in the lottery.
 
@@ -453,7 +451,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that when accounts are closed they're not susceptible to revival attacks.
 

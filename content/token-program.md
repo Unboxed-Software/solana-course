@@ -1,14 +1,12 @@
-# Create Tokens With The Token Program
-
-# Lesson Objectives
-
-*By the end of this lesson, you will be able to:*
-
+---
+title: Create Tokens With The Token Program
+objectives:
 - Create token mints
 - Create token accounts
 - Mint tokens
 - Transfer tokens
 - Burn tokens
+---
 
 # TL;DR
 
@@ -185,7 +183,13 @@ async function buildCreateTokenAccountTransaction(
 
 ### Associated Token Account
 
-An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
+An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. 
+
+Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
+- If not for associated token account, a user may own many token accounts belonging to the same mint leading to confusion as to where to send tokens to.
+- Associated token account allows a user to send tokens to another user if the recipient doesn't yet have the token account for that token mint.  
+
+![ATAs are PDAs](../assets/atas-are-pdas.svg)
 
 Similar to above, you can create an associated token account using the `spl-token` library's `createAssociatedTokenAccount` function.
 
@@ -487,7 +491,7 @@ async function buildRevokeTransaction(
 }
 ```
 
-# Demo
+# Lab
 
 We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, approve a delegate, transfer tokens, and burn tokens.
 
@@ -495,7 +499,7 @@ We’re going to create a script that interacts with instructions on the Token P
 
 Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the `@solana/web3.js` and `@solana/spl-token` packages.
 
-You can use `npx create-solana-client [INSERT_NAME_HERE]` in the command line to clone the template we'll be starting from. Or you can manually clone the template [here](https://github.com/Unboxed-Software/solana-client-template).
+You can use `npx create-solana-client [INSERT_NAME_HERE] --initialize-keypair` in the command line to clone the template we'll be starting from. Or you can [manually clone the template](https://github.com/Unboxed-Software/solana-npx-client-template/tree/with-keypair-env). Note if you use the git repository directly as your starting point that we'll be starting from the `with-keypair-env` branch.
 
 You'll then need to add a dependency on `@solana/spl-token`. From the command line inside the newly created directory, use the command `npm install @solana/spl-token`.
 
@@ -1062,11 +1066,11 @@ If you need a bit more time with this project to feel comfortable, have a look a
 
 Now it’s your turn to build something independently. Create an application that allows a users to create a new mint, create a token account, and mint tokens.
 
-Note that you will not be able to directly use the helper functions we went over in the demo. In order to interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
+Note that you will not be able to directly use the helper functions we went over in the lab. In order to interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
 
 ![Screenshot of Token Program Challenge Frontend](../assets/token-program-frontend.png)
 
-1. You can build this from scratch or you can download the starter code [here](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
+1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
 2. Create a new Token Mint in the `CreateMint` component.
     If you need a refresher on how to send transactions to a wallet for approval, have a look at the [Wallets lesson](./interact-with-wallets.md).
 

@@ -1,13 +1,11 @@
-# Environment Variables in Solana Programs
-
-# Lesson Objectives
-
-_By the end of this lesson, you will be able to:_
-
--   Define program features in the `Cargo.toml` file
--   Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
--   Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
--   Create an admin-only instruction to set up a program account that can be used to store program configuration values
+---
+title: Environment Variables in Solana Programs
+objectives:
+- Define program features in the `Cargo.toml` file
+- Use the Rust `cfg` attribute to conditionally compile code based on which features are or are not enabled
+- Use the Rust `cfg!` macro to conditionally compile code based on which features are or are not enabled
+- Create an admin-only instruction to set up a program account that can be used to store program configuration values
+---
 
 # TL;DR
 
@@ -293,9 +291,9 @@ There's one catch here: in the time between deploying a program and initializing
 
 While this sounds bad, it really just means that you shouldn't treat your program as "initialized" until you've initialized the config account yourself and verified that the admin listed on the account is who you expect. If your deploy script deploys and then immediately calls `initialize`, it's very unlikely that an attacker is even aware of your program's existence much less trying to make themselves the admin. If by some crazy stroke of bad luck someone "intercepts" your program, you can close the program with the upgrade authority and redeploy.
 
-# Demo
+# Lab
 
-Now let's go ahead and try this out together. For this demo, we'll be working with a simple program that enables USDC payments. The program collects a small fee for facilitating the transfer. Note that this is somewhat contrived since you can do direct transfers without an intermediary contract, but it simulates how some complex DeFi programs work.
+Now let's go ahead and try this out together. For this lab, we'll be working with a simple program that enables USDC payments. The program collects a small fee for facilitating the transfer. Note that this is somewhat contrived since you can do direct transfers without an intermediary contract, but it simulates how some complex DeFi programs work.
 
 We'll quickly learn while testing our program that it could benefit from the flexibility provided by an admin-controlled configuration account and some feature flags.
 
@@ -383,7 +381,7 @@ local-testing = []
 
 Next, update the `config.ts` test file to create a mint using the generated keypair. Start by deleting the `mint` constant.
 
-```ts
+```typescript
 const mint = new anchor.web3.PublicKey(
     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 );
@@ -391,7 +389,7 @@ const mint = new anchor.web3.PublicKey(
 
 Next, update the test to create a mint using the keypair, which will enable us to reuse the same mint address each time the tests are run. Remember to replace the file name with the one generated in the previous step.
 
-```ts
+```typescript
 let mint: anchor.web3.PublicKey
 
 before(async () => {
@@ -686,7 +684,7 @@ pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
 
 Now that we're done implementing our new program configuration struct and instructions, let's move on to testing our updated program. To begin, add the PDA for the program config account to the test file.
 
-```ts
+```typescript
 describe("config", () => {
   ...
   const programConfig = findProgramAddressSync(
@@ -835,7 +833,7 @@ And that's it! You've made the program a lot easier to work with moving forward.
 
 # Challenge
 
-Now it's time for you to do some of this on your own. We mentioned being able to use the program's upgrade authority as the initial admin.  Go ahead and update the demo's `initialize_program_config` so that only the upgrade authority can call it rather than having a hardcoded `ADMIN`.
+Now it's time for you to do some of this on your own. We mentioned being able to use the program's upgrade authority as the initial admin.  Go ahead and update the lab's `initialize_program_config` so that only the upgrade authority can call it rather than having a hardcoded `ADMIN`.
 
 Note that the `anchor test` command, when run on a local network, starts a new test validator using `solana-test-validator`. This test validator uses a non-upgradeable loader. The non-upgradeable loader makes it so the program's `program_data` account isn't initialized when the validator starts. You'll recall from the lesson that this account is how we access the upgrade authority from the program.
 
