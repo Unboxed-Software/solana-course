@@ -1,0 +1,88 @@
+:root {
+  --single-column: 700px;
+  --image-max-width: 1100px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+div,
+article,
+section,
+button {
+  display: grid;
+}
+
+h1 {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+}
+
+article {
+  justify-items: center;
+}
+
+article a {
+  text-decoration: underline;
+}
+
+pre {
+  padding: 0;
+}
+
+code {
+  /* highlight.js likes to override this */
+  background-color: hsl(0, 0%, 96.5%) !important;
+  font-size: 18px;
+  line-height: 24px;
+  border-radius: 12px;
+  padding: 3px;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+ul,
+ol {
+  max-width: 100%;
+  width: var(--single-column);
+}
+
+/* Our markdown outputs images as p img, for some reason
+Let's ensure images pop out out the -single-column width */
+p:has(> img) {
+  place-items: center;
+  width: 100%;
+  display: grid;
+}
+
+/* Our markdown outputs images as p img. 
+Don't use img as there are navigation images etc. */
+p img {
+  max-width: 1100px;
+  border: 1px solid #0b1d9c;
+  border-radius: 12px;
+  /* Color is from https://solana.com/branding */
+  box-shadow: 0 6.67587px 25.869px -1.66897px #9945ff2b;
+  max-width: var(--image-max-width);
+}
