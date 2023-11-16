@@ -328,9 +328,10 @@ Create a new project called `anchor-counter` by running `anchor init`:
 anchor init anchor-counter
 ```
 
-Next, run `anchor build`
+Change into the new directory, then run `anchor build`
 
 ```console
+cd anchor-counter
 anchor build
 ```
 
