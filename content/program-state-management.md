@@ -313,7 +313,7 @@ Next, within our `add_movie_review` function, let’s independently derive the P
 Note that we derive the PDA for each new account using the initializer’s public key and the movie title as optional seeds. Setting up the PDA this way restricts each user to only one review for any one movie title. However, it still allows the same user to review movies with different titles and different users to review movies with the same title.
 
 ```rust
-// Derive PDA and check that it matches client
+// Derive PDA
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
 ```
 
