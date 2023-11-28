@@ -2,7 +2,7 @@
 title: CPIs e Erros Anchor
 objectives:
 - Fazer invocações entre programas (CPIs) a partir de um programa Anchor
-- Usar o recurso `cpi` para gerar funções auxiliares para invocar instruções em programas Anchor existentes.
+- Usar a funcionalidade `cpi` para gerar funções auxiliares para invocar instruções em programas Anchor existentes.
 - Usar `invoke` e `invoke_signed` para criar CPIs onde as funções auxiliares de CPI não estão disponíveis.
 - Criar e retornar erros personalizados do Anchor
 ---
@@ -10,13 +10,13 @@ objectives:
 # RESUMO
 
 - O Anchor oferece uma maneira simplificada de criar CPIs usando um **`CpiContext`**
-- O recurso **`cpi`** do Anchor gera funções auxiliares de CPI para invocar instruções em programas Anchor existentes
+- A funcionalidade **`cpi`** do Anchor gera funções auxiliares de CPI para invocar instruções em programas Anchor existentes
 - Se você não tiver acesso às funções auxiliares de CPI, ainda poderá usar `invoke` e `invoke_signed` diretamente
-- A macro de atributo **`error_code`** é usada para criar erros personalizados do Anchor
+- A macro de atributos **`error_code`** é usada para criar erros personalizados do Anchor
 
 # Visão Geral
 
-Se você se lembrar da [primeira lição de CPI](cpi.md), verá que a construção de CPIs pode ser complicada com o Rust básico. No entanto, o Anchor torna isso um pouco mais simples, especialmente se o programa que você está invocando também for um programa Anchor cujo crate você pode acessar.
+Se você se lembrar da [primeira lição de CPI](cpi.md), verá que a construção de CPIs pode ser complicada com o Rust básico. No entanto, o Anchor torna isso um pouco mais simples, especialmente se o programa que você está invocando também for um programa Anchor cujo crate possa ser acessado.
 
 Nesta lição, você aprenderá a construir um CPI Anchor. Você também aprenderá a lançar erros personalizados de um programa Anchor para que possa começar a escrever programas Anchor mais sofisticados.
 
@@ -26,11 +26,11 @@ Para relembrar, os CPIs permitem que os programas invoquem instruções em outro
 
 Embora a criação de CPIs diretamente usando `invoke` ou `invoke_signed` ainda seja uma opção, o Anchor também oferece uma maneira simplificada de criar CPIs usando um `CpiContext`.
 
-Nesta lição, você usará o crate `anchor_spl` para criar CPIs para o SPL Token Program. Você pode [explorar o que está disponível no crate `anchor_spl`](https://docs.rs/anchor-spl/latest/anchor_spl/#).
+Nesta lição, você usará o crate `anchor_spl` para criar CPIs para o Programa de Token SPL. Você pode [explorar o que está disponível no crate `anchor_spl`](https://docs.rs/anchor-spl/latest/anchor_spl/#).
 
 ### `CpiContext`
 
-A primeira etapa na construção de um CPI é criar uma instância de `CpiContext`. O `CpiContext` é muito semelhante ao `Context`, o primeiro tipo de argumento exigido pelas funções de instrução Anchor. Ambos são declarados no mesmo módulo e compartilham funcionalidade semelhante.
+A primeira etapa na construção de uma CPI é criar uma instância de `CpiContext`. O `CpiContext` é muito semelhante ao `Context`, o primeiro tipo de argumento exigido pelas funções de instrução Anchor. Ambos são declarados no mesmo módulo e compartilham funcionalidade semelhante.
 
 O tipo `CpiContext` especifica entradas sem argumentos para invocações entre programas:
 
@@ -71,7 +71,7 @@ pub fn new(
 }
 ```
 
-Você usa `CpiContext::new_with_signer` para construir uma nova instância ao assinar em nome de um PDA para o CPI.
+Você usa `CpiContext::new_with_signer` para construir uma nova instância ao assinar em nome de um PDA para a CPI.
 
 ```rust
 CpiContext::new_with_signer(cpi_program, cpi_accounts, seeds)
@@ -92,11 +92,11 @@ pub fn new_with_signer(
 }
 ```
 
-### CPI accounts
+### Contas CPI
 
-Um dos principais aspectos do `CpiContext` que simplifica as invocações entre programas é que o argumento `accounts` é um tipo genérico que permite que você passe qualquer objeto que adote as características `ToAccountMetas` e `ToAccountInfos<'info>`.
+Um dos principais aspectos do `CpiContext` que simplifica as invocações entre programas é que o argumento `accounts` é um tipo genérico que permite que você passe qualquer objeto que adote os traits `ToAccountMetas` e `ToAccountInfos<'info>`.
 
-Essas características são adicionadas pela macro de atributo `#[derive(Accounts)]` que você usou anteriormente ao criar structs para representar contas de instrução. Isso significa que você pode usar structs semelhantes com o `CpiContext`.
+Esses traits são adicionados pela macro de atributos `#[derive(Accounts)]` que você usou anteriormente ao criar structs para representar contas de instrução. Isso significa que você pode usar structs semelhantes com o `CpiContext`.
 
 Isso auxilia na organização do código e na segurança de tipo.
 
@@ -104,14 +104,14 @@ Isso auxilia na organização do código e na segurança de tipo.
 
 Quando o programa que você está chamando é um programa Anchor com um crate publicado, o Anchor pode gerar construtores de instruções e funções auxiliares de CPI para você.
 
-Basta declarar a dependência do seu programa no programa que você está chamando no arquivo `Cargo.toml` do seu programa da seguinte forma:
+Basta declarar a dependência do seu programa no programa que você está chamando, no arquivo `Cargo.toml` do seu programa, da seguinte forma:
 
 ```
 [dependencies]
 callee = { path = "../callee", features = ["cpi"]}
 ```
 
-Ao adicionar `features = ["cpi"]`, você ativa o recurso `cpi` e seu programa obtém acesso ao módulo `callee::cpi`.
+Ao adicionar `features = ["cpi"]`, você ativa a funcionalidade `cpi` e seu programa obtém acesso ao módulo `callee::cpi`.
 
 O módulo `cpi` expõe as instruções do `callee` como uma função Rust que recebe como argumentos um `CpiContext` e quaisquer dados de instrução adicionais. Essas funções usam o mesmo formato que as funções de instrução em seus programas Anchor, apenas com `CpiContext` em vez de `Context`. O módulo `cpi` também expõe as estruturas de contas necessárias para chamar as instruções.
 
@@ -145,7 +145,7 @@ pub mod lootbox_program {
 
 Quando o programa que você está chamando *não* é um programa Anchor, há duas opções possíveis:
 
-1. É possível que os mantenedores do programa tenham publicado uma crate com suas próprias funções auxiliares para fazer chamadas em seus programas. Por exemplo, o crate `anchor_spl` fornece funções auxiliares que são virtualmente idênticas, do ponto de vista do local de chamada, ao que você obteria com o módulo `cpi` de um programa Anchor. Por exemplo, você pode usar a função auxiliar [`mint_to`] (https://docs.rs/anchor-spl/latest/src/anchor_spl/token.rs.html#36-58) e usar a [struct de contas `MintTo`](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.MintTo.html).
+1. É possível que os mantenedores do programa tenham publicado um crate com suas próprias funções auxiliares para fazer chamadas em seus programas. Por exemplo, o crate `anchor_spl` fornece funções auxiliares que são virtualmente idênticas, do ponto de vista do local de chamada, ao que você obteria com o módulo `cpi` de um programa Anchor. Por exemplo, você pode usar a função auxiliar [`mint_to`] (https://docs.rs/anchor-spl/latest/src/anchor_spl/token.rs.html#36-58) e usar a [struct de contas `MintTo`](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.MintTo.html).
     ```rust
     token::mint_to(
         CpiContext::new_with_signer(
@@ -247,7 +247,7 @@ pub enum MyError {
 }
 ```
 
-Como alternativa, você pode usar a macro [require](https://docs.rs/anchor-lang/latest/anchor_lang/macro.require.html) para simplificar o retorno de erros. O código acima pode ser refatorado para o seguinte:
+Como alternativa, você pode usar a macro [require](https://docs.rs/anchor-lang/latest/anchor_lang/macro.require.html) para simplificar o retorno de erros. O código acima pode ser reformulado para o seguinte:
 
 ```rust
 #[program]
@@ -269,9 +269,9 @@ pub enum MyError {
 
 # Demonstração
 
-Vamos praticar os conceitos que abordamos nesta lição com base no programa Movie Review, ou resenha de filme, das lições anteriores.
+Vamos praticar os conceitos que abordamos nesta lição com base no programa Movie Review (Avaliação de Filme) das lições anteriores.
 
-Nesta demonstração, atualizaremos o programa para cunhar tokens para os usuários quando eles enviarem uma nova resenha de filme.
+Nesta demonstração, atualizaremos o programa para cunhar tokens para os usuários quando eles enviarem uma nova avaliação de filme.
 
 ### 1. Início
 
@@ -279,7 +279,7 @@ Para começar, usaremos o estado final do programa Anchor Movie Review da liçã
 
 ### 2. Adicione dependência a `Cargo.toml`
 
-Antes de começarmos, precisamos ativar o recurso `init-if-needed` e adicionar o crate `anchor-spl` às dependências em `Cargo.toml`. Se precisar se familiarizar com o recurso `init-if-needed`, dê uma olhada em [Anchor PDAs and Accounts lesson](anchor-pdas.md).
+Antes de começarmos, precisamos ativar a funcionalidade `init-if-needed` e adicionar o crate `anchor-spl` às dependências em `Cargo.toml`. Se precisar se familiarizar com a funcionalidade `init-if-needed`, dê uma olhada na lição [Anchor PDAs and Accounts](anchor-pdas.md).
 
 ```rust
 [dependencies]
@@ -287,13 +287,13 @@ anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
 anchor-spl = "0.25.0"
 ```
 
-### 3. Inicializar o token de recompensa
+### 3. Inicialize o token de recompensa
 
 Em seguida, navegue até `lib.rs` e crie uma instrução para inicializar uma cunhagem de um novo token. Esse será o token que será cunhado sempre que um usuário deixar uma avaliação. Observe que não precisamos incluir nenhuma lógica de instrução personalizada, pois a inicialização pode ser tratada inteiramente por meio de restrições do Anchor.
 
 ```rust
 pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
-    msg!("Token mint initialized");
+    msg!("Cunhagem de Token inicializada");
     Ok(())
 }
 ```
@@ -331,7 +331,7 @@ Em seguida, vamos criar um Erro Anchor, que usaremos ao validar a `rating` que p
 ```rust
 #[error_code]
 enum MovieReviewError {
-    #[msg("Rating must be between 1 and 5")]
+    #[msg("A classificação deve estar entre 1 e 5")]
     InvalidRating
 }
 ```
@@ -342,8 +342,8 @@ Agora que já fizemos algumas configurações, vamos atualizar a instrução `ad
 
 Em seguida, atualize o tipo de contexto `AddMovieReview` para adicionar as seguintes contas:
 
-- `token_program` - usaremos o Token Program para cunhar tokens
-- `mint` - a conta mint para os tokens que serão emitidos para os usuários quando eles adicionarem uma resenha de filme
+- `token_program` - usaremos a Token Program para cunhar tokens
+- `mint` - a conta mint para os tokens que serão emitidos para os usuários quando eles adicionarem uma avaliação de filme
 - `token_account` - a conta de token associada para o `mint` e o avaliador mencionados anteriormente
 - `associated_token_program` - necessário porque usaremos a restrição `associated_token` no `token_account`
 - `rent` - necessário porque estamos usando a restrição `init-if-needed` no `token_account`
@@ -362,7 +362,7 @@ pub struct AddMovieReview<'info> {
     #[account(mut)]
     pub initializer: Signer<'info>,
     pub system_program: Program<'info, System>,
-    // ADDED ACCOUNTS BELOW
+    // CONTAS ADICIONADAS ABAIXO
     pub token_program: Program<'info, Token>,
     #[account(
         seeds = ["mint".as_bytes()]
@@ -389,11 +389,11 @@ Em seguida, vamos atualizar a instrução `add_movie_review` para fazer o seguin
 - Verifique se o valor de `rating` é válido. Se não for, retorne o erro `InvalidRating`.
 - Faça um CPI para a instrução `mint_to` do programa de token usando o PDA de autoridade de cunhagem como um signatário. Observe que vamos cunhar 10 tokens para o usuário, mas precisamos ajustar os decimais da cunhagem, tornando-a `10*10^6`.
 
-Felizmente, podemos usar o crate `anchor_spl` para acessar funções auxiliares e tipos como `mint_to` e `MintTo` para construir nosso CPI para o Token Program. O `mint_to` recebe um `CpiContext` e um número inteiro como argumentos, em que o número inteiro representa o número de tokens a serem cunhados. O `MintTo` pode ser usado para a lista de contas que a instrução mint precisa.
+Felizmente, podemos usar o crate `anchor_spl` para acessar funções auxiliares e tipos como `mint_to` e `MintTo` para construir nossa CPI para a Token Program. O `mint_to` recebe um `CpiContext` e um número inteiro como argumentos, em que o número inteiro representa o número de tokens a serem cunhados. O `MintTo` pode ser usado para a lista de contas que a instrução mint precisa.
 
 ```rust
 pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description: String, rating: u8) -> Result<()> {
-    msg!("Movie review account created");
+    msg!("Conta de avaliação de filmes criada");
     msg!("Title: {}", title);
     msg!("Description: {}", description);
     msg!("Rating: {}", rating);
@@ -434,7 +434,7 @@ Aqui, estamos apenas adicionando a verificação de que `rating` seja válido.
 
 ```rust
 pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, description: String, rating: u8) -> Result<()> {
-    msg!("Movie review account space reallocated");
+    msg!("Espaço da conta de avaliação de filmes realocado");
     msg!("Title: {}", title);
     msg!("Description: {}", description);
     msg!("Rating: {}", rating);
@@ -546,6 +546,6 @@ Se você precisa de um tempo maior para os conceitos desta lição ou travou ao 
 
 # Desafio
 
-Para aplicar o que você aprendeu sobre CPIs nessa lição, pense em como você pode incorporar esse conhecimento no programa Student Intro. Você poderia fazer alguma coisa semelhante ao que fizemos nessa demo aqui e adicionar algumas funcionalidades para cunhar tokens para usuários no momento em que eles se apresentarem.
+Para aplicar o que você aprendeu sobre CPIs nessa lição, pense em como você pode incorporar esse conhecimento no programa Student Intro. Você poderia fazer alguma coisa semelhante ao que fizemos nessa demonstração aqui e adicionar algumas funcionalidades para cunhar tokens para usuários no momento em que eles se apresentarem.
 
 Tente fazer isso por conta própria se você puder! Mas, se travar, sinta-se à vontade para consultar esse [código de solução](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge). Observe que seu código pode ficar ligeiramente diferente do código de solução dependendo de sua implementação.
