@@ -8,7 +8,7 @@ objectives:
 
 # RESUMO
 
-- Use **data validation checks** para verificar se os dados da conta correspondem a um valor esperado**.** Sem as verificações de validação de dados apropriadas, contas inesperadas podem ser usadas em uma instrução.
+- Use **verificações de validação de dados** para verificar se os dados da conta correspondem a um valor esperado**.** Sem as verificações de validação de dados apropriadas, contas inesperadas podem ser usadas em uma instrução.
 - Para implementar verificações de validação de dados no Rust, basta comparar os dados armazenados em uma conta com um valor esperado.
     
     ```rust
@@ -21,7 +21,7 @@ objectives:
 
 # Visão Geral
 
-A correspondência de dados da conta refere-se a verificações de validação de dados usadas para checar se os dados armazenados em uma conta correspondem a um valor esperado. As verificações de validação de dados fornecem uma maneira de incluir restrições adicionais para garantir que as contas apropriadas passem em uma instrução. 
+A correspondência de dados da conta refere-se a verificações de validação de dados usadas para checar se os dados armazenados em uma conta correspondem a um valor esperado. As verificações de validação de dados fornecem uma maneira de incluir restrições adicionais para garantir que as contas apropriadas passem para uma instrução. 
 
 Isso pode ser útil quando as contas exigidas por uma instrução tiverem dependências de valores armazenados em outras contas ou se uma instrução dependa dos dados armazenados em uma conta.
 
@@ -163,15 +163,15 @@ pub struct UpdateAdmin<'info> {
 
 # Demonstração
 
-Para esta demonstração, criaremos um programa "vault" simples, semelhante ao programa que usamos na lição Signer Authorization (Autorização de Assinatura) e na lição Owner Check (Verificação do Proprietário). De forma semelhante a essas demonstrações, mostraremos aqui como a ausência de uma verificação de validação de dados pode permitir que o cofre seja drenado.
+Para esta demonstração, criaremos um programa "vault" simples, semelhante ao programa que usamos na lição Signer Authorization (Autorização de Signatário) e na lição Owner Check (Verificação do Proprietário). De forma semelhante a essas demonstrações, mostraremos aqui como a ausência de uma verificação de validação de dados pode permitir que o cofre seja drenado.
 
 ### 1. Início
 
-Para começar, faça download do código inicial do ramo `starter` [deste repositório](https://github.com/Unboxed-Software/solana-account-data-matching). O código inicial inclui um programa com duas instruções e a configuração padrão para o arquivo de teste. 
+Para começar, faça download do código inicial da branch `starter` [deste repositório](https://github.com/Unboxed-Software/solana-account-data-matching). O código inicial inclui um programa com duas instruções e a configuração padrão para o arquivo de teste. 
 
 A instrução `initialize_vault` inicializa uma nova conta `Vault` uma nova `TokenAccount`. A conta `Vault` armazenará o endereço de uma conta de token, a autoridade do cofre e uma conta de token de destino de retirada.
 
-A autoridade da nova conta de token será definida como o `vault`, um PDA, ou, personal digital assistant, do programa. Isso permite que a conta `vault` assine a transferência de tokens da conta de tokens. 
+A autoridade da nova conta de token será definida como o `vault`, um PDA, ou, personal digital assistant (assistente digital pessoal), do programa. Isso permite que a conta `vault` assine a transferência de tokens da conta de tokens. 
 
 A instrução `insecure_withdraw` transfere todos os tokens na conta de token da conta `vault` para uma conta de token `withdraw_destination`. 
 
@@ -272,7 +272,7 @@ pub struct Vault {
 
 ### 2. Teste a instrução `insecure_withdraw`
 
-Para provar que isso é um problema, vamos escrever um teste em que uma conta que não seja a `authority` da vault tenta sacar do cofre.
+Para provar que isso é um problema, vamos escrever um teste em que uma conta que não seja a `authority` do cofre tenta sacar do cofre.
 
 O arquivo de teste inclui o código para invocar a instrução `initialize_vault` usando a carteira do provedor como a `authority` e, em seguida, cunhar 100 tokens para a conta de token `vault`.
 
@@ -310,7 +310,7 @@ account-data-matching
   ✔ Insecure withdraw (403ms)
 ```
 
-### 3. Add `secure_withdraw` instruction
+### 3. Adicione a instrução `secure_withdraw`
 
 Vamos implementar uma versão segura desta instrução chamada `secure_withdraw`.
 
@@ -437,16 +437,16 @@ Execute `anchor test` para ver que a transação que usa uma conta de autoridade
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d1'
 ```
 
-Observe que o Anchor especifica nos registros a conta que causa o erro (`AnchorError caused by account: vault`).
+Observe que o Anchor especifica nos logs a conta que causa o erro (`AnchorError caused by account: vault`).
 
 ```bash
 ✔ Secure withdraw, expect error (77ms)
 ✔ Secure withdraw (10073ms)
 ```
 
-E, dessa forma, você fechou a falha de segurança. A ideia sobre a maioria dessas possíveis explorações é que elas são bastante simples. Entretanto, à medida que seus programas crescem em escopo e complexidade, fica cada vez mais fácil deixar passar possíveis explorações. É ótimo ter o hábito de escrever testes que enviem instruções que *não* deveriam funcionar. Quanto mais, melhor. Dessa forma, você detecta os problemas antes da implantação.
+E, dessa forma, você fechou a brecha de segurança. A ideia sobre a maioria dessas possíveis explorações é que elas são bastante simples. Entretanto, à medida que seus programas crescem em escopo e complexidade, fica cada vez mais fácil deixar passar possíveis explorações. É ótimo ter o hábito de escrever testes que enviem instruções que *não* deveriam funcionar. Quanto mais, melhor. Dessa forma, você detecta os problemas antes da implantação.
 
-Se quiser dar uma olhada no código da solução final, poderá encontrá-lo na ramificação `solution` do [repositório](https://github.com/Unboxed-Software/solana-account-data-matching/tree/solution).
+Se quiser dar uma olhada no código da solução final, poderá encontrá-lo na branch `solution` do [repositório](https://github.com/Unboxed-Software/solana-account-data-matching/tree/solution).
 
 # Desafio
 
@@ -454,4 +454,4 @@ Assim como nas outras lições deste módulo, sua oportunidade de praticar como 
 
 Dedique algum tempo para analisar pelo menos um programa e garantir que as verificações de dados adequadas estejam presentes para evitar explorações de segurança.
 
-Lembre-se, se você encontrar um bug ou um golpe no programa de outra pessoa, alerte-a! Se encontrar um bug em seu próprio programa, não se esqueça de corrigi-lo imediatamente.
+Lembre-se, se você encontrar um bug ou uma exploração no programa de outra pessoa, alerte-a! Se encontrar um bug em seu próprio programa, não deixe de corrigi-lo imediatamente.
