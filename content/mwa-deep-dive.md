@@ -6,10 +6,11 @@ objectives:
 - Create a simple mobile wallet
 ---
 
-TODO - beef up TL;DR just a bit
 # TL;DR
 - Mobile and Web dApps handle their wallet-app connection differently
-- Wallets are wrappers around a keypair
+- Wallets are just wrappers around a keypair
+- MWA handles all of it's wallet interaction within the `transact` function
+- Wallet authorization is handled explicitly on mobile.
 
 # Overview
 Solana-integrated mobile dApps are the future. Banking, gaming, and socials have something to gain from the blockchain, and they all have a place in mobile. However, you don't want just any app you download to have unfettered access to your private keys. So these dApps need a standard to communicate with the blockchain non-invasively, quickly, and securely. This is where the Mobile Wallet Adapter (MWA) comes in. It is the transport layer to connect your dApps to your wallet.
@@ -52,13 +53,13 @@ The rest of this lesson will focus on the MWA interface and functionality rather
 
 ## How to work with MWA
 
-The differences between MWA and the traditional wallet adapter require modifications to how you program your apps.
+The differences between MWA and the traditional wallet adapter require slight modifications to how you program your apps.
 
 ### Connect to a wallet
 
 By way of comparison, look at the example of connecting to a wallet with React vs with React Native.
 
-On the web, you wrap the application with `WalletProvider`, then children access the wallet through the `useWallet` hook. From there, children can view, select, and connect to wallets.
+On the web, you wrap the application with `WalletProvider`, then children access the wallet through the `useWallet` hook. From there, children can view, select, connect and interact with wallets.
 
 ```tsx
 // Parent
@@ -130,7 +131,7 @@ transact(async (wallet: Web3MobileWallet) => {
 });
 ```
 
-Note that the above example does not handle errors or user rejections.
+Note that the above example does not handle errors or user rejections. Therefor it is nice to wrap the authorization state and methods with a custom `useAuthorization` hook, which we've [built in the previous lesson](./basic-solana-mobile.md).
 
 ### Interact with a wallet
 
@@ -185,13 +186,13 @@ Every time you want to call these methods, you will have to call `wallet.authori
 
 And that's it! You should have enough information to get started. The Solana mobile team has put in a lot of work to make the development experience as seamless as possible between the two. 
 
-# Demo
+# Lab
 
 Today we are going to build a mobile wallet. We're doing this so we what happens on both sides of the MWA in hopes of demystifying the app-wallet relationship.
 
 ### 0. Prerequisites
 
-Before we actually start programming our wallet we need to do some setup. You will need a React Native developer environment and a Solana dApp to test on. If you have completed the [Basic Solana Mobile lesson](), both of these requirements should be met with the counter app installed on your android device/emulator.
+Before we actually start programming our wallet we need to do some setup. You will need a React Native developer environment and a Solana dApp to test on. If you have completed the [Basic Solana Mobile lesson](./basic-solana-mobile.md), both of these requirements should be met with the counter app installed on your android device/emulator.
 
 If you *haven't* completed the last lesson you will need to:
 
@@ -209,20 +210,27 @@ npm i
 npm run install
 ```
 
-### 1. Plan out App Structure
+### TODO THIS - 1. Plan out App Structure
 
+We are making the wallet from scratch, so let's look at our major building blocks.
+
+First we'll make the actual wallet app (popup not included). 
 -- Wallet First
 - Wallet Provider
 - MainScreen
 - App.tsx
 
+
+Then we get a popup to work when we try to interact with our wallet in our dApp.
 -- Popup Pt 1 ( Getting it to Work )
 - MWAApp.tsx
 - index.js
 
+Then we'll implement the authorization logic.
 -- Popup Pt 2 ( Implementing Others )
 - clientTrust.ts
 
+Finally, we'll implement 
 -- Popup Pt 3 ( All Else )
 - dapp.ts
 - Authorize
@@ -236,9 +244,9 @@ npx react-native@latest init wallet --npm
 cd wallet
 ```
 
-Now, let's install our dependancies. These are the exact same dependancies from our [Basic Solana Mobile lesson](), with two additions: `@react-native-async-storage/async-storage`, and a polyfill: `fast-text-encoding`.
+Now, let's install our dependancies. These are the exact same dependancies from our [Basic Solana Mobile lesson](./basic-solana-mobile.md), with two additions: `@react-native-async-storage/async-storage`, and a polyfill: `fast-text-encoding`.
 
-We will be using `async-storage` to store our Keypair so that the wallet will stay persistent through multiple sessions. It is important to note `async-storage` is ***NOT*** a safe place to keep your keys, do not use this in production. Instead, take a look at [Android's keystore system.](https://developer.android.com/privacy-and-security/keystore)
+We will be using `async-storage` to store our Keypair so that the wallet will stay persistent through multiple sessions. It is important to note `async-storage` is ***NOT*** a safe place to keep your keys, ***DO NOT*** use this in production. Instead, take a look at [Android's keystore system.](https://developer.android.com/privacy-and-security/keystore)
 
 Install the dependancies with:
 ```bash
@@ -490,7 +498,7 @@ Make sure everything is working by building and deploying:
 npm run android
 ```
 
-### Barebones MWA App
+### 4. Barebones MWA App
 The Mobile Wallet Adapter (MWA) 'app' is what is seen when a Solana dApp sends out an intent for `solana-wallet://`. Our MWA app will listen for this, establish a connection and render this app. Fortunately, we don't have to implement anything low-level. Solana has done the hard work for us in the `mobile-wallet-adapter-walletlib` library. All we have to do is create the view and handle the requests! If you want to know more about how the connection is made, you can take a [look at the spec](https://github.com/solana-mobile/mobile-wallet-adapter/blob/main/spec/spec.md). 
 
 Let's start out with the absolute bare bones of of the MWA app. All it will do is pop up when a dApp connects to it and simply say 'I'm a wallet'.
@@ -620,7 +628,7 @@ Open your Devnet Solana dApp, ideally the `counter` app from the previous lesson
 
 You should get a bottom drawer that says `Im a wallet`.
 
-### Setup MWA App
+### 5. Setup MWA App
 Let's flesh out our `MWAApp.tsx`. We have the bare bones working, but now let's handle two different types of requests `authorize` and `signAndSendTransaction`.
 
 We are adding a couple things in this new revision of our `MWAApp.tsx`:
@@ -773,7 +781,7 @@ export default MWAApp;
 
 Note that `renderRequest` is not actually rendering anything useful yet. We still need to actually *handle* the different requests.
 
-### Extra Components
+### 6. Extra Components
 Lets take a little detour and create some nice helper UI components. Simply, we will define a format for some text with `AppInfo.tsx` and some buttons in `ButtonGroup.tsx`.
 
 `AppInfo.tsx` will show us all relevant information coming from the dApp:
@@ -859,7 +867,7 @@ const ButtonGroup = (props: ButtonGroupProps) => {
 export default ButtonGroup;
 ```
 
-### Authorize Screen
+### 7. Authorize Screen
 Let's put together our first screen to handle new authorizations. It's only job is to show what app want's authorization, and allow the user to accept or deny the request using the `resolve` function from the walletlib.
 
 We'll use our `AppInfo` and `ButtonGroup` to compose our entire UI here. All we have to do is plug in the right information, and write the logic for accepting and rejecting the request.
@@ -972,7 +980,7 @@ Feel free to build and run the wallet again. When you first interact with anothe
 
 // IMAGE of Authorization Screen
 
-### Sign and Send Screen
+### 8. Sign and Send Screen
 Let's finish up our wallet app with the sign and send screen. Here, we need to grab the transactions from the `request`, sign them with our privatekey and then send them to an rpc.
 
 For the UI, it will look very similar to our authorization page, some info about the app with `AppInfo` and some buttons with `ButtonGroup`. This time, we will fulfill the `SignAndSendTransactionsRequest` and `SignAndSendTransactionsResponse` for our `resolve` function.
@@ -1193,7 +1201,7 @@ function SignAndSendTransactionScreen(
 export default SignAndSendTransactionScreen;
 ```
 
-### Sign and Send Screen
+### 9. Sign and Send Screen
 
 ```tsx
 import {Connection, Keypair} from '@solana/web3.js';
