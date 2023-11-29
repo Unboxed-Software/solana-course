@@ -1,22 +1,22 @@
 ---
 title: CPI Arbitrário
 objectives:
-- Explicar os riscos de segurança associados à invocação de um CPI para um programa desconhecido
-- Demonstrar como o módulo CPI do Anchor evita que isso aconteça ao fazer um CPI de um programa Anchor para outro
-- Criar, de forma segura, um CPI de um programa Anchor para um programa não Anchor arbitrário
+- Explicar os riscos de segurança associados à invocação de uma CPI para um programa desconhecido
+- Demonstrar como o módulo CPI do Anchor evita que isso aconteça ao fazer uma CPI de um programa Anchor para outro
+- Criar, de forma segura, uma CPI de um programa Anchor para um programa não Anchor arbitrário
 ---
 
 # RESUMO
 
-- Para gerar um CPI, o programa de destino deve ter sido passado na instrução de invocação como uma conta. Isso significa que qualquer programa de destino pode ser passado para a instrução. Seu programa deve verificar se há programas incorretos ou inesperados.
-- Execute verificações de programa em programas nativos simplesmente comparando a chave pública do programa passado com o programa esperado.
+- Para gerar uma CPI, o programa de destino deve ter passado na instrução de invocação como uma conta. Isso significa que qualquer programa de destino pode ser passar na instrução. Seu programa deve verificar se há programas incorretos ou inesperados.
+- Execute verificações de programa em programas nativos simplesmente comparando a chave pública do programa aprovado com o programa esperado.
 - Se um programa for escrito em Anchor, ele poderá ter um módulo CPI disponível publicamente. Isso torna a invocação do programa a partir de outro programa Anchor simples e segura. O módulo CPI do Anchor verifica automaticamente se o endereço do programa passado corresponde ao endereço do programa armazenado no módulo.
 
 # Visão Geral
 
-Uma invocação entre programas (CPI) é quando um programa invoca uma instrução em outro programa. Um "CPI arbitrário" é quando um programa é estruturado para emitir um CPI para qualquer programa que tenha passado na instrução, em vez de esperar executar um CPI para um programa específico. Como os chamadores da instrução de seu programa podem passar qualquer programa que desejarem para a lista de contas da instrução, deixar de verificar o endereço de um programa que passou faz com que seu programa execute CPIs para programas arbitrários.
+Uma invocação entre programas (CPI) é quando um programa invoca uma instrução em outro programa. Um "CPI arbitrário" é quando um programa é estruturado para emitir um CPI para qualquer programa passado na instrução, em vez de esperar executar um CPI para um programa específico. Como os chamadores da instrução de seu programa podem passar qualquer programa que desejarem para a lista de contas da instrução, deixar de verificar o endereço de um programa que passou faz com que seu programa execute CPIs para programas arbitrários.
 
-Essa falta de verificações de programa cria uma oportunidade para que um usuário mal-intencionado passe um programa diferente do esperado, fazendo com que o programa original chame uma instrução nesse programa misterioso. Não há como saber quais podem ser as consequências desse CPI. Isso depende da lógica do programa (tanto do programa original quanto do programa inesperado), bem como de quais outras contas passam na instrução original.
+Essa falta de verificação do programa cria uma oportunidade para que um usuário mal-intencionado passe um programa diferente do esperado, fazendo com que o programa original chame uma instrução nesse programa misterioso. Não há como saber quais podem ser as consequências dessa CPI. Isso depende da lógica do programa (tanto do programa original quanto do programa inesperado), bem como de quais outras contas passam na instrução original.
 
 ## Falhas na verificações de programas
 
@@ -91,7 +91,7 @@ pub fn cpi_secure(ctx: Context<Cpi>, amount: u64) -> ProgramResult {
 
 Agora, se um invasor passar um programa de token diferente, a instrução retornará o erro `ProgramError::IncorrectProgramId`.
 
-Dependendo do programa que você está invocando com o CPI, é possível fazer uma codificação rígida do endereço do ID do programa esperado ou usar o crate Rust do programa para obter o endereço do programa, se disponível. No exemplo acima, o crate `spl_token` fornece o endereço do Programa de Token SPL.
+Dependendo do programa que você está invocando com a CPI, é possível fazer uma codificação rígida do endereço do ID do programa esperado ou usar o crate Rust do programa para obter o endereço do programa, se disponível. No exemplo acima, o crate `spl_token` fornece o endereço do Programa de Token SPL.
 
 ## Use um módulo CPI Anchor
 
@@ -141,7 +141,7 @@ impl<'info> Cpi<'info> {
 
 Observe que, como no exemplo acima, o Anchor criou alguns [wrappers para programas nativos populares](https://github.com/coral-xyz/anchor/tree/master/spl/src) que permitem que você emita CPIs neles como se fossem programas Anchor.
 
-Além disso, e dependendo do programa para o qual você está criando o CPI, talvez seja possível usar o [o tipo de conta `Program`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct.Program.html) Anchor para validar o programa passado em sua estrutura de validação de conta. Entre os crates [`anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) e [`anchor_spl`](https://docs.rs/anchor_spl/latest/), os seguintes tipos de `Program` são fornecidos imediatamente:
+Além disso, dependendo do programa para o qual você está criando a CPI, talvez seja possível usar [o tipo de conta `Program`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct.Program.html) Anchor para validar o programa passado em sua estrutura de validação de conta. Entre os crates [`anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) e [`anchor_spl`](https://docs.rs/anchor_spl/latest/), os seguintes tipos de `Program` são fornecidos imediatamente:
 
 - [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/struct.System.html)
 - [`AssociatedToken`](https://docs.rs/anchor-spl/latest/anchor_spl/associated_token/struct.AssociatedToken.html)
@@ -186,7 +186,7 @@ Já existe um teste no diretório `tests` para isso. Ele é longo, mas reserve u
 
 ```typescript
 it("Insecure instructions allow attacker to win every time", async () => {
-    // Inicializa o player um com o programa de metadados real
+    // Inicializa o jogador um com o programa de metadados real
     await gameplayProgram.methods
       .createCharacterInsecure()
       .accounts({
@@ -237,7 +237,7 @@ it("Insecure instructions allow attacker to win every time", async () => {
 })
 ```
 
-Esse teste analisa o cenário em que um jogador comum e um invasor criam suas personagens. Somente o invasor passa o ID do programa de metadados falso em vez do programa de metadados real. E como a instrução `create_character_insecure` não tem verificações de programa, ela ainda é executada.
+Esse teste analisa o cenário em que um jogador comum e um invasor criam suas personagens. Somente o invasor passa o ID do programa de metadados falso em vez do programa de metadados real. E como a instrução `create_character_insecure` não tem verificações de programa, ela ainda assim é executada.
 
 O resultado é que a personagem normal tem a quantidade adequada de saúde e poder: cada uma com um valor entre 0 e 20. Mas a saúde e o poder do atacante são 255 cada um, tornando-o imbatível.
 
@@ -245,11 +245,11 @@ Se ainda não o fez, execute o `anchor test` para ver se esse teste de fato se c
 
 ### 3. Crie uma instrução `create_character_secure`
 
-Vamos corrigir isso criando uma instrução segura para a criação de uma nova personagem. Essa instrução deve implementar verificações de programa adequadas e usar o crate `cpi` do programa `character-metadata` para fazer o CPI em vez de usar apenas `invoke`.
+Vamos corrigir isso criando uma instrução segura para a criação de uma nova personagem. Essa instrução deve implementar verificações de programa adequadas e usar o crate `cpi` do programa `character-metadata` para fazer a CPI em vez de usar apenas `invoke`.
 
 Se quiser testar suas habilidades, tente fazer isso por conta própria antes de prosseguir.
 
-Começaremos atualizando nossa declaração `use` na parte superior do arquivo `lib.rs` dos programas `gameplay`. Estamos nos dando acesso ao tipo do programa para validação da conta e à função auxiliar para emitir o CPI `create_metadata`.
+Começaremos atualizando nossa declaração `use` na parte superior do arquivo `lib.rs` dos programas `gameplay`. Estamos nos dando acesso ao tipo do programa para validação da conta e à função auxiliar para emitir a CPI `create_metadata`.
 
 ```rust
 use character_metadata::{
@@ -280,14 +280,14 @@ pub struct CreateCharacterSecure<'info> {
         seeds::program = metadata_program.key(),
         bump,
     )]
-    /// CHECK: manual checks
+    /// CHECAGEM: checagens manuais
     pub metadata_account: AccountInfo<'info>,
     pub metadata_program: Program<'info, CharacterMetadata>,
     pub system_program: Program<'info, System>,
 }
 ```
 
-Por fim, adicionamos a instrução `create_character_secure`. Ela será igual à anterior, mas usará a funcionalidade completa dos CPIs Anchor em vez de usar `invoke` diretamente:
+Por fim, adicionamos a instrução `create_character_secure`. Ela será igual à anterior, mas usará a funcionalidade completa das CPIs do Anchor em vez de usar `invoke` diretamente:
 
 ```rust
 pub fn create_character_secure(ctx: Context<CreateCharacterSecure>) -> Result<()> {
@@ -314,7 +314,7 @@ pub fn create_character_secure(ctx: Context<CreateCharacterSecure>) -> Result<()
 
 ### 4. Teste `create_character_secure`
 
-Agora que temos uma maneira segura de inicializar uma nova personagem, vamos criar um novo teste. Esse teste só precisa tentar inicializar o personagem do invasor e esperar que um erro seja lançado.
+Agora que temos uma maneira segura de inicializar uma nova personagem, vamos criar um novo teste. Esse teste só precisa tentar inicializar a personagem do invasor e esperar que um erro seja lançado.
 
 ```typescript
 it("Secure character creation doesn't allow fake program", async () => {
@@ -334,7 +334,7 @@ it("Secure character creation doesn't allow fake program", async () => {
 })
 ```
 
-Execute o `anchor test` se ainda não o fez. Observe que um erro foi lançado como esperado, indicando que o ID do programa passado na instrução não é o ID do programa esperado:
+Execute o `anchor test` se ainda não o fez. Observe que um erro foi lançado como se esperava, indicando que o ID do programa passado na instrução não é o ID do programa esperado:
 
 ```bash
 'Program log: AnchorError caused by account: metadata_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.',
@@ -344,11 +344,11 @@ Execute o `anchor test` se ainda não o fez. Observe que um erro foi lançado co
 'Program log: D4hPnYEsAx4u3EQMrKEXsY3MkfLndXbBKTEYTwwm25TE'
 ```
 
-Isso é tudo o que você precisa fazer para se proteger contra CPIs arbitrários!
+Isso é tudo o que você precisa fazer para se proteger contra CPIs arbitrárias!
 
-Pode haver ocasiões em que você queira mais flexibilidade nos CPIs do seu programa. Certamente não o impediremos de arquitetar o programa de que precisa, mas tome todas as precauções possíveis para garantir que não haja vulnerabilidades em seu programa.
+Pode haver ocasiões em que você queira mais flexibilidade nas CPIs do seu programa. Certamente não o impediremos de arquitetar o programa de que precisa, mas tome todas as precauções possíveis para garantir que não haja vulnerabilidades em seu programa.
 
-Se quiser dar uma olhada no código da solução final, poderá encontrá-lo na branch `solution` do [mesmo repositório](https://github.com/Unboxed-Software/solana-arbitrary-cpi/tree/solution).
+Se quiser dar uma olhada no código de solução final, poderá encontrá-lo na branch `solution` do [mesmo repositório](https://github.com/Unboxed-Software/solana-arbitrary-cpi/tree/solution).
 
 # Desafio
 
@@ -356,4 +356,4 @@ Assim como nas outras lições deste módulo, sua oportunidade de praticar como 
 
 Reserve algum tempo para analisar pelo menos um programa e certifique-se de que as verificações de programa estejam em vigor para cada programa passado nas instruções, especialmente aqueles que são invocados via CPI.
 
-Lembre-se, se você encontrar um bug ou um golpe no programa de outra pessoa, alerte-a! Se encontrar um bug em seu próprio programa, não se esqueça de corrigi-lo imediatamente.
+Lembre-se, se você encontrar um bug ou uma exploração no programa de outra pessoa, alerte-a! Se encontrar um bug em seu próprio programa, não se esqueça de corrigi-lo imediatamente.
