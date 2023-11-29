@@ -2,7 +2,7 @@
 title: PDAs e Contas Anchor 
 objectives:
 - Usar as restrições `seeds` e `bump` para trabalhar com contas PDA no Anchor
-- Habilitar e use a restrição `init_if_needed`
+- Habilitar e usar a restrição `init_if_needed`
 - Usar a restrição `realloc` para realocar espaço numa conta existente
 - Usar a restrição `close` para fechar uma conta existente
 ---
@@ -18,7 +18,7 @@ objectives:
 
 Nesta lição você aprenderá como trabalhar com PDAs, realocar e fechar contas no Anchor.
 
-Recorde-se de que os programas Anchor separam a lógica de instrução da validação de contas. A validação de contas ocorre principalmente dentro de structs que representam a lista de contas necessárias para uma determinada instrução. Cada campo da struct representa uma conta diferente, e o usuário pode personalizar a validação realizada na conta utilizando a macro de atributo `#[account(...)]`.
+Recorde-se de que os programas Anchor separam a lógica de instrução da validação de contas. A validação de contas ocorre principalmente dentro de structs que representam a lista de contas necessárias para uma determinada instrução. Cada campo da struct representa uma conta diferente, e o usuário pode personalizar a validação realizada na conta utilizando a macro de atributos `#[account(...)]`.
 
 Além de usar restrições para validação de contas, algumas restrições podem lidar com tarefas repetitivas que, de outra forma, exigiriam muito clichê dentro de nossa lógica de instrução. Esta lição apresentará as restrições `seeds`, `bump`, `realloc` e `close` para ajudá-lo a inicializar e validar PDAs, realocar contas e fechar contas.
 
@@ -39,11 +39,11 @@ struct ExampleAccounts {
 
 Durante a validação da conta, o Anchor derivará um PDA usando as sementes especificadas na restrição `seeds` e verificará se a conta passou na instrução que corresponde ao PDA encontrado usando as `seeds` específicas.
 
-Quando a restrição `bump` for incluída sem especificação de um ´determinado bump, o Anchor usará por padrão o bump canônico (o primeiro bump que resulta em um PDA válido). Na maioria dos casos, você deve usar o bump canônico.
+Quando a restrição `bump` for incluída sem especificação de um determinado bump, o Anchor usará por padrão o bump canônico (o primeiro bump que resulta em um PDA válido). Na maioria dos casos, você deve usar o bump canônico.
 
 É possível acessar outros campos de dentro da struct a partir de restrições. Portanto, é possível especificar sementes que dependem de outras contas, como a chave pública do signatário.
 
-Você também pode fazer referência aos dados de instrução desserializados se adicionar a macro de atributo `#[instruction(...)]` à struct.
+Você também pode fazer referência aos dados de instrução desserializados se adicionar a macro de atributos `#[instruction(...)]` à struct.
 
 Por exemplo, o exemplo a seguir mostra uma lista de contas que inclui `pda_account` e `user`. A `pda_account` está restringida de forma que as sementes sejam a string "example_seed", a chave pública de `user` e a string tenha passado na instrução como `instruction_data`.
 
@@ -99,7 +99,7 @@ Ao determinar o valor de `space` para uma conta inicializada e de propriedade do
 
 ### Inferência de semente
 
-A lista de contas para uma instrução pode ficar muito longa para alguns programas. Para simplificar a experiência do lado do cliente ao invocar uma instrução do programa Anchor, podemos ativar a inferência de sementes.
+A lista de contas para uma instrução pode ficar muito longa para alguns programas. Para simplificar a experiência do lado do cliente, ao invocar uma instrução do programa Anchor, podemos ativar a inferência de sementes.
 
 A inferência de sementes adiciona informações sobre sementes de PDA ao IDL para que o Anchor possa inferir sementes de PDA a partir de informações existentes do local da chamada. No exemplo anterior, as sementes são `b "example_seed"` e `user.key()`. A primeira é estática e, portanto, conhecida, e a segunda é conhecida porque `user` é o signatário da transação.
 
@@ -112,11 +112,11 @@ Você pode ativar a inferência de sementes no arquivo `Anchor.toml` com `seeds 
 seeds = true
 ```
 
-### Use a macro de atributo `#[instruction(...)]`
+### Use a macro de atributos `#[instruction(...)]`
 
 Vamos dar uma breve olhada na macro de atributo `#[instruction(...)]` antes de prosseguirmos. Ao usar `#[instruction(...)]`, os dados da instrução fornecidos na lista de argumentos devem corresponder e estar na mesma ordem dos argumentos da instrução. Você pode omitir argumentos não utilizados no final da lista, mas deve incluir todos os argumentos até o último que será usado.
 
-Por exemplo, imagine que uma instrução tenha os argumentos `input_one`, `input_two` e `input_three`. Se as restrições de sua conta precisarem fazer referência a `input_one` e `input_three`, você precisará listar todos os três argumentos na macro de atributo `#[instruction(...)]`.
+Por exemplo, imagine que uma instrução tenha os argumentos `input_one`, `input_two` e `input_three`. Se as restrições de sua conta precisarem fazer referência a `input_one` e `input_three`, você precisará listar todos os três argumentos na macro de atributos `#[instruction(...)]`.
 
 Entretanto, se suas restrições fizerem referência apenas a `input_one` e `input_two`, você poderá omitir `input_three`.
 
@@ -152,9 +152,9 @@ pub struct Example<'info> {
 
 O Anchor fornece uma restrição `init_if_needed` que pode ser usada para inicializar uma conta se ela ainda não tiver sido inicializada.
 
-Esse recurso está vinculado a um sinalizador de recurso para garantir que você tenha a intenção de usá-lo. Por motivos de segurança, é recomendável evitar que uma instrução se desdobre em vários caminhos lógicos. E, como o nome sugere, o `init_if_needed` executa um dos dois caminhos de código possíveis, dependendo do estado da conta em questão.
+Essa funcionalidade está vinculada a um sinalizador de funcionalidade para garantir que você tenha a intenção de usá-lo. Por motivos de segurança, é recomendável evitar que uma instrução se desdobre em vários caminhos lógicos. E, como o nome sugere, o `init_if_needed` executa um dos dois caminhos de código possíveis, dependendo do estado da conta em questão.
 
-Ao usar o `init_if_needed`, você precisa se certificar de proteger adequadamente seu programa contra ataques de reinicialização. É necessário incluir verificações em seu código que chequem se a conta inicializada não pode ser redefinida para suas configurações iniciais após a primeira vez em que foi inicializada.
+Ao usar o `init_if_needed`, você precisa se certificar de proteger adequadamente seu programa contra ataques de reinicialização. É necessário incluir verificações em seu código que chequem se a conta inicializada não pode ser redefinida para suas configurações iniciais após a primeira vez que foi inicializada.
 
 Para usar o `init_if_needed`, você deve primeiro ativar o recurso em `Cargo.toml`.
 
@@ -163,7 +163,7 @@ Para usar o `init_if_needed`, você deve primeiro ativar o recurso em `Cargo.tom
 anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
 ```
 
-Depois de ativar o recurso, você pode incluir a restrição na macro de atributo `#[account(...)]`. O exemplo abaixo demonstra o uso da restrição `init_if_needed` para inicializar uma nova conta de token associada, caso ainda não exista uma.
+Depois de ativar o recurso, você pode incluir a restrição na macro de atributos `#[account(...)]`. O exemplo abaixo demonstra o uso da restrição `init_if_needed` para inicializar uma nova conta de token associada, caso ainda não exista uma.
 
 ```rust
 #[program]
@@ -270,7 +270,7 @@ Vamos praticar os conceitos que abordamos nesta lição criando um programa Movi
 
 Este programa permitirá que os usuários:
 
-- Usem um PDA para inicializar uma nova conta de avaliação de filme para armazenar a resenha
+- Usem um PDA para inicializar uma nova conta de avaliação de filme para armazenar a avaliação
 - Atualizem o conteúdo de uma conta de avaliação de filme existente
 - Fechem uma conta de avaliação de filme existente
 
@@ -318,7 +318,7 @@ pub mod anchor_movie_review_program {
 
 ### 2. `MovieAccountState`
 
-Primeiro, vamos usar o macro de atributo `#[account]` para definir o `MovieAccountState` que representará a estrutura de dados da conta de avaliação de filme. Como lembrete, a macro de atributo `#[account]` implementa várias características que ajudam na serialização e desserialização da conta, define o discriminador para a conta e define o proprietário de uma nova conta como o ID do programa definido na macro `declare_id!`.
+Primeiro, vamos usar o macro de atributos `#[account]` para definir o `MovieAccountState` que representará a estrutura de dados da conta de avaliação de filme. Como lembrete, a macro de atributos `#[account]` implementa vários traits que ajudam na serialização e desserialização da conta, define o discriminador para a conta e define o proprietário de uma nova conta como o ID do programa definido na macro `declare_id!`.
 
 Em cada conta de avaliação de filme, armazenaremos o:
 
@@ -354,7 +354,7 @@ Em seguida, vamos implementar a instrução `add_movie_review`. A instrução `a
 A instrução exigirá três argumentos adicionais como dados de instrução fornecidos por um avaliador:
 
 - `title` - título do filme como uma `String`
-- `description` - detalhes da resenha como uma `String`
+- `description` - detalhes da avaliação como uma `String`
 - `rating` - classificação do filme como uma `u8`
 
 Dentro da lógica de instrução, preencheremos os dados da nova conta `movie_review` com dados de instrução. Também definiremos o campo `reviewer` como a conta `initializer` do contexto da instrução.
@@ -370,7 +370,7 @@ pub mod movie_review{
         description: String,
         rating: u8,
     ) -> Result<()> {
-        msg!("Movie Review Account Created");
+        msg!("Conta de Avaliação de Filme Criada");
         msg!("Title: {}", title);
         msg!("Description: {}", description);
         msg!("Rating: {}", rating);
@@ -390,8 +390,8 @@ Em seguida, vamos criar a struct `AddMovieReview` que usamos como genérica no c
 Lembre-se de que você precisará das seguintes macros:
 
 - A macro `#[derive(Accounts)]` é usada para desserializar e validar a lista de contas especificadas na estrutura
-- A macro de atributo `#[instruction(...)]` é usada para acessar os dados de instrução passados para a instrução
-- A macro de atributo `#[account(...)]` especifica restrições adicionais nas contas.
+- A macro de atributos `#[instruction(...)]` é usada para acessar os dados de instrução passados para a instrução
+- A macro de atributos `#[account(...)]` especifica restrições adicionais nas contas.
 
 A conta `movie_review` é um PDA que precisa ser inicializado, então, acrescentaremos as retrições `seeds` e `bump` assim como a restrição `init` com suas restrições `payer` e `space` necessárias.
 
@@ -415,7 +415,7 @@ pub struct AddMovieReview<'info> {
 }
 ```
 
-### 4. Atualize o Movie Review
+### 4. Atualize a Avaliação do Filme
 
 Em seguida, vamos implementar a instrução `update_movie_review` com um contexto cujo tipo genérico é `UpdateMovieReview`.
 
@@ -488,7 +488,7 @@ Além disso, a restrição `realloc::payer` especifica que todos os lamport adic
 
 Por fim, definimos a restrição `realloc::zero` como `true` porque a conta `movie_review` pode ser atualizada várias vezes, reduzindo ou expandindo o espaço alocado para a conta.
 
-### 5. Exclua o Movie Review
+### 5. Exclua a conta de Avaliação do Filme
 
 Por fim, vamos implementar a instrução `delete_movie_review` para fechar uma conta `movie_review` existente.
 
@@ -528,7 +528,7 @@ pub struct DeleteMovieReview<'info> {
 }
 ```
 
-Aqui usamos a restrição `close` para especificar que estamos fechando a conta `movie_review` e que o aluguel deve ser devolvida à conta `initializer`. Também incluímos as restrições `seeds` e `bump` para a conta `movie_review` para validação. Em seguida, o Anchor processa a lógica adicional necessária para fechar a conta com segurança.
+Aqui usamos a restrição `close` para especificar que estamos fechando a conta `movie_review` e que o aluguel deve ser devolvido à conta `initializer`. Também incluímos as restrições `seeds` e `bump` para a conta `movie_review` para validação. Em seguida, o Anchor processa a lógica adicional necessária para fechar a conta com segurança.
 
 ### 6. Teste
 
@@ -575,11 +575,11 @@ describe("anchor-movie-review-program", () => {
 
 Em seguida, vamos criar o primeiro teste para a instrução `addMovieReview`. Observe que não adicionamos explicitamente `.accounts`. Isso ocorre porque a `Wallet` do `AnchorProvider` é automaticamente incluída como signatário, o Anchor pode inferir determinadas contas, como `SystemProgram` e o Anchor também pode inferir o PDA `movieReview` a partir do argumento da instrução `title` e da chave pública do signatário.
 
-Depois que a instrução é executada, buscamos a conta `movieReview` e verificamos se os dados armazenados na conta correspondem aos valores esperados.
+Após a instrução ser executada, buscamos a conta `movieReview` e verificamos se os dados armazenados na conta correspondem aos valores esperados.
 
 ```typescript
 it("Movie review is added`", async () => {
-  // Add your test here.
+  // Adicione seu teste aqui.
   const tx = await program.methods
     .addMovieReview(movie.title, movie.description, movie.rating)
     .rpc()
@@ -633,11 +633,11 @@ Por fim, execute `anchor test` e você deve ver a seguinte saída em seu console
   3 passing (950ms)
 ```
 
-Se precisar de mais tempo com este projeto para se sentir confortável com esses conceitos, dê uma olhada no [código da solução] (https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas) antes de continuar..
+Se precisar de mais tempo com este projeto para se sentir confortável com esses conceitos, dê uma olhada no [código de solução] (https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-pdas) antes de continuar.
 
 # Desafio
 
-Agora é sua vez de criar algo de forma independente. Equipado com os conceitos apresentados nesta lição, tente recriar o programa Student Intro que usamos anteriormente usando a estrutura Anchor.
+Agora é sua vez de criar algo de forma independente. Equipado com os conceitos apresentados nesta lição, tente recriar o programa Student Intro (Apresentação de Estudantes) que usamos anteriormente usando a estrutura Anchor.
 
 O programa Student Intro é um programa Solana que permite que os alunos se apresentem. O programa usa o nome de um usuário e uma mensagem curta como dados de instrução e cria uma conta para armazenar os dados na cadeia.
 
@@ -647,4 +647,4 @@ Usando o que você aprendeu nesta lição, crie esse programa. O programa deve i
 2. Atualizar a mensagem em uma conta existente
 3. Fechar uma conta existente
 
-Tente fazer isso de forma independente, se possível! Mas se você tiver dúvidas, sinta-se à vontade para consultar o [código da solução] (https://github.com/Unboxed-Software/anchor-student-intro-program).
+Tente fazer isso de forma independente, se possível! Mas se você tiver dúvidas, sinta-se à vontade para consultar o [código de solução] (https://github.com/Unboxed-Software/anchor-student-intro-program).
