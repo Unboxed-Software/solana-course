@@ -1,9 +1,8 @@
 ---
 title: Advance Solana Mobile
 objectives:
-- Explain the...
-- Explain how...
-- Use...
+- Create Solana dApps with Expo
+- Learn how to integrate different Solana ecosystems
 ---
 
 # TL;DR
@@ -14,7 +13,7 @@ objectives:
 
 # Overview
 
-Solana has a future in mobile; artwork, games and deFi are all on the horizon. However to get there, we'll need to integrate with the popular frameworks people use to create amazing apps. In the first and second lesson we used vanilla React Native. Today we are going to build atop by looking at [React Native Expo](https://docs.expo.dev/tutorial/introduction/). 
+Solana has a future in mobile; artwork, games and deFi are all on the horizon. However to get there, we'll need to integrate with the popular frameworks people use to create amazing apps. In the first and second lesson we used vanilla React Native. Today we are going to build atop of them by looking at [React Native Expo](https://docs.expo.dev/tutorial/introduction/). 
 
 ## React Native Expo
 
@@ -22,20 +21,20 @@ Expo is an open source collection of tools and libraries that wrap around React 
 
 Expo contains three main parts: `expo-cli`, the Expo Go App, and great device libraries.
 
-The `expo-cli` is a build and debugging tool that helps make all of the magic happen. It mostly works under the hood, the only time you'll really have to interact with it is when you're building or starting a development server. It just works!
+The `expo-cli` is a build and debugging tool that helps make all of the magic happen. Chances are, you'll only have to interact with it when you're building or starting a development server. It just works.
 
-The [Expo Go App](https://expo.dev/client) is a really cool piece of tech allowing *most* apps to be developed without using an emulator or wires. You download the app, you scan the QR from the build output and then you have a working dev environment right on your phone. Unfortunately, this will not work with the solana mobile SDK. Coming from the [Solana Expo setup article](https://docs.solanamobile.com/react-native/expo):
+The [Expo Go App](https://expo.dev/client) is a really cool piece of tech that allows *most* apps to be developed without using an emulator or physical devices. You download the app, you scan the QR from the build output and then you have a working dev environment right on your phone. Unfortunately, this will not work with the solana mobile SDK. Coming from the [Solana Expo setup article](https://docs.solanamobile.com/react-native/expo):
 
 >The traditional Expo Go development flow is only limited to certain hand-picked modules and does not support further customized native code, which Solana Mobile SDKs need.
 >Instead, we'll need to use a custom development build which makes Solana Mobile React Native libraries (i.e Mobile Wallet Adapter) fully compatible with Expo.
 
-Lastly, and most importantly, Expo does an amazing job providing easy to use libraries that give you access to the device. The camera, the battery, the speakers - there's an [SDK for that](https://docs.expo.dev/versions/latest/). The libraries are simple to use and the documentation is phenomenal.
+Lastly, and most importantly, Expo does an amazing job providing easy to use libraries that give you access to the device. Camera, battery, speakers - there's an [SDK for that](https://docs.expo.dev/versions/latest/). The libraries are simple to use and the documentation is phenomenal.
 
 ## Integrating ecosystems  
 
-As mentioned in the previous section there are some caveats using the Solana Mobile SDK with Expo. This is largely due to how mobile wallet adapter works with it's need for low-level app-to-app communication. Fortunately to get them to play well with each other all we have to do is configure Expo with the correct polyfills.
+As mentioned in the previous section there are some caveats using the Solana Mobile SDK with Expo. This is largely due to the mobile wallet adapter's need for low-level app-to-app communication. Fortunately to get them to play well with each other all we have to do is configure Expo with the correct polyfills.
 
-Polyfills are replacement core libraries for environments that are not running Node.js, which we don't do in Expo. Unfortunately, it can be tough to know which polyfills you need for any given application. Unless you know ahead of time, debugging polyfills is looking at the compiler errors along with searching stack overflow. If it doesn't build, it's normally a polyfill problem.
+Polyfills are replacement core libraries for environments that are not running Node.js, which we don't do in Expo. Unfortunately, it can be tough to know which polyfills you need for any given application. Unless you know ahead of time, debugging polyfills means looking at the compiler errors and searching stack overflow. If it doesn't build, it's normally a polyfill problem.
 
 Fortunately, we've compiled a list of polyfills you'll need for not only Expo + Solana, but also Solana + Metaplex + Solana.
 
@@ -88,9 +87,11 @@ The good news is that once you have the application compiling and running, there
 
 Today we're building the Mint-A-Day app, where users will able to mint a single NFT snapshot of their lives daily, creating a permanent diary of sorts.
 
-We will be building this with React Native and Expo. Expo is a set of tools built around React Native that will make our lives easier when dealing with device-related packages, like using the camera. To mint the NFTs we will be using Metaplex's Javascript SDK along with [nft.storage](https://nft.storage/) to store images and metadata. All of our on-chain work will be on Devnet.
+We'll be building this with React Native and Expo. Expo is a set of tools built around React Native that will make our lives easier when dealing with device-related packages. This is a good thing since we'll need to use the the camera. 
 
-The first half of this lab is cobbling together the needed components to make Expo, Solana and Metaplex all work together. We are doing this modularly so you'll know what aspects of the boilerplate align with which section.
+To mint the NFTs we'll be using Metaplex's Javascript SDK along with [nft.storage](https://nft.storage/) to store images and metadata. All of our on-chain work will be on Devnet.
+
+The first half of this lab is cobbling together the needed components to make Expo, Solana and Metaplex all work together. We'll do this modularly so you'll know what aspects of the boilerplate align with which section.
 
 ## 1. Expo setup
 
@@ -105,9 +106,11 @@ You'll need React Native installed on your machine as well as a running emulator
 
 ### 1. Sign up for Expo EAS CLI
 
-We are using Expo. To simplify the process, you'll want an [Expo Application Services (EAS) account](https://expo.dev/). This will help you build and run the application anywhere. 
+To simplify the Expo process, you'll want an Expo Application Services (EAS) account. This will help you build and run the application. 
 
-Now, install the `eas-cli` and log in:
+First sign up for an [EAS account](https://expo.dev/).
+
+Then, install the `eas-cli` and log in:
 
 ```bash
 npm install --global eas-cli
@@ -116,9 +119,9 @@ eas login
 
 ### 2. Create the app scaffold
 
-We'll be using Expo to build and run our app. However, since the `@solana-mobile/mobile-wallet-adapter-protocol` package includes native code, we need to make some minor modifications to the traditional Expo build command. We'll be using the [method described in the Solana mobile docs](https://docs.solanamobile.com/react-native/expo#running-the-app).
+Since the `@solana-mobile/mobile-wallet-adapter-protocol` package includes native code, we need to make some minor modifications to the traditional Expo build command. We'll be using a [method described in the Solana mobile docs](https://docs.solanamobile.com/react-native/expo#running-the-app) to do this.
 
-We’ll first build the app, and then separately run our development client. You can do this locally or use an Expo account to have them build it for you. We will be using the local option. Feel free to [follow Solana Mobile’s guide](https://docs.solanamobile.com/react-native/expo#local-vs-eas-builds) if you want to have Expo build the app for you.
+First, we'll build the app, and then separately run our development client. You can do this locally or use an Expo account to have them build it for you. We will be using the local option. Feel free to [follow Solana Mobile’s guide](https://docs.solanamobile.com/react-native/expo#local-vs-eas-builds) if you want to have Expo build the app for you.
 
 Let’s create our app with the following:
 `npx create-expo-app -t expo-template-blank-typescript solana-expo`
@@ -127,7 +130,7 @@ This uses `create-expo-app` to generate a new scaffold for us based on the `expo
 
 ### 3. Local build config
 
-Since we're building locally, we'll need to add an additional config file. Create a file called `eas.json` in the root of your directory.
+Since we're building locally, we'll need to add an additional config file that let's the compiler know what we're doing. Create a file called `eas.json` in the root of your directory.
 ```bash
 touch eas.json
 ```
