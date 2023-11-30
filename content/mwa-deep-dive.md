@@ -210,31 +210,32 @@ npm i
 npm run install
 ```
 
-### TODO THIS - 1. Plan out App Structure
+### 1. Plan out App Structure
 
 We are making the wallet from scratch, so let's look at our major building blocks.
 
 First we'll make the actual wallet app (popup not included). 
 -- Wallet First
-- Wallet Provider
-- MainScreen
+- WalletProvider.tsx
+- MainScreen.tsx
 - App.tsx
 
 
-Then we get a popup to work when we try to interact with our wallet in our dApp.
+Then we'll make a boilerplate MWA app, that shows 'Im a Wallet' anytime the wallet is requested from a different dApp.
 -- Popup Pt 1 ( Getting it to Work )
 - MWAApp.tsx
 - index.js
 
-Then we'll implement the authorization logic.
--- Popup Pt 2 ( Implementing Others )
-- clientTrust.ts
+Then we'll setup all of our framework and UI and request routing.
+-- Popup Pt 2 ( More scaffolding )
+- MWAApp.tsx
+- ButtonGroup.tsx
+- AppInfo.tsx
 
-Finally, we'll implement 
--- Popup Pt 3 ( All Else )
-- dapp.ts
-- Authorize
-- SignAndSend
+Finally, we'll implement two actual request functions, authorize and sign and send transaction.
+-- Popup Pt 3 ( Actual functions )
+- AuthorizeDappRequestScreen.tsx
+- SignAndSendTransactionScreen.tsx
 
 ### 2. Create the App
 
@@ -297,7 +298,8 @@ npm run android
 If you get any errors make sure you double check you've followed all of the steps above.
 
 ### 3. Wallet App
-The first part of our wallet app is the actual app part, it will do the following:
+
+The first part of our wallet app is the actual *app* part, it will do the following:
 
 - Generate a `Keypair` on first load
 - Display the address and balance
@@ -402,7 +404,7 @@ export function WalletProvider(props: WalletProviderProps){
 
 Note that we are defaulting our `rpcUrl` to Devnet.
 
-Now let's make the `MainScreen.tsx`. It's pretty simple, it grabs the `wallet` and `connection` from `useWallet()`, and then shows the address and balance. Additionally, since all transactions cost sol, we'll also include an airdrop button.
+Now let's make the `MainScreen.tsx`. It's pretty simple, it grabs the `wallet` and `connection` from `useWallet()`, and then shows the address and balance. Additionally, since all transactions cost SOL, we'll also include an airdrop button.
 
 Create a new directory `screens` and place `MainScreen.tsx` within in:
 ```tsx
@@ -499,7 +501,8 @@ npm run android
 ```
 
 ### 4. Barebones MWA App
-The Mobile Wallet Adapter (MWA) 'app' is what is seen when a Solana dApp sends out an intent for `solana-wallet://`. Our MWA app will listen for this, establish a connection and render this app. Fortunately, we don't have to implement anything low-level. Solana has done the hard work for us in the `mobile-wallet-adapter-walletlib` library. All we have to do is create the view and handle the requests! If you want to know more about how the connection is made, you can take a [look at the spec](https://github.com/solana-mobile/mobile-wallet-adapter/blob/main/spec/spec.md). 
+
+The Mobile Wallet Adapter (MWA) 'app' is what is seen when a Solana dApp sends out an intent for `solana-wallet://`. Our MWA app will listen for this, establish a connection and render this app. Fortunately, we don't have to implement anything low-level. Solana has done the hard work for us in the `mobile-wallet-adapter-walletlib` library. All we have to do is create the view and handle the requests. If you want to know more about how the connection is made, you can take a [look at the spec](https://github.com/solana-mobile/mobile-wallet-adapter/blob/main/spec/spec.md). 
 
 Let's start out with the absolute bare bones of of the MWA app. All it will do is pop up when a dApp connects to it and simply say 'I'm a wallet'.
 
@@ -536,7 +539,7 @@ Here is an example of the minimum setup to satisfy `useMobileWalletAdapterSessio
   );
 ```
 
-We will be implementing function into `handleRequest` and `handleSessionEvent` soon, but first let's make the MWA app work.
+We will be implementing `handleRequest` and `handleSessionEvent` soon, but first let's make the MWA app work.
 
 Create a new file in the root of your project `MWAApp.tsx`:
 ```tsx
@@ -629,9 +632,9 @@ Open your Devnet Solana dApp, ideally the `counter` app from the previous lesson
 You should get a bottom drawer that says `Im a wallet`.
 
 ### 5. Setup MWA App
-Let's flesh out our `MWAApp.tsx`. We have the bare bones working, but now let's handle two different types of requests `authorize` and `signAndSendTransaction`.
+Let's flesh out our `MWAApp.tsx`. We want to handle two different types of requests `authorize` and `signAndSendTransaction`, but first we'll need to build some more scaffolding.
 
-We are adding a couple things in this new revision of our `MWAApp.tsx`:
+Let's do this by adding a couple things in our `MWAApp.tsx`:
 
 1. Save the `currentRequest` and `currentSession` in a `useState`. This will allow us to track the life cycle of a connection.
 2. Add a `hardwareBackPress` listener to gracefully handle closing out the MWA app.
@@ -782,10 +785,10 @@ export default MWAApp;
 Note that `renderRequest` is not actually rendering anything useful yet. We still need to actually *handle* the different requests.
 
 ### 6. Extra Components
-Lets take a little detour and create some nice helper UI components. Simply, we will define a format for some text with `AppInfo.tsx` and some buttons in `ButtonGroup.tsx`.
 
-`AppInfo.tsx` will show us all relevant information coming from the dApp:
+Lets take a little detour and create some nice helper UI components. Simply, we will define a layout for some text with `AppInfo.tsx` and some buttons in `ButtonGroup.tsx`.
 
+First, `AppInfo.tsx` will show us all relevant information coming from the dApp:
 ```ts
   interface AppInfoProps {
     iconSource?: any; 
@@ -827,7 +830,7 @@ function AppInfo(props: AppInfoProps) {
 export default AppInfo;
 ```
 
-Now, let's create a component that groups an accept and reject button together.
+Second, let's create a component that groups an accept and reject button together.
 
 Create `components/ButtonGroup.tsx`
 ```tsx
@@ -868,13 +871,14 @@ export default ButtonGroup;
 ```
 
 ### 7. Authorize Screen
-Let's put together our first screen to handle new authorizations. It's only job is to show what app want's authorization, and allow the user to accept or deny the request using the `resolve` function from the walletlib.
+
+Let's put together our first screen to handle new authorizations. It's only job is to show what app wants authorization, and allow the user to accept or deny the request using the `resolve` function from the walletlib.
 
 We'll use our `AppInfo` and `ButtonGroup` to compose our entire UI here. All we have to do is plug in the right information, and write the logic for accepting and rejecting the request.
 
-The `resolve` function takes two arguments `request` and `response`, as you can imagine, this will respond to the calling app with the correct information. However, the `resolve` function acts differently by the different types of `request`. So we have to make sure to provide the correct parameters to the function depending on our situation.
+The `resolve` function takes two arguments `request` and `response`. However, the `resolve` function acts differently by the different types of `request`. So we have to make sure to provide the correct parameters to the function depending on our situation.
 
-All of the types of `resolve` from `resolve.ts` within the walletlib library.
+To give us some context, here are all of the types of `resolve` from `resolve.ts` within the walletlib library:
 ```ts
 export function resolve(request: AuthorizeDappRequest, response: AuthorizeDappResponse): void;
 export function resolve(request: ReauthorizeDappRequest, response: ReauthorizeDappResponse): void;
@@ -887,7 +891,7 @@ export function resolve(request: MWARequest, response: MWAResponse): void {
 }
 ```
 
-So for authorization, we will use the `AuthorizeDappRequest` and `AuthorizeDappResponse` combo. `AuthorizeDappResponse` is a union of two more types `AuthorizeDappCompleteResponse` and `UserDeclinedResponse`. This is exactly what we have to resolve for our `authorize` and `reject` functions.
+For authorization, we'll' use the `AuthorizeDappRequest` and `AuthorizeDappResponse` combo. `AuthorizeDappResponse` is a union of two more types `AuthorizeDappCompleteResponse` and `UserDeclinedResponse`. This is exactly what we have to resolve for our `authorize` and `reject` functions. This means that we'll need to provide the following to authorize a dApp:
 
 ```ts
 export type AuthorizeDappResponse = AuthorizeDappCompleteResponse | UserDeclinedResponse;
@@ -978,10 +982,8 @@ Now let's update our `MWAApp.tsx` to handle this situation by adding to our `ren
 
 Feel free to build and run the wallet again. When you first interact with another Solana app, our new authorization screen will now appear.
 
-// IMAGE of Authorization Screen
-
 ### 8. Sign and Send Screen
-Let's finish up our wallet app with the sign and send screen. Here, we need to grab the transactions from the `request`, sign them with our privatekey and then send them to an rpc.
+Let's finish up our wallet app with the sign and send transaction screen. Here, we need to grab the transactions from the `request`, sign them with our privatekey from our `WalletProvider` and then send them to an rpc.
 
 For the UI, it will look very similar to our authorization page, some info about the app with `AppInfo` and some buttons with `ButtonGroup`. This time, we will fulfill the `SignAndSendTransactionsRequest` and `SignAndSendTransactionsResponse` for our `resolve` function.
 
@@ -989,7 +991,7 @@ For the UI, it will look very similar to our authorization page, some info about
 export function resolve(request: SignAndSendTransactionsRequest, response: SignAndSendTransactionsResponse): void;
 ```
 
-More specifically, we'll have to adhear to what `SignAndSendTransactionsResponse` is unioned with.
+More specifically, we'll have to adhear to what `SignAndSendTransactionsResponse` is unioned with:
 ```ts
 export type SignAndSendTransactionsResponse =
     | SignAndSendTransactionsCompleteResponse
@@ -1018,191 +1020,6 @@ We can do this in two functions:
 -`sendSignedTransactions`, takes the signed transactions and sends them out to the rpc. Similarly, it keeps an array of `valid` booleans to know which transactions failed.
 
 Let's put that all together in a new file `screens/SignAndSendTransactionScreen.tsx`:
-```tsx
-import {
-  Connection,
-  Keypair,
-  SendOptions,
-  TransactionSignature,
-  VersionedTransaction,
-} from '@solana/web3.js';
-import {useState} from 'react';
-import {
-  MWARequestFailReason,
-  SignAndSendTransactionsRequest,
-  resolve,
-} from '../lib/mobile-wallet-adapter-walletlib/src';
-
-import {useWallet} from '../components/WalletProvider';
-import {Text, View} from 'react-native';
-import AppInfo from '../components/AppInfo';
-import ButtonGroup from '../components/ButtonGroup';
-import {decode} from 'bs58';
-
-export async function sendSignedTransactions(
-  signedTransactions: Array<Uint8Array>,
-  minContextSlot: number | undefined,
-  connection: Connection,
-): Promise<[boolean[], Uint8Array[]]> {
-  const valid = signedTransactions.map(_ => true);
-  const signatures: (Uint8Array | null)[] = await Promise.all(
-    signedTransactions.map(async (byteArray, index) => {
-      try {
-        const transaction: VersionedTransaction =
-          VersionedTransaction.deserialize(byteArray);
-
-        const signature: TransactionSignature =
-          await connection.sendTransaction(transaction, {
-            minContextSlot: minContextSlot,
-            preflightCommitment: 'finalized',
-            skipPreflight: true,
-          });
-
-        const response = await connection.confirmTransaction(
-          signature,
-          'confirmed',
-        );
-
-        return decode(signature);
-      } catch (error) {
-        console.log('Failed sending transaction ' + error);
-        valid[index] = false;
-        return null;
-      }
-    }),
-  );
-
-  return [valid, signatures as Uint8Array[]];
-}
-
-export function signTransactionPayloads(
-  wallet: Keypair,
-  payloads: Uint8Array[],
-): [boolean[], Uint8Array[]] {
-  const valid = payloads.map(_ => true);
-
-  const signedPayloads = payloads.map((payload, index) => {
-    try {
-      const transaction: VersionedTransaction =
-        VersionedTransaction.deserialize(new Uint8Array(payload));
-
-      transaction.sign([
-        {
-          publicKey: wallet.publicKey,
-          secretKey: wallet.secretKey,
-        },
-      ]);
-      return transaction.serialize();
-    } catch (e) {
-      console.log('sign error: ' + e);
-      valid[index] = false;
-      return new Uint8Array([]);
-    }
-  });
-
-  return [valid, signedPayloads];
-}
-
-export interface SignAndSendTransactionScreenProps {
-  request: SignAndSendTransactionsRequest;
-}
-
-function SignAndSendTransactionScreen(
-  props: SignAndSendTransactionScreenProps,
-) {
-  const {request} = props;
-  const {wallet, connection} = useWallet();
-  const [loading, setLoading] = useState(false);
-
-  if (!wallet) {
-    throw new Error('Wallet is null or undefined');
-  }
-
-  const signAndSendTransaction = async (
-    wallet: Keypair,
-    connection: Connection,
-    request: SignAndSendTransactionsRequest,
-  ) => {
-    const [validSignatures, signedTransactions] = signTransactionPayloads(
-      wallet,
-      request.payloads,
-    );
-
-    if (validSignatures.includes(false)) {
-      resolve(request, {
-        failReason: MWARequestFailReason.InvalidSignatures,
-        valid: validSignatures,
-      });
-      return;
-    }
-
-    const [validTransactions, transactionSignatures] =
-      await sendSignedTransactions(
-        signedTransactions,
-        request.minContextSlot ? request.minContextSlot : undefined,
-        connection,
-      );
-
-    if (validTransactions.includes(false)) {
-      resolve(request, {
-        failReason: MWARequestFailReason.InvalidSignatures,
-        valid: validTransactions,
-      });
-      return;
-    }
-
-    resolve(request, {signedTransactions: transactionSignatures});
-  };
-
-  const signAndSend = async () => {
-    if (loading) return;
-    setLoading(true);
-    try {
-      await signAndSendTransaction(wallet, connection, request);
-    } catch (e) {
-      const valid = request.payloads.map(() => false);
-      resolve(request, {
-        failReason: MWARequestFailReason.InvalidSignatures,
-        valid,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const reject = () => {
-    resolve(request, {failReason: MWARequestFailReason.UserDeclined});
-  };
-
-  return (
-    <View>
-      <AppInfo
-        title="Sign and Send Transaction"
-        appName={request.appIdentity?.identityName}
-        cluster={request.cluster}
-        scope={'app'}
-      />
-      <Text>Payloads</Text>
-      <Text>
-        This request has {request.payloads.length}{' '}
-        {request.payloads.length > 1 ? 'payloads' : 'payload'} to sign.
-      </Text>
-      <ButtonGroup
-        positiveButtonText="Sign and Send"
-        negativeButtonText="Reject"
-        positiveOnClick={signAndSend}
-        negativeOnClick={reject}
-      />
-      {loading && <Text>Loading...</Text>}
-    </View>
-  );
-}
-
-export default SignAndSendTransactionScreen;
-```
-
-### 9. Sign and Send Screen
-
 ```tsx
 import {Connection, Keypair} from '@solana/web3.js';
 import {useState, useEffect} from 'react';
@@ -1380,3 +1197,5 @@ Now it's your turn, try and implement the last two functions, `SignMessagesReque
       case MWARequestType.SignMessagesRequest:
       case MWARequestType.SignTransactionsRequest:
 ```
+
+If you get stuck, check out the [solution branch](https://github.com/Unboxed-Software/react-native-fake-solana-wallet/tree/solution).
