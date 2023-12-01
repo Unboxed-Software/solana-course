@@ -299,7 +299,7 @@ npm install \
   assert
 ```
 
-### 4. ConnectionProvider.tsx
+### 4. Create ConnectionProvider.tsx
 
 Let’s start adding our Solana functionality. Create a new folder called `components` and within it, a file called `ConnectionProvider.tsx`. This provider will wrap the entire application and make our `Connection` object available throughout. Hopefully, you're noticing a pattern: this is identical to the React patterns we've used throughout the course.
 
@@ -339,7 +339,7 @@ export const useConnection = (): ConnectionContextState =>
   useContext(ConnectionContext);
 ```
 
-### 5. AuthProvider.tsx
+### 5. Create AuthProvider.tsx
 
 The next Solana provision we’ll need is the auth provider. This is one of the main differences between mobile and web development. What we’re implementing here is roughly equivalent to the `WalletProvider` that we’re used to in web apps. However, since we're using Android and its natively installed wallets, the flow to connect and utilize them is a bit different. Most notably, we need to follow the MWA protocol. 
 
@@ -546,7 +546,7 @@ export function AuthorizationProvider(props: AuthProviderProps) {
 export const useAuthorization = () => React.useContext(AuthorizationContext);
 ```
 
-### 6. ProgramProvider.tsx
+### 6. Create ProgramProvider.tsx
 
 The last provider we need is our program provider. This will expose the counter program we want to interact with.
 
@@ -640,7 +640,7 @@ export function ProgramProvider(props: ProgramProviderProps) {
 export const useProgram = () => useContext(ProgramContext);
 ```
 
-### 7. App.tsx
+### 7. Modify App.tsx
 
 Now that we have all our providers, let’s wrap our app with them. We're going to re-write the default `App.tsx` with the following changes:
 
@@ -682,7 +682,7 @@ export default function App() {
 }
 ```
 
-### 8. MainScreen.tsx
+### 8. Create MainScreen.tsx
 
 Now, let’s put everything together to create our UI. Create a new folder called `screens` and a new file called `MainScreen.tsx` inside of it. In this file, we are only structuring the screen to display two yet-to-be-created components: `CounterView` and `CounterButton`.
 
@@ -729,7 +729,7 @@ export function MainScreen() {
 }
 ```
 
-### 9. CounterView.tsx
+### 9. Create CounterView.tsx
 
 The `CounterView` is the first of our two program-specific files. Its only job is to fetch and listen for updates on our `Counter` account. Since we’re only listening here, we don’t have to do anything MWA-related. It should look identical to a web application. We'll use our `Connection` object to listen for the `programAddress` specified in `ProgramProvider.tsx`. When the account is changed, we update the UI.
 
@@ -794,7 +794,7 @@ export function CounterView() {
 }
 ```
 
-### 10. CounterButton.tsx
+### 10. Create CounterButton.tsx
 
 Finally, we have our last component, the `CounterButton`. This floating action button will do the following in a new function `incrementCounter`:
 
