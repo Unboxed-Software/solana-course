@@ -317,7 +317,6 @@ If you want to install the app from the previous lesson, you can:
 git clone https://github.com/Unboxed-Software/solana-react-native-counter.git
 cd solana-react-native-counter
 git checkout solution
-npm i
 npm run install
 ```
 
@@ -390,8 +389,17 @@ Next, we have to manually link it by adding `@solana-mobile/mobile-wallet-adapte
 
 ```json
 "dependencies": {
+    ...
     "@solana-mobile/mobile-wallet-adapter-walletlib": "file:./lib/mobile-wallet-adapter-walletlib",
+    ...
 }
+```
+
+Let npm know about the new package by installing again in the root of your project:
+
+```bash
+cd ..
+npm install
 ```
 
 Next, in `android/build.gradle`, change the `minSdkVersion` to version `23`.
@@ -399,10 +407,9 @@ Next, in `android/build.gradle`, change the `minSdkVersion` to version `23`.
   minSdkVersion = 23
 ```
 
-Finally, finish the initial setup by installing the packages and building the app. You should get the default React Native app showing up on your device.
+Finally, finish the initial setup by building the app. You should get the default React Native app showing up on your device.
 
 ```bash
-npm i
 npm run android
 ```
 
@@ -813,7 +820,7 @@ AppRegistry.registerComponent(
 );
 ```
 
-Go ahead and test this out to make sure it works.
+Go ahead and test this out to make sure it works. First 
 
 ```bash
 npm run android
@@ -1123,7 +1130,6 @@ Let's put that all together in a new file called `screens/SignAndSendTransaction
 import {
   Connection,
   Keypair,
-  SendOptions,
   TransactionSignature,
   VersionedTransaction,
 } from '@solana/web3.js';

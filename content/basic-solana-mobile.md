@@ -285,6 +285,7 @@ We’ll need to add in our Solana dependencies. [The Solana Mobile docs provide 
 In addition to this list, we'll add two more packages:
 - `@coral-xyz/anchor`: The Anchor TS client.
 - `assert`: A polyfill that lets Anchor do its thing.
+- `text-encoding-polyfill`: A polyfill needed to create the `Program` object
 
 If you’re not familiar: polyfills actively replace Node-native libraries to make them work anywhere Node is not running. We’ll finish our polyfill setup shortly. For now, install dependencies using the following command:
 
@@ -296,7 +297,8 @@ npm install \
   react-native-get-random-values \
   buffer \
   @coral-xyz/anchor \
-  assert
+  assert \
+  text-encoding-polyfill
 ```
 
 ### 4. Create ConnectionProvider.tsx
@@ -360,7 +362,7 @@ We’ll expose all of this through a `useAuthorization` hook.
 
 Since this provider is the same across virtually all apps, we're going to give you the full implementation that you can copy/paste. We'll dig into the details of MWA in a future lesson. 
 
-Create the file `AuthProvider.tsx` and paste in the following:
+Create the file `AuthProvider.tsx` in the `components` and paste in the following:
 
 ```tsx
 import {Cluster, PublicKey} from '@solana/web3.js';
@@ -652,6 +654,7 @@ Now that we have all our providers, let’s wrap our app with them. We're going 
 
 ```tsx
 // Polyfills at the top
+import "text-encoding-polyfill";
 import "react-native-get-random-values";
 import { Buffer } from "buffer";
 global.Buffer = Buffer;

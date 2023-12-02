@@ -212,6 +212,7 @@ Let’s create our app with the following:
 
 ```bash
 npx create-expo-app -t expo-template-blank-typescript solana-expo
+cd solana-expo
 ```
 
 This uses `create-expo-app` to generate a new scaffold for us based on the `expo-template-blank-typescript` template. This is just an empty Typescript React Native app.
@@ -272,17 +273,24 @@ Now that we have an Expo app up and running, we need to add our Solana dependenc
 
 ### 0. Install a Devnet-enabled Solana wallet
 
-You'll need a wallet that supports Devnet to test with. In [our Mobile Wallet Adapter lesson](./mwa-deep-dive.md) we created one of these. Let's install it from the solution branch.
+You'll need a wallet that supports Devnet to test with. In [our Mobile Wallet Adapter lesson](./mwa-deep-dive.md) we created one of these. Let's install it from the solution branch in a different directory from our app:
 
 ```bash
+cd ..
 git clone https://github.com/Unboxed-Software/react-native-fake-solana-wallet
 cd react-native-fake-solana-wallet
 git checkout solution
-npm i
 npm run install
 ```
 
 The wallet should be installed on your emulator or device. Make sure to open the newly installed wallet and airdrop yourself some SOL.
+
+Make sure to return to the wallet directory as we'll be working there the rest of the lab.
+
+```bash
+cd ..
+cd solana-expo
+```
 
 ### 1. Install Solana dependencies
 
@@ -306,10 +314,9 @@ Create two new folders: `components` and `screens`.
 We are going to use some boilerplate code from the [first Mobile lesson](./basic-solana-mobile.md). We will be copying over `components/AuthProvider.tsx` and `components/ConnectionProvider.tsx`. These files provide us with a `Connection` object as well as some helper functions that authorize our dapp.
 
 
-Create file `components/AuthProvider.tsx` and copy the raw contents [of our existing Auth Provider from Github](https://github.com/Unboxed-Software/solana-advance-mobile/blob/main/components/AuthProvider.tsx) into the new file.
+Create file `components/AuthProvider.tsx` and copy the contents [of our existing Auth Provider from Github](https://raw.githubusercontent.com/Unboxed-Software/solana-advance-mobile/main/components/AuthProvider.tsx) into the new file.
 
-Secondly, create file `components/ConnectionProvider.tsx` and copy the raw contents [of our existing Connection Provider from Github](https://github.com/Unboxed-Software/solana-advance-mobile/blob/main/components/ConnectionProvider.tsx) into the new file.
-
+Secondly, create file `components/ConnectionProvider.tsx` and copy the contents [of our existing Connection Provider from Github](https://raw.githubusercontent.com/Unboxed-Software/solana-advance-mobile/main/components/ConnectionProvider.tsx) into the new file.
 
 Now let's create a boilerplate for our main screen in `screens/MainScreen.tsx`:
 ```tsx
@@ -408,12 +415,6 @@ touch metro.config.js
 
 Copy and paste the following into `metro.config.js`:
 ```js
-/**
- * Metro configuration for React Native
- * https://github.com/facebook/react-native
- * @format
- */
-
 // Import the default Expo Metro config
 const { getDefaultConfig } = require('@expo/metro-config');
 
@@ -455,7 +456,7 @@ import { Account } from './AuthProvider';
     },
   });
 
-const useMetaplex = (
+export const useMetaplex = (
   connection: Connection,
   selectedAccount: Account | null,
   authorizeSession: (wallet: Web3MobileWallet) => Promise<Account>,
@@ -512,8 +513,6 @@ const useMetaplex = (
     return {metaplex};
   }, [authorizeSession, selectedAccount, connection]);
 };
-
-export default useMetaplex;
 ```
 
 ### 4. NFT Provider
@@ -563,8 +562,6 @@ Now, let's wrap our new `NFTProvider` around `MainScreen` in `App.tsx`:
 
 ```tsx
 import 'react-native-get-random-values';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
 import { ConnectionProvider } from './components/ConnectionProvider';
 import { AuthorizationProvider } from './components/AuthProvider';
 import { clusterApiUrl } from '@solana/web3.js';
@@ -891,7 +888,7 @@ import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol";
 import { Account, useAuthorization } from "./AuthProvider";
 import RNFetchBlob from "rn-fetch-blob";
-import useMetaplex from "./MetaplexProvider";
+import {useMetaplex} from "./MetaplexProvider";
 
 
 export interface NFTProviderProps {
@@ -1058,7 +1055,7 @@ export function NFTProvider(props: NFTProviderProps) {
     }
   };
 
-  const publicKey = account?.publicKey;
+  const publicKey = account?.publicKey ?? null;
 
   const state = {
     isLoading,
