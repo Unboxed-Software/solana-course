@@ -292,11 +292,11 @@ transaction.sign([payer]);
 const transactionSignature = await connection.sendTransaction(transaction);
 ```
 
-# Demo
+# Lab
 
 Let's go ahead and practice using lookup tables!
 
-This demo will guide you through the steps of creating, extending, and then using a lookup table in a versioned transaction.
+this lab will guide you through the steps of creating, extending, and then using a lookup table in a versioned transaction.
 
 ### 1. Get the starter code
 
@@ -664,7 +664,7 @@ async function initializeLookupTable(
 }
 ```
 
-Congratulations! If you feel good about this demo, you're probably ready to work with lookup tables and versioned transactions on your own. If you want to take a look at the final solution code you can [find it on the solution branch](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/solution).
+Congratulations! If you feel good about this lab, you're probably ready to work with lookup tables and versioned transactions on your own. If you want to take a look at the final solution code you can [find it on the solution branch](https://github.com/Unboxed-Software/solana-versioned-transactions/tree/solution).
 
 # Challenge
 
@@ -675,4 +675,4 @@ As a challenge, experiment with deactivating, closing and freezing lookup tables
 3. Create a function for freezing the lookup table
 4. Test the functions by calling them in the `main()` function
 
-You can reuse the functions we created in the demo for sending the transaction and waiting for the lookup table to activate/deactivate. Feel free to reference this [solution code](https://github.com/Unboxed-Software/versioned-transaction/tree/challenge).
+You can reuse the functions we created in the lab for sending the transaction and waiting for the lookup table to activate/deactivate. Feel free to reference this [solution code](https://github.com/Unboxed-Software/versioned-transaction/tree/challenge).

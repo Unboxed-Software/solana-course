@@ -233,7 +233,7 @@ When you are ready to deploy the program, use the `solana program deploy` comman
 solana program deploy <PATH>
 ```
 
-# Demo
+# Lab
 
 Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program.md).
 
@@ -344,7 +344,7 @@ Now it’s your turn to build something independently. Try to create a new progr
 
 Remember to update your `RPC URL` to Devnet using the `solana config set --url` command.
 
-You can invoke the program using the same client-side script from the demo as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
+You can invoke the program using the same client-side script from the lab as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
 
 ```tsx
 let connection = new web3.Connection(web3.clusterApiUrl("devnet"));

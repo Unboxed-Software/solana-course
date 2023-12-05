@@ -1,12 +1,23 @@
-// TODO: we can remove the 'number' key from course-structure.json
-// as it duplicates the index, once we move the site to solana.com
-export type Module = {
+export type CourseStructure = {
+  tracks: Array<Track>;
+};
+
+export type Track = {
   title: string;
-  lessons: Array<{
-    title: string;
-    slug: string;
-    hidden?: boolean;
-  }>;
+  units: Array<Unit>;
+};
+
+export type Lesson = {
+  title: string;
+  slug: string;
+  lab?: string;
+  hidden?: boolean;
+};
+
+// Formerly 'Module'
+export type Unit = {
+  title: string;
+  lessons: Array<Lesson>;
 };
 
 // See https://stackoverflow.com/questions/40141005/property-code-does-not-exist-on-type-error?noredirect=1
@@ -17,7 +28,7 @@ export type NodeError = {
   code?: number | string;
 };
 
-export type Lesson = {
+export type PageData = {
   title: string;
   content: string;
   nextSlug: string | null;
