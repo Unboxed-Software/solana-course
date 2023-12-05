@@ -548,7 +548,7 @@ All of the code snippets from this lesson are part of a [Solana program we creat
 
 Now that you've read about each of these concepts, feel free to jump into the code to experiment a little. You can change existing values, try to break the program, and generally try to understand how everything works.
 
-You can fork and/or clone [this program from Github](https://github.com/Unboxed-Software/advanced-program-architecture.git) to get started. Before building and running the test suite, remember to update the `lib.rs` and `Anchor.toml` with your local program ID.
+You can fork and/or clone [this program from GitHub](https://github.com/Unboxed-Software/advanced-program-architecture.git) to get started. Before building and running the test suite, remember to update the `lib.rs` and `Anchor.toml` with your local program ID.
 
 You can run the entire test suite or add `.only` to the `describe` call in a specific test file to only run that file's tests. Feel free to customize it and make it your own.
 

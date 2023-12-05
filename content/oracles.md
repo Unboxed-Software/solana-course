@@ -1050,10 +1050,10 @@ describe("burry-escrow", () => {
 
 If you feel confident in the testing logic, go ahead and run `anchor test` in your shell of choice. You should get four passing tests.
 
-If something went wrong, go back through the demo and make sure you got everything right. Pay close attention to the intent behind the code rather than just copy/pasting. Also feel free to review the working code [on the `main` branch of its Github repository](https://github.com/Unboxed-Software/michael-burry-escrow).
+If something went wrong, go back through the demo and make sure you got everything right. Pay close attention to the intent behind the code rather than just copy/pasting. Also feel free to review the working code [on the `main` branch of its GitHub repository](https://github.com/Unboxed-Software/michael-burry-escrow).
 
 ## Challenge
 
 As an independent challenge, create a fallback plan if the data feed ever goes down. If the Oracle queue has not updated the aggregator account in X time or if the data feed account does not exist anymore, withdraw the user’s escrowed funds.
 
-A potential solution to this challenge can be found [in the Github repository on the `challenge-solution` branch](https://github.com/Unboxed-Software/michael-burry-escrow/tree/challenge-solution).
+A potential solution to this challenge can be found [in the GitHub repository on the `challenge-solution` branch](https://github.com/Unboxed-Software/michael-burry-escrow/tree/challenge-solution).
