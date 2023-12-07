@@ -284,7 +284,7 @@
                         {
                             "title": "Generalized State Compression",
                             "slug": "generalized-state-compression",
-                            "number": 5
+                            "lab": "Build a Notes program using state compression"
                         }
                     ]
                 }
