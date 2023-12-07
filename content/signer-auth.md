@@ -213,7 +213,7 @@ pub struct AuthState{
 }
 ```
 
-# Demo
+# Lab
 
 Let’s practice by creating a simple program to demonstrate how a missing signer check can allow an attacker to withdraw tokens that don’t belong to them.
 
@@ -453,7 +453,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-At this point in the course, we hope you've started to work on programs and projects outside the Demos and Challenges provided in these lessons. For this and the remainder of the lessons on security vulnerabilities, the Challenge for each lesson will be to audit your own code for the security vulnerability discussed in the lesson. 
+At this point in the course, we hope you've started to work on programs and projects outside the labs and Challenges provided in these lessons. For this and the remainder of the lessons on security vulnerabilities, the Challenge for each lesson will be to audit your own code for the security vulnerability discussed in the lesson. 
 
 Alternatively, you can find open source programs to audit. There are plenty of programs you can look at. A good start if you don't mind diving into native Rust would be the [SPL programs](https://github.com/solana-labs/solana-program-library).
 

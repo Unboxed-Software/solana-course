@@ -162,9 +162,9 @@ For example, if the account stores an `authority` field that gets set in the ins
 
 In most cases, it’s safer to have a separate instruction for initializing account data.
 
-# Demo
+# Lab
 
-For this demo we’ll create a simple program that does nothing but initialize accounts. We’ll include two instructions:
+For this lab we’ll create a simple program that does nothing but initialize accounts. We’ll include two instructions:
 
 - `insecure_initialization` - initializes an account that can be reinitialized
 - `recommended_initialization` - initialize an account using Anchor’s `init` constraint
@@ -381,7 +381,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that instructions are properly protected against reinitialization attacks.
 

@@ -396,7 +396,7 @@ Lastly, it’s important to plan for worst-case scenarios in your programs. Plan
 
 If you want functional programs that can perform actions based on real-world data, you’re going to have to use oracles. Fortunately, there are some trustworthy oracle networks, like Switchboard, that make using oracles easier than they would otherwise be. However, make sure to do your due diligence on the oracles you use. You are ultimately responsible for your program's behavior!
 
-# Demo
+# Lab
 
 Let's practice using oracles! We'll be building a "Michael Burry Escrow" program that locks SOL in an escrow account until SOL is above a certain USD value. This is named after the investor [Michael Burry](https://en.wikipedia.org/wiki/Michael_Burry) who's famous for predicting the 2008 housing market crash.
 
@@ -836,9 +836,9 @@ Error: Function _ZN86_$LT$switchboard_v2..aggregator..AggregatorAccountData$u20$
 
 Let's write some tests. We should have four of them:
 
-- Creating an Escrow with the unlock price ***below*** the current Sol price so we can test withdrawing it
+- Creating an Escrow with the unlock price ***below*** the current SOL price so we can test withdrawing it
 - Withdrawing and closing from the above escrow
-- Creating an Escrow with the unlock price ***above*** the current Sol price so we can test withdrawing it
+- Creating an Escrow with the unlock price ***above*** the current SOL price so we can test withdrawing it
 - Withdrawing and failing from the above escrow
 
 Note that there can only be one escrow per user, so the above order matters.
@@ -1050,7 +1050,7 @@ describe("burry-escrow", () => {
 
 If you feel confident in the testing logic, go ahead and run `anchor test` in your shell of choice. You should get four passing tests.
 
-If something went wrong, go back through the demo and make sure you got everything right. Pay close attention to the intent behind the code rather than just copy/pasting. Also feel free to review the working code [on the `main` branch of its Github repository](https://github.com/Unboxed-Software/michael-burry-escrow).
+If something went wrong, go back through the lab and make sure you got everything right. Pay close attention to the intent behind the code rather than just copy/pasting. Also feel free to review the working code [on the `main` branch of its Github repository](https://github.com/Unboxed-Software/michael-burry-escrow).
 
 ## Challenge
 

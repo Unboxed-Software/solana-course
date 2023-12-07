@@ -148,7 +148,7 @@ pub struct User {
 }
 ```
 
-# Demo
+# Lab
 
 Let’s practice by creating a simple Rock Paper Scissors program to demonstrate how failing to check for duplicate mutable accounts can cause undefined behavior within your program.
 
@@ -353,7 +353,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that any instructions with two same-typed mutable accounts are properly constrained to avoid duplicates.
 

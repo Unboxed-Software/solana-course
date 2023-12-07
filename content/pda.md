@@ -24,7 +24,7 @@ Program Derived Addresses (PDAs) are account addresses designed to be signed for
 
 PDAs serve two main functions:
 
-1. Provide a deterministic way to find the address of a program-owned account
+1. Provide a deterministic way to find a given item of data for a program
 2. Authorize the program from which a PDA was derived to sign on its behalf in the same way a user may sign with their secret key
 
 In this lesson we'll focus on using PDAs to find and store data. We'll discuss signing with a PDA more thoroughly in a future lesson where we cover Cross Program Invocations (CPIs).
@@ -195,19 +195,19 @@ The mappings between seeds and PDA accounts that you use will be highly dependen
 - Be thoughtful about the data structure used within each account
 - Simpler is usually better
 
-# Demo
+# Lab
 
 Let’s practice together with the Movie Review program we've worked on in previous lessons. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way.
 
 As a refresher, the Movie Review program lets users create movie reviews. These reviews are stored in an account using a PDA derived with the initializer’s public key and the title of the movie they are reviewing.
 
-Previously, we finished implementing the ability to update a movie review in a secure manner. In this demo, we'll add the ability for users to comment on a movie review. We'll use building this feature as an opportunity to work through how to structure the comment storage using PDA accounts.
+Previously, we finished implementing the ability to update a movie review in a secure manner. In this lab, we'll add the ability for users to comment on a movie review. We'll use building this feature as an opportunity to work through how to structure the comment storage using PDA accounts.
 
 ### 1. Get the starter code
 
 To begin, you can find [the movie program starter code](https://github.com/Unboxed-Software/solana-movie-program/tree/starter) on the `starter` branch.
 
-If you've been following along with the Movie Review demos, you'll notice that this is the program we’ve built out so far. Previously, we used [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code. In this lesson, we’ll build and deploy the program locally.
+If you've been following along with the Movie Review labs, you'll notice that this is the program we’ve built out so far. Previously, we used [Solana Playground](https://beta.solpg.io/) to write, build, and deploy our code. In this lesson, we’ll build and deploy the program locally.
 
 Open the folder, then run `cargo-build-bpf` to build the program. The `cargo-build-bpf` command will output instruction to deploy the program.
 

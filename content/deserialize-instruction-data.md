@@ -206,7 +206,7 @@ Notice that each variant of the `NoteInstruction` enum comes with embedded data 
 
 Instruction data is passed to the program as a byte array, so you need a way to deterministically convert that array into an instance of the instruction enum type.
 
-In previous modules, we used Borsh for client-side serialization and deserialization. To use Borsh program-side, we use the `borsh` crate. This crate provides traits for `BorshDeserialize` and `BorshSerialize` that you can apply to your types using the `derive` attribute.
+In previous units, we used Borsh for client-side serialization and deserialization. To use Borsh program-side, we use the `borsh` crate. This crate provides traits for `BorshDeserialize` and `BorshSerialize` that you can apply to your types using the `derive` attribute.
 
 To make deserializing instruction data simple, you can create a struct representing the data and use the `derive` attribute to apply the `BorshDeserialize` trait to the struct. This implements the methods defined in `BorshDeserialize`, including the `try_from_slice` method that we'll be using to deserialize the instruction data.
 
@@ -318,9 +318,9 @@ Additionally, any declarations that you would like to be available through `use`
 pub enum NoteInstruction { ... }
 ```
 
-## Demo
+## Lab
 
-For this lesson’s demo, we’ll be building out the first half of the Movie Review program that we worked with in Module 1. This program stores movie reviews submitted by users.
+For this lesson’s lab, we’ll be building out the first half of the Movie Review program that we worked with in Module 1. This program stores movie reviews submitted by users.
 
 For now, we'll focus on deserializing the instruction data. The following lesson will focus on the second half of this program.
 
@@ -469,7 +469,7 @@ Build and deploy your program from Solana Program just like in the last lesson. 
 
 You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
 
-If you need to spend some more time with this demo before moving on, please do! You can also have a look at the program [solution code](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) if you get stuck.
+If you need to spend some more time with this lab before moving on, please do! You can also have a look at the program [solution code](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) if you get stuck.
 
 # Challenge
 
