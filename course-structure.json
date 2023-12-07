@@ -289,6 +289,11 @@
                 "title": "Compressed NFTs",
                 "slug": "compressed-nfts",
                 "number": 4
+            },
+            {
+                "title": "Generalized State Compression",
+                "slug": "generalized-state-compression",
+                "number": 5
             }
         ]
     }
