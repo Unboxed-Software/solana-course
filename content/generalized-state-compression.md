@@ -1039,10 +1039,8 @@ That’s it, congrats! Go ahead and run `anchor test` and you should get four pa
 
 If you’re running into issues, feel free to go back through some of the demo or look at the full solution code in the [Compressed Notes repository](https://github.com/unboxed-software/anchor-compressed-notes). 
 
-> Note: If you want to run the program from the repo, make sure to change the `wallet` path in `Anchor.toml`.
-
 # Challenge
 
 Now that you’ve practiced the basics of state compression, add a new instruction to the Compressed Notes program. This new instruction should allow users to delete an existing note. keep in mind that you can’t remove a leaf from the tree, so you’ll need to decide what “deleted” looks like for your program. Good luck!
 
-If you'd like a very simple example of a delete function, checkout the [`solution` branch on github](https://github.com/Unboxed-Software/anchor-compressed-notes/tree/solution).
+If you'd like a very simple example of a delete function, check out the [`solution` branch on GitHub](https://github.com/Unboxed-Software/anchor-compressed-notes/tree/solution).
