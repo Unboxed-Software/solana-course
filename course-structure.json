@@ -282,7 +282,13 @@
                             "lab": "Mint, read and transfer NFTs at scale with Bubblegum"
                         }
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "title": "Solana Mobile Development",
+            "slug": "solana-mobile-development",
+            "units": [
                 {
                     "title": "Solana Mobile Development",
                     "slug": "solana-mobile-development",
