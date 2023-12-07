@@ -51,5 +51,10 @@
   "program-architecture": "Program architecture",
   "oracles": "Oracles and oracle networks",
   "vrf": "Verifiable randomness functions",
-  "compressed-nfts": "Compressed NFTs"
+  "compressed-nfts": "Compressed NFTs",
+  "solana-mobile-development-track-title": "Solana Mobile Development",
+  "intro-to-solana-mobile": "Introduction to Solana Mobile",
+  "mwa-deep-dive": "Exploring Mobile Wallet Adapter",
+  "solana-mobile-dApps-with-expo": "Building Solana Mobile dApps with Expo",
+  "solana-mobile-development-unit": "Solana Mobile Development"
 }
