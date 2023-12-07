@@ -280,6 +280,11 @@
                             "title": "Compressed NFTs",
                             "slug": "compressed-nfts",
                             "lab": "Mint, read and transfer NFTs at scale with Bubblegum"
+                        },
+                        {
+                            "title": "Generalized State Compression",
+                            "slug": "generalized-state-compression",
+                            "lab": "Build a Notes program using state compression"
                         }
                     ]
                 }
