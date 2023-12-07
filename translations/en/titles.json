@@ -57,5 +57,6 @@
   "mwa-deep-dive": "Exploring Mobile Wallet Adapter",
   "solana-mobile-dApps-with-expo": "Building Solana Mobile dApps with Expo",
   "solana-mobile-development-unit": "Solana Mobile Development",
-  "generalized-state-compression": "Generalized State Compression"
+  "generalized-state-compression": "Generalized State Compression",
+  "intro-to-custom-on-chain-programs": "Using custom on-chain programs"
 }
