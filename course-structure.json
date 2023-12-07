@@ -280,6 +280,11 @@
                             "title": "Compressed NFTs",
                             "slug": "compressed-nfts",
                             "lab": "Mint, read and transfer NFTs at scale with Bubblegum"
+                        },
+                        {
+                            "title": "Generalized State Compression",
+                            "slug": "generalized-state-compression",
+                            "lab": "Build a Notes program using state compression"
                         }
                     ]
                 }
@@ -287,15 +292,15 @@
         },
         {
             "title": "Solana Mobile Development",
-            "slug": "solana-mobile-development",
+            "slug": "solana-mobile-development-track-title",
             "units": [
                 {
                     "title": "Solana Mobile Development",
-                    "slug": "solana-mobile-development",
+                    "slug": "solana-mobile-development-unit",
                     "lessons": [
                         {
                             "title": "Introduction to Solana Mobile",
-                            "slug": "basic-solana-mobile",
+                            "slug": "intro-to-solana-mobile",
                             "lab": "Build a simple Android counter dApp with React Native"
                         },
                         {
@@ -305,7 +310,7 @@
                         },
                         {
                             "title": "Building Solana Mobile dApps with Expo",
-                            "slug": "advanced-solana-mobile",
+                            "slug": "solana-mobile-dApps-with-expo",
                             "lab": "Build a mobile dApp that mints NFTs from photos"
                         }
                     ]
