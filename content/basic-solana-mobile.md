@@ -10,40 +10,39 @@ objectives:
 
 # TL;DR
 
-- The Solana Mobile Wallet Adapter (MWA) introduces a new protocol and flow for mobile apps to interact with wallets
-  - The Mobile Wallet Adapter creates a web socket connection between mobile apps and mobile wallets, allowing apps to submit transactions for signing
+- The Solana Mobile Wallet Adapter (MWA) creates a web socket connection between mobile apps and mobile wallets, allowing native mobile apps to submit transactions for signing
 - The simplest way to get started creating Solana mobile applications is with Solana Mobile's [React Native packages](https://docs.solanamobile.com/react-native/setup) `@solana-mobile/mobile-wallet-adapter-protocol` and `@solana-mobile/mobile-wallet-adapter-protocol-web3js`
   - React Native is very similar to React with a few mobile quirks
 
 # Overview
 
-Solana has gone mobile! For a long time, dApps were almost always web-first. That started to change with the announcement of the Solana Mobile Stack (SMS) in 2022. This stack is designed to help developers create mobile dApps with a seamless UX. It consists of the [Mobile Wallet Adapter (MWA)](https://docs.solanamobile.com/getting-started/overview#mobile-wallet-adapter), [Seed Vault](https://docs.solanamobile.com/getting-started/overview#seed-vault), and the [Solana dApp Store](https://docs.solanamobile.com/getting-started/overview#solana-dapp-store).
+Solana Mobile Stack (SMS) is designed to help developers create mobile dApps with a seamless UX. It consists of the [Mobile Wallet Adapter (MWA)](https://docs.solanamobile.com/getting-started/overview#mobile-wallet-adapter), [Seed Vault](https://docs.solanamobile.com/getting-started/overview#seed-vault), and the [Solana dApp Store](https://docs.solanamobile.com/getting-started/overview#solana-dapp-store).
 
 Most relevant to your development journey is the Mobile Wallet Adapter (MWA). The simplest way to get started is to use the Mobile Wallet Adapter with React Native to create a simple Android app. This lesson assumes you're familiar with React and Solana programming. If that's not the case, [start our course from the beginning](./intro-to-cryptography.md) and come back here when you feel ready!
 
 ## Intro To Solana Mobile
 
-Between the Solana Mobile Stack and the Saga mobile device, Solana Mobile has a lot of connotations. For the purposes of this course, we'll be focused on mobile application development where the apps interact with the Solana network. This opens up a whole new paradigm of crypto use cases and behaviors.
+In these units, we'll develop mobile apps that interact with the Solana network. This opens up a whole new paradigm of crypto use cases and behaviors.
 
 ### Solana Mobile Use Cases
 
-The crypto mobile market has a lot of untapped potential. With the right apps, everyone can walk around with the power of Solana in their pockets. Here are a few examples of what Solana mobile development can unlock:
+Here are a few examples of what Solana mobile development can unlock:
 
 **Mobile Banking and Trading (DeFi)**
 
-DeFi apps aren't new, but they're often web-bound and don't have a great mobile experience. By comparison, most traditional banking right now happens on mobile. With SMS, you can now bank and trade with your own wallet, where you hold your own keys.
+Most traditional banking right now happens on on native mobile apps. With SMS, you can now bank and trade using native mobile apps with your own wallet, where you hold your own keys.
 
 **Mobile Gaming with Solana Micropayments**
 
-Traditional mobile games are a cash cow. Mobile games account for roughly 50% of the video game industry’s total value, largely due to small in-game purchases. However, payment processing fees usually mean these in-game purchases have a minimum of $0.99 USD. With Solana, it's possible to unlock true micropayments. Need an extra life? That'll be 0.0001 SOL.
+Mobile games account for roughly 50% of the video game industry’s total value, largely due to small in-game purchases. However, payment processing fees usually mean these in-game purchases have a minimum of $0.99 USD. With Solana, it's possible to unlock true micropayments. Need an extra life? That'll be 0.0001 SOL.
 
 **Mobile E-Commerce** 
 
 SMS can enable a new wave of mobile e-commerce shoppers to pay directly from their favorite Solana wallet. Imagine a world where you can use your Solana wallet as seamlessly as you can use Apple Pay.
 
-To summarize, mobile crypto opens up many doors. Let’s dive in and learn how we can be part of it.
+To summarize, mobile crypto opens up many doors. Let’s dive in and learn how we can be part of it:
 
-### How Solana development differs between mobile and web
+### How Solana development differs between native mobile apps and web
 
 Solana wallet interaction differs slightly on mobile compared to the web. The core wallet functionality is the same: the wallet holds your private keys and uses them to sign and send transactions. To avoid having different interfaces between wallets, developers abstracted that functionality into the Solana Wallet Adapter standard. This remains the standard on the web. The mobile counterpart is the Mobile Wallet Adapter (MWA).
 
@@ -127,7 +126,7 @@ transact(async (wallet: Web3MobileWallet) => {
 }
 ```
 
-This will give you access to the `Web3MobileWallet` object. You can then use this to send transactions to the wallet. Again, when you want to access the wallet, it has to be through the `transact` function's callback.
+This will give you access to the `Web3MobileWallet` object. You can then use this to send transactions to the wallet. Again, when you want to access the wallet, it has to be through the function `transact` function's callback.
 
 ### Signing and sending transactions
 
@@ -159,7 +158,7 @@ const sendTransactions = (transaction: Transaction)=> {
     });
 
 		const signature = await wallet.signAndSendTransactions({
-        transactions: [transaction],
+      transactions: [transaction],
     });
 	})
 }
@@ -196,7 +195,7 @@ Getting started with mobile Solana development is fairly straightforward thanks 
 
 # Lab
 
-Let's practice this together by building a simple Android mobile counter dApp with React Native. The app will interact with the Anchor counter program that we made in the [Intro to client-side Anchor development](https://www.soldev.app/course/intro-to-anchor-frontend) lesson. This dApp simply displays a counter and allows users to increment the count through a Solana program In this app, we’ll be able to see the current count, connect our wallet, and increment the count. We’ll be doing this all on Devnet and will be compiling only for Android. 
+Let's practice this together by building a simple Android mobile counter dApp with React Native. The app will interact with the Anchor counter program that we made in the [Intro to client-side Anchor development](https://www.soldev.app/course/intro-to-anchor-frontend) lesson. This dApp simply displays a counter and allows users to increment the count through a Solana program. In this app, we’ll be able to see the current count, connect our wallet, and increment the count. We’ll be doing this all on Devnet and will be compiling only for Android. 
 
 This program already exists and is already deployed on Devnet. Feel free to check out the [deployed program's code](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/solution-decrement) if you want more context.
 
@@ -206,7 +205,7 @@ We’ll write this application in vanilla React Native without a starting templa
 
 React Native allows us to write mobile applications using similar patterns as React. However, under the hood, our React code needs to be compiled down to languages and frameworks that work with the device's native OS. This requires a few prerequisite setup items:
 
-1. [Set up a React Native dev environment using the linked article](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application). Go through the ***entire article*** following the steps using Android as the target OS. For convenience, we've typed out the high-level steps below. Keep in mind that the source article might change from the time of writing to when you're reading this. The source article is your source of truth here.
+1. [Set up a React Native dev environment](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application). Go through the [***entire article***](https://reactnative.dev/docs/environment-setup?guide=native#creating-a-new-application), using Android as the target OS. For convenience, we've typed out the high-level steps below. Keep in mind that the source article might change from the time of writing to when you're reading this. The source article is your source of truth here.
     1. Install dependencies
     2. Install Android Studio
     3. Configure **ANDROID_HOME** environment variable 
@@ -387,7 +386,7 @@ export const AuthUtils = {
     let selectedAccount: Account;
     if (
       //no wallet selected yet
-      previousAccount == null ||
+      previousAccount === null ||
       //the selected wallet is no longer authorized
       !authResult.accounts.some(
         ({address}) => address === previousAccount.address,
@@ -499,7 +498,7 @@ export function AuthorizationProvider(props: AuthProviderProps) {
 
   const deauthorizeSession = useCallback(
     async (wallet: DeauthorizeAPI) => {
-      if (authorization?.authToken == null) {
+      if (authorization?.authToken === null) {
         return;
       }
 
@@ -693,9 +692,9 @@ Additionally, in this file, we're introducing React Native's `StyleSheet`. This 
 
 In `screens/MainScreen.tsx` paste the following:
 ```tsx
-import {StatusBar, StyleSheet, View} from 'react-native';
-import {CounterView} from '../components/CounterView';
-import {CounterButton} from '../components/CounterButton';
+import { StatusBar, StyleSheet, View } from 'react-native';
+import { CounterView } from '../components/CounterView';
+import { CounterButton } from '../components/CounterButton';
 import React from 'react';
 
 const mainScreenStyles = StyleSheet.create({
@@ -734,7 +733,7 @@ export function MainScreen() {
 
 ### 9. Create CounterView.tsx
 
-The `CounterView` is the first of our two program-specific files. Its only job is to fetch and listen for updates on our `Counter` account. Since we’re only listening here, we don’t have to do anything MWA-related. It should look identical to a web application. We'll use our `Connection` object to listen for the `programAddress` specified in `ProgramProvider.tsx`. When the account is changed, we update the UI.
+The `CounterView` is the first of our two program-specific files. `CounterView`'s only job is to fetch and listen for updates on our `Counter` account. Since we’re only listening here, we don’t have to do anything MWA-related. It should look identical to a web application. We'll use our `Connection` object to listen for the `programAddress` specified in `ProgramProvider.tsx`. When the account is changed, we update the UI.
 
 In `components/CounterView.tsx` paste the following:
 
@@ -820,15 +819,15 @@ import {
   Text,
   ToastAndroid,
 } from 'react-native';
-import {useAuthorization} from './AuthProvider';
-import {useProgram} from './ProgramProvider';
-import {useConnection} from './ConnectionProvider';
+import { useAuthorization } from './AuthProvider';
+import { useProgram } from './ProgramProvider';
+import { useConnection } from './ConnectionProvider';
 import {
   transact,
   Web3MobileWallet,
 } from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
-import {LAMPORTS_PER_SOL, Transaction} from '@solana/web3.js';
-import {useState} from 'react';
+import { LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
+import { useState } from 'react';
 import React from 'react';
 
 const floatingActionButtonStyle = StyleSheet.create({
@@ -856,7 +855,7 @@ export function CounterButton() {
   const [isTransactionInProgress, setIsTransactionInProgress] = useState(false);
 
   const showToastOrAlert = (message: string) => {
-    if (Platform.OS == 'android') {
+    if (Platform.OS === 'android') {
       ToastAndroid.show(message, ToastAndroid.SHORT);
     } else {
       Alert.alert(message);

@@ -17,8 +17,8 @@ objectives:
 So far in exploring Solana Mobile, we've used vanilla React Native to build very simple mobile dApps. Just like many web developers opt to use frameworks built on top of React, like Next.js, many React Native developers opt to use frameworks and tooling that simplify the React Native development, testing, and deployment process. The most common of these is [React Native Expo](https://docs.expo.dev/tutorial/introduction/).
 
 This lesson will explore two primary topics:
-1. How to use React Native Expo to streamline the React Native development process
-2. How to integrate JS/TS libraries from the Solana ecosystem that don't explicitly support React Native (e.g. Metaplex libraries)
+1. How to use React Native Expo to streamline React Native development
+2. How to integrate JS/TS libraries from the Solana ecosystem that don't explicitly support React Native (e.g. Metaplex)
 
 These topics are best explored in a hands-on manner, so the majority of this lesson will be spent in the lab.
 
@@ -35,8 +35,8 @@ The Expo CLI is a build and debugging tool that helps make all of the magic happ
 
 The [Expo Go App](https://expo.dev/client) is a really cool piece of tech that allows *most* apps to be developed without using an emulator or physical device. You download the app, you scan the QR from the build output and then you have a working dev environment right on your phone. Unfortunately, this will not work with the Solana mobile SDK. Coming from the [Solana Expo setup article](https://docs.solanamobile.com/react-native/expo):
 
->The traditional Expo Go development flow is only limited to certain hand-picked modules and does not support further customized native code, which Solana Mobile SDKs need.
->Instead, we'll need to use a custom development build which makes Solana Mobile React Native libraries (i.e Mobile Wallet Adapter) fully compatible with Expo.
+> The traditional Expo Go development flow is only limited to certain hand-picked modules and does not support further customized native code, which Solana Mobile SDKs need.
+> Instead, we'll need to use a custom development build which makes Solana Mobile React Native libraries (i.e Mobile Wallet Adapter) fully compatible with Expo.
 
 Lastly, and most importantly, Expo does an amazing job providing [easy-to-use libraries](https://docs.expo.dev/versions/latest/) that give you access to the device's onboard peripherals, such as camera, battery, and speakers. The libraries are intuitive and the documentation is phenomenal.
 
@@ -190,8 +190,8 @@ In this first section, we will simply get a typescript Expo app running on an em
 
 You'll need React Native installed on your machine as well as a running emulator or physical device. [You can accomplish this all with the React Native quickstart](https://reactnative.dev/docs/environment-setup?guide=native). There are also more details about this setup in the [Introduction to Solana Mobile lesson](./basic-solana-mobile.md#0-prerequisites)
 
->Note: Even though we are using Expo, you'll need to follow the React Native cli guide for initial setup.
->Note: If you are running an emulator, it is highly recommend to use a newer phone version to emulate along with providing several GB of RAM for it to run. We use 5GB of ram on our side. 
+> Note: Even though we are using Expo, you'll need to follow the React Native cli guide for initial setup.
+> Note: If you are running an emulator, it is highly recommend to use a newer phone version to emulate along with providing several GB of RAM for it to run. We use 5GB of ram on our side. 
 
 ### 1. Sign up for Expo EAS CLI
 
@@ -255,7 +255,7 @@ Now let's build the project. You will choose `y` for every answer. This will tak
 npx eas build --profile development --platform android --local
 ```
 
-When it is done, you will get an output file at the root of your directory. This file will have a naming format of `build-XXXXXXXXXXX.apk`. Locate this file in your file explorer and ***drag it*** into your emulator. A message should show on the emulator saying that it is installing the new APK. When it finishes installing, you should see the APK as an app icon in the emulator.
+When the command is done, you will get an output file at the root of your directory. This file will have a naming format of `build-XXXXXXXXXXX.apk`. Locate this file in your file explorer and ***drag it*** into your emulator. A message should show on the emulator saying that it is installing the new APK. When it finishes installing, you should see the APK as an app icon in the emulator.
 
 The app that was installed is just a scaffold app from Expo. The last thing you'll need to do is run the following command to run the development server:
 
@@ -320,7 +320,7 @@ Secondly, create file `components/ConnectionProvider.tsx` and copy the contents 
 
 Now let's create a boilerplate for our main screen in `screens/MainScreen.tsx`:
 ```tsx
-import {View, Text} from 'react-native';
+import { View, Text } from 'react-native';
 import React from 'react';
 
 export function MainScreen() {
@@ -345,8 +345,6 @@ import { MainScreen } from './screens/MainScreen';
 global.Buffer = require('buffer').Buffer;
 
 export default function App() {
-  // const cluster = "localhost" as any;
-  // const endpoint = 'http://10.0.2.2:8899';
   const cluster = "devnet";
   const endpoint = clusterApiUrl(cluster);
 
@@ -540,7 +538,6 @@ const NFTContext = createContext<NFTContextState>(DEFAULT_NFT_CONTEXT_STATE);
 export function NFTProvider(props: NFTProviderProps) {
   const { children } = props;
 
-  // Used to 
   const { connection } = useConnection();
   const { authorizeSession } = useAuthorization();
   const [account, setAccount] = useState<Account | null>(null);
@@ -570,8 +567,6 @@ import { NFTProvider } from './components/NFTProvider';
 global.Buffer = require('buffer').Buffer;
 
 export default function App() {
-  // const cluster = "localhost" as any;
-  // const endpoint = 'http://10.0.2.2:8899';
   const cluster = "devnet";
   const endpoint = clusterApiUrl(cluster);
 
@@ -593,7 +588,7 @@ export default function App() {
 
 ### 6. Build and run
 
-Lastly, lets build and re-install the app to make sure things are still working.
+Lastly, let's build and re-install the app to make sure things are still working.
 
 Build:
 
@@ -888,7 +883,7 @@ import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol";
 import { Account, useAuthorization } from "./AuthProvider";
 import RNFetchBlob from "rn-fetch-blob";
-import {useMetaplex} from "./MetaplexProvider";
+import { useMetaplex } from "./MetaplexProvider";
 
 
 export interface NFTProviderProps {
@@ -1318,5 +1313,5 @@ Now it's your turn. Create your own Expo application from scratch. You're welcom
 
 - Instead of a daily image snapshot, create an application that lets users write a journal entry for the day, then mint it as an NFT
 - Create a basic NFT viewer app to see all your wonderful JPEGs
-- Make a simplified clone of Stepn using the pedometer from `expo-sensors`
+- Make a simplified clone of [Stepn](https://stepn.com/) using the pedometer from `expo-sensors`
 
