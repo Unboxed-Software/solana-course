@@ -284,6 +284,33 @@
                     ]
                 }
             ]
+        },
+        {
+            "title": "Solana Mobile Development",
+            "slug": "solana-mobile-development",
+            "units": [
+                {
+                    "title": "Solana Mobile Development",
+                    "slug": "solana-mobile-development",
+                    "lessons": [
+                        {
+                            "title": "Introduction to Solana Mobile",
+                            "slug": "basic-solana-mobile",
+                            "lab": "Build a simple Android counter dApp with React Native"
+                        },
+                        {
+                            "title": "Exploring Mobile Wallet Adapter",
+                            "slug": "mwa-deep-dive",
+                            "lab": "Build a simple MWA-enabled mobile wallet"
+                        },
+                        {
+                            "title": "Building Solana Mobile dApps with Expo",
+                            "slug": "advance-solana-mobile",
+                            "lab": "Build a mobile dApp that mints NFTs from photos"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
