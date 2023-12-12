@@ -13,7 +13,7 @@ Objectives:
 - Os PDAs não têm uma chave secreta correspondente. 
 - Para armazenar e localizar dados, derive um PDA usando o método `findProgramAddress(seeds, programid)`. 
 - Você pode obter as contas pertencentes a um programa usando o método `getProgramAccounts(programId)`.
-- Os dados da conta precisam ser desserializados usando o mesmo layout usado para armazená-los em primeiro lugar. Você pode usar `@project-serum/borsh` para criar um esquema.
+- Os dados da conta precisam ser desserializados usando o mesmo layout utilizado para armazená-los em primeiro lugar. Você pode usar `@project-serum/borsh` para criar um esquema.
 
 # Visão Geral
 

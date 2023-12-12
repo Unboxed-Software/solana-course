@@ -2,8 +2,8 @@
 title: Variáveis de Ambiente nos Programas Solana
 objectives:
 - Definir as funcionalidades do programa no arquivo `Cargo.toml`.
-- Usar o atributo `cfg` do Rust para compilar código condicionalmente com base em quais funcionalidades estão ou não ativados
-- Usar a macro Rust `cfg!` para compilar código condicionalmente com base em quais funcionalidades estão ou não ativados.
+- Usar o atributo `cfg` do Rust para compilar código condicionalmente com base em quais funcionalidades estão ou não ativadas
+- Usar a macro Rust `cfg!` para compilar código condicionalmente com base em quais funcionalidades estão ou não ativadas.
 - Criar uma instrução somente para administradores para configurar uma conta de programa que possa ser usada para armazenar os valores de configuração do programa.
 ---
 
@@ -11,7 +11,7 @@ objectives:
 
 - Não há soluções "prontas para uso" para criar ambientes distintos em um programa on-chain, mas você pode conseguir algo semelhante às variáveis de ambiente se for criativo.
 - Você pode usar o atributo `cfg` com **funcionalidades do Rust** (`#[cfg(feature = ...)]`) para executar códigos diferentes ou fornecer valores de variáveis diferentes com base na funcionalidade do Rust fornecida. Isso acontece no tempo de compilação e não permite que você troque os valores depois que um programa tiver sido implantado.
-- Da mesma forma, você pode usar a **macro** `cfg!` para compilar diferentes caminhos de código com base nas funcionalidades que estão ativados.
+- Da mesma forma, você pode usar a **macro** `cfg!` para compilar diferentes caminhos de código com base nas funcionalidades que estão ativadas.
 - Como alternativa, você pode obter algo semelhante às variáveis de ambiente que podem ser modificadas após a implantação, criando contas e instruções que só podem ser acessadas pela autoridade de atualização do programa.
 
 # Visão Geral
@@ -25,11 +25,11 @@ O desenvolvimento tradicional da Web resolve parte desse problema com variáveis
 Felizmente, é possível obter uma funcionalidade semelhante se você for criativo. A melhor abordagem é provavelmente uma combinação de duas coisas:
 
 1. Sinalizadores de funcionalidade do Rust que permitem especificar em seu comando de compilação o "ambiente" da compilação, juntamente com o código que ajusta valores específicos adequadamente
-2. Contas e instruções "somente para administradores" do programa que só podem ser acessadas pela autoridade de atualização do programa
+2. Contas de programa e instruções "somente para administradores" que só podem ser acessadas pela autoridade de atualização do programa
 
-## Sinalizadores feature do Rust
+## Sinalizadores de funcionalidade do Rust
 
-Uma das maneiras mais simples de criar ambientes é usar as funcionalidades do Rust. Elas são definidos na tabela `[features]` do arquivo `Cargo.toml` do programa. Você pode definir vária funcionalidades para diferentes casos de uso.
+Uma das maneiras mais simples de criar ambientes é usar as funcionalidades do Rust. Elas são definidas na tabela `[features]` do arquivo `Cargo.toml` do programa. Você pode definir várias funcionalidades para diferentes casos de uso.
 
 ```toml
 [features]
@@ -43,7 +43,7 @@ feature-two = []
 anchor test -- --features "feature-one"
 ```
 
-Você também pode especificar várias funcionalidades, separando-os com uma vírgula.
+Você também pode especificar várias funcionalidades, separando-as com uma vírgula.
 
 ```bash
 anchor test -- --features "feature-one", "feature-two"
@@ -51,7 +51,7 @@ anchor test -- --features "feature-one", "feature-two"
 
 ### Crie uma condicional de código usando o atributo `cfg`.
 
-Com uma funcionalidade definido, você pode usar o atributo `cfg` em seu código para compilar condicionalmente o código com base na ativação ou não de uma determinada funcionalidade. Isso permite que você inclua ou exclua determinado código do seu programa.
+Com uma funcionalidade definida, você pode usar o atributo `cfg` em seu código para compilar condicionalmente o código com base na ativação ou não de uma determinada funcionalidade. Isso permite que você inclua ou exclua determinado código do seu programa.
 
 A sintaxe para usar o atributo `cfg` é como qualquer outra macro de atributo: `#[cfg(feature=[FEATURE_HERE])]`. Por exemplo, o código a seguir compila a função `function_for_testing` quando a funcionalidade `testing` está habilitada e a `function_when_not_testing` quando não está:
 
@@ -69,7 +69,7 @@ fn function_when_not_testing() {
 
 Isso permite que você habilite ou desabilite determinadas funcionalidades em seu programa Anchor no momento da compilação, habilitando ou desabilitando a funcionalidade.
 
-Não é difícil imaginar que você queira usar isso para criar "ambientes" distintos para diferentes implementações de programas. Por exemplo, nem todos os tokens são implantados na Mainnet e na Devnet. Portanto, você pode codificar um endereço de token para implantações na Mainnet, mas codificar um endereço diferente para implantações na Devnet e na Localnet. Dessa forma, você pode alternar rapidamente entre diferentes ambientes sem precisar fazer alterações no próprio código.
+Não é difícil imaginar que você queira usar isso para criar "ambientes" distintos para diferentes implantações de programas. Por exemplo, nem todos os tokens são implantados na Mainnet e na Devnet. Portanto, você pode codificar um endereço de token para implantações na Mainnet, mas codificar um endereço diferente para implantações na Devnet e na Localnet. Dessa forma, você pode alternar rapidamente entre diferentes ambientes sem precisar fazer alterações no próprio código.
 
 O código abaixo mostra um exemplo de um programa Anchor que usa o atributo `cfg` para incluir diferentes endereços de token para testes locais em comparação com outras implantações:
 
@@ -123,7 +123,7 @@ Neste exemplo, o atributo `cfg` é usado para compilar condicionalmente duas imp
 
 ### Crie uma condicional de código usando a macro `cfg!`
 
-Semelhante ao atributo `cfg`, a **macro** `cfg!` do Rust permite que você verifique os valores de determinados sinalizadores de configuração em tempo de execução. Isso pode ser útil se você quiser executar caminhos de código diferentes, dependendo dos valores de determinados sinalizadores de configuração.
+Semelhante ao atributo `cfg`, a **macro** `cfg!` do Rust permite que você verifique os valores de determinados sinalizadores de configuração no tempo de execução. Isso pode ser útil se você quiser executar caminhos de código diferentes, dependendo dos valores de determinados sinalizadores de configuração.
 
 Você poderia usar isso para ignorar ou ajustar as restrições baseadas em tempo exigidas no aplicativo de staking de NFT que mencionamos anteriormente. Ao executar um teste, você pode executar um código que ofereça recompensas de staking muito maiores em comparação com a execução de uma compilação de produção.
 
@@ -136,10 +136,10 @@ pub mod my_program {
 
     pub fn test_function(ctx: Context<Test>) -> Result<()> {
         if cfg!(feature = "local-testing") {
-            // Este código somente será executado se a funcionalidade "local-testing" estiver habilitado
+            // Este código somente será executado se a funcionalidade "local-testing" estiver habilitada
             // ...
         } else {
-            //  Este código somente será executado se a funcionalidade "local-testing" não estiver habilitado
+            //  Este código somente será executado se a funcionalidade "local-testing" não estiver habilitada
             // ...
         }
         // O código que deve sempre ser incluído fica aqui
@@ -149,7 +149,7 @@ pub mod my_program {
 }
 ```
 
-Neste exemplo, a função `test_function` utiliza a macro `cfg!` para verificar o valor do recurso `local-testing` no tempo de execução. Se a funcionalidade `local-testing` estiver habilitada, o primeiro caminho de código será executado, caso contrário, o segundo caminho de código será executado.
+Neste exemplo, a função `test_function` utiliza a macro `cfg!` para verificar o valor da funcionalidade `local-testing` no tempo de execução. Se a funcionalidade `local-testing` estiver habilitada, o primeiro caminho de código será executado. Caso contrário, será executado o segundo caminho de código.
 
 ## Instruções exclusivas de administradores
 
@@ -159,7 +159,7 @@ Por exemplo, se o seu programa de staking de NFT tiver que alternar e usar um to
 
 Primeiro, você precisa estruturar o seu programa para armazenar os valores que você planeja alterar em uma conta, em vez de fazer codificação rígida deles no código do programa.
 
-Em seguida, você precisa garantir que essa conta só possa ser atualizada por alguma autoridade de programa conhecida, ou o que estamos chamando de administrador. Isso significa que qualquer instrução que modifique os dados dessa conta precisa ter restrições que restrinjam quem pode assinar a instrução. Isso parece bastante simples na teoria, mas há um problema principal: como o programa sabe quem é um administrador autorizado?
+Em seguida, você precisa garantir que essa conta só possa ser atualizada por alguma autoridade de programa conhecida, ou o que estamos chamando de administrador. Isso significa que qualquer instrução que modifique os dados dessa conta precisa ter restrições que em relação a quem pode assinar a instrução. Isso parece bastante simples na teoria, mas há um problema principal: como o programa sabe quem é um administrador autorizado?
 
 Bem, há algumas soluções, cada uma com suas próprias vantagens e desvantagens:
 
@@ -327,9 +327,9 @@ O motivo desse erro é que estamos tentando usar o endereço de cunhagem de USDC
 
 ### 3. Adicionando uma funcionalidade `local-testing`
 
-Para corrigir isso, precisamos de uma cunhagen que possamos usar localmente *e* com código rígido no programa. Como o ambiente local é redefinido com frequência durante os testes, você precisará armazenar um par de chaves que possa ser usado para recriar o mesmo endereço de cunhagem todas as vezes.
+Para corrigir isso, precisamos de uma cunhagen que possa ser usada localmente *e* com código rígido no programa. Como o ambiente local é redefinido com frequência durante os testes, você precisará armazenar um par de chaves que possa ser usado para recriar o mesmo endereço de cunhagem todas as vezes.
 
-Além disso, você não quer ter que alterar o endereço codificado entre as compilações locais e da rede principal, pois isso pode introduzir erro humano (e é simplesmente irritante). Portanto, criaremos uma funcionalidade `local-testing` que, quando habilitado, fará com que o programa use nossa moeda local, mas, caso contrário, usará a moeda USDC de produção.
+Além disso, você não quer ter que alterar o endereço codificado entre as compilações locais e da rede principal, pois isso pode introduzir erro humano (e é simplesmente irritante). Portanto, criaremos uma funcionalidade `local-testing` que, quando habilitada, fará com que o programa use nossa moeda local, mas, caso contrário, usará a moeda USDC de produção.
 
 Gere um novo par de chaves executando o comando `solana-keygen grind`. Execute o seguinte comando para gerar um par de chaves com uma chave pública que comece com "env".
 
@@ -337,13 +337,13 @@ Gere um novo par de chaves executando o comando `solana-keygen grind`. Execute o
 solana-keygen grind --starts-with env:1
 ```
 
-Once a keypair is found, you should see an output similar to the following:
+Quando um par de chaves for encontrado, você verá um resultado semelhante ao seguinte:
 
 ```
 Wrote keypair to env9Y3szLdqMLU9rXpEGPqkjdvVn8YNHtxYNvCKXmHe.json
 ```
 
-O par de chaves é gravado em um arquivo em seu diretório de trabalho. Agora que temos um endereço USDC substituto, vamos modificar o arquivo `lib.rs`. Use o atributo `cfg` para definir a constante `USDC_MINT_PUBKEY`, dependendo do fato de a funcionalidade `local-testing` estar habilitado ou desabilitado. Lembre-se de definir a constante `USDC_MINT_PUBKEY` para `local-testing` com a constante gerada na etapa anterior em vez de copiar a constante abaixo.
+O par de chaves é gravado em um arquivo em seu diretório de trabalho. Agora que temos um endereço USDC substituto, vamos modificar o arquivo `lib.rs`. Use o atributo `cfg` para definir a constante `USDC_MINT_PUBKEY`, dependendo do fato de a funcionalidade `local-testing` estar habilitada ou desabilitada. Lembre-se de definir a constante `USDC_MINT_PUBKEY` para `local-testing` com a constante gerada na etapa anterior em vez de copiar a constante abaixo.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -371,7 +371,7 @@ pub mod config {
 }
 ```
 
-Em seguida, adicione a funcionalidade`local-testing` ao arquivo `Cargo.toml` localizado em `/programs`.
+Em seguida, adicione a funcionalidade `local-testing` ao arquivo `Cargo.toml` localizado em `/programs`.
 
 ```
 [features]
@@ -379,7 +379,7 @@ Em seguida, adicione a funcionalidade`local-testing` ao arquivo `Cargo.toml` loc
 local-testing = []
 ```
 
-A seguir, atualize o arquivo de teste `config.ts` para criar um mint usando o par de chaves gerado. Comece excluindo a constate `mint`.
+A seguir, atualize o arquivo de teste `config.ts` para criar uma cunhagem usando o par de chaves gerado. Comece excluindo a constate `mint`.
 
 ```typescript
 const mint = new anchor.web3.PublicKey(
@@ -439,7 +439,7 @@ Para começar, vamos primeiro atualizar o arquivo `lib.rs` para:
 1. Incluir uma constante `SEED_PROGRAM_CONFIG`, que será usada para gerar o PDA para a conta de configuração do programa.
 2. Incluir uma constante `ADMIN`, que será usada como uma restrição ao inicializar a conta de configuração do programa. Execute o comando `solana address` para obter seu endereço a ser usado como valor da constante.
 3. Incluir um módulo `state` que será implementado em breve.
-4. Incluir as instruções `initialize_program_config` e `update_program_config` e as chamadas para seus "handlers", que serão implementados em outra etapa.
+4. Incluir as instruções `initialize_program_config` e `update_program_config` e as chamadas para seus "manipuladores", que serão implementados em outra etapa.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -564,7 +564,7 @@ pub struct UpdateProgramConfig<'info> {
         address = program_config.admin,
     )]
     pub admin: Signer<'info>,
-    /// CHECA: atribuído arbitrariamente pelo administrador existente
+    /// CHECAR: atribuído arbitrariamente pelo administrador existente
     pub new_admin: UncheckedAccount<'info>,
 }
 

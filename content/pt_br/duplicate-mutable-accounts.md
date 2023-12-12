@@ -23,7 +23,7 @@ objectives:
 
 Contas Mutáveis Duplicadas referem-se a uma instrução que requer duas contas mutáveis do mesmo tipo. Quando isso ocorre, você deve confirmar se as duas contas são diferentes para evitar que a mesma conta seja passada duas vezes para a instrução.
 
-Como o programa trata cada conta como separada, passar a mesma conta duas vezes pode fazer com que a segunda conta sofra mutações indesejáveis. Isso pode resultar em problemas muito pequenos ou catastróficos - isso realmente depende dos dados que o código altera e de como essas contas são usadas. De qualquer forma, essa é uma vulnerabilidade da qual todos os desenvolvedores devem estar cientes.
+Como o programa trata cada conta como se fossem separadas, passar a mesma conta duas vezes pode fazer com que a segunda conta sofra mutações indesejáveis. Isso pode resultar em problemas muito pequenos ou catastróficos - isso realmente depende dos dados que o código altera e de como essas contas são usadas. De qualquer forma, essa é uma vulnerabilidade da qual todos os desenvolvedores devem estar cientes.
 
 ### Sem verificação
 
@@ -110,9 +110,9 @@ pub struct User {
 
 ### Use `constraint` do Anchor
 
-Uma solução ainda melhor se você estiver usando o Anchor é adicionar a verificação à struct de validação de conta em vez da lógica de instrução.
+Uma solução ainda melhor se você estiver usando o Anchor é adicionar a verificação à struct de validação de conta, em vez da lógica de instrução.
 
-Você pode usar a macro de atributo `#[account(...)]` e a palavra-chave `constraint` para adicionar uma restrição manual a uma conta. A palavra-chave `constraint` verificará se a expressão que segue é avaliada como verdadeira ou falsa, retornando um erro se a expressão for avaliada como falsa.
+Você pode usar a macro de atributos `#[account(...)]` e a palavra-chave `constraint` para adicionar uma restrição manual a uma conta. A palavra-chave `constraint` verificará se a expressão que segue é avaliada como verdadeira ou falsa, retornando um erro se a expressão for avaliada como falsa.
 
 O exemplo abaixo move a verificação da lógica de instrução para a struct de validação de conta, adicionando um `constraint` ao atributo `#[account(...)]`.
 
@@ -148,7 +148,7 @@ pub struct User {
 }
 ```
 
-# Demo
+# Demonstração
 
 Vamos praticar criando um programa simples de Pedra Papel Tesoura para demonstrar como a falha na verificação de contas mutáveis duplicadas pode causar um comportamento indefinido em seu programa.
 
@@ -156,13 +156,13 @@ Esse programa inicializará contas "jogador" e terá uma instrução separada qu
 
 - Uma instrução `initialize` para inicializar uma conta `PlayerState`
 - Uma instrução `rock_paper_scissors_shoot_insecure` que precisa de duas contas `PlayerState`, mas não verifica se as contas passadas para a instrução são diferentes
-- Uma instrução `rock_paper_scissors_shoot_secure` que é a mesma que a instrução `rock_paper_scissors_shoot_insecure`, mas adiciona uma restrição que garante que as duas contas de jogador são diferentes
+- Uma instrução `rock_paper_scissors_shoot_secure` que é a mesma que a instrução `rock_paper_scissors_shoot_insecure`, mas adiciona uma restrição que garante que as duas contas de jogador sejam diferentes
 
 ### 1. Início
 
 Para começar, baixe o código inicial na branch `starter` deste [repositório](https://github.com/unboxed-software/solana-duplicate-mutable-accounts/tree/starter). O código inicial inclui um programa com duas instruções e a configuração boilerplate para o arquivo de teste.
 
-A instrução `initialize` inicializa uma nova conta `PlayerState` que armazena a chave pública de um jogador e um campo `choice` que é configurado como`None`.
+A instrução `initialize` inicializa uma nova conta `PlayerState` que armazena a chave pública de um jogador e um campo `choice` que é configurado como `None`.
 
 A instrução `rock_paper_scissors_shoot_insecure` requer duas contas `PlayerState` e requer uma escolha do enum `RockPaperScissors` para cada jogador, mas não verifica se as contas passadas para a instrução são diferentes. Isso significa que uma única conta pode ser usada para ambas as contas `PlayerState` na instrução.
 
@@ -300,7 +300,7 @@ pub struct RockPaperScissorsSecure<'info> {
 
 ### 7. Teste a instrução `rock_paper_scissors_shoot_secure`
 
-Para testar a instrução `rock_paper_scissors_shoot_secure`, invocaremos a instrução duas vezes. Primeiro, invocaremos a instrução usando duas contas de jogador diferentes para verificar se a instrução funciona como pretendido. Em seguida, invocaremos a instrução usando a `playerOne.publicKey` como ambas as contas de jogador, o que esperamos que falhe.
+Para testar a instrução `rock_paper_scissors_shoot_secure`, invocaremos a instrução duas vezes. Primeiro, invocaremos a instrução usando duas contas de jogador diferentes para verificar se a instrução funciona como o esperado. Em seguida, invocaremos a instrução usando a `playerOne.publicKey` como ambas as contas de jogador, o que esperamos que falhe.
 
 ```typescript
 describe("duplicate-mutable-accounts", () => {
@@ -337,7 +337,7 @@ describe("duplicate-mutable-accounts", () => {
 })
 ```
 
-Execute o `anchor test` para verificar se a instrução funciona como pretendido e se o uso da conta `playerOne` duas vezes retorna o erro esperado.
+Execute o `anchor test` para verificar se a instrução funciona como o esperado e se o uso da conta `playerOne` duas vezes retorna o erro esperado.
 
 ```bash
 'Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]',

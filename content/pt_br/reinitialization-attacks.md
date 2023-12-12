@@ -282,7 +282,7 @@ describe("initialization", () => {
 })
 ```
 
-Run `anchor test` to see that both transactions will complete successfully.
+Execute `anchor test` para verificar que ambas as transações serão concluídas com êxito.
 
 ```bash
 initialization
@@ -343,7 +343,7 @@ describe("initialization", () => {
 
   it("Re-invoke recommended init with different auth, expect error", async () => {
     try {
-      // Add your test here.
+      // Adicione seu teste aqui.
       const tx = await program.methods
         .recommendedInitialization()
         .accounts({
@@ -363,7 +363,7 @@ describe("initialization", () => {
 })
 ```
 
-Execute o `anchor test` e veja que a segunda transação que tenta inicializar a mesma conta duas vezes agora retornará um erro informando que o endereço da conta já está em uso.
+Execute o `anchor test` e veja que a segunda transação que tenta inicializar a mesma conta duas vezes agora retornará um erro, informando que o endereço da conta já está em uso.
 
 ```bash
 'Program CpozUgSwe9FPLy9BLNhY2LTGqLUk1nirUkMMA5RmDw6t invoke [1]',

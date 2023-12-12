@@ -51,7 +51,7 @@ O compilador do Rust garante que as variáveis imutáveis realmente não possam 
 
 ### Structs
 
-Uma struct, ou estrutura, é um tipo de dados personalizado que permite agrupar e nomear vários valores relacionados que formam um grupo significativo. Cada dado em uma struct pode ser de tipos diferentes e cada um tem um nome associado a ele. Essas partes de dados são chamadas de **fields**. Eles se comportam de forma semelhante às propriedades em outras linguagens.
+Uma struct, ou estrutura, é um tipo de dados personalizado que permite agrupar e nomear vários valores relacionados que formam um grupo significativo. Cada dado em uma struct pode ser de tipos diferentes e cada um tem um nome associado a ele. Essas partes de dados são chamadas de **campos**. Eles se comportam de forma semelhante às propriedades em outras linguagens.
 
 ```rust
 struct User {
@@ -88,7 +88,7 @@ enum LightStatus {
 }
 ```
 
-O enum `LightStatus` tem duas variantes possíveis nessa situação: é `On` ou `Off`.
+O enum `LightStatus` tem duas variantes possíveis nessa situação: `On` ou `Off`.
 
 Você também pode incorporar valores em variantes de enum, de forma semelhante à adição de campos a uma struct.
 
@@ -107,7 +107,7 @@ Neste exemplo, configurar uma variável para a variante `On` de `LightStatus` re
 
 ### Declarações Match
 
-As declarações Match são muito semelhantes às declarações `switch` em C/C++. A declaração `match` permite comparar um valor com uma série de padrões e, em seguida, executar o código com base no padrão que corresponde ao valor. Os padrões podem ser compostos de valores literais, nomes de variáveis, acaracteres wildcard e outros. A instrução match deve incluir todos os cenários possíveis, caso contrário, o código não será compilado.
+As declarações Match são muito semelhantes às declarações `switch` em C/C++. A declaração `match` permite comparar um valor com uma série de padrões e, em seguida, executar o código com base no padrão que corresponde ao valor. Os padrões podem ser compostos de valores literais, nomes de variáveis, caracteres wildcard e outros. A instrução match deve incluir todos os cenários possíveis, caso contrário, o código não será compilado.
 
 ```rust
 enum Coin {
@@ -166,7 +166,7 @@ example.answer();
 
 ### Traits e atributos
 
-Você não criará seus próprios traits ou atributos nesta etapa, portanto, não forneceremos uma explicação detalhada de nenhum deles. No entanto, você usará a macro de atributo `derive` e alguns traits fornecidos pelo crate `borsh`. Portanto, é importante que você tenha um alto nível de compreensão de cada um deles.
+Você não criará seus próprios traits ou atributos nesta etapa, portanto, não forneceremos uma explicação detalhada de nenhum deles. No entanto, você usará a macro de atributos `derive` e alguns traits fornecidos pelo crate `borsh`. Portanto, é importante que você tenha um alto nível de compreensão de cada um deles.
 
 Os traits descrevem uma interface abstrata que os tipos podem implementar. Se um trait definir uma função `bark()` e um tipo adotar esse trait, o tipo deverá implementar a função `bark()`.
 

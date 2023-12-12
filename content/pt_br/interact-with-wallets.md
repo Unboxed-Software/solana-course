@@ -1,5 +1,5 @@
 ---
-title: Interaja com Carteiras
+title: Interagir com Carteiras
 objectives:
 - Explicar as carteiras
 - Instalar a extensão Phantom
@@ -9,9 +9,9 @@ objectives:
 
 # RESUMO
 
-- **Wallets** armazenam sua chave secreta e lidam com a segurança de assinatura de transações
-- **Hardware wallets** armazenam sua chave secreta em um dispositivo separado
-- **Software wallets** usam seu computador para armazenamento seguro
+- **Carteiras** armazenam sua chave secreta e lidam com a segurança de assinatura de transações
+- **Carteiras de Hardware** armazenam sua chave secreta em um dispositivo separado
+- **Carteiras de Software** usam seu computador para armazenamento seguro
 - As carteiras de software geralmente são **extensões de navegador** que facilitam a conexão com sites
 - A biblioteca **Wallet-Adapter** do Solana simplifica o suporte a extensões de navegador de carteiras, permitindo a criação de sites que podem solicitar o endereço da carteira de um usuário e propor transações para serem assinadas por eles.
 
@@ -43,7 +43,7 @@ Uma das carteiras de software mais usadas no ecossistema Solana é a [Phantom] (
 
 O Wallet-Adaptor da Solana é um conjunto de bibliotecas que você pode usar para simplificar o processo de compatibilidade com extensões de navegador de carteira.
 
-O Wallet-Adapter do Solana é composto por vários pacotes modulares. A funcionalidade principal é encontrada em `@solana/wallet-adapter-base` e `@solana/wallet-adapter-react`.
+O Wallet-Adaptor do Solana é composto por vários pacotes modulares. A funcionalidade principal é encontrada em `@solana/wallet-adapter-base` e `@solana/wallet-adapter-react`.
 
 Há também pacotes que fornecem componentes para frameworks de Interface do Usuário (UI) comuns. Nesta lição e em todo o curso, usaremos componentes do `@solana/wallet-adapter-react-ui`.
 
@@ -53,7 +53,7 @@ Por fim, há pacotes que são adaptadores para carteiras específicas, incluindo
 
 Ao adicionar suporte para carteira a um aplicativo react existente, você começa instalando os pacotes apropriados. Você precisará do `@solana/wallet-adapter-base` e `@solana/wallet-adapter-react`. Se você planeja usar os componentes react disponíveis, também precisará adicionar `@solana/wallet-adapter-react-ui`.
 
-Todas as carteiras que suportam [wallet standard](https://github.com/wallet-standard/wallet-standard) o fazem imediatamente, e quase todas as carteiras Solana atuais suportam o padrão carteira. No entanto, se você quiser adicionar compatibilidade a carteiras que não suportam o padrão, adicione um pacote para elas.
+Todas as carteiras que suportam [padrão carteira](https://github.com/wallet-standard/wallet-standard) o fazem imediatamente, e quase todas as carteiras Solana atuais suportam o padrão carteira. No entanto, se você quiser adicionar compatibilidade a carteiras que não suportam o padrão, adicione um pacote para elas.
 
 ```
 npm install @solana/wallet-adapter-base \
@@ -245,7 +245,7 @@ Vamos usar o programa Ping da última lição e criar um frontend que permita ao
 
 Se você ainda não o tem, faça o download da [extensão de navegador Phantom](https://phantom.app/download). No momento em que este artigo foi escrito, ele era compatível com os navegadores Chrome, Brave, Firefox e Edge. Portanto, você também precisará ter um desses navegadores instalado. Siga as instruções do Phantom para criar uma nova conta e uma nova carteira.
 
-Depois de ter uma carteira, clique na engrenagem de configurações no canto inferior direito da interface do usuário do Phantom. Role para baixo e clique no item de linha "Change Network" (Alterar rede) e selecione "Devnet". Isso garante que o Phantom estará conectado à mesma rede que usaremos nesta demonstração.
+Depois de ter uma carteira, clique na engrenagem de configurações no canto inferior direito da interface do usuário da Phantom. Role para baixo e clique no item de linha "Change Network" (Alterar rede) e selecione "Devnet". Isso garante que a Phantom estará conectado à mesma rede que usaremos nesta demonstração.
 
 ### 2. Faça o download do código inicial
 
@@ -333,7 +333,7 @@ export default WalletContextProvider;
 
 ### 4. Adicione o multi-button (botão múltiplo) à carteira
 
-Em seguida, vamos configurar o botão Connect. O botão atual é apenas um espaço reservado porque, em vez de usar um botão padrão ou criar um componente personalizado, usaremos o "multi-button" do Wallet-Adapter. Esse botão faz interface com os provedores que configuramos em `WalletContextProvider` e permite que os usuários escolham uma carteira, conectem-se a uma carteira e desconectem-se de uma carteira. Se precisar de mais funcionalidades personalizadas, você poderá criar um componente personalizado para lidar com isso.
+Em seguida, vamos configurar o botão Connect. O botão atual é apenas um espaço reservado porque, em vez de usar um botão padrão ou criar um componente personalizado, usaremos o "multi-button" do Wallet-Adapter. Esse botão faz interface com os provedores que configuramos em `WalletContextProvider` e permite que os usuários escolham uma carteira, conectem-se e desconectem-se de uma carteira. Se precisar de mais funcionalidades personalizadas, você poderá criar um componente personalizado para lidar com isso.
 
 Antes de adicionarmos o "botão múltiplo", precisamos encapsular o aplicativo no `WalletContextProvider`. Para isso, importe-o em `index.tsx` e adicione-o após a tag de fechamento `</Head>`:
 
@@ -482,19 +482,19 @@ const onClick = () => {
 };
 ```
 
-E é isso! Se você atualizar a página, conectar sua carteira e clicar no botão ping, o Phantom deverá apresentar um pop-up para confirmar a transação.
+E é isso! Se você atualizar a página, conectar sua carteira e clicar no botão ping, a Phantom deverá apresentar um pop-up para confirmar a transação.
 
 ### 6. Adicione um pouco de acabamento nas bordas
 
 Há muitas coisas que você poderia fazer para tornar a experiência do usuário ainda melhor. Por exemplo, você poderia alterar a interface do usuário para mostrar apenas o botão Ping quando uma carteira estiver conectada e exibir algum outro prompt caso contrário. Você poderia criar um link para a transação no Solana Explorer depois que um usuário confirmar uma transação, para que ele possa ver facilmente os detalhes da transação. Quanto mais você experimentar, mais confortável ficará, portanto, seja criativo!
 
-Você também pode fazer o download do [código fonte completo desta demosntração](https://github.com/Unboxed-Software/solana-ping-frontend) para entender tudo neste contexto.
+Você também pode fazer o download do [código fonte completo desta demonstração](https://github.com/Unboxed-Software/solana-ping-frontend) para entender tudo neste contexto.
 
 # Desafio
 
 Agora é sua vez de criar algo de forma independente. Crie um aplicativo que permita que um usuário conecte sua carteira Phantom e envie SOL para outra conta.
 
-![Screenshot do App para Enviar Sol](../assets/solana-send-sol-app.png)
+![Captura de tela do App para Enviar Sol](../assets/solana-send-sol-app.png)
 
 1. Você pode criar esse aplicativo do zero ou pode [fazer download do código inicial](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/starter).
 2. Encapsule o aplicativo inicial nos provedores de contexto apropriados.

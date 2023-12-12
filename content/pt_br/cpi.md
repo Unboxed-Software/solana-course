@@ -24,7 +24,7 @@ As CPIs têm uma composição semelhante às instruções que você está acostu
 
 ## Como criar uma CPI
 
-As CPIs são feitos usando a função [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) ou [`invoke_signed`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) do crate `solana_program`. Você usa o `invoke` para basicamente passar a assinatura da transação original que foi passada para o seu programa. Você usa `invoke_signed` para que seu programa "assine" por seus PDAs.
+As CPIs são feitas usando a função [`invoke`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke.html) ou [`invoke_signed`](https://docs.rs/solana-program/1.10.19/solana_program/program/fn.invoke_signed.html) do crate `solana_program`. Você usa o `invoke` para basicamente passar a assinatura da transação original que foi passada para o seu programa. Você usa `invoke_signed` para que seu programa "assine" por seus PDAs.
 
 ```rust
 // Usado quando não há necessidade de assinaturas para PDAs
@@ -33,7 +33,7 @@ pub fn invoke(
     account_infos: &[AccountInfo<'_>]
 ) -> ProgramResult
 
-// Usado quando um programa deve fornecer uma 'assinatura' para um PDA, consequentemente o parâmetro signer_seeds
+// Usado quando um programa deve fornecer uma 'assinatura' para um PDA, logo, o parâmetro signer_seeds
 pub fn invoke_signed(
     instruction: &Instruction,
     account_infos: &[AccountInfo<'_>],
@@ -73,7 +73,7 @@ pub struct Instruction {
 ```
 
 
-Dependendo do programa para o qual você está fazendo a chamada, pode haver um crate disponível com funções auxiliares para criar o objeto `Instruction`. Muitas pessoas e organizações criam crates disponíveis publicamente junto com seus programas que expõem esses tipos de funções para simplificar a chamada de seus programas. Isso é semelhante às bibliotecas Typescript que usamos neste curso (ex. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). Por exemplo, na demonstração desta lição, usaremos o crate`spl_token` para criar instruções de cunhagem.
+Dependendo do programa para o qual você está fazendo a chamada, pode haver um crate disponível com funções auxiliares para criar o objeto `Instruction`. Muitas pessoas e organizações criam crates disponíveis publicamente junto com seus programas que expõem esses tipos de funções para simplificar a chamada de seus programas. Isso é semelhante às bibliotecas Typescript que usamos neste curso (ex. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). Por exemplo, na demonstração desta lição, usaremos o crate `spl_token` para criar instruções de cunhagem.
 Em todos os outros casos, você precisará criar a instância `Instruction` do zero.
 
 Embora o campo `program_id` seja bastante simples, os campos `accounts` e `data` exigem algumas explicações.
@@ -129,9 +129,9 @@ O método [`extend_from_slice`](https://doc.rust-lang.org/alloc/vec/struct.Vec.h
 
 Além da instrução, tanto o `invoke` quanto o `invoke_signed` também exigem uma lista de objetos `account_info`. Assim como a lista de objetos `AccountMeta` que você adicionou à instrução, é necessário incluir todas as contas que o programa que você está chamando lerá ou gravará.
 
-No momento em que fizer um CPI em seu programa, você já deverá ter obtido todos os objetos `account_info` que foram passados para o programa e armazenados em variáveis. Você construirá sua lista de objetos `account_info` para a CPI escolhendo quais dessas contas serão copiadas e enviadas.
+No momento em que fizer uma CPI em seu programa, você já deverá ter obtido todos os objetos `account_info` que foram passados para o programa e armazenados em variáveis. Você construirá sua lista de objetos `account_info` para a CPI escolhendo quais dessas contas serão copiadas e enviadas.
 
-Você pode copiar cada objeto `account_info` que precisa passar para a CPI usando a carcaterística [`Clone`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html#impl-Clone) implementada na struct `account_info` no crate `solana_program`. Essa característica `Clone` retorna uma cópia da instância [`account_info`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html).
+Você pode copiar cada objeto `account_info` que precisa passar para a CPI usando a carcaterística [`Clone`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html#impl-Clone) implementada na struct `account_info` no crate `solana_program`. Esse trait `Clone` retorna uma cópia da instância [`account_info`](https://docs.rs/solana-program/1.10.19/solana_program/account_info/struct.AccountInfo.html).
 
 ```rust
 &[first_account.clone(), second_account.clone(), third_account.clone()]
@@ -152,7 +152,7 @@ invoke(
 )?;
 ```
 
-Não há necessidade de incluir uma assinatura porque o tempo de execução do Solana transmite a assinatura original passada para o seu programa. Lembre-se de que o `invoke` não funcionará se for necessária uma assinatura em nome de um PDA. Para isso, você precisará usar `invoke_signed`.
+Não há necessidade de incluir uma assinatura porque o tempo de execução da Solana transmite a assinatura original passada para o seu programa. Lembre-se de que o `invoke` não funcionará se for necessária uma assinatura em nome de um PDA. Para isso, você precisará usar `invoke_signed`.
 
 ### CPI com `invoke_signed`
 
@@ -172,7 +172,7 @@ invoke_signed(
 
 Embora os PDAs não tenham chaves secretas próprias, eles podem ser usados por um programa para emitir uma instrução que inclua o PDA como signatário. A única maneira de o tempo de execução verificar se o PDA pertence ao programa que o está chamando é se o programa que o está chamando fornecer as sementes usadas para gerar o endereço no campo `signers_seeds`.
 
-O tempo de execução do Solana chamará internamente o [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) usando as sementes fornecidas e o `program_id` do programa que está chamando. Em seguida, ele pode comparar o resultado com os endereços fornecidos na instrução. Se algum dos endereços corresponder, o tempo de execução saberá que, de fato, o programa associado a esse endereço é o chamador e, portanto, está autorizado a ser um signatário.
+O tempo de execução da Solana chamará internamente o [`create_program_address`](https://docs.rs/solana-program/1.4.4/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) usando as sementes fornecidas e o `program_id` do programa que está chamando. Em seguida, ele pode comparar o resultado com os endereços fornecidos na instrução. Se algum dos endereços corresponder, o tempo de execução saberá que, de fato, o programa associado a esse endereço é o chamador e, portanto, está autorizado a ser um signatário.
 
 
 ## Práticas Recomendadas e Armadilhas Comuns
@@ -192,7 +192,7 @@ EF1M4SPfKcchb6scq297y8FPCaLvj5kGjwMzjTM68wjA's signer privilege escalated
 Program returned error: "Cross-program invocation with unauthorized signer or writable account"
 ```
 
-Essa mensagem é um pouco enganosa, pois "signer privilege escalated" não parece ser um problema, mas, na realidade, significa que você está assinando incorretamente o endereço da mensagem. Se estiver usando `invoke_signed` e receber esse erro, isso provavelmente significa que as sementes que você está fornecendo estão incorretas. Você também pode encontrar [um exemplo de transação que falhou com esse erro](https://explorer.solana.com/tx/3mxbShkerH9ZV1rMmvDfaAhLhJJqrmMjcsWzanjkARjBQurhf4dounrDCUkGunH1p9M4jEwef9parueyHVw6r2Et?cluster=devnet).
+Essa mensagem é um pouco enganosa, pois "privilégio de signatário escalado" não parece ser um problema, mas, na realidade, significa que você está assinando incorretamente o endereço da mensagem. Se estiver usando `invoke_signed` e receber esse erro, isso provavelmente significa que as sementes que você está fornecendo estão incorretas. Você também pode encontrar [um exemplo de transação que falhou com esse erro](https://explorer.solana.com/tx/3mxbShkerH9ZV1rMmvDfaAhLhJJqrmMjcsWzanjkARjBQurhf4dounrDCUkGunH1p9M4jEwef9parueyHVw6r2Et?cluster=devnet).
 
 Outro erro semelhante é lançado quando uma conta que está sendo gravada não está marcada como "gravável" dentro da estrutura `AccountMeta`.
 
@@ -218,7 +218,7 @@ Agora, vamos adquirir alguma experiência prática com CPIs, fazendo novamente a
 
 Na última lição, adicionamos a possibilidade de deixar comentários em outras avaliações de filmes usando PDAs. Nesta lição, vamos trabalhar para que o programa atribua tokens ao avaliador ou comentarista sempre que uma avaliação ou comentário for enviado.
 
-Para implementar isso, teremos de invocar a instrução `MintTo` do SPL Token Program usando uma CPI. Se precisar de uma atualização dos tokens, das cunhagens de tokens e da cunhagem de novos tokens, dê uma olhada em [Token Program lesson](./token-program.md) antes de prosseguir com esta demonstração.
+Para implementar isso, teremos de invocar a instrução `MintTo` do Programa de Token SPL usando uma CPI. Se precisar de uma atualização dos tokens, das cunhagens de tokens e da cunhagem de novos tokens, dê uma olhada em [lição Token Program](./token-program.md) antes de prosseguir com esta demonstração.
 
 ### 1. Obter o código inicial e adicionar dependências
 
@@ -233,7 +233,7 @@ spl-token = { version="~3.2.0", features = [ "no-entrypoint" ] }
 spl-associated-token-account = { version="=1.0.5", features = [ "no-entrypoint" ] }
 ```
 
-Depois de adicionar os itens conteúdo acima, execute `cargo check` no console para que o cargo resolva suas dependências e garanta que você esteja pronto para continuar. Dependendo da sua configuração, talvez seja necessário modificar as versões do crate antes de prosseguir.
+Depois de adicionar os itens acima, execute `cargo check` no console para que o cargo resolva suas dependências e garanta que você esteja pronto para continuar. Dependendo da sua configuração, talvez seja necessário modificar as versões do crate antes de prosseguir.
 
 ### 3. Adicione as contas necessárias a `add_movie_review`
 
@@ -248,7 +248,7 @@ Começaremos adicionando essas novas contas à área da função que itera atrav
 
 ```rust
 // Dentro de add_movie_review
-msg!("Adding movie review...");
+msg!("Adicionando avaliação de filme...");
 msg!("Title: {}", title);
 msg!("Rating: {}", rating);
 msg!("Description: {}", description);
@@ -284,7 +284,7 @@ A cunhagem de tokens exige uma assinatura da autoridade de cunhagem. Como o prog
 
 Também estruturaremos a cunhagem de nosso token de forma que a conta de cunhagem seja uma conta PDA que possamos derivar de forma determinística. Dessa forma, sempre poderemos verificar se a conta `token_mint` passada para o programa é a conta esperada.
 
-Vamos em frente, derivar os endereços de cunhagem de token e autoridade de cunhagem usando a função `find_program_address` com as sementes "token_mint" e "token_auth", respectivamente.
+Vamos em frente, derivar os endereços de cunhagem de token e a autoridade de cunhagem usando a função `find_program_address` com as sementes "token_mint" e "token_auth", respectivamente.
 
 ```rust
 // Cunhe tokens aqui
@@ -298,22 +298,22 @@ Em seguida, realizaremos verificações de segurança em cada uma das novas cont
 
 ```rust
 if *token_mint.key != mint_pda {
-    msg!("Incorrect token mint");
+    msg!("Cunhagem de token incorreta");
     return Err(ReviewError::IncorrectAccountError.into());
 }
 
 if *mint_auth.key != mint_auth_pda {
-    msg!("Mint passed in and mint derived do not match");
+    msg!("Cunhagem passada e cunhagem derivada não correspondem");
     return Err(ReviewError::InvalidPDA.into());
 }
 
 if *user_ata.key != get_associated_token_address(initializer.key, token_mint.key) {
-    msg!("Incorrect token mint");
+    msg!("Cunhagem de token incorreta");
     return Err(ReviewError::IncorrectAccountError.into());
 }
 
 if *token_program.key != TOKEN_PROGRAM_ID {
-    msg!("Incorrect token program");
+    msg!("Programa de token incorreto");
     return Err(ReviewError::IncorrectAccountError.into());
 }
 ```
@@ -332,10 +332,10 @@ pub fn mint_to(
 ) -> Result<Instruction, ProgramError>
 ```
 
-TEm seguida, fornecemos cópias das contas `token_mint`, `user_ata` e `mint_auth`. E, o que é mais relevante para esta lição, fornecemos as sementes usadas para encontrar o endereço `token_mint`, incluindo a semente de bump.
+Em seguida, fornecemos cópias das contas `token_mint`, `user_ata` e `mint_auth`. E, o que é mais relevante para esta lição, fornecemos as sementes usadas para encontrar o endereço `token_mint`, incluindo a semente de bump.
 
 ```rust
-msg!("Minting 10 tokens to User associated token account");
+msg!("Cunhando 10 tokens para a conta de token associada ao Uuário");
 invoke_signed(
     // Instrução
     &spl_token::instruction::mint_to(
@@ -355,7 +355,7 @@ invoke_signed(
 Ok(())
 ```
 
-Observe que estamos usando `invoke_signed` e não `invoke` aqui. O programa Token exige que a conta `mint_auth` assine essa transação. Como a conta `mint_auth` é um PDA, somente o programa do qual ela foi derivada pode assinar em seu nome. Quando o `invoke_signed` é chamado, o tempo de execução do Solana chama o `create_program_address` com as sementes e o bump fornecidos e, em seguida, compara o endereço derivado com todos os endereços dos objetos `AccountInfo` fornecidos. Se algum dos endereços corresponder ao endereço derivado, o tempo de execução saberá que a conta correspondente é um PDA desse programa e que o programa está assinando essa transação para essa conta.
+Observe que estamos usando `invoke_signed` e não `invoke` aqui. O programa de Token exige que a conta `mint_auth` assine essa transação. Como a conta `mint_auth` é um PDA, somente o programa do qual ela foi derivada pode assinar em seu nome. Quando o `invoke_signed` é chamado, o tempo de execução da Solana chama o `create_program_address` com as sementes e o bump fornecidos e, em seguida, compara o endereço derivado com todos os endereços dos objetos `AccountInfo` fornecidos. Se algum dos endereços corresponder ao endereço derivado, o tempo de execução saberá que a conta correspondente é um PDA desse programa e que o programa está assinando essa transação para essa conta.
 
 Nesse ponto, a instrução `add_movie_review` deve estar totalmente funcional e cunhará dez tokens para o avaliador quando uma avaliação for criada.
 
@@ -392,30 +392,30 @@ Em seguida, verifique se cada uma das novas contas é a conta correta.
 
 ```rust
 if *token_mint.key != mint_pda {
-    msg!("Incorrect token mint");
+    msg!("Cunhagem de token incorreta");
     return Err(ReviewError::IncorrectAccountError.into());
 }
 
 if *mint_auth.key != mint_auth_pda {
-    msg!("Mint passed in and mint derived do not match");
+    msg!("Cunhagem passada e cunhagem derivada não correspondem");
     return Err(ReviewError::InvalidPDA.into());
 }
 
 if *user_ata.key != get_associated_token_address(commenter.key, token_mint.key) {
-    msg!("Incorrect token mint");
+    msg!("Cunhagem de token incorreta");
     return Err(ReviewError::IncorrectAccountError.into());
 }
 
 if *token_program.key != TOKEN_PROGRAM_ID {
-    msg!("Incorrect token program");
+    msg!("Cunhagem de token incorreta");
     return Err(ReviewError::IncorrectAccountError.into());
 }
 ```
 
-Por fim, use `invoke_signed` para enviar a instrução `mint_to` para o programa Token, enviando cinco tokens para o avaliador.
+Por fim, use `invoke_signed` para enviar a instrução `mint_to` para o programa de Token, enviando cinco tokens para o comentarista.
 
 ```rust
-msg!("Minting 5 tokens to User associated token account");
+msg!("Cunhando 5 tokens para a conta de token associada ao Uuário");
 invoke_signed(
     // Instrução
     &spl_token::instruction::mint_to(
@@ -524,7 +524,7 @@ pub fn process_instruction(
 }
 ```
 
-Por fim, declare e implemente a função `initialize_token_mint`. Essa função derivará os PDAs de cunhagem de token e autoridade de cunhagem, criará a conta de cunhagem de token e, em seguida, inicializará a cunhagem de token. Não explicaremos tudo isso em detalhes, mas vale a pena ler o código, especialmente porque a criação e a inicialização do token mint envolvem CPIs. Novamente, se precisar de uma atualização dos tokens e cunhagens, dê uma olhada em [Token Program lesson](./token-program.md).
+Por fim, declare e implemente a função `initialize_token_mint`. Essa função derivará os PDAs de cunhagem de token e autoridade de cunhagem, criará a conta de cunhagem de token e, em seguida, inicializará a cunhagem de token. Não explicaremos tudo isso em detalhes, mas vale a pena ler o código, especialmente porque a criação e a inicialização da cunhagem de token envolvem CPIs. Novamente, se precisar de uma atualização dos tokens e cunhagens, dê uma olhada na [lição Token Program](./token-program.md).
 
 ```rust
 pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
@@ -545,17 +545,17 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     msg!("Mint authority: {:?}", mint_auth_pda);
 
     if mint_pda != *token_mint.key {
-        msg!("Incorrect token mint account");
+        msg!("Conta de cunhagem de token incorreta");
         return Err(ReviewError::IncorrectAccountError.into());
     }
 
     if *token_program.key != TOKEN_PROGRAM_ID {
-        msg!("Incorrect token program");
+        msg!("Programa de token incorreto");
         return Err(ReviewError::IncorrectAccountError.into());
     }
 
     if *mint_auth.key != mint_auth_pda {
-        msg!("Incorrect mint auth account");
+        msg!("Conta de autorização de cunhagem incorreta");
         return Err(ReviewError::IncorrectAccountError.into());
     }
 
@@ -578,7 +578,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
         &[&[b"token_mint", &[mint_bump]]],
     )?;
 
-    msg!("Created token mint account");
+    msg!("Criada conta de cunhagem de token");
 
     invoke_signed(
         &initialize_mint(
@@ -592,7 +592,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
         &[&[b"token_mint", &[mint_bump]]],
     )?;
 
-    msg!("Initialized token mint");
+    msg!("Inicializada a cunhagem de token");
 
     Ok(())
 }
@@ -602,7 +602,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
 
 Agora estamos prontos para construir e implantar nosso programa! Você pode construir o programa executando `cargo build-bpf` e, em seguida, executando o comando retornado, que deve ser semelhante a `solana program deploy <PATH>`.
 
-Antes de começar a testar se na adição de uma avaliação ou comentário serão ou não enviado tokens, você precisa inicializar a cunhagem de token do programa. Você pode usar [este script](https://github.com/Unboxed-Software/solana-movie-token-client) para fazer isso. Depois de clonar esse repositório, substitua o `PROGRAM_ID` em `index.ts` pelo ID do seu programa. Em seguida, execute `npm install` e, depois, `npm start`. O script assume que você está implantando na Devnet. Se estiver implementando localmente, certifique-se de adaptar o script adequadamente.
+Antes de começar a testar se na adição de uma avaliação ou comentário serão ou não enviado tokens, você precisa inicializar a cunhagem de token do programa. Você pode usar [este script](https://github.com/Unboxed-Software/solana-movie-token-client) para fazer isso. Depois de clonar esse repositório, substitua o `PROGRAM_ID` em `index.ts` pelo ID do seu programa. Em seguida, execute `npm install` e, depois, `npm start`. O script assume que você está implantando na Devnet. Se estiver implantando localmente, certifique-se de adaptar o script adequadamente.
 
 Depois de inicializar a cunhagem do seu token, você pode usar o [frontend do Movie Review](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-add-tokens) para testar a adição de avaliações e comentários. Novamente, o código pressupõe que você esteja na Devnet, portanto, aja de acordo.
 

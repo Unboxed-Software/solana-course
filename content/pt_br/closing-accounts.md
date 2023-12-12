@@ -70,7 +70,7 @@ pub struct Data {
 
 No entanto, a coleta de lixo não ocorre até que a transação seja concluída. E como pode haver várias instruções em uma transação, isso cria uma oportunidade para que um invasor invoque a instrução para fechar a conta, mas também inclua na transação uma transferência para reembolsar os lamports de isenção de aluguel da conta. O resultado é que a conta *não* será coletada como lixo, abrindo um caminho para que o invasor gere um comportamento não intencional no programa e até mesmo drene um protocolo.
 
-## Fechamento de conta seguro
+## Fechamento seguro de conta
 
 As duas coisas mais importantes que você pode fazer para fechar essa brecha são zerar os dados da conta e adicionar um discriminador de conta que represente que a conta foi fechada. Você precisa de *ambas* as coisas para evitar um comportamento não intencional do programa.
 
@@ -130,7 +130,7 @@ pub struct Data {
 
 Observe que o exemplo acima está usando o `CLOSED_ACCOUNT_DISCRIMINATOR` do Anchor. Esse é simplesmente um discriminador de contas em que cada byte é `255`. O discriminador não tem nenhum significado inerente, mas se você combiná-lo com verificações de validação de conta que retornam erros sempre que uma conta com esse discriminador é passada para uma instrução, você impedirá que seu programa processe involuntariamente uma instrução com uma conta fechada.
 
-### Retirada manuak de fundos forçada
+### Retirada manual forçada de fundos
 
 Ainda há um pequeno problema. Embora a prática de zerar os dados da conta e adicionar um discriminador de conta "fechada" impeça que seu programa seja explorado, um usuário ainda pode impedir que uma conta seja coletada como lixo, reembolsando os lamports da conta antes do final de uma instrução. Isso faz com que uma ou muitas contas existam em um estado de limbo em que não podem ser usadas, mas também não podem ser coletadas como lixo.
 
@@ -357,7 +357,7 @@ Por fim, a lógica da nova instrução segura deve ter a seguinte aparência:
 ```rust
 pub fn redeem_winnings_secure(ctx: Context<RedeemWinningsSecure>) -> Result<()> {
 
-    msg!("Calculating winnings");
+    msg!("Cálculo dos prêmios");
     let amount = ctx.accounts.lottery_entry.timestamp as u64 * 10;
 
     msg!("Minting {} tokens in rewards", amount);
@@ -447,7 +447,7 @@ Observe que isso não impede que o usuário mal-intencionado restitua sua conta 
 
 A maneira mais simples e segura de fechar contas é usar a restrição `close` do Anchor. Se você precisar de um comportamento mais personalizado e não puder usar essa restrição, certifique-se de replicar sua funcionalidade para garantir que seu programa esteja seguro.
 
-Se quiser dar uma olhada no código da solução final, poderá encontrá-lo na branch `solution` do [mesmo repositório](https://github.com/Unboxed-Software/solana-closing-accounts/tree/solution).
+Se quiser dar uma olhada no código de solução final, poderá encontrá-lo na branch `solution` do [mesmo repositório](https://github.com/Unboxed-Software/solana-closing-accounts/tree/solution).
 
 # Desafio
 
@@ -455,4 +455,4 @@ Assim como nas outras lições deste módulo, sua oportunidade de praticar como 
 
 Reserve algum tempo para revisar pelo menos um programa e garanta que, quando as contas forem fechadas, elas não sejam suscetíveis a ataques de reativação.
 
-Lembre-se: se você encontrar um bug ou um golpe no programa de outra pessoa, alerte-a! Se encontrar um bug em seu próprio programa, não deixe de corrigi-lo imediatamente.
+Lembre-se: se você encontrar um bug ou uma exploração no programa de outra pessoa, alerte-a! Se encontrar um bug em seu próprio programa, não deixe de corrigi-lo imediatamente.

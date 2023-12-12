@@ -12,7 +12,7 @@ objectives:
 - O uso de [**`find_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) garante que o bump válido mais alto, ou bump canônico, seja usado para a derivação, criando assim uma maneira determinística de encontrar um endereço com sementes específicas.
 - Na inicialização, você pode usar a restrição `seeds` e `bump` do Anchor para garantir que as derivações de PDA na estrutura de validação de conta sempre usem o bump canônico.
 - O Anchor permite que você **especifique um bump** com a restrição `bump = <some_bump>` ao verificar o endereço de um PDA
-- Como o `find_program_address` pode ser dispendioso, a prática recomendada é armazenar o bump derivado em um campo de dados da conta para ser referenciado posteriormente quando o endereço for novamente derivado para verificação.
+- Como o `find_program_address` pode ser dispendioso, a prática recomendada é armazenar o bump derivado em um campo de dados da conta, para ser referenciado posteriormente quando o endereço for novamente derivado para verificação.
     ```rust
     #[derive(Accounts)]
     pub struct VerifyAddress<'info> {
@@ -30,7 +30,7 @@ As sementes de bump são um número entre 0 e 255, inclusive, usado para garanti
 
 ## Derivação insegura de PDA usando `create_program_address`
 
-Dado um conjunto de seeds, a função `create_program_address` produzirá um PDA válido em cerca de 50% das vezes. A semente de bump é um byte adicional acrescentado como uma semente para fazer um "bump" do endereço derivado em um território válido. Como há 256 sementes de bump possíveis e a função produz PDAs válidos aproximadamente 50% das vezes, há muitos bumps válidos para um determinado conjunto de sementes de entrada.
+Dado um conjunto de seeds, a função `create_program_address` produzirá um PDA válido em cerca de 50% das vezes. A semente de bump é um byte adicional acrescentado como uma semente para fazer um "bump" do endereço derivado em um campo válido. Como há 256 sementes de bump possíveis e a função produz PDAs válidos aproximadamente 50% das vezes, há muitos bumps válidos para um determinado conjunto de sementes de entrada.
 
 Você pode imaginar que isso poderia causar confusão na localização de contas ao usar sementes como forma de mapeamento entre partes conhecidas de informações e contas. Usar o bump canônico como padrão garante que você sempre possa encontrar a conta certa. Mais importante ainda, ele evita falhas de segurança causadas pela natureza aberta de permitir vários bumps.
 
@@ -69,7 +69,7 @@ pub struct Data {
 }
 ```
 
-Embora a instrução derive o PDA e verifique a conta passada, o que é bom, ela permite que o chamador passe um bump arbitrário. Dependendo do contexto de seu programa, isso pode resultar em um comportamento indesejado ou em um possível golpe.
+Embora a instrução derive o PDA e verifique a conta passada, o que é bom, ela permite que o chamador passe um bump arbitrário. Dependendo do contexto de seu programa, isso pode resultar em um comportamento indesejado ou em uma possível exploração.
 
 Se o mapeamento de sementes tiver como objetivo impor uma relação de um para um entre o PDA e o usuário, por exemplo, esse programa não aplicaria isso adequadamente. Um usuário poderia chamar o programa várias vezes com muitos bumps válidos, cada um produzindo um PDA diferente.
 
@@ -146,7 +146,7 @@ pub struct Data {
 }
 ```
 
-Se você não está inicializando uma conta, ainda poderá validar PDAs com as restrições `seeds` e `bump`. Isso simplesmente rederiva o PDA e compara o endereço derivado com o endereço da conta que foi passada.
+Se você não está inicializando uma conta, ainda poderá validar PDAs com as restrições `seeds` e `bump`. Isso simplesmente rederiva o PDA e compara o endereço derivado com o endereço da conta que foi passado.
 
 Nesse cenário, o Anchor permite *sim* que você especifique o bump a ser usado para derivar o PDA com `bump = <some_bump>`. A intenção aqui não é usar bumps arbitrários, mas sim permitir que você otimize seu programa. A natureza iterativa do `find_program_address` torna-o dispendioso, portanto, a prática recomendada é armazenar o bump canônico nos dados da conta do PDA ao inicializar um PDA, permitindo que você faça referência ao bump armazenado ao validar o PDA nas instruções subsequentes.
 
@@ -163,7 +163,7 @@ pub mod bump_seed_canonicalization_recommended {
 
     pub fn set_value(ctx: Context<BumpSeed>, _key: u64, new_value: u64) -> Result<()> {
         ctx.accounts.data.value = new_value;
-        // store the bump on the account
+        // armazena o bump na conta
         ctx.accounts.data.bump = *ctx.bumps.get("data").unwrap();
         Ok(())
     }
@@ -217,7 +217,7 @@ Por outro lado, se você precisar apenas verificar o endereço de um PDA passado
 
 # Demonstração
 
-Para demonstrar os golpes de segurança possíveis quando você não verifica o bump canônico, vamos trabalhar com um programa que permite que cada usuário do programa "requeira" recompensas na hora certa.
+Para demonstrar as explorações de segurança possíveis quando você não verifica o bump canônico, vamos trabalhar com um programa que permite que cada usuário do programa "solicite" recompensas na hora certa.
 
 ### 1. Configure
 
@@ -324,7 +324,7 @@ pub struct UserSecure {
 }
 ```
 
-Em seguida, vamos criar structs de validação de conta para cada uma das novas instruções. Eles serão muito semelhantes às versões inseguras, mas permitirão que o Anchor manipule a derivação e a desserialização dos PDAs.
+Em seguida, vamos criar structs de validação de conta para cada uma das novas instruções. Elas serão muito semelhantes às versões inseguras, mas permitirão que o Anchor manipule a derivação e a desserialização dos PDAs.
 
 ```rust
 #[derive(Accounts)]
@@ -501,4 +501,4 @@ Assim como nas outras lições deste módulo, sua oportunidade de praticar como 
 
 Reserve algum tempo para analisar pelo menos um programa e garantir que todas as derivações e verificações do PDA estejam usando o bump canônico.
 
-Lembre-se: se você encontrar um bug ou um golpe no programa de outra pessoa, alerte-a! Se encontrar um bug em seu próprio programa, não deixe de corrigi-lo imediatamente.
+Lembre-se: se você encontrar um bug ou uma exploração no programa de outra pessoa, alerte-a! Se encontrar um bug em seu próprio programa, não deixe de corrigi-lo imediatamente.

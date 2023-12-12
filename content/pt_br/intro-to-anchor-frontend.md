@@ -1,5 +1,5 @@
 ---
-title: Intro to client-side Anchor development
+title: Introdução ao desenvolvimento Anchor do lado do cliente
 objectives:
 - Usar um IDL para interagir com um programa Solana a partir do cliente
 - Explicar um objeto `Provider` Anchor.
@@ -13,7 +13,7 @@ objectives:
 
 - Uma **IDL** é um arquivo que representa a estrutura de um programa Solana. Os programas escritos e criados com o Anchor geram automaticamente uma IDL correspondente. IDL significa Interface Description Language (linguagem de descrição de interface).
 - O `@project-serum/anchor` é um cliente Typescript que inclui tudo o que você precisa para interagir com os programas Anchor
-- Um objeto **Anchor `Provider`** combina uma `conexão` a um cluster e uma `wallet` especificada para permitir a assinatura de transações
+- Um objeto **Anchor `Provider`** combina uma `connection` a um cluster e uma `wallet` especificada para permitir a assinatura de transações
 - Um objeto **Anchor `Program`** fornece uma API personalizada para interagir com um programa específico. Você cria uma instância `Program` usando a IDL e o `Provider` de um programa.
 - O **Anchor `MethodsBuilder`** fornece uma interface simples por meio do `Program` para criar instruções e transações
 
@@ -22,7 +22,7 @@ objectives:
 O Anchor simplifica o processo de interação com os programas Solana a partir do cliente, fornecendo um arquivo IDL (Linguagem de descrição de interface) que reflete a estrutura de um programa. O uso da IDL em conjunto com a biblioteca Typescript do Anchor (`@project-serum/anchor`) fornece um formato simplificado para a criação de instruções e transações.
 
 ```tsx
-// sends transaction
+// envia a transação
 await program.methods
   .instructionName(instructionDataInputs)
   .accounts({})
@@ -42,7 +42,7 @@ Para criar uma instância de `Program`, você precisará do seguinte:
 - `Connection` - a conexão do cluster.
 - `Wallet` - par de chaves padrão usado para pagar e assinar transações.
 - `Provider` - encapsula o `Connection` em um cluster Solana e uma `Wallet`.
-- `ProgramId` - o endereço do programa na cadeia
+- `ProgramId` - o endereço do programa on-chain
 
 ![estrutura Anchor](../assets/anchor-client-structure.png)
 
@@ -108,7 +108,7 @@ Ao examinar a IDL, você pode ver que em ambas as instruções o `user` é neces
 
 Observando a seção `accounts`, é possível ver que o programa contém um tipo de conta chamado `Counter` com um único campo `count` do tipo `u64`.
 
-Embora a IDL não forneça os detalhes de implementação de cada instrução, podemos ter uma ideia básica de como o programa na cadeia espera que as instruções sejam construídas e podemos ver a estrutura das contas do programa.
+Embora a IDL não forneça os detalhes de implementação de cada instrução, podemos ter uma ideia básica de como o programa on-chain espera que as instruções sejam construídas e podemos ver a estrutura das contas do programa.
 
 Independentemente de como você o obtenha, você precisa de um arquivo IDL para interagir com um programa que use o pacote `@project-serum/anchor`. Para usar a IDL, você precisará incluir o arquivo IDL em seu projeto e, em seguida, importar o arquivo.
 
@@ -123,7 +123,7 @@ Antes de criar um objeto `Program` usando a IDL, você precisa primeiro criar um
 O objeto `Provider` combina duas coisas:
 
 - `Connection` - a conexão com um cluster Solana (ou seja, localhost, devnet, mainnet)
-- `Wallet` - um endereço especificado usado para pagar e assinar transações
+- `Wallet` - um endereço específico usado para pagar e assinar transações
 
 O `Provider` pode então enviar transações para a blockchain Solana em nome de uma `Wallet`, incluindo a assinatura da carteira nas transações de saída. Ao usar um frontend com um provedor de carteira Solana, todas as transações de saída ainda devem ser aprovadas pelo usuário por meio da extensão do navegador da carteira.
 
@@ -237,7 +237,7 @@ const program = new Program(idl as Idl, programId)
 
 ## `MethodsBuilder` Anchor
 
-Uma vez que o objeto `Program` esteja configurado, você poderá usar o Anchor Methods Builder para criar instruções e transações relacionadas ao programa. O `MethodsBuilder` utiliza a IDL para fornecer um formato simplificado para a criação de transações que invocam as instruções do programa.
+Uma vez que o objeto `Program` esteja configurado, você poderá usar o Methods Builder Anchor para criar instruções e transações relacionadas ao programa. O `MethodsBuilder` utiliza a IDL para fornecer um formato simplificado para a criação de transações que invocam as instruções do programa.
 
 Observe que a convenção de nomenclatura _camel case_ é usada ao interagir com um programa a partir do cliente, em comparação com a convenção de nomenclatura _snake case_ usada ao escrever o programa no rust.
 
@@ -258,7 +258,7 @@ Indo passo a passo, você:
 2. Chama o nome da instrução como `.instructionName(instructionDataInputs)` - simplesmente chame a instrução usando a sintaxe de ponto e o nome da instrução, passando quaisquer argumentos de instrução como valores separados por vírgula.
 3. Chama `accounts` - usando a sintaxe de ponto, chama `.accounts`, passando um objeto com cada conta que a instrução espera com base na IDL.
 4. Opcionalmente, chama `signers` - usando a sintaxe de ponto, chama `.signers`, passando um array de signatários adicionais exigidos pela instrução.
-5. Chamar `rpc` - esse método cria e envia uma transação assinada com a instrução especificada e retorna uma `TransactionSignature`. Ao utilizar `.rpc`, a `Wallet` do `Provider` é automaticamente incluída como signatário e não precisa ser listada explicitamente.
+5. Chama `rpc` - esse método cria e envia uma transação assinada com a instrução especificada e retorna uma `TransactionSignature`. Ao utilizar `.rpc`, a `Wallet` do `Provider` é automaticamente incluída como signatário e não precisa ser listada explicitamente.
 Observe que, se nenhuma assinatura adicional for exigida pela instrução além da `Wallet` especificada com o `Provider`, a linha `.signer([])` poderá ser excluída.
 
 Você também pode criar a transação diretamente, alterando `.rpc()` para `.transaction()`. Isso cria um objeto `Transaction` usando a instrução especificada.
@@ -297,7 +297,7 @@ await sendTransaction(transaction, connection)
 
 Em resumo, o `MethodsBuilder` do Anchor oferece uma maneira simplificada e mais flexível de interagir com programas on-chain. Você pode criar uma instrução, uma transação ou criar e enviar uma transação usando basicamente o mesmo formato, sem precisar serializar ou desserializar manualmente as contas ou os dados da instrução.
 
-## Obtenha contas de programa
+## Busque contas de programa
 
 O objeto `Program` também permite que você busque e filtre facilmente as contas do programa. Basta chamar `account` em `program` e especificar o nome do tipo de conta, conforme aparece na IDL. Em seguida, o Anchor desserializa e retorna todas as contas conforme especificado.
 
@@ -345,7 +345,7 @@ Vamos praticar isso juntos criando um frontend para o programa Counter da últim
 
 Faça download [do código inicial para este projeto](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/starter). Quando tiver o código inicial, dê uma olhada. Instale as dependências com `npm install` e, em seguida, execute o aplicativo com `npm run dev`.
 
-Este projeto é um aplicativo Next.js simples. Ele inclui o `WalletContextProvider` que criamos na [lição Wallets](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets.md), o arquivo `idl.json` para o programa Counter e os componentes `Initialize` e `Increment` serão construídos durante esta demonstração. O `programId` que o programa invocará também está incluído no código inicial.
+Este projeto é um aplicativo Next.js simples. Ele inclui o `WalletContextProvider` que criamos na [lição Wallets](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets.md), o arquivo `idl.json` para o programa Counter e os componentes `Initialize` e `Increment` que serão construídos durante esta demonstração. O `programId` que o programa invocará também está incluído no código inicial.
 
 ### 2. `Initialize`
 

@@ -1,5 +1,5 @@
 ---
-ttitle: Guia do Curso
+title: Guia do Curso
 objectives:
 - entender o que é web3
 - entender o que é Solana
@@ -44,7 +44,7 @@ Em comparação com plataformas mais antigas, como Bitcoin e Ethereum, Solana é
 
 - Significativamente mais rápida - a maioria das transações é concluída em um ou dois segundos.
 
-- Muito mais barata - as taxas de transação (chamadas de "taxas de gás" em redes mais antigas) são normalmente de US$ 0,000025 (sim, muito menos que um centavo), independentemente do valor do que está sendo transferido.
+- Muito mais barata - as taxas de transação (chamadas de "taxas de _gas_" em redes mais antigas) são normalmente de US$ 0,000025 (sim, muito menos que um centavo), independentemente do valor do que está sendo transferido.
 
 -Altamente descentralizada, com um dos mais altos coeficientes de Nakamoto (pontuação de descentralização) de qualquer rede de prova de participação.
 
@@ -79,9 +79,9 @@ Os módulos abrangem um tópico específico. Eles são divididos em lições ind
 
 Cada lição começa com uma lista dos objetivos da lição, ou seja, o que você aprenderá nela.
 
-Em seguida, há um breve "TL;DR" (RESUMO) para que você possa dar uma olhada, ter uma noção do que a lição aborda e decidir se a lição é para você ou não.
+Em seguida, há um breve "RESUMO" para que você possa dar uma olhada, ter uma noção do que a lição aborda e decidir se a lição é para você ou não.
 
-Em seguida, cada lição tem três seções:
+Em seguida, cada lição possui três seções:
 
 - **Visão Geral** - a visão geral contém texto explicativo, exemplos e trechos de código. Não se espera que você codifique junto com nenhum dos exemplos mostrados aqui. O objetivo é simplesmente ler e obter uma exposição inicial aos tópicos da lição.
 

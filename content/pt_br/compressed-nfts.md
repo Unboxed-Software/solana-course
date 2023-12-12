@@ -4,29 +4,29 @@ Objectives:
 - Criar uma coleção de NFTs compactados usando o programa Bubblegum da Metaplex
 - Cunhar NFTs compactados usando o SDK TS do Bubblegum 
 - Transferir NFTs compactados usando o SDK TS do Bubblegum
-- Ler dados de NFTs compactados usando a API de Leitura (Read)
+- Ler dados de NFTs compactados usando a API Read (de Leitura)
 ---
 
 # RESUMO
 
-- **NFTs Compactados (cNFTs)** usam **State Compression** para fazer hash de dados de NFTs e armazenar o hash na cadeia numa conta usando uma estrutura **concurrent merkle tree** 
+- **NFTs Compactados (cNFTs)** usam **Compactação de estado** para fazer hash de dados de NFTs e armazenar o hash na cadeia numa conta usando uma estrutura **árvore de Merkle concorrente** 
 - O hash de dados do cNFT não pode ser usado para inferir os dados do cNFT, mas pode ser usado para **verificar** se os dados do cNFT que você está vendo estão corretos
 - Os provedores RPC de suporte **indexam** os dados do cNFT off-chain quando o cNFT é cunhado para que você possa usar a **API de Leitura** para acessar os dados
-- O programa **Metaplex Bubblegum** é uma abstração do programa **State Compression** que permite criar, cunhar e gerenciar coleções de cNFT de forma mais simples.
+- O programa **Metaplex Bubblegum** é uma abstração do programa **Compactação de Estado** que permite criar, cunhar e gerenciar coleções de cNFT de forma mais simples.
 
 # Visão Geral
 
-Os NFTs compactados (cNFTs) são exatamente o que seu nome sugere: NFTs cuja estrutura ocupa menos espaço no armazenamento de contas do que os NFTs tradicionais. Os NFTs compactados aproveitam um conceito chamado **Compressão de estado** para armazenar dados de uma forma que reduz drasticamente os custos.
+Os NFTs compactados (cNFTs) são exatamente o que seu nome sugere: NFTs cuja estrutura ocupa menos espaço no armazenamento de contas do que os NFTs tradicionais. Os NFTs compactados aproveitam um conceito chamado **Compactação de estado** para armazenar dados de forma a reduzir drasticamente os custos.
 
-Os custos de transação da Solana são tão baratos que a maioria dos usuários nunca pensa no quanto a cunhagem de NFTs pode ser cara em escala. O custo para configurar e cunhar 1 milhão de NFTs tradicionais é de aproximadamente 24.000 SOL. Em comparação, os cNFTs podem ser estruturados de forma que a mesma configuração e cunhagem custem 10 SOL ou menos. Isso significa que qualquer pessoa que use NFTs em escala poderia reduzir os custos em mais de 1.000 vezes usando cNFTs em vez de NFTs tradicionais.
+Os custos de transação da Solana são tão baixos que a maioria dos usuários nunca pensa no quanto a cunhagem de NFTs pode ser cara em escala. O custo para configurar e cunhar 1 milhão de NFTs tradicionais é de aproximadamente 24.000 SOL. Em comparação, os cNFTs podem ser estruturados de forma que a mesma configuração e cunhagem custem 10 SOL ou menos. Isso significa que qualquer pessoa que use NFTs em escala poderia reduzir os custos em mais de 1.000 vezes usando cNFTs em vez de NFTs tradicionais.
 
 No entanto, pode ser difícil trabalhar com os cNFTs. Eventualmente, as ferramentas necessárias para trabalhar com eles serão suficientemente abstraídas da tecnologia subjacente para que a experiência do desenvolvedor entre os NFTs tradicionais e os cNFTs seja insignificante. Mas, por enquanto, você ainda precisará entender as peças do quebra-cabeça de baixo nível. Então, vamos nos aprofundar!
 
 ## Uma visão geral teórica dos cNFTs
 
-A maior parte dos custos associados aos NFTs tradicionais se resume ao espaço de armazenamento da conta. Os NFTs compactados usam um conceito chamado Compressão de Estado para armazenar dados no **estado do livro-razão** mais barato da blockchain, usando o espaço mais caro da conta apenas para armazenar uma "impressão digital", ou **hash**, dos dados. Esse hash permite que você verifique criptograficamente se os dados não foram adulterados.
+A maior parte dos custos associados aos NFTs tradicionais se resume ao espaço de armazenamento da conta. Os NFTs compactados usam um conceito chamado Compactação de Estado para armazenar dados no **estado do livro-razão** mais barato da blockchain, usando o espaço mais caro da conta apenas para armazenar uma "impressão digital", ou **hash**, dos dados. Esse hash permite que você verifique criptograficamente se os dados não foram adulterados.
 
-Para armazenar hashes e permitir a verificação, usamos uma estrutura de árvore binária especial conhecida como **árvore de Merkle simultânea**. Essa estrutura de árvore nos permite fazer o hash de dados juntos de forma determinística para calcular um único hash final que é armazenado na cadeia. Esse hash final é significativamente menor em tamanho do que todos os dados originais combinados, daí a "compressão". As etapas desse processo são:
+Para armazenar hashes e permitir a verificação, usamos uma estrutura de árvore binária especial conhecida como **árvore de Merkle concorrente**. Essa estrutura de árvore nos permite fazer o hash de dados juntos de forma determinística para calcular um único hash final que é armazenado na cadeia. Esse hash final é significativamente menor em tamanho do que todos os dados originais combinados, daí a "Compactação". As etapas desse processo são:
 
 1. Pegue qualquer dado
 2. Crie um hash desses dados
@@ -40,7 +40,7 @@ Para armazenar hashes e permitir a verificação, usamos uma estrutura de árvor
 
 Um problema não abordado no item acima é como disponibilizar os dados se eles não puderem ser obtidos de uma conta. Como esse processo de hashing ocorre na cadeia, todos os dados existem no estado do livro-razão e, teoricamente, poderiam ser recuperados da transação original reproduzindo todo o estado da cadeia desde a origem. No entanto, é muito mais simples (embora ainda complicado) fazer com que um **indexador** rastreie e indexe esses dados à medida que as transações ocorrem. Isso garante que haja um "cache" dos dados off-chain que qualquer pessoa possa acessar e, posteriormente, verificar em relação ao hash raiz on-chain.
 
-Esse processo é *muito complexo*. Abordaremos alguns dos principais conceitos abaixo, mas não se preocupe se você não entender imediatamente. Falaremos mais sobre teoria na lição sobre compressão de estado e nos concentraremos principalmente na aplicação a NFTs nesta lição. Você poderá trabalhar com cNFTs ao final desta lição, mesmo que não compreenda totalmente todas as peças do quebra-cabeça da compressão de estado.
+Esse processo é *muito complexo*. Abordaremos alguns dos principais conceitos abaixo, mas não se preocupe se você não entender imediatamente. Falaremos mais sobre teoria na lição sobre compactação de estado e nos concentraremos principalmente na aplicação a NFTs nesta lição. Você poderá trabalhar com cNFTs ao final desta lição, mesmo que não compreenda totalmente todas as peças do quebra-cabeça da compactação de estado.
 
 ### Árvores de Merkle Concorrentes
 
@@ -48,7 +48,7 @@ Uma **árvore de Merkle** é uma estrutura de árvore binária representada por 
 
 Qualquer modificação nos dados folha altera o hash raiz. Isso causa um problema quando várias transações no mesmo slot estão tentando modificar os dados folha. Como essas transações devem ser executadas em série, todas, exceto a primeira, falharão, pois o hash raiz e a prova passados terão sido invalidados pela primeira transação a ser executada.
 
-Uma **árvore de merkle concorrente** é uma árvore de merkle que armazena um changelog (registro de alterações) seguro das alterações mais recentes, juntamente com seu hash de raiz e a prova para derivá-lo. Quando várias transações no mesmo slot tentam modificar os dados folha, o registro de alterações pode ser usado como uma fonte de verdade para permitir que alterações concorrentes sejam feitas na árvore.
+Uma **árvore de merkle concorrente** é uma árvore de merkle que armazena um changelog (log de alterações) seguro das alterações mais recentes, juntamente com seu hash de raiz e a prova para derivá-lo. Quando várias transações no mesmo slot tentam modificar os dados folha, o registro de alterações pode ser usado como uma fonte de verdade para permitir que alterações concorrentes sejam feitas na árvore.
 
 Ao trabalhar com uma árvore de Merkle concorrente, há três variáveis que determinam o tamanho da árvore, o custo para criar a árvore e o número de alterações concorrentes que podem ser feitas na árvore:
 
@@ -62,17 +62,17 @@ O **tamanho máximo do buffer** é efetivamente o número máximo de alteraçõe
 
 A **profundidade do canopy** é o número de nós de prova armazenados on-chain para qualquer caminho de prova. A verificação de qualquer folha requer o caminho completo de prova para a árvore. O caminho completo de prova é composto de um nó de prova para cada "camada" da árvore, ou seja, uma profundidade máxima de 14 significa que há 14 nós de prova. Cada nó de prova acrescenta 32 bytes a uma transação, de modo que árvores grandes excederiam rapidamente o limite máximo de tamanho da transação sem armazenar em cache os nós de prova on-chain.
 
-Cada um desses três valores, profundidade máxima, tamanho máximo do buffer e profundidade do canopy tem uma contrapartida. Aumentar qualquer um desses valores aumenta o tamanho da conta usada para armazenar a árvore, aumentando assim o custo de criação da árvore.
+Cada um desses três valores, profundidade máxima, tamanho máximo do buffer e profundidade do canopy tem uma contrapartida. Aumentar qualquer um desses valores significa aumentar o tamanho da conta usada para armazenar a árvore, aumentando assim o custo de criação da árvore.
 
 A escolha da profundidade máxima é bastante simples, pois está diretamente relacionada ao número de folhas e, portanto, à quantidade de dados que você pode armazenar. Se precisar de 1 milhão de cNFTs em uma única árvore, encontre a profundidade máxima que torna a seguinte expressão verdadeira: `2^maxDepth > 1 milhão`. A resposta é 20.
 
-A escolha de um tamanho máximo de buffer é efetivamente uma questão de rendimento: quantas gravações simultâneas você precisa.
+A escolha de um tamanho máximo de buffer é efetivamente uma questão de rendimento: quantas gravações concorrentes você precisa.
 
 ### Programas de Compactação de Estado SPL e Noop
 
 O Programa de Compactação de Estado SPL existe para tornar o processo acima repetível e passível de composabilidade em todo o ecossistema Solana. Ele fornece instruções para inicializar árvores Merkle, gerenciar folhas de árvores (ou seja, adicionar, atualizar, remover dados) e verificar dados de folhas.
 
-O Programa de Compressão de Estado também aproveita um programa "no op" (que não implementa nenhuma operação) separado, cuja finalidade principal é facilitar a indexação dos dados das folhas registrando-os no estado de livro-razão.
+O Programa de Compactação de Estado também aproveita um programa "no op" (que não implementa nenhuma operação) separado, cuja finalidade principal é facilitar a indexação dos dados das folhas registrando-os no estado de livro-razão.
 
 ### Use o Estado de Livro-Razão para Armazenamento
 
@@ -86,11 +86,11 @@ Em condições normais, você geralmente acessaria os dados on-chain buscando a 
 
 Conforme mencionado acima, os dados agora existem no estado do livro-razão e não em uma conta. O lugar mais fácil para encontrar os dados completos é nos logs da instrução Noop, mas, embora esses dados existam, de certa forma, no estado do livro-razão para sempre, provavelmente ficarão inacessíveis por meio de validadores após um determinado período de tempo.
 
-Para economizar espaço e aumentar o desempenho, os validadores não retêm todas as transações até o bloco gênese. O período específico de tempo em que você poderá acessar os registros de instrução Noop relacionados aos seus dados variará de acordo com o validador, mas, eventualmente, você perderá o acesso a eles se depender diretamente dos registros de instrução.
+Para economizar espaço e aumentar o desempenho, os validadores não retêm todas as transações até o bloco gênese. O período específico de tempo em que você poderá acessar os logs de instrução Noop relacionados aos seus dados variará de acordo com o validador, mas, eventualmente, você perderá o acesso a eles se depender diretamente dos logs de instrução.
 
-Tecnicamente, você *pode* reproduzir o estado da transação de volta ao bloco de gênese, mas em média as equipes não farão isso e certamente não terão um bom desempenho. Em vez disso, você deve usar um indexador que observará os eventos enviados ao programa Noop e armazenará os dados relevantes off-chain. Dessa forma, você não precisa se preocupar com o fato de os dados antigos ficarem inacessíveis.
+Tecnicamente, você *pode* reproduzir o estado da transação de volta ao bloco gênese, mas em média as equipes não farão isso e certamente não terão um bom desempenho. Em vez disso, você deve usar um indexador que observará os eventos enviados ao programa Noop e armazenará off-chain os dados relevantes. Dessa forma, você não precisa se preocupar com o fato de os dados antigos ficarem inacessíveis.
 
-## Crie um Coleção de cNFT
+## Crie uma Coleção de cNFT
 
 Saindo do contexto teórico, vamos voltar nossa atenção para o ponto principal desta lição: como criar uma coleção cNFT.
 
@@ -192,13 +192,13 @@ As duas primeiras variáveis devem ser escolhidas em um conjunto existente de pa
 
 Observe que o número de cNFTs que podem ser armazenados na árvore depende inteiramente da profundidade máxima, enquanto o tamanho do buffer determinará o número de alterações concorrentes (cunhagens, transferências etc.) dentro do mesmo slot que podem ocorrer na árvore. Em outras palavras, escolha a profundidade máxima que corresponde ao número de NFTs que você precisa que a árvore armazene e, em seguida, escolha uma das opções para o tamanho máximo do buffer com base no tráfego que você espera que seja necessário suportar.
 
-Em seguida, escolha a profundidade do canopy. Aumentar a profundidade do canopy aumenta a composabilidade de seus cNFTs. Sempre que o seu código ou o código de outro desenvolvedor tentar verificar uma cNFT no futuro, o código terá que passar tantos nós de prova quanto o número de "camadas" na sua árvore. Portanto, para uma profundidade máxima de 20, você precisará passar 20 nós de prova. Isso não é apenas tedioso, mas como cada nó de prova tem 32 bytes, é possível atingir o tamanho máximo de transações muito rapidamente.
+Em seguida, escolha a profundidade do canopy. Aumentar a profundidade do canopy aumenta a composabilidade de seus cNFTs. Sempre que o seu código ou o código de outro desenvolvedor tentar verificar um cNFT no futuro, o código terá que passar tantos nós de prova quanto o número de "camadas" na sua árvore. Portanto, para uma profundidade máxima de 20, você precisará passar 20 nós de prova. Isso não é apenas tedioso, mas como cada nó de prova tem 32 bytes, é possível atingir o tamanho máximo de transações muito rapidamente.
 
-Por exemplo, se a sua árvore tiver uma profundidade de canopy muito pequena, um mercado de NFTs talvez só possa suportar transferências simples de NFTs em vez de suportar um sistema de lances on-chain para seus cNFTs. O canopy efetivamente armazena em cache os nós de prova on-chain para que você não tenha que passar todos eles para a transação, permitindo transações mais complexas.
+Por exemplo, se a sua árvore tiver uma profundidade de canopy muito pequena, um mercado de NFTs talvez só possa suportar transferências simples de NFTs em vez de suportar um sistema de lances on-chain para seus cNFTs. O canopy efetivamente armazena em cache os nós de prova na cadeia para que você não tenha que passar todos eles para a transação, permitindo transações mais complexas.
 
 O aumento de qualquer um desses três valores aumenta o tamanho da conta, aumentando assim, o custo associado à sua criação. Pese os benefícios adequadamente ao escolher os valores.
 
-Depois de conhecer esses valores, você pode usar a função auxiliar `createAllocTreeIx` do SDK TS `@solana/spl-account-compression` para criar a instrução para criar a conta vazia.
+Depois de conhecer esses valores, você pode usar a função auxiliar `createAllocTreeIx` do SDK TS `@solana/spl-account-compression`  a fim de criar a instrução para criar a conta vazia.
 
 ```tsx
 import { createAllocTreeIx } from "@solana/spl-account-compression"
@@ -218,7 +218,7 @@ Observe que essa é simplesmente uma função auxiliar para calcular o tamanho e
 
 ### Use o Bubblegum para Inicializar sua Árvore
 
-Com a conta de árvore vazia criada, você usa o programa Bubblegum para inicializar a árvore. Além da conta de árvore de Merkle, o Bubblegum cria uma conta de configuração de árvore para adicionar rastreamento e funcionalidade específicos do cNFT.
+Com a conta de árvore vazia criada, você usa o programa Bubblegum para inicializar a árvore. Além da conta de árvore de Merkle, o Bubblegum cria uma conta de configuração de árvore para adicionar rastreamento e funcionalidade específicos de cNFT.
 
 A versão 0.7 do SDK TS `@metaplex-foundation/mpl-bubblegum` fornece a função auxiliar `createCreateTreeInstruction` para chamar a instrução `create_tree` no programa Bubblegum. Como parte da chamada, você precisará derivar o PDA `treeAuthority` esperado pelo programa. Esse PDA usa o endereço da árvore como uma semente.
 
@@ -263,10 +263,10 @@ A lista abaixo mostra a entrada necessária para essa função auxiliar:
 - `accounts` - Um objeto que representa as contas exigidas pela instrução. Isso inclui:
     - `treeAuthority` - O Bubblegum espera que seja um PDA derivado usando o endereço da árvore de Merkle como uma semente
     - `merkleTree` - A conta da árvore de Merkle
-    - `payer` - O endereço que paga as taxas de transação, aluguel, etc.
+    - `payer` - O endereço que paga as taxas de transação, aluguel etc.
     - `treeCreator` - O endereço a ser listado como o criador da árvore
-    - `logWrapper` - O programa a ser usado para expor os dados aos indexadores por meio de logs; esse deve ser o endereço do programa Noop SPL, a menos que você tenha alguma outra implementação personalizada
-    - `compressionProgram` - O programa de compressão a ser usado para inicializar a árvore de Merkle; deve ser o endereço do programa SPL State Compression, a menos que você tenha outra implementação personalizada
+    - `logWrapper` - O programa a ser usado para expor os dados aos indexadores por meio de logs; esse deve ser o endereço do programa Noop do SPL, a menos que você tenha alguma outra implementação personalizada
+    - `compressionProgram` - O programa de compactação a ser usado para inicializar a árvore de Merkle; deve ser o endereço do programa Compactação de Estado do SPL, a menos que você tenha outra implementação personalizada
 - `args` - Um objeto que representa argumentos adicionais exigidos pela instrução. Isso inclui:
     - `maxBufferSize` - O tamanho máximo do buffer da árvore de Merkle
     - `maxDepth` - A profundidade máxima da árvore de Merkle
@@ -276,7 +276,7 @@ Quando enviado, isso invocará a instrução `create_tree` no programa Bubblegum
 
 1. Cria a conta PDA de configuração da árvore
 2. Inicializa a conta de configuração da árvore com os valores iniciais apropriados
-3. Emite um CPI para o programa State Compression para inicializar a conta de árvore de Merkle vazia
+3. Emite uma CPI para o programa State Compression para inicializar a conta de árvore de Merkle vazia
 
 Sinta-se à vontade para dar uma olhada no código do programa [aqui] (https://github.com/metaplex-foundation/mpl-bubblegum/blob/main/programs/bubblegum/program/src/lib.rs#L887).
 
@@ -317,19 +317,19 @@ const mintWithCollectionIx = createMintToCollectionV1Instruction(
 
 Observe que há dois argumentos para a função auxiliar: `accounts` e `args`. O parâmetro `args` é simplesmente os metadados do NFT, enquanto `accounts` é um objeto que lista as contas exigidas pela instrução. É certo que há muitas delas:
 
-- `payer` - a conta que pagará as taxas de transação, aluguel, etc.
+- `payer` - a conta que pagará as taxas de transação, aluguel etc.
 - `merkleTree` - a conta da árvore de Merkle
 - `treeAuthority` - a autoridade da árvore; deve ser o mesmo PDA que você derivou anteriormente
 - `treeDelegate` - o delegatário da árvore; geralmente é o criador da árvore
 - `leafOwner` - o proprietário desejado do NFT compactado que está sendo cunhado
 - `leafDelegate` - o delegatário desejado do NFT compactado que está sendo cunhado; geralmente é o proprietário da folha
 - `collectionAuthority` - a autoridade do NFT de coleção
-- `collectionAuthorityRecordPda` - PDA de registro de autoridade de coleta opcional; normalmente não há nenhum; nesse caso, você deve colocar o endereço do programa Bubblegum
+- `collectionAuthorityRecordPda` - PDA do registro de autoridade de coleta opcional; normalmente não há nenhum; nesse caso, você deve colocar o endereço do programa Bubblegum
 - `collectionMint` - a conta de cunhagem para a coleção de NFT
 - `collectionMetadata` - a conta de metadados da coleção de NFT
 - `editionAccount` - a conta de edição principal da coleção de NFT
-- `compressionProgram` - o programa de compactação a ser usado; deve ser o endereço do programa SPL State Compression, a menos que você tenha alguma outra implementação personalizada
-- `logWrapper` - o programa a ser usado para expor os dados aos indexadores por meio de logs; esse deve ser o endereço do programa Noop SPL, a menos que você tenha outra implementação personalizada
+- `compressionProgram` - o programa de compactação a ser usado; deve ser o endereço do programa Compactação de Estado do SPL, a menos que você tenha alguma outra implementação personalizada
+- `logWrapper` - o programa a ser usado para expor os dados aos indexadores por meio de logs; esse deve ser o endereço do programa Noop do SPL, a menos que você tenha outra implementação personalizada
 - `bubblegumSigner` - um PDA usado pelo programa Bubblegrum para lidar com a verificação da coleta
 - `tokenMetadataProgram` - o programa de metadados de token que foi usado para a coleção de NFT; geralmente é sempre o programa de metadados de token Metaplex
 
@@ -359,16 +359,16 @@ const mintWithoutCollectionIx = createMintV1Instruction(
 
 ### Busca de dados do cNFT
 
-A maneira mais simples de obter dados de um cNFT existente é usar o [Digital Asset Standard Read API](https://docs.solana.com/developing/guides/compressed-nfts#reading-compressed-nfts-metadata) (API de Leitura). Observe que isso é separado do RPC JSON padrão. Para usar a API de Leitura, você precisará usar um provedor de RPC compatível. A Metaplex mantém uma lista (provavelmente não exaustiva) de [provedores RPC](https://developers.metaplex.com/bubblegum/rpcs) compatíveis com a API de Leitura. Nesta lição usaremos [Helius](https://docs.helius.dev/compression-and-das-api/digital-asset-standard-das-api) já que eles têm suporte gratuito para Devnet.
+A maneira mais simples de obter dados de um cNFT existente é usar o [API de Leitura Padrão de Ativos Digitais](https://docs.solana.com/developing/guides/compressed-nfts#reading-compressed-nfts-metadata) (API de Leitura). Observe que isso é separado do RPC JSON padrão. Para usar a API de Leitura, você precisará usar um provedor de RPC compatível. A Metaplex mantém uma lista (provavelmente não exaustiva) de [provedores RPC](https://developers.metaplex.com/bubblegum/rpcs) compatíveis com a API de Leitura. Nesta lição usaremos [Helius](https://docs.helius.dev/compression-and-das-api/digital-asset-standard-das-api) já que eles têm suporte gratuito para Devnet.
 
 Para usar a API de Leitura para buscar um cNFT específico, você precisa ter o ID do ativo do cNFT. No entanto, depois de cunhar cNFTs, você terá no máximo duas informações:
 
 1. A assinatura da transação
 2. O índice da folha (possivelmente)
 
-A única garantia real é que você terá a assinatura da transação. É **possível** localizar o índice de folha a partir daí, mas isso envolve uma análise bastante complexa. Resumindo, você deve recuperar os logs de instruções relevantes do programa Noop e analisá-los para encontrar o índice de folha. Abordaremos isso mais detalhadamente em uma lição futura. Por enquanto, presumiremos que você conhece o índice de folha.
+A única garantia real é que você terá a assinatura da transação. É **possível** localizar o índice de folha a partir daí, mas isso envolve uma análise bastante complexa. Resumindo, você deve recuperar os logs de instruções relevantes do programa Noop e analisá-los para encontrar o índice de folha. Abordaremos isso mais detalhadamente em uma lição futura. Por enquanto, presumiremos que você conheça o índice da folha.
 
-Essa é uma suposição razoável para a maioria das cunhagens, uma vez que a cunhagem será controlada por seu código e pode ser configurada sequencialmente para que seu código possa rastrear qual índice será usado para cada cunhagem. Ou seja, a primeira cunhagem usará o índice 0, a segunda o índice 1, etc.
+Essa é uma suposição razoável para a maioria das cunhagens, uma vez que a cunhagem será controlada por seu código e pode ser configurada sequencialmente para que seu código possa rastrear qual índice será usado para cada cunhagem. Ou seja, a primeira cunhagem usará o índice 0, a segunda o índice 1 etc.
 
 Depois de obter o índice da folha, você pode derivar o ID do ativo correspondente do cNFT. Ao usar o Bubblegum, o ID do ativo é um PDA derivado usando o ID do programa Bubblegum e as seguintes sementes:
 
@@ -399,7 +399,7 @@ const { result } = await response.json()
 console.log(JSON.stringify(result, null, 2))
 ```
 
-Isso retornará um objeto JSON que abrange como os metadados dentro e fora da cadeia de um NFT tradicional ficam quando combinados. Por exemplo, você pode encontrar os atributos do cNFT em `content.metadata.attributes` ou a imagem em `content.files.uri`.
+Isso retornará um objeto JSON que abrange como os metadados on-chain e off-chain de um NFT tradicional ficam quando combinados. Por exemplo, você pode encontrar os atributos do cNFT em `content.metadata.attributes` ou a imagem em `content.files.uri`.
 
 ### Consulte os cNFTs
 
@@ -420,7 +420,7 @@ Não abordaremos a maioria deles diretamente, mas não deixe de dar uma olhada n
 
 Assim como em uma transferência de token SPL padrão, a segurança é fundamental. Uma transferência de token SPL, no entanto, facilita muito a verificação da autoridade de transferência. Ela é incorporada ao programa de Token SPL e à assinatura padrão. A propriedade de um token compactado é mais difícil de ser verificada. A verificação real ocorrerá no lado do programa, mas o código do lado do cliente precisa fornecer informações adicionais para que isso seja possível.
 
-Embora exista uma função auxiliar `createTransferInstruction` do Bubblegum, é necessário mais trabalho de montagem do que o normal. Especificamente, o programa Bubblegum precisa verificar se a totalidade dos dados do cNFT é o que o cliente afirma, antes que a transferência possa ocorrer. A totalidade dos dados do cNFT foi transformada em hash e armazenada como uma única folha na árvore de Merkle, e a árvore de Merkle é simplesmente um hash de todas as folhas e ramificaçõess da árvore. Por esse motivo, você não pode simplesmente informar ao programa qual conta deve ser examinada e fazer com que ele compare o campo `authority` ou `owner` dessa conta com o signatário da transação.
+Embora exista uma função auxiliar `createTransferInstruction` do Bubblegum, é necessário mais trabalho de montagem do que o normal. Especificamente, o programa Bubblegum precisa verificar se a totalidade dos dados do cNFT é o que o cliente afirma, antes que a transferência possa ocorrer. A totalidade dos dados do cNFT foi transformada em hash e armazenada como uma única folha na árvore de Merkle, e a árvore de Merkle é simplesmente um hash de todas as folhas e galhos da árvore. Por esse motivo, você não pode simplesmente informar ao programa qual conta deve ser examinada e fazer com que ele compare o campo `authority` ou `owner` dessa conta com o signatário da transação.
 
 Em vez disso, você precisa fornecer a totalidade dos dados do cNFT e qualquer informação de prova da árvore de Merkle que não esteja armazenada no canopy. Dessa forma, o programa pode provar de forma independente que os dados do cNFT fornecidos e, portanto, o proprietário do cNFT, são precisos. Só então o programa poderá determinar com segurança se o signatário da transação deve, de fato, ter permissão para transferir o cNFT.
 
@@ -499,15 +499,15 @@ Por fim, você pode montar a instrução de transferência. A função auxiliar 
     - `leafOwner` - o proprietário da folha (cNFT) em questão
     - `leafDelegate` - o delegatário da folha (cNFT) em questão; se nenhum delegatário tiver sido adicionado, deverá ser o mesmo que `leafOwner`
     - `newLeafOwner` - o endereço do novo proprietário após a transferência
-    - `logWrapper` - o programa a ser usado para expor os dados aos indexadores por meio de registros; esse deve ser o endereço do programa Noop SPL, a menos que você tenha outra implementação personalizada
-    - `compressionProgram` - o programa de compactação a ser usado; esse deve ser o endereço do programa SPL State Compression, a menos que você tenha outra implementação personalizada
+    - `logWrapper` - o programa a ser usado para expor os dados aos indexadores por meio de logs; esse deve ser o endereço do programa Noop do SPL, a menos que você tenha outra implementação personalizada
+    - `compressionProgram` - o programa de compactação a ser usado; esse deve ser o endereço do programa Compactação de Estado do SPL, a menos que você tenha outra implementação personalizada
     - `anchorRemainingAccounts` - é aqui que você adiciona o caminho da prova
 - `args` - argumentos adicionais exigidos pela instrução; eles são:
     - `root` - o nó raiz da árvore de Merkle da prova de ativos; isso é fornecido pelo indexador como uma string e deve ser convertido em bytes primeiro
     - `dataHash` - o hash dos dados do ativo recuperado do indexador; é fornecido pelo indexador como uma string e deve ser convertido em bytes primeiro
     - `creatorHash` - o hash do criador do cNFT recuperado do indexador; é fornecido pelo indexador como uma string e deve ser convertido em bytes primeiro
     - `nonce` - usado para garantir que não haja duas folhas com o mesmo hash; esse valor deve ser o mesmo que `index`
-- `index` - o índice em que a folha do cNFT está localizada na árvore de Merkle
+    - `index` - o índice em que a folha do cNFT está localizada na árvore de Merkle
 
 Um exemplo disso é mostrado abaixo. Observe que as três primeiras linhas de código capturam informações adicionais aninhadas nos objetos mostrados anteriormente para que estejam prontas para serem usadas ao montar a instrução propriamente dita.
 
@@ -547,13 +547,13 @@ Cobrimos as principais habilidades necessárias para interagir com cNFTs, mas n�
 
 Lembre-se de que a compactação é relativamente nova. As ferramentas disponíveis evoluirão rapidamente, mas os princípios que você aprendeu nesta lição provavelmente continuarão os mesmos. Esses princípios também podem ser ampliados para a compactação de estados arbitrários, portanto, certifique-se de dominá-los aqui para estar pronto para mais coisas divertidas em lições futuras!
 
-# Demo
+# Demonstração
 
 Vamos começar a praticar a criação e o trabalho com cNFTs. Juntos, criaremos um script tão simples quanto possível que nos permitirá cunhar uma coleção de cNFTs de uma árvore de Merkle.
 
 ### 1. Obtenha o código inicial
 
-Para começar, clone o código inicial da ramificação `starter` de nosso [repositório Demo cNFT](https://github.com/Unboxed-Software/solana-cnft-demo).
+Para começar, clone o código inicial da branch `starter` de nosso [repositório Demo cNFT](https://github.com/Unboxed-Software/solana-cnft-demo).
 
 `git clone [https://github.com/Unboxed-Software/solana-cnft-demo.git](https://github.com/Unboxed-Software/solana-cnft-demo.git)`
 
@@ -565,12 +565,12 @@ Dedique algum tempo para se familiarizar com o código inicial fornecido. O mais
 
 O arquivo `uri.ts` fornece 10 mil URIs que você pode usar para a parte dos metadados do NFT fora da cadeia. Você pode, é claro, criar seus próprios metadados. Mas esta lição não trata explicitamente da preparação de metadados, por isso fornecemos alguns para você.
 
-O arquivo `utils.ts` tem algumas funções auxiliares para evitar que você escreva mais boilerplate desnecessário do que o necessário. Elas são as seguintes:
+O arquivo `utils.ts` tem algumas funções auxiliares para evitar que você escreva mais boilerplate desnecessário do que você precisa. Elas são as seguintes:
 
-- `getOrCreateKeypair` criará um novo par de chaves para você e o salvará em um arquivo `.env` ou, se já houver uma chave privada no arquivo `.env`, ele inicializará um par de chaves a partir dela.
+- O `getOrCreateKeypair` criará um novo par de chaves para você e o salvará em um arquivo `.env` ou, se já houver uma chave privada no arquivo `.env`, ele inicializará um par de chaves a partir dela.
 - O `airdropSolIfNeeded` lançará um SOL da Devnet em um endereço especificado se o saldo desse endereço for inferior a 1 SOL.
-- `createNftMetadata` criará os metadados do NFT para uma determinada chave pública e índice de criador. Os metadados que ele está obtendo são apenas metadados fictícios usando o URI correspondente ao índice fornecido da lista de URIs `uri.ts`.
-- O `getOrCreateCollectionNFT` buscará a coleção de NFT do endereço especificado em `.env` ou, se não houver nenhum, criará um novo e adicionará o endereço a `.env`.
+- O `createNftMetadata` criará os metadados do NFT para uma determinada chave pública e índice de criador. Os metadados que ele está obtendo são apenas metadados fictícios usando o URI correspondente ao índice fornecido da lista de URIs `uri.ts`.
+- O `getOrCreateCollectionNFT` buscará a coleção de NFTs do endereço especificado em `.env` ou, se não houver nenhuma, criará uma nova e adicionará o endereço a `.env`.
 
 Por fim, há alguns procedimentos em `index.ts` que criam uma nova conexão Devnet, chamam `getOrCreateKeypair` para inicializar uma "carteira" e chamam `airdropSolIfNeeded` para depositar fundos na carteira se o saldo estiver baixo.
 
@@ -618,8 +618,8 @@ Essa instrução precisa que forneçamos o seguinte:
     - `merkleTree` - o endereço da árvore de Merkle
     - `payer` - o pagador da taxa de transação
     - `treeCreator` - o endereço do criador da árvore; faremos com que seja o mesmo que `payer`
-    - `logWrapper` - faça com que seja o `SPL_NOOP_PROGRAM_ID`
-    - `compressionProgram` - faça com que seja o `SPL_ACCOUNT_COMPRESSION_PROGRAM_ID`
+    - `logWrapper` - faz com que seja o `SPL_NOOP_PROGRAM_ID`
+    - `compressionProgram` - faz com que seja o `SPL_ACCOUNT_COMPRESSION_PROGRAM_ID`
 - `args` - uma lista de argumentos de instrução; isso inclui:
     - `maxBufferSize` - o tamanho do buffer do parâmetro `maxDepthSizePair` da nossa função
     - `maxDepth` - a profundidade máxima do parâmetro `maxDepthSizePair` da nossa função
@@ -735,14 +735,14 @@ O corpo dessa função fará o seguinte:
 
 1. Deriva a autoridade da árvore como antes. Novamente, esse é um PDA derivado do endereço da árvore de Merkle e do programa Bubblegum.
 2. Deriva o `bubblegumSigner`. Esse é um PDA derivado da string `"collection_cpi"` e do programa Bubblegum e é essencial para a cunhagem de uma coleção.
-3. Crie os metadados do cNFT chamando `createNftMetadata` em nosso arquivo `utils.ts`.
-4. Crie a instrução mint chamando `createMintToCollectionV1Instruction` do SDK do Bubblegum.
-5. Crie e envie uma transação com a instrução mint
-6. Repita as etapas de 3 a 6 o número de vezes `amount`.
+3. Cria os metadados do cNFT chamando `createNftMetadata` em nosso arquivo `utils.ts`.
+4. Cria a instrução mint chamando `createMintToCollectionV1Instruction` do SDK do Bubblegum.
+5. Cria e envia uma transação com a instrução mint
+6. Repete as etapas de 3 a 6 o número de vezes `amount`.
 
-TA instrução `createMintToCollectionV1Instruction` recebe dois argumentos: `accounts` e `args`. O último é simplesmente os metadados do NFT. Como em todas as instruções complexas, o principal obstáculo é saber quais contas devem ser fornecidas. Portanto, vamos examiná-las rapidamente:
+A instrução `createMintToCollectionV1Instruction` recebe dois argumentos: `accounts` e `args`. O último é simplesmente os metadados do NFT. Como em todas as instruções complexas, o principal obstáculo é saber quais contas devem ser fornecidas. Portanto, vamos examiná-las rapidamente:
 
-- `payer` - a conta que pagará as taxas de transação, aluguel, etc.
+- `payer` - a conta que pagará as taxas de transação, aluguel etc.
 - `merkleTree` - a conta da árvore de Merkle
 - `treeAuthority` - a autoridade da árvore; deve ser o mesmo PDA que você derivou anteriormente
 - `treeDelegate` - o delegatário da árvore; geralmente é o mesmo que o criador da árvore
@@ -753,9 +753,9 @@ TA instrução `createMintToCollectionV1Instruction` recebe dois argumentos: `ac
 - `collectionMint` - a conta da cunhagem para a coleção de NFT
 - `collectionMetadata` - a conta de metadados da coleção de NFT
 - `editionAccount` - a conta da edição principal da coleção de NFT
-- `compressionProgram` - o programa de compactação a ser usado; esse deve ser o endereço do programa SPL State Compression, a menos que você tenha outra implementação personalizada
-- `logWrapper` - o programa a ser usado para expor os dados aos indexadores por meio de registros; esse deve ser o endereço do programa Noop da SPL, a menos que você tenha alguma outra implementação personalizada
-- `bubblegumSigner` - um PDA usado pelo programa Bubblegrum para lidar com a verificação da coleção
+- `compressionProgram` - o programa de compactação a ser usado; esse deve ser o endereço do programa Compactação de Estado do SPL, a menos que você tenha outra implementação personalizada
+- `logWrapper` - o programa a ser usado para expor os dados aos indexadores por meio de logs; esse deve ser o endereço do programa Noop do SPL, a menos que você tenha alguma outra implementação personalizada
+- `bubblegumSigner` - um PDA usado pelo programa Bubblegum para lidar com a verificação da coleção
 - `tokenMetadataProgram` - o programa de metadados de token que foi usado para a coleção de NFT; geralmente é sempre o programa Metaplex Token Metadata
 
 Quando você juntar tudo isso, terá o seguinte:
@@ -768,7 +768,7 @@ async function mintCompressedNftToCollection(
   collectionDetails: CollectionDetails,
   amount: number
 ) {
-  // Derive the tree authority PDA ('TreeConfig' account for the tree account)
+  // Deriva o PDA de autoridade da árvore (conta 'TreeConfig' para a conta da árvore)
   const [treeAuthority] = PublicKey.findProgramAddressSync(
     [treeAddress.toBuffer()],
     BUBBLEGUM_PROGRAM_ID
@@ -873,7 +873,7 @@ async function main() {
 
 Novamente, para executar, digite em seu terminal: `npm run start`
 
-### 5. Leia dados de NFT existente
+### 5. Leia dados de cNFT existente
 
 Agora que escrevemos o código para cunhar cNFTs, vamos ver se podemos de fato obter seus dados. Isso é complicado porque os dados na cadeia são apenas a conta da árvore de Merkle, cujos dados podem ser usados para verificar se as informações existentes são precisas, mas são inúteis para transmitir o que são as informações.
 
@@ -1271,7 +1271,7 @@ Vá em frente e execute seu script. Tudo deve ser executado sem falhas, e tudo i
 
 Parabéns! Agora você sabe como cunhar, ler e transferir cNFTs. Se quiser, você pode atualizar a profundidade máxima, o tamanho máximo do buffer e a profundidade do canopy para valores maiores e, desde que tenha SOL suficiente da Devnet, esse script permitirá que você cunhe até 10 mil cNFTs por uma pequena fração do que custaria para cunhar 10 mil NFTs tradicionais (Observação: se você planeja cunhar uma grande quantidade de NFTs, talvez queira tentar executar essas instruções em lote para obter um total menor de transações).
 
-Se precisar de mais tempo com essa demonstração, sinta-se à vontade para analisá-la novamente e/ou dar uma olhada no código da solução na rbranch `solution` do [repositório de demonstração](https://github.com/Unboxed-Software/solana-cnft-demo/tree/solution).
+Se precisar de mais tempo com essa demonstração, sinta-se à vontade para analisá-la novamente e/ou dar uma olhada no código da solução na branch `solution` do [repositório de demonstração](https://github.com/Unboxed-Software/solana-cnft-demo/tree/solution).
 
 ## Desafio
 

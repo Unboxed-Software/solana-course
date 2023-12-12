@@ -271,7 +271,7 @@ Agora, vá em frente e execute o comando `npm start`. Esse comando irá:
 3. Invocar o programa "Hello, world!
 4. Exibir o URL da transação para visualização no Solana Explorer.
 
-Copie o URL da transação impresso no console para o seu navegador. Role a tela para baixo para ver "Hello, world!" em Registros de Instruções do Programa.
+Copie o URL da transação impresso no console para o seu navegador. Role a tela para baixo para ver "Hello, world!" em Program Instruction Logs.
 
 ![Captura de tela do Log do Programa Explorer da Solana](../assets/hello-world-program-log.png)
 
