@@ -28,11 +28,17 @@ If you want to fix a typo or otherwise improve on existing content, follow a sim
 
 Use language consistent with [TERMINOLOGY](https://github.com/solana-foundation/developer-content/blob/main/docs/terminology.md). In particular:
 
-- Use 'secret key' rather than 'private key'.
+- Use 'secret key' rather than 'private key' to be consistent with web3.js. __Note__: this will change in a future version of web3.js. 
 - Use 'wallet app' for software. 'wallet' for the address that holds value.
 - Use 'SOL' rather than 'Sol' to refer to Solana's native token
 - PDAs are not public keys. It is not possible to have a public key without a secret key. A public key is derived from a secret key, and it is not possible to generate a public key without first generating a secret key.
-- Use the specific term 'associated token account' if that's what you're referring to, same for 'token mint account'. A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than say swapping between 'associated token account' and 'token account' makes this clearer.
+
+- Be careful about the term 'token account'. 
+  - Use the specific term 'associated token account' rather than just 'token account' if you're referring to an account at an associated token address. 
+  - Use 'token mint account' to refer to the address a token is minted at. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
+ 
+A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than say swapping between 'associated token account' and 'token account' makes this clearer. 
+
 - Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
 
 Code examples should be formatted as follows:
@@ -87,7 +93,7 @@ Static assets are in `assets`. This is set in `svelte.config.js` to match the ol
 
 To include an image:
 
-```
+```markdown
 ![Some alt text](../assets/somefile.svg)
 ```
 
