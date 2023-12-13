@@ -282,7 +282,7 @@ The `@solana/pay` library simplifies this with the provided `createQR` helper fu
 const qr = createQR(url, 400, 'transparent')
 ```
 
-# Demo
+# Lab
 
 Now that you've got a conceptual grasp on Solana Pay, let's put it into practice. We'll use Solana Pay to generate a series of QR codes for a scavenger hunt. Participants must visit each scavenger hunt location in order. At each location, they'll use the provided QR code to submit the appropriate transaction to the scavenger hunt's smart contract that keeps track of user progress.
 
@@ -292,13 +292,13 @@ To get started, download the starter code on the `starter` branch of this [r
 
 ![Screenshot of scavenger hunt app](../assets/scavenger-hunt-screenshot.png)
 
-To do this, we'll be creating a new endpoint for a transaction request that builds a transaction for invoking an Anchor program on Devnet. This program has been made specifically for this "scavenger hunt" app and has two instructions: `initialize` and `check_in`. The `initialize` instruction is used to set up the user's state, while the `check_in` instruction is used to record a check-in at a location in the scavenger hunt. We won't be making any changes to the program in this demo, but feel free to check out the [source code](https://github.com/Unboxed-Software/anchor-scavenger-hunt) if you'd like to familiarize yourself with the program.
+To do this, we'll be creating a new endpoint for a transaction request that builds a transaction for invoking an Anchor program on Devnet. This program has been made specifically for this "scavenger hunt" app and has two instructions: `initialize` and `check_in`. The `initialize` instruction is used to set up the user's state, while the `check_in` instruction is used to record a check-in at a location in the scavenger hunt. We won't be making any changes to the program in this lab, but feel free to check out the [source code](https://github.com/Unboxed-Software/anchor-scavenger-hunt) if you'd like to familiarize yourself with the program.
 
 Before moving on, make sure you get familiar with the starter code for the Scavenger Hunt app. Looking at `pages/index.tsx`, `utils/createQrCode/simpleTransfer`, and `/utils/checkTransaction` will let you see how the transaction request for sending SOL is set up. We'll be following a similar pattern for the transaction request for checking in at a location.
 
 ### 2. Setup
 
-Before we move forward, let's make sure you can run the app locally. Start by renaming the `.env.example` file in the frontend directory to `.env`. This file contains a keypair that will be used in this demo to partially sign transactions.
+Before we move forward, let's make sure you can run the app locally. Start by renaming the `.env.example` file in the frontend directory to `.env`. This file contains a keypair that will be used in this lab to partially sign transactions.
 
 Next, install dependencies with `yarn`, then use `yarn dev` and open your browser `localhost:3000` (or the port indicated in the console if 3000 was already in use).
 
@@ -325,7 +325,7 @@ Forwarding                    https://7761-24-28-107-82.ngrok.io -> http://local
 
 Now, open the HTTPS ngrok URL shown in your console in the browser (e.g. https://7761-24-28-107-82.ngrok.io). This will allow you to scan QR codes from your mobile device while testing locally.
 
-At the time of writing, this demo works best with Solflare. Some wallets will display an incorrect warning message when scanning a Solana Pay QR code. Regardless of the wallet you use, make sure you switch to devnet in the wallet. Then scan the QR code on the home page labeled “SOL Transfer”. This QR code is a reference implementation for a transaction request that performs a simple SOL transfer. It also calls the `requestAirdrop` function to fund your mobile wallet with Devnet SOL since most people don't have Devnet SOL available for testing.
+At the time of writing, this lab works best with Solflare. Some wallets will display an incorrect warning message when scanning a Solana Pay QR code. Regardless of the wallet you use, make sure you switch to devnet in the wallet. Then scan the QR code on the home page labeled “SOL Transfer”. This QR code is a reference implementation for a transaction request that performs a simple SOL transfer. It also calls the `requestAirdrop` function to fund your mobile wallet with Devnet SOL since most people don't have Devnet SOL available for testing.
 
 If you were able to successfully execute the transaction using the QR code, you're good to move on!
 
@@ -632,7 +632,7 @@ At this point your app should be working! Go ahead and test it using your mobile
 
 After scanning the QR code, you should see a message indicating that you are at location 1. From there, scan the QR code on the `Location 2` page. You may need to wait a few seconds for the previous transaction to finalize before continuing.
 
-Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay! Depending on your background, this may not feel intuitive or straightforward. If that's the case, feel free to go through the demo again or make something on your own. Solana Pay opens a lot of doors for bridging the gap between real life and on-chain interaction.
+Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay! Depending on your background, this may not feel intuitive or straightforward. If that's the case, feel free to go through the lab again or make something on your own. Solana Pay opens a lot of doors for bridging the gap between real life and on-chain interaction.
 
 If you want to take a look at the final solution code you can find it on the solution branch of [the same repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/solution).
 
@@ -640,6 +640,6 @@ If you want to take a look at the final solution code you can find it on the sol
 
 It's time to try this out on your own. Feel free to build out an idea of your own using Solana Pay. Or, if you need some inspiration, you can use the prompt below.
 
-Build out an app using Solana Pay (or modify the one from the demo) to mint an NFT to users. To take it up a notch, only make the transaction possible if the user meets one or more conditions (e.g. holds an NFT from a specific collection, is already on a pre-determined list, etc.).
+Build out an app using Solana Pay (or modify the one from the lab) to mint an NFT to users. To take it up a notch, only make the transaction possible if the user meets one or more conditions (e.g. holds an NFT from a specific collection, is already on a pre-determined list, etc.).
 
 Get creative with this! The Solana pay spec opens up a lot of doors for unique use cases.

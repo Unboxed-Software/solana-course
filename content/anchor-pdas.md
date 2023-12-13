@@ -264,7 +264,7 @@ pub struct Close<'info> {
 }
 ```
 
-# Demo
+# Lab
 
 Let’s practice the concepts we’ve gone over in this lesson by creating a Movie Review program using the Anchor framework.
 

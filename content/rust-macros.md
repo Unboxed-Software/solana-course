@@ -488,7 +488,7 @@ pub fn program(
 
 Overall, the use of proc macros in Anchor greatly reduces the amount of repetitive code that Solana developers have to write. By reducing the amount of boilerplate code, developers can focus on their program's core functionality and avoid mistakes caused by manual repetition. This ultimately results in a faster and more efficient development process.
 
-# Demo
+# Lab
 
 Let's practice this by creating a new derive macro! Our new macro will let us automatically generate instruction logic for updating each field on an account in an Anchor program.
 
@@ -520,7 +520,7 @@ The `programs/admin/src/lib.rs` file contains the program entrypoint with the de
 
 The `programs/admin/src/admin_config` directory contains the program's instruction logic and state. Take a look through each of these files. You'll notice that instruction logic for each field is duplicated for each instruction.
 
-The goal of this demo is to implement a procedural macro that will allow us to replace all of the instruction logic functions and automatically generate functions for each instruction.
+The goal of this lab is to implement a procedural macro that will allow us to replace all of the instruction logic functions and automatically generate functions for each instruction.
 
 ### 2. Set up the custom macro declaration
 

@@ -183,7 +183,11 @@ async function buildCreateTokenAccountTransaction(
 
 ### Associated Token Account
 
-An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
+An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. 
+
+Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
+- If not for associated token account, a user may own many token accounts belonging to the same mint leading to confusion as to where to send tokens to.
+- Associated token account allows a user to send tokens to another user if the recipient doesn't yet have the token account for that token mint.  
 
 ![ATAs are PDAs](../assets/atas-are-pdas.svg)
 
@@ -487,7 +491,7 @@ async function buildRevokeTransaction(
 }
 ```
 
-# Demo
+# Lab
 
 We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, approve a delegate, transfer tokens, and burn tokens.
 
@@ -1062,7 +1066,7 @@ If you need a bit more time with this project to feel comfortable, have a look a
 
 Now it’s your turn to build something independently. Create an application that allows a users to create a new mint, create a token account, and mint tokens.
 
-Note that you will not be able to directly use the helper functions we went over in the demo. In order to interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
+Note that you will not be able to directly use the helper functions we went over in the lab. In order to interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
 
 ![Screenshot of Token Program Challenge Frontend](../assets/token-program-frontend.png)
 
