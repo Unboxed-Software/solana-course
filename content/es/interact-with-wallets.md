@@ -75,23 +75,23 @@ Para que estos funcionen correctamente, cualquier uso de `useWallet` y `useConne
 import { NextPage } from "next";
 import { FC, ReactNode } from "react";
 import {
-    ConnectionProvider,
-    WalletProvider,
+  ConnectionProvider,
+  WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import * as web3 from "@solana/web3.js";
 
 export const Home: NextPage = (props) => {
-    const endpoint = web3.clusterApiUrl("devnet");
-    const wallet = new PhantomWalletAdapter();
+  const endpoint = web3.clusterApiUrl("devnet");
+  const wallet = new PhantomWalletAdapter();
 
-    return (
-        <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={[wallet]}>
-                <p>Put the rest of your app here</p>
-            </WalletProvider>
-        </ConnectionProvider>
-    );
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={[wallet]}>
+        <p>Put the rest of your app here</p>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
 };
 ```
 
