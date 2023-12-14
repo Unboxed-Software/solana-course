@@ -94,7 +94,6 @@ export const Home: NextPage = (props) => {
     </ConnectionProvider>
   );
 };
-
 ```
 
 Note that `ConnectionProvider` requires an `endpoint` property and that `WalletProvider` requires a `wallets` property. We’re continuing to use the endpoint for the Devnet cluster, and for now we’re only using the `PhantomWalletAdapter` for `wallets`.
@@ -338,35 +337,31 @@ Next let’s set up the Connect button. The current button is just a placeholder
 Before we add the “multi-button,” we need to wrap the app in the `WalletContextProvider`. Do this by importing it in `index.tsx` and adding it after the closing `</Head>` tag:
 
 ```tsx
-import { NextPage } from 'next'
-import styles from '../styles/Home.module.css'
-import WalletContextProvider from '../components/WalletContextProvider'
-import { AppBar } from '../components/AppBar'
-import Head from 'next/head'
-import { PingButton } from '../components/PingButton'
+import { NextPage } from "next";
+import styles from "../styles/Home.module.css";
+import WalletContextProvider from "../components/WalletContextProvider";
+import { AppBar } from "../components/AppBar";
+import Head from "next/head";
+import { PingButton } from "../components/PingButton";
 
 const Home: NextPage = (props) => {
-
-    return (
-        <div className={styles.App}>
-            <Head>
-                <title>Wallet-Adapter Example</title>
-                <meta
-                    name="description"
-                    content="Wallet-Adapter Example"
-                />
-            </Head>
-            <WalletContextProvider>
-                <AppBar />
-                <div className={styles.AppBody}>
-                    <PingButton/>
-                </div>
-            </WalletContextProvider >
+  return (
+    <div className={styles.App}>
+      <Head>
+        <title>Wallet-Adapter Example</title>
+        <meta name="description" content="Wallet-Adapter Example" />
+      </Head>
+      <WalletContextProvider>
+        <AppBar />
+        <div className={styles.AppBody}>
+          <PingButton />
         </div>
-    );
-}
+      </WalletContextProvider>
+    </div>
+  );
+};
 
-export default Home
+export default Home;
 ```
 
 If you run the app, everything should still look the same since the current button on the top right is still just a placeholder. To remedy this, open `AppBar.tsx` and replace `<button>Connect</button>` with `<WalletMultiButton/>`. You’ll need to import `WalletMultiButton` from `@solana/wallet-adapter-react-ui`.

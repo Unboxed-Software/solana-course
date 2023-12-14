@@ -13,7 +13,7 @@ objectives:
 - PDAs do not have a corresponding secret key. 
 - To store and locate data, derive a PDA using the `findProgramAddress(seeds, programid)` method. 
 - You can get the accounts belonging to a program using `getProgramAccounts(programId)`.
-- Account data needs to be deserialized using the same layout used to store it in the first place. You can use `@project-serum/borsh` to create a schema.
+- Account data needs to be deserialized using the same layout used to store it in the first place. You can use `@coral-xyz/borsh` to create a schema.
 
 # Overview
 
@@ -90,14 +90,14 @@ const accounts = connection.getProgramAccounts(programId).then(accounts => {
 
 ## Deserializing program data
 
-The `data` property on an `AccountInfo` object is a buffer. To use it efficiently, you’ll need to write code that deserializes it into something more usable. This is similar to the serialization process we covered last lesson. Just as before, we’ll use [Borsh](https://borsh.io/) and `@project-serum/borsh`. If you need a refresher on either of these, have a look at the previous lesson.
+The `data` property on an `AccountInfo` object is a buffer. To use it efficiently, you’ll need to write code that deserializes it into something more usable. This is similar to the serialization process we covered last lesson. Just as before, we’ll use [Borsh](https://borsh.io/) and `@coral-xyz/borsh`. If you need a refresher on either of these, have a look at the previous lesson.
 
 Deserializing requires knowledge of the account layout ahead of time. When creating your own programs, you will define how this is done as part of that process. Many programs also have documentation on how to deserialize the account data. Otherwise, if the program code is available you can look at the source and determine the structure that way.
 
 To properly deserialize data from an on-chain program, you will have to create a client-side schema mirroring how the data is stored in the account. For example, the following might be the schema for an account storing metadata about a player in an on-chain game.
 
 ```typescript
-import * as borsh from "@project-serum/borsh";
+import * as borsh from "@coral-xyz/borsh";
 
 borshAccountSchema = borsh.struct([
   borsh.bool("initialized"),
@@ -110,7 +110,7 @@ borshAccountSchema = borsh.struct([
 Once you have your layout defined, simply call `.decode(buffer)` on the schema.
 
 ```typescript
-import * as borsh from "@project-serum/borsh";
+import * as borsh from "@coral-xyz/borsh";
 
 borshAccountSchema = borsh.struct([
   borsh.bool("initialized"),
@@ -151,10 +151,10 @@ The program's executable data is in a program account, but individual reviews ar
 3. `title` as a string representing the title of the reviewed movie.
 4. `description` as a string representing the written portion of the review.
 
-Let’s configure a `borsh` layout in the `Movie` class to represent the movie account data layout. Start by importing `@project-serum/borsh`. Next, create a `borshAccountSchema` static property and set it to the appropriate `borsh` struct containing the properties listed above.
+Let’s configure a `borsh` layout in the `Movie` class to represent the movie account data layout. Start by importing `@coral-xyz/borsh`. Next, create a `borshAccountSchema` static property and set it to the appropriate `borsh` struct containing the properties listed above.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 export class Movie {
   title: string;
@@ -178,7 +178,7 @@ Remember, the order here *matters*. It needs to match how the account data is st
 Now that we have the buffer layout set up, let’s create a static method in `Movie` called `deserialize` that will take an optional `Buffer` and return a `Movie` object or `null`.
 
 ```typescript
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 export class Movie {
   title: string;
