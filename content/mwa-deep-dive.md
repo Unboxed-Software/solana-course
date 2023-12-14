@@ -63,7 +63,7 @@ On the web, you wrap the application with `WalletProvider`, and then children ac
 ```tsx
 // Parent
 <WalletProvider wallets={wallets}>
-    {children}
+  {children}
 </WalletProvider>
 
 // Child
@@ -101,7 +101,7 @@ transact(async (wallet: Web3MobileWallet) => {
 });
 ```
 
-It's worth noting that all methods except `authorize` and `deauthorize` are *privileged* methods. So you'll want to track if a wallet is authorized or not and call `wallet.reauthorize()` when it is. Below is a simple example that tracks the authorization state in memory:
+It's worth noting that all methods except `authorize` and `deauthorize` are *privileged* methods. So you'll want to track if a wallet is authorized or not and call `wallet.reauthorize()` when it is. Below is a simple example that tracks the authorization state:
 
 ```tsx
 const APP_IDENTITY = {name: 'Solana Counter Incrementor'}
@@ -139,9 +139,9 @@ Unlike connecting and authorizing wallets, requesting methods like `signAndSendT
 On the web, you can access these methods with the `useWallet` hook. You just have to make sure you're connected before calling them:
 
 ```tsx
-const {connected, signAllTransactions, signMessage, sendTransaction} = useWallet();
+const { connected, signAllTransactions, signMessage, sendTransaction } = useWallet();
 
-if(connected){
+if ( connected ) {
   signAllTransactions(...);
   signMessage(...);
   sendTransaction(...);
@@ -157,7 +157,7 @@ const [auth, setAuth] = useState<string | null>(null)
 transact(async (wallet: Web3MobileWallet) => {
   let authResult;
   
-  if(auth){
+  if ( auth ) {
     authResult = wallet.reauthorize({
           auth_token: auth,
           identity: APP_IDENTITY,
@@ -345,6 +345,7 @@ Finally, we'll implement two actual request functions, authorize and sign and se
 ### 2. Scaffold the app
 
 Let's scaffold the app with:
+
 ```bash
 npx react-native@latest init wallet --npm
 cd wallet
@@ -374,11 +375,12 @@ npm install \
 
 The next step is a bit messy. We need to depend on Solana's `mobile-wallet-adapter-walletlib` package, which handles all of the low-level communication. However, this package is still in development and is not available through npm. From their github:
 
->This package is still in alpha and is not production ready. However, the API is stable and will not change drastically, so you can begin integration with your wallet.
+> This package is still in alpha and is not production ready. However, the API is stable and will not change drastically, so you can begin integration with your wallet.
 
 However, we have extracted the package and made it available on GitHub. If you're interested in how we did that, take a look at the README [on the GitHub repo where we've made this package available](https://github.com/Unboxed-Software/mobile-wallet-adapter-walletlib)
 
 Let's install the package in a new folder `lib`:
+
 ```bash
 mkdir lib
 cd lib
@@ -631,7 +633,7 @@ Now let's take a brief detour and create some helper UI components that we'll ne
 First, `AppInfo.tsx` will show us relevant information coming from the dApp requesting a wallet connection. Go ahead and create the following as `components/AppInfo.tsx`:
 
 ```tsx
-import {Text, View} from 'react-native';
+import { Text, View } from 'react-native';
 
 interface AppInfoProps {
   title?: string;
@@ -662,7 +664,7 @@ export default AppInfo;
 Second, let's create a component that groups an "accept" and "reject" button as `components/ButtonGroup.tsx`:
 
 ```tsx
-import {Button, Dimensions, StyleSheet, View} from 'react-native';
+import { Button, Dimensions, StyleSheet, View } from 'react-native';
 
 const styles = StyleSheet.create({
   button: {flex: 1, marginHorizontal: 8},
@@ -786,11 +788,11 @@ function MWAApp(){
 
   return (
     <SafeAreaView>
-        <WalletProvider>
-            <View style={styles.container}>
-                <Text style={{fontSize: 50}}>I'm a wallet!</Text>
-            </View>
-        </WalletProvider>
+      <WalletProvider>
+        <View style={styles.container}>
+          <Text style={{fontSize: 50}}>I'm a wallet!</Text>
+        </View>
+      </WalletProvider>
     </SafeAreaView>
   );
 };
@@ -802,9 +804,9 @@ The last thing we need to do is to register our MWA app as an entry point in `in
 
 Change `index.js` to reflect the following:
 ```js
-import {AppRegistry} from 'react-native';
+import { AppRegistry } from 'react-native';
 import App from './App';
-import {name as appName} from './app.json';
+import { name as appName } from './app.json';
 import MWAApp from './MWAApp'
 
 // Mock event listener functions to prevent them from fataling.
@@ -845,7 +847,7 @@ To start, we'll add a few things in `MWAApp.tsx`:
 Change your `MWAApp.tsx` to reflect the following:
 
 ```tsx
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   BackHandler,
   SafeAreaView,
@@ -853,7 +855,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import {WalletProvider} from './components/WalletProvider';
+import { WalletProvider } from './components/WalletProvider';
 import {
   AuthorizeDappRequest,
   MWARequest,
@@ -988,7 +990,7 @@ Note that `renderRequest` is not rendering anything useful yet. We still need to
 
 ### 7. Implement the authorization popup
 
-Let's put together our first screen to handle new authorizations. Its only job is to show what app wants authorization and allow the user to accept or deny the request using the `resolve` function from the `walletlib`.
+Let's put together our first screen to handle new authorizations. This screen's only job is to show what app wants authorization and allow the user to accept or deny the request using the `resolve` function from the `walletlib`.
 
 We'll use our `AppInfo` and `ButtonGroup` to compose our entire UI here. All we have to do is plug in the right information and write the logic for accepting and rejecting the request.
 
@@ -998,14 +1000,14 @@ For authorization, the `resolve` function we'll use is the one using the `Author
 export type AuthorizeDappResponse = AuthorizeDappCompleteResponse | UserDeclinedResponse;
 
 export type AuthorizeDappCompleteResponse = Readonly<{
-    publicKey: Uint8Array;
-    accountLabel?: string;
-    walletUriBase?: string;
-    authorizationScope?: Uint8Array;
+  publicKey: Uint8Array;
+  accountLabel?: string;
+  walletUriBase?: string;
+  authorizationScope?: Uint8Array;
 }>;
 
 export type UserDeclinedResponse = Readonly<{
-    failReason: MWARequestFailReason.UserDeclined;
+  failReason: MWARequestFailReason.UserDeclined;
 }>;
 ```
 
@@ -1030,7 +1032,7 @@ function AuthorizeDappRequestScreen(props: AuthorizeDappRequestScreenProps){
   const { request } = props;
   const { wallet } = useWallet();
 
-  if(!wallet){
+  if ( ! wallet ) {
     throw new Error('No wallet found')
   }
 
@@ -1100,7 +1102,7 @@ More specifically, we'll have to adhere to what `SignAndSendTransactionsResponse
 ```ts
 export type SignAndSendTransactionsCompleteResponse = Readonly<{ signedTransactions: Uint8Array[] }>;
 export type SignAndSendTransactionsResponse =
-    | SignAndSendTransactionsCompleteResponse
+    SignAndSendTransactionsCompleteResponse
     | UserDeclinedResponse
     | TooManyPayloadsResponse
     | AuthorizationNotValidResponse
@@ -1112,8 +1114,8 @@ We are only going to cover the `SignAndSendTransactionsCompleteResponse`, `Inval
 Most notably, we'll have to adhere to `InvalidSignaturesResponse`:
 ```ts
 export type InvalidSignaturesResponse = Readonly<{
-    failReason: MWARequestFailReason.InvalidSignatures;
-    valid: boolean[];
+  failReason: MWARequestFailReason.InvalidSignatures;
+  valid: boolean[];
 }>;
 ```
 
@@ -1133,18 +1135,18 @@ import {
   TransactionSignature,
   VersionedTransaction,
 } from '@solana/web3.js';
-import {useState} from 'react';
+import { useState } from 'react';
 import {
   MWARequestFailReason,
   SignAndSendTransactionsRequest,
   resolve,
 } from '../lib/mobile-wallet-adapter-walletlib/src';
 
-import {useWallet} from '../components/WalletProvider';
-import {Text, View} from 'react-native';
+import { useWallet } from '../components/WalletProvider';
+import { Text, View } from 'react-native';
 import AppInfo from '../components/AppInfo';
 import ButtonGroup from '../components/ButtonGroup';
-import {decode} from 'bs58';
+import { decode } from 'bs58';
 
 export async function sendSignedTransactions(
   signedTransactions: Array<Uint8Array>,
