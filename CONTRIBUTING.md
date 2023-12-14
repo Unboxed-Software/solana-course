@@ -26,19 +26,22 @@ If you want to fix a typo or otherwise improve on existing content, follow a sim
 
 ### Guidelines
 
-Use language consistent with [TERMINOLOGY](https://github.com/solana-foundation/developer-content/blob/main/docs/terminology.md). In particular:
+The guidelines below are consistent with Solana Foundation Style, in order to ensure consistency with other content on solana.com. There's also a few additional items aimed at technical documents. 
 
+Use language consistent with [TERMINOLOGY](https://github.com/solana-foundation/developer-content/blob/main/docs/terminology.md). 
+
+In particular:
+
+- Use sentence case for headlines (”Solana Foundation announces new initiative” instead of “Solana Foundation Announces New Initiative”).
 - Use 'secret key' rather than 'private key' to be consistent with web3.js. __Note__: this will change in a future version of web3.js. 
 - Use 'wallet app' for software. 'wallet' for the address that holds value.
-- Use 'SOL' rather than 'Sol' to refer to Solana's native token
+- Use 'onchain' (not on-chain, definitely not smart contract) when referring to onchain apps.
+- Use 'SOL' rather than 'Sol' to refer to Solana's native token. Definitely don't call it Solana!
 - PDAs are not public keys. It is not possible to have a public key without a secret key. A public key is derived from a secret key, and it is not possible to generate a public key without first generating a secret key.
-
-- Be careful about the term 'token account'. 
-  - Use the specific term 'associated token account' rather than just 'token account' if you're referring to an account at an associated token address. 
+- Use the terms 'blockchain' or 'web3' rather than 'crypto'.
+- Be careful about the term 'token account'. A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than, for example, swapping between 'associated token account' and 'token account' makes this clearer. 
+  - Use the specific term 'associated token account' rather than just 'token account' if you're referring to an account at an associated token address.  
   - Use 'token mint account' to refer to the address a token is minted at. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
- 
-A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than say swapping between 'associated token account' and 'token account' makes this clearer. 
-
 - Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
 
 Code examples should be formatted as follows:
@@ -47,8 +50,9 @@ Code examples should be formatted as follows:
 - Rust: four spaces per rustfmt
 
 Diagrams:
+
 - If you draw Solana elliptic curves, these are [Edwards curves](https://en.wikipedia.org/wiki/Edwards_curve)
-- We like [Whimsical](https://whimsical.com/) for diagrams
+- Use [Whimsical](https://whimsical.com/) for diagrams
 - Use SVG where possible (they'll look better on different screens). You can get an SVG export from Whimsical by appending `/svg` to the end of a Whimsical URL.
  
 Note that while `prettier` can format Markdown, [prettier doesn't support language-specific settings inside Markdown files](https://github.com/prettier/prettier/issues/5378) so you'll need to format the code yourself for now.
