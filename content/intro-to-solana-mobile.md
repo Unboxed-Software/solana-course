@@ -18,7 +18,7 @@ objectives:
 
 Solana Mobile Stack (SMS) is designed to help developers create mobile dApps with a seamless UX. It consists of the [Mobile Wallet Adapter (MWA)](https://docs.solanamobile.com/getting-started/overview#mobile-wallet-adapter), [Seed Vault](https://docs.solanamobile.com/getting-started/overview#seed-vault), and the [Solana dApp Store](https://docs.solanamobile.com/getting-started/overview#solana-dapp-store).
 
-Most relevant to your development journey is the Mobile Wallet Adapter (MWA). The simplest way to get started is to use the Mobile Wallet Adapter with React Native to create a simple Android app. This lesson assumes you're familiar with React and Solana programming. If that's not the case, [start our course from the beginning](./intro-to-cryptography.md) and come back here when you feel ready!
+Most relevant to your development journey is the Mobile Wallet Adapter (MWA). The simplest way to get started is to use the Mobile Wallet Adapter with React Native to create a simple Android app. This lesson assumes you're familiar with React and Solana programming. If that's not the case, [start our course from the beginning](./intro-to-cryptography) and come back here when you feel ready!
 
 ## Intro To Solana Mobile
 
@@ -48,7 +48,7 @@ Solana wallet interaction differs slightly on mobile compared to the web. The co
 
 The differences between the two standards are due to the different construction of web vs mobile wallets. Web wallets are just browser extensions that inject wallet adapter functions into the `window` object of your webpage. This gives your site access to them. Mobile wallets, however, are native applications on a mobile operating system. There's no way to surface functions from one native application to another. The Mobile Wallet Adapter exists to enable any app, written in any language, to connect to a native wallet app.
 
-We'll dig into the specifics of the Mobile Wallet Adapter in a [later lesson](./mwa-deep-dive.md), but it effectively opens a WebSocket between applications to facilitate communication. That way a separate app can provide the wallet app with the transaction to be signed and sent, and the wallet app can respond with appropriate status updates.
+We'll dig into the specifics of the Mobile Wallet Adapter in a [later lesson](./mwa-deep-dive), but it effectively opens a WebSocket between applications to facilitate communication. That way a separate app can provide the wallet app with the transaction to be signed and sent, and the wallet app can respond with appropriate status updates.
 
 ### Supported Operating Systems
 
@@ -108,7 +108,7 @@ Reading data from a Solana cluster in React Native is the exact same as in React
 const account = await connection.getAccountInfo(account);
 ```
 
-If you need a refresher on this, check out our [lesson on reading data from the blockchain](./intro-to-reading-data.md).
+If you need a refresher on this, check out our [lesson on reading data from the blockchain](./intro-to-reading-data).
 
 ### Connecting to a wallet
 

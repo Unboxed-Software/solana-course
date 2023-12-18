@@ -16,7 +16,7 @@ objectives:
 
 # Descripción general
 
-Si piensa en el[primera lección de IPC](cpi.md), recordará que construir IPC puede ser complicado con vainilla Rust. Sin embargo, Anchor lo hace un poco más simple, especialmente si el programa que está invocando también es un programa de Anchor a cuya caja puede acceder.
+Si piensa en el[primera lección de IPC](cpi), recordará que construir IPC puede ser complicado con vainilla Rust. Sin embargo, Anchor lo hace un poco más simple, especialmente si el programa que está invocando también es un programa de Anchor a cuya caja puede acceder.
 
 En esta lección, aprenderá cómo construir un CPI ancla. También aprenderá cómo lanzar errores personalizados de un programa de Anchor para que pueda comenzar a escribir programas de Anchor más sofisticados.
 
@@ -282,7 +282,7 @@ Para empezar, utilizaremos el estado final del programa Anchor Movie Review de l
 
 ### 2. Añadir dependencias a  `Cargo.toml`
 
-Antes de comenzar, necesitamos habilitar la `init-if-needed` función y agregar la `anchor-spl` caja a las dependencias `Cargo.toml`. Si necesita repasar la `init-if-needed` función, eche un vistazo a la[Lección de PDA y cuentas de anclaje](anchor-pdas.md).
+Antes de comenzar, necesitamos habilitar la `init-if-needed` función y agregar la `anchor-spl` caja a las dependencias `Cargo.toml`. Si necesita repasar la `init-if-needed` función, eche un vistazo a la[Lección de PDA y cuentas de anclaje](anchor-pdas).
 
 ```rust
 [dependencies]

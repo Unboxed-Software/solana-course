@@ -298,7 +298,7 @@ Para programas simples donde solo hay una o dos instrucciones para ejecutar, pue
 
 ## Estructura de archivos del programa
 
-El [Lección de Hello World](hello-world-program.md) programa era lo suficientemente simple como para que pudiera limitarse a un archivo. Pero a medida que crece la complejidad de un programa, es importante mantener una estructura de proyecto que siga siendo legible y extensible. Esto implica encapsular el código en funciones y estructuras de datos como lo hemos hecho hasta ahora. Pero también implica agrupar el código relacionado en archivos separados.
+El [Lección de Hello World](hello-world-program) programa era lo suficientemente simple como para que pudiera limitarse a un archivo. Pero a medida que crece la complejidad de un programa, es importante mantener una estructura de proyecto que siga siendo legible y extensible. Esto implica encapsular el código en funciones y estructuras de datos como lo hemos hecho hasta ahora. Pero también implica agrupar el código relacionado en archivos separados.
 
 Por ejemplo, una buena parte del código que hemos trabajado hasta ahora tiene que ver con la definición y deserialización de instrucciones. Ese código debe vivir en su propio archivo en lugar de estar escrito en el mismo archivo que el punto de entrada. Al hacerlo, tendríamos 2 archivos, uno con el punto de entrada del programa y el otro con el código de instrucción:
 
@@ -467,7 +467,7 @@ Y así, su programa debe ser lo suficientemente funcional como para registrar lo
 
 Cree e implemente su programa desde el Programa Solana al igual que en la última lección. Si no ha cambiado el ID del programa desde la última lección, se implementará automáticamente en el mismo ID. Si desea que tenga una dirección separada, puede generar un nuevo ID de programa desde el patio de recreo antes de implementarlo.
 
-Puede probar su programa enviando una transacción con los datos de instrucción correctos. Para eso, siéntase libre de usar [este script](https://github.com/Unboxed-Software/solana-movie-client) o [el frontend](https://github.com/Unboxed-Software/solana-movie-frontend) construimos en el[Serializar la lección de datos de instrucciones personalizadas](serialize-instruction-data.md). En ambos casos, asegúrese de copiar y pegar el ID de programa para su programa en el área apropiada del código fuente para asegurarse de que está probando el programa correcto.
+Puede probar su programa enviando una transacción con los datos de instrucción correctos. Para eso, siéntase libre de usar [este script](https://github.com/Unboxed-Software/solana-movie-client) o [el frontend](https://github.com/Unboxed-Software/solana-movie-frontend) construimos en el[Serializar la lección de datos de instrucciones personalizadas](serialize-instruction-data). En ambos casos, asegúrese de copiar y pegar el ID de programa para su programa en el área apropiada del código fuente para asegurarse de que está probando el programa correcto.
 
 Si necesitas pasar más tiempo con esta demostración antes de seguir adelante, ¡hazlo! También puedes echar un vistazo al programa [código de solución](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) si te quedas atascado.
 
@@ -477,6 +477,6 @@ Para el desafío de esta lección, intente replicar el programa Student Intro de
 
 Usando lo que ha aprendido en esta lección, cree el programa Student Intro hasta el punto en que pueda imprimir el `name` y `message` proporcionado por el usuario a los registros del programa cuando se invoca el programa.
 
-Puede probar su programa construyendo el [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) que creamos en el [Serializar la lección de datos de instrucciones personalizadas](serialize-instruction-data.md) y luego verificando los registros del programa en Solana Explorer. Recuerde reemplazar el ID del programa en el código del frontend con el que ha implementado.
+Puede probar su programa construyendo el [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) que creamos en el [Serializar la lección de datos de instrucciones personalizadas](serialize-instruction-data) y luego verificando los registros del programa en Solana Explorer. Recuerde reemplazar el ID del programa en el código del frontend con el que ha implementado.
 
 ¡Intenta hacerlo de forma independiente si puedes! Pero si te quedas atascado, siéntete libre de hacer referencia a la[código de solución](https://beta.solpg.io/62b0ce53f6273245aca4f5b0).

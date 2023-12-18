@@ -125,7 +125,7 @@ Un punto a enfatizar es que la `find_program_address` función solo devuelve una
 
 Dado que los propios programas son apátridas, el estado del programa se gestiona a través de cuentas externas. Dado que puede usar semillas para mapear y que los programas pueden firmar en su nombre, usar cuentas PDA para almacenar datos relacionados con el programa es una opción de diseño extremadamente común. Si bien los programas pueden invocar el programa del sistema para crear cuentas que no sean de PDA y usarlas para almacenar datos, los PDA tienden a ser el camino a seguir.
 
-Si necesita un repaso sobre cómo almacenar datos en PDA, eche un vistazo a la[Crear un Programa Básico, Parte 2 - Lección de Gestión Estatal](./program-state-management.md).
+Si necesita un repaso sobre cómo almacenar datos en PDA, eche un vistazo a la[Crear un Programa Básico, Parte 2 - Lección de Gestión Estatal](./program-state-management).
 
 ## Asignar a datos almacenados en cuentas PDA
 

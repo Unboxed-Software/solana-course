@@ -298,7 +298,7 @@ For simple programs where there are only one or two instructions to execute, it 
 
 ## Program file structure
 
-The [Hello World lesson’s](hello-world-program.md) program was simple enough that it could be confined to one file. But as the complexity of a program grows, it's important to maintain a project structure that remains readable and extensible. This involves encapsulating code into functions and data structures as we've done so far. But it also involves grouping related code into separate files.
+The [Hello World lesson’s](hello-world-program) program was simple enough that it could be confined to one file. But as the complexity of a program grows, it's important to maintain a project structure that remains readable and extensible. This involves encapsulating code into functions and data structures as we've done so far. But it also involves grouping related code into separate files.
 
 For example, a good portion of the code we've worked through so far has to do with defining and deserializing instructions. That code should live in its own file rather than be written in the same file as the entry point. By doing so, we would then have 2 files, one with the program entry point and the other with the instruction code:
 
@@ -467,7 +467,7 @@ And just like that, your program should be functional enough to log the instruct
 
 Build and deploy your program from Solana Program just like in the last lesson. If you haven't changed the program ID since going through the last lesson, it will automatically deploy to the same ID. If you'd like it to have a separate address you can generate a new program ID from the playground before deploying.
 
-You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
+You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Serialize Custom Instruction Data lesson](serialize-instruction-data). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
 
 If you need to spend some more time with this lab before moving on, please do! You can also have a look at the program [solution code](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) if you get stuck.
 
@@ -477,6 +477,6 @@ For this lesson's challenge, try replicating the Student Intro program from Modu
 
 Using what you've learned in this lesson, build the Student Intro program to the point where you can print the `name` and `message` provided by the user to the program logs when the program is invoked.
 
-You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) we created in the [Serialize Custom Instruction Data lesson](serialize-instruction-data.md) and then checking the program logs on Solana Explorer. Remember to replace the program ID in the frontend code with the one you've deployed.
+You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) we created in the [Serialize Custom Instruction Data lesson](serialize-instruction-data) and then checking the program logs on Solana Explorer. Remember to replace the program ID in the frontend code with the one you've deployed.
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b0ce53f6273245aca4f5b0).

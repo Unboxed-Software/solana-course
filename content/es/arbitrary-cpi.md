@@ -95,7 +95,7 @@ Dependiendo del programa que esté invocando con su CPI, puede codificar la dire
 
 ## Utilizar un módulo Anchor CPI
 
-Una forma más sencilla de gestionar las comprobaciones del programa es utilizar los módulos Anchor CPI. Aprendimos en un programa [lección anterior](https://github.com/Unboxed-Software/solana-course/blob/main/content/anchor-cpi.md) que Anchor puede generar automáticamente módulos de CPI para simplificar los CPI en el programa. Estos módulos también mejoran la seguridad al verificar la clave pública del programa que se pasa a una de sus instrucciones públicas.
+Una forma más sencilla de gestionar las comprobaciones del programa es utilizar los módulos Anchor CPI. Aprendimos en un programa [lección anterior](https://github.com/Unboxed-Software/solana-course/blob/main/content/anchor-cpi) que Anchor puede generar automáticamente módulos de CPI para simplificar los CPI en el programa. Estos módulos también mejoran la seguridad al verificar la clave pública del programa que se pasa a una de sus instrucciones públicas.
 
 Cada programa Anchor utiliza la `declare_id()` macro para definir la dirección del programa. Cuando se genera un módulo CPI para un programa específico, utiliza la dirección pasada a esta macro como la "fuente de la verdad" y verificará automáticamente que todos los CPI realizados con su módulo CPI tengan como objetivo esta identificación de programa.
 

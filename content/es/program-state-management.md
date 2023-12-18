@@ -32,7 +32,7 @@ Así como los archivos en un sistema de archivos tradicional se ajustan a format
 
 ### Representar el estado como un tipo de óxido
 
-Al escribir un programa en Rust, normalmente creamos este "formato" definiendo un tipo de datos Rust. Si pasaste por el[primera parte de esta lección](basic-program-pt-1.md), esto es muy similar a lo que hicimos cuando creamos un enum para representar instrucciones discretas.
+Al escribir un programa en Rust, normalmente creamos este "formato" definiendo un tipo de datos Rust. Si pasaste por el[primera parte de esta lección](basic-program-pt-1), esto es muy similar a lo que hicimos cuando creamos un enum para representar instrucciones discretas.
 
 Si bien este tipo debe reflejar la estructura de sus datos, para la mayoría de los casos de uso es suficiente una estructura simple. Por ejemplo, un programa de toma de notas que almacena notas en cuentas separadas probablemente tendría datos para un título, cuerpo y tal vez una identificación de algún tipo. Podríamos crear una estructura para representar eso de la siguiente manera:
 
@@ -382,7 +382,7 @@ msg!("state account serialized");
 
 ![Programa Gif Build and Deploy](../../assets/movie-review-pt2-build-deploy.gif)
 
-Puede probar su programa enviando una transacción con los datos de instrucción correctos. Para eso, siéntase libre de usar [este script](https://github.com/Unboxed-Software/solana-movie-client) o [el frontend](https://github.com/Unboxed-Software/solana-movie-frontend) construimos en el[Deserializar la lección de datos de instrucción personalizada](deserialize-custom-data.md). En ambos casos, asegúrese de copiar y pegar el ID de programa para su programa en el área apropiada del código fuente para asegurarse de que está probando el programa correcto.
+Puede probar su programa enviando una transacción con los datos de instrucción correctos. Para eso, siéntase libre de usar [este script](https://github.com/Unboxed-Software/solana-movie-client) o [el frontend](https://github.com/Unboxed-Software/solana-movie-frontend) construimos en el[Deserializar la lección de datos de instrucción personalizada](deserialize-custom-data). En ambos casos, asegúrese de copiar y pegar el ID de programa para su programa en el área apropiada del código fuente para asegurarse de que está probando el programa correcto.
 
 Si usa el frontend, simplemente reemplace los `Form.tsx` componentes `MOVIE_REVIEW_PROGRAM_ID` in the `MovieList.tsx` y por la dirección del programa que ha implementado. A continuación, ejecute el frontend, envíe una vista y actualice el navegador para ver la revisión.
 
@@ -399,6 +399,6 @@ Usando lo que has aprendido en esta lección, desarrolla este programa. Además 
 1. Crear una cuenta separada para cada estudiante
 2. Almacenar `is_initialized` como un booleano, `name` como una cadena y `msg` como una cadena en cada cuenta
 
-Puede probar su programa construyendo el [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) que creamos en el[Lección de datos de cuenta personalizada de página, pedido y filtro](./paging-ordering-filtering-data.md). Recuerde reemplazar el ID del programa en el código del frontend con el que ha implementado.
+Puede probar su programa construyendo el [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) que creamos en el[Lección de datos de cuenta personalizada de página, pedido y filtro](./paging-ordering-filtering-data). Recuerde reemplazar el ID del programa en el código del frontend con el que ha implementado.
 
 ¡Intenta hacerlo de forma independiente si puedes! Pero si te quedas atascado, siéntete libre de hacer referencia a la[código de solución](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).

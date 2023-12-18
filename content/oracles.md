@@ -194,7 +194,7 @@ Notice that we use the `AccountLoader` type here instead of the normal `Account`
 - `load` when the account is not mutable
 - `load_mut` when the account is mutable
 
-If you’d like to learn more, check out the [Advance Program Architecture lesson](./program-architecture.md) where we touch on `Zero-Copy` and `AccountLoader`.
+If you’d like to learn more, check out the [Advance Program Architecture lesson](./program-architecture) where we touch on `Zero-Copy` and `AccountLoader`.
 
 With the aggregator account passed into your program, you can use it to get the latest oracle result. Specifically, you can use the type's `get_result()` method:
 

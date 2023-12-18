@@ -24,7 +24,7 @@ Program Architecture is what separates the hobbyist from the professional. Craft
 
 These questions are even more important when developing for a blockchain. Not only are resources more limited than in a typical computing environment, you're also dealing with people’s assets; code has a cost now.
 
-We'll leave most of the asset handling discussion to [security lessons](./security-intro.md), but it's important to note the nature of resource limitations in Solana development. There are, of course, limitations in a typical development environment, but there are limitations unique to blockchain and Solana development such as how much data can be stored in an account, the cost to store that data, and how many compute units are available per transaction. You, the program designer, have to be mindful of these limitations to create programs that are affordable, fast, safe, and functional. Today we will be delving into some of the more advance considerations that should be taken when creating Solana programs. 
+We'll leave most of the asset handling discussion to [security lessons](./security-intro), but it's important to note the nature of resource limitations in Solana development. There are, of course, limitations in a typical development environment, but there are limitations unique to blockchain and Solana development such as how much data can be stored in an account, the cost to store that data, and how many compute units are available per transaction. You, the program designer, have to be mindful of these limitations to create programs that are affordable, fast, safe, and functional. Today we will be delving into some of the more advance considerations that should be taken when creating Solana programs. 
 
 ## Dealing With Large Accounts
 

@@ -1046,7 +1046,7 @@ Tenga en cuenta que no podrá usar directamente las funciones de ayuda que revis
 
 1. Puede construir esto desde cero o puede descargar el código de inicio[here](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
 2. Cree un nuevo Token Mint en el `CreateMint` componente.
-   Si necesita un repaso sobre cómo enviar transacciones a una billetera para su aprobación, eche un vistazo a la[Lección de monederos](./interact-with-wallets.md).
+   Si necesita un repaso sobre cómo enviar transacciones a una billetera para su aprobación, eche un vistazo a la[Lección de monederos](./interact-with-wallets).
 
     Al crear una nueva menta, el recién generado también `Keypair` tendrá que firmar la transacción. Cuando se requieran firmantes adicionales además de la billetera conectada, use el siguiente formato:
 
