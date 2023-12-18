@@ -11,7 +11,7 @@
     "format": "npx prettier --write --plugin prettier-plugin-svelte ."
   },
   "devDependencies": {
-    "@digitak/esrun": "^3.2.25",
+    "esrun": "^3.2.25",
     "@sveltejs/adapter-auto": "^2.0.0",
     "@sveltejs/kit": "^1.20.4",
     "@types/node": "^20.8.2",

@@ -41,7 +41,7 @@ Addresses uniquely identify accounts. Addresses are often shown as base-58 encod
 We use an npm package called `@solana/web3.js` to do most of the work with Solana. We'll also install TypeScript and `esrun`, so we can run `.ts` files on the command line:
 
 ```bash
-npm install typescript @solana/web3.js @digitak/esrun 
+npm install typescript @solana/web3.js esrun 
 ```
 
 ### Connect to the Network

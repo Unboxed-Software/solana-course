@@ -114,7 +114,7 @@ Make a new directory, install TypeScript, Solana web3.js and esrun:
 mkdir generate-keypair
 cd generate-keypair
 npm init -y
-npm install typescript @solana/web3.js @digitak/esrun @solana-developers/node-helpers
+npm install typescript @solana/web3.js esrun @solana-developers/node-helpers
 ```
 
 Make a new file called `generate-keypair.ts`
