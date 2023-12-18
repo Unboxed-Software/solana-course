@@ -32,7 +32,7 @@ Just as files in a traditional filesystem conform to specific data formats like 
 
 ### Represent state as a Rust type
 
-When writing a program in Rust, we typically create this "format" by defining a Rust data type. If you went through the [first part of this lesson](basic-program-pt-1.md), this is very similar to what we did when we created an enum to represent discrete instructions.
+When writing a program in Rust, we typically create this "format" by defining a Rust data type. If you went through the [first part of this lesson](basic-program-pt-1), this is very similar to what we did when we created an enum to represent discrete instructions.
 
 While this type should reflect the structure of your data, for most use cases a simple struct is sufficient. For example, a note-taking program that stores notes in separate accounts would likely have data for a title, body, and maybe an ID of some kind. We could create a struct to represent that as follows:
 
@@ -382,7 +382,7 @@ We're ready to build and deploy our program!
 
 ![Gif Build and Deploy Program](../assets/movie-review-pt2-build-deploy.gif)
 
-You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
+You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Deserialize Custom Instruction Data lesson](deserialize-custom-data). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
 
 If you use the frontend, simply replace the `MOVIE_REVIEW_PROGRAM_ID` in both the `MovieList.tsx` and `Form.tsx` components with the address of the program you’ve deployed. Then run the frontend, submit a view, and refresh the browser to see the review.
 
@@ -399,7 +399,7 @@ Using what you've learned in this lesson, build out this program. In addition to
 1. Create a separate account for each student
 2. Store `is_initialized` as a boolean, `name` as a string, and `msg` as a string in each account
 
-You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) we created in the [Page, Order, and Filter Program Data lesson](./paging-ordering-filtering-data.md). Remember to replace the program ID in the frontend code with the one you've deployed. 
+You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) we created in the [Page, Order, and Filter Program Data lesson](./paging-ordering-filtering-data). Remember to replace the program ID in the frontend code with the one you've deployed. 
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
 

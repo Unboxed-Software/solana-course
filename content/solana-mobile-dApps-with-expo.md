@@ -273,7 +273,7 @@ Now that we have an Expo app up and running, we need to add our Solana dependenc
 
 ### 0. Install a Devnet-enabled Solana wallet
 
-You'll need a wallet that supports Devnet to test with. In [our Mobile Wallet Adapter lesson](./mwa-deep-dive.md) we created one of these. Let's install it from the solution branch in a different directory from our app:
+You'll need a wallet that supports Devnet to test with. In [our Mobile Wallet Adapter lesson](./mwa-deep-dive) we created one of these. Let's install it from the solution branch in a different directory from our app:
 
 ```bash
 cd ..
@@ -311,7 +311,7 @@ Next, let's add some Solana boilerplate that can springboard you into most Solan
 
 Create two new folders: `components` and `screens`.
 
-We are going to use some boilerplate code from the [first Mobile lesson](./basic-solana-mobile.md). We will be copying over `components/AuthProvider.tsx` and `components/ConnectionProvider.tsx`. These files provide us with a `Connection` object as well as some helper functions that authorize our dapp.
+We are going to use some boilerplate code from the [first Mobile lesson](./basic-solana-mobile). We will be copying over `components/AuthProvider.tsx` and `components/ConnectionProvider.tsx`. These files provide us with a `Connection` object as well as some helper functions that authorize our dapp.
 
 
 Create file `components/AuthProvider.tsx` and copy the contents [of our existing Auth Provider from Github](https://raw.githubusercontent.com/Unboxed-Software/solana-advance-mobile/main/components/AuthProvider.tsx) into the new file.

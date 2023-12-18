@@ -24,7 +24,7 @@ Además de usar restricciones para la validación de cuentas, algunas restriccio
 
 ## PDAs con Ancla
 
-Recuerde que [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda.md) se derivan utilizando una lista de semillas opcionales, una semilla de bump y un ID de programa. Anchor proporciona una forma conveniente de validar un PDA con las `bump` restricciones `seeds` and.
+Recuerde que [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda) se derivan utilizando una lista de semillas opcionales, una semilla de bump y un ID de programa. Anchor proporciona una forma conveniente de validar un PDA con las `bump` restricciones `seeds` and.
 
 ```rust
 #[derive(Accounts)]

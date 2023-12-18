@@ -94,10 +94,9 @@ If you already have a keypair you’d like to use, you can load a `Keypair` from
  - To use a Solana CLI file use `getKeypairFromFile()`
 
 ```typescript
-import * as dotenv from "dotenv";
+import "dotenv/config";
 import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
 
-dotenv.config();
 
 const keypair = getKeypairFromEnvironment("SECRET_KEY");
 ```
@@ -166,10 +165,8 @@ SECRET_KEY="[(a series of numbers)]"
 We can then load the keypair from the environment. Update `generate-keypair.ts`:
 
 ```typescript
-import * as dotenv from "dotenv";
+import "dotenv/config"
 import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
-
-dotenv.config();
 
 const keypair = getKeypairFromEnvironment("SECRET_KEY");
 

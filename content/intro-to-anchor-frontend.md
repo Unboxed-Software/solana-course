@@ -346,7 +346,7 @@ Let’s practice this together by building a frontend for the Counter program fr
 
 Download [the starter code for this project](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/starter). Once you have the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`.
 
-This project is a simple Next.js application. It includes the `WalletContextProvider` we created in the [Wallets lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets.md), the `idl.json` file for the Counter program, and the `Initialize` and `Increment` components we’ll be building throughout this lab. The `programId` of the program we’ll be invoking is also included in the starter code.
+This project is a simple Next.js application. It includes the `WalletContextProvider` we created in the [Wallets lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets), the `idl.json` file for the Counter program, and the `Initialize` and `Increment` components we’ll be building throughout this lab. The `programId` of the program we’ll be invoking is also included in the starter code.
 
 ### 2. `Initialize`
 

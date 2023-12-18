@@ -16,7 +16,7 @@ objectives:
 
 # Overview
 
-If you think back to the [first CPI lesson](cpi.md), you'll remember that constructing CPIs can get tricky with vanilla Rust. Anchor makes it a bit simpler though, especially if the program you're invoking is also an Anchor program whose crate you can access.
+If you think back to the [first CPI lesson](cpi), you'll remember that constructing CPIs can get tricky with vanilla Rust. Anchor makes it a bit simpler though, especially if the program you're invoking is also an Anchor program whose crate you can access.
 
 In this lesson, you'll learn how to construct an Anchor CPI. You'll also learn how to throw custom errors from an Anchor program so that you can start to write more sophisticated Anchor programs.
 
@@ -279,7 +279,7 @@ To get started, we will be using the final state of the Anchor Movie Review prog
 
 ### 2. Add dependencies to `Cargo.toml`
 
-Before we get started we need enable the `init-if-needed` feature and add the `anchor-spl` crate to the dependencies in `Cargo.toml`. If you need to brush up on the `init-if-needed` feature take a look at the [Anchor PDAs and Accounts lesson](anchor-pdas.md).
+Before we get started we need enable the `init-if-needed` feature and add the `anchor-spl` crate to the dependencies in `Cargo.toml`. If you need to brush up on the `init-if-needed` feature take a look at the [Anchor PDAs and Accounts lesson](anchor-pdas).
 
 ```rust
 [dependencies]

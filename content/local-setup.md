@@ -235,7 +235,7 @@ solana program deploy <PATH>
 
 # Lab
 
-Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program.md).
+Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program).
 
 We'll do this all locally, including deploying to a local test validator. Before we begin, make sure you've installed Rust and the Solana CLI. You can refer to the instructions in the overview to get set up if you haven't already.
 

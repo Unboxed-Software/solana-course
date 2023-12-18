@@ -303,7 +303,7 @@ Now let's do some hands-on practice by building a mobile wallet. The goal here i
 
 ### 0. Set up development environment if needed
 
-Before we start programming our wallet, we need to do some setup. You will need a React Native development environment and a Solana dApp to test on. If you have completed the [Basic Solana Mobile lesson](./basic-solana-mobile.md), both of these requirements should be met with the counter app installed on your Android device/emulator.
+Before we start programming our wallet, we need to do some setup. You will need a React Native development environment and a Solana dApp to test on. If you have completed the [Basic Solana Mobile lesson](./basic-solana-mobile), both of these requirements should be met with the counter app installed on your Android device/emulator.
 
 If you *haven't* completed the last lesson you will need to:
 

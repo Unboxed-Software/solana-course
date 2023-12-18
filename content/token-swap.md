@@ -114,11 +114,11 @@ const tokenAAccountInstruction = await token.createAssociatedTokenAccountInstruc
 transaction.add(tokenAAccountInstruction)
 ```
 
-If you need a refresher on creating token accounts, have a look at the [Token Program lesson](./token-program.md).
+If you need a refresher on creating token accounts, have a look at the [Token Program lesson](./token-program).
 
 ### Pool Token Mint
 
-The pool token mint is the mint of the LP-tokens that represent an LP’s ownership in the pool. You create this mint the way you learned in the [Token Program lesson](./token-program.md). For the swap pool to work, the mint authority must be the swap authority account.
+The pool token mint is the mint of the LP-tokens that represent an LP’s ownership in the pool. You create this mint the way you learned in the [Token Program lesson](./token-program). For the swap pool to work, the mint authority must be the swap authority account.
 
 ```tsx
 const poolTokenMint = await token.createMint(
@@ -458,7 +458,7 @@ For this lab, a token pool of two brand new tokens has been created and is live 
 
 Before we get started, go ahead and download the [starter code](https://github.com/Unboxed-Software/solana-token-swap-frontend/tree/starter).
 
-The project is a fairly simple Next.js application re-using a lot of what was previously built out for the lab in the [Token Program lesson](./token-program.md). As you can see from the image above, there are a few different text inputs and buttons - all of which will submit transactions to the blockchain on the user's behalf. Our focus in this lab will be creating the instructions that the last three buttons will submit.
+The project is a fairly simple Next.js application re-using a lot of what was previously built out for the lab in the [Token Program lesson](./token-program). As you can see from the image above, there are a few different text inputs and buttons - all of which will submit transactions to the blockchain on the user's behalf. Our focus in this lab will be creating the instructions that the last three buttons will submit.
 
 The airdrop buttons are already implemented and should work out of the box. They utilize an airdrop program that's deployed on Devnet at address [CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3](https://explorer.solana.com/address/CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3?cluster=devnet). You can mint as many tokens as you'd like to your wallet to interact with the pool.
 
@@ -852,4 +852,4 @@ Please take your time with this code and the concepts in this lesson. Swap pools
 
 Now that we've worked through the lab together, try and take it a step further with your own tokens!
 
-In the [Token Program lesson](./token-program.md) you created some tokens. Now make a swap pool for those tokens and modify the code from this lesson's lab to use your tokens and newly created swap pool. There is no solution code for this since it's specific to your tokens, so go slow and take it one step at a time. You've got this!
+In the [Token Program lesson](./token-program) you created some tokens. Now make a swap pool for those tokens and modify the code from this lesson's lab to use your tokens and newly created swap pool. There is no solution code for this since it's specific to your tokens, so go slow and take it one step at a time. You've got this!

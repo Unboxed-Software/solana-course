@@ -24,7 +24,7 @@ In addition to using constraints for account validation, some constraints can ha
 
 ## PDAs with Anchor
 
-Recall that [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda.md) are derived using a list of optional seeds, a bump seed, and a program ID. Anchor provides a convenient way to validate a PDA with the `seeds` and `bump` constraints.
+Recall that [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda) are derived using a list of optional seeds, a bump seed, and a program ID. Anchor provides a convenient way to validate a PDA with the `seeds` and `bump` constraints.
 
 ```rust
 #[derive(Accounts)]

@@ -112,25 +112,39 @@ We’re going to create a script to send SOL to other students.
 
 ### 1. Basic scaffolding
 
-We'll start by using the same packages and `.env` file we made earlier in [intro to cryptography](./intro-to-cryptography.md).
+We'll start by using the same packages and `.env` file we made earlier in [intro to cryptography](./intro-to-cryptography).
 
 Create a file called `transfer.ts`:
 
 ```typescript
-import * as web3 from "@solana/web3.js";
-import * as dotenv from "dotenv";
-import base58 from "bs58";
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers"
-const toPubkey = new PublicKey(suppliedToPubkey);
+import {
+  Connection,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  PublicKey,
+} from "@solana/web3.js";
+import "dotenv/config"
+import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
 
-dotenv.config();
+const suppliedToPubkey = process.argv[2] || null;
+
+if (!suppliedToPubkey) {
+  console.log(`Please provide a public key to send to`);
+  process.exit(1);
+}
 
 const senderKeypair = getKeypairFromEnvironment("SECRET_KEY");
 
+console.log(`suppliedToPubkey: ${suppliedToPubkey}`);
+
+const toPubkey = new PublicKey(suppliedToPubkey);
+
 const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
-
-console.log(`✅ Loaded our own keypair, the destination public key, and connected to Solana`);
+console.log(
+  `✅ Loaded our own keypair, the destination public key, and connected to Solana`
+);
 ```
 
 Run the script to ensure it connects, loads your keypair, and loads:
@@ -145,7 +159,9 @@ npx esrun transfer.ts (destination wallet address)
 Add the following to complete the transaction and send it:
 
 ```typescript
-console.log(`✅ Loaded our own keypair, the destination public key, and connected to Solana`);
+console.log(
+  `✅ Loaded our own keypair, the destination public key, and connected to Solana`
+);
 
 const transaction = new Transaction();
 
@@ -163,7 +179,9 @@ const signature = await sendAndConfirmTransaction(connection, transaction, [
   senderKeypair,
 ]);
 
-console.log(`💸 Finished! Sent ${LAMPORTS_TO_SEND} to the address ${toPubkey}. `);
+console.log(
+  `💸 Finished! Sent ${LAMPORTS_TO_SEND} to the address ${toPubkey}. `
+);
 console.log(`Transaction signature is ${signature}!`);
 ```
 ### Experiment!

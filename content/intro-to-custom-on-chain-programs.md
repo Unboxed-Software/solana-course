@@ -103,15 +103,13 @@ We’re going to create a script to ping an on-chain program that increments a c
 
 ### 1. Basic scaffolding
 
-We'll start by using the same packages and `.env` file we made earlier in [intro to cryptography](./intro-to-cryptography.md):
+We'll start by using the same packages and `.env` file we made earlier in [intro to cryptography](./intro-to-cryptography):
 
 ```typescript
 import { Keypair } from "@solana/web3.js";
-import * as dotenv from "dotenv";
+import "dotenv/config"
 import base58 from "bs58";
 import { getKeypairFromEnvironment } from "@solana-developers/node-helpers"
-
-dotenv.config();
 
 const payer = getKeypairFromEnvironment('SECRET_KEY')
 const connection = new web3.Connection(web3.clusterApiUrl('devnet'))

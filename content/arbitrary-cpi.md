@@ -95,7 +95,7 @@ Depending on the program you’re invoking with your CPI, you can either hard co
 
 ## Use an Anchor CPI module
 
-A simpler way to manage program checks is to use Anchor CPI modules. We learned in a [previous lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/anchor-cpi.md) that Anchor can automatically generate CPI modules to make CPIs into the program simpler. These modules also enhance security by verifying the public key of the program that’s passed into one of its public instructions.
+A simpler way to manage program checks is to use Anchor CPI modules. We learned in a [previous lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/anchor-cpi) that Anchor can automatically generate CPI modules to make CPIs into the program simpler. These modules also enhance security by verifying the public key of the program that’s passed into one of its public instructions.
 
 Every Anchor program uses the `declare_id()` macro to define the address of the program. When a CPI module is generated for a specific program, it uses the address passed into this macro as the "source of truth" and will automatically verify that all CPIs made using its CPI module target this program id.
 
