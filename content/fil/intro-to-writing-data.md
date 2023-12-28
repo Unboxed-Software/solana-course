@@ -277,23 +277,23 @@ Ito ay magdeposito ng 1 SOL sa iyong account na magagamit mo para sa pagsubok. H
 
 ### 6. Check the Solana explorer
 
-Now run the code again. It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
+Ngayon patakbuhin muli ang code. Maaaring tumagal ng isang sandali o dalawa, ngunit ngayon ay dapat gumana ang code at dapat mong makita ang isang mahabang string na naka-print sa console, tulad ng sumusunod:
 
 ```
 ✅ Transaction completed! Signature is 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
 ```
 
-Copy the transaction signature. Open a browser and go to [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (the query parameter at the end of the URL will ensure that you’ll explore transactions on Devnet instead of Mainnet). Paste the signature into the search bar at the top of Solana’s Devnet explorer and hit enter. You should see all the details about the transaction. If you scroll all the way to the bottom, then you will see `Program Logs`, which show how many times the program has been pinged including your ping.
+Kopyahin ang lagda ng transaksyon. Magbukas ng browser at pumunta sa [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (siguraduhin ng parameter ng query sa dulo ng URL na tutuklasin mo ang mga transaksyon sa Devnet sa halip na sa Mainnet). I-paste ang signature sa search bar sa tuktok ng Devnet explorer ni Solana at pindutin ang enter. Dapat mong makita ang lahat ng mga detalye tungkol sa transaksyon. Kung mag-scroll ka hanggang sa ibaba, makikita mo ang `Program Logs`, na nagpapakita kung gaano karaming beses na-ping ang program kasama ang iyong ping.
 
-![Screenshot of Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
+![Screenshot of Solana Explorer with logs from calling the Ping program](../../assets/solana-explorer-ping-result.png)
 
-Scroll around the Explorer and look at what you're seeing:
- - The **Account Input(s)** will include: 
-  - The address of your payer - being debited 5000 lamports for the transaction
-  - The program address for the ping program
-  - The data address for the ping program
- - The **Instruction** section will contain a single instructionm, with no data - the ping program is a pretty simple program, so it doesn't need any data.
- - The **Program Instruction Logs** shows the logs from the ping program.  
+Mag-scroll sa paligid ng Explorer at tingnan kung ano ang iyong nakikita:
+  - Ang **Account Input(s)** ay magsasama ng:
+   - Ang address ng iyong nagbabayad - na na-debit ng 5000 laport para sa transaksyon
+   - Ang address ng programa para sa ping program
+   - Ang data address para sa ping program
+  - Ang seksyong **Instruction** ay maglalaman ng isang iisang instructionm, na walang data - ang ping program ay isang medyo simpleng program, kaya hindi ito nangangailangan ng anumang data.
+  - Ang **Program Instruction Logs** ay nagpapakita ng mga log mula sa ping program.
 
 [//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
 
@@ -303,18 +303,18 @@ If you want to make it easier to look at Solana Explorer for transactions in the
 console.log(`You can view your transaction on the Solana Explorer at:\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`)
 ```
 
-And just like that you’re calling programs on the Solana network and writing data to chain!
+At tulad niyan tumatawag ka sa mga programa sa network ng Solana at nagsusulat ng data sa chain!
 
 ### Next steps
 
-In the next few lessons you’ll learn how to
+Sa susunod na ilang mga aralin matututunan mo kung paano
 
-1. Send transactions safely from the browser instead of from running a script
-2. Add custom data to your instructions
-3. Deserialize data from the chain
+1. Magpadala ng mga transaksyon nang ligtas mula sa browser sa halip na mula sa pagpapatakbo ng script
+2. Magdagdag ng custom na data sa iyong mga tagubilin
+3. Deserialize ang data mula sa chain
 
 # Challenge
 
-Go ahead and create a script from scratch that will allow you to transfer SOL from one account to another on Devnet. Be sure to print out the transaction signature so you can look at it on the Solana Explorer.
+Sige at gumawa ng script mula sa simula na magbibigay-daan sa iyong ilipat ang SOL mula sa isang account patungo sa isa pa sa Devnet. Siguraduhing i-print ang lagda ng transaksyon upang makita mo ito sa Solana Explorer.
 
-If you get stuck feel free to glance at the [solution code](https://github.com/Unboxed-Software/solana-ping-client).
+Kung natigil ka huwag mag-atubiling tingnan ang [code ng solusyon](https://github.com/Unboxed-Software/solana-ping-client).
