@@ -447,9 +447,9 @@ Patakbuhin ang `anchor test` upang makita na ang transaksyon ay magbabalik na ng
 Error: Signature verification failed
 ```
 
-That’s it! This is a fairly simple thing to avoid, but incredibly important. Make sure to always think through who should who should be authorizing instructions and make sure that each is a signer on the transaction.
+Ayan yun! Ito ay isang medyo simpleng bagay na dapat iwasan, ngunit hindi kapani-paniwalang mahalaga. Siguraduhing palaging pag-isipan kung sino ang dapat na magpapahintulot sa mga tagubilin at tiyaking ang bawat isa ay lumagda sa transaksyon.
 
-If you want to take a look at the final solution code you can find it on the `solution` branch of [the repository](https://github.com/Unboxed-Software/solana-signer-auth/tree/solution).
+Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa `solution` branch ng [repository](https://github.com/Unboxed-Software/solana-signer-auth/tree/solution) .
 
 # Challenge
 
