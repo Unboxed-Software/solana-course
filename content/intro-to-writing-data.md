@@ -166,37 +166,26 @@ import dotenv from "dotenv";
 import { getKeypairFromEnvironment } from "@solana-developers/node-helpers"
 
 dotenv.config();
-
-function initializeKeypair(): web3.Keypair {
-  const initPayer = getKeypairFromEnvironment("SECRET_KEY");
-  console.log(` ✅ Loaded payer keypair ${initPayer.publicKey.toBase58()}`);
-  return initPayer;
-}
-
 ```
 
 ### 2. Create a connection
 
-Now that we've loaded our keypair, we need to connect to Solana’s Devnet. Let's create a connection:
+Let's create a connection:
 
 ```typescript
-async function main() {
-  const payer = initializeKeypair();
-
   const CLUSTER_NAME = "devnet";
   const connection = new web3.Connection(
     web3.clusterApiUrl(CLUSTER_NAME),
     "confirmed"
   );
   console.log(` ⚡️ Connected to SOLANA ${CLUSTER_NAME} cluster`);
-}
 ```
 
 ### 3. Ping Program
-Now create an async function called `sendPingTransaction()` with two parameters requiring a connection and payer’s keypair as arguments:
+Now create an async function called `pingProgram()` with two parameters requiring a connection and payer’s keypair as arguments:
 
 ```tsx
-async function sendPingTransaction(connection: web3.Connection, payer: web3.Keypair) { }
+async function pingProgram(connection: web3.Connection, payer: web3.Keypair) { }
 ```
 
 Inside this function, we need to:
@@ -209,20 +198,22 @@ Inside this function, we need to:
 Remember, the most challenging piece here is including the right information in the instruction. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the `index.ts` file:
 
 ```typescript
+dotenv.config();
+
 const PING_PROGRAM_ADDRESS = new web3.PublicKey('ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa')
 const PING_PROGRAM_DATA_ADDRESS =  new web3.PublicKey('Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod')
 ```
 
-Now, in the `sendPingTransaction()` function, let’s create a new transaction, then initialize a `PublicKey` for the program account, and another for the data account.
+Now, in the `pingProgram()` function, let’s create a new transaction, then initialize a `PublicKey` for the program account, and another for the data account.
 
 ```tsx
-async function sendPingTransaction(
+async function pingProgram(
   connection: web3.Connection,
   payer: web3.Keypair
 ) {
     const transaction = new web3.Transaction()
     const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
-    const programData = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
+    const programDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
 }
 ```
 
@@ -231,12 +222,12 @@ Next, let’s create the instruction. Remember, the instruction needs to include
 ```typescript
 const transaction = new web3.Transaction()
 const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
-const programData = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
+const programDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
 
 const instruction = new web3.TransactionInstruction({
   keys: [
     {
-      pubkey: pingProgramDataId,
+      pubkey: programDataId,
       isSigner: false,
       isWritable: true
     },
@@ -275,31 +266,20 @@ console.log(`✅ Transaction completed! Signature is ${signature}`)
 ```
 
 ### 4. Run the program
-Now call the `sendPingTransaction()` 
+Now call the `pingProgram()` 
 
 ```typescript
 async function main() {
-  const payer = initializeKeypair();
-
-  const CLUSTER_NAME = "devnet";
-  const connection = new web3.Connection(
-    web3.clusterApiUrl(CLUSTER_NAME),
-    "confirmed"
-  );
-  console.log(` ⚡️ Connected to SOLANA ${CLUSTER_NAME} cluster`);
-
-  await sendPingTransaction(connection, payer);
+    const payer = getKeypairFromEnvironment("SECRET_KEY");
+    console.log(` ✅ Loaded payer keypair ${payer.publicKey.toBase58()}`);
+    await pingProgram(connection, payer);
 }
 ```
 
 ```typescript
-main()
-  .then(() => {
-    console.log("Finished successfully");
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+main().catch((err) => {
+  console.error(err);
+});
 ```
 
 ### 5. Check the Solana explorer
