@@ -885,12 +885,12 @@ In our case, we created a non-public tree and minted 8 cNFTs, so we know that th
 
 Finally, we can use an RPC that supports the [Read API](https://docs.solana.com/developing/guides/compressed-nfts#reading-compressed-nfts-metadata) to fetch the asset. We’ll be using [Helius](https://docs.helius.dev/compression-and-das-api/digital-asset-standard-das-api), but feel free to choose your own RPC provider. To use Helius, you’ll need to get a free API Key from [their website](https://dev.helius.xyz/). Then add your `RPC_URL` to your `.env` file. For example:
 
-```tsx
+```bash
 # Add this
 RPC_URL=https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY
 ```
 
- Then you simply issue a POST request to your provided RPC URL and put the `getAsset` information in the body:
+Then simply issue a POST request to your provided RPC URL and put the `getAsset` information in the body:
 
 ```tsx
 async function logNftDetails(treeAddress: PublicKey, nftsMinted: number) {

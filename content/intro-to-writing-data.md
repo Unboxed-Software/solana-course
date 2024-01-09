@@ -196,9 +196,9 @@ npx esrun transfer.ts (destination wallet address)
 
 Answer the following questions:
 
- - How much Solana did the transfer take? What is this in USD?
+ - How much SOL did the transfer take? What is this in USD?
 
- - Can you find your translation on https://explorer.solana.com? Remember we are using the `devnet` network.
+ - Can you find your transaction on https://explorer.solana.com? Remember we are using the `devnet` network.
 
  - How long does the transfer take? 
 
