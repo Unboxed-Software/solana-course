@@ -555,7 +555,7 @@ Let’s jump in and practice creating and working with cNFTs. Together, we’ll 
 
 First things first, clone the starter code from the `starter` branch of our [cNFT lab repository](https://github.com/Unboxed-Software/solana-cnft-demo).
 
-`git clone [https://github.com/Unboxed-Software/solana-cnft-demo.git](https://github.com/Unboxed-Software/solana-cnft-demo.git)`
+`git clone https://github.com/Unboxed-Software/solana-cnft-demo.git`
 
 `cd solana-cnft-demo`
 

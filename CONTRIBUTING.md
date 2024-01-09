@@ -46,8 +46,16 @@ In particular:
 
 Code examples should be formatted as follows:
 
-- JS/TS - two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
-- Rust: four spaces per rustfmt
+### JS/TS
+
+ - two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
+
+ - We are aiming to use `esrun`, which supports top level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or IIFEs. `await` just works. If you see these wrappers, delete them and use `esrun`.
+
+ - Likewise, use async/await and use try / catch everywhere, rather than `.then()` and `.catch()`
+ 
+### Rust
+ - four spaces per rustfmt
 
 Diagrams:
 
