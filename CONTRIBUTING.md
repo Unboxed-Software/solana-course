@@ -10,9 +10,13 @@ Content presentation is controlled by the config file `course-structure.json`. A
 
 If you'd like to add content, please start by [creating an issue](https://github.com/Unboxed-Software/solana-course/issues/new) and tagging @jamesrp13 to discuss your reasoning, plan, and timeline.
 
-Once a plan has been discussed and agreed to, you can start working on content. When you're done, create a PR to the `draft` branch.
+Once a plan has been discussed and agreed to, you can start working on content. 
 
-Create new modules in the same format as the existing modules - see [Getting Started](./content/getting-started.md)
+When you're done, create a PR to the `draft` branch.
+
+Create new modules in the same format as the existing modules - see [Getting Started](./content/getting-started.md).
+
+This structure leans into a pedagogical technique call IWY loops. IWY stands for "I do, We do, You do." Each step along the way increases the audiences exposure to the topic _and_ reduces the amount of handholding you're given.
 ### Editing Existing Content
 
 If you want to fix a typo or otherwise improve on existing content, follow a similar process as with adding content:
@@ -22,13 +26,22 @@ If you want to fix a typo or otherwise improve on existing content, follow a sim
 
 ### Guidelines
 
-Use language consistent with [TERMINOLOGY](https://github.com/solana-foundation/developer-content/blob/main/docs/terminology.md). In particular:
+The guidelines below are consistent with Solana Foundation Style, in order to ensure consistency with other content on solana.com. There's also a few additional items aimed at technical documents. 
 
-- Use 'secret key' rather than 'private key'.
+Use language consistent with [TERMINOLOGY](https://github.com/solana-foundation/developer-content/blob/main/docs/terminology.md). 
+
+In particular:
+
+- Use sentence case for headlines (”Solana Foundation announces new initiative” instead of “Solana Foundation Announces New Initiative”).
+- Use 'secret key' rather than 'private key' to be consistent with web3.js. __Note__: this will change in a future version of web3.js. 
 - Use 'wallet app' for software. 'wallet' for the address that holds value.
-- Use 'SOL' rather than 'Sol' to refer to Solana's native token
+- Use 'onchain' (not on-chain, definitely not smart contract) when referring to onchain apps.
+- Use 'SOL' rather than 'Sol' to refer to Solana's native token. Definitely don't call it Solana!
 - PDAs are not public keys. It is not possible to have a public key without a secret key. A public key is derived from a secret key, and it is not possible to generate a public key without first generating a secret key.
-- Use the specific term 'associated token account' if that's what you're referring to, same for 'token mint account'. A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than say swapping between 'associated token account' and 'token account' makes this clearer.
+- Use the terms 'blockchain' or 'web3' rather than 'crypto'.
+- Be careful about the term 'token account'. A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than, for example, swapping between 'associated token account' and 'token account' makes this clearer. 
+  - Use the specific term 'associated token account' rather than just 'token account' if you're referring to an account at an associated token address.  
+  - Use 'token mint account' to refer to the address a token is minted at. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
 - Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
 
 Code examples should be formatted as follows:
@@ -45,9 +58,10 @@ Code examples should be formatted as follows:
  - four spaces per rustfmt
 
 Diagrams:
+
 - If you draw Solana elliptic curves, these are [Edwards curves](https://en.wikipedia.org/wiki/Edwards_curve)
-- Use SVG so diagrams look good on different resolutions
-- We like [Whimsical](https://whimsical.com/) for diagrams
+- Use [Whimsical](https://whimsical.com/) for diagrams
+- Use SVG where possible (they'll look better on different screens). You can get an SVG export from Whimsical by appending `/svg` to the end of a Whimsical URL.
  
 Note that while `prettier` can format Markdown, [prettier doesn't support language-specific settings inside Markdown files](https://github.com/prettier/prettier/issues/5378) so you'll need to format the code yourself for now.
 
@@ -73,15 +87,28 @@ Content is controlled by the config file `course-structure.json`. All content is
 
 Use the terms at https://docs.solana.com/terminology
 
+A **Track** is a provable skill. Right now the tracks are simply front end Solana development and on-chain Solana development.
+
+A **Unit** is a group of lessons. 
+
+Each **Lesson** is a block of added understanding, starting from scratch and building on the previous lesson to take students to mastery of a topic. 
+
+Lessons should follow the format:
+
+ - **Overview** section is a conceptual overview. The equivalent would be when a teacher in a classroom says "don't do this yet, just watch.". The overview is intentionally not meant to be something readers code along with.
+
+ - **Lab** section is when students code along and should follow a step-by-step process.
+
 ## Static Assets
 
 Static assets are in `assets`. This is set in `svelte.config.js` to match the older soldev-ui directory. 
+
+To include an image:
 
 ```markdown
 ![Some alt text](../assets/somefile.svg)
 ```
 
-Use SVG where possible (they'll look better on different screens). You ca get an SVG export from Whimsical by appending `/svg` to the end of a Whimsical URL.
 ## Components
 
 Components are individual Svelte files, in the `/src/lib/components` directory.

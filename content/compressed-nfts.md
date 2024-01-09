@@ -547,13 +547,13 @@ We’ve covered the primary skills needed to interact with cNFTs, but haven’t 
 
 Keep in mind that compression is fairly new. Available tooling will evolve rapidly but the principles you’ve learned in this lesson will likely remain the same. These principles can also be broadened to arbitrary state compression, so be sure to master them here so you’re ready for more fun stuff in future lessons!
 
-# Demo
+# Lab
 
 Let’s jump in and practice creating and working with cNFTs. Together, we’ll build as simple a script as possible that will let us mint a cNFT collection from a merkle tree.
 
 ### 1. Get the starter code
 
-First things first, clone the starter code from the `starter` branch of our [cNFT Demo repository](https://github.com/Unboxed-Software/solana-cnft-demo).
+First things first, clone the starter code from the `starter` branch of our [cNFT lab repository](https://github.com/Unboxed-Software/solana-cnft-demo).
 
 `git clone https://github.com/Unboxed-Software/solana-cnft-demo.git`
 
@@ -885,12 +885,12 @@ In our case, we created a non-public tree and minted 8 cNFTs, so we know that th
 
 Finally, we can use an RPC that supports the [Read API](https://docs.solana.com/developing/guides/compressed-nfts#reading-compressed-nfts-metadata) to fetch the asset. We’ll be using [Helius](https://docs.helius.dev/compression-and-das-api/digital-asset-standard-das-api), but feel free to choose your own RPC provider. To use Helius, you’ll need to get a free API Key from [their website](https://dev.helius.xyz/). Then add your `RPC_URL` to your `.env` file. For example:
 
-```tsx
+```bash
 # Add this
 RPC_URL=https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY
 ```
 
- Then you simply issue a POST request to your provided RPC URL and put the `getAsset` information in the body:
+Then simply issue a POST request to your provided RPC URL and put the `getAsset` information in the body:
 
 ```tsx
 async function logNftDetails(treeAddress: PublicKey, nftsMinted: number) {
@@ -1271,12 +1271,12 @@ Go ahead and run your script. The whole thing should execute without failing, an
 
 Congratulations! Now you know how to mint, read, and transfer cNFTs. If you wanted, you could update the max depth, max buffer size, and canopy depth to larger values and as long as you have enough Devnet SOL, this script will let you mint up to 10k cNFTs for a small fraction of what it would cost to mint 10k traditional NFTs (Note: if you plan to mint a large amount of NFTs you might want to try and batch these instructions for fewer total transactions).
 
-If you need more time with this demo, feel free to go through it again and/or take a look at the solution code on the `solution` branch of the [demo repo](https://github.com/Unboxed-Software/solana-cnft-demo/tree/solution).
+If you need more time with this lab, feel free to go through it again and/or take a look at the solution code on the `solution` branch of the [lab repo](https://github.com/Unboxed-Software/solana-cnft-demo/tree/solution).
 
 ## Challenge
 
 It’s your turn to take these concepts for a spin on your own! We’re not going to be overly prescriptive at this point, but here are some ideas:
 
 1. Create your own production cNFT collection
-2. Build a UI for this lesson’s demo that will let you mint a cNFT and display it
-3. See if you can replicate some of the demo script’s functionality in an on-chain program, i.e. write a program that can mint cNFTs
+2. Build a UI for this lesson’s lab that will let you mint a cNFT and display it
+3. See if you can replicate some of the lab script’s functionality in an on-chain program, i.e. write a program that can mint cNFTs

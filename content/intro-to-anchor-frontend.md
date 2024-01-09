@@ -335,7 +335,7 @@ Similarly, you can fetch for multiple accounts using `fetchMultiple`.
 const accounts = await program.account.counter.fetchMultiple([ACCOUNT_ADDRESS_ONE, ACCOUNT_ADDRESS_TWO])
 ```
 
-# Demo
+# Lab
 
 Let’s practice this together by building a frontend for the Counter program from last lesson. As a reminder, the Counter program has two instructions:
 
@@ -346,7 +346,7 @@ Let’s practice this together by building a frontend for the Counter program fr
 
 Download [the starter code for this project](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/starter). Once you have the starter code, take a look around. Install the dependencies with `npm install` and then run the app with `npm run dev`.
 
-This project is a simple Next.js application. It includes the `WalletContextProvider` we created in the [Wallets lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets.md), the `idl.json` file for the Counter program, and the `Initialize` and `Increment` components we’ll be building throughout this demo. The `programId` of the program we’ll be invoking is also included in the starter code.
+This project is a simple Next.js application. It includes the `WalletContextProvider` we created in the [Wallets lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/interact-with-wallets), the `idl.json` file for the Counter program, and the `Initialize` and `Increment` components we’ll be building throughout this lab. The `programId` of the program we’ll be invoking is also included in the starter code.
 
 ### 2. `Initialize`
 
@@ -500,7 +500,7 @@ If you need more time with this project to feel comfortable with these concepts,
 
 # Challenge
 
-Now it’s your turn to build something independently. Building on top of what we’ve done in the demo, try to create a new component in the frontend that implements a button to decrements the counter.
+Now it’s your turn to build something independently. Building on top of what we’ve done in the lab, try to create a new component in the frontend that implements a button to decrements the counter.
 
 Before building the component in the frontend, you’ll first need to:
 
