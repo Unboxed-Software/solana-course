@@ -269,15 +269,12 @@ console.log(`✅ Transaction completed! Signature is ${signature}`)
 Now call the `pingProgram()` 
 
 ```typescript
-async function main() {
-    const payer = getKeypairFromEnvironment("SECRET_KEY");
-    console.log(` ✅ Loaded payer keypair ${payer.publicKey.toBase58()}`);
-    await pingProgram(connection, payer);
-}
-```
+(async () => {
+  const payer = getKeypairFromEnvironment("SECRET_KEY");
+  console.log(` ✅ Loaded payer keypair ${payer.publicKey.toBase58()}`);
 
-```typescript
-main().catch((err) => {
+  await pingProgram(connection, payer);
+})().catch((err) => {
   console.error(err);
 });
 ```
