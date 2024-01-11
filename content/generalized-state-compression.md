@@ -65,13 +65,13 @@ As a program architect, you control three values directly related to these three
 
 The **max depth** is the maximum number of hops to get from any leaf to the root of the tree. Since merkle trees are binary trees, every leaf is connected only to one other leaf. Max depth can then logically be used to calculate the number of nodes for the tree with `2 ^ maxDepth`.
 
-The **max buffer size** is effectively the maximum number of concurrent changes that you can make to a tree within a single slot with the root hash still being valid. When multiple transactions are submitted in the same slot, each of which is competing to update leafs on a standard merkle tree, only the first to run will be valid. This is because that “write” operation will modify the hash stored in the account. Subsequent transactions in the same slot will be trying to validate their data against a now-outdated hash. A concurrent merkle tree has a buffer so that the buffer can keep a running log of these modifications. This allows the State Compression Program to validate multiple data writes in the same slot because it can look up what the previous hashes were in the buffer and compare against the appropriate hash.
+The **max buffer size** is effectively the maximum number of concurrent changes that you can make to a tree within a single slot with the root hash still being valid. When multiple transactions are submitted in the same slot, each of which is competing to update leaves on a standard merkle tree, only the first to run will be valid. This is because that “write” operation will modify the hash stored in the account. Subsequent transactions in the same slot will be trying to validate their data against a now-outdated hash. A concurrent merkle tree has a buffer so that the buffer can keep a running log of these modifications. This allows the State Compression Program to validate multiple data writes in the same slot because it can look up what the previous hashes were in the buffer and compare against the appropriate hash.
 
 The **canopy depth** is the number of proof nodes that are stored on-chain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node passed into the program adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit. Caching proof nodes on-chain in the canopy helps improve program composability.
 
 Each of these three values, max depth, max buffer size, and canopy depth, comes with a tradeoff. Increasing the value of any of these values increases the size of the account used to store the tree, thus increasing the cost of creating the tree.
 
-Choosing the max depth is fairly straightforward as it directly relates to the number of leafs and therefore the amount of data you can store. If you need 1 million cNFTs on a single tree where each cNFT is a leaf of the tree, find the max depth that makes the following expression true: `2^maxDepth > 1 million`. The answer is 20.
+Choosing the max depth is fairly straightforward as it directly relates to the number of leaves and therefore the amount of data you can store. If you need 1 million cNFTs on a single tree where each cNFT is a leaf of the tree, find the max depth that makes the following expression true: `2^maxDepth > 1 million`. The answer is 20.
 
 Choosing a max buffer size is effectively a question of throughput: how many concurrent writes do you need? The larger the buffer, the higher the throughput.
 
@@ -93,7 +93,7 @@ The theory described above is essential to properly understanding state compress
 
 ### SPL State Compression and Noop Programs
 
-The SPL State Compression Program exists to make the process of creating and updating concurrent merkle trees repeatable and composable throughout the Solana ecosystem. It provides instructions for initializing merkle trees, managing tree leafs (i.e. add, update, remove data), and verifying leaf data.
+The SPL State Compression Program exists to make the process of creating and updating concurrent merkle trees repeatable and composable throughout the Solana ecosystem. It provides instructions for initializing merkle trees, managing tree leaves (i.e. add, update, remove data), and verifying leaf data.
 
 The State Compression Program also leverages a separate “no op” program whose primary purpose is to make leaf data easier to index by logging it to the ledger state. When you want to store compressed data, you pass it to the State Compression program where it gets hashed and emitted as an “event” to the Noop program. The hash gets stored in the corresponding concurrent merkle tree, but the raw data remains accessible through the Noop program’s transaction logs.
 

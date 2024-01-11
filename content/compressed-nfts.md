@@ -64,13 +64,13 @@ The **canopy depth** is the number of proof nodes that are stored on chain for a
 
 Each of these three values, max depth, max buffer size, and canopy depth, comes with a tradeoff. Increasing the value of any of these values increases the size of the account used to store the tree, thus increasing the cost to create the tree. 
 
-Choosing the max depth is fairly straightforward as it directly relates to the number of leafs and therefore the amount of data you can store. If you need 1million cNFTs on a single tree, find the max depth that makes the following expression true: `2^maxDepth > 1million`. The answer is 20.
+Choosing the max depth is fairly straightforward as it directly relates to the number of leaves and therefore the amount of data you can store. If you need 1million cNFTs on a single tree, find the max depth that makes the following expression true: `2^maxDepth > 1million`. The answer is 20.
 
 Choosing a max buffer size is effectively a question of throughput: how many concurrent writes do you need.
 
-### SPL State Compression and Noop Programs
+### SPL State Compression and No-op Programs
 
-The SPL State Compression Program exists to make the above process repeatable and composable throughout the Solana ecosystem. It provides instructions for initializing merkle trees, managing tree leafs (i.e. add, update, remove data), and verifying leaf data.
+The SPL State Compression Program exists to make the above process repeatable and composable throughout the Solana ecosystem. It provides instructions for initializing merkle trees, managing tree leaves (i.e. add, update, remove data), and verifying leaf data.
 
 The State Compression Program also leverages a separate “no op” program whose primary purpose is to make leaf data easier to index by logging it to the ledger state.
 
@@ -78,17 +78,17 @@ The State Compression Program also leverages a separate “no op” program whos
 
 The Solana ledger is a list of entries containing signed transactions. In theory, this can be traced back to the genesis block. This effectively means any data that has ever been put into a transaction exists in the ledger.
 
-When you want to store compressed data, you pass it to the State Compression program where it gets hashed and emitted as an “event” to the Noop program. The hash is then stored in the corresponding concurrent merkle tree. Since the data passed through a transaction and even exists on the Noop program logs, it will forever exist on the ledger state. 
+When you want to store compressed data, you pass it to the State Compression program where it gets hashed and emitted as an “event” to the No-op program. The hash is then stored in the corresponding concurrent merkle tree. Since the data passed through a transaction and even exists on the No-op program logs, it will forever exist on the ledger state. 
 
 ### Index data for easy lookup
 
 Under normal conditions, you would typically access on-chain data by fetching the appropriate account. When using state compression, however, it’s not so straightforward. 
 
-As mentioned above, the data now exists in the ledger state rather than in an account. The easiest place to find the full data is in the logs of the Noop instruction, but while this data will in a sense exist in the ledger state forever, it will likely be inaccessible through validators after a certain period of time.
+As mentioned above, the data now exists in the ledger state rather than in an account. The easiest place to find the full data is in the logs of the No-op instruction, but while this data will in a sense exist in the ledger state forever, it will likely be inaccessible through validators after a certain period of time.
 
-To save space and be more performant, validators don’t retain every transaction back to the genesis block. The specific amount of time you’ll be able to access the Noop instruction logs related to your data will vary based on the validator, but eventually you’ll lose access to it if you’re relying directly on instruction logs.
+To save space and be more performant, validators don’t retain every transaction back to the genesis block. The specific amount of time you’ll be able to access the No-op instruction logs related to your data will vary based on the validator, but eventually you’ll lose access to it if you’re relying directly on instruction logs.
 
-Technically, you *can* replay transaction state back to the genesis block but the average team isn’t going to do that, and it certainly won’t be performant. Instead, you should use an indexer that will observe the events sent to the Noop program and store the relevant data off chain. That way you don’t need to worry about old data becoming inaccessible.
+Technically, you *can* replay transaction state back to the genesis block but the average team isn’t going to do that, and it certainly won’t be performant. Instead, you should use an indexer that will observe the events sent to the No-op program and store the relevant data off chain. That way you don’t need to worry about old data becoming inaccessible.
 
 ## Create a cNFT Collection
 
@@ -97,8 +97,7 @@ With the theoretical background out of the way, let’s turn our attention to th
 Fortunately, you can use tools created by Solana Foundation, the Solana developer community, and Metaplex to simplify the process. Specifically, we’ll be using the `@solana/spl-account-compression` SDK, the Metaplex Bubblegum program, and the Bubblegum program’s corresponding TS SDK `@metaplex-foundation/mpl-bugglegum`.
 
 <aside>
-💡 At the time of writing, the Metaplex team is transitioning to a new bubblegum client SDK that supports umi, their modular framework for building and using JS clients for Solana programs. We will not be using the umi version of the SDK in this lesson. Rather, we’ll be hardcoding our dependency to version 0.7 (`@metaplex-foundation/mpl-bubblegum@0.7`). This version provides simple helper functions for building Bubblegum instructions.
-
+💡 At the time of writing, the Metaplex team is transitioning to a new bubblegum client SDK that supports UMI, their modular framework for building and using JS clients for Solana programs. We will not be using the UMI version of the SDK in this lesson. Rather, we’ll be hardcoding our dependency to version 0.7 (`@metaplex-foundation/mpl-bubblegum@0.7`). This version provides simple helper functions for building Bubblegum instructions.
 </aside>
 
 ### Prepare metadata
@@ -135,17 +134,17 @@ Depending on your use case, you may be able to generate this dynamically or you 
 
 If you want your cNFTs to be part of a collection, you’ll need to create a Collection NFT **before** you start minting cNFTs. This is a traditional NFT that acts as the reference binding your cNFTs together into a single collection. You can create this NFT using the `@metaplex-foundation/js` library. Just make sure you set `isCollection` to `true`.
 
-```tsx
+```typescript
 const collectionNft = await metaplex.nfts().create({
-    uri: someUri,
-    name: "Collection NFT",
-    sellerFeeBasisPoints: 0,
-    updateAuthority: somePublicKey,
-    mintAuthority: somePublicKey,
-    tokenStandard: 0,
-    symbol: "Collection",
-    isMutable: true,
-    isCollection: true,
+  uri: someUri,
+  name: "Collection NFT",
+  sellerFeeBasisPoints: 0,
+  updateAuthority: somePublicKey,
+  mintAuthority: somePublicKey,
+  tokenStandard: 0,
+  symbol: "Collection",
+  isMutable: true,
+  isCollection: true,
 })
 ```
 
@@ -198,9 +197,9 @@ For example, if your tree has a very low canopy depth, an NFT marketplace may on
 
 Increasing any of these three values increases the size of the account, thereby increasing the cost associated with creating it. Weigh the benefits accordingly when choosing the values.
 
-Once you know these values, you can use the `createAllocTreeIx` helper function from the `@solana/spl-account-compression` TS SDK to create the instruction for creating the empty account.
+Once you know these values, you can use the `createAllocTreeIx()` helper function from the `@solana/spl-account-compression` TS SDK to create the instruction for creating the empty account.
 
-```tsx
+```typescript
 import { createAllocTreeIx } from "@solana/spl-account-compression"
 
 const treeKeypair = Keypair.generate()
@@ -220,12 +219,12 @@ Note that this is simply a helper function for calculating the size required by 
 
 With the empty tree account created, you then use the Bubblegum program to initialize the tree. In addition to the merkle tree account, Bubblegum creates a tree config account to add cNFT-specific tracking and functionality.
 
-Version 0.7 of the `@metaplex-foundation/mpl-bubblegum` TS SDK provides the helper function `createCreateTreeInstruction` for calling the `create_tree` instruction on the Bubblegum program. As part of the call, you’ll need to derive the `treeAuthority` PDA expected by the program. This PDA uses the tree’s address as a seed.
+Version 0.7 of the `@metaplex-foundation/mpl-bubblegum` TS SDK provides the helper function `createCreateTreeInstruction()` for calling the `create_tree` instruction on the Bubblegum program. As part of the call, you’ll need to derive the `treeAuthority` PDA expected by the program. This PDA uses the tree’s address as a seed.
 
-```tsx
+```typescript
 import {
-	createAllocTreeIx,
-	SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
+  createAllocTreeIx,
+  SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
 } from "@solana/spl-account-compression"
 import {
@@ -265,7 +264,7 @@ The list below shows the required input for this helper function:
     - `merkleTree` - The merkle tree account
     - `payer` - The address paying for transaction fees, rent, etc.
     - `treeCreator` - The address to list as the tree creator
-    - `logWrapper` - The program to use to expose the data to indexers through logs; this should be the address of the SPL Noop program unless you have some other custom implementation
+    - `logWrapper` - The program to use to expose the data to indexers through logs; this should be the address of the SPL No-op program unless you have some other custom implementation
     - `compressionProgram` - The compression program to use for initializing the merkle tree; this should be the address of the SPL State Compression program unless you have some other custom implementation
 - `args` - An object representing additional arguments required by the instruction. This includes:
     - `maxBufferSize` - The max buffer size of the merkle tree
@@ -278,7 +277,7 @@ When submitted, this will invoke the `create_tree` instruction on the Bubblegum 
 2. Initializes the tree config account with appropriate initial values
 3. Issues a CPI to the State Compression program to initialize the empty merkle tree account
 
-Feel free to take a look at the program code [here](https://github.com/metaplex-foundation/mpl-bubblegum/blob/main/programs/bubblegum/program/src/lib.rs#L887).
+Feel free to take a look at [the Bubblegum program code](https://github.com/metaplex-foundation/mpl-bubblegum/blob/main/programs/bubblegum/program/src/lib.rs#L887).
 
 ### Mint cNFTs
 
@@ -288,7 +287,7 @@ Version 0.7 of the `@metaplex-foundation/mpl-bubblegum` TS SDK provides helper f
 
 Both functions will require you to pass in the NFT metadata and a list of accounts required to mint the cNFT. Below is an example of minting to a collection:
 
-```tsx
+```typescript
 const mintWithCollectionIx = createMintToCollectionV1Instruction(
   {
     payer: payer.publicKey,
@@ -329,13 +328,13 @@ Notice that there are two arguments for the helper function: `accounts` and `arg
 - `collectionMetadata` - the metadata account for the collection NFT
 - `editionAccount` - the master edition account of the collection NFT
 - `compressionProgram` - the compression program to use; this should be the address of the SPL State Compression program unless you have some other custom implementation
-- `logWrapper` - the program to use to expose the data to indexers through logs; this should be the address of the SPL Noop program unless you have some other custom implementation
+- `logWrapper` - the program to use to expose the data to indexers through logs; this should be the address of the SPL No-op program unless you have some other custom implementation
 - `bubblegumSigner` - a PDA used by the Bubblegrum program to handle collection verification
 - `tokenMetadataProgram` - the token metadata program that was used for the collection NFT; this is usually always the Metaplex Token Metadata program
 
 Minting without a collection requires fewer accounts, none of which are exclusive to minting without a collection. You can take a look at the example below.
 
-```tsx
+```typescript
 const mintWithoutCollectionIx = createMintV1Instruction(
   {
     payer: payer.publicKey,
@@ -366,7 +365,7 @@ In order to use the Read API to fetch a specific cNFT, you need to have the cNFT
 1. The transaction signature
 2. The leaf index (possibly)
 
-The only real guarantee is that you’ll have the transaction signature. It is **possible** to locate the leaf index from there, but it involves some fairly complex parsing. The short story is you must retrieve the relevant instruction logs from the Noop program and parse them to find the leaf index. We’ll cover this more in depth in a future lesson. For now, we’ll assume you know the leaf index.
+The only real guarantee is that you’ll have the transaction signature. It is **possible** to locate the leaf index from there, but it involves some fairly complex parsing. The short story is you must retrieve the relevant instruction logs from the No-op program and parse them to find the leaf index. We’ll cover this more in depth in a future lesson. For now, we’ll assume you know the leaf index.
 
 This is a reasonable assumption for most mints given that the minting will be controlled by your code and can be set up sequentially so that your code can track which index is going to be used for each mint. I.e. the first mint will use index 0, the second index 1, etc.
 
@@ -376,23 +375,23 @@ Once you have the leaf index, you can derive the cNFT’s corresponding asset ID
 2. The merkle tree address
 3. The leaf index
 
-The indexer essentially observes transaction logs from the Noop program as they happen and stores the cNFT metadata that was hashed and stored in the merkle tree. This enables them to surface that data when requested. This asset id is what the indexer uses to identify the particular asset.
+The indexer essentially observes transaction logs from the No-op program as they happen and stores the cNFT metadata that was hashed and stored in the merkle tree. This enables them to surface that data when requested. This asset id is what the indexer uses to identify the particular asset.
 
 For simplicity, you can just use the `getLeafAssetId` helper function from the Bubblegum SDK. With the asset ID, fetching the cNFT is fairly straightforward. Simply use the `getAsset` method provided by the supporting RPC provider:
 
-```tsx
+```typescript
 const assetId = await getLeafAssetId(treeAddress, new BN(leafIndex))
 const response = await fetch(process.env.RPC_URL, {
-	method: "POST",
-	headers: { "Content-Type": "application/json" },
-	body: JSON.stringify({
-		jsonrpc: "2.0",
-		id: "my-id",
-		method: "getAsset",
-		params: {
-			id: assetId,
-		},
-	}),
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "my-id",
+    method: "getAsset",
+    params: {
+      id: assetId,
+    },
+  }),
 })
 
 const { result } = await response.json()
@@ -420,7 +419,7 @@ We won’t go over most of these directly, but be sure to look through the [Heli
 
 Just as with a standard SPL token transfer, security is paramount. An SPL token transfer, however, makes verifying transfer authority very easy. It’s built into the SPL Token program and standard signing. A compressed token’s ownership is more difficult to verify. The actual verification will happen program-side, but your client-side code needs to provide additional information to make it possible.
 
-While there is a Bubblegum `createTransferInstruction` helper function, there is more assembly required than usual. Specifically, the Bubblegum program needs to verify that the entirety of the cNFT’s data is what the client asserts before a transfer can occur. The entirety of the cNFT data has been hashed and stored as a single leaf on the merkle tree, and the merkle tree is simply a hash of all the tree’s leafs and branches. Because of this, you can’t simply tell the program what account to look at and have it compare that account’s `authority` or `owner` field to the transaction signer.
+While there is a Bubblegum `createTransferInstruction` helper function, there is more assembly required than usual. Specifically, the Bubblegum program needs to verify that the entirety of the cNFT’s data is what the client asserts before a transfer can occur. The entirety of the cNFT data has been hashed and stored as a single leaf on the merkle tree, and the merkle tree is simply a hash of all the tree’s leaves and branches. Because of this, you can’t simply tell the program what account to look at and have it compare that account’s `authority` or `owner` field to the transaction signer.
 
 Instead, you need to provide the entirety of the cNFT data and any of the merkle tree’s proof information that isn’t stored in the canopy. That way, the program can independently prove that the provided cNFT data, and therefore the cNFT owner, is accurate. Only then can the program safely determine if the transaction signer should, in fact, be allowed to transfer the cNFT.
 
@@ -434,44 +433,44 @@ In broad terms, this involves a five step process:
 
 The first two steps are very similar. Using your supporting RPC provider, use the `getAsset` and `getAssetProof` methods to fetch the asset data and proof, respectively. 
 
-```tsx
+```typescript
 const assetDataResponse = await fetch(process.env.RPC_URL, {
-	method: "POST",
-	headers: { "Content-Type": "application/json" },
-	body: JSON.stringify({
-		jsonrpc: "2.0",
-		id: "my-id",
-		method: "getAsset",
-			params: {
-				id: assetId,
-			},
-		}),
-	})
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "my-id",
+    method: "getAsset",
+      params: {
+        id: assetId,
+      },
+    }),
+  })
 const assetData = (await assetDataResponse.json()).result
 
 const assetProofResponse = await fetch(process.env.RPC_URL, {
-	method: "POST",
-	headers: { "Content-Type": "application/json" },
-	body: JSON.stringify({
-		jsonrpc: "2.0",
-		id: "my-id",
-		method: "getAssetProof",
-			params: {
-				id: assetId,
-			},
-		}),
-	})
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "my-id",
+    method: "getAssetProof",
+      params: {
+        id: assetId,
+      },
+    }),
+  })
 const assetProof = (await assetProofResponse.json()).result
 ```
 
 The third step is to fetch the merkle tree account. The simplest way to do this is using the `ConcurrentMerkleTreeAccount` type from `@solana/spl-account-compression`:
 
-```tsx
+```typescript
 const treePublicKey = new PublicKey(assetData.compression.tree)
 
 const treeAccount = await ConcurrentMerkleTreeAccount.fromAccountAddress(
-	connection,
-	treePublicKey
+  connection,
+  treePublicKey
 )
 ```
 
@@ -479,14 +478,14 @@ Step four is the most conceptually challenging step. Using the three pieces of i
 
 The full proof is provided by the indexer as shown above in `assetProof`. However, you can exclude the same number of tail-end accounts from the proof as the depth of the canopy.
 
-```tsx
+```typescript
 const canopyDepth = treeAccount.getCanopyDepth() || 0
 
 const proofPath: AccountMeta[] = assetProof.proof
-	.map((node: string) => ({
-	pubkey: new PublicKey(node),
-	isSigner: false,
-	isWritable: false
+  .map((node: string) => ({
+  pubkey: new PublicKey(node),
+  isSigner: false,
+  isWritable: false
 }))
 .slice(0, assetProof.proof.length - canopyDepth)
 ```
@@ -499,45 +498,45 @@ Finally, you can assemble the transfer instruction. The instruction helper funct
     - `leafOwner` - the owner of the leaf (cNFT) in question
     - `leafDelegate` - the delegate of the leaf (cNFT) in question; if no delegate has been added then this should be the same as `leafOwner`
     - `newLeafOwner` - the address of the new owner post-transfer
-    - `logWrapper` - the program to use to expose the data to indexers through logs; this should be the address of the SPL Noop program unless you have some other custom implementation
+    - `logWrapper` - the program to use to expose the data to indexers through logs; this should be the address of the SPL No-op program unless you have some other custom implementation
     - `compressionProgram` - the compression program to use; this should be the address of the SPL State Compression program unless you have some other custom implementation
     - `anchorRemainingAccounts` - this is where you add the proof path
 - `args` - additional arguments required by the instruction; they are:
     - `root` - the root merkle tree node from the asset proof; this is provided by the indexer as a string and must be converted to bytes first
     - `dataHash` - the hash of the asset data retrieved from the indexer; this is provided by the indexer as a string and must be converted to bytes first
     - `creatorHash` - the hash of the cNFT creator as retrieved from the indexer; this is provided by the indexer as a string and must be converted to bytes first
-    - `nonce` - used to ensure that no two leafs have the same hash; this value should be the same as `index`
+    - `nonce` - used to ensure that no two leaves have the same hash; this value should be the same as `index`
     - `index` - the index where the cNFT’s leaf is located on the merkle tree
 
 An example of this is shown below. Note that the first 3 lines of code grab additional information nested in the objects shown previously so they are ready to go when assembling the instruction itself.
 
-```tsx
+```typescript
 const treeAuthority = treeAccount.getAuthority()
 const leafOwner = new PublicKey(assetData.ownership.owner)
 const leafDelegate = assetData.ownership.delegate
-	? new PublicKey(assetData.ownership.delegate)
-	: leafOwner
+  ? new PublicKey(assetData.ownership.delegate)
+  : leafOwner
 
 const transferIx = createTransferInstruction(
-	{
-		merkleTree: treePublicKey,
-		treeAuthority,
-		leafOwner,
-		leafDelegate,
-		newLeafOwner: receiver,
-		logWrapper: SPL_NOOP_PROGRAM_ID,
-		compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
-		anchorRemainingAccounts: proofPath,
-	},
-	{
-		root: [...new PublicKey(assetProof.root.trim()).toBytes()],
-		dataHash: [...new PublicKey(assetData.compression.data_hash.trim()).toBytes()],
-		creatorHash: [
-			...new PublicKey(assetData.compression.creator_hash.trim()).toBytes(),
-		],
-		nonce: assetData.compression.leaf_id,
-		index: assetData.compression.leaf_id,
-	}
+  {
+    merkleTree: treePublicKey,
+    treeAuthority,
+    leafOwner,
+    leafDelegate,
+    newLeafOwner: receiver,
+    logWrapper: SPL_NOOP_PROGRAM_ID,
+    compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
+    anchorRemainingAccounts: proofPath,
+  },
+  {
+    root: [...new PublicKey(assetProof.root.trim()).toBytes()],
+    dataHash: [...new PublicKey(assetData.compression.data_hash.trim()).toBytes()],
+    creatorHash: [
+      ...new PublicKey(assetData.compression.creator_hash.trim()).toBytes(),
+    ],
+    nonce: assetData.compression.leaf_id,
+    index: assetData.compression.leaf_id,
+  }
 )
 ```
 
@@ -567,12 +566,8 @@ The `uri.ts` file provides 10k URIs that you can use for the off-chain portion o
 
 The `utils.ts` file has a few helper functions to keep you from writing more unnecessary boilerplate than you need to. They are as follows:
 
-- `getOrCreateKeypair` will create a new keypair for you and save it to a `.env` file, or if there’s already a private key in the `.env` file it will initialize a keypair from that.
-- `airdropSolIfNeeded` will airdrop some Devnet SOL to a specified address if that address’s balance is below 1 SOL.
 - `createNftMetadata` will create the NFT metadata for a given creator public key and index. The metadata it’s getting is just dummy metadata using the URI corresponding to the provided index from the `uri.ts` list of URIs.
 - `getOrCreateCollectionNFT` will fetch the collection NFT from the address specified in `.env` or if there is none it will create a new one and add the address to `.env`.
-
-Finally, there’s some boilerplate in `index.ts` that calls creates a new Devnet connection, calls `getOrCreateKeypair` to initialize a “wallet,” and calls `airdropSolIfNeeded` to fund the wallet if its balance is low.
 
 We will be writing all of our code in the `index.ts`.
 
@@ -588,16 +583,16 @@ We’ll start by creating the merkle tree account. Let’s encapsulate this in a
     In the body of the function, we’ll generate a new address for the tree, then create the instruction for allocating a new merkle tree account by calling `createAllocTreeIx` from `@solana/spl-account-compression`.
     
 
-```tsx
+```typescript
 async function createAndInitializeTree(
   connection: Connection,
   payer: Keypair,
   maxDepthSizePair: ValidDepthSizePair,
   canopyDepth: number
 ) {
-	const treeKeypair = Keypair.generate()
+  const treeKeypair = Keypair.generate()
 
-	const allocTreeIx = await createAllocTreeIx(
+  const allocTreeIx = await createAllocTreeIx(
     connection,
     treeKeypair.publicKey,
     payer.publicKey,
@@ -627,16 +622,16 @@ This instruction needs us to provide the following:
 
 Finally, we can add both instructions to a transaction and submit the transaction. Keep in mind that the transaction needs to be signed by both the `payer` and the `treeKeypair`.
 
-```tsx
+```typescript
 async function createAndInitializeTree(
   connection: Connection,
   payer: Keypair,
   maxDepthSizePair: ValidDepthSizePair,
   canopyDepth: number
 ) {
-	const treeKeypair = Keypair.generate()
+  const treeKeypair = Keypair.generate()
 
-	const allocTreeIx = await createAllocTreeIx(
+  const allocTreeIx = await createAllocTreeIx(
     connection,
     treeKeypair.publicKey,
     payer.publicKey,
@@ -644,12 +639,12 @@ async function createAndInitializeTree(
     canopyDepth
   )
 
-	const [treeAuthority, _bump] = PublicKey.findProgramAddressSync(
+  const [treeAuthority, _bump] = PublicKey.findProgramAddressSync(
     [treeKeypair.publicKey.toBuffer()],
     BUBBLEGUM_PROGRAM_ID
   )
 
-	const createTreeIx = createCreateTreeInstruction(
+  const createTreeIx = createCreateTreeInstruction(
     {
       treeAuthority,
       merkleTree: treeKeypair.publicKey,
@@ -665,7 +660,7 @@ async function createAndInitializeTree(
     }
   )
 
-	const tx = new Transaction().add(allocTreeIx, createTreeIx)
+  const tx = new Transaction().add(allocTreeIx, createTreeIx)
   tx.feePayer = payer.publicKey
   
   try {
@@ -691,28 +686,29 @@ async function createAndInitializeTree(
 }
 ```
 
-If you want to test what you have so far, feel free to call `createAndInitializeTree` from `main` and provide small values for the max depth and max buffer size. 
+If you want to test what you have so far, feel free to call `createAndInitializeTree()` and provide small values for the max depth and max buffer size. 
 
-```tsx
-async function main() {
-  const connection = new Connection(clusterApiUrl("devnet"), "confirmed")
-  const wallet = await getOrCreateKeypair("Wallet_1")
-  await airdropSolIfNeeded(wallet.publicKey)
-
-  const maxDepthSizePair: ValidDepthSizePair = {
-    maxDepth: 3,
-    maxBufferSize: 8,
-  }
-
-  const canopyDepth = 0
-
-  const treeAddress = await createAndInitializeTree(
-    connection,
-    wallet,
-    maxDepthSizePair,
-    canopyDepth
-  )
+```typescript
+const connection = new Connection(clusterApiUrl("devnet"), "confirmed")
+const keypair = await getKeypairFromEnvironment("Wallet_1")
+const balance = await getBalance()
+if ( BALANCE <= (1 * LAMPORTS_PER_SOL) ) {
+  await requestAndConfirmAirdrop(keypair.publicKey);
 }
+
+const maxDepthSizePair: ValidDepthSizePair = {
+  maxDepth: 3,
+  maxBufferSize: 8,
+}
+
+const canopyDepth = 0
+
+const treeAddress = await createAndInitializeTree(
+  connection,
+  keypair,
+  maxDepthSizePair,
+  canopyDepth
+)
 ```
 
 Keep in mind that Devnet SOL is throttled so if you test too many times you might run out of Devnet SOL before we get to minting. To test, in your terminal run the following:
@@ -754,13 +750,13 @@ The `createMintToCollectionV1Instruction` takes two arguments: `accounts` and `a
 - `collectionMetadata` - the metadata account for the collection NFT
 - `editionAccount` - the master edition account of the collection NFT
 - `compressionProgram` - the compression program to use; this should be the address of the SPL State Compression program unless you have some other custom implementation
-- `logWrapper` - the program to use to expose the data to indexers through logs; this should be the address of the SPL Noop program unless you have some other custom implementation
+- `logWrapper` - the program to use to expose the data to indexers through logs; this should be the address of the SPL No-op program unless you have some other custom implementation
 - `bubblegumSigner` - a PDA used by the Bubblegrum program to handle collection verification
 - `tokenMetadataProgram` - the token metadata program that was used for the collection NFT; this is usually always the Metaplex Token Metadata program
 
 When you put it all together, this is what it’ll look like:
 
-```tsx
+```typescript
 async function mintCompressedNftToCollection(
   connection: Connection,
   payer: Keypair,
@@ -839,11 +835,10 @@ async function mintCompressedNftToCollection(
 
 This is a great point to test with a small tree. Simply update `main` to call `getOrCreateCollectionNFT` then `mintCompressedNftToCollection`:
 
-```tsx
-async function main() {
+```typescript
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed")
-  const wallet = await getOrCreateKeypair("Wallet_1")
-  await airdropSolIfNeeded(wallet.publicKey)
+  const keypair = await getKeypairFromEnvironment("Wallet_1")
+  await airdropSolIfNeeded(keypair.publicKey)
 
   const maxDepthSizePair: ValidDepthSizePair = {
     maxDepth: 3,
@@ -854,21 +849,20 @@ async function main() {
 
   const treeAddress = await createAndInitializeTree(
     connection,
-    wallet,
+    keypair,
     maxDepthSizePair,
     canopyDepth
   )
 
-  const collectionNft = await getOrCreateCollectionNFT(connection, wallet)
+  const collectionNft = await getOrCreateCollectionNFT(connection, keypair)
 
   await mintCompressedNftToCollection(
     connection,
-    wallet,
+    keypair,
     treeAddress,
     collectionNft,
     2 ** maxDepthSizePair.maxDepth
   )
-}
 ```
 
 Again, to run, in your terminal type: `npm run start`
@@ -883,16 +877,16 @@ At this point we don’t actually have a direct identifier of any kind that poin
 
 In our case, we created a non-public tree and minted 8 cNFTs, so we know that the leaf indexes used were 0-7. With this, we can use the `getLeafAssetId` function from `@metaplex-foundation/mpl-bubblegum` to get the asset ID.
 
-Finally, we can use an RPC that supports the [Read API](https://docs.solana.com/developing/guides/compressed-nfts#reading-compressed-nfts-metadata) to fetch the asset. We’ll be using [Helius](https://docs.helius.dev/compression-and-das-api/digital-asset-standard-das-api), but feel free to choose your own RPC provider. To use Helius, you’ll need to get a free API Key from [their website](https://dev.helius.xyz/). Then add your `RPC_URL` to your `.env` file. For example:
+Finally, we can use an RPC that supports the [Read API](https://docs.solana.com/developing/guides/compressed-nfts#reading-compressed-nfts-metadata) to fetch the asset. We’ll be using [Helius](https://docs.helius.dev/compression-and-das-api/digital-asset-standard-das-api), but feel free to choose your own RPC provider. To use Helius, you’ll need to get a free API Key from [the Helius website](https://dev.helius.xyz/). Then add your `RPC_URL` to your `.env` file. For example:
 
 ```bash
-# Add this
+# Replace YOUR_API_KEY with your actual API key
 RPC_URL=https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY
 ```
 
 Then simply issue a POST request to your provided RPC URL and put the `getAsset` information in the body:
 
-```tsx
+```typescript
 async function logNftDetails(treeAddress: PublicKey, nftsMinted: number) {
   for (let i = 0; i < nftsMinted; i++) {
     const assetId = await getLeafAssetId(treeAddress, new BN(i))
@@ -1037,7 +1031,7 @@ Let’s start by declaring a `transferNft` function that takes the following:
 
 Inside that function, let’s fetch the asset data again then also fetch the asset proof. For good measure, let’s wrap everything in a `try catch`.
 
-```tsx
+```typescript
 async function transferNft(
   connection: Connection,
   assetId: PublicKey,
@@ -1072,16 +1066,16 @@ async function transferNft(
       }),
     })
     const assetProof = (await assetProofResponse.json()).result
-	} catch (err: any) {
+  } catch (err: any) {
     console.error("\nFailed to transfer nft:", err)
     throw err
-	}
+  }
 }
 ```
 
 Next, let’s fetch the merkle tree account from the chain, get the canopy depth, and assemble the proof path. We do this by mapping the asset proof we got from Helius to a list of `AccountMeta` objects, then removing any proof nodes at the end that are already cached on-chain in the canopy.
 
-```tsx
+```typescript
 async function transferNft(
   connection: Connection,
   assetId: PublicKey,
@@ -1116,7 +1110,7 @@ async function transferNft(
 
 Finally, we build the instruction using `createTransferInstruction`, add it to a transaction, then sign and send the transaction. This is what the entire `transferNft` function looks like when finished:
 
-```tsx
+```typescript
 async function transferNft(
   connection: Connection,
   assetId: PublicKey,
@@ -1218,56 +1212,60 @@ async function transferNft(
 }
 ```
 
-Lets transfer our first compressed NFT at index 0 to someone else. First we’ll need to spin up another wallet with some funds, then grab the assetID at index 0 using `getLeafAssetId`. Then we’ll do the transfer. Finally, we’ll print out the entire collection using our function `logNftDetails`. You’ll not that the NFT at index zero will now belong to our new wallet in the `ownership` field. 
+Lets transfer our first compressed NFT at index 0 to someone else. First we’ll need to spin up another keypair with some funds, then grab the assetID at index 0 using `getLeafAssetId`. Then we’ll do the transfer. Finally, we’ll print out the entire collection using our function `logNftDetails`. You’ll not that the NFT at index zero will now belong to our new keypair in the `ownership` field. 
 
-```tsx
-async function main() {
-  const connection = new Connection(clusterApiUrl("devnet"), "confirmed")
-  const wallet = await getOrCreateKeypair("Wallet_1")
-  await airdropSolIfNeeded(wallet.publicKey)
+```typescript
+const connection = new Connection(clusterApiUrl("devnet"), "confirmed")
+const keypair = await getKeypairFromEnvironment("Wallet_1")
+await airdropSolIfNeeded(keypair.publicKey)
 
-  const maxDepthSizePair: ValidDepthSizePair = {
-    maxDepth: 3,
-    maxBufferSize: 8,
-  }
-
-  const canopyDepth = 0
-
-  const treeAddress = await createAndInitializeTree(
-    connection,
-    wallet,
-    maxDepthSizePair,
-    canopyDepth
-  )
-
-  const collectionNft = await getOrCreateCollectionNFT(connection, wallet)
-
-  await mintCompressedNftToCollection(
-    connection,
-    wallet,
-    treeAddress,
-    collectionNft,
-    2 ** maxDepthSizePair.maxDepth
-  )
-
-  const recieverWallet = await getOrCreateKeypair("Wallet_2")
-  const assetId = await getLeafAssetId(treeAddress, new BN(0))
-  await airdropSolIfNeeded(recieverWallet.publicKey)
-
-  console.log(`Transfering ${assetId.toString()} from ${wallet.publicKey.toString()} to ${recieverWallet.publicKey.toString()}`)
-
-  await transferNft(
-    connection,
-    assetId,
-    wallet,
-    recieverWallet.publicKey
-  )
-
-  await logNftDetails(treeAddress, 8)
+const maxDepthSizePair: ValidDepthSizePair = {
+  maxDepth: 3,
+  maxBufferSize: 8,
 }
+
+const canopyDepth = 0
+
+const treeAddress = await createAndInitializeTree(
+  connection,
+  keypair,
+  maxDepthSizePair,
+  canopyDepth
+)
+
+const collectionNft = await getOrCreateCollectionNFT(connection, keypair)
+
+await mintCompressedNftToCollection(
+  connection,
+  keypair,
+  treeAddress,
+  collectionNft,
+  2 ** maxDepthSizePair.maxDepth
+)
+
+const recieverWallet = await getKeypairFromEnvironment("Wallet_2")
+const assetId = await getLeafAssetId(treeAddress, new BN(0))
+await airdropSolIfNeeded(recieverWallet.publicKey)
+
+console.log(`Transfering ${assetId.toString()} from ${keypair.publicKey.toString()} to ${recieverWallet.publicKey.toString()}`)
+
+await transferNft(
+  connection,
+  assetId,
+  keypair,
+  recieverWallet.publicKey
+)
+
+await logNftDetails(treeAddress, 8)
 ```
 
-Go ahead and run your script. The whole thing should execute without failing, and all for close to 0.01 SOL!
+Go ahead and run your script.
+
+```bash
+npx esrun runme.ts
+```
+
+The whole thing should execute without failing, and all for close to 0.01 SOL!
 
 Congratulations! Now you know how to mint, read, and transfer cNFTs. If you wanted, you could update the max depth, max buffer size, and canopy depth to larger values and as long as you have enough Devnet SOL, this script will let you mint up to 10k cNFTs for a small fraction of what it would cost to mint 10k traditional NFTs (Note: if you plan to mint a large amount of NFTs you might want to try and batch these instructions for fewer total transactions).
 

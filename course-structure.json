@@ -81,9 +81,14 @@
                             "lab": "Creating instructions to add, withdraw and swap tokens"
                         },
                         {
-                            "title": "Create Solana NFTs With Metaplex",
+                            "title": "Create Solana NFTs with Metaplex",
                             "slug": "nfts-with-metaplex",
                             "lab": "Mint NFTs, update their metadata, and associate with a collection"
+                        },
+                        {
+                            "title": "Compressed NFTs with Bubblegum",
+                            "slug": "compressed-nfts",
+                            "lab": "Mint, read and transfer NFTs at scale with Bubblegum"
                         }
                     ]
                 }
@@ -276,11 +281,7 @@
                             "slug": "vrf",
                             "lab": "Add randomness to the Escrow program"
                         },
-                        {
-                            "title": "Compressed NFTs",
-                            "slug": "compressed-nfts",
-                            "lab": "Mint, read and transfer NFTs at scale with Bubblegum"
-                        },
+
                         {
                             "title": "Generalized State Compression",
                             "slug": "generalized-state-compression",
