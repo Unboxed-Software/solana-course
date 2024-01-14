@@ -208,7 +208,7 @@ Ahora vamos a obtener un poco de experiencia práctica con los IPC haciendo algu
 
 En la última lección, añadimos la posibilidad de dejar comentarios en otras reseñas de películas usando PDA. En esta lección, vamos a trabajar para tener los tokens Mint del programa para el revisor o comentarista cada vez que se envíe una revisión o comentario.
 
-Para implementar esto, tendremos que invocar la `MintTo` instrucción del Programa de tokens SPL utilizando un CPI. Si necesita un repaso de tokens, fichas de acuñación y acuñar nuevos tokens, eche un vistazo a la [Lección del programa de fichas](./token-program.md) antes de seguir adelante con esta demostración.
+Para implementar esto, tendremos que invocar la `MintTo` instrucción del Programa de tokens SPL utilizando un CPI. Si necesita un repaso de tokens, fichas de acuñación y acuñar nuevos tokens, eche un vistazo a la [Lección del programa de fichas](./token-program) antes de seguir adelante con esta demostración.
 
 ### 1. Obtener código de inicio y añadir dependencias
 
@@ -514,7 +514,7 @@ pub fn process_instruction(
 }
 ```
 
-Por último, declarar e implementar la `initialize_token_mint` función. Esta función derivará los PDA de autoridad de token Mint y Mint, creará la cuenta de token Mint y luego inicializará el token Mint. No explicaremos todo esto en detalle, pero vale la pena leer el código, especialmente dado que la creación e inicialización del token Mint involucran CPI. Una vez más, si necesita un repaso de tokens y mentas, eche un vistazo a la[Lección del programa de fichas](./token-program.md).
+Por último, declarar e implementar la `initialize_token_mint` función. Esta función derivará los PDA de autoridad de token Mint y Mint, creará la cuenta de token Mint y luego inicializará el token Mint. No explicaremos todo esto en detalle, pero vale la pena leer el código, especialmente dado que la creación e inicialización del token Mint involucran CPI. Una vez más, si necesita un repaso de tokens y mentas, eche un vistazo a la[Lección del programa de fichas](./token-program).
 
 ```rust
 pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {

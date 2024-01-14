@@ -273,8 +273,7 @@ Antes de que puedas hacer algo, necesitarás un par de llaves. Vamos a saltar al
 
 ```tsx
 import web3 = require("@solana/web3.js");
-import Dotenv from "dotenv";
-Dotenv.config();
+import "dotenv/config"
 
 async function main() {
     const newKeypair = web3.Keypair.generate();

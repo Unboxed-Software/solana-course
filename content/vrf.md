@@ -8,7 +8,7 @@ objectives:
 
 # TL;DR
 
-- Attempts at generating randomness withing your program are likely to be guessable by users given there's no true randomness on-chain.
+- Attempts at generating randomness within your program are likely to be guessable by users given there's no true randomness on-chain.
 - Verifiable Random Functions (VRFs) give developers the opportunity to incorporate securely generated random numbers in their on-chain programs.
 - A VRF is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly.
 - Switchboard offers a developer-friendly VRF for the Solana ecosystem.
@@ -45,7 +45,7 @@ VRFs are not specific to Solana and have been utilized on other blockchains to g
 
 ## Switchboard VRF Implementation
 
-Switchboard is a decentralized Oracle network that offers VRFs on Solana. Oracles are services that provide external data to a blockchain, allowing them to interact with and respond to real-world events. The Switchboard network is made up of many different individual oracles run by third parties to provide external data and service requests on-chain. To learn more about Switchboard’s Oracle network, please refer to our [Oracle lesson](./oracles.md).
+Switchboard is a decentralized Oracle network that offers VRFs on Solana. Oracles are services that provide external data to a blockchain, allowing them to interact with and respond to real-world events. The Switchboard network is made up of many different individual oracles run by third parties to provide external data and service requests on-chain. To learn more about Switchboard’s Oracle network, please refer to our [Oracle lesson](./oracles).
 
 Switchboard's VRF allows users to request an oracle to produce a randomness output on-chain. Once an oracle has been assigned the request, the proof of the VRF result must be verified on-chain before it can be used. The VRF proof takes 276 instructions (~48 transactions) to fully verify on-chain. Once the proof is verified, the Switchboard program will execute a on-chain callback defined by the VRF Account during account creation. From there the program can consume the random data.
 
@@ -106,7 +106,7 @@ pub struct VrfAccountData {
 }
 ```
 
-Some important fields on this account are `authority`, `oracle_queue`, and `callback`. The `authority` should be a PDA of the program that has the ability to request randomness on this `vrf` account. That way, only that program can provide the signature needed for the vrf request. The `oracle_queue` field allows you to specify which specific oracle queue you’d like to service the vrf requests made with this account. If you aren’t familiar with oracle queues on Switchboard, checkout the [Oracles lesson in this module](./oracles.md)! Lastly, the `callback` field is where you define the callback instruction the Switchboard program should invoke once the randomness result has be verified.
+Some important fields on this account are `authority`, `oracle_queue`, and `callback`. The `authority` should be a PDA of the program that has the ability to request randomness on this `vrf` account. That way, only that program can provide the signature needed for the vrf request. The `oracle_queue` field allows you to specify which specific oracle queue you’d like to service the vrf requests made with this account. If you aren’t familiar with oracle queues on Switchboard, checkout the [Oracles lesson in this unit](./oracles)! Lastly, the `callback` field is where you define the callback instruction the Switchboard program should invoke once the randomness result has be verified.
 
 The `callback` field is of type `[CallbackZC](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/rust/switchboard-solana/src/oracle_program/accounts/ecvrf.rs#L25)`.
 
@@ -309,11 +309,11 @@ That is the essence of requesting randomness with a Switchboard VRF. To recap th
 
 ![VRF Diagram](../assets/vrf-diagram.png)
 
-# Demo
+# Lab
 
-For this lesson’s demo, we will be picking up where we left off in the [Oracle lesson](./oracle.md). If you have'nt completed the Oracle lesson and demo, we strongly recommend you do as there are a lot of overlapping concepts and we’ll be starting from the Oracle lesson’s codebase.
+For this lesson’s lab, we will be picking up where we left off in the [Oracle lesson](./oracle). If you have'nt completed the Oracle lesson and demo, we strongly recommend you do as there are a lot of overlapping concepts and we’ll be starting from the Oracle lesson’s codebase.
 
-If you don't want to complete the Oracle lesson, the starter code for this demo is provided for you in [the main branch of the demo Github repository](https://github.com/Unboxed-Software/michael-burry-escrow).
+If you don't want to complete the Oracle lesson, the starter code for this lab is provided for you in [the main branch of the lab Github repository](https://github.com/Unboxed-Software/michael-burry-escrow).
 
 The repo contains a "Michael Burry" escrow program. This is a program that allows a user to lock up some solana funds in escrow that cannot be withdrawn until SOL has reached a predefined price in USD chosen by the user. We will be adding VRF functionality to this program to allow the user to "Get out of jail" by rolling doubles. Our demo today will allow the user to roll two virtual dice, if they roll doubles (the two dice match), the user can withdraw their funds from escrow regardless of the SOL price.
 
@@ -420,7 +420,7 @@ Then, create our second data account for this program: `VrfClientState`. This wi
 - `vrf` - Public key of the VRF account; owned by the Switchboard program. We will create this before we call `VrfClientState`'s initialization function. 
 - `escrow` - Public key of our burry escrow account.
 
-We're also going to make the `VrfClientState` context a `zero_copy` struct. This means that we will initialize it with `load_init()` and pass it into accounts with `AccountLoader`. We do this because VRF functions are very account intensive and we need to be mindful of the stack. If you'd like to learn more about `zero_copy`, take a look at our [Program Architecture lesson](./program-architecture.md).
+We're also going to make the `VrfClientState` context a `zero_copy` struct. This means that we will initialize it with `load_init()` and pass it into accounts with `AccountLoader`. We do this because VRF functions are very account intensive and we need to be mindful of the stack. If you'd like to learn more about `zero_copy`, take a look at our [Program Architecture lesson](./program-architecture).
 
 ```rust
 // state.rs

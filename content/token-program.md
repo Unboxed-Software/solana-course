@@ -41,11 +41,11 @@ To create a new Token Mint, you need to send the right transaction instructions 
 
 ```tsx
 const tokenMint = await createMint(
-    connection,
-    payer,
-    mintAuthority,
-    freezeAuthority,
-    decimal
+  connection,
+  payer,
+  mintAuthority,
+  freezeAuthority,
+  decimal
 );
 ```
 
@@ -70,32 +70,32 @@ import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
 async function buildCreateMintTransaction(
-    connection: web3.Connection,
-    payer: web3.PublicKey,
-    decimals: number
+  connection: web3.Connection,
+  payer: web3.PublicKey,
+  decimals: number
 ): Promise<web3.Transaction> {
-    const lamports = await token.getMinimumBalanceForRentExemptMint(connection);
-    const accountKeypair = web3.Keypair.generate();
-    const programId = token.TOKEN_PROGRAM_ID
+  const lamports = await token.getMinimumBalanceForRentExemptMint(connection);
+  const accountKeypair = web3.Keypair.generate();
+  const programId = token.TOKEN_PROGRAM_ID
 
-    const transaction = new web3.Transaction().add(
-        web3.SystemProgram.createAccount({
-            fromPubkey: payer,
-            newAccountPubkey: accountKeypair.publicKey,
-            space: token.MINT_SIZE,
-            lamports,
-            programId,
-        }),
-        token.createInitializeMintInstruction(
-            accountKeypair.publicKey,
-            decimals,
-            payer,
-            payer,
-            programId
-        )
-    );
+  const transaction = new web3.Transaction().add(
+    web3.SystemProgram.createAccount({
+      fromPubkey: payer,
+      newAccountPubkey: accountKeypair.publicKey,
+      space: token.MINT_SIZE,
+      lamports,
+      programId,
+    }),
+    token.createInitializeMintInstruction(
+      accountKeypair.publicKey,
+      decimals,
+      payer,
+      payer,
+      programId
+    )
+  );
 
-    return transaction
+  return transaction
 }
 ```
 
@@ -122,11 +122,11 @@ You can use the `spl-token` library's `createAccount` function to create the new
 
 ```tsx
 const tokenAccount = await createAccount(
-    connection,
-    payer,
-    mint,
-    owner,
-    keypair
+  connection,
+  payer,
+  mint,
+  owner,
+  keypair
 );
 ```
 
@@ -151,39 +151,43 @@ import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
 async function buildCreateTokenAccountTransaction(
-    connection: web3.Connection,
-    payer: web3.PublicKey,
-    mint: web3.PublicKey
+  connection: web3.Connection,
+  payer: web3.PublicKey,
+  mint: web3.PublicKey
 ): Promise<web3.Transaction> {
-    const mintState = await token.getMint(connection, mint)
-    const accountKeypair = await web3.Keypair.generate()
-    const space = token.getAccountLenForMint(mintState);
-    const lamports = await connection.getMinimumBalanceForRentExemption(space);
-    const programId = token.TOKEN_PROGRAM_ID
+  const mintState = await token.getMint(connection, mint)
+  const accountKeypair = await web3.Keypair.generate()
+  const space = token.getAccountLenForMint(mintState);
+  const lamports = await connection.getMinimumBalanceForRentExemption(space);
+  const programId = token.TOKEN_PROGRAM_ID
 
-    const transaction = new web3.Transaction().add(
-        web3.SystemProgram.createAccount({
-            fromPubkey: payer,
-            newAccountPubkey: accountKeypair.publicKey,
-            space,
-            lamports,
-            programId,
-        }),
-        token.createInitializeAccountInstruction(
-            accountKeypair.publicKey,
-            mint,
-            payer,
-            programId
-        )
-    );
+  const transaction = new web3.Transaction().add(
+    web3.SystemProgram.createAccount({
+      fromPubkey: payer,
+      newAccountPubkey: accountKeypair.publicKey,
+      space,
+      lamports,
+      programId,
+    }),
+    token.createInitializeAccountInstruction(
+      accountKeypair.publicKey,
+      mint,
+      payer,
+      programId
+    )
+  );
 
-    return transaction
+  return transaction
 }
 ```
 
 ### Associated Token Account
 
-An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
+An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. 
+
+Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
+- If not for associated token account, a user may own many token accounts belonging to the same mint leading to confusion as to where to send tokens to.
+- Associated token account allows a user to send tokens to another user if the recipient doesn't yet have the token account for that token mint.  
 
 ![ATAs are PDAs](../assets/atas-are-pdas.svg)
 
@@ -191,7 +195,7 @@ Similar to above, you can create an associated token account using the `spl-toke
 
 ```tsx
 const associatedTokenAccount = await createAssociatedTokenAccount(
-    connection,
+  connection,
 	payer,
 	mint,
 	owner,
@@ -217,21 +221,21 @@ import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
 async function buildCreateAssociatedTokenAccountTransaction(
-    payer: web3.PublicKey,
-    mint: web3.PublicKey
+  payer: web3.PublicKey,
+  mint: web3.PublicKey
 ): Promise<web3.Transaction> {
-    const associatedTokenAddress = await token.getAssociatedTokenAddress(mint, payer, false);
+  const associatedTokenAddress = await token.getAssociatedTokenAddress(mint, payer, false);
 
-    const transaction = new web3.Transaction().add(
-        token.createAssociatedTokenAccountInstruction(
-            payer,
-            associatedTokenAddress,
-            payer,
-            mint
-        )
+  const transaction = new web3.Transaction().add(
+    token.createAssociatedTokenAccountInstruction(
+      payer,
+      associatedTokenAddress,
+      payer,
+      mint
     )
+  )
 
-    return transaction
+  return transaction
 }
 ```
 
@@ -243,12 +247,12 @@ To mint tokens using the `spl-token` library, you can use the `mintTo` function.
 
 ```tsx
 const transactionSignature = await mintTo(
-    connection,
-    payer,
-    mint,
-    destination,
-    authority,
-    amount
+  connection,
+  payer,
+  mint,
+  destination,
+  authority,
+  amount
 );
 ```
 
@@ -270,21 +274,21 @@ import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
 async function buildMintToTransaction(
-    authority: web3.PublicKey,
-    mint: web3.PublicKey,
-    amount: number,
-    destination: web3.PublicKey
+  authority: web3.PublicKey,
+  mint: web3.PublicKey,
+  amount: number,
+  destination: web3.PublicKey
 ): Promise<web3.Transaction> {
-    const transaction = new web3.Transaction().add(
-        token.createMintToInstruction(
-            mint,
-            destination,
-            authority,
-            amount
-        )
+  const transaction = new web3.Transaction().add(
+    token.createMintToInstruction(
+      mint,
+      destination,
+      authority,
+      amount
     )
+  )
 
-    return transaction
+  return transaction
 }
 ```
 
@@ -298,12 +302,12 @@ Once you know the receiver's token account address, you transfer tokens using th
 
 ```tsx
 const transactionSignature = await transfer(
-    connection,
-    payer,
-    source,
-    destination,
-    owner,
-    amount
+  connection,
+  payer,
+  source,
+  destination,
+  owner,
+  amount
 )
 ```
 
@@ -324,21 +328,21 @@ import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
 async function buildTransferTransaction(
-    source: web3.PublicKey,
-    destination: web3.PublicKey,
-    owner: web3.PublicKey,
-    amount: number
+  source: web3.PublicKey,
+  destination: web3.PublicKey,
+  owner: web3.PublicKey,
+  amount: number
 ): Promise<web3.Transaction> {
-    const transaction = new web3.Transaction().add(
-        token.createTransferInstruction(
-            source,
-            destination,
-            owner,
-            amount,
-        )
+  const transaction = new web3.Transaction().add(
+    token.createTransferInstruction(
+      source,
+      destination,
+      owner,
+      amount,
     )
+  )
 
-    return transaction
+  return transaction
 }
 ```
 
@@ -350,12 +354,12 @@ To burn tokens using the `spl-token` library, you use the `burn` function.
 
 ```tsx
 const transactionSignature = await burn(
-    connection,
-    payer,
-    account,
-    mint,
-    owner,
-    amount
+  connection,
+  payer,
+  account,
+  mint,
+  owner,
+  amount
 )
 ```
 
@@ -375,21 +379,21 @@ import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
 async function buildBurnTransaction(
-    account: web3.PublicKey,
-    mint: web3.PublicKey,
-    owner: web3.PublicKey,
-    amount: number
+  account: web3.PublicKey,
+  mint: web3.PublicKey,
+  owner: web3.PublicKey,
+  amount: number
 ): Promise<web3.Transaction> {
-    const transaction = new web3.Transaction().add(
-        token.createBurnInstruction(
-            account,
-            mint,
-            owner,
-            amount
-        )
+  const transaction = new web3.Transaction().add(
+    token.createBurnInstruction(
+      account,
+      mint,
+      owner,
+      amount
     )
+  )
 
-    return transaction
+  return transaction
 }
 ```
 
@@ -401,12 +405,12 @@ To approve a delegate using the `spl-token` library, you use the `approve` funct
 
 ```tsx
 const transactionSignature = await approve(
-    connection,
-    payer,
-    account,
-    delegate,
-    owner,
-    amount
+  connection,
+  payer,
+  account,
+  delegate,
+  owner,
+  amount
   )
 ```
 
@@ -426,21 +430,21 @@ import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
 async function buildApproveTransaction(
-    account: web3.PublicKey,
-    delegate: web3.PublicKey,
-    owner: web3.PublicKey,
-    amount: number
+  account: web3.PublicKey,
+  delegate: web3.PublicKey,
+  owner: web3.PublicKey,
+  amount: number
 ): Promise<web3.Transaction> {
-    const transaction = new web3.Transaction().add(
-        token.createApproveInstruction(
-            account,
-            delegate,
-            owner,
-            amount
-        )
+  const transaction = new web3.Transaction().add(
+    token.createApproveInstruction(
+      account,
+      delegate,
+      owner,
+      amount
     )
+  )
 
-    return transaction
+  return transaction
 }
 ```
 
@@ -452,10 +456,10 @@ To revoke a delegate using the `spl-token` library, you use the `revoke` functio
 
 ```tsx
 const transactionSignature = await revoke(
-    connection,
-    payer,
-    account,
-    owner,
+  connection,
+  payer,
+  account,
+  owner,
   )
 ```
 
@@ -473,21 +477,21 @@ import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
 async function buildRevokeTransaction(
-    account: web3.PublicKey,
-    owner: web3.PublicKey,
+  account: web3.PublicKey,
+  owner: web3.PublicKey,
 ): Promise<web3.Transaction> {
-    const transaction = new web3.Transaction().add(
-        token.createRevokeInstruction(
-            account,
-            owner,
-        )
+  const transaction = new web3.Transaction().add(
+    token.createRevokeInstruction(
+      account,
+      owner,
     )
+  )
 
-    return transaction
+  return transaction
 }
 ```
 
-# Demo
+# Lab
 
 We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, approve a delegate, transfer tokens, and burn tokens.
 
@@ -514,26 +518,26 @@ Import `createMint` from `@solana/spl-token` and then create a function to call 
 
 ```tsx
 async function createNewMint(
-    connection: web3.Connection,
-    payer: web3.Keypair,
-    mintAuthority: web3.PublicKey,
-    freezeAuthority: web3.PublicKey,
-    decimals: number
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  mintAuthority: web3.PublicKey,
+  freezeAuthority: web3.PublicKey,
+  decimals: number
 ): Promise<web3.PublicKey> {
 
-    const tokenMint = await token.createMint(
-        connection,
-        payer,
-        mintAuthority,
-        freezeAuthority,
-        decimals
-    );
+  const tokenMint = await token.createMint(
+    connection,
+    payer,
+    mintAuthority,
+    freezeAuthority,
+    decimals
+  );
 
-    console.log(
-        `Token Mint: https://explorer.solana.com/address/${tokenMint}?cluster=devnet`
-    );
+  console.log(
+    `Token Mint: https://explorer.solana.com/address/${tokenMint}?cluster=devnet`
+  );
 
-    return tokenMint;
+  return tokenMint;
 }
 ```
 
@@ -543,18 +547,18 @@ After creating the new mint, let's fetch the account data using the `getMint` fu
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
 
-    const mint = await createNewMint(
-        connection,
-        user,
-        user.publicKey,
-        user.publicKey,
-        2
-    )
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
 
-    const mintInfo = await token.getMint(connection, mint);
+  const mintInfo = await token.getMint(connection, mint);
 }
 ```
 
@@ -570,23 +574,23 @@ For our demo we’ll use the`getOrCreateAssociatedTokenAccount` function to crea
 
 ```tsx
 async function createTokenAccount(
-    connection: web3.Connection,
-    payer: web3.Keypair,
-    mint: web3.PublicKey,
-    owner: web3.PublicKey
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  mint: web3.PublicKey,
+  owner: web3.PublicKey
 ) {
-    const tokenAccount = await token.getOrCreateAssociatedTokenAccount(
-        connection,
-        payer,
-        mint,
-        owner
-    )
+  const tokenAccount = await token.getOrCreateAssociatedTokenAccount(
+    connection,
+    payer,
+    mint,
+    owner
+  )
 
-    console.log(
-        `Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`
-    )
+  console.log(
+    `Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`
+  )
 
-    return tokenAccount
+  return tokenAccount
 }
 ```
 
@@ -594,25 +598,25 @@ Add a call the `createTokenAccount` in `main`, passing in the mint we created in
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
 
-    const mint = await createNewMint(
-        connection,
-        user,
-        user.publicKey,
-        user.publicKey,
-        2
-    )
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
 
-    const mintInfo = await token.getMint(connection, mint);
+  const mintInfo = await token.getMint(connection, mint);
 
-    const tokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        user.publicKey
-    )
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey
+  )
 }
 ```
 
@@ -624,25 +628,25 @@ Create a function `mintTokens` that uses the `spl-token` function `mintTo` to mi
 
 ```tsx
 async function mintTokens(
-    connection: web3.Connection,
-    payer: web3.Keypair,
-    mint: web3.PublicKey,
-    destination: web3.PublicKey,
-    authority: web3.Keypair,
-    amount: number
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  mint: web3.PublicKey,
+  destination: web3.PublicKey,
+  authority: web3.Keypair,
+  amount: number
 ) {
-    const transactionSignature = await token.mintTo(
-        connection,
-        payer,
-        mint,
-        destination,
-        authority,
-        amount
-    )
+  const transactionSignature = await token.mintTo(
+    connection,
+    payer,
+    mint,
+    destination,
+    authority,
+    amount
+  )
 
-    console.log(
-        `Mint Token Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+  console.log(
+    `Mint Token Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+  )
 }
 ```
 
@@ -652,34 +656,34 @@ Note that we have to adjust the input `amount` for the decimal precision of the 
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
 
-    const mint = await createNewMint(
-        connection,
-        user,
-        user.publicKey,
-        user.publicKey,
-        2
-    )
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
 
-    const mintInfo = await token.getMint(connection, mint);
+  const mintInfo = await token.getMint(connection, mint);
 
-    const tokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        user.publicKey
-    )
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey
+  )
 
-    await mintTokens(
-        connection,
-        user,
-        mint,
-        tokenAccount.address,
-        user,
-        100 * 10 ** mintInfo.decimals
-    )
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals
+  )
 }
 ```
 
@@ -691,25 +695,25 @@ Create a function `approveDelegate` that uses the `spl-token` function `approve`
 
 ```tsx
 async function approveDelegate(
-    connection: web3.Connection,
-    payer: web3.Keypair,
-    account: web3.PublicKey,
-    delegate: web3.PublicKey,
-    owner: web3.Signer | web3.PublicKey,
-    amount: number
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  account: web3.PublicKey,
+  delegate: web3.PublicKey,
+  owner: web3.Signer | web3.PublicKey,
+  amount: number
 ) {
-    const transactionSignature = await token.approve(
-        connection,
-        payer,
-        account,
-        delegate,
-        owner,
-        amount
+  const transactionSignature = await token.approve(
+    connection,
+    payer,
+    account,
+    delegate,
+    owner,
+    amount
   )
 
-    console.log(
-        `Approve Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+  console.log(
+    `Approve Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+  )
 }
 ```
 
@@ -717,45 +721,45 @@ In `main`, lets generate a new `Keypair` to represent the delegate account. Then
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
 
-    const mint = await createNewMint(
-        connection,
-        user,
-        user.publicKey,
-        user.publicKey,
-        2
-    )
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
 
-    const mintInfo = await token.getMint(connection, mint);
+  const mintInfo = await token.getMint(connection, mint);
 
-    const tokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        user.publicKey
-    )
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey
+  )
 
-    await mintTokens(
-        connection,
-        user,
-        mint,
-        tokenAccount.address,
-        user,
-        100 * 10 ** mintInfo.decimals
-    )
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals
+  )
 
-    const delegate = web3.Keypair.generate();
+  const delegate = web3.Keypair.generate();
 
-    await approveDelegate(
-      connection,
-      user,
-      tokenAccount.address,
-      delegate.publicKey,
-      user.publicKey,
-      50 * 10 ** mintInfo.decimals
-    )
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals
+  )
 }
 ```
 
@@ -765,25 +769,25 @@ Next, lets transfer some of the tokens we just minted using the `spl-token` libr
 
 ```tsx
 async function transferTokens(
-    connection: web3.Connection,
-    payer: web3.Keypair,
-    source: web3.PublicKey,
-    destination: web3.PublicKey,
-    owner: web3.Keypair,
-    amount: number
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  source: web3.PublicKey,
+  destination: web3.PublicKey,
+  owner: web3.Keypair,
+  amount: number
 ) {
-    const transactionSignature = await token.transfer(
-        connection,
-        payer,
-        source,
-        destination,
-        owner,
-        amount
-    )
+  const transactionSignature = await token.transfer(
+    connection,
+    payer,
+    source,
+    destination,
+    owner,
+    amount
+  )
 
-    console.log(
-        `Transfer Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+  console.log(
+    `Transfer Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+  )
 }
 ```
 
@@ -795,61 +799,61 @@ Then, create a token account for the receiver. Finally, lets call our new `trans
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
 
-    const mint = await createNewMint(
-        connection,
-        user,
-        user.publicKey,
-        user.publicKey,
-        2
-    )
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
 
-    const tokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        user.publicKey
-    )
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey
+  )
 
-    const mintInfo = await token.getMint(connection, mint);
+  const mintInfo = await token.getMint(connection, mint);
 
-    await mintTokens(
-        connection,
-        user,
-        mint,
-        tokenAccount.address,
-        user,
-        100 * 10 ** mintInfo.decimals
-    )
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals
+  )
 
-    const receiver = web3.Keypair.generate().publicKey
-    const receiverTokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        receiver
-    )
+  const receiver = web3.Keypair.generate().publicKey
+  const receiverTokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    receiver
+  )
 
-    const delegate = web3.Keypair.generate();
-    await approveDelegate(
-        connection,
-        user,
-        tokenAccount.address,
-        delegate.publicKey,
-        user.publicKey,
-        50 * 10 ** mintInfo.decimals
-    )
+  const delegate = web3.Keypair.generate();
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals
+  )
 
-    await transferTokens(
-        connection,
-        user,
-        tokenAccount.address,
-        receiverTokenAccount.address,
-        delegate,
-        50 * 10 ** mintInfo.decimals
-    )
+  await transferTokens(
+    connection,
+    user,
+    tokenAccount.address,
+    receiverTokenAccount.address,
+    delegate,
+    50 * 10 ** mintInfo.decimals
+  )
 }
 ```
 
@@ -859,21 +863,21 @@ Now that we've finished transferring tokens, lets revoke the `delegate` using th
 
 ```tsx
 async function revokeDelegate(
-    connection: web3.Connection,
-    payer: web3.Keypair,
-    account: web3.PublicKey,
-    owner: web3.Signer | web3.PublicKey,
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  account: web3.PublicKey,
+  owner: web3.Signer | web3.PublicKey,
 ) {
-    const transactionSignature = await token.revoke(
-        connection,
-        payer,
-        account,
-        owner,
+  const transactionSignature = await token.revoke(
+    connection,
+    payer,
+    account,
+    owner,
   )
 
-    console.log(
-        `Revote Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+  console.log(
+    `Revote Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+  )
 }
 ```
 
@@ -881,68 +885,68 @@ Revoke will set delegate for the token account to null and reset the delegated a
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
 
-    const mint = await createNewMint(
-        connection,
-        user,
-        user.publicKey,
-        user.publicKey,
-        2
-    )
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
 
-    const mintInfo = await token.getMint(connection, mint);
+  const mintInfo = await token.getMint(connection, mint);
 
-    const tokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        user.publicKey
-    )
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey
+  )
 
-    await mintTokens(
-        connection,
-        user,
-        mint,
-        tokenAccount.address,
-        user,
-        100 * 10 ** mintInfo.decimals
-    )
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals
+  )
 
-    const receiver = web3.Keypair.generate().publicKey
-    const receiverTokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        receiver
-    )
+  const receiver = web3.Keypair.generate().publicKey
+  const receiverTokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    receiver
+  )
 
-    const delegate = web3.Keypair.generate();
-    await approveDelegate(
-        connection,
-        user,
-        tokenAccount.address,
-        delegate.publicKey,
-        user.publicKey,
-        50 * 10 ** mintInfo.decimals
-    )
+  const delegate = web3.Keypair.generate();
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals
+  )
 
-    await transferTokens(
-        connection,
-        user,
-        tokenAccount.address,
-        receiverTokenAccount.address,
-        delegate,
-        50 * 10 ** mintInfo.decimals
-    )
+  await transferTokens(
+    connection,
+    user,
+    tokenAccount.address,
+    receiverTokenAccount.address,
+    delegate,
+    50 * 10 ** mintInfo.decimals
+  )
 
-    await revokeDelegate(
-        connection,
-        user,
-        tokenAccount.address,
-        user.publicKey,
-    )
+  await revokeDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    user.publicKey,
+  )
 }
 ```
 
@@ -954,25 +958,25 @@ Create a `burnTokens` function that uses the `spl-token` library's `burn` functi
 
 ```tsx
 async function burnTokens(
-    connection: web3.Connection,
-    payer: web3.Keypair,
-    account: web3.PublicKey,
-    mint: web3.PublicKey,
-    owner: web3.Keypair,
-    amount: number
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  account: web3.PublicKey,
+  mint: web3.PublicKey,
+  owner: web3.Keypair,
+  amount: number
 ) {
-    const transactionSignature = await token.burn(
-        connection,
-        payer,
-        account,
-        mint,
-        owner,
-        amount
-    )
+  const transactionSignature = await token.burn(
+    connection,
+    payer,
+    account,
+    mint,
+    owner,
+    amount
+  )
 
-    console.log(
-        `Burn Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-    )
+  console.log(
+    `Burn Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+  )
 }
 ```
 
@@ -980,76 +984,76 @@ Now call this new function in `main` to burn 25 of the user's tokens. Remember t
 
 ```tsx
 async function main() {
-    const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-    const user = await initializeKeypair(connection)
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
 
-    const mint = await createNewMint(
-        connection,
-        user,
-        user.publicKey,
-        user.publicKey,
-        2
-    )
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
 
-    const mintInfo = await token.getMint(connection, mint);
+  const mintInfo = await token.getMint(connection, mint);
 
-    const tokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        user.publicKey
-    )
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey
+  )
 
-    await mintTokens(
-        connection,
-        user,
-        mint,
-        tokenAccount.address,
-        user,
-        100 * 10 ** mintInfo.decimals
-    )
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals
+  )
 
-    const receiver = web3.Keypair.generate().publicKey
-    const receiverTokenAccount = await createTokenAccount(
-        connection,
-        user,
-        mint,
-        receiver
-    )
+  const receiver = web3.Keypair.generate().publicKey
+  const receiverTokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    receiver
+  )
 
-    const delegate = web3.Keypair.generate();
-    await approveDelegate(
-        connection,
-        user,
-        tokenAccount.address,
-        delegate.publicKey,
-        user.publicKey,
-        50 * 10 ** mintInfo.decimals
-    )
+  const delegate = web3.Keypair.generate();
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals
+  )
 
-    await transferTokens(
-        connection,
-        user,
-        tokenAccount.address,
-        receiverTokenAccount.address,
-        delegate,
-        50 * 10 ** mintInfo.decimals
-    )
+  await transferTokens(
+    connection,
+    user,
+    tokenAccount.address,
+    receiverTokenAccount.address,
+    delegate,
+    50 * 10 ** mintInfo.decimals
+  )
 
-    await revokeDelegate(
-        connection,
-        user,
-        tokenAccount.address,
-        user.publicKey,
-    )
+  await revokeDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    user.publicKey,
+  )
 
-    await burnTokens(
-        connection, 
-        user, 
-        tokenAccount.address, 
-        mint, user, 
-        25 * 10 ** mintInfo.decimals
-    )
+  await burnTokens(
+    connection, 
+    user, 
+    tokenAccount.address, 
+    mint, user, 
+    25 * 10 ** mintInfo.decimals
+  )
 }
 ```
 ### 9. Test it all out
@@ -1060,23 +1064,23 @@ If you need a bit more time with this project to feel comfortable, have a look a
 
 # Challenge
 
-Now it’s your turn to build something independently. Create an application that allows a users to create a new mint, create a token account, and mint tokens.
+Now it’s your turn to build something independently. Create an application that allows a user to create a new mint, create a token account, and mint tokens.
 
-Note that you will not be able to directly use the helper functions we went over in the demo. In order to interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
+Note that you will not be able to directly use the helper functions we went over in the lab. In order to interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
 
 ![Screenshot of Token Program Challenge Frontend](../assets/token-program-frontend.png)
 
 1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
 2. Create a new Token Mint in the `CreateMint` component.
-    If you need a refresher on how to send transactions to a wallet for approval, have a look at the [Wallets lesson](./interact-with-wallets.md).
+  If you need a refresher on how to send transactions to a wallet for approval, have a look at the [Wallets lesson](./interact-with-wallets).
 
-    When creating a new mint, the newly generated `Keypair` will also have to sign the transaction. When additional signers are required in addition to the connected wallet, use the following format:
+  When creating a new mint, the newly generated `Keypair` will also have to sign the transaction. When additional signers are required in addition to the connected wallet, use the following format:
 
-    ```tsx
-    sendTransaction(transaction, connection, {
-        signers: [Keypair],
-    })
-    ```
+  ```tsx
+  sendTransaction(transaction, connection, {
+    signers: [Keypair],
+  })
+  ```
 3. Create a new Token Account in the `CreateTokenAccount` component.
 4. Mint tokens in the `MintToForm` component.
 
