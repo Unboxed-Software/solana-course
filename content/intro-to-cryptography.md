@@ -41,7 +41,7 @@ Asymmetric encryption is very popular:
  - Websites include a public key in their certificate. Your browser will use this public key to encrypt the data (like personal information, login details, and credit card numbers) it sends to the web page. 
 
    The website has the matching private key so that the website can read the data. 
- - Your electronic passport was signed by the country that issued it to ensure the passport isn't forged. 
+ - Your electronic passport was signed by the country that issued it to ensure it isn't forged. 
 
    The electronic passport gates can confirm this using the public key of your issuing country.
  - The messaging apps on your phone use key exchange to make a session key. 
