@@ -318,7 +318,7 @@ Additionally, any declarations that you would like to be available through `use`
 pub enum NoteInstruction { ... }
 ```
 
-## Lab
+# Lab
 
 For this lesson’s lab, we’ll be building out the first half of the Movie Review program that we worked with in Module 1. This program stores movie reviews submitted by users.
 
