@@ -881,3 +881,7 @@ If you need to spend more time with the solution code, feel free to reference th
 # Challenge
 
 To solidify what you've learned, go ahead and create another procedural macro on your own. Think about code you've written that could be reduced or improved by a macro and try it out! Since this is still practice, it's okay if it doesn't work out the way you want or expect. Just jump in and experiment!
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=eb892157-3014-4635-beac-f562af600bf8)!

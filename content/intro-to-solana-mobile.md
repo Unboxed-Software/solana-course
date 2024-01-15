@@ -950,3 +950,7 @@ That's it! You've made your first Solana Mobile dApp. If you get stuck, feel fre
 Your challenge today is to take our app and add a decrement function. Simply add another button and call the `decrement` function on our program. This instruction already exists on the program and its IDL, so you simply need to write client code to call it.
 
 After you give it a try on your own, feel free to take a look at the [solution code on the `solution` branch](https://github.com/Unboxed-Software/solana-react-native-counter/tree/solution).
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=c15928ce-8302-4437-9b1b-9aa1d65af864)!

@@ -480,3 +480,8 @@ Using what you've learned in this lesson, build the Student Intro program to the
 You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) we created in the [Serialize Custom Instruction Data lesson](serialize-instruction-data) and then checking the program logs on Solana Explorer. Remember to replace the program ID in the frontend code with the one you've deployed.
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b0ce53f6273245aca4f5b0).
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=74a157dc-01a7-4b08-9a5f-27aa51a4346c)!

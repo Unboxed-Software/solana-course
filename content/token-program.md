@@ -1087,3 +1087,8 @@ Note that you will not be able to directly use the helper functions we went over
 If you get stumped, feel free to reference the [solution code](https://github.com/ZYJLiu/solana-token-frontend).
 
 And remember, get creative with these challenges and make them your own!
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=72cab3b8-984b-4b09-a341-86800167cfc7)!

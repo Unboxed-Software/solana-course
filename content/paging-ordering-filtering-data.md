@@ -437,3 +437,8 @@ Now it’s your turn to try and do this on your own. Using the Student Intros ap
 This is challenging. If you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-paging-account-data). With this you complete Module 1! How was your experience? Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%201), so that we can continue to improve the course!
 
 As always, get creative with these challenges and take them beyond the instructions if you want! 
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=9342ad0a-1741-41a5-9f68-662642c8ec93)!

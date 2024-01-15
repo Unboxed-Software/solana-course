@@ -358,3 +358,7 @@ Just as with other lessons in this unit, your opportunity to practice avoiding t
 Take some time to review at least one program and ensure that any instructions with two same-typed mutable accounts are properly constrained to avoid duplicates.
 
 Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=9b759e39-7a06-4694-ab6d-e3e7ac266ea7)!

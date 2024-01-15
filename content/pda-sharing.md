@@ -480,3 +480,7 @@ Just as with other lessons in this unit, your opportunity to practice avoiding t
 Take some time to review at least one program and look for potential vulnerabilities in its PDA structure. PDAs used for signing should be narrow and focused on a single domain as much as possible.
 
 Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5744079f-9473-4485-9a14-9be4d31b40d1)!

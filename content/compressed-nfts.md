@@ -1280,3 +1280,8 @@ It’s your turn to take these concepts for a spin on your own! We’re not goin
 1. Create your own production cNFT collection
 2. Build a UI for this lesson’s lab that will let you mint a cNFT and display it
 3. See if you can replicate some of the lab script’s functionality in an on-chain program, i.e. write a program that can mint cNFTs
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=db156789-2400-4972-904f-40375582384a)!

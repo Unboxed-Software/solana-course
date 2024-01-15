@@ -671,3 +671,8 @@ Now it’s your turn to build something independently! Go ahead and work with th
 If you haven't been following along with past lessons or haven't saved your work from before, feel free to use the starter code on the `starter` branch of [this repository](https://github.com/Unboxed-Software/solana-student-intro-program/tree/starter).
 
 Try to do this independently if you can! If you get stuck though, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intro-program/tree/solution-add-replies). Note that the solution code is on the `solution-add-replies` branch and that your code may look slightly different.
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=89d367b4-5102-4237-a7f4-4f96050fe57e)!

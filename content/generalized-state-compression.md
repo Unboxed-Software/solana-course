@@ -1044,3 +1044,7 @@ If you’re running into issues, feel free to go back through some of the demo o
 Now that you’ve practiced the basics of state compression, add a new instruction to the Compressed Notes program. This new instruction should allow users to delete an existing note. keep in mind that you can’t remove a leaf from the tree, so you’ll need to decide what “deleted” looks like for your program. Good luck!
 
 If you'd like a very simple example of a delete function, check out the [`solution` branch on GitHub](https://github.com/Unboxed-Software/anchor-compressed-notes/tree/solution).
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=60f6b072-eaeb-469c-b32e-5fea4b72d1d1)!

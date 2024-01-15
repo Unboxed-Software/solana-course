@@ -579,3 +579,8 @@ To deepen your understanding of the Metaplex tools, dive into the Metaplex docum
 Once you have an understanding of how the the Candy Machine program works, put your knowledge to the test by using the Sugar CLI to create a Candy Machine for your own collection. This hands-on experience will not only reinforce your understanding of the tools, but also boost your confidence in your ability to use them effectively in the future.
 
 Have some fun with this! This will be your first independently created NFT collection! With this, you'll complete Module 2. Hope you're feeling the process! Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202) so that we can continue to improve the course!
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=296745ac-503c-4b14-b3a6-b51c5004c165)!

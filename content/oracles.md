@@ -1057,3 +1057,7 @@ If something went wrong, go back through the lab and make sure you got everythin
 As an independent challenge, create a fallback plan if the data feed ever goes down. If the Oracle queue has not updated the aggregator account in X time or if the data feed account does not exist anymore, withdraw the user’s escrowed funds.
 
 A potential solution to this challenge can be found [in the Github repository on the `challenge-solution` branch](https://github.com/Unboxed-Software/michael-burry-escrow/tree/challenge-solution).
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=1a5d266c-f4c1-4c45-b986-2afd4be59991)!
