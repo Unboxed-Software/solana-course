@@ -89,9 +89,26 @@ The `sendAndConfirmTransaction()` functions takes as parameters
 
 Transaction fees are built into the Solana economy as compensation to the validator network for the CPU and GPU resources required in processing transactions. Solana transaction fees are deterministic.
 
-The first signer included in the array of signers on a transaction is responsible for paying the transaction fee. If this signer does not have enough SOL in their account to cover the transaction fee, the transaction will be dropped.
+The first signer included in the array of signers on a transaction is responsible for paying the transaction fee. If this signer does not have enough SOL in their account to cover the transaction fee, the transaction will be dropped with an error like:
 
-When testing, whether locally or on devnet, you can use the Solana CLI command `solana airdrop 1` to get free test SOL in your account for paying transaction fees.
+```
+> Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
+```
+
+If you get this error, it’s because your keypair is brand new and doesn’t have any SOL to cover the transaction fees. Let’s fix this by adding the following lines just after we've set up the connection:
+
+```typescript
+await requestAndConfirmAirdropIfRequired(
+  connection,
+  keypair.publicKey,
+  1 * LAMPORTS_PER_SOL,
+  0.5 * LAMPORTS_PER_SOL,
+);
+```
+
+This will deposit 1 SOL into your account which you can use for testing. This won’t work on Mainnet where it would actually have value. But it's incredibly convenient for testing locally and on Devnet.
+
+You can also use the Solana CLI command `solana airdrop 1` to get free test SOL in your account when testing, whether locally or on devnet.
 
 ## Solana Explorer
 
