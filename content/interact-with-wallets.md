@@ -79,16 +79,15 @@ import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import * as web3 from "@solana/web3.js";
 
 export const Home: NextPage = (props) => {
   const endpoint = web3.clusterApiUrl("devnet");
-  const wallet = new PhantomWalletAdapter();
+  const wallets = useMemo(() => [], []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={[wallet]}>
+      <WalletProvider wallets={wallets}>
         <p>Put the rest of your app here</p>
       </WalletProvider>
     </ConnectionProvider>
@@ -96,7 +95,7 @@ export const Home: NextPage = (props) => {
 };
 ```
 
-Note that `ConnectionProvider` requires an `endpoint` property and that `WalletProvider` requires a `wallets` property. We’re continuing to use the endpoint for the Devnet cluster, and for now we’re only using the `PhantomWalletAdapter` for `wallets`.
+Note that `ConnectionProvider` requires an `endpoint` property and that `WalletProvider` requires a `wallets` property. We’re continuing to use the endpoint for the Devnet cluster, and since all major Solana adapters support wallet standard, we don't need any wallet-specific adapters.
 
 At this point you can connect with `wallet.connect()`, which will instruct the wallet to prompt the user for permission to view their public key and request approval for transactions.
 
@@ -119,16 +118,15 @@ import {
   WalletModalProvider,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import * as web3 from "@solana/web3.js";
 
 const Home: NextPage = (props) => {
   const endpoint = web3.clusterApiUrl("devnet");
-  const wallet = new PhantomWalletAdapter();
+  const wallets = useMemo(() => [], []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={[wallet]}>
+      <WalletProvider wallets={wallets}>
         <WalletModalProvider>
           <WalletMultiButton />
           <p>Put the rest of your app here</p>
@@ -298,7 +296,7 @@ The last things we need are an actual endpoint for `ConnectionProvider` and the 
 
 For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it. For the array of wallets you’ll also need to import the `@solana/wallet-adapter-wallets` library.
 
-After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the url for Devnet. Then create a constant `wallets` and set it to an array that contains a newly constructed `PhantomWalletAdapter`. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
+After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the url for Devnet. Then create a constant `wallets` and set it to an empty array - since all wallets support Wallet Standard, we no longer need any custom wallet adapter. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
 
 To complete this component, add `require('@solana/wallet-adapter-react-ui/styles.css');` below your imports to ensure proper styling and behavior of the Wallet Adapter library components.
 
@@ -315,7 +313,7 @@ require("@solana/wallet-adapter-react-ui/styles.css");
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const endpoint = web3.clusterApiUrl("devnet");
-  const wallets = [new walletAdapterWallets.PhantomWalletAdapter()];
+  const wallets = useMemo(() => [], []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
