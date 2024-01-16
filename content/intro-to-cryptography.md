@@ -29,20 +29,21 @@ There's a variety of symmetric cryptography algorithms, but the most common you'
 - Asymmetric cryptography - also called '[public key cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography)' was developed in the 1970s. In asymmetric cryptography, participants have pairs of keys (or **keypairs**). Each keypair consists of a **secret key** and a **public key**. Asymmetric encryption works differently from symmetric encryption, and can do different things:
 
 - **Encryption**: if it's encrypted with a public key, only the secret key from the same keypair can be used to read it
-- **Signatures**: if it's encrypted with a secret key, the public key from the same keypair can be used to prove the holder of the secret key signed it.
-- You can even use asymmetric cryptography to work out a good key to use for symmetric cryptography! This is called **key exchange** where you use your public keys and a recipients public key to come up with a 'session' key. 
-- There's a variety of symmetric cryptography algorithms, but the most common you'll see today are variants of ECC or RSA.
+- **Signatures**: if it's encrypted with a secret key, the public key from the same keypair can be used to prove the secret key holder signed it.
+- You can even use asymmetric cryptography to work out a good key for symmetric cryptography! This is called **key exchange**, where you use your public keys and the recipient's public key to come up with a 'session' key. 
+- There's a variety of asymmetric cryptography algorithms, but the most common you'll see today are variants of ECC or RSA.
 
 Asymmetric encryption is very popular: 
- - Your bank card has a secret key inside it, that's used to sign transactions.
+
+ - Your bank card has a secret key inside it that's used to sign transactions.
 
    Your bank can confirm you made the transaction by checking them with the matching public key.
- - Websites include a public key in their certificate, your browser will use this public key to encrypt the data (like personal information, login details, and credit card numbers) it sends to the web page. 
+ - Websites include a public key in their certificate. Your browser will use this public key to encrypt the data (like personal information, login details, and credit card numbers) it sends to the web page. 
 
-   The website has the matching private key, so the website can read the data. 
- - Your electronic passport was signed by the country that issued it, to ensure the passport isn't forged. 
+   The website has the matching private key so that the website can read the data. 
+ - Your electronic passport was signed by the country that issued it to ensure the passport isn't forged. 
 
-   The electronic passport gates can confirm this usin the public key of your issuing country.
+   The electronic passport gates can confirm this using the public key of your issuing country.
  - The messaging apps on your phone use key exchange to make a session key. 
 
 In short, cryptography is all around us. Solana, as well as other blockchains, are but one use of cryptography.    
