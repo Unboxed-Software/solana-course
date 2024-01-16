@@ -95,7 +95,7 @@ Depending on the program you’re invoking with your CPI, you can either hard co
 
 ## Use an Anchor CPI module
 
-A simpler way to manage program checks is to use Anchor CPI modules. We learned in a [previous lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/anchor-cpi.md) that Anchor can automatically generate CPI modules to make CPIs into the program simpler. These modules also enhance security by verifying the public key of the program that’s passed into one of its public instructions.
+A simpler way to manage program checks is to use Anchor CPI modules. We learned in a [previous lesson](https://github.com/Unboxed-Software/solana-course/blob/main/content/anchor-cpi) that Anchor can automatically generate CPI modules to make CPIs into the program simpler. These modules also enhance security by verifying the public key of the program that’s passed into one of its public instructions.
 
 Every Anchor program uses the `declare_id()` macro to define the address of the program. When a CPI module is generated for a specific program, it uses the address passed into this macro as the "source of truth" and will automatically verify that all CPIs made using its CPI module target this program id.
 
@@ -153,7 +153,7 @@ If you have access to an Anchor program's CPI module, you typically can import i
 use other_program::program::OtherProgram;
 ```
 
-# Demo
+# Lab
 
 To show the importance of checking with program you use for CPIs, we're going to work with a simplified and somewhat contrived game. This game represents characters with PDA accounts, and uses a separate "metadata" program to manage character metadata and attributes like health and power.
 
@@ -352,7 +352,7 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that program checks are in place for every program passed into the instructions, particularly those that are invoked via CPI.
 

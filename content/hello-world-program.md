@@ -175,7 +175,7 @@ Following program execution, the program must return a value of type `ProgramRes
 
 ...and there you have it - you now know all the things you need for the foundations of creating a Solana program using Rust. Let’s practice what we’ve learned so far!
 
-# Demo
+# Lab
 
 We're going to build a "Hello, World!" program using Solana Playground. Solana Playground is a tool that allows you to write and deploy Solana programs from the browser.
 
@@ -282,7 +282,7 @@ Congratulations, you’ve just successfully built and deployed a Solana program!
 Now it’s your turn to build something independently. Because we're starting with very simple programs, yours will look almost identical to what we just created. It's useful to try and get to the point where you can write it from scratch without referencing prior code, so try not to copy and paste here.
 
 1. Write a new program that uses the `msg!` macro to print your own message to the program log.
-2. Build and deploy your program like we did in the demo.
+2. Build and deploy your program like we did in the lab.
 3. Invoke your newly deployed program and use Solana Explorer to check that your message was printed in the program log.
 
 As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!

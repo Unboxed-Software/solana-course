@@ -123,11 +123,11 @@ const tokenAAccountInstruction =
 transaction.add(tokenAAccountInstruction);
 ```
 
-Si necesita un repaso sobre la creación de cuentas de token, eche un vistazo a la[Lección del programa de fichas](./token-program.md).
+Si necesita un repaso sobre la creación de cuentas de token, eche un vistazo a la[Lección del programa de fichas](./token-program).
 
 ### Piscina Token Mint
 
-La casa de la moneda de la piscina es la ceca de los tokens LP que representan la propiedad de un LP en la piscina. Creas esta menta de la forma en que aprendiste en el[Lección del programa de fichas](./token-program.md). Para que el grupo de swaps funcione, la autoridad de Mint debe ser la cuenta de la autoridad de swaps.
+La casa de la moneda de la piscina es la ceca de los tokens LP que representan la propiedad de un LP en la piscina. Creas esta menta de la forma en que aprendiste en el[Lección del programa de fichas](./token-program). Para que el grupo de swaps funcione, la autoridad de Mint debe ser la cuenta de la autoridad de swaps.
 
 ```tsx
 const poolTokenMint = await token.createMint(
@@ -475,7 +475,7 @@ Para esta demostración, se ha creado un grupo de tokens de dos tokens nuevos y 
 
 Antes de comenzar, siga adelante y descargue el[código de inicio](https://github.com/Unboxed-Software/solana-token-swap-frontend/tree/starter).
 
-El proyecto es una aplicación Next.js bastante simple que reutiliza gran parte de lo que se construyó anteriormente para la demostración en el[Lección del programa de fichas](./token-program.md). Como puede ver en la imagen de arriba, hay algunas entradas de texto y botones diferentes, todos los cuales enviarán transacciones a la cadena de bloques en nombre del usuario. Nuestro enfoque en esta demostración será crear las instrucciones que enviarán los últimos tres botones.
+El proyecto es una aplicación Next.js bastante simple que reutiliza gran parte de lo que se construyó anteriormente para la demostración en el[Lección del programa de fichas](./token-program). Como puede ver en la imagen de arriba, hay algunas entradas de texto y botones diferentes, todos los cuales enviarán transacciones a la cadena de bloques en nombre del usuario. Nuestro enfoque en esta demostración será crear las instrucciones que enviarán los últimos tres botones.
 
 Los botones de lanzamiento aéreo ya están implementados y deberían funcionar de inmediato. Utilizan un programa de lanzamiento aéreo que se implementa en Devnet en la dirección[CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3](https://explorer.solana.com/address/CPEV4ibq2VUv7UnNpkzUGL82VRzotbv2dy8vGwRfh3H3?cluster=devnet). Puede acuñar tantos tokens como desee en su billetera para interactuar con el grupo.
 
@@ -909,4 +909,4 @@ Tómese su tiempo con este código y los conceptos de esta lección. Los grupos 
 
 Ahora que hemos trabajado juntos en la demostración, ¡intenta dar un paso más con tus propios tokens!
 
-En el [Lección del programa de fichas](./token-program.md) has creado algunas fichas. Ahora haga un grupo de intercambio para esos tokens y modifique el código de la demostración de esta lección para usar sus tokens y el grupo de intercambio recién creado. No hay código de solución para esto, ya que es específico para sus tokens, así que vaya despacio y dé un paso a la vez. ¡Tienes esto!
+En el [Lección del programa de fichas](./token-program) has creado algunas fichas. Ahora haga un grupo de intercambio para esos tokens y modifique el código de la demostración de esta lección para usar sus tokens y el grupo de intercambio recién creado. No hay código de solución para esto, ya que es específico para sus tokens, así que vaya despacio y dé un paso a la vez. ¡Tienes esto!

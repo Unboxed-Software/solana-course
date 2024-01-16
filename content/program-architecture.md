@@ -24,7 +24,7 @@ Program Architecture is what separates the hobbyist from the professional. Craft
 
 These questions are even more important when developing for a blockchain. Not only are resources more limited than in a typical computing environment, you're also dealing with people’s assets; code has a cost now.
 
-We'll leave most of the asset handling discussion to [security lessons](./security-intro.md), but it's important to note the nature of resource limitations in Solana development. There are, of course, limitations in a typical development environment, but there are limitations unique to blockchain and Solana development such as how much data can be stored in an account, the cost to store that data, and how many compute units are available per transaction. You, the program designer, have to be mindful of these limitations to create programs that are affordable, fast, safe, and functional. Today we will be delving into some of the more advance considerations that should be taken when creating Solana programs. 
+We'll leave most of the asset handling discussion to [security lessons](./security-intro), but it's important to note the nature of resource limitations in Solana development. There are, of course, limitations in a typical development environment, but there are limitations unique to blockchain and Solana development such as how much data can be stored in an account, the cost to store that data, and how many compute units are available per transaction. You, the program designer, have to be mindful of these limitations to create programs that are affordable, fast, safe, and functional. Today we will be delving into some of the more advance considerations that should be taken when creating Solana programs. 
 
 ## Dealing With Large Accounts
 
@@ -556,7 +556,7 @@ You can run the entire test suite or add `.only` to the `describe` call in a spe
 
 We've talked about quite a few program architecture considerations: bytes, accounts, bottlenecks, and more. Whether you wind up running into any of these specific considerations or not, hopefully the examples and discussion sparked some thought. At the end of the day, you're the designer of your system. Your job is to weigh the pros and cons of various solutions. Be forward thinking, but be practical. There is no "one good way" to design anything. Just know the trade-offs.
 
-# Demo
+# Lab
 
 Let's use all of these concepts to create a simple, but optimized, RPG game engine in Solana. This program will have the following features:
 - Let users create a game (`Game` account) and become a "game master" (the authority over the game)
@@ -1368,13 +1368,13 @@ it("Deposit Action Points", async () => {
 
 Finally, run `anchor test` to see everything working.
 
-Congratulations! This was a lot to cover, but you now have a mini RPG game engine. If things aren't quite working, go back through the demo and find where you went wrong. If you need, you can refer to the [`main` branch of the solution code](https://github.com/Unboxed-Software/anchor-rpg).
+Congratulations! This was a lot to cover, but you now have a mini RPG game engine. If things aren't quite working, go back through the lab and find where you went wrong. If you need, you can refer to the [`main` branch of the solution code](https://github.com/Unboxed-Software/anchor-rpg).
 
 Be sure to put these concepts into practice in your own programs. Each little optimization adds up!
 
 # Challenge
 
-Now it’s your turn to practice independently. Go back through the Demo code looking for additional optimizations and/or expansion you can make. Think through new systems and features you would add and how you would optimize them.
+Now it’s your turn to practice independently. Go back through the lab code looking for additional optimizations and/or expansion you can make. Think through new systems and features you would add and how you would optimize them.
 
 You can find some example modifications on the `challenge-solution` branch of the [RPG repository](https://github.com/Unboxed-Software/anchor-rpg/tree/challenge-solution).
 

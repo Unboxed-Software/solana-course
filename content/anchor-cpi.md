@@ -16,7 +16,7 @@ objectives:
 
 # Overview
 
-If you think back to the [first CPI lesson](cpi.md), you'll remember that constructing CPIs can get tricky with vanilla Rust. Anchor makes it a bit simpler though, especially if the program you're invoking is also an Anchor program whose crate you can access.
+If you think back to the [first CPI lesson](cpi), you'll remember that constructing CPIs can get tricky with vanilla Rust. Anchor makes it a bit simpler though, especially if the program you're invoking is also an Anchor program whose crate you can access.
 
 In this lesson, you'll learn how to construct an Anchor CPI. You'll also learn how to throw custom errors from an Anchor program so that you can start to write more sophisticated Anchor programs.
 
@@ -267,11 +267,11 @@ pub enum MyError {
 }
 ```
 
-# Demo
+# Lab
 
 Let’s practice the concepts we’ve gone over in this lesson by building on top of the Movie Review program from previous lessons.
 
-In this demo we’ll update the program to mint tokens to users when they submit a new movie review.
+In this lab we’ll update the program to mint tokens to users when they submit a new movie review.
 
 ### 1. Starter
 
@@ -279,7 +279,7 @@ To get started, we will be using the final state of the Anchor Movie Review prog
 
 ### 2. Add dependencies to `Cargo.toml`
 
-Before we get started we need enable the `init-if-needed` feature and add the `anchor-spl` crate to the dependencies in `Cargo.toml`. If you need to brush up on the `init-if-needed` feature take a look at the [Anchor PDAs and Accounts lesson](anchor-pdas.md).
+Before we get started we need enable the `init-if-needed` feature and add the `anchor-spl` crate to the dependencies in `Cargo.toml`. If you need to brush up on the `init-if-needed` feature take a look at the [Anchor PDAs and Accounts lesson](anchor-pdas).
 
 ```rust
 [dependencies]
@@ -543,10 +543,10 @@ anchor-movie-review-program
   5 passing (2s)
 ```
 
-If you need more time with the concepts from this lesson or got stuck along the way, feel free to take a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
+If you need more time with the concepts from this lesson or got stuck along the way, feel free to take a look at the [solution code](https://github.com/Unboxed-Software/anchor-movie-review-program/tree/solution-add-tokens). Note that the solution to this lab is on the `solution-add-tokens` branch.
 
 # Challenge
 
-To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves.
+To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the lab here and add some functionality to mint tokens to users when they introduce themselves.
 
 Try to do this independently if you can! But if you get stuck, feel free to reference this [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge). Note that your code may look slightly different than the solution code depending on your implementation.

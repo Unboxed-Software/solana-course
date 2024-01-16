@@ -34,7 +34,7 @@ There's a variety of symmetric cryptography algorithms, but the most common you'
 - There's a variety of symmetric cryptography algorithms, but the most common you'll see today are variants of ECC or RSA.
 
 Asymmetric encryption is very popular: 
- - You bank card has a secret key inside it, that's used to sign transactions.
+ - Your bank card has a secret key inside it, that's used to sign transactions.
 
    Your bank can confirm you made the transaction by checking them with the matching public key.
  - Websites include a public key in their certificate, your browser will use this public key to encrypt the data (like personal information, login details, and credit card numbers) it sends to the web page. 
@@ -94,17 +94,16 @@ If you already have a keypair you’d like to use, you can load a `Keypair` from
  - To use a Solana CLI file use `getKeypairFromFile()`
 
 ```typescript
-import * as dotenv from "dotenv";
+import "dotenv/config";
 import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
 
-dotenv.config();
 
 const keypair = getKeypairFromEnvironment("SECRET_KEY");
 ```
 
 You know how to make and load keypairs! Let’s practice what we’ve learned.
 
-# Demo
+# Lab
 
 ### Installation
 
@@ -114,7 +113,7 @@ Make a new directory, install TypeScript, Solana web3.js and esrun:
 mkdir generate-keypair
 cd generate-keypair
 npm init -y
-npm install typescript @solana/web3.js @digitak/esrun @solana-developers/node-helpers
+npm install typescript @solana/web3.js esrun @solana-developers/node-helpers
 ```
 
 Make a new file called `generate-keypair.ts`
@@ -166,10 +165,8 @@ SECRET_KEY="[(a series of numbers)]"
 We can then load the keypair from the environment. Update `generate-keypair.ts`:
 
 ```typescript
-import * as dotenv from "dotenv";
+import "dotenv/config"
 import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
-
-dotenv.config();
 
 const keypair = getKeypairFromEnvironment("SECRET_KEY");
 
