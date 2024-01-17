@@ -19,7 +19,7 @@ Typically, in older systems, people interact with each other through third party
 
 - Accounts that store value - like payment cards, bank accounts, and trading accounts - are handled by large platforms like credit card companies, money transfer organizations, and stock exchanges. In many cases these companies take a piece (around 1% - 3%) of every transaction that occurs on their platforms. They may often slow transaction settlement down, in order to benefit the organization. In some cases the item being transferred may not belong to the recipient at all, but are rather held on the recipient's behalf.
 
-Web3 is an evolution of the internet that allows people to transact directly with each other:
+Web3 is an evolution of the internet that allows people to **transact directly with each other**:
 
 - Users own their own accounts, represented by their wallet.
 
@@ -37,13 +37,13 @@ Common uses of web3 include:
 
 ## What is Solana?
 
-Solana is the first scalable Layer 1 blockchain.
+Solana allows people to **transact directly with each other instantly at almost no cost**.
 
 Compared to older platforms like Bitcoin and Ethereum, Solana is:
 
 - Significantly faster - most transactions complete in a second or two.
 
-- Massively cheaper - transaction fees (referred to as 'gas fees' in older networks) are typically $0.000025 (yes, far less than one penny) regardless of the value of what's being transferred.
+- Massively cheaper - transaction fees (referred to as 'gas fees' in older networks) are typically $0.00025 (much less than one penny) regardless of the value of what's being transferred.
 
 - Highly decentralized, having one of the highest Nakamoto coefficient (decentralization score) of any proof-of-stake network.
 
@@ -66,7 +66,7 @@ And much more. We're keeping this course updated so as new tech joins the Solana
 You **don't** need previous blockchain experience to follow this course! 
 
 - Linux, Mac or a Windows computer. 
-  Windows machines should have Windows Terminal and WSL installed.
+  Windows machines should have [Windows Terminal](https://aka.ms/terminal) and [WSL](https://learn.microsoft.com/en-us/windows/wsl/) installed.
 - Basic JavaScript / TypeScript programming experience. We'll also use some Rust but we'll explain the Rust as we go. 
 - node.js 18 installed
 - Rust installed
