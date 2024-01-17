@@ -511,3 +511,8 @@ Before building the component in the frontend, you’ll first need to:
 If you need some help, feel free to [reference this program](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/solution-decrement).
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=774a4023-646d-4394-af6d-19724a6db3db)!

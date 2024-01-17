@@ -643,3 +643,7 @@ It's time to try this out on your own. Feel free to build out an idea of your ow
 Build out an app using Solana Pay (or modify the one from the lab) to mint an NFT to users. To take it up a notch, only make the transaction possible if the user meets one or more conditions (e.g. holds an NFT from a specific collection, is already on a pre-determined list, etc.).
 
 Get creative with this! The Solana pay spec opens up a lot of doors for unique use cases.
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=3c7e5796-c433-4575-93e1-1429f718aa10)!

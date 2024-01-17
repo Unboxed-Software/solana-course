@@ -286,3 +286,8 @@ Now it’s your turn to build something independently. Because we're starting wi
 3. Invoke your newly deployed program and use Solana Explorer to check that your message was printed in the program log.
 
 As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5b56c69c-1490-46e4-850f-a7e37bbd79c2)!

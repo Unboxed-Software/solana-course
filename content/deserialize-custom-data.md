@@ -273,3 +273,8 @@ Now it’s your turn to build something independently. Last lesson, you worked o
 If you get really stumped, feel free to [check out the solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data).
 
 As always, get creative with these challenges and take them beyond the instructions if you want!
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=9cb89e09-2c97-4185-93b0-c89f7aca7677)!

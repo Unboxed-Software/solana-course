@@ -458,3 +458,7 @@ At this point in the course, we hope you've started to work on programs and proj
 Alternatively, you can find open source programs to audit. There are plenty of programs you can look at. A good start if you don't mind diving into native Rust would be the [SPL programs](https://github.com/solana-labs/solana-program-library).
 
 So for this lesson, take a look at a program (whether yours or one you've found online) and audit it for signer checks. If you find a bug in somebody else's program, please alert them! If you find a bug in your own program, be sure to patch it right away.
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=26b3f41e-8241-416b-9cfa-05c5ab519d80)!

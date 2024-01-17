@@ -1379,3 +1379,7 @@ Now it’s your turn to practice independently. Go back through the lab code loo
 You can find some example modifications on the `challenge-solution` branch of the [RPG repository](https://github.com/Unboxed-Software/anchor-rpg/tree/challenge-solution).
 
 Finally, go through one of your own programs and think about optimizations you can make to improve memory management, storage size, and/or concurrency.
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=4a628916-91f5-46a9-8eb0-6ba453aa6ca6)!

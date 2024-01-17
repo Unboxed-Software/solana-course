@@ -206,8 +206,6 @@ console.log(`You can view your transaction on the Solana Explorer at:\nhttps://e
 
 And just like that you’re calling programs on the Solana network and writing data to chain!
 
-### Next steps
-
 In the next few lessons you’ll learn how to
 
 1. Send transactions safely from the browser instead of from running a script
@@ -219,3 +217,8 @@ In the next few lessons you’ll learn how to
 Go ahead and create a script from scratch that will allow you to transfer SOL from one account to another on Devnet. Be sure to print out the transaction signature so you can look at it on the Solana Explorer.
 
 If you get stuck feel free to glance at the [solution code](https://github.com/Unboxed-Software/solana-ping-client).
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=e969d07e-ae85-48c3-976f-261a22f02e52)!

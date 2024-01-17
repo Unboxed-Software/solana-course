@@ -1360,3 +1360,8 @@ If something is not working, go back and find where you went wrong. Alternativel
 Now it's time to work on something independently. Let's add some [Monopoly rules](https://en.wikipedia.org/wiki/Monopoly_(game)#Rules) to our program. Add some logic to the program to track how many times a user rolls. If they roll 3 times without rolling doubles, they should be able to withdraw their funds, just like getting out of jail in Monopoly.
 
 If you get stuck, we have the solution in the [`vrf-challenge-solution` branch](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf-challenge-solution).
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5af49eda-f3e7-407d-8cd7-78d0653ee17c)!

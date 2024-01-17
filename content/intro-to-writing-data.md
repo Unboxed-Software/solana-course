@@ -220,3 +220,7 @@ Answer the following questions:
  - How long does the transfer take? 
 
  - What do you think "confirmed" means?
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=dda6b8de-9ed8-4ed2-b1a5-29d7a8a8b415)!
