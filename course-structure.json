@@ -76,11 +76,6 @@
                             "lab": "Mint, transfer and burn tokens"
                         },
                         {
-                            "title": "Swap tokens with the Token Swap Program",
-                            "slug": "token-swap",
-                            "lab": "Creating instructions to add, withdraw and swap tokens"
-                        },
-                        {
                             "title": "Create Solana NFTs With Metaplex",
                             "slug": "nfts-with-metaplex",
                             "lab": "Mint NFTs, update their metadata, and associate with a collection"
