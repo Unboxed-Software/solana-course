@@ -45,42 +45,27 @@ Each object in the `keys` array must include the following:
 Putting this all together, we might end up with something like the following:
 
 ```typescript
-async function callProgram(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  programId: web3.PublicKey,
-  programDataAccount: web3.PublicKey,
-) {
-  const instruction = new web3.TransactionInstruction({
-    keys: [
-      {
-        pubkey: programDataAccount,
-        isSigner: false,
-        isWritable: true,
-      },
-    ],
-    programId,
-  });
+const instruction = new web3.TransactionInstruction({
+  keys: [
+    {
+      pubkey: programDataAccount,
+      isSigner: false,
+      isWritable: true,
+    },
+  ],
+  programId,
+});
 
-  const transaction = new web3.Transaction().add(instruction)
+const transaction = new web3.Transaction().add(instruction)
 
-  const signature = await web3.sendAndConfirmTransaction(
-    connection,
-    transaction,
-    [payer],
-  );
+const signature = await web3.sendAndConfirmTransaction(
+  connection,
+  transaction,
+  [payer],
+);
 
-  console.log(`✅ Success! Transaction signature is: ${signature}`);
-}
+console.log(`✅ Success! Transaction signature is: ${signature}`);
 ```
-
-### Transaction Fees
-
-Transaction fees are built into the Solana economy as compensation to the validator network for the CPU and GPU resources required in processing transactions. Solana transaction fees are deterministic.
-
-The first signer included in the array of signers on a transaction is responsible for paying the transaction fee. If this signer does not have enough SOL in their account to cover the transaction fee, the transaction will be dropped.
-
-When testing, whether locally or on devnet, you can use the Solana CLI command `solana airdrop 1` to get free test SOL in your account for paying transaction fees.
 
 ### Solana Explorer
 
@@ -103,48 +88,47 @@ We’re going to create a script to ping an on-chain program that increments a c
 
 ### 1. Basic scaffolding
 
-We'll start by using the same packages and `.env` file we made earlier in [intro to cryptography](./intro-to-cryptography):
+We'll start by using the same packages and `.env` file we made earlier in [intro to writing data](./intro-to-writing-data).
+
+Call the file `send-ping-transaction.ts`:
 
 ```typescript
-import { Keypair } from "@solana/web3.js";
+import * as web3 from "@solana/web3.js";
 import "dotenv/config"
 import base58 from "bs58";
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers"
+import { getKeypairFromEnvironment, requestAndConfirmAirdropIfRequired } from "@solana-developers/node-helpers";
 
 const payer = getKeypairFromEnvironment('SECRET_KEY')
 const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
 
+const newBalance = await requestAndConfirmAirdropIfRequired(
+  connection,
+  payer.publicKey,
+  1 * LAMPORTS_PER_SOL,
+  0.5 * LAMPORTS_PER_SOL,
+);
+
 ```
 
-### 4. Ping program
+This will connect to Solana and load some Lamports if needed.
 
-Now that we've loaded our keypair, we need to connect to Solana’s Devnet. Let's create a connection:
+### 2. Ping program
 
-```typescript
-const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
-```
-
-Now create an async function called `sendPingTransaction()` with two parameters requiring a connection and payer’s keypair as arguments:
-
-```typescript
-async function sendPingTransaction(connection: web3.Connection, payer: web3.Keypair) { }
-```
-
-Inside this function, we need to:
+Now let's talk to the Ping program! To do this, we need to:
 
 1. create a transaction
 2. create an instruction
 3. add the instruction to the transaction
 4. send the transaction.
 
-Remember, the most challenging piece here is including the right information in the instruction. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the `index.ts` file:
+Remember, the most challenging piece here is including the right information in the instruction. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the file:
 
 ```typescript
 const PING_PROGRAM_ADDRESS = new web3.PublicKey('ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa')
 const PING_PROGRAM_DATA_ADDRESS =  new web3.PublicKey('Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod')
 ```
 
-Now, in the `sendPingTransaction()` function, let’s create a new transaction, then initialize a `PublicKey` for the program account, and another for the data account.
+Now let’s create a new transaction, then initialize a `PublicKey` for the program account, and another for the data account.
 
 ```typescript
 const transaction = new web3.Transaction()
@@ -175,22 +159,6 @@ const instruction = new web3.TransactionInstruction({
 Next, let’s add the instruction to the transaction we created. Then, call `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on the Solana Explorer.
 
 ```typescript
-const transaction = new web3.Transaction()
-
-const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
-const pingProgramDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
-
-const instruction = new web3.TransactionInstruction({
-  keys: [
-    {
-      pubkey: pingProgramDataId,
-      isSigner: false,
-      isWritable: true
-    },
-  ],
-  programId
-})
-
 transaction.add(instruction)
 
 const signature = await web3.sendAndConfirmTransaction(
@@ -202,25 +170,15 @@ const signature = await web3.sendAndConfirmTransaction(
 console.log(`✅ Transaction completed! Signature is ${signature}`)
 ```
 
-### 5. Airdrop
+### 3. Run the ping client and check the Solana explorer
 
-Now run the code with `npx esrun send-ping-instruction.ts` and see if it works. You may end up with the following error in the console:
+Now run the code again. 
 
 ```
-> Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
+npx esrun send-ping-transaction.ts
 ```
 
-If you get this error, it’s because your keypair is brand new and doesn’t have any SOL to cover the transaction fees. Let’s fix this by adding the following line before the call to `sendPingTransaction()`:
-
-```typescript
-await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL*1)
-```
-
-This will deposit 1 SOL into your account which you can use for testing. This won’t work on Mainnet where it would actually have value. But it's incredibly convenient for testing locally and on Devnet.
-
-### 6. Check the Solana explorer
-
-Now run the code again. It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
+It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
 
 ```
 ✅ Transaction completed! Signature is 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
@@ -240,7 +198,7 @@ Scroll around the Explorer and look at what you're seeing:
 
 [//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
 
-If you want to make it easier to look at Solana Explorer for transactions in the future, simply change your `console.log` in `sendPingTransaction()` to the following:
+If you want to make it easier to look at Solana Explorer for transactions in the future, simply change your `console.log` to the following:
 
 ```typescript
 console.log(`You can view your transaction on the Solana Explorer at:\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`)
