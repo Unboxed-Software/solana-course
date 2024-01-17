@@ -12,11 +12,12 @@ If you'd like to add content, please start by [creating an issue](https://github
 
 Once a plan has been discussed and agreed to, you can start working on content. 
 
-When you're done, create a PR to the `draft` branch.
+When you're done, create a PR to the `main` branch.
 
 Create new modules in the same format as the existing modules - see [Getting Started](./content/getting-started.md).
 
 This structure leans into a pedagogical technique call IWY loops. IWY stands for "I do, We do, You do." Each step along the way increases the audiences exposure to the topic _and_ reduces the amount of handholding you're given.
+
 ### Editing Existing Content
 
 If you want to fix a typo or otherwise improve on existing content, follow a similar process as with adding content:
@@ -43,6 +44,7 @@ In particular:
   - Use the specific term 'associated token account' rather than just 'token account' if you're referring to an account at an associated token address.  
   - Use 'token mint account' to refer to the address a token is minted at. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
 - Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
+- Don't use 'here' links. They make the course hard to scan and ['here' links are bad for SEO](https://www.smashingmagazine.com/2012/06/links-should-never-say-click-here/).
 
 Code examples should be formatted as follows:
 
@@ -50,7 +52,7 @@ Code examples should be formatted as follows:
 
  - two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
 
- - We are aiming to use `esrun`, which supports top level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or IIFEs. `await` just works. If you see these wrappers, delete them and use `esrun`.
+ - We are aiming to use `esrun`, which supports top level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or IIFEs (and IIFE is the `;(() => { ... })();`). `await` just works. If you see these wrappers, delete them and use `esrun`.
 
  - Likewise, use async/await and use try / catch everywhere, rather than `.then()` and `.catch()`
  
@@ -74,10 +76,9 @@ General flow for making a contribution:
 
 1. Fork the repo on GitHub
 2. Clone the project to your own machine
-3. Check out the `draft` branch
-4. Make a new branch based on `draft` and add your contributions
-5. Push your work back up to your fork on GitHub
-6. Submit a Pull request so that we can review your changes
+3. Make a new branch and add your contributions
+4. Push your work back up to your fork on GitHub
+5. Submit a Pull Request so that we can review your changes
 
 ## Config
 
