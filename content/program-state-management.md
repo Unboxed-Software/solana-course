@@ -20,7 +20,7 @@ objectives:
 
 Solana maintains speed, efficiency, and extensibility in part by making programs stateless. Rather than having state stored on the program itself, programs use Solana's account model to read state from and write state to separate PDA accounts.
 
-While this is an extremely flexible model, it's also a paradigm that can be difficult to work in if its unfamiliar. But don't worry! We'll start simple in this lesson and work up to more complex programs in the next module.
+While this is an extremely flexible model, it's also a paradigm that can be difficult to work in if its unfamiliar. But don't worry! We'll start simple in this lesson and work up to more complex programs in the next unit.
 
 In this lesson we'll learn the basics of state management for a Solana program, including representing state as a Rust type, creating accounts using Program Derived Addresses, and serializing account data.
 
@@ -32,7 +32,7 @@ Just as files in a traditional filesystem conform to specific data formats like 
 
 ### Represent state as a Rust type
 
-When writing a program in Rust, we typically create this "format" by defining a Rust data type. If you went through the [first part of this lesson](basic-program-pt-1.md), this is very similar to what we did when we created an enum to represent discrete instructions.
+When writing a program in Rust, we typically create this "format" by defining a Rust data type. If you went through the [first part of this lesson](basic-program-pt-1), this is very similar to what we did when we created an enum to represent discrete instructions.
 
 While this type should reflect the structure of your data, for most use cases a simple struct is sufficient. For example, a note-taking program that stores notes in separate accounts would likely have data for a title, body, and maybe an ID of some kind. We could create a struct to represent that as follows:
 
@@ -223,7 +223,7 @@ let note_pda_account = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-# Demo
+# Lab
 
 This overview covered a lot of new concepts. Let’s practice them together by continuing to work on the Movie Review program from the last lesson. No worries if you’re just jumping into this lesson without having done the previous lesson - it should be possible to follow along either way. We'll be using the [Solana Playground](https://beta.solpg.io) to write, build, and deploy our code.
 
@@ -231,7 +231,7 @@ As a refresher, we are building a Solana program which lets users review movies.
 
 ### 1. Get the starter code
 
-If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can reference [the starter code](https://beta.solpg.io/6295b25b0e6ab1eb92d947f7).
+If you didn’t complete the lab from the last lesson or just want to make sure that you didn’t miss anything, you can reference [the starter code](https://beta.solpg.io/6295b25b0e6ab1eb92d947f7).
 
 Our program currently includes the `instruction.rs` file we use to deserialize the `instruction_data` passed into the program entry point. We have also completed `lib.rs` file to the point where we can print our deserialized instruction data to the program log using the `msg!` macro.
 
@@ -313,7 +313,7 @@ Next, within our `add_movie_review` function, let’s independently derive the P
 Note that we derive the PDA for each new account using the initializer’s public key and the movie title as optional seeds. Setting up the PDA this way restricts each user to only one review for any one movie title. However, it still allows the same user to review movies with different titles and different users to review movies with the same title.
 
 ```rust
-// Derive PDA and check that it matches client
+// Derive PDA
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref(),], program_id);
 ```
 
@@ -382,7 +382,7 @@ We're ready to build and deploy our program!
 
 ![Gif Build and Deploy Program](../assets/movie-review-pt2-build-deploy.gif)
 
-You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Deserialize Custom Instruction Data lesson](deserialize-custom-data.md). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
+You can test your program by submitting a transaction with the right instruction data. For that, feel free to use [this script](https://github.com/Unboxed-Software/solana-movie-client) or [the frontend](https://github.com/Unboxed-Software/solana-movie-frontend) we built in the [Deserialize Custom Instruction Data lesson](deserialize-custom-data). In both cases, make sure you copy and paste the program ID for your program into the appropriate area of the source code to make sure you're testing the right program.
 
 If you use the frontend, simply replace the `MOVIE_REVIEW_PROGRAM_ID` in both the `MovieList.tsx` and `Form.tsx` components with the address of the program you’ve deployed. Then run the frontend, submit a view, and refresh the browser to see the review.
 
@@ -399,7 +399,12 @@ Using what you've learned in this lesson, build out this program. In addition to
 1. Create a separate account for each student
 2. Store `is_initialized` as a boolean, `name` as a string, and `msg` as a string in each account
 
-You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) we created in the [Page, Order, and Filter Program Data lesson](./paging-ordering-filtering-data.md). Remember to replace the program ID in the frontend code with the one you've deployed. 
+You can test your program by building the [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend) we created in the [Page, Order, and Filter Program Data lesson](./paging-ordering-filtering-data). Remember to replace the program ID in the frontend code with the one you've deployed. 
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
 
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=8320fc87-2b6d-4b3a-8b1a-54b55afed781)!

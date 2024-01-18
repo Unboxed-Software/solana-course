@@ -204,7 +204,7 @@ pub struct CloseAccount {
 
 The `force_defund` instruction is an optional addition that you’ll have to implement on your own if you’d like to utilize it.
 
-# Demo
+# Lab
 
 To clarify how an attacker might take advantage of a revival attack, let's work with a simple lottery program that uses program account state to manage a user's participation in the lottery.
 
@@ -451,8 +451,13 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and ensure that when accounts are closed they're not susceptible to revival attacks.
 
 Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=e6b99d4b-35ed-4fb2-b9cd-73eefc875a0f)!

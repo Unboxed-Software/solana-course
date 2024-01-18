@@ -488,7 +488,7 @@ pub fn program(
 
 Overall, the use of proc macros in Anchor greatly reduces the amount of repetitive code that Solana developers have to write. By reducing the amount of boilerplate code, developers can focus on their program's core functionality and avoid mistakes caused by manual repetition. This ultimately results in a faster and more efficient development process.
 
-# Demo
+# Lab
 
 Let's practice this by creating a new derive macro! Our new macro will let us automatically generate instruction logic for updating each field on an account in an Anchor program.
 
@@ -496,7 +496,7 @@ Let's practice this by creating a new derive macro! Our new macro will let us au
 
 To get started, download the starter code from the `starter` branch of [this repository](https://github.com/Unboxed-Software/anchor-custom-macro/tree/starter).
 
-The starter code includes a simple Anchor program that allows you to initialize and update a `Config` account. This is similar to what we did with the [Environment Variables lesson](./env-variables.md).
+The starter code includes a simple Anchor program that allows you to initialize and update a `Config` account. This is similar to what we did with the [Environment Variables lesson](./env-variables).
 
 The account in question is structured as follows:
 
@@ -520,7 +520,7 @@ The `programs/admin/src/lib.rs` file contains the program entrypoint with the de
 
 The `programs/admin/src/admin_config` directory contains the program's instruction logic and state. Take a look through each of these files. You'll notice that instruction logic for each field is duplicated for each instruction.
 
-The goal of this demo is to implement a procedural macro that will allow us to replace all of the instruction logic functions and automatically generate functions for each instruction.
+The goal of this lab is to implement a procedural macro that will allow us to replace all of the instruction logic functions and automatically generate functions for each instruction.
 
 ### 2. Set up the custom macro declaration
 
@@ -881,3 +881,7 @@ If you need to spend more time with the solution code, feel free to reference th
 # Challenge
 
 To solidify what you've learned, go ahead and create another procedural macro on your own. Think about code you've written that could be reduced or improved by a macro and try it out! Since this is still practice, it's okay if it doesn't work out the way you want or expect. Just jump in and experiment!
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=eb892157-3014-4635-beac-f562af600bf8)!

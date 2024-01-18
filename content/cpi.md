@@ -74,7 +74,7 @@ pub struct Instruction {
 ```
 
 
-Depending on the program you're making the call to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's demo we'll be using the `spl_token` crate to create minting instructions.
+Depending on the program you're making the call to, there may be a crate available with helper functions for creating the `Instruction` object. Many individuals and organizations create publicly available crates alongside their programs that expose these sorts of functions to simplify calling their programs. This is similar to the Typescript libraries we've used in this course (e.g. [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/), [@solana/spl-token](https://solana-labs.github.io/solana-program-library/token/js/)). For example, in this lesson's lab we'll be using the `spl_token` crate to create minting instructions.
 In all other cases, you'll need to create the `Instruction` instance from scratch.
 
 While the `program_id` field is fairly straightforward, the `accounts` and `data` fields require some explanation.
@@ -106,10 +106,10 @@ Putting these two pieces together looks like this:
 use solana_program::instruction::AccountMeta;
 
 vec![
-    AccountMeta::new(account1_pubkey, true),
-    AccountMeta::read_only(account2_pubkey, false),
-    AccountMeta::read_only(account3_pubkey, true),
-    AccountMeta::new(account4_pubkey, false),
+    AccountMeta::new(account1_pubkey, true), // metadata for a writable, signer account
+    AccountMeta::read_only(account2_pubkey, false), // metadata for a read-only, non-signer account
+    AccountMeta::read_only(account3_pubkey, true), // metadata for a read-only, signer account
+    AccountMeta::new(account4_pubkey, false), // metadata for a writable, non-signer account
 ]
 ```
 
@@ -213,13 +213,13 @@ CPIs are a very important feature of the Solana ecosystem and they make all prog
 
 Another important aspect of CPIs is that they allow programs to sign for their PDAs. As you have probably noticed by now, PDAs are used very frequently in Solana development because they allow programs to control specific addresses in such a way that no external user can generate transactions with valid signatures for those addresses. This can be *very* useful for many applications in Web3 (e.g. DeFi, NFTs, etc.) Without CPIs, PDAs would not be nearly as useful because there would be no way for a program to sign transactions involving them - essentially turning them black holes (once something is sent to a PDA, there would be no way to get it back out w/o CPIs!)
 
-# Demo
+# Lab
 
 Now let's get some hands on experience with CPIs by making some additions to the Movie Review program again. If you're dropping into this lesson without having gone through prior lessons, the Movie Review program allows users to submit movie reviews and have them stored in PDA accounts.
 
 Last lesson, we added the ability to leave comments on other movie reviews using PDAs. In this lesson, we’re going to work on having the program mint tokens to the reviewer or commenter anytime a review or comment is submitted.
 
-To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token Program lesson](./token-program.md) before moving forward with this demo.
+To implement this, we'll have to invoke the SPL Token Program's `MintTo` instruction using a CPI. If you need a refresher on tokens, token mints, and minting new tokens, have a look at the [Token Program lesson](./token-program) before moving forward with this lab.
 
 ### 1. Get starter code and add dependencies
 
@@ -525,7 +525,7 @@ pub fn process_instruction(
 }
 ```
 
-Lastly, declare and implement the `initialize_token_mint` function. This function will derive the token mint and mint authority PDAs, create the token mint account, and then initialize the token mint. We won't explain all of this in detail, but it's worth reading through the code, especially given that the creation and initialization of the token mint both involve CPIs. Again, if you need a refresher on tokens and mints, have a look at the [Token Program lesson](./token-program.md).
+Lastly, declare and implement the `initialize_token_mint` function. This function will derive the token mint and mint authority PDAs, create the token mint account, and then initialize the token mint. We won't explain all of this in detail, but it's worth reading through the code, especially given that the creation and initialization of the token mint both involve CPIs. Again, if you need a refresher on tokens and mints, have a look at the [Token Program lesson](./token-program).
 
 ```rust
 pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
@@ -609,12 +609,17 @@ Once you've initialized your token mint, you can use the [Movie Review frontend]
 
 After submitting a review, you should see 10 new tokens in your wallet! When you add a comment, you should receive 5 tokens. They won't have a fancy name or image since we didn't add any metadata to the token, but you get the idea.
 
-If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Note that the solution to this demo is on the `solution-add-tokens` branch.
+If you need more time with the concepts from this lesson or got stuck along the way, feel free to [take a look at the solution code](https://github.com/Unboxed-Software/solana-movie-program/tree/solution-add-tokens). Note that the solution to this lab is on the `solution-add-tokens` branch.
 
 # Challenge
 
-To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the demo here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.
+To apply what you've learned about CPIs in this lesson, think about how you could incorporate them into the Student Intro program. You could do something similar to what we did in the lab here and add some functionality to mint tokens to users when they introduce themselves. Or if you're feeling really ambitious, think about how you could take all that you have learned so far in the course and create something completely new from scratch.
 
 A great example would be to build a decentralized Stack Overflow. The program could use tokens to determine a user's overall rating, mint tokens when questions are answered correctly, allow users to upvote answers, etc. All of that is possible and you now have the skills and knowledge to go and build something like it on your own!
 
 Congratulations on reaching the end of Module 4! Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%204), so that we can continue to improve the course.
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=ade5d386-809f-42c2-80eb-a6c04c471f53)!

@@ -233,9 +233,9 @@ When you are ready to deploy the program, use the `solana program deploy` comman
 solana program deploy <PATH>
 ```
 
-# Demo
+# Lab
 
-Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program.md).
+Let's practice by building and deploying the "Hello World!" program that we created in the [Hello World lesson](https://github.com/Unboxed-Software/solana-course/pull/content/hello-world-program).
 
 We'll do this all locally, including deploying to a local test validator. Before we begin, make sure you've installed Rust and the Solana CLI. You can refer to the instructions in the overview to get set up if you haven't already.
 
@@ -344,7 +344,7 @@ Now it’s your turn to build something independently. Try to create a new progr
 
 Remember to update your `RPC URL` to Devnet using the `solana config set --url` command.
 
-You can invoke the program using the same client-side script from the demo as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
+You can invoke the program using the same client-side script from the lab as long as you update the `connection` and Solana Explorer URL to both point to Devnet instead of localhost.
 
 ```tsx
 let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
@@ -361,3 +361,8 @@ You can also open a separate command line window and use the `solana logs | grep
 ```bash
 solana logs | grep "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke" -A 5
 ```
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=aa0b56d6-02a9-4b36-95c0-a817e2c5b19d)!

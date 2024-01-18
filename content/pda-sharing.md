@@ -188,9 +188,9 @@ pub struct TokenPool {
 }
 ```
 
-# Demo
+# Lab
 
-Let’s practice by creating a simple program to demonstrate how a PDA sharing can allow an attacker to withdraw tokens that don’t belong to them. This demo expands on the examples above by including the instructions to initialize the required program accounts.
+Let’s practice by creating a simple program to demonstrate how a PDA sharing can allow an attacker to withdraw tokens that don’t belong to them. this lab expands on the examples above by including the instructions to initialize the required program accounts.
 
 ### 1. Starter
 
@@ -475,8 +475,12 @@ If you want to take a look at the final solution code you can find it on the `so
 
 # Challenge
 
-Just as with other lessons in this module, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
+Just as with other lessons in this unit, your opportunity to practice avoiding this security exploit lies in auditing your own or other programs.
 
 Take some time to review at least one program and look for potential vulnerabilities in its PDA structure. PDAs used for signing should be narrow and focused on a single domain as much as possible.
 
 Remember, if you find a bug or exploit in somebody else's program, please alert them! If you find one in your own program, be sure to patch it right away.
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5744079f-9473-4485-9a14-9be4d31b40d1)!

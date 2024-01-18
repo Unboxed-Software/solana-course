@@ -311,11 +311,11 @@ pub struct AccountStruct {
 
 You are now ready to build your own Solana program using the Anchor framework!
 
-# Demo
+# Lab
 
 Before we begin, install Anchor by [following the steps from the Anchor docs](https://www.anchor-lang.com/docs/installation).
 
-For this demo we'll create a simple counter program with two instructions:
+For this lab we'll create a simple counter program with two instructions:
 
 - The first instruction will initialize a counter account
 - The second instruction will increment the count stored on a counter account
@@ -328,35 +328,42 @@ Create a new project called `anchor-counter` by running `anchor init`:
 anchor init anchor-counter
 ```
 
-Next, run `anchor-build`
+Change into the new directory, then run `anchor build`
 
 ```console
-anchor-build
+cd anchor-counter
+anchor build
 ```
 
-Then, run `anchor keys list`
+Anchor build will also generate a keypair for your new program - the keys are saved in the `target/deploy` directory.
 
-```console
-anchor keys list
-```
-
-Copy the program ID output from `anchor keys list`
-
-```
-anchor_counter: BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
-```
-
-Then update `declare_id!` in `lib.rs`
+Open the file `lib.rs` and look at `declare_id!`: 
 
 ```rust
 declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
 ```
 
-And also update `Anchor.toml`
+Run `anchor keys sync`
 
+```console
+anchor keys sync
 ```
-[programs.localnet]
-anchor_counter = "BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr"
+
+You'll see the Anchor updates both:
+
+ - The key used in `declare_id!()` in `lib.rs` 
+ - The key in `Anchor.toml` 
+
+To match the key generated during `anchor build`:
+
+```console
+Found incorrect program id declaration in "anchor-counter/programs/anchor-counter/src/lib.rs"
+Updated to BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
+
+Found incorrect program id declaration in Anchor.toml for the program `anchor_counter`
+Updated to BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr
+
+All program id declarations are synced.
 ```
 
 Finally, delete the default code in `lib.rs` until all that is left is the following:
@@ -364,7 +371,7 @@ Finally, delete the default code in `lib.rs` until all that is left is the follo
 ```rust
 use anchor_lang::prelude::*;
 
-declare_id!("BouTUP7a3MZLtXqMAm1NrkJSKwAjmid8abqiNjUyBJSr");
+declare_id!("your-private-key");
 
 #[program]
 pub mod anchor_counter {
@@ -580,9 +587,14 @@ Now it’s your turn to build something independently. Because we're starting wi
 
 1. Write a new program that initializes a `counter` account
 2. Implement both an `increment` and `decrement` instruction
-3. Build and deploy your program like we did in the demo
+3. Build and deploy your program like we did in the lab
 4. Test your newly deployed program and use Solana Explorer to check the program logs
 
 As always, get creative with these challenges and take them beyond the basic instructions if you want - and have fun!
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=334874b7-b152-4473-b5a5-5474c3f8f3f1)!

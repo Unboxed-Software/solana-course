@@ -291,9 +291,9 @@ There's one catch here: in the time between deploying a program and initializing
 
 While this sounds bad, it really just means that you shouldn't treat your program as "initialized" until you've initialized the config account yourself and verified that the admin listed on the account is who you expect. If your deploy script deploys and then immediately calls `initialize`, it's very unlikely that an attacker is even aware of your program's existence much less trying to make themselves the admin. If by some crazy stroke of bad luck someone "intercepts" your program, you can close the program with the upgrade authority and redeploy.
 
-# Demo
+# Lab
 
-Now let's go ahead and try this out together. For this demo, we'll be working with a simple program that enables USDC payments. The program collects a small fee for facilitating the transfer. Note that this is somewhat contrived since you can do direct transfers without an intermediary contract, but it simulates how some complex DeFi programs work.
+Now let's go ahead and try this out together. For this lab, we'll be working with a simple program that enables USDC payments. The program collects a small fee for facilitating the transfer. Note that this is somewhat contrived since you can do direct transfers without an intermediary contract, but it simulates how some complex DeFi programs work.
 
 We'll quickly learn while testing our program that it could benefit from the flexibility provided by an admin-controlled configuration account and some feature flags.
 
@@ -833,7 +833,7 @@ And that's it! You've made the program a lot easier to work with moving forward.
 
 # Challenge
 
-Now it's time for you to do some of this on your own. We mentioned being able to use the program's upgrade authority as the initial admin.  Go ahead and update the demo's `initialize_program_config` so that only the upgrade authority can call it rather than having a hardcoded `ADMIN`.
+Now it's time for you to do some of this on your own. We mentioned being able to use the program's upgrade authority as the initial admin.  Go ahead and update the lab's `initialize_program_config` so that only the upgrade authority can call it rather than having a hardcoded `ADMIN`.
 
 Note that the `anchor test` command, when run on a local network, starts a new test validator using `solana-test-validator`. This test validator uses a non-upgradeable loader. The non-upgradeable loader makes it so the program's `program_data` account isn't initialized when the validator starts. You'll recall from the lesson that this account is how we access the upgrade authority from the program.
 
@@ -864,3 +864,8 @@ anchor test --skip-deploy -- --features "local-testing"
 ```
 
 Try doing this on your own, but if you get stuck, feel free to reference the `challenge` branch of [the same repository](https://github.com/Unboxed-Software/solana-admin-instructions/tree/challenge) to see one possible solution.
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=02a7dab7-d9c1-495b-928c-a4412006ec20)!

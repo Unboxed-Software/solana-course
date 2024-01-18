@@ -79,7 +79,7 @@ Además de saber qué información incluir en un búfer de datos de instruccione
 
 > Borsh significa Binary Object Representation Serializer for Hashing (Serializador de Representación de Objetos Binarios para Hashing). Está destinado a ser utilizado en proyectos críticos para la seguridad, ya que prioriza la consistencia, la seguridad y la velocidad; y viene con una especificación estricta.
 
-Borsh mantiene un [JS library](https://github.com/near/borsh-js) que maneja la serialización de tipos comunes en un búfer. También hay otros paquetes construidos en la parte superior de borsh que tratan de hacer este proceso aún más fácil. Vamos a utilizar la `@project-serum/borsh` biblioteca que se puede instalar utilizando `npm`.
+Borsh mantiene un [JS library](https://github.com/near/borsh-js) que maneja la serialización de tipos comunes en un búfer. También hay otros paquetes construidos en la parte superior de borsh que tratan de hacer este proceso aún más fácil. Vamos a utilizar la `@coral-xyz/borsh` biblioteca que se puede instalar utilizando `npm`.
 
 Basándonos en el ejemplo anterior del inventario del juego, veamos un escenario hipotético en el que estamos instruyendo al programa para que equipe a un jugador con un elemento determinado. Supongamos que el programa está diseñado para aceptar un búfer que representa una estructura con las siguientes propiedades:
 
@@ -90,7 +90,7 @@ Basándonos en el ejemplo anterior del inventario del juego, veamos un escenario
 Todo esto se pasará como un búfer de bytes que se leerá en orden, por lo que es crucial garantizar el orden adecuado de diseño del búfer. Crearía el esquema de diseño del búfer o la plantilla para lo anterior de la siguiente manera:
 
 ```tsx
-import * as borsh from "@project-serum/borsh";
+import * as borsh from "@coral-xyz/borsh";
 
 const equipPlayerSchema = borsh.struct([
     borsh.u8("variant"),
@@ -102,7 +102,7 @@ const equipPlayerSchema = borsh.struct([
 A continuación, puede codificar datos utilizando este esquema con el `encode` método. Este método acepta como argumentos un objeto que representa los datos a ser serializados y un búfer. En el siguiente ejemplo, asignamos un nuevo búfer que es mucho más grande de lo necesario, luego codificamos los datos en ese búfer y lo dividimos en un nuevo búfer que es solo tan grande como sea necesario.
 
 ```tsx
-import * as borsh from "@project-serum/borsh";
+import * as borsh from "@coral-xyz/borsh";
 
 const equipPlayerSchema = borsh.struct([
     borsh.u8("variant"),
@@ -127,7 +127,7 @@ Una vez que se crea correctamente un búfer y los datos se serializan, todo lo q
 -   `SystemProgram` se utilizará en el proceso de ejecución de la instrucción.
 
 ```tsx
-import * as borsh from "@project-serum/borsh";
+import * as borsh from "@coral-xyz/borsh";
 import * as web3 from "@solana/web3.js";
 
 const equipPlayerSchema = borsh.struct([
@@ -206,10 +206,10 @@ Recuerde que para interactuar adecuadamente con un programa de Solana, necesita 
 3.  `rating` como un número entero de 8 bits sin signo que representa la calificación de 5 que le está dando a la película que está revisando.
 4.  `description` como una cadena que representa la parte escrita de la reseña que está dejando para la película.
 
-Configuremos un `borsh` diseño en la `Movie` clase. Comience por importar `@project-serum/borsh`. A continuación, cree una `borshInstructionSchema` propiedad y configúrela en la `borsh` estructura apropiada que contenga las propiedades enumeradas anteriormente.
+Configuremos un `borsh` diseño en la `Movie` clase. Comience por importar `@coral-xyz/borsh`. A continuación, cree una `borshInstructionSchema` propiedad y configúrela en la `borsh` estructura apropiada que contenga las propiedades enumeradas anteriormente.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 export class Movie {
 	title: string;
@@ -234,7 +234,7 @@ Ten en cuenta eso*cuestiones de orden*. Si el orden de las propiedades aquí dif
 Ahora que tenemos configurado el diseño del búfer, vamos a crear un método en `Movie` llamado `serialize()` que devolverá a `Buffer` con las propiedades de un `Movie` objeto codificadas en el diseño apropiado.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 export class Movie {
 	title: string;

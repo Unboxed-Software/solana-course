@@ -94,7 +94,6 @@ export const Home: NextPage = (props) => {
     </ConnectionProvider>
   );
 };
-
 ```
 
 Note that `ConnectionProvider` requires an `endpoint` property and that `WalletProvider` requires a `wallets` property. We’re continuing to use the endpoint for the Devnet cluster, and for now we’re only using the `PhantomWalletAdapter` for `wallets`.
@@ -235,7 +234,7 @@ When this function is called, the connected wallet will display the transaction 
 
 ![Screenshot of wallet transaction approval prompt](../assets/wallet-transaction-approval-prompt.png)
 
-# Demo
+# Lab
 
 Let’s take the Ping program from last lesson and build a frontend that lets users approve a transaction that pings the program. As a reminder, the program’s public key is `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and the public key for the data account is `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
@@ -245,11 +244,11 @@ Let’s take the Ping program from last lesson and build a frontend that lets us
 
 If you don’t already have it, download the [Phantom browser extension](https://phantom.app/download). At the time of writing, it supports Chrome, Brave, Firefox, and Edge browsers, so you’ll also need to have one of those browsers installed. Follow Phantom’s instructions for creating a new account and a new wallet.
 
-Once you have a wallet, click the settings gear on the bottom right in the Phantom UI. Scroll down and click on the line item “Change Network” and select “Devnet.” This ensures that Phantom will be connected to the same network we’ll be using in this demo.
+Once you have a wallet, click the settings gear on the bottom right in the Phantom UI. Scroll down and click on the line item “Change Network” and select “Devnet.” This ensures that Phantom will be connected to the same network we’ll be using in this lab.
 
 ### 2. Download the starter code
 
-Download the [starter code for this project](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this demo.
+Download the [starter code for this project](https://github.com/Unboxed-Software/solana-ping-frontend/tree/starter). This project is a simple Next.js application. It’s mostly empty except for the `AppBar` component. We’ll build the rest throughout this lab.
 
 You can see its current state with the command `npm run dev` in the console.
 
@@ -338,35 +337,31 @@ Next let’s set up the Connect button. The current button is just a placeholder
 Before we add the “multi-button,” we need to wrap the app in the `WalletContextProvider`. Do this by importing it in `index.tsx` and adding it after the closing `</Head>` tag:
 
 ```tsx
-import { NextPage } from 'next'
-import styles from '../styles/Home.module.css'
-import WalletContextProvider from '../components/WalletContextProvider'
-import { AppBar } from '../components/AppBar'
-import Head from 'next/head'
-import { PingButton } from '../components/PingButton'
+import { NextPage } from "next";
+import styles from "../styles/Home.module.css";
+import WalletContextProvider from "../components/WalletContextProvider";
+import { AppBar } from "../components/AppBar";
+import Head from "next/head";
+import { PingButton } from "../components/PingButton";
 
 const Home: NextPage = (props) => {
-
-    return (
-        <div className={styles.App}>
-            <Head>
-                <title>Wallet-Adapter Example</title>
-                <meta
-                    name="description"
-                    content="Wallet-Adapter Example"
-                />
-            </Head>
-            <WalletContextProvider>
-                <AppBar />
-                <div className={styles.AppBody}>
-                    <PingButton/>
-                </div>
-            </WalletContextProvider >
+  return (
+    <div className={styles.App}>
+      <Head>
+        <title>Wallet-Adapter Example</title>
+        <meta name="description" content="Wallet-Adapter Example" />
+      </Head>
+      <WalletContextProvider>
+        <AppBar />
+        <div className={styles.AppBody}>
+          <PingButton />
         </div>
-    );
-}
+      </WalletContextProvider>
+    </div>
+  );
+};
 
-export default Home
+export default Home;
 ```
 
 If you run the app, everything should still look the same since the current button on the top right is still just a placeholder. To remedy this, open `AppBar.tsx` and replace `<button>Connect</button>` with `<WalletMultiButton/>`. You’ll need to import `WalletMultiButton` from `@solana/wallet-adapter-react-ui`.
@@ -488,13 +483,13 @@ And that’s it! If you refresh the page, connect your wallet, and click the pin
 
 There’s a lot you could do to make the user experience here even better. For example, you could change the UI to only show you the Ping button when a wallet is connected and display some other prompt otherwise. You could link to the transaction on Solana Explorer after a user confirms a transaction so they can easily go look at the transaction details. The more you experiment with it, the more comfortable you’ll get, so get creative!
 
-You can also download the [full source code from this demo](https://github.com/Unboxed-Software/solana-ping-frontend) to understand all of this in context.
+You can also download the [full source code from this lab](https://github.com/Unboxed-Software/solana-ping-frontend) to understand all of this in context.
 
 # Challenge
 
 Now it’s your turn to build something independently. Create an application that lets a user connect their Phantom wallet and send SOL to another account.
 
-![Screenshot of Send Sol App](../assets/solana-send-sol-app.png)
+![Screenshot of Send SOL App](../assets/solana-send-sol-app.png)
 
 1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/starter).
 2. Wrap the starter application in the appropriate context providers.
@@ -502,3 +497,8 @@ Now it’s your turn to build something independently. Create an application tha
 4. Get creative with the user experience. Add a link to let the user view the transaction on Solana Explorer or something else that seems cool to you!
 
 If you get really stumped, feel free to [check out the solution code](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/main).
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=69c5aac6-8a9f-4e23-a7f5-28ae2845dfe1)!
