@@ -1284,4 +1284,4 @@ It’s your turn to take these concepts for a spin on your own! We’re not goin
 
 ## Completed the lab?
 
-Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=db156789-2400-4972-904f-40375582384a)!
+Push your code to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=db156789-2400-4972-904f-40375582384a)!

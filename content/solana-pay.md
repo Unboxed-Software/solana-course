@@ -646,4 +646,4 @@ Get creative with this! The Solana pay spec opens up a lot of doors for unique u
 
 ## Completed the lab?
 
-Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=3c7e5796-c433-4575-93e1-1429f718aa10)!
+Push your code to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=3c7e5796-c433-4575-93e1-1429f718aa10)!
