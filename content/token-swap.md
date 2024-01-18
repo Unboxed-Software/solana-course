@@ -857,4 +857,4 @@ In the [Token Program lesson](./token-program) you created some tokens. Now make
 
 ## Completed the lab?
 
-Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=ac5e6fba-029c-4484-8aaf-12d37cbff939)!
+Push your code to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=ac5e6fba-029c-4484-8aaf-12d37cbff939)!

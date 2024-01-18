@@ -252,7 +252,7 @@ await asyncForEach(choices, async (choice) => {
 
   const CUSTOM_TYPEFORM_LINK = `https://form.typeform.com/to/${FORM_ID}#answers-lesson=${choice.ref}`;
 
-  const PROMPT = `## Completed the lab?\n\nPush your changes to GitHub and [tell us what you thought of this lesson](${CUSTOM_TYPEFORM_LINK})!`;
+  const PROMPT = `## Completed the lab?\n\nPush your code to GitHub and [tell us what you thought of this lesson](${CUSTOM_TYPEFORM_LINK})!`;
 
   // Append to the end of the file
   await writeFile(filename, `${oldContent}\n\n${PROMPT}`);
