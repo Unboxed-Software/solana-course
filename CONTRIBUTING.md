@@ -52,7 +52,7 @@ Code examples should be formatted as follows:
 
  - two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
 
- - We are aiming to use `esrun`, which supports top level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or IIFEs (and IIFE is the `;(() => { ... })();`). `await` just works. If you see these wrappers, delete them and use `esrun`.
+ - We are aiming to use `esrun`, which supports top level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or [IIFEs](https://developer.mozilla.org/en-US/docs/Glossary/IIFE). `await` just works. If you see these wrappers, delete them and use `esrun`.
 
  - Likewise, use async/await and use try / catch everywhere, rather than `.then()` and `.catch()`
  
