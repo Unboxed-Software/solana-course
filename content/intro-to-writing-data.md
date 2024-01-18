@@ -241,12 +241,12 @@ Next, let’s add the instruction to the transaction we created. Then, call `sen
 ```typescript
 const transaction = new web3.Transaction()
 const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
-const programData = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
+const programDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
 
 const instruction = new web3.TransactionInstruction({
   keys: [
     {
-      pubkey: programData,
+      pubkey: programDataId,
       isSigner: false,
       isWritable: true
     },
@@ -269,14 +269,14 @@ console.log(`✅ Transaction completed! Signature is ${signature}`)
 Now call the `pingProgram()` 
 
 ```typescript
-(async () => {
+try {
   const payer = getKeypairFromEnvironment("SECRET_KEY");
   console.log(` ✅ Loaded payer keypair ${payer.publicKey.toBase58()}`);
 
   await pingProgram(connection, payer);
-})().catch((err) => {
+} catch (err) {
   console.error(err);
-});
+}
 ```
 
 ### 5. Check the Solana explorer
