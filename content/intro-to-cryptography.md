@@ -89,14 +89,14 @@ Additionally, since the secret key gives authority over the address, we don't st
 
 ## Loading an existing keypair
 
-If you already have a keypair you’d like to use, you can load a `Keypair` from an existing secret key stored in the filesystem or an `.env` file. In node.js, the  `@solana-developers/node-helpers` npm package includes some extra functions:
+If you already have a keypair you’d like to use, you can load a `Keypair` from an existing secret key stored in the filesystem or an `.env` file. In node.js, the  `@solana-developers/helpers` npm package includes some extra functions:
 
  - To use an `.env` file use `getKeypairFromEnvironment()`
  - To use a Solana CLI file use `getKeypairFromFile()`
 
 ```typescript
 import "dotenv/config";
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
+import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 
 
 const keypair = getKeypairFromEnvironment("SECRET_KEY");
@@ -114,7 +114,7 @@ Make a new directory, install TypeScript, Solana web3.js and esrun:
 mkdir generate-keypair
 cd generate-keypair
 npm init -y
-npm install typescript @solana/web3.js esrun @solana-developers/node-helpers
+npm install typescript @solana/web3.js esrun @solana-developers/helpers
 ```
 
 Make a new file called `generate-keypair.ts`
@@ -167,7 +167,7 @@ We can then load the keypair from the environment. Update `generate-keypair.ts`:
 
 ```typescript
 import "dotenv/config"
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
+import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 
 const keypair = getKeypairFromEnvironment("SECRET_KEY");
 

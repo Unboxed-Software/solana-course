@@ -164,7 +164,7 @@ Magsisimula tayo sa pamamagitan ng paggamit ng parehong mga package at `.env` fi
 import { Keypair } from "@solana/web3.js";
 import * as dotenv from "dotenv";
 import base58 from "bs58";
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers"
+import { getKeypairFromEnvironment } from "@solana-developers/helpers"
 
 dotenv.config();
 

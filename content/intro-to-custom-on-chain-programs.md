@@ -96,7 +96,7 @@ Call the file `send-ping-transaction.ts`:
 import * as web3 from "@solana/web3.js";
 import "dotenv/config"
 import base58 from "bs58";
-import { getKeypairFromEnvironment, requestAndConfirmAirdropIfRequired } from "@solana-developers/node-helpers";
+import { getKeypairFromEnvironment, requestAndConfirmAirdropIfRequired } from "@solana-developers/helpers";
 
 const payer = getKeypairFromEnvironment('SECRET_KEY')
 const connection = new web3.Connection(web3.clusterApiUrl('devnet'))

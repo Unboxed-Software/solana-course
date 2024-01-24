@@ -88,14 +88,14 @@ Adicionalmente, como a chave secreta dá autoridade sobre o endereço, não arma
 
 ## Carregando um par de chaves existente
 
-Se você já tem um par de chaves que gostaria de usar, pode carregar um `Keypair` de uma chave secreta existente armazenada no sistema de arquivos ou em um arquivo `.env`. No node.js, o pacote npm `@solana-developers/node-helpers` inclui algumas funções extras:
+Se você já tem um par de chaves que gostaria de usar, pode carregar um `Keypair` de uma chave secreta existente armazenada no sistema de arquivos ou em um arquivo `.env`. No node.js, o pacote npm `@solana-developers/helpers` inclui algumas funções extras:
 
  - Para usar um arquivo `.env`, use `getKeypairFromEnvironment()`
  - Para usar um arquivo da CLI da Solana, use `getKeypairFromFile()`
 
 ```typescript
 import * as dotenv from "dotenv";
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
+import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 
 dotenv.config();
 
@@ -114,7 +114,7 @@ Crie um novo diretório, instale o TypeScript, o Solana web3.js e o esrun:
 mkdir generate-keypair
 cd generate-keypair
 npm init -y
-npm install typescript @solana/web3.js @digitak/esrun @solana-developers/node-helpers
+npm install typescript @solana/web3.js @digitak/esrun @solana-developers/helpers
 ```
 
 Crie um novo arquivo chamado `generate-keypair.ts`:
@@ -167,7 +167,7 @@ Então podemos carregar o par de chaves do ambiente. Atualize `generate-keypair.
 
 ```typescript
 import * as dotenv from "dotenv";
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
+import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 
 dotenv.config();
 

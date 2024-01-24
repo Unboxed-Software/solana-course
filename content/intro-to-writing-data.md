@@ -142,7 +142,7 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 import "dotenv/config"
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
+import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 
 const suppliedToPubkey = process.argv[2] || null;
 

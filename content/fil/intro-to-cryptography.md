@@ -88,14 +88,14 @@ Bukod pa rito, dahil ang lihim na susi ay nagbibigay ng awtoridad sa address, hi
 
 ## Loading an existing keypair
 
-Kung mayroon ka nang keypair na gusto mong gamitin, maaari kang mag-load ng `Keypair` mula sa isang umiiral nang sikretong key na nakaimbak sa filesystem o isang `.env` na file. Sa node.js, ang `@solana-developers/node-helpers` npm package ay may kasamang ilang karagdagang function:
+Kung mayroon ka nang keypair na gusto mong gamitin, maaari kang mag-load ng `Keypair` mula sa isang umiiral nang sikretong key na nakaimbak sa filesystem o isang `.env` na file. Sa node.js, ang `@solana-developers/helpers` npm package ay may kasamang ilang karagdagang function:
 
   - Upang gumamit ng `.env` file gumamit ng `getKeypairFromEnvironment()`
   - Upang gumamit ng Solana CLI file gumamit ng `getKeypairFromFile()`
 
 ```typescript
 import * as dotenv from "dotenv";
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
+import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 
 dotenv.config();
 
@@ -114,7 +114,7 @@ Gumawa ng bagong direktoryo, i-install ang TypeScript, Solana web3.js at esrun:
 mkdir generate-keypair
 cd generate-keypair
 npm init -y
-npm install typescript @solana/web3.js @digitak/esrun @solana-developers/node-helpers
+npm install typescript @solana/web3.js @digitak/esrun @solana-developers/helpers
 ```
 
 Gumawa ng bagong file na tinatawag na `generate-keypair.ts`
@@ -167,7 +167,7 @@ Maaari naming i-load ang keypair mula sa kapaligiran. I-update ang `generate-key
 
 ```typescript
 import * as dotenv from "dotenv";
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers";
+import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 
 dotenv.config();
 
