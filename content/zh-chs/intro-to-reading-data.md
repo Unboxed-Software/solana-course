@@ -100,7 +100,7 @@ console.log(`✅ Finished!`)
 The balance of the account at CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN is 0.00114144 SOL
 ✅ Finished!
 ```
-...就像这样，我们正在从 Solana 区块链读取数据！
+...就像这样，我们正在从 Solana 区块链中读取数据！
 
 # 实验
 

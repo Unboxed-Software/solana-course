@@ -68,8 +68,8 @@ Solana 允许人们**几乎免费地立即相互交易**。
 - Linux、Mac 或 Windows 电脑。
    Windows 电脑应安装 [Windows Terminal](https://aka.ms/terminal) 和 [WSL](https://learn.microsoft.com/en-us/windows/wsl/)。
 - 基本的 JavaScript / TypeScript 编程经验。 我们还将使用一些 Rust，但我们会边做边解释 Rust。
-- 安装了node.js 18，推荐使用这个版本
-- 安装了 Rust
+- 安装 node.js 18，推荐使用这个版本
+- 安装 Rust
 - 命令行的基本使用
 
 ## 本课程的结构如何？
