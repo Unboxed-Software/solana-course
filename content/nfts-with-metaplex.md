@@ -539,7 +539,8 @@ Now that we have a collection, let's change our existing code so that newly crea
 async function createNft(
   metaplex: Metaplex,
   uri: string,
-  nftData: NftData
+  nftData: NftData,
+  collectionMint: PublicKey
 ): Promise<NftWithToken> {
   const { nft } = await metaplex.nfts().create(
     {
@@ -547,6 +548,7 @@ async function createNft(
       name: nftData.name,
       sellerFeeBasisPoints: nftData.sellerFeeBasisPoints,
       symbol: nftData.symbol,
+      collection: collectionMint,
     },
     { commitment: "finalized" }
   )
