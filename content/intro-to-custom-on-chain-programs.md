@@ -33,7 +33,7 @@ Per the definition above, the object passed to the `TransactionInstruction` cons
 
 We’ll be ignoring the `data` field for now and will revisit it in a future lesson.
 
-The `programId` field is fairly self explanatory: it’s the public key associated with the program. You’ll need to know this in advance of calling the program in the same way that you’d need to know the public key of someone to whom you want to send SOL.
+The `programId` field is fairly self-explanatory: it’s the public key associated with the program. You’ll need to know this in advance of calling the program in the same way that you’d need to know the public key of someone to whom you want to send SOL.
 
 The `keys` array requires a bit more explanation. Each object in this array represents an account that will be read from or written to during a transaction's execution. This means you need to know the behavior of the program you are calling and ensure that you provide all of the necessary accounts in the array.
 
@@ -80,7 +80,7 @@ All transactions on the blockchain are publicly viewable on the [Solana Explorer
 
 ![Screenshot of Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
 
-# Lab - writing transaction for the ping counter program 
+# Lab - writing transactions for the ping counter program 
 
 We’re going to create a script to ping an on-chain program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores it's data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
@@ -121,7 +121,7 @@ Now let's talk to the Ping program! To do this, we need to:
 3. add the instruction to the transaction
 4. send the transaction.
 
-Remember, the most challenging piece here is including the right information in the instruction. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the file:
+Remember, the most challenging piece here is including the right information in the instructions. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the file:
 
 ```typescript
 const PING_PROGRAM_ADDRESS = new web3.PublicKey('ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa')
@@ -193,7 +193,7 @@ Scroll around the Explorer and look at what you're seeing:
   - The address of your payer - being debited 5000 lamports for the transaction
   - The program address for the ping program
   - The data address for the ping program
- - The **Instruction** section will contain a single instruction, with no data - the ping program is a pretty simple program, so it doesn't need any data.
+ - The **Instruction** section will contain a single instruction with no data - the ping program is a pretty simple program, so it doesn't need any data.
  - The **Program Instruction Logs** shows the logs from the ping program.  
 
 [//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
