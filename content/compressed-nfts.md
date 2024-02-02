@@ -1218,7 +1218,7 @@ async function transferNft(
 }
 ```
 
-Lets transfer our first compressed NFT at index 0 to someone else. First we’ll need to spin up another wallet with some funds, then grab the assetID at index 0 using `getLeafAssetId`. Then we’ll do the transfer. Finally, we’ll print out the entire collection using our function `logNftDetails`. You’ll not that the NFT at index zero will now belong to our new wallet in the `ownership` field. 
+Lets transfer our first compressed NFT at index 0 to someone else. First we’ll need to spin up another wallet with some funds, then grab the assetID at index 0 using `getLeafAssetId`. Then we’ll do the transfer. Finally, we’ll print out the entire collection using our function `logNftDetails`. You’ll note that the NFT at index zero will now belong to our new wallet in the `ownership` field. 
 
 ```tsx
 async function main() {
