@@ -80,7 +80,7 @@ All transactions on the blockchain are publicly viewable on the [Solana Explorer
 
 ![Screenshot of Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
 
-# Lab - wriuting transaction for the ping counter program 
+# Lab - writing transaction for the ping counter program 
 
 We’re going to create a script to ping an on-chain program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores it's data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
@@ -193,7 +193,7 @@ Scroll around the Explorer and look at what you're seeing:
   - The address of your payer - being debited 5000 lamports for the transaction
   - The program address for the ping program
   - The data address for the ping program
- - The **Instruction** section will contain a single instructionm, with no data - the ping program is a pretty simple program, so it doesn't need any data.
+ - The **Instruction** section will contain a single instruction, with no data - the ping program is a pretty simple program, so it doesn't need any data.
  - The **Program Instruction Logs** shows the logs from the ping program.  
 
 [//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
