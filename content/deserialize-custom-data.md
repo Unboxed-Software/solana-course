@@ -7,7 +7,7 @@ objectives:
 - Use Borsh to deserialize custom data
 ---
 
-# TL;DR
+# Summary
 
 - Programs store data in PDAs, which stands for **Program Derived Address**. 
 - PDAs do not have a corresponding secret key. 

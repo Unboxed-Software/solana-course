@@ -6,7 +6,7 @@ objectives:
 - Describe how procedural macros are used in the Anchor framework
 ---
 
-# TL;DR
+# Summary
 
 -   **Procedural macros** are a special kind of Rust macro that allow the programmer to generate code at compile time based on custom input.
 -   In the Anchor framework, procedural macros are used to generate code that reduces the amount of boilerplate required when writing Solana programs.

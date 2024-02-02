@@ -7,7 +7,7 @@ objectives:
 - Explain at a high level the interaction between `walletlib` and wallet apps
 ---
 
-# TL;DR
+# Summary
 - Wallets are just wrappers around a keypair, but they're essential for secure key management
 - Mobile and Web dApps handle their wallet-app connection differently
 - MWA handles all of its wallet interaction within the `transact` function

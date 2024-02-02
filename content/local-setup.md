@@ -8,7 +8,7 @@ objectives:
 - Use the Solana CLI to view program logs
 ---
 
-# TL;DR
+# Summary
 
 - To get started with Solana locally, you’ll first need to install **Rust** and the **Solana CLI**
 - Using the Solana CLI you can run a **local test validator** using the `solana-test-validator` command

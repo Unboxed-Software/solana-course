@@ -6,7 +6,7 @@ objectives:
 - Implement data validation checks using Anchor constraints
 ---
 
-# TL;DR
+# Summary
 
 - Use **data validation checks** to verify that account data matches an expected value. Without appropriate data validation checks, unexpected accounts may be used in an instruction.
 - To implement data validation checks in Rust, simply compare the data stored on an account to an expected value.

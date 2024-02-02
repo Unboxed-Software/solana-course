@@ -7,7 +7,7 @@ objectives:
 - Use Anchor's `Account` type for account validation
 ---
 
-# TL;DR
+# Summary
 
 - Use discriminators to distinguish between different account types
 - To implement a discriminator in Rust, include a field in the account struct to represent the account type

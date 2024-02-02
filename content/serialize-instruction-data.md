@@ -8,7 +8,7 @@ objectives:
 - Use Borsh to serialize program data
 ---
 
-# TL;DR
+# Summary
 
 - Transactions are made up of an array of instructions, a single transaction can have any number of instructions in it, each targeting its own program. When a transaction is submitted, the Solana runtime will process its instructions in order and atomically, meaning that if any of the instructions fail for any reason, the entire transaction will fail to be processed.
 - Every *instruction* is made up of 3 components: the intended program's ID, an array of all account’s involved, and a byte buffer of instruction data.

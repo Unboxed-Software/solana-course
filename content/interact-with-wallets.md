@@ -7,7 +7,7 @@ objectives:
 - Use wallet-adapter to have users sign transactions
 ---
 
-# TL;DR
+# Summary
 
 - **Wallets** store your secret key and handle secure transaction signing
 - **Hardware wallets** store your secret key on a separate device

@@ -8,7 +8,7 @@ objectives:
 - Burn tokens
 ---
 
-# TL;DR
+# Summary
 
 - **SPL-Tokens** represent all non-native tokens on the Solana network. Both fungible and non-fungible tokens (NFTs) on Solana are SPL-Tokens
 - The **Token Program** contains instructions for creating and interacting with SPL-Tokens

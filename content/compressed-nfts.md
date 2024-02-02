@@ -7,7 +7,7 @@ objectives:
 - Read compressed NFT data using the Read API
 ---
 
-# TL;DR
+# Summary
 
 - **Compressed NFTs (cNFTs)** use **State Compression** to hash NFT data and store the hash on-chain in an account using a **concurrent merkle tree** structure
 - The cNFT data hash can’t be used to infer the cNFT data, but it can be used to **verify** if the cNFT data you’re seeing is correct

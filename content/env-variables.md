@@ -7,7 +7,7 @@ objectives:
 - Create an admin-only instruction to set up a program account that can be used to store program configuration values
 ---
 
-# TL;DR
+# Summary
 
 -   There are no "out of the box" solutions for creating distinct environments in an on-chain program, but you can achieve something similar to environment variables if you get creative.
 -   You can use the `cfg` attribute with **Rust features** (`#[cfg(feature = ...)]`) to run different code or provide different variable values based on the Rust feature provided. _This happens at compile-time and doesn't allow you to swap values after a program has been deployed_.

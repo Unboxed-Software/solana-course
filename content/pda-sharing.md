@@ -6,7 +6,7 @@ objectives:
 - Use Anchor’s `seeds` and `bump` constraints to validate PDA accounts
 ---
 
-# TL;DR
+# Summary
 
 - Using the same PDA for multiple authority domains opens your program up to the possibility of users accessing data and funds that don't belong to them
 - Prevent the same PDA from being used for multiple accounts by using seeds that are user and/or domain-specific

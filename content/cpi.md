@@ -7,7 +7,7 @@ objectives:
 - Avoid common pitfalls and troubleshoot common errors associated with CPIs
 ---
 
-# TL;DR
+# Summary
 
 - A **Cross-Program Invocation (CPI)** is a call from one program to another, targeting a specific instruction on the program called
 - CPIs are made using the commands `invoke` or `invoke_signed`, the latter being how programs provide signatures for PDAs that they own

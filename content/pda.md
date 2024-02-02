@@ -8,7 +8,7 @@ objectives:
 ---
 
 
-# TL;DR
+# Summary
 
 - A **Program Derived Address** (PDA) is derived from a **program ID** and an optional list of **seeds**
 - PDAs are owned and controlled by the program they are derived from

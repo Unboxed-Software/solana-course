@@ -6,7 +6,7 @@ objectives:
 - Implement generic state compression in basic Solana programs
 ---
 
-# TL;DR
+# Summary
 - State Compression on Solana is most commonly used for compressed NFTs, but it's possible to use it for arbitrary data
 - State Compression lowers the amount of data you have to store on-chain by leveraging merkle trees.
 - Merkle trees store a single hash that represents an entire binary tree of hashes. Each leaf on a merkle tree is a hash of that leaf's data.

@@ -6,7 +6,7 @@ objectives:
 - Implement a check for duplicate mutable accounts using Anchor constraints
 ---
 
-# TL;DR
+# Summary
 
 - When an instruction requires two mutable accounts of the same type, an attacker can pass in the same account twice, causing the account to be mutated in unintended ways.
 - To check for duplicate mutable accounts in Rust, simply compare the public keys of the two accounts and throw an error if they are the same.

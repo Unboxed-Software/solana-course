@@ -8,7 +8,7 @@ objectives:
 - Explain how to update the data stored on a new account
 ---
 
-# TL;DR
+# Summary
 
 - Program state is stored in other accounts rather than in the program itself
 - A Program Derived Address (PDA) is derived from a program ID and an optional list of seeds. Once derived, PDAs are subsequently used as the address for a storage account.

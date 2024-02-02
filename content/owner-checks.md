@@ -7,7 +7,7 @@ objectives:
 - Use Anchor’s `#[account(owner = <expr>)]` constraint to explicitly define an external program that should own an account
 ---
 
-# TL;DR
+# Summary
 
 - Use **Owner Checks** to verify that accounts are owned by the expected program. Without appropriate owner checks, accounts owned by unexpected programs could be used in an instruction.
 - To implement an owner check in Rust, simply check that an account’s owner matches an expected program ID

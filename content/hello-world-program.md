@@ -9,7 +9,7 @@ objectives:
 - Submit a transaction to invoke our “Hello, world!” program
 ---
 
-# TL;DR
+# Summary
 
 - **Programs** on Solana are a particular type of account that stores and executes instruction logic
 - Solana programs have a single **entry point** to process instructions

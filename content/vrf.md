@@ -6,7 +6,7 @@ objectives:
 - Use Switchboard's VRF oracle queue to generate and consume randomness from an on-chain program
 ---
 
-# TL;DR
+# Summary
 
 - Attempts at generating randomness within your program are likely to be guessable by users given there's no true randomness on-chain.
 - Verifiable Random Functions (VRFs) give developers the opportunity to incorporate securely generated random numbers in their on-chain programs.

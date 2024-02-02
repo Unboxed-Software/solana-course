@@ -7,7 +7,7 @@ objectives:
 - Implement signer checks using Anchor’s `#[account(signer)]` constraint
 ---
 
-# TL;DR
+# Summary
 
 - Use **Signer Checks** to verify that specific accounts have signed a transaction. Without appropriate signer checks, accounts may be able to execute instructions they shouldn’t be authorized to perform.
 - To implement a signer check in Rust, simply check that an account’s `is_signer` property is `true`

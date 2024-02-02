@@ -6,7 +6,7 @@ objectives:
 - Partially sign transactions and implement transaction gating based on certain conditions
 ---
 
-# TL;DR
+# Summary
 
 -   **Solana Pay** is a specification for encoding Solana transaction requests within URLs, enabling standardized transaction requests across different Solana apps and wallets
 -   **Partial signing** of transactions allows for the creation of transactions that require multiple signatures before they are submitted to the network

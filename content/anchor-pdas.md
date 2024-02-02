@@ -7,7 +7,7 @@ objectives:
 - Use the `close` constraint to close an existing account
 ---
 
-# TL;DR
+# Summary
 
 - The `seeds` and `bump` constraints are used to initialize and validate PDA accounts in Anchor
 - The `init_if_needed` constraint is used to conditionally initialize a new account
