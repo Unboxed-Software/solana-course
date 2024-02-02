@@ -131,15 +131,15 @@ Two things to note in the example above:
 1. We’re setting the offset to 13 because we determined previously that the offset for `firstName` in the data layout is 9 and we want to additionally skip the first 4 bytes indicating the length of the string.
 2. We’re using a third party library `bs58` to perform base-58 encoding on the search term. You can install it using `npm install bs58`.
 
-# Demo
+# Lab
 
-Remember that Movie Review app we worked on in the last two lessons? We’re going to spice it up a little by paging the review list, ordering the reviews so they aren’t so random, and adding some basic search functionality. No worries if you’re just jumping into this lesson without having looked at the previous ones - as long as you have the prerequisite knowledge, you should be able to follow the demo without having worked in this specific project yet.
+Remember that Movie Review app we worked on in the last two lessons? We’re going to spice it up a little by paging the review list, ordering the reviews so they aren’t so random, and adding some basic search functionality. No worries if you’re just jumping into this lesson without having looked at the previous ones - as long as you have the prerequisite knowledge, you should be able to follow the lab without having worked in this specific project yet.
 
 ![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
 
 ### **1. Download the starter code**
 
-If you didn’t complete the demo from the last lesson or just want to make sure that you didn’t miss anything, you can download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account-data).
+If you didn’t complete the lab from the last lesson or just want to make sure that you didn’t miss anything, you can download the [starter code](https://github.com/Unboxed-Software/solana-movie-frontend/tree/solution-deserialize-account-data).
 
 The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson, a `Card` component for displaying a movie review, a `MovieList` component that displays reviews in a list, a `Form` component for submitting a new review, and a `Movie.ts` file that contains a class definition for a `Movie` object.
 
@@ -226,7 +226,7 @@ static async fetchPage(connection: web3.Connection, page: number, perPage: numbe
 With that done, we can reconfigure `MovieList` to use these methods. In `MovieList.tsx`, add `const [page, setPage] = useState(1)` near the existing `useState` calls. Then, update `useEffect` to call `MovieCoordinator.fetchPage` instead of fetching the accounts inline.
 
 ```tsx
-const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
+const { connection } = useConnection()
 const [movies, setMovies] = useState<Movie[]>([])
 const [page, setPage] = useState(1)
 
@@ -236,7 +236,7 @@ useEffect(() => {
     page,
     10
   ).then(setMovies)
-}, [page, search])
+}, [page])
 ```
 
 Lastly, we need to add buttons to the bottom of the list for navigating to different pages:
@@ -380,7 +380,7 @@ With that in place, let’s update the code in `MovieList` to call this properly
 First, add `const [search, setSearch] = useState('')` near the other `useState` calls. Then update the call to `MovieCoordinator.fetchPage` in the `useEffect` to pass the `search` parameter and to reload when `search !== ''`.
 
 ```tsx
-const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
+const { connection } = useConnection()
 const [movies, setMovies] = useState<Movie[]>([])
 const [page, setPage] = useState(1)
 const [search, setSearch] = useState('')
@@ -437,3 +437,8 @@ Now it’s your turn to try and do this on your own. Using the Student Intros ap
 This is challenging. If you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-paging-account-data). With this you complete Module 1! How was your experience? Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%201), so that we can continue to improve the course!
 
 As always, get creative with these challenges and take them beyond the instructions if you want! 
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=9342ad0a-1741-41a5-9f68-662642c8ec93)!

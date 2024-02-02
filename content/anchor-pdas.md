@@ -24,7 +24,7 @@ In addition to using constraints for account validation, some constraints can ha
 
 ## PDAs with Anchor
 
-Recall that [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda.md) are derived using a list of optional seeds, a bump seed, and a program ID. Anchor provides a convenient way to validate a PDA with the `seeds` and `bump` constraints.
+Recall that [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda) are derived using a list of optional seeds, a bump seed, and a program ID. Anchor provides a convenient way to validate a PDA with the `seeds` and `bump` constraints.
 
 ```rust
 #[derive(Accounts)]
@@ -264,7 +264,7 @@ pub struct Close<'info> {
 }
 ```
 
-# Demo
+# Lab
 
 Let’s practice the concepts we’ve gone over in this lesson by creating a Movie Review program using the Anchor framework.
 
@@ -648,3 +648,8 @@ Using what you've learned in this lesson, build out this program. The program sh
 3. Close an existing account
 
 Try to do this independently if you can! But if you get stuck, feel free to reference the [solution code](https://github.com/Unboxed-Software/anchor-student-intro-program).
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=f58108e9-94a0-45b2-b0d5-44ada1909105)!

@@ -12,7 +12,7 @@ objectives:
 -   **Direcciones derivadas del programa**, o PDA, son direcciones que no tienen una clave privada correspondiente. El concepto de PDA permite que los programas firmen transacciones por sí mismos y permite almacenar y localizar datos.
 -   Puede derivar un PDA usando el `findProgramAddress(seeds, programid)` método.
 -   Puede obtener una matriz de todas las cuentas que pertenecen a un programa usando `getProgramAccounts(programId)`.
--   Los datos de la cuenta deben deserializarse utilizando el mismo diseño utilizado para almacenarlos en primer lugar. Se puede utilizar `@project-serum/borsh` para crear un esquema.
+-   Los datos de la cuenta deben deserializarse utilizando el mismo diseño utilizado para almacenarlos en primer lugar. Se puede utilizar `@coral-xyz/borsh` para crear un esquema.
 
 # Descripción general
 
@@ -89,14 +89,14 @@ const accounts = connection.getProgramAccounts(programId).then((accounts) => {
 
 ## Deserialización de datos de cuenta personalizados
 
-La `data` propiedad de un `AccountInfo` objeto es un buffer. Para usarlo de manera eficiente, deberá escribir código que lo deserialice en algo más utilizable. Esto es similar al proceso de serialización que cubrimos la última lección. Al igual que antes, vamos a utilizar [Borsh](https://borsh.io/) y `@project-serum/borsh`. Si necesita un repaso de cualquiera de estos, eche un vistazo a la lección anterior.
+La `data` propiedad de un `AccountInfo` objeto es un buffer. Para usarlo de manera eficiente, deberá escribir código que lo deserialice en algo más utilizable. Esto es similar al proceso de serialización que cubrimos la última lección. Al igual que antes, vamos a utilizar [Borsh](https://borsh.io/) y `@coral-xyz/borsh`. Si necesita un repaso de cualquiera de estos, eche un vistazo a la lección anterior.
 
 La deserialización requiere el conocimiento del diseño de la cuenta antes de tiempo. Al crear sus propios programas, definirá cómo se hace esto como parte de ese proceso. Muchos programas también tienen documentación sobre cómo deserializar los datos de la cuenta. De lo contrario, si el código del programa está disponible, puede mirar la fuente y determinar la estructura de esa manera.
 
 Para deserializar correctamente los datos de un programa en cadena, tendrá que crear un esquema del lado del cliente que refleje cómo se almacenan los datos en la cuenta. Por ejemplo, lo siguiente podría ser el esquema para una cuenta que almacena metadatos sobre un jugador en un juego en cadena.
 
 ```tsx
-import * as borsh from "@project-serum/borsh";
+import * as borsh from "@coral-xyz/borsh";
 
 borshAccountSchema = borsh.struct([
     borsh.bool("initialized"),
@@ -108,7 +108,7 @@ borshAccountSchema = borsh.struct([
 Una vez que haya definido su diseño, simplemente llame `.decode(buffer)` al esquema.
 
 ```tsx
-import * as borsh from "@project-serum/borsh";
+import * as borsh from "@coral-xyz/borsh";
 
 borshAccountSchema = borsh.struct([
     borsh.bool("initialized"),
@@ -146,10 +146,10 @@ El programa de revisión de películas crea una cuenta separada para cada revisi
 3.  `title` como una cadena que representa el título de la película reseñada.
 4.  `description` como una cadena que representa la parte escrita de la revisión.
 
-Configuremos un `borsh` diseño en la `Movie` clase para representar el diseño de datos de la cuenta de la película. Comience por importar `@project-serum/borsh`. A continuación, cree una propiedad `borshAccountSchema` estática y configúrela en la `borsh` estructura apropiada que contenga las propiedades enumeradas anteriormente.
+Configuremos un `borsh` diseño en la `Movie` clase para representar el diseño de datos de la cuenta de la película. Comience por importar `@coral-xyz/borsh`. A continuación, cree una propiedad `borshAccountSchema` estática y configúrela en la `borsh` estructura apropiada que contenga las propiedades enumeradas anteriormente.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 export class Movie {
 	title: string;
@@ -174,7 +174,7 @@ Recuerde, el orden aquí*asuntos*. Debe coincidir con la estructura de los datos
 Ahora que tenemos el diseño del búfer configurado, vamos a crear un método estático en `Movie` llamado `deserialize` que tomará un opcional `Buffer` y devolverá un `Movie` objeto o `null`.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 export class Movie {
 	title: string;

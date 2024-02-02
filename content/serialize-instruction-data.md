@@ -77,7 +77,7 @@ In addition to knowing what information to include in an instruction data buffer
 
 > Borsh stands for Binary Object Representation Serializer for Hashing. It is meant to be used in security-critical projects as it prioritizes consistency, safety, speed; and comes with a strict specification.
 
-Borsh maintains a [JS library](https://github.com/near/borsh-js) that handles serializing common types into a buffer. There are also other packages built on top of borsh that try to make this process even easier. We’ll be using the `@project-serum/borsh` library which can be installed using `npm`.
+Borsh maintains a [JS library](https://github.com/near/borsh-js) that handles serializing common types into a buffer. There are also other packages built on top of borsh that try to make this process even easier. We’ll be using the `@coral-xyz/borsh` library which can be installed using `npm`.
 
 Building off of the previous game inventory example, let’s look at a hypothetical scenario where we are instructing the program to equip a player with a given item. Assume the program is designed to accept a buffer that represents a struct with the following properties:
 
@@ -88,7 +88,7 @@ Building off of the previous game inventory example, let’s look at a hypotheti
 All of this will be passed as a byte buffer that will be read in order, so ensuring proper buffer layout order is crucial. You would create the buffer layout schema or template for the above as follows:
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 const equipPlayerSchema = borsh.struct([
   borsh.u8('variant'),
@@ -100,7 +100,7 @@ const equipPlayerSchema = borsh.struct([
 You can then encode data using this schema with the `encode` method. This method accepts as arguments an object representing the data to be serialized and a buffer. In the below example, we allocate a new buffer that’s much larger than needed, then encode the data into that buffer and slice the original buffer down into a new buffer that’s only as large as needed.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 const equipPlayerSchema = borsh.struct([
   borsh.u8('variant'),
@@ -122,7 +122,7 @@ Once a buffer is properly created and the data serialized, all that’s left is 
 - `SystemProgram` will be used in the process of executing the instruction.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 import * as web3 from '@solana/web3.js'
 
 const equipPlayerSchema = borsh.struct([
@@ -169,7 +169,7 @@ web3.sendAndConfirmTransaction(connection, transaction, [player]).then((txid) =>
 })
 ```
 
-# Demo
+# Lab
 
 Let’s practice this together by building a Movie Review app that lets users submit a movie review and have it stored on Solana’s network. We’ll build this app a little bit at a time over the next few lessons, adding new functionality each lesson.
 
@@ -198,10 +198,10 @@ Remember that to properly interact with a Solana program, you need to know how i
 3. `rating` as an unsigned, 8-bit integer representing the rating out of 5 that you are giving to the movie you are reviewing.
 4. `description` as a string representing the written portion of the review you are leaving for the movie.
 
-Let’s configure a `borsh` layout in the `Movie` class. Start by importing `@project-serum/borsh`. Next, create a `borshInstructionSchema` property and set it to the appropriate `borsh` struct containing the properties listed above.
+Let’s configure a `borsh` layout in the `Movie` class. Start by importing `@coral-xyz/borsh`. Next, create a `borshInstructionSchema` property and set it to the appropriate `borsh` struct containing the properties listed above.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 export class Movie {
   title: string;
@@ -226,7 +226,7 @@ Keep in mind that *order matters*. If the order of properties here differs from 
 Now that we have the buffer layout set up, let’s create a method in `Movie` called `serialize()` that will return a `Buffer` with a `Movie` object’s properties encoded into the appropriate layout.
 
 ```tsx
-import * as borsh from '@project-serum/borsh'
+import * as borsh from '@coral-xyz/borsh'
 
 export class Movie {
   title: string;
@@ -406,3 +406,8 @@ Now it’s your turn to build something independently. Create an application tha
 If you get really stumped, you can [check out the solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 
 Feel free to get creative with these challenges and take them even further. The instructions aren't here to hold you back!
+
+
+## Completed the lab?
+
+Push your changes to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=6cb40094-3def-4b66-8a72-dd5f00298f61)!

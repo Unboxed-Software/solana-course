@@ -1,15 +1,16 @@
 <script lang="ts">
   import Header from "$lib/components/header.svelte";
   import Navigation from "$lib/components/navigation.svelte";
-  import type { Lesson } from "$lib/types";
+  import type { PageData } from "$lib/types";
   import { onMount, tick } from "svelte";
   import hljs from "highlight.js";
   // Highlight JS theme
   // Styles are in ./node_modules/highlight.js/styles
   import "highlight.js/styles/stackoverflow-light.css";
-  import { log, sleep } from "$lib/functions";
+  import { log } from "$lib/functions";
 
-  export let data: Lesson;
+  // 'data' is a bad variable name, but it's what SvelteKit uses
+  export let data: PageData;
 
   const highlight = async () => {
     if (!globalThis.document) {
@@ -44,20 +45,9 @@
 
 <style>
   section {
-    max-width: var(--single-column);
     padding: 36px;
     font-size: 18px;
     line-height: 27px;
-    /* Use traditional HTML layout for non-UI content */
-    display: block;
-  }
-
-  :global(img) {
-    max-width: 100%;
-  }
-
-  /* inline code =*/
-  :global(p code) {
-    padding: 3px;
+    justify-items: center;
   }
 </style>
