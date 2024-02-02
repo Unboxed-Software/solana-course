@@ -48,16 +48,42 @@ In particular:
 
 Code examples should be formatted as follows:
 
+#### Code
+
+You're writing code to be be read, understood, and changed by others.
+
+We want the minimal amount of code necessary to solve the problem.
+ 
+ - Use full names. Call a `thing` a `thing`. Don't call it a `thg`. 
+ - Avoid copy paste. This helps others change the code easily, as they can fix things in a single place.
+ - Avoid magic numbers. Nobody should see a `+ 32` in your code and wonder where it came from.
+
 ### JS/TS
 
- - two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
+We're trying to focus on Solana, not teaching JS/TS development and setup. This means reducing the JS/TS concepts needed to understand our demo code.
 
- - We are aiming to use `esrun`, which supports top level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or [IIFEs](https://developer.mozilla.org/en-US/docs/Glossary/IIFE). `await` just works. If you see these wrappers, delete them and use `esrun`.
+ - `ts` files are run with `esrun`, which supports top level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or [IIFEs](https://developer.mozilla.org/en-US/docs/Glossary/IIFE). `await` just works. If you see these wrappers, delete them.
 
- - Likewise, use async/await and use try / catch everywhere, rather than `.then()` and `.catch()`
- 
-### Rust
- - four spaces per rustfmt
+ - Likewise, use async/await and use try / catch all the time, rather than sometimes using `.then()` and `.catch()`
+
+ - Throw errors with `throw new Error('message')`. Don't throw strings (JS allows almost any type to be thrown). TS code can assume anything thrown is of the `Error` type.   
+
+ - Don't make custom helper functions. Instead use the `@solana-developers/helpers` package. If you need a functoon that doesn't exist, make a PR to `@solana-developers/helpers`, and add the helper, tests, and docs.
+
+  - Use two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
+
+### Rust & Anchor
+
+ - Use the [multiple files template](https://www.anchor-lang.com/docs/release-notes#multiple-files-template) to organize Anchor projects. 
+
+ - Avoid magic numbers. People reading your code should be able to understand where values come from. Use [InitSpace](https://docs.rs/anchor-lang/latest/anchor_lang/derive.InitSpace.html) to calculate space needed for accounts, and add a constant `DISCRIMINATOR_SIZE` to `constants.rs`.
+
+  - Bad: `8 + 32 + 32 + 8 + 8`
+
+  - Good: `space = DISCRIMINATOR_SIZE + SomeAccount::INIT_SPACE,` 
+
+ - Use four spaces per `rustfmt`.
+
 
 Diagrams:
 
