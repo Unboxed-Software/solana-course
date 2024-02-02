@@ -45,17 +45,18 @@ In particular:
   - Use 'token mint account' to refer to the address a token is minted at. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
 - Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
 - Don't use 'here' links. They make the course hard to scan and ['here' links are bad for SEO](https://www.smashingmagazine.com/2012/06/links-should-never-say-click-here/).
+- JS/TS clients send `transactions` made from `instructions`. On chain programs have `instruction handlers` that process `instructions`. Do not refer to instruction handlers as instructions!
 
 Code examples should be formatted as follows:
 
-#### Code
+### Code
 
 You're writing code to be be read, understood, and changed by others.
 
 We want the minimal amount of code necessary to solve the problem.
  
  - Use full names. Call a `thing` a `thing`. Don't call it a `thg`. 
- - Avoid copy paste. This helps others change the code easily, as they can fix things in a single place.
+ - Avoid reptitive, copy paste code. This helps others change the code easily, as they can fix things in a single place.
  - Avoid magic numbers. Nobody should see a `+ 32` in your code and wonder where it came from.
 
 ### JS/TS
@@ -66,11 +67,13 @@ We're trying to focus on Solana, not teaching JS/TS development and setup. This 
 
  - Likewise, use async/await and use try / catch all the time, rather than sometimes using `.then()` and `.catch()`
 
- - Throw errors with `throw new Error('message')`. Don't throw strings (JS allows almost any type to be thrown). TS code can assume anything thrown is of the `Error` type.   
+ - Throw errors with `throw new Error('message')`. Don't throw strings (JS allows almost any type to be thrown). TS code can assume anything thrown is of the `Error` type. 
 
  - Don't make custom helper functions. Instead use the `@solana-developers/helpers` package. If you need a functoon that doesn't exist, make a PR to `@solana-developers/helpers`, and add the helper, tests, and docs.
 
-  - Use two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
+ - Use two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
+
+ - Write tests so we can run your code and ensure a new release of something doesn't break your code. Ensure your tests make sense. BDD style (which Anchor uses by default) uses `describe` and `it` to create the names. So `describe('the plus operator', () => {}` becomes `describe the plus operation` and `it('adds numbers', () => {...})` becomes `it adds numbers`.  Ensure your test names make sense!
 
 ### Rust & Anchor
 
@@ -84,8 +87,7 @@ We're trying to focus on Solana, not teaching JS/TS development and setup. This 
 
  - Use four spaces per `rustfmt`.
 
-
-Diagrams:
+##  Diagrams:
 
 - If you draw Solana elliptic curves, these are [Edwards curves](https://en.wikipedia.org/wiki/Edwards_curve)
 - Use [Whimsical](https://whimsical.com/) for diagrams
