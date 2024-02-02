@@ -7,7 +7,7 @@ objectives:
 - Explain the basic functionality of the Token Metadata program, Candy Machine program, and Sugar CLI as tools that assist in creating and distributing NFTs on Solana
 ---
 
-# TL;DR
+# Summary
 
 - **Non-Fungible Tokens (NFTs)** are represented on Solana as SPL Tokens with an associated metadata account, 0 decimals, and a maximum supply of 1
 -   **Metaplex** offers a collection of tools that simplify the creation and distribution of NFTs on the Solana blockchain

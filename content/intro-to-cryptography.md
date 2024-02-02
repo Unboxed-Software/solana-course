@@ -7,7 +7,7 @@ objectives:
 - Load a keypair from an env file
 ---
 
-# TL;DR
+# Summary
 
 - A **keypair** is a matching pair of **public key** and **secret key**. 
 - The **public key** is used as an “address” that points to an account on the Solana network. A public key can be shared with anyone.

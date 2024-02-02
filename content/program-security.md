@@ -9,7 +9,7 @@ objectives:
 - Perform basic data validation
 ---
 
-# TL;DR
+# Summary
 
 - **Thinking like an attacker** means asking "How do I break this?"
 - Perform **owner checks** to ensure that the provided account is owned by the public key you expect, e.g. ensuring that an account you expect to be a PDA is owned by `program_id`

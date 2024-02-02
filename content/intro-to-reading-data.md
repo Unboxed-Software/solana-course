@@ -6,7 +6,7 @@ objectives:
 - Use web3.js to connect to Solana and read an account balance
 ---
 
-## TL;DR
+## Summary
 
 - **SOL** is the name of Solana’s native token. Each SOL is made from 1 billion **Lamports**. 
 - **Accounts** store tokens, NFTs, programs, and data. For now we’ll focus on accounts that store SOL. 

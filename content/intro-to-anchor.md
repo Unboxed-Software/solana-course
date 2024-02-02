@@ -6,7 +6,7 @@ objectives:
 - Explain how to implement basic account validation and security checks with Anchor
 ---
 
-# TL;DR
+# Summary
 
 - **Anchor** is a framework for building Solana programs
 - **Anchor macros** speed up the process of building Solana programs by abstracting away a significant amount of boilerplate code

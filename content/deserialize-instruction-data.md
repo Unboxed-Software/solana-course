@@ -10,7 +10,7 @@ objectives:
 - Explain the structure of a smart contract on Solana
 ---
 
-# TL;DR
+# Summary
 
 - Most programs support **multiple discrete instructions** - you decide when writing your program what these instructions are and what data must accompany them
 - Rust **enums** are often used to represent discrete program instructions

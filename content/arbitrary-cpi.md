@@ -6,7 +6,7 @@ objectives:
 - Safely and securely make a CPI from an Anchor program to an arbitrary non-anchor program
 ---
 
-# TL;DR
+# Summary
 
 - To generate a CPI, the target program must be passed into the invoking instruction as an account. This means that any target program could be passed into the instruction. Your program should check for incorrect or unexpected programs.
 - Perform program checks in native programs by simply comparing the public key of the passed-in program to the progam you expected.

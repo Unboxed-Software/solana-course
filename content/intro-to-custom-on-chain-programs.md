@@ -4,7 +4,7 @@ objectives:
 - Create transactions for custom on-chain programs
 ---
 
-# TL;DR
+# Summary
 
 Solana has multiple on-chain programs you can use. Instructions that use these programs need to have data in a custom format determined by the program.
 

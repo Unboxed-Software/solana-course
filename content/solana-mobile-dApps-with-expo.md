@@ -6,7 +6,7 @@ objectives:
 - Integrate ecosystem libraries into your mobile dApps
 ---
 
-# TL;DR
+# Summary
 
 - Expo is an open-source collection of tools and libraries that wrap around React Native, much like Next.js is a framework built on top of React.
 - In addition to simplifying the build/deploy process, Expo provides packages that give you access to mobile devices' peripherals and capabilities

@@ -6,7 +6,7 @@ objectives:
 - Using Anchor’s `init` constraint to initialize accounts, which automatically sets an account discriminator that is checked to prevent the reinitialization of an account
 ---
 
-# TL;DR
+# Summary
 
 - Use an account discriminator or initialization flag to check whether an account has already been initialized to prevent an account from being reinitialized and overriding existing account data.
 - To prevent account reinitialization in plain Rust, initialize accounts with an `is_initialized` flag and check if it has already been set to true when initializing an account

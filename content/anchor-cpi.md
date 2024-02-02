@@ -7,7 +7,7 @@ objectives:
 - Create and return custom Anchor errors
 ---
 
-# TL;DR
+# Summary
 
 - Anchor provides a simplified way to create CPIs using a **`CpiContext`**
 - Anchor's **`cpi`** feature generates CPI helper functions for invoking instructions on existing Anchor programs

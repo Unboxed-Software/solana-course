@@ -7,7 +7,7 @@ objectives:
 - Use lookup tables with versioned transactions
 ---
 
-# TL;DR
+# Summary
 
 -   **Versioned Transactions** refers to a way to support both legacy versions and newer versions of transaction formats. The original transaction format is "legacy" and new transaction versions start at version 0. Versioned transactions were implemented in order to support the use of Address Lookup Tables (also called lookup tables or LUTs).
 -   **Address Lookup Tables** are accounts used to store addresses of other accounts, which can then be referenced in versioned transactions using a 1 byte index instead of the full 32 bytes per address. This enables the creation of more complex transactions than what was possible prior to the introduction of LUTs.

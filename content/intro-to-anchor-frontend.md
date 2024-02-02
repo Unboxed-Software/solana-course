@@ -9,7 +9,7 @@ objectives:
 - Set up a frontend to invoke instructions using Anchor and an IDL
 ---
 
-# TL;DR
+# Summary
 
 - An **IDL** is a file representing the structure of a Solana program. Programs written and built using Anchor automatically generate a corresponding IDL. IDL stands for Interface Description Language.
 - `@project-serum/anchor` is a Typescript client that includes everything you’ll need to interact with Anchor programs

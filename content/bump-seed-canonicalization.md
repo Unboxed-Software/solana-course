@@ -6,7 +6,7 @@ objectives:
 - Use Anchor's `seeds` and `bump` constraints to ensure the canonical bump is always used in future instructions when deriving a PDA
 ---
 
-# TL;DR
+# Summary
 
 - The [**`create_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) function derives a PDA without searching for the **canonical bump**. This means there are multiple valid bumps, all of which will produce different addresses.
 - Using [**`find_program_address`**](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) ensures that the highest valid bump, or canonical bump, is used for the derivation, thus creating a deterministic way to find an address given specific seeds.

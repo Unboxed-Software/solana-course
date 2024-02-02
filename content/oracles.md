@@ -8,7 +8,7 @@ objectives:
 - Use oracles from an on-chain program to access real-world data
 ---
 
-# TL;DR
+# Summary
 
 - Oracles are services that provide external data to a blockchain network
 - There are two main Oracle providers on Solana: **Switchboard** and **Pyth**

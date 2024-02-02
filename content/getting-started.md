@@ -83,7 +83,7 @@ Modules cover a particular topic. These are broken down into individual lessons.
 
 Each lesson starts by listing the lesson objectives - ie, what you'll be learning in the lesson.
 
-Then there's a brief 'TL;DR' so that you can glance through, get a sense of what the lesson covers, and decide if the lesson is for you or not.
+Then there's a brief 'Summary' so that you can glance through, get a sense of what the lesson covers, and decide if the lesson is for you or not.
 
 Then each lesson has three sections:
 

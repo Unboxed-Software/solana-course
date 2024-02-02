@@ -9,7 +9,7 @@ objectives:
 - Fetch a subset of total accounts using `getMultipleAccounts`
 ---
 
-# TL;DR
+# Summary
 
 - This lesson delves into some functionality of the RPC calls that we used in the deserializing account data lesson
 - To save on compute time, you can fetch a large number of accounts without their data by filtering them to return just an array of public keys

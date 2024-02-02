@@ -7,7 +7,7 @@ objectives:
 - Deal with concurrency issues
 ---
 
-# TL;DR
+# Summary
 
 - If your data accounts are too large for the Stack, wrap them in `Box` to allocate them to the Heap
 - Use Zero-Copy to deal with accounts that are too large for `Box` (< 10MB)

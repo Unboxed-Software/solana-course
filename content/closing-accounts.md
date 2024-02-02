@@ -6,7 +6,7 @@ objectives:
 - Close program accounts safely and securely using the Anchor `close` constraint
 ---
 
-# TL;DR
+# Summary
 
 - **Closing an account** improperly creates an opportunity for reinitialization/revival attacks
 - The Solana runtime **garbage collects accounts** when they are no longer rent exempt. Closing accounts involves transferring the lamports stored in the account for rent exemption to another account of your choosing.
