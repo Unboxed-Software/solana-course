@@ -39,7 +39,7 @@ The value of `recipient` is required and must be a base58-encoded public key of 
 
 - `amount` - a non-negative integer or decimal value indicating the amount of tokens to transfer
 - `spl-token` - a base58-encoded public key of an SPL Token mint account if the transfer is of an SPL token and not SOL
-- `reference` - optional reference values as base58-encoded 32 byte arrays. This can be used by a client for identifying the transaction on-chain since the client will not have a transaction's signature.
+- `reference` - optional reference values as base58-encoded 32 byte arrays. This can be used by a client for identifying the transaction onchain since the client will not have a transaction's signature.
 - `label` - a URL-encoded UTF-8 string that describes the source of the transfer request
 - `message` - a URL-encoded UTF-8 string that describes the nature of the transfer request
 - `memo` - a URL-encoded UTF-8 string that must be included in the SPL memo instruction in the payment transaction
@@ -238,7 +238,7 @@ for (let i = 0; i < nfts.length; i++) {
 
 ### Partial Signing
 
-If you want certain transactions behind some kind of gating mechanism, that functionality will have to be enforced on-chain as well. Returning an error from your Solana Pay endpoint makes it more difficult for end users to do the transaction, but they could still build it manually.
+If you want certain transactions behind some kind of gating mechanism, that functionality will have to be enforced onchain as well. Returning an error from your Solana Pay endpoint makes it more difficult for end users to do the transaction, but they could still build it manually.
 
 What this means is that the instruction(s) being called should require some type of "admin" signature that only your application can provide. In doing that, however, you'll have made it so that our previous examples don't work. The transaction is built and sent to the requesting wallet for the end user's signature, but the submitted transaction will fail without the admin signature.
 
@@ -632,7 +632,7 @@ At this point your app should be working! Go ahead and test it using your mobile
 
 After scanning the QR code, you should see a message indicating that you are at location 1. From there, scan the QR code on the `Location 2` page. You may need to wait a few seconds for the previous transaction to finalize before continuing.
 
-Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay! Depending on your background, this may not feel intuitive or straightforward. If that's the case, feel free to go through the lab again or make something on your own. Solana Pay opens a lot of doors for bridging the gap between real life and on-chain interaction.
+Congratulations, you have successfully finished the scavenger hunt demo using Solana Pay! Depending on your background, this may not feel intuitive or straightforward. If that's the case, feel free to go through the lab again or make something on your own. Solana Pay opens a lot of doors for bridging the gap between real life and onchain interaction.
 
 If you want to take a look at the final solution code you can find it on the solution branch of [the same repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/solution).
 

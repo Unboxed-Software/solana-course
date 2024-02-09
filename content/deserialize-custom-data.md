@@ -17,7 +17,7 @@ objectives:
 
 # Overview
 
-In the last lesson, we serialized program data that was subsequently stored on-chain by a Solana program. In this lesson, we’ll cover in greater detail how programs store data on the chain, how to retrieve data, and how to deserialize the data they store.
+In the last lesson, we serialized program data that was subsequently stored onchain by a Solana program. In this lesson, we’ll cover in greater detail how programs store data on the chain, how to retrieve data, and how to deserialize the data they store.
 ## Programs
 
 As the saying goes, everything in Solana is an account. Even programs. Programs are accounts that store code and are marked as executable. This code can be executed by the Solana runtime when instructed to do so. A program address is a public keys on the Ed25519 Elliptic Curve. Like all public keys, they have corresponding secret keys.
@@ -94,7 +94,7 @@ The `data` property on an `AccountInfo` object is a buffer. To use it efficientl
 
 Deserializing requires knowledge of the account layout ahead of time. When creating your own programs, you will define how this is done as part of that process. Many programs also have documentation on how to deserialize the account data. Otherwise, if the program code is available you can look at the source and determine the structure that way.
 
-To properly deserialize data from an on-chain program, you will have to create a client-side schema mirroring how the data is stored in the account. For example, the following might be the schema for an account storing metadata about a player in an on-chain game.
+To properly deserialize data from an onchain program, you will have to create a client-side schema mirroring how the data is stored in the account. For example, the following might be the schema for an account storing metadata about a player in an onchain game.
 
 ```typescript
 import * as borsh from "@coral-xyz/borsh";

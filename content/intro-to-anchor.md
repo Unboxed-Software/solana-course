@@ -22,7 +22,7 @@ Anchor is a development framework that makes writing Solana programs easier, fas
 
 Anchor uses macros and traits to generate boilerplate Rust code for you. These provide a clear structure to your program so you can more easily reason about your code. The main high level macros and attributes are:
 
-- `declare_id` - a macro for declaring the program’s on-chain address
+- `declare_id` - a macro for declaring the program’s onchain address
 - `#[program]` - an attribute macro used to denote the module containing the program’s instruction logic
 - `Accounts` - a trait applied to structs representing the list of accounts required for an instruction
 - `#[account]` - an attribute macro used to define custom account types for the program
@@ -31,7 +31,7 @@ Let's talk about each of them before putting all the pieces together.
 
 ## Declare your program ID
 
-The `declare_id` macro is used to specify the on-chain address of the program (i.e. the `programId`). When you build an Anchor program for the first time, the framework will generate a new keypair. This becomes the default keypair used to deploy the program unless specified otherwise. The corresponding public key should be used as the `programId` specified in the `declare_id!` macro.
+The `declare_id` macro is used to specify the onchain address of the program (i.e. the `programId`). When you build an Anchor program for the first time, the framework will generate a new keypair. This becomes the default keypair used to deploy the program unless specified otherwise. The corresponding public key should be used as the `programId` specified in the `declare_id!` macro.
 
 ```rust
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
@@ -278,7 +278,7 @@ When you combine all of these Anchor types you end up with a complete program. B
 // Use this import to gain access to common anchor features
 use anchor_lang::prelude::*;
 
-// Program on-chain address
+// Program onchain address
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 // Instruction logic

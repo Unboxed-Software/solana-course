@@ -3,13 +3,13 @@ title: Verifiable Randomness Functions
 objectives:
 - Explain the limitations of generating random numbers on-chain
 - Explain how Verifiable Randomness works
-- Use Switchboard's VRF oracle queue to generate and consume randomness from an on-chain program
+- Use Switchboard's VRF oracle queue to generate and consume randomness from an onchain program
 ---
 
 # Summary
 
 - Attempts at generating randomness within your program are likely to be guessable by users given there's no true randomness on-chain.
-- Verifiable Random Functions (VRFs) give developers the opportunity to incorporate securely generated random numbers in their on-chain programs.
+- Verifiable Random Functions (VRFs) give developers the opportunity to incorporate securely generated random numbers in their onchain programs.
 - A VRF is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly.
 - Switchboard offers a developer-friendly VRF for the Solana ecosystem.
 
@@ -17,7 +17,7 @@ objectives:
 
 ## Randomness On-Chain
 
-Random numbers are ***not*** natively allowed on-chain. This is because Solana is deterministic, every validator runs your code and needs to have the same result. So if you wanted to create a raffle program, you'd have to look outside of the blockchain for your randomness. This is where Verifiable Random Functions (VRFs) come in. VRFs offer developers a secure means of integrating randomness on-chain in a decentralized fashion.
+Random numbers are ***not*** natively allowed on-chain. This is because Solana is deterministic, every validator runs your code and needs to have the same result. So if you wanted to create a raffle program, you'd have to look outside of the blockchain for your randomness. This is where Verifiable Random Functions (VRFs) come in. VRFs offer developers a secure means of integrating randomness onchain in a decentralized fashion.
 
 ## Types of Randomness
 
@@ -31,7 +31,7 @@ Unfortunately, neither type of randomness is natively available in Solana progra
 
 ## What is Verifiable Randomness?
 
-A Verifiable Random Function (VRF) is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly. This means we can use a cryptographic keypair to generate a random number with a proof, which can then be validated by anyone to ensure the value was calculated correctly without the possibility of leaking the producer’s secret key. Once validated, the random value is stored on-chain in an account.
+A Verifiable Random Function (VRF) is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly. This means we can use a cryptographic keypair to generate a random number with a proof, which can then be validated by anyone to ensure the value was calculated correctly without the possibility of leaking the producer’s secret key. Once validated, the random value is stored onchain in an account.
 
 VRFs are a crucial component for achieving verifiable and unpredictable randomness on a blockchain, addressing some of the shortcomings of traditional PRNGs and the challenges with achieving true randomness in a decentralized system.
 
@@ -47,7 +47,7 @@ VRFs are not specific to Solana and have been utilized on other blockchains to g
 
 Switchboard is a decentralized Oracle network that offers VRFs on Solana. Oracles are services that provide external data to a blockchain, allowing them to interact with and respond to real-world events. The Switchboard network is made up of many different individual oracles run by third parties to provide external data and service requests on-chain. To learn more about Switchboard’s Oracle network, please refer to our [Oracle lesson](./oracles).
 
-Switchboard's VRF allows users to request an oracle to produce a randomness output on-chain. Once an oracle has been assigned the request, the proof of the VRF result must be verified on-chain before it can be used. The VRF proof takes 276 instructions (~48 transactions) to fully verify on-chain. Once the proof is verified, the Switchboard program will execute a on-chain callback defined by the VRF Account during account creation. From there the program can consume the random data.
+Switchboard's VRF allows users to request an oracle to produce a randomness output on-chain. Once an oracle has been assigned the request, the proof of the VRF result must be verified onchain before it can be used. The VRF proof takes 276 instructions (~48 transactions) to fully verify on-chain. Once the proof is verified, the Switchboard program will execute a onchain callback defined by the VRF Account during account creation. From there the program can consume the random data.
 
 You might be wondering how they get paid. In switchboard’s VRF implementation, you actually pay per request. // NEEDS more data
 
@@ -84,7 +84,7 @@ pub struct VrfAccountData {
     pub status: VrfStatus,
     /// Incremental counter for tracking VRF rounds.
     pub counter: u128,
-    /// On-chain account delegated for making account changes. <-- This is our PDA
+    /// Onchain account delegated for making account changes. <-- This is our PDA
     pub authority: Pubkey,
     /// The OracleQueueAccountData that is assigned to fulfill VRF update request.
     pub oracle_queue: Pubkey,
@@ -1060,10 +1060,10 @@ describe("burry-escrow-vrf", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("On-chain unlock price:", newAccount.unlockPrice)
+      console.log("Onchain unlock price:", newAccount.unlockPrice)
       console.log("Amount in escrow:", escrowBalance)
 
-      // Check whether the data on-chain is equal to local 'data'
+      // Check whether the data onchain is equal to local 'data'
       assert(failUnlockPrice == newAccount.unlockPrice)
       assert(escrowBalance > 0)
     } catch (e) {

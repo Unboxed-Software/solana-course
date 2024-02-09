@@ -10,13 +10,13 @@ objectives:
 
 # Summary
 
-All modifications to on-chain data happen through **transactions**. Transactions are mostly a set of instructions that invoke Solana programs. Transactions are atomic, meaning they either succeed - if all the instructions have executed properly - or fail, as if the transaction hasn't been run at all. 
+All modifications to onchain data happen through **transactions**. Transactions are mostly a set of instructions that invoke Solana programs. Transactions are atomic, meaning they either succeed - if all the instructions have executed properly - or fail, as if the transaction hasn't been run at all. 
 
 # Overview
 
 ## Transactions are atomic
 
-Any modification to on-chain data happens through transactions sent to programs.
+Any modification to onchain data happens through transactions sent to programs.
 
 A transaction on Solana is similar to a transaction elsewhere: it is atomic. **Atomic means the entire transaction runs or fails**. 
 

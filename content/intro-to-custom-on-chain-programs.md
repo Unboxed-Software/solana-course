@@ -1,12 +1,12 @@
 ---
-title: Using custom on-chain programs
+title: Using custom onchain programs
 objectives:
-- Create transactions for custom on-chain programs
+- Create transactions for custom onchain programs
 ---
 
 # Summary
 
-Solana has multiple on-chain programs you can use. Instructions that use these programs need to have data in a custom format determined by the program.
+Solana has multiple onchain programs you can use. Instructions that use these programs need to have data in a custom format determined by the program.
 
 # Overview
 ### Instructions
@@ -82,7 +82,7 @@ All transactions on the blockchain are publicly viewable on the [Solana Explorer
 
 # Lab - writing transactions for the ping counter program 
 
-We’re going to create a script to ping an on-chain program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores it's data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+We’re going to create a script to ping an onchain program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores it's data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
 ![Solana stores programs and data in seperate accounts](../assets/pdas-note-taking-program.svg)
 

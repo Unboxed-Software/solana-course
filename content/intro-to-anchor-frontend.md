@@ -42,7 +42,7 @@ To create an instance of `Program`, you'll need the following:
 - `Connection` - the cluster connection
 - `Wallet` - default keypair used to pay for and sign transactions
 - `Provider` - encapsulates the `Connection` to a Solana cluster and a `Wallet`
-- `ProgramId` - the program’s on-chain address
+- `ProgramId` - the program’s onchain address
 
 ![Anchor structure](../assets/anchor-client-structure.png)
 
@@ -108,7 +108,7 @@ Looking at the IDL, you can see that in both instructions the `user` is required
 
 Looking further down at the `accounts` section, you can see that the program contains one account type named `Counter` with a single `count` field of type `u64`.
 
-Although the IDL does not provide the implementation details for each instruction, we can get a basic idea of how the on-chain program expects instructions to be constructed and see the structure of the program accounts.
+Although the IDL does not provide the implementation details for each instruction, we can get a basic idea of how the onchain program expects instructions to be constructed and see the structure of the program accounts.
 
 Regardless of how you get it, you *need* an IDL file to interact with a program using the `@project-serum/anchor` package. To use the IDL, you'll need to include the IDL file in your project and then import the file.
 
@@ -204,10 +204,10 @@ setProvider(provider)
 Once you have the IDL and a provider, you can create an instance of `Program`. The constructor requires three parameters:
 
 - `idl` - the IDL as type `Idl`
-- `programId` - the on-chain address of the program as a `string` or `PublicKey`
+- `programId` - the onchain address of the program as a `string` or `PublicKey`
 - `Provider` - the provider discussed in the previous section
 
-The `Program` object creates a custom API you can use to interact with a Solana program. This API is the one stop shop for all things related to communicating with on-chain programs. Among other things, you can send transactions, fetch deserialized accounts, decode instruction data, subscribe to account changes, and listen to events. You can also [learn more about the `Program` class](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
+The `Program` object creates a custom API you can use to interact with a Solana program. This API is the one stop shop for all things related to communicating with onchain programs. Among other things, you can send transactions, fetch deserialized accounts, decode instruction data, subscribe to account changes, and listen to events. You can also [learn more about the `Program` class](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
 
 To create the `Program` object, first import `Program` and `Idl` from `@project-serum/anchor`. `Idl` is a type you can used when working with Typescript.
 
@@ -296,7 +296,7 @@ const transaction = new Transaction().add(instructionOne, instructionTwo)
 await sendTransaction(transaction, connection)
 ```
 
-In summary, the Anchor `MethodsBuilder` provides a simplified and more flexible way to interact with on-chain programs. You can build an instruction, a transaction, or build and send a transaction using basically the same format without having to manually serialize or deserialize the accounts or instruction data.
+In summary, the Anchor `MethodsBuilder` provides a simplified and more flexible way to interact with onchain programs. You can build an instruction, a transaction, or build and send a transaction using basically the same format without having to manually serialize or deserialize the accounts or instruction data.
 
 ## Fetch program accounts
 
