@@ -178,7 +178,7 @@ As with most new tools or frameworks, initial setup can be challenging. The good
 
 Let's practice this together by building the Mint-A-Day app, where users will able to mint a single NFT snapshot of their lives daily, creating a permanent diary of sorts.
 
-To mint the NFTs we'll be using Metaplex's Javascript SDK along with [nft.storage](https://nft.storage/) to store images and metadata. All of our on-chain work will be on Devnet.
+To mint the NFTs we'll be using Metaplex's Javascript SDK along with [nft.storage](https://nft.storage/) to store images and metadata. All of our onchain work will be on Devnet.
 
 The first half of this lab is cobbling together the needed components to make Expo, Solana, and Metaplex all work together. We'll do this modularly so you'll know what aspects of the boilerplate align with which section.
 

@@ -75,8 +75,8 @@ You **don't** need previous blockchain experience to follow this course!
 ## How is this course structured?
 
 There are three tracks:
- - **dApp development** - building web and mobile apps that interact with popular on-chain Solana programs. These cover things like token transfers, minting, and creating clients for arbitrary programs. if you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with,   
- - **On-chain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana on-chain, or use the blockchain to store arbitrary data, this track is for you. 
+ - **dApp development** - building web and mobile apps that interact with popular onchain Solana programs. These cover things like token transfers, minting, and creating clients for arbitrary programs. if you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with,   
+ - **Onchain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana on-chain, or use the blockchain to store arbitrary data, this track is for you. 
  - **Network infrastructure** - covers running Solana itself, as an RPC or validator.
 
 Modules cover a particular topic. These are broken down into individual lessons.

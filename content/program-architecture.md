@@ -212,7 +212,7 @@ pub struct BadState {
 
 The `flags` field is variable length. This makes looking up a specific account by the `id` field very difficult, as an update to the data in `flags` changes the location of `id` on the memory map.
 
-To make this more clear, observe what this account's data looks like on-chain when `flags` has four items in the vector vs eight items. If you were to call `solana account ACCOUNT_KEY` you’d get a data dump like the following: 
+To make this more clear, observe what this account's data looks like onchain when `flags` has four items in the vector vs eight items. If you were to call `solana account ACCOUNT_KEY` you’d get a data dump like the following: 
 
 ```rust
 0000:   74 e4 28 4e    d9 ec 31 0a  -> Account Discriminator (8)

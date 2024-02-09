@@ -8,10 +8,10 @@ objectives:
 
 # Summary
 - State Compression on Solana is most commonly used for compressed NFTs, but it's possible to use it for arbitrary data
-- State Compression lowers the amount of data you have to store on-chain by leveraging merkle trees.
+- State Compression lowers the amount of data you have to store onchain by leveraging merkle trees.
 - Merkle trees store a single hash that represents an entire binary tree of hashes. Each leaf on a merkle tree is a hash of that leaf's data.
 - Concurrent merkle trees are a specialized version of merkle trees that allow concurrent updates.
-- Because data in a state-compressed program is not stored on-chain, you have to user indexers to keep an off-chain cache of the data and then verify that data against the on-chain merkle tree.
+- Because data in a state-compressed program is not stored on-chain, you have to user indexers to keep an off-chain cache of the data and then verify that data against the onchain merkle tree.
 
 # Overview
 
@@ -21,7 +21,7 @@ Previously, we discussed state compression in the context of compressed NFTs. At
 
 In traditional programs, data is serialized (typically using borsh) and then stored directly in an account. This allows the data to be easily read and written through Solana programs. You can “trust” the data stored in the accounts because it can’t be modified except through the mechanisms surfaced by the program.
 
-State compression effectively asserts that the most important piece of this equation is how “trustworthy” the data is. If all we care about is the ability to trust that data is what it claims to be, then we can actually get away with ***not*** storing the data in an account on-chain. Instead, we can store hashes of the data where the hashes can be used to prove or verify the data. The data hash takes up significantly less storage space than the data itself. We can then store the actual data somewhere much cheaper and worry about verifying it against the on-chain hash when the data is accessed.
+State compression effectively asserts that the most important piece of this equation is how “trustworthy” the data is. If all we care about is the ability to trust that data is what it claims to be, then we can actually get away with ***not*** storing the data in an account on-chain. Instead, we can store hashes of the data where the hashes can be used to prove or verify the data. The data hash takes up significantly less storage space than the data itself. We can then store the actual data somewhere much cheaper and worry about verifying it against the onchain hash when the data is accessed.
 
 The specific data structure used by the Solana State Compression program is a special binary tree structure known as a **concurrent merkle tree**. This tree structure hashes pieces of data together in a deterministic way to compute a single, final hash that gets stored on-chain. This final hash is significantly smaller in size than all the original data combined, hence the “compression.” The steps to this process are:
 
@@ -32,13 +32,13 @@ The specific data structure used by the Solana State Compression program is a sp
 5. Each branch is then hashed together
 6. Continually climb the tree and hash adjacent branches together
 7. Once at the top of the tree, a final ”root hash” is produced
-8. Store the root hash on-chain as verifiable proof of the data within each leaf
+8. Store the root hash onchain as verifiable proof of the data within each leaf
 9. Anyone wanting to verify that the data they have matches the “source of truth” can go through the same process and compare the final hash without having to store all the data on-chain
 
 This involves a few rather serious development tradeoffs:
 
 1. Since the data is no longer stored in an account on-chain, it is more difficult to access.
-2. Once the data has been accessed, developers must decide how often their applications will verify the data against the on-chain hash.
+2. Once the data has been accessed, developers must decide how often their applications will verify the data against the onchain hash.
 3. Any changes to the data will require sending the entirety of the previously hashed data *and* the new data into an instruction. Developer may also have to provide additional data relevant to the proofs required to verify the original data against the hash.
 
 Each of these will be a consideration when determining **if**, **when**, and **how** to implement state compression for your program.
@@ -67,7 +67,7 @@ The **max depth** is the maximum number of hops to get from any leaf to the ro
 
 The **max buffer size** is effectively the maximum number of concurrent changes that you can make to a tree within a single slot with the root hash still being valid. When multiple transactions are submitted in the same slot, each of which is competing to update leafs on a standard merkle tree, only the first to run will be valid. This is because that “write” operation will modify the hash stored in the account. Subsequent transactions in the same slot will be trying to validate their data against a now-outdated hash. A concurrent merkle tree has a buffer so that the buffer can keep a running log of these modifications. This allows the State Compression Program to validate multiple data writes in the same slot because it can look up what the previous hashes were in the buffer and compare against the appropriate hash.
 
-The **canopy depth** is the number of proof nodes that are stored on-chain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node passed into the program adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit. Caching proof nodes on-chain in the canopy helps improve program composability.
+The **canopy depth** is the number of proof nodes that are stored onchain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node passed into the program adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit. Caching proof nodes onchain in the canopy helps improve program composability.
 
 Each of these three values, max depth, max buffer size, and canopy depth, comes with a tradeoff. Increasing the value of any of these values increases the size of the account used to store the tree, thus increasing the cost of creating the tree.
 
@@ -83,7 +83,7 @@ A state-compressed account doesn’t store the data itself. Rather, it stores th
 
 The Solana ledger is a list of entries containing signed transactions. In theory, this can be traced back to the genesis block. This effectively means any data that has ever been put into a transaction exists in the ledger.
 
-Since the state compression hashing process occurs on-chain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from the beginning. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the on-chain root hash.
+Since the state compression hashing process occurs on-chain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from the beginning. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
 
 This process is complex, but it will make sense after some practice.
 
@@ -99,7 +99,7 @@ The State Compression Program also leverages a separate “no op” program whos
 
 ### Index data for easy lookup
 
-Under normal conditions, you would typically access on-chain data by fetching the appropriate account. When using state compression, however, it’s not so straightforward.
+Under normal conditions, you would typically access onchain data by fetching the appropriate account. When using state compression, however, it’s not so straightforward.
 
 As mentioned above, the data now exists in the ledger state rather than in an account. The easiest place to find the full data is in the logs of the Noop instruction. Unfortunately, while this data will in a sense exist in the ledger state forever, it will likely be inaccessible through validators after a certain period of time.
 
@@ -956,7 +956,7 @@ it("Create Note Tree", async () => {
 })
 ```
 
-Next, we’ll create the `Add Note` test. It should call `append_note` with `firstNote`, then check that the on-chain hash matches our computed hash and that the note log matches the text of the note we passed into the instruction.
+Next, we’ll create the `Add Note` test. It should call `append_note` with `firstNote`, then check that the onchain hash matches our computed hash and that the note log matches the text of the note we passed into the instruction.
 
 ```tsx
 it("Add Note", async () => {
