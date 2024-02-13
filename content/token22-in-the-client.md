@@ -1,16 +1,163 @@
 # Prerequisites
 If you don't have Solana already installed on your system, follow this [guide](https://solana.com/developers/guides/getstarted/setup-local-development).
 
+## Testing on Local Test Validator
+If you encounter errors with `devnet`, you can use Solana Local Test Validator to run this script. After completing installation, run the following command to start the Local Test Validator.
+```bash
+solana-test-validator
+```
+
+And then, in `src/index.ts`, change the connection initialization to use the Local Test Validator
+```ts
+// ....
+const connection = new Connection('http://127.0.0.1:8899') // use the JSON RPC URL as prompted on the console after running the validator
+const keyPair = await initializeKeypair(connection)
+// ....
+```
+
 # Getting Started
-To get started, clone [this](https://github.com/Unboxed-Software/token22-in-the-client/) repository and checkout the `starter` branch.
+To get started, clone [this](https://github.com/Unboxed-Software/token22-in-the-client/) repository and checkout the `starter` branch. This branch contains a couple of helper files and the boilerplate code to get you started.
+
+```bash
+git clone https://github.com/Unboxed-Software/token22-in-the-client.git
+cd token22-in-the-client
+git checkout starter
+```
+
 Run the following commands to install the dependencies and run the script.
 ```bash
 npm install
-
 npm run start
 ```
 
+## KeyPair Helpers
+The helper file `src/keypair-helpers.ts` contains 2 functions called `initializeKeypair` and `airdropSolIfNeeded`. If a keypair doesn't exist already, the `initializeKeypair` function creates a new keypair and writes the private key to a `.env` file. This keypair will be used for all the subsequent operations.
+
+When a new keypair is created, the `airdropSolIfNeeded` function is called to airdrop 1 SOL. It will be called automatically whenever the balance drops below 1 SOL.
+
+```ts
+import * as web3 from '@solana/web3.js'
+import * as fs from 'fs'
+import dotenv from 'dotenv'
+dotenv.config()
+
+export async function initializeKeypair(
+	connection: web3.Connection
+): Promise<web3.Keypair> {
+	if (!process.env.PRIVATE_KEY) {
+		console.log('Creating .env file')
+		const signer = web3.Keypair.generate()
+		fs.writeFileSync('.env', `PRIVATE_KEY=[${signer.secretKey.toString()}]`)
+		await airdropSolIfNeeded(signer, connection)
+
+		return signer
+	}
+
+	const secret = JSON.parse(process.env.PRIVATE_KEY ?? '') as number[]
+	const secretKey = Uint8Array.from(secret)
+	const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
+	await airdropSolIfNeeded(keypairFromSecretKey, connection)
+	return keypairFromSecretKey
+}
+
+async function airdropSolIfNeeded(
+	signer: web3.Keypair,
+	connection: web3.Connection
+) {
+	const balance = await connection.getBalance(signer.publicKey)
+	console.log('Current balance is', balance / web3.LAMPORTS_PER_SOL)
+
+	if (balance < web3.LAMPORTS_PER_SOL) {
+		console.log('Airdropping 1 SOL...')
+		const airdropSignature = await connection.requestAirdrop(
+			signer.publicKey,
+			web3.LAMPORTS_PER_SOL
+		)
+
+		const latestBlockHash = await connection.getLatestBlockhash()
+
+		await connection.confirmTransaction({
+			blockhash: latestBlockHash.blockhash,
+			lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+			signature: airdropSignature,
+		})
+
+		const newBalance = await connection.getBalance(signer.publicKey)
+		console.log('New balance is', newBalance / web3.LAMPORTS_PER_SOL)
+	}
+}
+```
+
+## Print Helpers
+The helper file `src/print-helpers.ts` has a function called `printTableData` which will be used to log output to the console in a structured fashion. The function simply takes any object and is passed to the `console.table` function available to NodeJS which prints the information in a tabular form with the object's keys as columns and values as rows.
+```ts
+import { PublicKey } from '@solana/web3.js'
+
+function printTableData(obj: Object){
+	let tableData: any = []
+
+	if (obj instanceof Array) {
+		Object.keys(obj).map((key) => {
+			let currentValue = (obj as any)[key]
+
+			if (currentValue instanceof Object) {
+				Object.keys(currentValue).map((key) => {
+					let nestedValue = (currentValue as any)[key]
+					if (nestedValue instanceof PublicKey) {
+						nestedValue = (nestedValue as PublicKey).toBase58();
+						(currentValue as any)[key] = nestedValue
+					}
+				})
+				tableData.push(currentValue)
+			}
+		})
+	} else {
+		Object.keys(obj).map((key) => {
+			let currentValue = (obj as any)[key]
+			if (currentValue instanceof PublicKey) {
+				currentValue = (currentValue as PublicKey).toBase58()
+				;(obj as any)[key] = currentValue
+			}
+		})
+		tableData.push(obj)
+	}
+
+	console.table(tableData);
+	console.log();
+}
+
+export default printTableData
+```
+
+## `index.ts`
+The `src/index.ts` has a `main` function which creates a connection to the specified cluster and calls `initializeKeypair`.
+```ts
+import {Cluster, Connection, clusterApiUrl} from '@solana/web3.js'
+import {initializeKeypair} from './keypair-helpers'
+
+const CLUSTER: Cluster = 'devnet'
+
+async function main() {
+
+	/**
+	 * Create a connection and initialize a keypair if one doesn't already exists.
+	 * If a keypair exists, airdrop a sol if needed.
+	 */
+	const connection = new Connection(clusterApiUrl(CLUSTER))
+	const keyPair = await initializeKeypair(connection)
+
+	console.log(`public key: ${keyPair.publicKey.toBase58()}`)
+	
+}
+
+main()
+```
+
 # Creating Tokens
+The only difference in creating tokens and minting them is the program ID used for the API calls. The `spl-token` package provides the `TOKEN_2022_PROGRAM_ID` which we will use while calling these functions.
+
+> Make sure to use the `TOKEN_2022_PROGRAM_ID` for API calls whenever you are dealing with the tokens which are created with this program ID. The APIs in `spl-token` by default use the `TOKEN_PROGRAM_ID` unless specified otherwise. If you do not specify the appropriate program ID, you will get `TokenInvalidAccountOwnerError`.
+
 Copy and paste the following code in `src/create-and-mint-token.ts`
 ```ts
 import {
@@ -112,6 +259,18 @@ export default createAndMintToken
 ```
 
 # Fetch Tokens
+Fetching Token 2022 tokens is also similar to creating Token 2022 tokens, simply by specifying the program ID.
+
+There are two ways in which we can fetch tokens:
+- Fetching token accounts by owner
+- Fetching token account owner before fetching tokens
+
+## Fetching Token Accounts by Owner
+This option simply fetches all the token accounts associated with the user's public key. We just need to specify the program ID to differentiate between regular tokens and Token 2022 tokens.
+
+## Fetching Token Account Owner Before Fetching Tokens
+In this option, we fetch the program ID associated with the user's public key beforehand and then fetch the tokens using the program ID. 
+
 Copy and paste the following code in `src/fetch-token-info.ts`
 ```ts
 import { AccountLayout } from "@solana/spl-token"
