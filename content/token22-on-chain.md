@@ -43,6 +43,32 @@ https://github.com/Unboxed-Software/token22-staking
 
 Checkout `starter` branch.
 
+`git checkout starter`
+
 ### 3. Update Program ID and Anchor Keypair
 
-### 4. 
+Once in the starter branch, run
+
+`anchor keys list`
+
+to get your program ID.
+
+Copy and paste this program ID in the `Anchor.toml` file
+
+```rust
+// in Anchor.toml
+[programs.localnet]
+token_22_staking = "<YOUR-PROGRAM-ID-HERE>"
+```
+
+And in the `programs/token-22-staking/src/lib.rs` file.
+
+```rust
+declare_id!("<YOUR-PROGRAM-ID-HERE>");
+```
+
+### Need to also explain how to find path to your wallet and set that in the Anchor.toml file
+
+### 4. Confirm the program builds
+
+Run `anchor build`. The program should build now. Do not run `anchor test`, there is an entire test suite written for the program we will build, but the tests will not pass right now.
