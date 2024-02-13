@@ -37,6 +37,9 @@ https://doc.rust-lang.org/book/ch01-01-installation.html
 Now, we should have all the correct versions installed.
 
 ### 2. Get starter code and add dependencies
+Clone the Lab repository:
+
+https://github.com/Unboxed-Software/token22-staking
 
 Checkout `starter` branch.
 
