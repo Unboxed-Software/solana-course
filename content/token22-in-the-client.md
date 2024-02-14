@@ -31,9 +31,13 @@ npm run start
 ```
 
 ## KeyPair Helpers
-The helper file `src/keypair-helpers.ts` contains 2 functions called `initializeKeypair` and `airdropSolIfNeeded`. If a keypair doesn't exist already, the `initializeKeypair` function creates a new keypair and writes the private key to a `.env` file. This keypair will be used for all the subsequent operations.
 
-When a new keypair is created, the `airdropSolIfNeeded` function is called to airdrop 1 SOL. It will be called automatically whenever the balance drops below 1 SOL.
+This helper file contains two functions:
+ - `initializeKeypair`
+ - `airdropSolIfNeeded`
+
+### Initializing a Keypair
+This function creates a new keypair if one doesn't exist. After creating a new keypair, the secret key will be saved into a `.env` file. This keypair will be used for all the subsequent operations.
 
 ```ts
 import * as web3 from '@solana/web3.js'
@@ -59,7 +63,12 @@ export async function initializeKeypair(
 	await airdropSolIfNeeded(keypairFromSecretKey, connection)
 	return keypairFromSecretKey
 }
+```
 
+### Airdropping 1 SOL
+When a new keypair is created, this function will be called to airdrop 1 SOL. This function will be called again whenever the balance drops below 1 SOL.
+
+```ts
 async function airdropSolIfNeeded(
 	signer: web3.Keypair,
 	connection: web3.Connection
@@ -158,7 +167,16 @@ The only difference in creating tokens and minting them is the program ID used f
 
 > Make sure to use the `TOKEN_2022_PROGRAM_ID` for API calls whenever you are dealing with the tokens which are created with this program ID. The APIs in `spl-token` by default use the `TOKEN_PROGRAM_ID` unless specified otherwise. If you do not specify the appropriate program ID, you will get `TokenInvalidAccountOwnerError`.
 
-Copy and paste the following code in `src/create-and-mint-token.ts`
+
+## Creating and Minting Tokens
+In this function, we:
+1. Create a new mint account
+2. Print information of the newly created mint
+3. Create an associated token account for the newly created mint
+4. Mint tokens to the associated token account
+
+The only change in creating regular tokens and Token 2022 tokens is passing the appropriate program ID to the `tokenProgramId` parameter of this function (`TOKEN_PROGRAM_ID` or `TOKEN_2022_PROGRAM_ID`).
+
 ```ts
 import {
 	createMint,
@@ -239,7 +257,13 @@ async function createAndMintToken(
 
 	return mint
 }
+export default createAndMintToken
+```
 
+## Fetching Mint Info
+This function simply fetches the mint information containing authorities, supply, etc. Similar to the `createAndMintToken`, this function also uses the `tokenProgramId` parameter to differentiate regular tokens and Token 2022 tokens.
+
+```ts
 export async function getMintInfo(
 	connection: Connection,
 	mint: PublicKey,
@@ -255,23 +279,17 @@ export async function getMintInfo(
 	return mintInfo;
 }
 
-export default createAndMintToken
 ```
 
 # Fetch Tokens
 Fetching Token 2022 tokens is also similar to creating Token 2022 tokens, simply by specifying the program ID.
 
 There are two ways in which we can fetch tokens:
-- Fetching token accounts by owner
+- Fetching associated token accounts by owner
 - Fetching token account owner before fetching tokens
 
-## Fetching Token Accounts by Owner
-This option simply fetches all the token accounts associated with the user's public key. We just need to specify the program ID to differentiate between regular tokens and Token 2022 tokens.
-
-## Fetching Token Account Owner Before Fetching Tokens
-In this option, we fetch the program ID associated with the user's public key beforehand and then fetch the tokens using the program ID. 
-
-Copy and paste the following code in `src/fetch-token-info.ts`
+## Fetching Associated Token Accounts by Owner
+This option simply fetches all the associated token accounts created with the user's public key. We just need to specify the program ID to differentiate between regular tokens and Token 2022 tokens.
 ```ts
 import { AccountLayout } from "@solana/spl-token"
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
@@ -309,7 +327,11 @@ export async function fetchTokenInfo(
 
     return ownedTokens;
 }
+```
 
+## Fetching Token Account Owner Before Fetching Tokens
+In this option, we fetch the program ID associated with the user's public key beforehand and then fetch the tokens using the program ID. 
+```ts
 export async function fetchTokenProgramFromAccount(
     connection: Connection,
     accountPublicKey: PublicKey
