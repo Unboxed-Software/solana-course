@@ -346,3 +346,29 @@ pub struct InitializePool<'info> {
     pub rent: Sysvar<'info, Rent>
 }
 ```
+
+That is the bulk of the logic for this instruction. Inside the `handler` function, we are just initiailizating the state of the `pool_state` account that was created in the accounts struct. The `handler` function should be:
+
+```rust
+pub fn handler(ctx: Context<InitializePool>) -> Result <()> {
+    check_token_program(ctx.accounts.token_program.key());
+    
+    // initialize pool state
+    let pool_state = &mut ctx.accounts.pool_state;
+    pool_state.bump = ctx.bumps.pool_state;
+    pool_state.amount = 0;
+    pool_state.vault_bump = ctx.bumps.token_vault;
+    pool_state.vault_auth_bump = ctx.bumps.pool_authority;
+    pool_state.token_mint = ctx.accounts.token_mint.key();
+    pool_state.staking_token_mint = ctx.accounts.staking_token_mint.key();
+    pool_state.vault_authority = ctx.accounts.pool_authority.key();
+
+    msg!("Staking pool created!");
+
+    Ok(())
+}
+```
+
+We just initiaize each field in the `PoolState` struct that was defined in the `state.rs` file.
+
+After that, save your work and run `anchor build` to make sure there are no issues with your program at this point.
