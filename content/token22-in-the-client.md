@@ -1,13 +1,24 @@
-# Prerequisites
-If you don't have Solana already installed on your system, follow this [guide](https://solana.com/developers/guides/getstarted/setup-local-development).
+# Overview
 
-## Testing on Local Test Validator
-If you encounter errors with `devnet`, you can use Solana Local Test Validator to run this script. After completing installation, run the following command to start the Local Test Validator.
+## Differences between working with legacy tokens and Token22 tokens
+
+When creating tokens, the only thing you need to worry about is pointing your code to the correct Token program. If you want to create tokens using the legacy Token program, you need to ensure that you point to that program. if you want to create using the Token22 program you need to ensure that you point to the Token22 program.
+
+Fortunately, the `spl-token` package makes it easy to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants and all of its helper functions for creating and minting tokens take a program ID as input.
+
+NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to Token22, otherwise you will get the following error: `TokenInvalidAccountOwnerError`.
+
+# Lab - Add Token22 support to a script
+
+Now let's work through a holistic example where we add Token22 support to an existing script.
+
+You can work through this lab using either Devnet or a Localnet. Depending on the state of Devnet, it may or may not be easier to just use a local test validator. To do this, run the following command to start the local test validator:
+
 ```bash
 solana-test-validator
 ```
 
-And then, in `src/index.ts`, change the connection initialization to use the Local Test Validator
+Then, in `src/index.ts`, change the connection URL to point to the running validator:
 ```ts
 // ....
 const connection = new Connection('http://127.0.0.1:8899') // use the JSON RPC URL as prompted on the console after running the validator
@@ -15,8 +26,9 @@ const keyPair = await initializeKeypair(connection)
 // ....
 ```
 
-# Getting Started
-To get started, clone [this](https://github.com/Unboxed-Software/token22-in-the-client/) repository and checkout the `starter` branch. This branch contains a couple of helper files and the boilerplate code to get you started.
+### 1. Clone the starter code
+
+To get started, clone [this lab's repository](https://github.com/Unboxed-Software/token22-in-the-client/) and checkout the `starter` branch. This branch contains a couple of helper files and some boilerplate code to get you started.
 
 ```bash
 git clone https://github.com/Unboxed-Software/token22-in-the-client.git
@@ -30,75 +42,17 @@ npm install
 npm run start
 ```
 
-## KeyPair Helpers
+### 2. Get familiar with the starter code
 
-This helper file contains two functions:
- - `initializeKeypair`
- - `airdropSolIfNeeded`
+The starter code comes with the following files:
+- `keypair-helpers.ts`
+- `print-helpers.ts`
+- `index.ts`
 
-### Initializing a Keypair
-This function creates a new keypair if one doesn't exist. After creating a new keypair, the secret key will be saved into a `.env` file. This keypair will be used for all the subsequent operations.
+The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed. That way the rest of the script can focus on specific functionality rather than setup.
 
-```ts
-import * as web3 from '@solana/web3.js'
-import * as fs from 'fs'
-import dotenv from 'dotenv'
-dotenv.config()
+Similarly, the `print-helpers.ts` file has a function called `printTableData`. This function logs output to the console in a structured fashion. The function simply takes any object and is passed to the `console.table` helper available to NodeJS. This helper prints the information in a tabular form with the object's keys as columns and values as rows.
 
-export async function initializeKeypair(
-	connection: web3.Connection
-): Promise<web3.Keypair> {
-	if (!process.env.PRIVATE_KEY) {
-		console.log('Creating .env file')
-		const signer = web3.Keypair.generate()
-		fs.writeFileSync('.env', `PRIVATE_KEY=[${signer.secretKey.toString()}]`)
-		await airdropSolIfNeeded(signer, connection)
-
-		return signer
-	}
-
-	const secret = JSON.parse(process.env.PRIVATE_KEY ?? '') as number[]
-	const secretKey = Uint8Array.from(secret)
-	const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
-	await airdropSolIfNeeded(keypairFromSecretKey, connection)
-	return keypairFromSecretKey
-}
-```
-
-### Airdropping 1 SOL
-When a new keypair is created, this function will be called to airdrop 1 SOL. This function will be called again whenever the balance drops below 1 SOL.
-
-```ts
-async function airdropSolIfNeeded(
-	signer: web3.Keypair,
-	connection: web3.Connection
-) {
-	const balance = await connection.getBalance(signer.publicKey)
-	console.log('Current balance is', balance / web3.LAMPORTS_PER_SOL)
-
-	if (balance < web3.LAMPORTS_PER_SOL) {
-		console.log('Airdropping 1 SOL...')
-		const airdropSignature = await connection.requestAirdrop(
-			signer.publicKey,
-			web3.LAMPORTS_PER_SOL
-		)
-
-		const latestBlockHash = await connection.getLatestBlockhash()
-
-		await connection.confirmTransaction({
-			blockhash: latestBlockHash.blockhash,
-			lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-			signature: airdropSignature,
-		})
-
-		const newBalance = await connection.getBalance(signer.publicKey)
-		console.log('New balance is', newBalance / web3.LAMPORTS_PER_SOL)
-	}
-}
-```
-
-## Print Helpers
-The helper file `src/print-helpers.ts` has a function called `printTableData` which will be used to log output to the console in a structured fashion. The function simply takes any object and is passed to the `console.table` function available to NodeJS which prints the information in a tabular form with the object's keys as columns and values as rows.
 ```ts
 import { PublicKey } from '@solana/web3.js'
 
@@ -138,66 +92,29 @@ function printTableData(obj: Object){
 export default printTableData
 ```
 
-## `index.ts`
-The `src/index.ts` has a `main` function which creates a connection to the specified cluster and calls `initializeKeypair`.
-```ts
-import {Cluster, Connection, clusterApiUrl} from '@solana/web3.js'
-import {initializeKeypair} from './keypair-helpers'
+We'll be using this function to print information about tokens and their mints in a readable fashion.
 
-const CLUSTER: Cluster = 'devnet'
+Lastly, `index.ts` has a `main` function that creates a connection to the specified cluster and calls `initializeKeypair`. This `main` function is where we'll end up calling the rest of our script once we've written it.
 
-async function main() {
+### 3. Create legacy and Token22 mints
 
-	/**
-	 * Create a connection and initialize a keypair if one doesn't already exists.
-	 * If a keypair exists, airdrop a sol if needed.
-	 */
-	const connection = new Connection(clusterApiUrl(CLUSTER))
-	const keyPair = await initializeKeypair(connection)
+When creating tokens, the only thing you need to worry about is pointing your code to the correct Token program. If you want to create tokens using the legacy Token program, you need to ensure that you point to that program. if you want to create using the Token22 program you need to ensure that you point to the Token22 program.
 
-	console.log(`public key: ${keyPair.publicKey.toBase58()}`)
-	
-}
+Fortunately, the `spl-token` package makes it easy to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants and all of its helper functions for creating and minting tokens take a program ID as input.
 
-main()
-```
+NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to Token22, otherwise you will get the following error: `TokenInvalidAccountOwnerError`.
 
-# Creating Tokens
-The only difference in creating tokens and minting them is the program ID used for the API calls. The `spl-token` package provides the `TOKEN_2022_PROGRAM_ID` which we will use while calling these functions.
+Let's start by creating new token mints using both the legacy Token program and the Token22 program. Define a function called `createAndMintToken`. For now, we'll just create the token mint in this function, but in a later step we'll add minting. This function should take the following arguments:
+- `cluster` - the cluster you're pointing to (i.e. Devnet vs Localnet)
+- `connection` - the connection object to use
+- `tokenProgramId` - the token program to point to
+- `payer` - the keypair paying for the transaction
+- `decimals` - the number of decimals to include for the mint
+- `mintAmount` - the amount of tokens to mint to the payer
 
-> Make sure to use the `TOKEN_2022_PROGRAM_ID` for API calls whenever you are dealing with the tokens which are created with this program ID. The APIs in `spl-token` by default use the `TOKEN_PROGRAM_ID` unless specified otherwise. If you do not specify the appropriate program ID, you will get `TokenInvalidAccountOwnerError`.
-
-
-## Creating and Minting Tokens
-In this function, we:
-1. Create a new mint account
-2. Print information of the newly created mint
-3. Create an associated token account for the newly created mint
-4. Mint tokens to the associated token account
-
-The only change in creating regular tokens and Token 2022 tokens is passing the appropriate program ID to the `tokenProgramId` parameter of this function (`TOKEN_PROGRAM_ID` or `TOKEN_2022_PROGRAM_ID`).
+If you've created a token mint before, this should be exactly the same, which the exception of adding the specific token program id to use.
 
 ```ts
-import {
-	createMint,
-	getMint,
-	getOrCreateAssociatedTokenAccount,
-	mintTo,
-} from '@solana/spl-token'
-import {Cluster, Connection, Keypair, PublicKey} from '@solana/web3.js'
-import printTableData from './print-helpers'
-
-/**
- * Create a new mint and mint some tokens to the associated token account
- * THE ONLY CHANGE IS THE PROGRAM ID
- * @param cluster The cluster to connect to
- * @param connection The connection to use
- * @param tokenProgramId The program id to use for the token
- * @param payer The keypair to use for paying for the transactions
- * @param decimals The number of decimals to use for the mint
- * @param mintAmount The amount of tokens to mint
- * @returns The mint public key
- */
 async function createAndMintToken(
 	cluster: Cluster,
 	connection: Connection,
@@ -225,8 +142,74 @@ async function createAndMintToken(
 	)
 
 	console.log('\nFetching mint info...')
-	const mintInfo = await getMintInfo(connection, mint, tokenProgramId)
+
+	const mintInfo = await getMint(
+		connection,
+		mint,
+		'finalized',
+		tokenProgramId
+	)
+
 	printTableData(mintInfo);
+
+	return mint
+}
+```
+
+Note that we've added `confirmOptions` to the `createMint` call to make sure the function's promise doesn't resolve until the transaction has been finalized. This will avoid errors when we go to mint new tokens.
+
+Lastly, let's add two separate calls to this function from our `main` function. The first will use the legacy token program and the second will use Token22.
+
+```ts
+async function main() {
+  /**
+   * Create a connection and initialize a keypair if one doesn't already exists.
+   * If a keypair exists, airdrop a sol if needed.
+   */
+  const connection = new Connection(clusterApiUrl(CLUSTER))
+  const keyPair = await initializeKeypair(connection)
+
+  console.log(`public key: ${keyPair.publicKey.toBase58()}`)
+
+  const legacyMint = await createAndMintToken(
+    CLUSTER,
+    connection,
+    TOKEN_PROGRAM_ID,
+    keyPair,
+    9,
+    1000
+  )
+  const token22Mint = await createAndMintToken(
+    CLUSTER,
+    connection,
+    TOKEN_2022_PROGRAM_ID,
+    keyPair,
+    9,
+    1000
+  )
+}
+```
+
+At this point you can run `npm run start` and see that both mints get created and their info logged to the console.
+
+### 4. Mint legacy and Token22 tokens
+
+Now we can add minting to our `createAndMintToken` function.
+
+We want the function to mint tokens to the `payer`. In order to to this, we need to create the `payer`'s associated token account. Simply call `getOrCreateAssociatedTokenAccount`, passing the relevant information. Be sure to include the token program ID so that you don't accidentally attempt to create a token account for a mint that doesn't exist.
+
+Once you've created the associated token account, you can call `mintTo`, again passing the correct token program ID.
+
+```ts
+async function createAndMintToken(
+	cluster: Cluster,
+	connection: Connection,
+	tokenProgramId: PublicKey,
+	payer: Keypair,
+	decimals: number,
+	mintAmount: number,
+): Promise<PublicKey> {
+	...
 
 	console.log('\nCreating associated token account...')
 	const tokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -257,29 +240,13 @@ async function createAndMintToken(
 
 	return mint
 }
-export default createAndMintToken
 ```
 
-## Fetching Mint Info
-This function simply fetches the mint information containing authorities, supply, etc. Similar to the `createAndMintToken`, this function also uses the `tokenProgramId` parameter to differentiate regular tokens and Token 2022 tokens.
+Now you can run the project again. You'll see that not only are the two token mints created, but the relevant associated token accounts are also created and tokens minted to each.
 
-```ts
-export async function getMintInfo(
-	connection: Connection,
-	mint: PublicKey,
-	tokenProgramId: PublicKey,
-){
-	const mintInfo = await getMint(
-		connection,
-		mint,
-		'finalized',
-		tokenProgramId
-	)
+### 5. Fetch legacy and Token22 tokens
 
-	return mintInfo;
-}
 
-```
 
 # Fetch Tokens
 Fetching Token 2022 tokens is also similar to creating Token 2022 tokens, simply by specifying the program ID.
