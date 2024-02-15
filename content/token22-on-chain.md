@@ -886,3 +886,206 @@ After updating the respecitive balances, we also update the `user_entry.last_sta
 Ok that was a lot and we covered some new stuff, so feel free to go back through and make sure it all makes sense. Check out all of the external resources that are linked for any of the new topics. Once you're ready to move on, save your work and verify the program still builds.
 
 ### 10. `unstake` Instruction
+
+Lastly, the `unstake` transaction will be pretty similar to the `stake` transaction. We'll need to transfer tokens out of the stake pool to the user and this is when the user will receive their staking rewards. Their staking rewards will be minted to the user in this same transaction. Something to note, we are not going to allow the user to determine how many tokens are unstaked, we will simply unstake all of the tokens that they currently have staked. Additionally, we arenot going to implement a full algorithm to determine how many reward tokens they have accrued. We'll simply take their stake balance and multiply by 10 to get the amount of reward tokens to mint them. 
+
+The account structure will be very similar to the `stake` instruction, but there are a few differences. We'll need
+
+* `pool_state`
+* `token_mint`
+* `pool_authority`
+* `token_vault`
+* `user`
+* `user_token_account`
+* `user_stake_entry`
+* `staking_token_mint`
+* `user_stake_token_account`
+* `token_program`
+* `system_program`
+
+The main difference between the `stake` and `unstake` accounts is that we need the `staking_token_mint` and `user_stake_token_account` for thi sinstruction in order to mint the user their staking rewards. Ok let's get started with the implementation of the `Unstake` struct. We won't cover each account individually because the struct is primarily the same as the previous instruction. 
+
+First looking at the `staking_token_mint` account:
+```rust
+// Mint of staking token
+    #[account(
+        mut,
+        mint::authority = pool_authority,
+        mint::token_program = token_program,
+        constraint = staking_token_mint.key() == pool_state.staking_token_mint
+        @ StakeError::InvalidStakingTokenMint
+    )]
+    pub staking_token_mint: InterfaceAccount<'info, token_interface::Mint>,
+```
+
+This is the mint of the staking reward token, the mint authority must by the `pool_authority` PDA so that the program has the ability to mint tokens to users. It also must match the given `token_program`. We have a custom constrain verifying that this account matches the pubkey stored in the `staking_token_mint` field of the `pool_state` account, if not we return the custom `InvalidStakingTokenMint` error.
+
+The `user_stake_token_account` follows a similar vein. It must match the mint `staking_token_mint`, `user` must be the authority since these are their staking rewards, and this account must match what we have stored on the `user_stake_entry` account as their stake token account.
+```rust
+#[account(
+        mut,
+        token::mint = staking_token_mint,
+        token::authority = user,
+        token::token_program = token_program,
+        constraint = user_stake_token_account.key() == user_stake_entry.user_stake_token_account
+        @ StakeError::InvalidUserStakeTokenAccount
+    )]
+    pub user_stake_token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+```
+
+Here is what the final `Unstake` struct should look like:
+
+```rust
+#[derive(Accounts)]
+pub struct Unstake<'info> {
+    // pool state account
+    #[account(
+        mut,
+        seeds = [token_mint.key().as_ref(), STAKE_POOL_STATE_SEED.as_bytes()],
+        bump = pool_state.bump,
+    )]
+    pub pool_state: Account<'info, PoolState>,
+    // Mint of token
+    #[account(
+        mut,
+        mint::token_program = token_program
+    )]
+    pub token_mint: InterfaceAccount<'info, token_interface::Mint>,
+    /// CHECK: PDA, auth over all token vaults
+    #[account(
+        seeds = [VAULT_AUTH_SEED.as_bytes()],
+        bump
+    )]
+    pub pool_authority: UncheckedAccount<'info>,
+    // pool token account for Token Mint
+    #[account(
+        mut,
+        // use token_mint, pool auth, and constant as seeds for token a vault
+        seeds = [token_mint.key().as_ref(), pool_authority.key().as_ref(), VAULT_SEED.as_bytes()],
+        bump = pool_state.vault_bump,
+        token::token_program = token_program
+    )]
+    pub token_vault: InterfaceAccount<'info, token_interface::TokenAccount>,
+    // require a signature because only the user should be able to unstake their tokens
+    #[account(
+        mut,
+        constraint = user.key() == user_stake_entry.user
+        @ StakeError::InvalidUser
+    )]
+    pub user: Signer<'info>,
+    #[account(
+        mut,
+        constraint = user_token_account.mint == pool_state.token_mint
+        @ StakeError::InvalidMint,
+        token::token_program = token_program
+    )]
+    pub user_token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+    #[account(
+        mut,
+        seeds = [user.key().as_ref(), pool_state.token_mint.key().as_ref(), STAKE_ENTRY_SEED.as_bytes()],
+        bump = user_stake_entry.bump,
+
+    )]
+    pub user_stake_entry: Account<'info, StakeEntry>,
+    // Mint of staking token
+    #[account(
+        mut,
+        mint::authority = pool_authority,
+        mint::token_program = token_program,
+        constraint = staking_token_mint.key() == pool_state.staking_token_mint
+        @ StakeError::InvalidStakingTokenMint
+    )]
+    pub staking_token_mint: InterfaceAccount<'info, token_interface::Mint>,
+    #[account(
+        mut,
+        token::mint = staking_token_mint,
+        token::authority = user,
+        token::token_program = token_program,
+        constraint = user_stake_token_account.key() == user_stake_entry.user_stake_token_account
+        @ StakeError::InvalidUserStakeTokenAccount
+    )]
+    pub user_stake_token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+    pub system_program: Program<'info, System>
+}
+```
+
+Now, we have two different CPIs to make in this instruction - a transfer and a mint. We are going to be using a `CpiContext` for both in this instruction as well. There is a catch, in the `stake` instruction we did not require a "signature" from a PDA but in this instruction we do. So, we cannot follow the exact same pattern as before but we can do something very similar.
+
+Again, let's create two skeleton helper functions implemented on the `Unstake` data struct: `transfer_checked_ctx` and `mint_to_ctx`.
+
+// TODO: talk about the lifetimes here
+
+```rust
+impl<'info> Unstake <'info> {
+    // transfer_checked for Token2022
+    pub fn transfer_checked_ctx<'a>(&'a self, seeds: &'a [&[&[u8]]]) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
+
+    }
+
+    // mint_to
+    pub fn mint_to_ctx<'a>(&'a self, seeds: &'a [&[&[u8]]]) -> CpiContext<'_, '_, '_, 'info, MintTo<'info>> {
+        
+    }
+}
+```
+
+We'll work on `transfer_checked_ctx` first, the implementation of this one is almost exactly the same as in the `stake` instruction. The only difference is here we have two arguments: `self` and `seeds`. The second argument will be the vector of PDA signature seeds that we would normally pass into `invoke_signed` ourselves. Since we need to sign with a PDA, instead of calling the `CpiContext::new` constructor, we'll call `new_with_signer` instead.
+
+```rust
+// transfer_checked for Token2022
+pub fn transfer_checked_ctx<'a>(&'a self, seeds: &'a [&[&[u8]]]) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
+
+    let cpi_program = self.token_program.to_account_info();
+    let cpi_accounts = TransferChecked {
+        from: self.token_vault.to_account_info(),
+        to: self.user_token_account.to_account_info(),
+        authority: self.pool_authority.to_account_info(),
+        mint: self.token_mint.to_account_info()
+    };
+
+    CpiContext::new_with_signer(cpi_program, cpi_accounts, seeds)
+}
+```
+
+This function is almost exactly the same as before, except we need to take the signature seeds as an argument and pass all of the `cpi_program`, `cpi_accounts`, and `seeds` on to the `CpiContext::new_with_signer` constructor. `new_with_signer` is defined as:
+
+```rust
+pub fn new_with_signer(
+    program: AccountInfo<'info>,
+    accounts: T,
+    signer_seeds: &'a [&'b [&'c [u8]]]
+) -> Self
+```
+
+Check out the [`anchor_lang` crate docs to learn more about `CpiContext`](https://docs.rs/anchor-lang/latest/anchor_lang/context/struct.CpiContext.html#method.new_with_signer).
+
+Moving on to the `mint_to+ctx` function, we need to do the exact same thing we just did with `transfer_checked_ctx` but target the `mint_to` instruction instead! To do this, we'll need to use the `MintTo` struct instead of `TransferChecked`. `MintTo` is defined as:
+```rust
+pub struct MintTo<'info> {
+    pub mint: AccountInfo<'info>,
+    pub to: AccountInfo<'info>,
+    pub authority: AccountInfo<'info>,
+}
+```
+[`anchor_spl::token_2022::MintTo` rust crate docs](https://docs.rs/anchor-spl/latest/anchor_spl/token_2022/struct.MintTo.html).
+
+Looks pretty self explanatory and only takes 3 parameters. Let's implement it.
+
+```rust
+// mint_to
+pub fn mint_to_ctx<'a>(&'a self, seeds: &'a [&[&[u8]]]) -> CpiContext<'_, '_, '_, 'info, MintTo<'info>> {
+    let cpi_program = self.token_program.to_account_info();
+    let cpi_accounts = MintTo {
+        mint: self.staking_token_mint.to_account_info(),
+        to: self.user_stake_token_account.to_account_info(),
+        authority: self.pool_authority.to_account_info()
+    };
+
+    CpiContext::new_with_signer(cpi_program, cpi_accounts, seeds)
+}
+```
+
+We're targeting the exact same `token_program` with this CPI, so `cpi_program` is the same as before. We construct the `MinTo` struct the same as we did the `TransferChecked` struct, just passing the appropriate accounts here. The `mint` is the `staking_token_mint` because that is the mint we will be minting to the user. `to` is the user's `user_stake_token_account`. And `authority` is the `pool_authority` because this PDA should have sole authority over this mint.
+
+Lastly, the function returns a `CpiContext` constructed using the signer seeds passed into it.
