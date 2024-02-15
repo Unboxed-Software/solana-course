@@ -1,193 +1,78 @@
 # Lab
 
-## 0. Prerequisites
+[TODO] - Talk about what you'll be creating here.
 
+## 0. Getting Started
+
+Let's go ahead and clone our starter code
 ```bash
 git clone https://github.com/Unboxed-Software/solana-lab-token22-metadata.git
 cd solana-lab-token22-metadata
 git checkout starter
 npm install
 ```
-## 1. Create Helpers
 
-Before we delve into the core functionality of our NFT lab, we need a couple of helpers for uploading NFT metadata. Specifically, we need a helper function we can call that will take the metadata we want to exist off-chain and upload it to some storage provider, returning the location of that metadata as a URI, and another one that will initialize a Solana key pair and return it so we can use this key pair for signing transactions and interacting with the Solana blockchain.
+Let's take a look at what's been provided in the `starter` branch. 
 
-If you are on the starter branch, you will find a file called `src/helper.ts`. The first thing you will notice inside it is a few imports; let's talk about them:
+Besides the NodeJS project being initialized with all of the needed dependancies, two other files have been provided in the `src/` directory.
 
-```ts
-import * as web3 from '@solana/web3.js';
-import { bundlrStorage, keypairIdentity, Metaplex, toMetaplexFile } from '@metaplex-foundation/js';
-import fs from 'fs';
-import dotenv from 'dotenv';
-import { getKeypairFromFile, requestAndConfirmAirdropIfRequired } from '@solana-developers/helpers';
-```
+- `index.ts`
+- `helpers.ts`
 
-To interact with the Solana blockchain and the Metaplex ecosystem, our NFT lab relies on several key dependencies:
 
-1. **`web3` from '@solana/web3.js'**:
-   - This import is another reference to the `@solana/web3.js` library. It is commonly aliased as `web3` for convenience.
-   - It allows access to various functions and tools provided by the Solana web3 library, enhancing capabilities for interacting with the Solana blockchain.
+The helper file provides us two functions that we will need for later: `initializeKeypair` and `uploadOffChainMetadata`.
 
-2. **`bundlrStorage`, `keypairIdentity`, `Metaplex`, `toMetaplexFile` from '@metaplex-foundation/js'**:
-   - These modules are from the `@metaplex-foundation/js` library, a JavaScript library provided by the Metaplex Foundation for building applications on the Metaplex platform.
-   - `bundlrStorage` is used for bundling and storing NFT-related data.
-   - `keypairIdentity` is used for managing identities and cryptographic key pairs specific to Metaplex.
-   - `Metaplex` contains functions and tools for interacting with the Metaplex platform.
-   - `toMetaplexFile` is used to convert data into a format suitable for the Metaplex platform.
+First `initializeKeypair` is an established helper will return us a `Keypair` to use for our script and will airdrop some solana to it if needed. Note that you can also provide it a keypair path if you'd like to use your own keypair.json file. Another important thing to note is that devnet has limits on airdrops. If you run into issues, it's recommend to run the `solana-test-validator`.
 
-3. **`fs` (File System) module**:
-   - This is a built-in Node.js module for interacting with the file system.
-   - It is used here for file-related operations, such as reading and writing files. In the context of NFTs, this is crucial for handling metadata and other file-based information.
+Next the `uploadOffChainMetadata` is a helper to store the off-chain metadata on Arweave using Bundlr. In this lab we're more focused on the token22 interaction, so this uploader function is provided. It is good to note that an NFT or any off-chain metadata can be stored anywhere with any provider, we use metaplex here for simplicity. At the end of the day, all you need is a url to the hosted metadata json file.
 
-4. **`dotenv` module**:
-   - This module is used for loading environment variables from a `.env` file into `process.env`.
-
-5. **`getKeypairFromFile` and `requestAndConfirmAirdropIfRequired` from '@solana-developers/helpers'**:
-   - These functions are likely part of a set of utility functions provided by the `@solana-developers/helpers` module.
-   - `getKeypairFromFile` is used to retrieve a cryptographic key pair from a file, simplifying the process of handling keys.
-   - `requestAndConfirmAirdropIfRequired` is used for automating the process of requesting and confirming an airdrop of Solana tokens to an account.
-
-After that, you can see that we are initializing dotenv:
-
-```ts
-dotenv.config();
-```
-
-Then you will see two interfaces, `CreateNFTInputs` and `UploadOffChainMetadataInputs`, which will represent the types we'll be using. `CreateNFTInputs` will represent the basic NFT information needed to create an NFT, and `UploadOffChainMetadataInputs` will represent the inputs we need to successfully upload our NFT metadata.
-
+Last thing to note from this helper file is some exported interfaces. Although metadata can contain more information, we'll only be using the following:
 ```ts
 export interface CreateNFTInputs {
-  payer: web3.Keypair; // The account that will pay for the creation of the NFT.
-  connection: web3.Connection; // The Solana blockchain connection.
-  tokenName: string; // The name of the NFT.
-  tokenSymbol: string; // The symbol of the NFT.
-  tokenUri: string; //  The URI of the off-chain metadata.
+  payer: Keypair;
+  connection: Connection;
+  tokenName: string;
+  tokenSymbol: string;
+  tokenUri: string;
 }
 
 export interface UploadOffChainMetadataInputs {
-  connection: web3.Connection; // The Solana blockchain connection.
-  payer: web3.Keypair; // The account that will pay for the upload of the off-chain metadata.
-  tokenName: string; // The name of the NFT.
-  tokenSymbol: string; // The symbol of the NFT.
-  tokenDescription: string; // The description of the NFT.
-  imagePath: string; // The path to the image representing the NFT.
+  connection: Connection;
+  payer: Keypair;
+  tokenName: string;
+  tokenSymbol: string;
+  tokenDescription: string;
+  imagePath: string;
 }
 ```
 
-Now that we have those interfaces, we can start looking at the main helper functions. Let's start with the function that will upload our NFT's off-chain metadata.
 
-Since storing data on-chain is expensive due to the nature of how blockchain works, we're going to upload our fat NFT metadata to an off-chain storage provider. For this example, we will use the Metaplex SDK. It's important to note that we don't actually have to use Metaplex for this. All that matters is that we end up with a URI that points to the off-chain metadata. You could upload JSON to AWS if you wanted to, but we'll stick with the Metaplex default of storing data in Arweave.
-
-```ts
-export async function uploadOffChainMetadata(inputs: UploadOffChainMetadataInputs) {
-  const { connection, payer, tokenName, tokenDescription, tokenSymbol, imagePath } = inputs;
-
-  const metaplex = Metaplex.make(connection)
-    .use(keypairIdentity(payer))
-    .use(
-      bundlrStorage({
-        address: 'https://devnet.bundlr.network',
-        providerUrl: 'https://api.devnet.solana.com',
-        timeout: 60000,
-      }),
-    );
-
-  // file to buffer
-  const buffer = fs.readFileSync('src/' + imagePath);
-
-  // buffer to metaplex file
-  const file = toMetaplexFile(buffer, imagePath);
-
-  // upload image and get image URI
-  const imageUri = await metaplex.storage().upload(file);
-  console.log('image URI:', imageUri);
-
-  // upload metadata and get metadata URI (off-chain metadata)
-  const { uri } = await metaplex
-    .nfts()
-    .uploadMetadata({
-      name: tokenName,
-      description: tokenDescription,
-      symbol: tokenSymbol,
-      image: imageUri,
-    })
-    .run();
-
-  return uri;
-}
-```
-
-The other important piece of our helpers is the `initializeKeypair` function, which will be used to initialize a Solana key pair and return it. Let's take a look at it:
-
-```ts
-export async function initializeKeypair(connection: web3.Connection, keyPairFilePath?: string): Promise<web3.Keypair> {
-  if (keyPairFilePath) {
-    const signer = await getKeypairFromFile(keyPairFilePath);
-
-    await requestAndConfirmAirdropIfRequired(connection, signer.publicKey, 2, 1);
-
-    return signer;
-  } else if (process.env.PRIVATE_KEY) {
-    const secret = JSON.parse(process.env.PRIVATE_KEY ?? '') as number[];
-    const secretKey = Uint8Array.from(secret);
-    const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey);
-
-    await requestAndConfirmAirdropIfRequired(connection, keypairFromSecretKey.publicKey, 2, 1);
-
-    return keypairFromSecretKey;
-  } else {
-    console.log('Creating .env file');
-
-    const signer = web3.Keypair.generate();
-    fs.writeFileSync('.env', `PRIVATE_KEY=[${signer.secretKey.toString()}]`);
-    await requestAndConfirmAirdropIfRequired(connection, signer.publicKey, 2, 1);
-
-    return signer;
-  }
-}
-```
-It takes two params, a `connection`, which is The Solana blockchain connection, and a an optional `keyPairFilePath` which should point to a pre-existing key pair file, and here's a breakdown of the key steps:
-
-- If a `keyPairFilePath` is provided, it reads the key pair from the file.
-- It then requests and confirms an airdrop of Solana tokens to the account associated with the key pair.
-- If no file path is provided but a private key is available in the environment variables, it retrieves the private key and creates a key pair.
-- It then requests and confirms an airdrop for the account associated with the key pair.
-- If neither a file path nor a private key is provided, it generates a new key pair.
-- It writes the private key to a `.env` file for future use.
-- It requests and confirms an airdrop for the account associated with the newly generated key pair.
-- Lastly it returns a promise that resolves to the initialized Solana key pair. This key pair can then be used for signing transactions and interacting with the Solana blockchain.
-
-## 2. First Piece, Uploading the off-chain metadata
-
-In order to upload our off-chain metadata, we need to first prepare an image that will represent our NFT. Add the image you want inside the `src` folder, let's call it `NFT.png`, or you can name it whatever you prefer. After that, take a look inside `src/index.ts`. You will find a very simple starter code:
-
-```ts
-import { clusterApiUrl, Connection } from '@solana/web3.js';
-import { initializeKeypair } from './helpers';
-
-async function main() {
-  const connection = new Connection(clusterApiUrl('devnet'), 'finalized');
-  const payer = await initializeKeypair(connection);
-}
-
-main()
-  .then(() => {
-    console.log('Finished successfully');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.log(error);
-    process.exit(1);
-  });
-```
-
-We are importing `Connection`, which we talked about before, and also `clusterApiUrl`, a method that takes the name of the network, such as `devnet`, `testnet`, or `mainnet-beta`, and returns the endpoint of that network. Lastly, we are importing `initializeKeypair`, which helps us get the payer keypair later.
-
-You will also see a simple `main` function where we are just initializing the `connection` object and initializing the `payer` keypair. Notice that we are not passing the second optional param, which is `keyPairFilePath`, because we are going to let it initialize a new keypair and store it in the `.env` file. Although if you want to use a pre-saved keypair (wallet), you can provide the path of that key in your own filesystem, such as `~/.config/solana/id.json`, which is the default keypair path for Solana CLI.
+Lastly, let's look at `index.ts`. This is where we will add our code. Right now it just sets up a `connection` and initializes a keypair for us to use. 
 
 This keypair, which we called `payer`, will be responsible for every payment we need throughout the whole process. Also, this payer keypair will hold all the authorities, like the mint authority, mint freeze authority, etc. We can use a different keypair for the authorities other than the payer keypair, but for the sake of simplicity, we will stick to the same one.
 
-At the end, we are invoking the main function so we can use the file as a script.
+Remember that you can use your own keypair path if you choose by providing your keypair's path in `initializeKeypair`.
+
+If you'd like to use your own local validator, be sure to change the Connection constructor to something like this:
+```ts
+  const connection = new Connection('http://127.0.0.1:8899', 'finalized');
+```
+
+Now, run the code to see that everything has been set up properly. 
+
+```bash
+npm run start
+```
+
+You should get an output of
+
+```bash
+> Finished successfully
+```
+
+## 1. Uploading the off-chain metadata
+
+In order to upload our off-chain metadata, we need to first prepare an image that will represent our NFT. Add any `.png` image you want inside the `src` folder and call it `NFT.png`
 
 To upload the off-chain metadata, we need to import the helper function `uploadOffChainMetadata` from `src/helper.ts`. So, the imports section will look like this:
 
@@ -257,12 +142,17 @@ main()
   });
 ```
 
-To run the code and test it, you can use `npm start`, and you should see the URI after the uploading is done. If you visit it, you should see a JSON that holds all of our off-chain metadata.
+Now run and test your code you should see the URI after the uploading is done. If you visit it, you should see a JSON that holds all of our off-chain metadata.
 
-## 3. Create NFT with metadata-pointer:
-Developers used to store tokens/NFTs metadata using some metadata programs such as `Metaplex`, which we will use as an example here for the sake of sticking with something familiar for most of the ecosystem. However, in the past, we didn't have a pointer in the mint itself (which is what we can call the NFT since it should store all the NFT properties) to the account that stores the metadata for this NFT. We only had a one-way pointer from the metadata account to the mint. In this case, anyone can create a shady metadata account and point it to the NFT, leaving it up to the client apps to find out which one is the real one!
+```bash
+npm run start
+```
 
-To solve this problem, Solana introduces an extension called `metadata-pointer` extension, which is simply a field in the mint/NFT itself that will point to the account that holds the metadata for this token. This will make it easier for client apps to find the respective metadata-account and retrieve the metadata. Additionally, it will make it more secure and accurate. So let's deep dive into the code.
+## 2. Create NFT with metadata-pointer
+
+Historically, developers stored metadata in data accounts using a metadata on-chain program; mainly `Metaplex`. However, this had some drawbacks. For example the mint account to which the metadata attached had no awareness of the metadata account. So to figure out if a particular account had metadata we'd have to PDA the mint and the `Metaplex` program together and see if a Metadata account existed. 
+
+To solve this problem, Solana introduced an extension called `metadata-pointer` extension, which is simply a field in the mint account itself that points to the account that holds the metadata for this token. This will make it easier for client apps to find the respective metadata-account and retrieve the metadata.
 
 As a best practice when writing scripts that engage with the Solana network, it is best to consolidate all of our instructions in one transaction due to the atomic nature of transactions. This ensures either the successful execution of all instructions or a complete rollback in case of errors. This approach promotes data consistency, improves efficiency by reducing latency and optimizing block space, and enhances code readability. Additionally, it minimizes inter-transaction dependencies, making it easier to track and manage the flow of operations, therefore in the code, we will write a few methods that will guide the way, and each one will return one or more instructions. The outline of this process is as follows:
 
@@ -273,18 +163,19 @@ As a best practice when writing scripts that engage with the Solana network, it 
 5. `createSetAuthorityInstruction`: returns Instructions to set the authority to an account. It will be used to remove the mint authority, because for the token to be considered as NFT in the Solana network, it has to have a supply of 1 and no one should be able to mint any more tokens, so the mint authority should be `None` **(we will import this from `@solana/spl-token` library)**
 6. We should put all of that in one transaction and send it to the network, and that is it. We have an NFT with a metadata pointer.
 
-OK, let's really get to the code, create a new file `nft-with-metadata-pointer.ts`, and let's start writing the code:
-
 ### `getCreateMintWithMetadataPointerInstructions`
 
-We are going to create a mint that has a pointer to the metadata account. However, we don't have the metadata account yet. First, we need to get the address of that account. Fortunately, the Metaplex program uses a defined method to derive the account (AKA PDA, meaning program-defined account). To obtain that account, we need to pass in some seeds and then use another helper function from the Solana SDK. For the Metaplex metadata program, it uses three seeds to derive the metadata PDA, which are:
+Create a new file `nft-with-metadata-pointer.ts`.
 
-1. **metadata**: Literally the word 'metadata'.
+We are going to create a mint that has a pointer to a Metaplex metadata account. However, we don't have the metadata account yet. First, we need to get the address of that account. Fortunately, the Metaplex program uses a defined method to derive the account (AKA PDA, meaning program-defined account). To obtain that account, we need to pass in some seeds and then use another helper function from the Solana SDK. For the Metaplex metadata program, it uses three seeds to derive the metadata PDA, which are:
+
+1. **metadata**: Buffer of the string: 'metadata'.
 2. **Metaplex Program ID**: The public key representing the Metaplex program on Solana.
 3. **Mint's Public Key**: The public key of the mint associated with the NFT or token.
 
-So, let's write this function first:
+We put all of these seeds together in the function `web3.PublicKey.findProgramAddressSync` to get our metadata address.
 
+The full function is as follows:
 ```ts
 import * as web3 from '@solana/web3.js';
 
@@ -300,9 +191,8 @@ function getMetadataAccountAddressOnMetaplex(mintPublicKey: web3.PublicKey) {
 }
 ```
 
-We are importing the Solana SDK, which contains many helpers, functions, and interfaces we will need along the way. After that, we are implementing the function. It takes the mint public key and returns the metadataPDA. Inside it, we define the Metaplex program ID (the address or public key of the metadata program), which we need as our second seed. The first seed should be the word 'metadata', and the last seed would be the mint public key itself. Then, we use the method `web3.PublicKey.findProgramAddressSync` by passing the right seeds in the correct order as the first parameter and the owner program of the PDA as the second. It will return a PDA and a bump, with the PDA being the part we are interested in.
 
-Now that we've got that out of the way, we can start writing our main function. Here is the code for `getCreateMintWithMetadataPointerInstructions`:
+Let's start writing our main function. Here is the code for `getCreateMintWithMetadataPointerInstructions`:
 
 ```ts
 // other imports...
