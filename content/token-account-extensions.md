@@ -1,8 +1,12 @@
 # Lab
-We’re going to create a script that interacts with instructions on the Token Program. 
+------- COME BACK TO THIS -------
+Let's go ahead and practice using these token extensions together. We’re going to create a script that creates a new token mint using the Token22 program. interacts with instructions on the Token Program. 
 
 We'll establish a token mint in its default state and set up a token account with an immutable owner, CPI guard and required memo instructions. Following that, we'll create and run tests on minting tokens and transferring them, including scenarios with frozen or thawed accounts and with or without memos.
-## 1. Set Up
+
+## 1. Clone starter code
+
+To get started, clone [this lab's repository](https://github.com/Unboxed-Software/solana-lab-token-account-extensions), checkout the `starter` branch, and install the project's dependencies.
 
 ```bash
 git clone https://github.com/Unboxed-Software/solana-lab-token-account-extensions.git
@@ -11,16 +15,13 @@ git checkout starter
 npm install
 ```
 
-## 2. Generate Keypairs
-To facilitate the creation of Token Account Extensions, we will create helper functions that separate and handle the various steps involved in the process.
+This starter code comes with some simple boilerplate for creating a new keypair and funding it with test SOL in `keypair-helpers.ts`.
 
-The `starter` branch will already have one of these helpers created, named `keypair-helpers.ts`. This helper will handle the creation of all the keypairs needed to create the token account extension. Inside of this file will be two functions: 
-  - `initializeKeypair`: This handles the generation of the keypairs we will need to create different
-  - `airdropSolIfNeeded`: This will airdrop the accounts created some devnet Sol if needed. 
+It also comes with a `main` function in `index.ts` that represents the starting point for our script. This is where we'll invoke the functions for the token account extension creation flow. The starter code comes with some boilerplate for creating a connection and generating keypairs that we'll use for creating mints, token accounts, etc.
 
-Take a look at `src/index.ts`. The function named `main` will be the main script where we invoke the functions for all of the token account extension creation flow. We will generate the keys needed to create the mint and token account. `payer` is declared and a keypair is generated using `initializeKeypair`. We do this to ensure the `payer` wallet has been created with test tokens in it. The `payer` keypair plays an important role of the token account extension as it will be set as the immutable owner.
+@TODO - update `ourTokenAccountKeypair` and `other...` to bob and alice or something else that is easier to distinguish
 
-```
+```ts
 // Required imports
 
 async function main() {
@@ -64,10 +65,12 @@ main();
 ```
 
 ### 3. Create Mint
-To create token account extensions, first we need to create a mint. To do this, create a file inside of `src` named `mint-helpers.ts`. The mint helper will create a mint with the required default account state instructions and return the signature of that transaction.
+
+To create token account extensions, first we need to create a mint. We want to create this mint using the Default State token extension. To do this, create a file inside of `src` named `mint-helpers.ts`. The mint helper will create a mint with the required default account state instructions and return the signature of that transaction.
 
 First, import the required functions and extensions from `@solana/spl-token` and `@solana/web3.js`, then create the `createToken22MintWithDefaultState` function.
-```
+
+```ts
 import { 
   AccountState,
   ExtensionType,
@@ -95,9 +98,15 @@ export async function createToken22MintWithDefaultState(
 }
 ```
 
-Inside of `createToken22MintWithDefaultState`, declare the following variables required to create the mint account instruction.
+Since we're creating a mint with extensions, we can't just use the `createMint` helper from `spl-token`. Instead, we need to manually do the following:
+1. Create an instruction to allocate a new account that will act as our mint account
+2. Create an instruction to initialize this new account as a mint account
+3. Create an instruction to initialize the mint account with the Default State extension
+4. Add all the above instructions to a transaction and submit the transaction to the network
 
-```
+Start by declaring the below variables inside the `createToken22MintWithDefaultState` function. These will all be used when creating the mint account instruction. 
+
+```ts
 // Define extension for the mint
 const extensions = [ExtensionType.DefaultAccountState];
 // Get the public key of the mint account
@@ -113,10 +122,9 @@ const mintLen = getMintLen(extensions);
 const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 ```
 
-Now that we have the keypairs created, we can create the mint account and default account state instructions and add them to a new mint transaction. Once a mint transaction has been instantiated, call the `sendAndConfirmTransaction` function with the transaction and other arguments, which will send and confirm the transaction to the Solana network. The return value of `createToken22MintWithDefaultState`, a transaction signature, is then passed back to the main script.
+Next, create the three instructions discussed above. Each has a corresponding helper function from either `@solana/web3.js` or `spl-token`. Once you've created the instructions, add them to a new transaction, then call the `sendAndConfirmTransaction` function. Finally, return the transaction signature.
 
-Add the following code to the rest of the `createToken22MintWithDefaultState` function:
-```
+```ts
 // Create an instruction to create the mint account
 const createAccountInstruction = SystemProgram.createAccount({
   fromPubkey: payer.publicKey,
@@ -156,14 +164,30 @@ return await sendAndConfirmTransaction(
 );
 ```
 
+Lastly, add a call to `createToken22MintWithDefaultState` from `main` and log the transaction signature. Then feel free to run `npm run start` to see that the script runs and creates a new mint.
+
+```ts
+  // - Create Mint Account
+  const createMintSignature = await createToken22MintWithDefaultState(
+    connection,
+    payer,
+    mintKeypair,
+    mintDecimals,
+    defaultAccountState
+  )
+
+  console.log("Mint account created: ", createMintSignature)
+```
+
 ### 4. Create Token Account
-We now have everything needed to create the mint and return the signature to the main script, so now we can move on to the token account. Create a file inside of src named `token-helpers.ts`. The token helper works similarly to the mint helper, whereby it creates and returns a token account signature. , will create a token account with the required extensions: 
+
+Now we can move on to the token account. Create a file inside of src named `token-helpers.ts`. The token helper works similarly to the mint helper, whereby it creates and returns a token account signature. The helper function will create a token account with the required extensions: 
 - Immutable Owner
 - Required Memo
 - CPI Guard
 
 Import the required functions and extensions from `@solana/spl-token` and `@solana/web3.js`, then create the `createTokenAccountWithExtensions` function.
-```
+```ts
 import { ExtensionType,
   TOKEN_2022_PROGRAM_ID,
   createEnableCpiGuardInstruction,
@@ -191,9 +215,12 @@ export async function createTokenAccountWithExtensions(
   // Remaining code goes here
 }
 ```
+
 Inside of `createTokenAccountWithExtensions`, declare the following variables required to create the token account instruction.
 
-```
+@TODO EXPLAIN SPACE
+
+```ts
 const tokenAccount = tokenAccountKeypair.publicKey;
 
 // Define extensions for the token account
@@ -262,7 +289,7 @@ Thats it for the helpers! Now we have the ability to create the mint and token a
 ### 5. Create mint and token accounts
 In `index.ts`, underneath the current code inside the `main` function, call the functions we previously created and added to `mint-helpers` and `token-helpers` to create the mint and accounts.
 
-```
+```ts
 async function main() {
   // Previous variable declarations
   
@@ -312,7 +339,7 @@ Note: The mint creator can change the freeze authority by using the `updateDefau
 Lets test this extension out by trying to mint without thawing the account first. This test is expected to fail as the mint account is still frozen upon trying to mint.
 
 Outside of the `main` function, add the code for the `testMintWithoutThawing` function:
-```
+```ts
 interface MintWithoutThawingInputs {
   connection: Connection;
   payer: Keypair;
@@ -347,7 +374,7 @@ async function testMintWithoutThawing(inputs:
 }
 ```
 Add the following inside the `main` function:
-```
+```ts
 {
   // Show you can't mint without unfreezing
   await testMintWithoutThawing({
@@ -366,7 +393,7 @@ Now we can test thawing the account before minting. Create the `testThawAndMint`
 This test is expected to pass.
 
 Create the `testThawAndMint` function:
-```
+```ts
 interface ThawAndMintInputs {
   connection: Connection;
   payer: Keypair;
@@ -415,7 +442,7 @@ async function testThawAndMint(inputs: ThawAndMintInputs) {
 ```
 
 Add the following inside the `main` function:
-```
+```ts
 {
   // Show how to thaw and mint
   await testThawAndMint({
@@ -437,7 +464,7 @@ Now we are going to test that the rules of the extension are enforced. We will u
 
 Create the `testTryingToTransferOwner` function outside of `main`. 
 
-```
+```ts
 interface TransferOwnerInputs {
   connection: Connection;
   tokenAccount: PublicKey;
@@ -471,7 +498,7 @@ async function testTryingToTransferOwner(inputs: TransferOwnerInputs) {
 }
 ```
 Add the following inside the `main` function:
-```
+```ts
 {
   // Show that you can't change owner
   await testTryingToTransferOwner({
@@ -487,7 +514,7 @@ Add the following inside the `main` function:
 The Token-2022 program introduces the `MemoTransfer` extension which enables required memo's. This extension adds instruction on the token account that a memo instruction is required before the transfer instruction. The token account being created in `token-helpers` enabled required memo transfers using the extension.
 #### `testTryingToTransferWithoutMemo`
 Add the test for transferring without a memo. We expect this test to fail as the required memo extension is enforced.
-```
+```ts
 interface TransferWithoutMemoInputs {
   connection: Connection;
   fromTokenAccount: PublicKey;
@@ -522,7 +549,7 @@ async function testTryingToTransferWithoutMemo(inputs: TransferWithoutMemoInputs
 ```
 
 Add the following inside the `main` function: 
-```
+```ts
 {
   // Show that you can't transfer without memo
   await testTryingToTransferWithoutMemo({
@@ -537,7 +564,7 @@ Add the following inside the `main` function:
 
 #### `testTransferringWithMemoWithFrozenAccount`
 Now, let's test against transferring with a memo and frozen account. This test is expected to fail as the token account must be thawed before transferring. 
-```
+```ts
 interface TransferWithMemoWithFrozenAccountInputs {
   connection: Connection;
   fromTokenAccount: PublicKey;
@@ -576,7 +603,7 @@ async function testTransferringWithMemoWithFrozenAccount(inputs: TransferWithMem
 }
 ```
 Add the following inside the `main` function:
-```
+```ts
  {
   // Show transfer with memo 
   await testTransferringWithMemoWithFrozenAccount({
@@ -592,7 +619,7 @@ Add the following inside the `main` function:
 
 #### `testTransferringWithMemoWithThawedAccount`
 This test should satisfy all requirements for transferring with a memo as the account is thawed and a memo has been added to the transaction.
-```
+```ts
 interface TransferWithMemoWithThawedAccountInputs {
   connection: Connection;
   fromTokenAccount: PublicKey;
@@ -652,7 +679,7 @@ async function testTransferringWithMemoWithThawedAccount(inputs: TransferWithMem
 }
 ```
 Add the following inside the `main` function:
-```
+```ts
 {
   // Show transfer with memo 
   await testTransferringWithMemoWithThawedAccount({
