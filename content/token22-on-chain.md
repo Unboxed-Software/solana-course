@@ -372,3 +372,144 @@ pub fn handler(ctx: Context<InitializePool>) -> Result <()> {
 We just initiaize each field in the `PoolState` struct that was defined in the `state.rs` file.
 
 After that, save your work and run `anchor build` to make sure there are no issues with your program at this point.
+
+### 8. `init_stake_entry` Instruction
+
+Now we can move on to the `init_stake_entry.rs` file. This instruction creates a staking account for a user to keep track of some state while they stake their tokens. The `StakeEntry` account is required to exist before a user can stake tokens. The `StakeEntry` account struct was defined in the `state.rs` file earlier.
+
+Let's get started with the accounts required for this instruction. We will need the following:
+
+* `user` - The user that is creating the `stake_entry` account. This account must sign the transaction and will need to pay for the rent required to create the `stake_entry` account.
+* `user_stake_entry` - State account that will be created at a PDA derived from the user, mint the staking pool was created for, and the `STAKE_ENTRY_SEED` as seeds.
+* `user_stake_token_account` - User's associated token account for the staking reward token
+* `staking_token_mint` - mint of the staking reward token of this pool
+* `pool_state` - `PoolState` account for this staking pool
+* `token_program` - Token Program
+* `associated_token_program` - Associated token program
+* `system_program` - System Program
+
+Let's start by adding in the `user` account to the `InitializeStakeEntry` account struct.
+
+```rust
+#[derive(Accounts)]
+pub struct InitializeStakeEntry<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+}
+```
+
+We just need to make sure the `user` account has signed the transaction and that the account is mutable.
+
+```rust
+#[account(
+        init,
+        seeds = [user.key().as_ref(), pool_state.token_mint.key().as_ref(), STAKE_ENTRY_SEED.as_bytes()],
+        bump,
+        payer = user,
+        space = 8 + size_of::<StakeEntry>()
+    )]
+    pub user_stake_entry: Account<'info, StakeEntry>,
+```
+
+The `user_stake_entry` account requires a few more constraints. We need to initialize the account, derive the address using the expected seeds, define who is paying for the creation of the account, and allocate enough space for the `StakeEntry` data struct. We deserialize the given account into the `StakeEntry` account.
+
+```rust
+#[account(
+        init,
+        associated_token::mint = staking_token_mint,
+        associated_token::authority = user,
+        associated_token::token_program = token_program,
+        payer = user,
+    )]
+    pub user_stake_token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+```
+
+The `user_stake_token_account` is again the account where the user's staking rewards will eventually be sent. We create the account in this instruction so we don't have to worry about it later on when it's time to dole out the staking rewards. Because we initialize this account in this instruction, it puts a limit on the number of pools a user can stake in with the same reward token. This current design would prevent a user from creating another `user_stake_entry` account for another pool with the same `staking_token_mint`. This is another design choice that probably would not scale in production. Think about how else this could be designed.
+
+We use some similar SPL constraints as in the previous instruction, this time targeting the associated token program. With the `init` constraint, these tell anchor what mint, authority, and token program to use while initializing this associated token account.
+
+Again, we are using the `InterfaceAccount` and `token_interface::TokenAccount` types here. Note, the `token_interface::TokenAccount` type can only be used in conjunction with `InterfaceAccount`.
+
+```rust
+#[account(
+        constraint = staking_token_mint.key() == pool_state.staking_token_mint
+        @ StakeError::InvalidStakingTokenMint,
+        mint::token_program = token_program
+    )]
+    pub staking_token_mint: InterfaceAccount<'info, token_interface::Mint>,
+```
+
+Next, we add the `staking_token_mint` account. Notice, we are using our firstcustom error here. This constraint verifies that the pubkey on the `staking_token_mint` account is equal to the pubkey stored in the `staking_token_mint` field of the given `PoolState` account. This field was initialized in the `handler` method of the `inti_pool` instruction in the previous step.
+
+The remaining accounts ones that we are familiar with already and there are not any special constraints on them.
+
+```rust
+#[account(
+        seeds = [pool_state.token_mint.key().as_ref(), STAKE_POOL_STATE_SEED.as_bytes()],
+        bump = pool_state.bump
+    )]
+    pub pool_state: Account<'info, PoolState>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>
+```
+
+The final `InitializeStakeEntry` account struct should be:
+
+```rust
+#[derive(Accounts)]
+pub struct InitializeStakeEntry<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+    #[account(
+        init,
+        seeds = [user.key().as_ref(), pool_state.token_mint.key().as_ref(), STAKE_ENTRY_SEED.as_bytes()],
+        bump,
+        payer = user,
+        space = 8 + size_of::<StakeEntry>()
+    )]
+    pub user_stake_entry: Account<'info, StakeEntry>,
+    #[account(
+        init,
+        associated_token::mint = staking_token_mint,
+        associated_token::authority = user,
+        associated_token::token_program = token_program,
+        payer = user,
+    )]
+    pub user_stake_token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+    #[account(
+        constraint = staking_token_mint.key() == pool_state.staking_token_mint
+        @ StakeError::InvalidStakingTokenMint,
+        mint::token_program = token_program
+    )]
+    pub staking_token_mint: InterfaceAccount<'info, token_interface::Mint>,
+    #[account(
+        seeds = [pool_state.token_mint.key().as_ref(), STAKE_POOL_STATE_SEED.as_bytes()],
+        bump = pool_state.bump
+    )]
+    pub pool_state: Account<'info, PoolState>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>
+}
+```
+
+The `handler` method is also very simple in this instruction. A majority of logic was handled with Anchor constraints in the accounts struct, so all we need to do in `handler` is initialize the state of the newly created `user_stake_entry` account.
+
+```rust
+pub fn handler(ctx: Context<InitializeStakeEntry>) -> Result<()> {
+    check_token_program(ctx.accounts.token_program.key());
+
+    // initialize user stake entry state
+    let user_entry = &mut ctx.accounts.user_stake_entry;
+    user_entry.user = ctx.accounts.user.key();
+    user_entry.user_stake_token_account = ctx.accounts.user_stake_token_account.key();
+    user_entry.bump = ctx.bumps.user_stake_entry;
+    user_entry.balance = 0;
+    
+    Ok(())
+}
+```
+
+Save your work and run `anchor build` to verify there are no compilation errors.
