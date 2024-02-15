@@ -1089,3 +1089,73 @@ pub fn mint_to_ctx<'a>(&'a self, seeds: &'a [&[&[u8]]]) -> CpiContext<'_, '_, '_
 We're targeting the exact same `token_program` with this CPI, so `cpi_program` is the same as before. We construct the `MinTo` struct the same as we did the `TransferChecked` struct, just passing the appropriate accounts here. The `mint` is the `staking_token_mint` because that is the mint we will be minting to the user. `to` is the user's `user_stake_token_account`. And `authority` is the `pool_authority` because this PDA should have sole authority over this mint.
 
 Lastly, the function returns a `CpiContext` constructed using the signer seeds passed into it.
+
+Now we can move on to the logic of our `handler` function. This instruction will need to update both the pool and user state accounts, transfer all of the user's staked tokens, and mint the user their reward tokens. To get started, we are going to log some info and determine how many tokens to transfer to the user.
+
+```rust
+pub fn handler(ctx: Context<Unstake>) -> Result <()> {
+    check_token_program(ctx.accounts.token_program.key());
+    
+    let user_entry = &ctx.accounts.user_stake_entry;
+    let amount = user_entry.balance;
+    let decimals = ctx.accounts.token_mint.decimals;
+
+    msg!("User stake balance: {}", user_entry.balance);
+    msg!("Withdrawing all of users stake balance. Tokens to withdraw: {}", amount);
+    msg!("Total staked before withdrawal: {}", ctx.accounts.pool_state.amount);
+
+    // verify user and pool have >= requested amount of tokens staked
+    if amount > ctx.accounts.pool_state.amount {
+        return Err(StakeError::OverdrawError.into())
+    }
+
+    Ok(())
+}
+```
+
+Because we kept track of the user's stake amount in the `user_stake_entry` account, we know exactly how many tokens this user has staked at this point in time. We can fetch this amount from the `user_entry.balance` field. Then, we log some information so that we can inspect this later. We also verify that the amount to transfer out is greater than the amount that is stored in the pool as an extra safety measure. If not, we will return a custom `OverdrawError`.
+
+Next, we will fetch the signer seeds needed for the PDA signature. The `pool_authority` is what will be required to sign in these CPIs, we use that account's seeds.
+
+```rust
+// program signer seeds
+let auth_bump = ctx.accounts.pool_state.vault_auth_bump;
+let auth_seeds = &[VAULT_AUTH_SEED.as_bytes(), &[auth_bump]];
+let signer = &[&auth_seeds[..]];
+```
+
+Once we have those seeds stored in the `signer` variable, we can easily pass it into the `transfer_checked_ctx()` method. At the same time, we'll call the `transfer_checked` helper function from the anchor crate to acually invoke the CPI.
+```rust
+ // transfer staked tokens
+transfer_checked(ctx.accounts.transfer_checked_ctx(signer), amount, decimals)?;
+```
+
+Next, we'll calculate how many reward tokens to mint the user and invoke the `mint_to` instruction using our `mint_to_ctx` function. Remember, we are just taking the amount of tokens the user has staked and multiplying it by 10 to get their reward amount. This is a very simply algorithm that would not make sense to use in production, but it works here as an example.
+
+```rust
+// mint users staking rewards, 10x amount of staked tokens
+let stake_rewards = amount.checked_mul(10).unwrap();
+
+// mint rewards to user
+mint_to(ctx.accounts.mint_to_ctx(signer), stake_rewards)?;
+```
+
+Notice we use `checked_mul()` here, similar to how we used `checked_add` in the `stake` instruction. Again, this is to prevent buffer overflow.
+
+Lastly, we will need to update our state accounts by subtracting the amount that was unstaked from both the pool and user's balances. We'll be using `checked_sub()` for this.
+
+```rust
+// borrow mutable references
+let pool_state = &mut ctx.accounts.pool_state;
+let user_entry = &mut ctx.accounts.user_stake_entry;
+
+// subtract transferred amount from pool total
+pool_state.amount = pool_state.amount.checked_sub(amount).unwrap();
+msg!("Total staked after withdrawal: {}", pool_state.amount);
+
+// update user stake entry
+user_entry.balance = user_entry.balance.checked_sub(amount).unwrap();
+user_entry.last_staked = Clock::get().unwrap().unix_timestamp;
+```
+
+And that is it for our staking program! There has been an entire test suite written ahead of time for you to run against this program. Please run `npm install` in your terminal to install all of the testing packages. At this point, you should simply be able to run `anchor test` and let the program build and run them.
