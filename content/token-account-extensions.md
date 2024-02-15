@@ -257,7 +257,7 @@ return await sendAndConfirmTransaction(
 );
 ```
 
-Thats it for the helpers! Now we have the ability to create the mint and token accounts.
+Thats it for the helpers! Now we have the ability to create the mint and token accounts with the required Token 2022 Program extensions.
 
 ### 5. Create mint and token accounts
 In `index.ts`, underneath the current code inside the `main` function, call the functions we previously created and added to `mint-helpers` and `token-helpers` to create the mint and accounts.
@@ -671,3 +671,4 @@ When creating our token account, we have enabled the CPI Guard extension. CPI Gu
 
 
 
+Now that we've implemented our mint and token account with all the required extensions, run `npm run start`. You should see all of the test cases logged out with ✅ emojis, meaning that all of our extensions are enforced as expected!
