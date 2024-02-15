@@ -684,3 +684,101 @@ pub struct Stake<'info> {
 ```
 
 That is it for the accounts struct. Save your work and verify your program still compiles.
+
+Next, we are going to implement a helper function to assist with the transfer cpi that we will have to make here. Below the `Stake` accounts struct we just built, add the following:
+
+```rust
+impl<'info> Stake <'info> {
+    // transfer_checked for Token2022
+    pub fn transfer_checked_ctx(&self) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
+        
+    }
+}
+```
+
+Here, we have added the skeleton for the implementation of a `transfer_checked_ctx` method on our `Stake` data struct. This method takes `&self` as an argument, which gives us access to members of the `Stake` struct inside of the method by calling `self`. This method is expected to return a `CpiContext` struct, [which is an Anchor primitive](https://docs.rs/anchor-lang/latest/anchor_lang/context/struct.CpiContext.html).
+
+A `CpiContext` is defined as:
+
+```rust
+pub struct CpiContext<'a, 'b, 'c, 'info, T>
+where
+    T: ToAccountMetas + ToAccountInfos<'info>,
+{
+    pub accounts: T,
+    pub remaining_accounts: Vec<AccountInfo<'info>>,
+    pub program: AccountInfo<'info>,
+    pub signer_seeds: &'a [&'b [&'c [u8]]],
+}
+```
+Where `T` is the accounts struct for the instruction you are invoking.
+
+This is very similar to the `Context` object that traditional Anchor instructions expect as input (i.e. `ctx: Context<Stake>`). This is the same concept here, except we are defining one for a Cross-Program Invovation instead!
+
+In our case, we will be invoking the `transfer_checked` instruction in either token programs, hence the `transfer_checked_ctx` method name and the `TransferChecked` type in the returned `CpiContext`. You may be asking, "Why `transfer_checked` instead of the regular `transfer` instruction?" Well, the regular `transfer` instruction has been deprecated in Token22. The instruction is still present, but in the docs it is suggested you use `transfer_checked` going forward.
+
+// TODO: Elaborate here. what's the difference between the two? Why is transfer deprecated?
+
+Now that we now what the goal of this method is, we can implement it! First, we will need to define the program we will be invoking. This should be the `token_program` that was passed into our accounts struct.
+
+```rust
+impl<'info> Stake <'info> {
+    // transfer_checked for Token2022
+    pub fn transfer_checked_ctx(&self) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
+        let cpi_program = self.token_program.to_account_info();
+    }
+}
+```
+
+Notice how we are simply able to reference the accounts in the `Stake` data struct by calling `self`. 
+
+Then, we need to define the accounts we'll be passing in the CPI. We can do this via the `TransferChecked` data type, which we are importing from the [`anchor_spl::token_2022` crate](https://docs.rs/anchor-spl/latest/anchor_spl/token_2022/struct.TransferChecked.html) at the top of our file. This data type is defined as:
+
+```rust
+pub struct TransferChecked<'info> {
+    pub from: AccountInfo<'info>,
+    pub mint: AccountInfo<'info>,
+    pub to: AccountInfo<'info>,
+    pub authority: AccountInfo<'info>,
+}
+```
+
+This data type expects four different `AccountInfo` types, all of which should have been passed into our program.
+
+```rust
+impl<'info> Stake <'info> {
+    // transfer_checked for Token2022
+    pub fn transfer_checked_ctx(&self) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = TransferChecked {
+            from: self.user_token_account.to_account_info(),
+            to: self.token_vault.to_account_info(),
+            authority: self.user.to_account_info(),
+            mint: self.token_mint.to_account_info()
+        };
+    }
+}
+```
+
+Just like with the `cpi_program`, we can build this `TransferChecked` data struct by referencing `self` which gives us access to all of the accounts defined in the `Stake` structure. Note, this is only possible because `transfer_checked_ctx` is being implemented on the `Stake` data type with this line `impl<'info> Stake <'info>`. Without it, there is no self to reference.
+
+Okay, so we have our `cpi_program` and `cpi_accounts` defined, but this method is supposed to return a `CpiContext` object. To do that, we simply need to pass these two into the `CpiContext` constructor `CpiContext::new`.
+
+```rust
+impl<'info> Stake <'info> {
+    // transfer_checked for Token2022
+    pub fn transfer_checked_ctx(&self) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = TransferChecked {
+            from: self.user_token_account.to_account_info(),
+            to: self.token_vault.to_account_info(),
+            authority: self.user.to_account_info(),
+            mint: self.token_mint.to_account_info()
+        };
+
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
+}
+```
+
+With this defined, we can call `transfer_checked_ctx` at any point in our `handler` method and it will return a `CpiContext` object that we can use to execute a CPI.
