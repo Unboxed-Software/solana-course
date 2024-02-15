@@ -442,14 +442,18 @@ Again, we are using the `InterfaceAccount` and `token_interface::TokenAccount` t
 
 Next, we add the `staking_token_mint` account. Notice, we are using our firstcustom error here. This constraint verifies that the pubkey on the `staking_token_mint` account is equal to the pubkey stored in the `staking_token_mint` field of the given `PoolState` account. This field was initialized in the `handler` method of the `inti_pool` instruction in the previous step.
 
-The remaining accounts ones that we are familiar with already and there are not any special constraints on them.
-
 ```rust
 #[account(
         seeds = [pool_state.token_mint.key().as_ref(), STAKE_POOL_STATE_SEED.as_bytes()],
         bump = pool_state.bump
     )]
     pub pool_state: Account<'info, PoolState>,
+```
+The `pool_state` account is pretty much the same here as in the `init_pool` instruction. However, in the `init_pool` instruction we saved the bump used to derive this account so we don't actually have to re-calculate it every time we want to verify the PDA. We can conveniently call `bump = pool_state.bump` and this will use the bump stored in this account.
+
+The remaining accounts ones that we are familiar with already and there are not any special constraints on them.
+
+```rust
     pub token_program: Interface<'info, token_interface::TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>
@@ -513,3 +517,170 @@ pub fn handler(ctx: Context<InitializeStakeEntry>) -> Result<()> {
 ```
 
 Save your work and run `anchor build` to verify there are no compilation errors.
+
+### 9. `stake` Instruction
+
+The `stake` instruction is what is called when users actually want to stake their tokens. This instruction should transfer the amount of tokens the user wants to stake from their token account to the pool vault account that is owned by the program. There will be a lot of validation in this instruction to prevent any attempts of using the instruction incorrectly.
+
+The accounts required are:
+* `pool_state` - State account of the staking pool.
+* `token_mint` - Mint of the token being staked. This is required for the transfer.
+* `pool_authority` - PDA given authority over all staking pools. (dont think this account is necessary)
+* `token_vault` - Token vault account where the tokens staked in this pool are held.
+* `user` - User attempting to stake tokens.
+* `user_token_account` - User owned token account where the tokens they would like to stake will be transferred from.
+* `user_stake_entry` - User `StakeEntry` account created in the previous instruction
+* `token_program`
+* `system_program`
+
+Again, let's build the `Stake` account struct first.
+
+```rust
+#[derive(Accounts)]
+pub struct Stake<'info> {
+        // pool state account
+    #[account(
+        mut,
+        seeds = [token_mint.key().as_ref(), STAKE_POOL_STATE_SEED.as_bytes()],
+        bump = pool_state.bump,
+    )]
+    pub pool_state: Account<'info, PoolState>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+}
+```
+
+First taking a look at the `pool_state` account. This is the same account we have used in previous instructions, derived with the same seeds and bump.
+
+```rust
+// Mint of token to stake
+#[account(
+    mut,
+    mint::token_program = token_program
+)]
+pub token_mint: InterfaceAccount<'info, token_interface::Mint>,
+```
+
+Next, is the `token_mint` which is required for the transfer CPI in this instruction. This is the mint of the token that is being staked. We verify that the given mint is of the given `token_program` to make sure we are not mixing any spl-token and Token22 accounts.
+
+```rust
+/// CHECK: PDA, auth over all token vaults
+#[account(
+    seeds = [VAULT_AUTH_SEED.as_bytes()],
+    bump
+)]
+pub pool_authority: UncheckedAccount<'info>,
+```
+
+The `pool_authority` account is again the PDA that is the authority over all of the staking pools.
+
+```rust
+// pool token account for Token Mint
+#[account(
+    mut,
+    // use token_mint, pool auth, and constant as seeds for token a vault
+    seeds = [token_mint.key().as_ref(), pool_authority.key().as_ref(), VAULT_SEED.as_bytes()],
+    bump = pool_state.vault_bump,
+    token::token_program = token_program
+)]
+pub token_vault: InterfaceAccount<'info, token_interface::TokenAccount>,
+```
+
+Now we have the `token_vault` which is where the tokens will be held while they are staked. This account MUST be verified, as this is where the tokens are transferred to. Here, we verify the given account is the expected PDA derived from the `token_mint`, `pool_authority`, and `VAULT_SEED` seeds. We also verify the token account belongs to the given `token_program`. We use `InterfaceAccount` and `token_interface::TokenAccount` here again to support either spl-token or Token22 accounts.
+
+```rust
+#[account(
+        mut,
+        constraint = user.key() == user_stake_entry.user
+        @ StakeError::InvalidUser
+    )]
+    pub user: Signer<'info>,
+```
+
+The `user` account is marked as mutable and must sign the transaction. This makes sense, they are the ones initiating the transfer and they are the owned of the tokens being transferred so their signature is a requirement for the transfer to take place. 
+
+Note, we also verify the given user is the same pubkey stored in the given `user_stake_entry` account. If it is not, our program will throw the `InvalidUser` custom error.
+
+```rust
+#[account(
+    mut,
+    constraint = user_token_account.mint == pool_state.token_mint
+    @ StakeError::InvalidMint,
+    token::token_program = token_program
+)]
+pub user_token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+```
+
+The `user_token_account` is the token account where the tokens being transferred to be staked should be currently held. The mint of this token account must match the mint of the staking pool. If it does not, a custom `InvalidMint` error will be thrown. We also verify the given token account matches the given  `token_program`.
+
+The last three accounts are ones we are familiar with by now.
+
+```rust
+#[account(
+    mut,
+    seeds = [user.key().as_ref(), pool_state.token_mint.key().as_ref(), STAKE_ENTRY_SEED.as_bytes()],
+    bump = user_stake_entry.bump,
+
+)]
+pub user_stake_entry: Account<'info, StakeEntry>,
+pub token_program: Interface<'info, token_interface::TokenInterface>,
+pub system_program: Program<'info, System>
+```
+
+The full `Stake` accounts struct should look like:
+```rust
+#[derive(Accounts)]
+pub struct Stake<'info> {
+    // pool state account
+    #[account(
+        mut,
+        seeds = [token_mint.key().as_ref(), STAKE_POOL_STATE_SEED.as_bytes()],
+        bump = pool_state.bump,
+    )]
+    pub pool_state: Account<'info, PoolState>,
+    // Mint of token to stake
+    #[account(
+        mut,
+        mint::token_program = token_program
+    )]
+    pub token_mint: InterfaceAccount<'info, token_interface::Mint>,
+    /// CHECK: PDA, auth over all token vaults
+    #[account(
+        seeds = [VAULT_AUTH_SEED.as_bytes()],
+        bump
+    )]
+    pub pool_authority: UncheckedAccount<'info>,
+    // pool token account for Token Mint
+    #[account(
+        mut,
+        // use token_mint, pool auth, and constant as seeds for token a vault
+        seeds = [token_mint.key().as_ref(), pool_authority.key().as_ref(), VAULT_SEED.as_bytes()],
+        bump = pool_state.vault_bump,
+        token::token_program = token_program
+    )]
+    pub token_vault: InterfaceAccount<'info, token_interface::TokenAccount>,
+    #[account(
+        mut,
+        constraint = user.key() == user_stake_entry.user
+        @ StakeError::InvalidUser
+    )]
+    pub user: Signer<'info>,
+    #[account(
+        mut,
+        constraint = user_token_account.mint == pool_state.token_mint
+        @ StakeError::InvalidMint,
+        token::token_program = token_program
+    )]
+    pub user_token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+    #[account(
+        mut,
+        seeds = [user.key().as_ref(), pool_state.token_mint.key().as_ref(), STAKE_ENTRY_SEED.as_bytes()],
+        bump = user_stake_entry.bump,
+
+    )]
+    pub user_stake_entry: Account<'info, StakeEntry>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+    pub system_program: Program<'info, System>
+}
+```
+
+That is it for the accounts struct. Save your work and verify your program still compiles.
