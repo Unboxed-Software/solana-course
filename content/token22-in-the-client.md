@@ -246,17 +246,16 @@ Now you can run the project again. You'll see that not only are the two token mi
 
 ### 5. Fetch legacy and Token22 tokens
 
-
-
-# Fetch Tokens
-Fetching Token 2022 tokens is also similar to creating Token 2022 tokens, simply by specifying the program ID.
-
 There are two ways in which we can fetch tokens:
 - Fetching associated token accounts by owner
 - Fetching token account owner before fetching tokens
 
-## Fetching Associated Token Accounts by Owner
-This option simply fetches all the associated token accounts created with the user's public key. We just need to specify the program ID to differentiate between regular tokens and Token 2022 tokens.
+To fetching associated token accounts by owner, we just need to specify the program ID to differentiate between legacy tokens and Token 2022 tokens. Create the function `fetchTokenInfo`. This function should take following arguments:
+ - `connection` - the connection object to use
+ - `keyPair` - the keypair to find associated token accounts for
+ - `programId` - the token program to point to
+ - `type` - one of Token or Token22, used for console logging purpose
+
 ```ts
 import { AccountLayout } from "@solana/spl-token"
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
@@ -296,15 +295,37 @@ export async function fetchTokenInfo(
 }
 ```
 
-## Fetching Token Account Owner Before Fetching Tokens
-In this option, we fetch the program ID associated with the user's public key beforehand and then fetch the tokens using the program ID. 
+Now, let's add two separate calls to this function in `index.ts` to fetch legacy tokens and Token22 tokens
+```ts
+async function main() {
+  ...
+  const myTokens: TokenInfoForDisplay[] = []
+
+	myTokens.push(
+		...await fetchTokenInfo(connection, keyPair, TOKEN_PROGRAM_ID, 'Token'),
+		...await fetchTokenInfo(connection, keyPair, TOKEN_2022_PROGRAM_ID, 'Token22'),
+	)
+
+	printTableData(myTokens)
+
+}
+```
+
+Now you can run the project again. You will see information about both the legacy tokens and the Token22 tokens.
+
+
+The other option is that we fetch the program ID associated with the mint beforehand. Then use this program ID to fetch the tokens. Let's add the function `fetchTokenProgramFromAccount`. It should take following arguments:
+ - `connection` - the connection object to use
+ - `accountPublicKey` - public key of the mint account
+
+
 ```ts
 export async function fetchTokenProgramFromAccount(
     connection: Connection,
     accountPublicKey: PublicKey
 ){
     //Find the program ID from the mint
-    const accountInfo = await connection.getParsedAccountInfo(accountPublicKey);
+  const accountInfo = await connection.getParsedAccountInfo(accountPublicKey);
     if (accountInfo.value === null) {
         throw new Error('Account not found');
     }
@@ -313,64 +334,34 @@ export async function fetchTokenProgramFromAccount(
 }
 ```
 
-# Modify `index.ts`
-Modify `index.ts`
+When this function is called with a legacy mint account's public key, it will return the legacy token program ID. Similarly, when called with the Token22 mint account's public key, it will return the Token22 program ID. Let's use this function in `index.ts` to fetch the tokens.
+
 ```ts
-import {Cluster, Connection, clusterApiUrl} from '@solana/web3.js'
-import {initializeKeypair} from './keypair-helpers'
-import createAndMintToken from './create-and-mint-token'
-import printTableData from './print-helpers'
-import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token'
-import { TokenInfoForDisplay, fetchTokenInfo, fetchTokenProgramFromAccount } from './fetch-token-info'
-
-const CLUSTER: Cluster = 'devnet'
-
-async function main() {
-
-	/**
-	 * Create a connection and initialize a keypair if one doesn't already exists.
-	 * If a keypair exists, airdrop a sol if needed.
-	 */
-	const connection = new Connection(clusterApiUrl(CLUSTER))
-	const keyPair = await initializeKeypair(connection)
-
-	console.log(`public key: ${keyPair.publicKey.toBase58()}`)
-
-	const decimals = 9; 
-	const mintAmount = 100 * 10 ** decimals;
-
-	/**
-	 * Using TOKEN_PROGRAM_ID, create a mint, create a associated token account and mint 100 tokens to that token account
-	 */
-	const regularMint = await createAndMintToken(CLUSTER, connection, TOKEN_PROGRAM_ID, keyPair, decimals, mintAmount);
-
-	/**
-	 * Using TOKEN_2022_PROGRAM_ID, create a mint, create a associated token account and mint 100 tokens to that token account
-	 */
-	const token22Mint = await createAndMintToken(CLUSTER, connection, TOKEN_2022_PROGRAM_ID, keyPair, decimals, mintAmount);
-
-	/**
-	 * Using TOKEN_2022_PROGRAM_ID, create a mint, create a associated token account and mint 100 tokens to that token account
-	 */
-	const regularMintTokenProgram = await fetchTokenProgramFromAccount(connection, regularMint);
+async function main(){
+  ...
+  const legacyMintTokenProgram = await fetchTokenProgramFromAccount(connection, legacyMint);
 	const token22MintTokenProgram = await fetchTokenProgramFromAccount(connection, token22Mint);
 
-	if(! regularMintTokenProgram.equals(TOKEN_PROGRAM_ID)) throw new Error('Regular mint token program is not correct');
-	if(! token22MintTokenProgram.equals(TOKEN_2022_PROGRAM_ID)) throw new Error('Token22 mint token program is not correct');
+  if(!legacyMintTokenProgram.equals(TOKEN_PROGRAM_ID)) throw new Error('Legacy mint token program is not correct');
+	if(!token22MintTokenProgram.equals(TOKEN_2022_PROGRAM_ID)) throw new Error('Token22 mint token program is not correct');
 
-	/**
-	 * Fetch and display tokens owned which are created using both TOKEN_PROGRAM_ID and TOKEN_2022_PROGRAM_ID
-	 */
-	const myTokens: TokenInfoForDisplay[] = []
+
+  //now use this program id to fetch tokens
+  const myTokens: TokenInfoForDisplay[] = []
 
 	myTokens.push(
-		...await fetchTokenInfo(connection, keyPair, TOKEN_PROGRAM_ID, 'Token'),
-		...await fetchTokenInfo(connection, keyPair, TOKEN_2022_PROGRAM_ID, 'Token22'),
+		...await fetchTokenInfo(connection, keyPair, legacyMintTokenProgram, 'Token'),
+		...await fetchTokenInfo(connection, keyPair, token22MintTokenProgram, 'Token22'),
 	)
 
 	printTableData(myTokens)
-	
-}
 
-main()
+}
 ```
+
+Now you can run the project again. You will see similar output as in option one.
+
+That's it! If you get stuck at any step, you can find the complete code in [this lab's repository's](https://github.com/Unboxed-Software/token22-in-the-client/) `main` branch.
+
+# Challenge
+For the challenge, try and implement the burn token functionality for the legacy tokens and the Token22 tokens.
