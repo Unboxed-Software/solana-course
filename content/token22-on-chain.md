@@ -782,3 +782,107 @@ impl<'info> Stake <'info> {
 ```
 
 With this defined, we can call `transfer_checked_ctx` at any point in our `handler` method and it will return a `CpiContext` object that we can use to execute a CPI.
+
+Moving on to the logic of this instruction, the `handler` function. We'll need to do a couple of things here. First, we need to use our `transfer_checked_ctx` method to create the correct `CpiContext` and make the CPI. Then, we have some very important updates to make to our two state accounts. We are keeping track of the total stake amount in the pool, as well as how many tokens this specific user has staked in this pool so we'll have to do some simple math.
+
+For starters, let's implement the actual CPI.
+
+```rust
+pub fn handler(ctx: Context<Stake>, stake_amount: u64) -> Result <()> {
+    check_token_program(ctx.accounts.token_program.key());
+
+    msg!("Pool initial total: {}", ctx.accounts.pool_state.amount);
+    msg!("User entry initial balance: {}", ctx.accounts.user_stake_entry.balance);
+
+    let decimals = ctx.accounts.token_mint.decimals;
+    // transfer_checked from token22 program
+    transfer_checked(ctx.accounts.transfer_checked_ctx(), stake_amount, decimals)?;
+    
+    Ok(())
+}
+```
+
+Since we defined the program and accounts required for the CPI ahead of time in the `transfer_checked_ctx()` method, the actual CPI is very simple. We are making use of another helper function from the `anchor_spl::token_2022` crate here in the `transfer_checked` function. This function is [defined as the following](https://docs.rs/anchor-spl/latest/anchor_spl/token_2022/fn.transfer_checked.html):
+
+```rust
+pub fn transfer_checked<'info>(
+    ctx: CpiContext<'_, '_, '_, 'info, TransferChecked<'info>>,
+    amount: u64,
+    decimals: u8
+) -> Result<()>
+```
+
+It takes three things as input
+* `CpiContext`
+* amount
+* decimals
+
+The `CpiContext` is exactly what is returned in our `transfer_checked_ctx()` method, so for this first argument we simply call the method with `ctx.accounts.transfer_checked_ctx()`.
+
+The amount is simply the amount of tokens to transfer, which our `handler` method takes as an additional input param. So, we just pass that value along here.
+
+Lastly, the decimals argument is the amount of decimals on the token mint of what is being transferred. This is a requirement of the transfer checked instruction. Since the `token_mint` account is passed in, you can actually fetch the decimals on the token mint in this instruction. That's exactly what the previous line is doing:
+```rust
+let decimals = ctx.accounts.token_mint.decimals;
+```
+Then, we just pass `decimals` in as the third argument. The `transfer_checked` method builds a `transfer_checked` insruction object and actually invokes the program in the `CpiContext` under the hood. We are just utilizing Anchor's wrapper over the top of this process. If you're curious, [here is the source code](https://docs.rs/anchor-spl/latest/src/anchor_spl/token_2022.rs.html#35-61).
+
+```rust
+pub fn transfer_checked<'info>(
+    ctx: CpiContext<'_, '_, '_, 'info, TransferChecked<'info>>,
+    amount: u64,
+    decimals: u8,
+) -> Result<()> {
+    let ix = spl_token_2022::instruction::transfer_checked(
+        ctx.program.key,
+        ctx.accounts.from.key,
+        ctx.accounts.mint.key,
+        ctx.accounts.to.key,
+        ctx.accounts.authority.key,
+        &[],
+        amount,
+        decimals,
+    )?;
+    solana_program::program::invoke_signed(
+        &ix,
+        &[
+            ctx.accounts.from,
+            ctx.accounts.mint,
+            ctx.accounts.to,
+            ctx.accounts.authority,
+        ],
+        ctx.signer_seeds,
+    )
+    .map_err(Into::into)
+}
+```
+
+Using anchor's CpiContext wrapper is much more clean and it abstracts a lot away, but it's important you understand what's going on under the hood.
+
+Once the `transfer_checked` function has completed, we can start updating our state accounts because that means the transfer has taken place. The two accounts we'll wnat to update are the `pool_state` and `user_entry` accounts which represent the overall staking pool data and this specific user's data about their stake in this pool.
+
+Since this is the `stake` instruction, both values representing the amount the user has staked and the total amount staked in the pool should increase by the `stake_amount`.
+
+```rust
+let pool_state = &mut ctx.accounts.pool_state;
+let user_entry = &mut ctx.accounts.user_stake_entry;
+
+// update pool state amount
+pool_state.amount = pool_state.amount.checked_add(stake_amount).unwrap();
+msg!("Current pool stake total: {}", pool_state.amount);
+
+// update user stake entry
+user_entry.balance = user_entry.balance.checked_add(stake_amount).unwrap();
+msg!("User stake balance: {}", user_entry.balance);
+user_entry.last_staked = Clock::get().unwrap().unix_timestamp;
+```
+
+To do this, we simply deserialize the `pool_state` and `user_entry` accounts as mutable and increase the `pool_state.amount` and `user_enry.balance` by the `stake_amount` using `checked_add()`. `CheckedAdd` is a rust feature that allows you to safely perform mathematical operations without worrying about buffer overflow. `checked_add()` adds two numbers, checking for overflow. If overflow happens, `None` is returned.
+
+// TODO: implement overflow error on checked_add in the code.
+
+After updating the respecitive balances, we also update the `user_entry.last_staked` field with the current unix timestamp from the `Clock`. This is just meant to keep track of the most recent time a specific user staked tokens.
+
+Ok that was a lot and we covered some new stuff, so feel free to go back through and make sure it all makes sense. Check out all of the external resources that are linked for any of the new topics. Once you're ready to move on, save your work and verify the program still builds.
+
+### 10. `unstake` Instruction
