@@ -1,4 +1,20 @@
+# Supporting Token22 from a Client
+
+# Objectives
+
+# TL;DR
+
 # Overview
+
+1. The token program's interfaces are the same so you can use the same `spl-token` helper functions and just replace the program ID that you pass to the function
+   1. If you don't pass a program ID it defaults to the legacy token program
+2. Zoom out a bit - any time you are going to interact with a token, you need to know what program owns that token
+   1. You create a local db that stores metadata about mints and includes the program that owns it
+   2. At the point of interaction you dynamically fetch that information
+3. Most UIs aren't going to treat legacy tokens and token22 tokens any differently, so you'll need logic to fetch both and merge the lists or whatever
+
+- Straightforward to add support to your client
+- Only need to pass the correct program ID into your function (Token program ID vs Token22 program ID)
 
 ## Differences between working with legacy tokens and Token22 tokens
 
@@ -7,6 +23,10 @@ When creating tokens, the only thing you need to worry about is pointing your co
 Fortunately, the `spl-token` package makes it easy to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants and all of its helper functions for creating and minting tokens take a program ID as input.
 
 NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to Token22, otherwise you will get the following error: `TokenInvalidAccountOwnerError`.
+
+## How to fetch both legacy and Token22 tokens
+
+## Check owning program
 
 # Lab - Add Token22 support to a script
 
