@@ -1,8 +1,67 @@
-# Lab
-------- COME BACK TO THIS -------
-Let's go ahead and practice using these token extensions together. We’re going to create a script that creates a new token mint using the Token22 program. interacts with instructions on the Token Program. 
+# Token Account Extensions
 
-We'll establish a token mint in its default state and set up a token account with an immutable owner, CPI guard and required memo instructions. Following that, we'll create and run tests on minting tokens and transferring them, including scenarios with frozen or thawed accounts and with or without memos.
+# Objectives
+
+# TL;DR
+
+# Overview
+
+
+## Introduction to Token Account Extensions
+- What do we mean by "token account extensions"
+  - All of these extensions extend the base functionality of a token account
+- What is possible now with these that wasn't possible at all before
+- What did we do for these things prior to Token22
+
+
+## Default Account State Extension
+- What is it
+- What can you do with it, e.g. use cases
+- Why does it matter
+- How do you use it
+- Example
+
+// create the account
+// initialize teh default state extension
+```ts
+const initializeDefaultAccountStateInstruction = createInitializeDefaultAccountStateInstruction(
+  mintAccount,
+  defaultState,
+  TOKEN_2022_PROGRAM_ID
+);
+```
+// initialize the account as a token account
+^^^^Example of something we would want to call out - the order of instructions
+
+## Immutable Ownership Extension
+- What is it
+- What can you do with it, e.g. use cases
+- Why does it matter
+- How do you use it
+- Example
+
+## Required Memo Extension
+- What is it
+- What can you do with it, e.g. use cases
+- Why does it matter
+- How do you use it
+- Example
+
+## CPI Guard Extension
+- What is it
+- What can you do with it, e.g. use cases
+- Why does it matter
+- How do you use it
+- Example
+
+# Lab
+
+Let's go ahead and practice using these token extensions together. We’re going to create a script that illustrates how to work with token account extensions.
+
+We'll first create a token mint whose state defaults to frozen. Then we'll create a couple associated token accounts with the remaining three account extensions: immutable owner, CPI guard, and required memo.Finally, we'll create and run tests that display a few scenarios:
+- Minting tokens when frozen vs thawed
+- Attempting to transfer token account ownership
+- Transferring tokens with vs without memos 
 
 ## 1. Clone starter code
 
@@ -19,35 +78,36 @@ This starter code comes with some simple boilerplate for creating a new keypair 
 
 It also comes with a `main` function in `index.ts` that represents the starting point for our script. This is where we'll invoke the functions for the token account extension creation flow. The starter code comes with some boilerplate for creating a connection and generating keypairs that we'll use for creating mints, token accounts, etc.
 
-@TODO - update `ourTokenAccountKeypair` and `other...` to bob and alice or something else that is easier to distinguish
+@TODO - Update token account addresses to be associated token accounts - talk to James and/or Christian
 
 ```ts
 // Required imports
 
 async function main() {
-  const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
-  const payer = await initializeKeypair(connection);
+  const connection = new Connection(clusterApiUrl("devnet"), "confirmed")
+  const bob = await initializeKeypair(connection)
 
-  const otherOwner = Keypair.generate();
+  const alice = Keypair.generate()
 
-  const mintKeypair = Keypair.generate();
-  const mint = mintKeypair.publicKey;
-  const mintDecimals = 9;
-  const defaultAccountState = AccountState.Frozen;
+  const mintKeypair = Keypair.generate()
+  const mint = mintKeypair.publicKey
+  const mintDecimals = 9
+  const defaultAccountState = AccountState.Frozen
 
-  const ourTokenAccountKeypair = Keypair.generate();
-  const ourTokenAccount = ourTokenAccountKeypair.publicKey;
+  const bobTokenAccountKeypair = Keypair.generate()
+  const bobTokenAccount = bobTokenAccountKeypair.publicKey
 
-  const otherTokenAccountKeypair = Keypair.generate();
-  const otherTokenAccount = otherTokenAccountKeypair.publicKey;
+  const aliceTokenAccountKeypair = Keypair.generate()
+  const aliceTokenAccount = aliceTokenAccountKeypair.publicKey
 
-  const amountToMint = 1000;
-  const amountToTransfer = 300;
+  const amountToMint = 1000
+  const amountToTransfer = 300
 
-  console.log("Payer account public key: ", payer.publicKey);
-  console.log("Mint public key: ", mint);
-  console.log("Our token account public key: ", ourTokenAccount);
-  console.log("Other token account public key: ", otherTokenAccount);
+	console.log("Payer account public key (bob): ", bob.publicKey)
+	console.log("Alice public key: ", alice.publicKey)
+  console.log("Mint public key: ", mint)
+  console.log("Bob token account public key: ", bobTokenAccount)
+  console.log("Alice token account public key: ", aliceTokenAccount)
 
   // - Create Mint Account
   // - Create Token Account
@@ -167,16 +227,16 @@ return await sendAndConfirmTransaction(
 Lastly, add a call to `createToken22MintWithDefaultState` from `main` and log the transaction signature. Then feel free to run `npm run start` to see that the script runs and creates a new mint.
 
 ```ts
-  // - Create Mint Account
-  const createMintSignature = await createToken22MintWithDefaultState(
-    connection,
-    payer,
-    mintKeypair,
-    mintDecimals,
-    defaultAccountState
-  )
+// - Create Mint Account
+const createMintSignature = await createToken22MintWithDefaultState(
+  connection,
+  bob,
+  mintKeypair,
+  mintDecimals,
+  defaultAccountState
+)
 
-  console.log("Mint account created: ", createMintSignature)
+console.log("Mint account created: ", createMintSignature)
 ```
 
 ### 4. Create Token Account
@@ -187,6 +247,7 @@ Now we can move on to the token account. Create a file inside of src named `toke
 - CPI Guard
 
 Import the required functions and extensions from `@solana/spl-token` and `@solana/web3.js`, then create the `createTokenAccountWithExtensions` function.
+
 ```ts
 import { ExtensionType,
   TOKEN_2022_PROGRAM_ID,
@@ -216,9 +277,14 @@ export async function createTokenAccountWithExtensions(
 }
 ```
 
-Inside of `createTokenAccountWithExtensions`, declare the following variables required to create the token account instruction.
+Inside of `createTokenAccountWithExtensions`, we'll build the instructions needed to set up a new associated token account. This will require five instructions:
+1. Create account - The System Program instruction for allocating a new account
+2. Initialize immutable owner extension - The Token22 instruction for initializing the immutable owner extension on the new account
+3. Initialize token account - The instruction for initializing an account as a token account
+4. Initialize required memo extension - The Token22 instruction for initializing the required memo extension on the new account
+5. Initialize CPI guard extension - The Token22 instruction for initializing the CPI guard extension on the new account
 
-@TODO EXPLAIN SPACE
+The order shown above is required for the first three instructions. The required memo and CPI guard extensions must be initialized after the token account is initialized but otherwise don't need to be in any particular order.
 
 ```ts
 const tokenAccount = tokenAccountKeypair.publicKey;
@@ -284,47 +350,30 @@ return await sendAndConfirmTransaction(
 );
 ```
 
-Thats it for the helpers! Now we have the ability to create the mint and token accounts with the required Token 2022 Program extensions.
+Notice that before building the `createAccount` instruction, we needed to compute the length required for the account by using the `getAccountLen` function and passing it an array of all the extensions we planned to add to the token account.
 
-### 5. Create mint and token accounts
-In `index.ts`, underneath the current code inside the `main` function, call the functions we previously created and added to `mint-helpers` and `token-helpers` to create the mint and accounts.
+Thats it for the helpers! Add two calls to `createTokenAccountWithExtensions` from `main` for `bob` and `alice` and log the transaction signature. Feel free to run `npm run start` to see that the script runs, creates a new mint, and creates two token accounts that we can use in the next steps for running some tests.
 
 ```ts
-async function main() {
-  // Previous variable declarations
-  
-  // Invoke mint creation
-  const createMintSignature = await createToken22MintWithDefaultState(
-    connection,
-    payer,
-    mintKeypair,
-    mintDecimals,
-    defaultAccountState
-  );
+const createBobTokenAccountSignature = await createTokenAccountWithExtensions(
+	connection,
+	mint,
+	bob,
+	bob,
+	bobTokenAccountKeypair
+)
 
-  // Create token accounts
-  // Note: We create a second account which we will use later to test transferring tokens to
-  const createOurTokenAccountSignature = await createTokenAccountWithExtensions(
-    connection,
-    mint,
-    payer,
-	  payer,
-    ourTokenAccountKeypair
-  );
-
-  const createOtherTokenAccountSignature = await createTokenAccountWithExtensions(
-    connection,
-    mint,
-	  payer,
-	  otherOwner,
-    otherTokenAccountKeypair
-  );
-}
-
+const createAliceTokenAccountSignature = await createTokenAccountWithExtensions(
+	connection,
+	mint,
+	bob,
+	alice,
+	aliceTokenAccountKeypair
+)
 ```
-Now you can run `npm run start` and all of the relevant public keys will be logged in the console.
 
-### 6. Add Tests
+#### 5. Test default account state
+
 We're all set up and ready to start testing that our mint and accounts with extensions are working as intended. Lets go through step by step to add the test cases and learn about what each one does, respectively. 
 
 We will be declaring all of the test functions separately and then invoking them inside the `main` script. You can run the tests as you add them by running `npm run start`.
@@ -365,7 +414,7 @@ async function testMintWithoutThawing(inputs:
       TOKEN_2022_PROGRAM_ID
     );
 
-    console.error("Should not have minted...");
+    console.error("❌ - Should not have minted...");
   } catch (error) {
     console.log(
       "✅ - We expected this to fail because the account is still frozen."
