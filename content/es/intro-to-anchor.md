@@ -506,8 +506,8 @@ Ejecutar `anchor build` para construir el programa.
 Las pruebas de anclaje son típicamente pruebas de integración de Typescript que utilizan el marco de prueba mocha. Aprenderemos más sobre las pruebas más adelante, pero por ahora navegue `anchor-counter.ts` y reemplace el código de prueba predeterminado con lo siguiente:
 
 ```typescript
-import * as anchor from "@project-serum/anchor";
-import { Program } from "@project-serum/anchor";
+import * as anchor from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
 import { expect } from "chai";
 import { AnchorCounter } from "../target/types/anchor_counter";
 

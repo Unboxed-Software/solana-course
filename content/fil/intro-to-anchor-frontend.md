@@ -12,14 +12,14 @@ objectives:
 # TL;DR
 
 - Ang **IDL** ay isang file na kumakatawan sa istruktura ng isang Solana program. Ang mga program na isinulat at binuo gamit ang Anchor ay awtomatikong bumubuo ng kaukulang IDL. Ang ibig sabihin ng IDL ay Interface Description Language.
-- Ang `@project-serum/anchor` ay isang Typescript client na kinabibilangan ng lahat ng kakailanganin mo para makipag-ugnayan sa mga Anchor program
+- Ang `@coral-xyz/anchor` ay isang Typescript client na kinabibilangan ng lahat ng kakailanganin mo para makipag-ugnayan sa mga Anchor program
 - Isang bagay na **Anchor `Provider`** ang isang `koneksyon` sa isang cluster at isang tinukoy na `wallet` upang paganahin ang pag-sign ng transaksyon
 - Isang bagay na **Anchor `Program`** ay nagbibigay ng custom na API upang makipag-ugnayan sa isang partikular na program. Lumilikha ka ng instance ng `Program` gamit ang IDL at `Provider` ng isang program.
 - Ang **Anchor `MethodsBuilder`** ay nagbibigay ng isang simpleng interface sa pamamagitan ng `Program` para sa mga tagubilin sa pagbuo at mga transaksyon
 
 # Overview
 
-Pinapasimple ng Anchor ang proseso ng pakikipag-ugnayan sa mga program ng Solana mula sa kliyente sa pamamagitan ng pagbibigay ng file ng Interface Description Language (IDL) na sumasalamin sa istruktura ng isang programa. Ang paggamit ng IDL kasabay ng Anchor's Typescript library (`@project-serum/anchor`) ay nagbibigay ng pinasimpleng format para sa pagbuo ng mga tagubilin at transaksyon.
+Pinapasimple ng Anchor ang proseso ng pakikipag-ugnayan sa mga program ng Solana mula sa kliyente sa pamamagitan ng pagbibigay ng file ng Interface Description Language (IDL) na sumasalamin sa istruktura ng isang programa. Ang paggamit ng IDL kasabay ng Anchor's Typescript library (`@coral-xyz/anchor`) ay nagbibigay ng pinasimpleng format para sa pagbuo ng mga tagubilin at transaksyon.
 
 ```tsx
 // sends transaction
@@ -30,7 +30,7 @@ await program.methods
   .rpc()
 ```
 
-Gumagana ito mula sa alinmang Typescript client, ito man ay isang frontend o integration test. Sa araling ito, tatalakayin natin kung paano gamitin ang `@project-serum/anchor` upang pasimplehin ang iyong pakikipag-ugnayan sa programa sa panig ng kliyente.
+Gumagana ito mula sa alinmang Typescript client, ito man ay isang frontend o integration test. Sa araling ito, tatalakayin natin kung paano gamitin ang `@coral-xyz/anchor` upang pasimplehin ang iyong pakikipag-ugnayan sa programa sa panig ng kliyente.
 
 ## Anchor client-side structure
 
@@ -110,7 +110,7 @@ Kung titingnan sa ibaba ang seksyong `account`, makikita mo na ang program ay na
 
 Bagama't hindi ibinibigay ng IDL ang mga detalye ng pagpapatupad para sa bawat pagtuturo, makakakuha tayo ng pangunahing ideya kung paano inaasahan ng on-chain program ang mga tagubilin na mabuo at makita ang istruktura ng mga account ng programa.
 
-Hindi alintana kung paano mo ito makuha, *kailangan mo* ng IDL file para makipag-ugnayan sa isang program gamit ang `@project-serum/anchor` package. Upang magamit ang IDL, kakailanganin mong isama ang IDL file sa iyong proyekto at pagkatapos ay i-import ang file.
+Hindi alintana kung paano mo ito makuha, *kailangan mo* ng IDL file para makipag-ugnayan sa isang program gamit ang `@coral-xyz/anchor` package. Upang magamit ang IDL, kakailanganin mong isama ang IDL file sa iyong proyekto at pagkatapos ay i-import ang file.
 
 ```tsx
 import idl from "./idl.json"
@@ -179,7 +179,7 @@ export interface WalletContextState {
 
 Ang `WalletContextState` ay nagbibigay ng mas maraming functionality kumpara sa `AnchorWallet`, ngunit ang `AnchorWallet` ay kinakailangan upang i-set up ang `Provider` object.
 
-Upang gawin ang object na `Provider` ginagamit mo ang `AnchorProvider` mula sa `@project-serum/anchor`.
+Upang gawin ang object na `Provider` ginagamit mo ang `AnchorProvider` mula sa `@coral-xyz/anchor`.
 
 Ang `AnchorProvider` constructor ay tumatagal ng tatlong parameter:
 
@@ -191,7 +191,7 @@ Kapag nagawa mo na ang object na `Provider`, itatakda mo ito bilang default prov
 
 ```tsx
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react"
-import { AnchorProvider, setProvider } from "@project-serum/anchor"
+import { AnchorProvider, setProvider } from "@coral-xyz/anchor"
 
 const { connection } = useConnection()
 const wallet = useAnchorWallet()
@@ -209,7 +209,7 @@ Kapag mayroon ka nang IDL at isang provider, maaari kang lumikha ng isang instan
 
 Gumagawa ang object ng `Program` ng custom na API na magagamit mo para makipag-ugnayan sa isang Solana program. Ang API na ito ay ang one stop shop para sa lahat ng bagay na nauugnay sa pakikipag-ugnayan sa mga on-chain na programa. Sa iba pang mga bagay, maaari kang magpadala ng mga transaksyon, kumuha ng mga deserialized na account, mag-decode ng data ng pagtuturo, mag-subscribe sa mga pagbabago sa account, at makinig sa mga kaganapan. Maaari ka ring [matuto nang higit pa tungkol sa klase ng `Program`](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
 
-Upang gawin ang object na `Program`, i-import muna ang `Program` at `Idl` mula sa `@project-serum/anchor`. Ang `Idl` ay isang uri na magagamit mo kapag nagtatrabaho sa Typescript.
+Upang gawin ang object na `Program`, i-import muna ang `Program` at `Idl` mula sa `@coral-xyz/anchor`. Ang `Idl` ay isang uri na magagamit mo kapag nagtatrabaho sa Typescript.
 
 Susunod, tukuyin ang `programId` ng program. Kailangan nating tahasan na sabihin ang `programId` dahil maaaring mayroong maraming mga program na may parehong istraktura ng IDL (ibig sabihin, kung ang parehong programa ay na-deploy nang maraming beses gamit ang iba't ibang mga address). Kapag nililikha ang object na `Program`, ginagamit ang default na `Provider` kung ang isa ay hindi tahasang tinukoy.
 
@@ -223,7 +223,7 @@ import {
   Idl,
   AnchorProvider,
   setProvider,
-} from "@project-serum/anchor"
+} from "@coral-xyz/anchor"
 
 const { connection } = useConnection()
 const wallet = useAnchorWallet()
