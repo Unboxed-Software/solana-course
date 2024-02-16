@@ -214,8 +214,8 @@ The test file includes the setup to create an account by invoking the system pro
 Since there are no checks the verify that the account data has not already been initialized, the `insecure_initialization` instruction will complete successfully both times, despite the second invocation providing a *different* authority account.
 
 ```tsx
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { expect } from "chai"
 import { Initialization } from "../target/types/initialization"
 

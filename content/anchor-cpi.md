@@ -457,8 +457,8 @@ Those are all of the changes we need to make to the program! Now, let’s update
 Start by making sure your imports nad `describe` function look like this:
 
 ```typescript
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { expect } from "chai"
 import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token"
 import { AnchorMovieReviewProgram } from "../target/types/anchor_movie_review_program"

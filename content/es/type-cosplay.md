@@ -258,8 +258,8 @@ Ahora en su `programs` carpeta tendrá dos programas. Ejecute `anchor keys list`
 A continuación, actualice la configuración del archivo de prueba para incluir el nuevo programa y dos nuevos pares de teclas para las cuentas que iniciaremos para el nuevo programa.
 
 ```tsx
-import * as anchor from "@project-serum/anchor";
-import { Program } from "@project-serum/anchor";
+import * as anchor from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
 import { TypeCosplay } from "../target/types/type_cosplay";
 import { TypeChecked } from "../target/types/type_checked";
 import { expect } from "chai";
