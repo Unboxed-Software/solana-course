@@ -125,18 +125,16 @@ All transactions on the blockchain are publicly viewable on the [Solana Explorer
 
 # Lab
 
-We’re going to create a script to send SOL to other students.
+We’re going to create a script `transfer.ts` to send SOL to other students.
 
 ### 1. Basic scaffolding
 
 We'll start by using the same packages and `.env` file we made earlier in [intro to cryptography](./intro-to-cryptography).
 
 ```typescript
-import web3 from "@solana/web3.js";
-import dotenv from "dotenv";
 import { getKeypairFromEnvironment } from "@solana-developers/node-helpers"
-
-dotenv.config();
+import web3 from "@solana/web3.js";
+import "dotenv/config";
 ```
 
 ### 2. Create a connection
@@ -144,20 +142,13 @@ dotenv.config();
 Let's create a connection:
 
 ```typescript
-import {
-  Connection,
-  Transaction,
-  SystemProgram,
-  sendAndConfirmTransaction,
-  PublicKey,
-} from "@solana/web3.js";
-import "dotenv/config"
-import { getKeypairFromEnvironment } from "@solana-developers/helpers";
+const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+```
 
 ### 3. Ping Program
 Now create an async function called `pingProgram()` with two parameters requiring a connection and payer’s keypair as arguments:
 
-```tsx
+```typescript
 async function pingProgram(connection: web3.Connection, payer: web3.Keypair) { }
 ```
 
@@ -168,18 +159,16 @@ Inside this function, we need to:
 3. add the instruction to the transaction
 4. send the transaction.
 
-Remember, the most challenging piece here is including the right information in the instruction. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the `index.ts` file:
+Remember, the most challenging piece here is including the right information in the instruction. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the `transfer.ts` file:
 
 ```typescript
-dotenv.config();
-
 const PING_PROGRAM_ADDRESS = new web3.PublicKey('ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa')
 const PING_PROGRAM_DATA_ADDRESS =  new web3.PublicKey('Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod')
 ```
 
 Now, in the `pingProgram()` function, let’s create a new transaction, then initialize a `PublicKey` for the program account, and another for the data account.
 
-```tsx
+```typescript
 async function pingProgram(
   connection: web3.Connection,
   payer: web3.Keypair
@@ -235,7 +224,8 @@ const signature = await web3.sendAndConfirmTransaction(
   [payer]
 )
 
-const transaction = new Transaction();
+console.log(`Signature: ${signature}`);
+```
 
 ### 4. Run the program
 Now call the `pingProgram()` 
@@ -243,7 +233,7 @@ Now call the `pingProgram()`
 ```typescript
 try {
   const payer = getKeypairFromEnvironment("SECRET_KEY");
-  console.log(` ✅ Loaded payer keypair ${payer.publicKey.toBase58()}`);
+  console.log(` ✅ Loaded payer keypair: ${payer.publicKey.toBase58()}`);
 
   await pingProgram(connection, payer);
 } catch (err) {
@@ -253,10 +243,17 @@ try {
 
 ### 5. Check the Solana explorer
 
-Now run the code again. It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
+Now run the code.
 
 ```
 npx esrun transfer.ts (destination wallet address)
+```
+
+It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
+
+```
+ ✅ Loaded payer keypair: E19JjB2TgbksiLEbtoX8d8F843GmsPUz3Kd974duoxTU
+Signature: 27xWGp5wbs6QyoiMTF5J1WWLQf7J5iTUDN2T1gSENxu2KSKyfWAPKYcPqydwJbkBVMEuZPEuEGcmJze3GG87T3jt
 ```
 
 # Challenge
