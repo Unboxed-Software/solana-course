@@ -1,3 +1,29 @@
+# Supporting Token22 in on-chain programs
+
+# Objectives
+
+# TL;DR
+
+# Overview
+
+## Difference between legacy Token Program and Token22 Program
+- byte for byte the same until the last instruction on the legacy Token program, after which the Token22 program has additional instructions
+- Hammer home that all token accounts either belong to one or the other - they are not interoperable (tokens from one must be used with that one, not other)
+- Mention what the additional instructions on Token22 are
+
+## How to determine which program owns a particular token
+
+## Tools provided by Anchor for handling multiple token programs
+- Interfaces are the newest way to deserialize account types
+- `anchor_spl::token_interface` crate works with either program - just pass the appropriate program ID
+- Add Anchor constraints that verify that tokens belong to the stated program
+- Example of each interface 
+  - deserializing a token account
+  - deserializing a mint account
+  - same thing with the token program
+- Potentially show how the interfaces are working under the hood
+
+
 # Lab
 
 ### Explain what we're building, bird's eye view
