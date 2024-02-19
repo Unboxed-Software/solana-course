@@ -1,3 +1,60 @@
+# Overview
+
+## NFT with metadata pointer
+
+1. The mint length changes when you add extensions
+2. 
+
+- It starts by getting the metadataPDA using `getMetadataAccountAddressOnMetaplex`, which we talked about above.
+- Counting the amount of lamports we will need to allocate the mint account, taking into consideration that we are using the metadata-pointer extension because it will increase the size of the mint since we will have to store a bit more data in it than usual (the metadata-pointer and the authority, who can change this metadata-pointer in the future).
+
+```ts
+const mintLen = getMintLen([ExtensionType.MetadataPointer]);
+const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
+```
+
+- Create the mint account instruction, which is where we allocate the mint and pay the rent fee.
+
+```ts
+const createMintAccountInstructions = web3.SystemProgram.createAccount({
+  fromPubkey: payer.publicKey,
+  lamports,
+  newAccountPubkey: mint.publicKey,
+  programId: TOKEN_2022_PROGRAM_ID,
+  space: mintLen,
+});
+```
+
+- create the initialize metadata-pointer instruction, in this instruction we will initialize the metadata pointer even though we didn't have the metadata account yet, we will create it later, notice that in the code we are setting the metadata-pointer authority to `none`, at the time we are writing this lesson metaplex SDK was giving an error if we set that authority to anyone, so we had to leave it like that
+```ts
+const initMetadataPointerInstructions = createInitializeMetadataPointerInstruction(
+  mint.publicKey, // Token mint account  
+  null, // Optional Authority that can set the metadata address  
+  metadataPDA, // Optional Account address that holds the metadata  
+  TOKEN_2022_PROGRAM_ID, // SPL Token program account  
+);
+```
+- then `createInitializeMintInstruction`: which will initialize the account we allocated before as a mint
+```ts
+const initMintInstructions = createInitializeMintInstruction(
+  mint.publicKey,
+  decimals,
+  payer.publicKey, // Minting authority  
+  payer.publicKey, // Freeze authority
+  TOKEN_2022_PROGRAM_ID,
+);
+
+```
+
+- The last step for this is to return a list of the three instruction we made above, keep in mind that the order here is important and we need to always execute the instruction in this specific order
+```ts
+return [
+  createMintAccountInstructions, // first we need to allocate the account, and pay the rent fee
+  initMetadataPointerInstructions, // second we need to init the pointer, if you init the mint before the pointer it will return an error
+  initMintInstructions, // now we can go ahead and init the mint
+];
+```
+
 # Lab
 
 Now it is time to practice what we have learned so far. In this lab, we will create a script that will illustrate how to create an NFT with `metadata-pointer-extension` pointing to a metadata account somewhere else, and we will also create an NFT with metadata embedded in the mint account itself using the `metadata-extension`
@@ -195,79 +252,23 @@ function getMetadataAccountAddressOnMetaplex(mintPublicKey: web3.PublicKey) {
 }
 ```
 
-Now that we can easily get our metadata account address, we can write our primary function `getCreateMintWithMetadataPointerInstructions`.
-
-#### Imports explanation:
-
-**From `@solana/spl-token`:**
-
-- **`createInitializeMetadataPointerInstruction`:** Initializes a "metadata pointer" account linking an SPL Token account with its metadata account.
-- **`createInitializeMintInstruction`:** Creates an instruction to initialize a new SPL Token mint.
-- **`ExtensionType`:** Specifies additional features that can be added to token accounts or mints.
-- **`getMintLen`:** Retrieves the byte size required for storing a mint account on the blockchain.
-- **`TOKEN_2022_PROGRAM_ID`:** The program ID of the SPL Token program, necessary for interacting with SPL tokens.
-
-After that, we have the interface `CreateMintWithMetadataPointerInstructionsInputs`, which represents the inputs this function needs to work properly. Finally, we have the function itself.
-
-#### Function logic explanation:
-
-Our function does four primary things:
-1. Builds an instruction for allocating a new account
-2. Builds an instruction for initializing the new account for the metadata pointer extension
-3. Builds an instruction initializing the new account as a token mint
-4. Returns an array of the above instructions in the proper order
-
-
-
-- It starts by getting the metadataPDA using `getMetadataAccountAddressOnMetaplex`, which we talked about above.
-- Counting the amount of lamports we will need to allocate the mint account, taking into consideration that we are using the metadata-pointer extension because it will increase the size of the mint since we will have to store a bit more data in it than usual (the metadata-pointer and the authority, who can change this metadata-pointer in the future).
+Next, let's create an interface that represents the inputs we'll need to work with. We'll call it `CreateMintWithMetadataPointerInstructionsInputs`:
 
 ```ts
-const mintLen = getMintLen([ExtensionType.MetadataPointer]);
-const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
+interface CreateMintWithMetadataPointerInstructionsInputs {
+  mint: web3.Keypair; // The mint account that will be created.
+  payer: web3.Keypair; // The account that will pay for the creation of the mint.
+  connection: web3.Connection; // The Solana blockchain connection.
+  decimals: number; // The number of decimals in the token account amounts.
+}
 ```
 
-- Create the mint account instruction, which is where we allocate the mint and pay the rent fee.
-
-```ts
-const createMintAccountInstructions = web3.SystemProgram.createAccount({
-  fromPubkey: payer.publicKey,
-  lamports,
-  newAccountPubkey: mint.publicKey,
-  programId: TOKEN_2022_PROGRAM_ID,
-  space: mintLen,
-});
-```
-
-- create the initialize metadata-pointer instruction, in this instruction we will initialize the metadata pointer even though we didn't have the metadata account yet, we will create it later, notice that in the code we are setting the metadata-pointer authority to `none`, at the time we are writing this lesson metaplex SDK was giving an error if we set that authority to anyone, so we had to leave it like that
-```ts
-const initMetadataPointerInstructions = createInitializeMetadataPointerInstruction(
-  mint.publicKey, // Token mint account  
-  null, // Optional Authority that can set the metadata address  
-  metadataPDA, // Optional Account address that holds the metadata  
-  TOKEN_2022_PROGRAM_ID, // SPL Token program account  
-);
-```
-- then `createInitializeMintInstruction`: which will initialize the account we allocated before as a mint
-```ts
-const initMintInstructions = createInitializeMintInstruction(
-  mint.publicKey,
-  decimals,
-  payer.publicKey, // Minting authority  
-  payer.publicKey, // Freeze authority
-  TOKEN_2022_PROGRAM_ID,
-);
-
-```
-
-- The last step for this is to return a list of the three instruction we made above, keep in mind that the order here is important and we need to always execute the instruction in this specific order
-```ts
-return [
-  createMintAccountInstructions, // first we need to allocate the account, and pay the rent fee
-  initMetadataPointerInstructions, // second we need to init the pointer, if you init the mint before the pointer it will return an error
-  initMintInstructions, // now we can go ahead and init the mint
-];
-```
+Now we can write our primary function `getCreateMintWithMetadataPointerInstructions`. Our function will do five things:
+1. Derive the metadata account address
+2. Build an instruction for allocating a new account
+3. Build an instruction for initializing the new account for the metadata pointer extension
+4. Build an instruction initializing the new account as a token mint
+5. Return an array of the above instructions in the proper order
 
 ```ts
 // other imports...
@@ -282,19 +283,14 @@ import {
 
 // other code...
 
-interface CreateMintWithMetadataPointerInstructionsInputs {
-  mint: web3.Keypair; // The mint account that will be created.
-  payer: web3.Keypair; // The account that will pay for the creation of the mint.
-  connection: web3.Connection; // The Solana blockchain connection.
-  decimals: number; // The number of decimals in the token account amounts.
-}
-
 async function getCreateMintWithMetadataPointerInstructions(
   inputs: CreateMintWithMetadataPointerInstructionsInputs,
 ): Promise<web3.TransactionInstruction[]> {
   const { mint, payer, connection, decimals } = inputs;
+  // 1. Derive the metadata account address
   const metadataPDA = getMetadataAccountAddressOnMetaplex(mint.publicKey);
 
+  // 2. Create a new account
   const mintLen = getMintLen([ExtensionType.MetadataPointer]);
   const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
@@ -306,7 +302,8 @@ async function getCreateMintWithMetadataPointerInstructions(
     space: mintLen,
   });
 
-  // We will point to the Metaplex metadata account, but for now, it will not be there. We will have to create it later.
+  // 3. Initialize the account to use the metadata pointer instruction
+  // We will point to the Metaplex metadata account but note it doesn't exist yet
   const initMetadataPointerInstructions = createInitializeMetadataPointerInstruction(
     mint.publicKey,
     null,
@@ -314,6 +311,7 @@ async function getCreateMintWithMetadataPointerInstructions(
     TOKEN_2022_PROGRAM_ID,
   );
 
+  // 4. Initialize the account as a token mint
   const initMintInstructions = createInitializeMintInstruction(
     mint.publicKey,
     decimals,
@@ -322,6 +320,7 @@ async function getCreateMintWithMetadataPointerInstructions(
     TOKEN_2022_PROGRAM_ID,
   );
 
+  // 5. Return the instructions in the appropriate order
   return [
     // The order here matters
     createMintAccountInstructions, // First, we need to allocate the account and pay the rent fee.
