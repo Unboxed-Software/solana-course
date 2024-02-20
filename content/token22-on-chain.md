@@ -37,6 +37,54 @@ All new instructions in Token-2022 start where Token stops. Token has 25 unique 
 
 ## How to determine which program owns a particular token
 
+There may be times where you might want to know what type of token/mint account has been passed into your program. In anchor, if you'd like to enforce that only accounts of a specific token program are passed in you can do so via account constraints. The `token_program` anchor SPL constraint can be used for this.
+
+TODO: how to check which program an account belongs to in instruction logic. If spl-token do x, if token22 do y.
+
+```rust
+use spl_token::ID;
+
+// verify given token/mint accounts belong to the spl-token program
+#[account(
+    mint::token_program = ID,
+)]
+pub token_a_mint: Box>,
+#[account(
+    token::token_program = ID,
+)]
+pub token_a_account: Box>,
+```
+
+You can do the same thing for `Token22`. THe only difference is the pubkey that we are importing and using in the account constraint.
+```rust
+use anchor_spl::token_2022::ID;
+
+// verify given token/mint accounts belong to the token22 program
+#[account(
+    mint::token_program = ID,
+)]
+pub token_a_mint: Box>,
+#[account(
+    token::token_program = ID,
+)]
+pub token_a_account: Box>,
+```
+
+Given that all accounts involved in an instruction are required to be passed in, a client could potentially pass in the incorrect token program and/or accounts. You can actually verify that the token accounts passed in to your program belong to the token program that was passed in as well. You would do this similarly to the previous examples, but instead of passing in the static `ID` of the token program you check the give `token_program`.
+
+```rust
+// verify the given token and mint accounts match the given token_program
+#[account(
+    mint::token_program = token_program,
+)]
+pub token_a_mint: Box>,
+#[account(
+    token::token_program = token_program,
+)]
+pub token_a_account: Box>,
+pub token_program: Interface<'info, token_interface::TokenInterface>,
+```
+
 ## Tools provided by Anchor for handling multiple token programs
 - Interfaces are the newest way to deserialize account types
 - `anchor_spl::token_interface` crate works with either program - just pass the appropriate program ID
