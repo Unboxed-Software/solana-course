@@ -1,12 +1,41 @@
+# Supporting Token22 from a Client
+
+# Objectives
+
+# TL;DR
+
 # Overview
+
+In Solana's token ecosystem, the interfaces for both the legacy token program and Token 2022 token program remain consistent, allowing the use of common `spl-token` helper functions across different token programs by simply swapping the program ID. By default, if no program ID is provided, the functions revert to using the legacy token program. It's crucial to identify the program that owns a token whenever interacting with it. This information should be dynamically retrieved at the point of interaction. There are multiple ways top achieve this. For example, we can create a local database to store metadata about token mints, including the owning program. But in some cases, this might not be feasible. In that case, with the help of `spl-token` helper functions, we can fetch the owning program. We will see how to use those functions shortly. Most user interfaces will not differentiate between legacy tokens and Token22 tokens, necessitating logic to fetch and merge information from both types for a seamless experience.
 
 ## Differences between working with legacy tokens and Token22 tokens
 
-When creating tokens, the only thing you need to worry about is pointing your code to the correct Token program. If you want to create tokens using the legacy Token program, you need to ensure that you point to that program. if you want to create using the Token22 program you need to ensure that you point to the Token22 program.
+When interacting with mints and tokens, the only thing you need to worry about is pointing your code to the correct Token program. If you want to create tokens using the legacy Token program, you need to ensure that you point to that program. If you want to create using the Token22 program you need to ensure that you point to the Token22 program.
 
 Fortunately, the `spl-token` package makes it easy to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants and all of its helper functions for creating and minting tokens take a program ID as input.
 
 NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to Token22, otherwise you will get the following error: `TokenInvalidAccountOwnerError`.
+
+## How to fetch both legacy and Token22 tokens
+
+If we have access to the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID`, we can use that directly with the wallet's public key to fetch token accounts owned by that wallet.
+```ts
+const tokenAccounts = await connection.getTokenAccountsByOwner(
+	keyPair.publicKey,
+	{programId}
+)
+```
+
+## Check owning program
+
+In some cases, we might not have access to the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID`. In that case, we can fetch the owning program ID for any mint account and use that program ID to differentiate between legacy tokens and Token22 tokens.
+```ts
+  const accountInfo = await connection.getParsedAccountInfo(accountPublicKey);
+  if (accountInfo.value === null) {
+    throw new Error('Account not found');
+  }
+  const programId = accountInfo.value.owner;
+```
 
 # Lab - Add Token22 support to a script
 
@@ -97,12 +126,6 @@ We'll be using this function to print information about tokens and their mints i
 Lastly, `index.ts` has a `main` function that creates a connection to the specified cluster and calls `initializeKeypair`. This `main` function is where we'll end up calling the rest of our script once we've written it.
 
 ### 3. Create legacy and Token22 mints
-
-When creating tokens, the only thing you need to worry about is pointing your code to the correct Token program. If you want to create tokens using the legacy Token program, you need to ensure that you point to that program. if you want to create using the Token22 program you need to ensure that you point to the Token22 program.
-
-Fortunately, the `spl-token` package makes it easy to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants and all of its helper functions for creating and minting tokens take a program ID as input.
-
-NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to Token22, otherwise you will get the following error: `TokenInvalidAccountOwnerError`.
 
 Let's start by creating new token mints using both the legacy Token program and the Token22 program. Define a function called `createAndMintToken`. For now, we'll just create the token mint in this function, but in a later step we'll add minting. This function should take the following arguments:
 - `cluster` - the cluster you're pointing to (i.e. Devnet vs Localnet)
@@ -246,11 +269,7 @@ Now you can run the project again. You'll see that not only are the two token mi
 
 ### 5. Fetch legacy and Token22 tokens
 
-There are two ways in which we can fetch tokens:
-- Fetching associated token accounts by owner
-- Fetching token account owner before fetching tokens
-
-To fetching associated token accounts by owner, we just need to specify the program ID to differentiate between legacy tokens and Token 2022 tokens. Create the function `fetchTokenInfo`. This function should take following arguments:
+We can now fetch tokens using the owner's public key and the program ID. Create the function `fetchTokenInfo` inside of `fetch-token-info.ts` with the following arguments:
  - `connection` - the connection object to use
  - `keyPair` - the keypair to find associated token accounts for
  - `programId` - the token program to point to
@@ -313,8 +332,7 @@ async function main() {
 
 Now you can run the project again. You will see information about both the legacy tokens and the Token22 tokens.
 
-
-The other option is that we fetch the program ID associated with the mint beforehand. Then use this program ID to fetch the tokens. Let's add the function `fetchTokenProgramFromAccount`. It should take following arguments:
+If you don't have the program ID, we can get it from the mint account. Let's add the function `fetchTokenProgramFromAccount` to `fetch-token-info.ts` and have it take the following arguments:
  - `connection` - the connection object to use
  - `accountPublicKey` - public key of the mint account
 
@@ -334,16 +352,16 @@ export async function fetchTokenProgramFromAccount(
 }
 ```
 
-When this function is called with a legacy mint account's public key, it will return the legacy token program ID. Similarly, when called with the Token22 mint account's public key, it will return the Token22 program ID. Let's use this function in `index.ts` to fetch the tokens.
+This function will return the mint account's program ID. This works the same for both Legacy and Token22 mint accounts. Let's use this function in `index.ts` to fetch the tokens.
 
 ```ts
 async function main(){
   ...
   const legacyMintTokenProgram = await fetchTokenProgramFromAccount(connection, legacyMint);
-	const token22MintTokenProgram = await fetchTokenProgramFromAccount(connection, token22Mint);
+  const token22MintTokenProgram = await fetchTokenProgramFromAccount(connection, token22Mint);
 
   if(!legacyMintTokenProgram.equals(TOKEN_PROGRAM_ID)) throw new Error('Legacy mint token program is not correct');
-	if(!token22MintTokenProgram.equals(TOKEN_2022_PROGRAM_ID)) throw new Error('Token22 mint token program is not correct');
+  if(!token22MintTokenProgram.equals(TOKEN_2022_PROGRAM_ID)) throw new Error('Token22 mint token program is not correct');
 
 
   //now use this program id to fetch tokens
@@ -359,7 +377,7 @@ async function main(){
 }
 ```
 
-Now you can run the project again. You will see similar output as in option one.
+Now you can run the project again. You will see similar output as in option one where you'll see the Legacy and Token22 tokens owned by the user.
 
 That's it! If you get stuck at any step, you can find the complete code in [this lab's repository's](https://github.com/Unboxed-Software/token22-in-the-client/) `main` branch.
 
