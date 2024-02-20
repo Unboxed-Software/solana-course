@@ -102,6 +102,9 @@ Because we are going to store the metadata in the mint itself, that means the mi
   - yes even though we are using the metadata extension, we still have to use the metadata pointer extension on the mint, but in this case the pointer will hold the mint address itself, this will ensure consistency, so we will have to store the metadata pointer data as well, which are:
     1. the metadata account address.
     1. the authority that can change the metadata pointer in the future.
+
+to do so we will have to use the method `getMintLen` from the `@solana/spl-token` library, that will give us the mint length with the metadata-pointer, also we will have to use the method pack from `@solana/spl-token-metadata` library, which will take the metadata object and return the numbers of bytes needed to store the metadata, here is the code snippet for it:
+
 ```ts
 const mintLen = getMintLen([ExtensionType.MetadataPointer]);
 const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
@@ -349,18 +352,17 @@ To solve this problem, Solana introduced an extension called `metadata-pointer` 
 
 As a best practice when writing scripts that engage with the Solana network, it is best to consolidate all of our instructions in one transaction due to the atomic nature of transactions. This ensures either the successful execution of all instructions or a complete rollback in case of errors. This approach promotes data consistency, improves efficiency by reducing latency and optimizing block space, and enhances code readability. Additionally, it minimizes inter-transaction dependencies, making it easier to track and manage the flow of operations, therefore in the code, we will write a few methods that will guide the way, and each one will return one or more instructions. The outline of this process is as follows:
 
-@TODO - update the list below to be more like this point, i.e. describe what we're going to do in each step rather than list the name of the function we're going to create.
-
 1. Create a mint with the metadata pointer extension - we'll first create a helper function that returns the instructions needed to create a mint with a pointer to a separate metadata account. We'll call this function `getCreateMintWithMetadataPointerInstructions`.
+2. Create the metadata account - we'll then create a helper function that returns the instructions needed to create the metadata account on Metaplex and store the metadata in it. We'll call this function `getCreateMetadataAccountOnMetaplexInstructions`.
+3. Create a wrapper function that will call the two functions above and then mint the NFT, we will call this function `createNFTWithMetadataPointer`, and it will:
+  1. Call `getCreateMintWithMetadataPointerInstructions` and `getCreateMetadataAccountOnMetaplexInstructions` to get the instructions needed to create the mint and the metadata account.
+  2. Create the associated token account.
+  3. Mint the NFT into the associated token account.
+  4. Set the authority to an account. It will be used to remove the mint authority, because for the token to be considered as NFT in the Solana network, it has to have a supply of 1 and no one should be able to mint any more tokens, so the mint authority should be `None`.
+  5. Put all of that in one transaction and send it to the network - we'll then put all of that in one transaction and send it to the network.
+  6. fetch and print the mint account and the token account to make sure that it is working correctly.
+4. Call the `createNFTWithMetadataPointer` method in the `main` method and run the code to test it.
 
-2. `getCreateMintWithMetadataPointerInstructions`: returns Instructions to create the mint with a pointer to the metadata account. **(we will build this)**
-3. `getCreateMetadataAccountOnMetaplexInstructions`: returns Instructions to create the metadata account and store the metadata in it. **(we will build this)**
-4. `createNFTWithMetadataPointer`: the main method that will call both of the above methods and some other built-in methods to create the NFT with a metadata pointer, the built-in methods are
-   1. `createAssociatedTokenAccountInstruction`: returns Instructions to create the associated token account **(we will import this from `@solana/spl-token` library)**
-   2. `createMintToCheckedInstruction`: returns Instructions to mint the NFT into the associated token account **(we will import this from `@solana/spl-token` library)**
-   3. `createSetAuthorityInstruction`: returns Instructions to set the authority to an account. It will be used to remove the mint authority, because for the token to be considered as NFT in the Solana network, it has to have a supply of 1 and no one should be able to mint any more tokens, so the mint authority should be `None` **(we will import this from `@solana/spl-token` library)**
-5. We should put all of that in one transaction and send it to the network, and that is it. We have an NFT with a metadata pointer.
-6. call the `createNFTWithMetadataPointer` method in the `main` method and run the code to test it
 
 ### Create a mint with the metadata pointer extension
 
@@ -620,6 +622,15 @@ umi.use(signerIdentity(signer, true));
 
 This is the last piece of code for this file, are you excited?
 
+this function will do the following:
+1. Create a new UMI instance, and we are passing the devnet endpoint to it, we need it to be able to interact with the Metaplex platform.
+2. Call `getCreateMintWithMetadataPointerInstructions` and `getCreateMetadataAccountOnMetaplexInstructions` to get the instructions needed to create the mint and the metadata account.
+3. Create the associated token account.
+4. Mint the NFT into the associated token account.
+5. Set the authority to an account. It will be used to remove the mint authority, because for the token to be considered as NFT in the Solana network, it has to have a supply of 1 and no one should be able to mint any more tokens, so the mint authority should be `None`.
+6. Put all of that in one transaction and send it to the network - we'll then put all of that in one transaction and send it to the network.
+7. fetch and print the mint account and the token account to make sure that it is working correctly.
+
 here is the code for this function:
 
 ```ts
@@ -645,14 +656,14 @@ import { CreateNFTInputs } from './helpers';
 
 export default async function createNFTWithMetadataPointer(inputs: CreateNFTInputs) {
   const { payer, connection, tokenName, tokenSymbol, tokenUri } = inputs;
-
+  // 1. Create a new UMI instance
   const umi = createUmi('https://api.devnet.solana.com');
 
   const mint = web3.Keypair.generate();
 
   // NFT should have 0 decimals
   const decimals = 0;
-
+  // 2. Call `getCreateMintWithMetadataPointerInstructions` and `getCreateMetadataAccountOnMetaplexInstructions` to get the instructions needed to create the mint and the metadata account.
   const createMintInstructions = await getCreateMintWithMetadataPointerInstructions({
     payer,
     mint,
@@ -669,6 +680,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
     tokenUri,
   });
 
+  // 3. Create the associated token account.
   // we will need this to mint our NFT to it
   const ata = await getAssociatedTokenAddress(mint.publicKey, payer.publicKey, false, TOKEN_2022_PROGRAM_ID);
   const createATAInstructions = createAssociatedTokenAccountInstruction(
@@ -679,6 +691,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
     TOKEN_2022_PROGRAM_ID,
   );
 
+  // 4. Mint the NFT into the associated token account.
   const mintInstructions = createMintToCheckedInstruction(
     mint.publicKey,
     ata,
@@ -690,6 +703,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
     TOKEN_2022_PROGRAM_ID,
   );
 
+  // 5. Set the authority to an account. It will be used to remove the mint authority
   // NFTs should have no mint authority so no one can mint any more of the same NFT
   const removeMintAuthorityInstructions = createSetAuthorityInstruction(
     mint.publicKey,
@@ -699,8 +713,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
     undefined,
     TOKEN_2022_PROGRAM_ID,
   );
-
-  // Building and confirming the transaction
+  // 6. Put all of that in one transaction and send it to the network
   const transaction = new web3.Transaction().add(
     ...createMintInstructions,
     ...metadataInstructions,
@@ -712,8 +725,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
 
   console.log(`Transaction: https://explorer.solana.com/tx/${sig}?cluster=devnet`);
 
-  // Now we can fetch the account and the mint and look at the details
-
+  // 7. fetch and print the token account, the mint account, an the metadata to make sure that it is working correctly.
   // Feting the account
   const accountDetails = await getAccount(connection, ata, 'finalized', TOKEN_2022_PROGRAM_ID);
   console.log('Associate Token Account =====>', accountDetails);
@@ -733,51 +745,8 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
   // And we can even get the off-chain json now
   const offChainMetadata = await fetch(metadata.uri).then((res) => res.json());
   console.log('Mint off-chain metadata =====>', offChainMetadata);
+}
 ```
-
-#### Imports explanation:
-
-**From `@solana/spl-token`:**
-
-* **`AuthorityType`:** Enum defining different authority roles for token accounts (e.g., minting, freezing).
-* **`createAssociatedTokenAccountInstruction`:** Creates an associated token account for a specific mint, automatically derived from a user's public key.
-* **`createMintToCheckedInstruction`:** Mints new tokens from a mint and deposits them into a specified account.
-* **`createSetAuthorityInstruction`:** Sets a specific authority (e.g., minting) on a token account for a new authority public key.
-* **`getAccount`:** Retrieves information about a specific token account on the blockchain.
-* **`getAssociatedTokenAddress`:** Calculates the address of an associated token account based on a mint and a public key.
-* **`getMetadataPointerState`:** Fetches the state of a metadata pointer account, linking an SPL Token account with its off-chain data.
-* **`getMint`:** Retrieves information about a specific mint on the blockchain.
-* **`TOKEN_2022_PROGRAM_ID`:** The program ID of the SPL Token program, necessary for interacting with SPL tokens.
-
-**From `@metaplex-foundation/mpl-token-metadata`:**
-
-* **`fetchMetadata`:** Downloads and parses NFT metadata associated with a specific mint address.
-
-**From `@metaplex-foundation/umi-bundle-defaults`:**
-
-* **`createUmi`:** Initializes a Umi instance for interacting with the Metaplex platform and its services.
-
-**From `./helpers`**
-
-* **`CreateNFTInputs`:** an interface containing data required for creating NFTs.
-
-
-#### Function logic explanation:
-
-- we are creating a new UMI instance, and we are passing the devnet endpoint to it, so it can interact with the metaplex platform
-- we are generating a new keypair for the mint, and we are setting the decimals to 0, because NFTs should have 0 decimals
-- we are calling the `getCreateMintWithMetadataPointerInstructions` and passing it the required params, and we are getting the instructions that will create the mint with a pointer to the metadata account
-- we are calling the `getCreateMetadataAccountOnMetaplexInstructions` and passing it the required params, and we are getting the instructions that will create the metadata account
-- we are getting the associated token address, which we get from the mint address and the owner address (wallet address), and we are creating the associated token account, notice that in Solana system, in order to hold any tokens you can't directly hold them in the wallet, you will have to create an associated token account that will only hold your balance of a specific token.
-- we are creating the mint to checked instruction, which will mint the NFT into the associated token account, and we are setting the supply to 1, because NFTs should have a supply of one
-- we are creating the set authority instruction, which will remove the mint authority, because for the token to be considered as NFT in the solana network, it has to have a supply of 1 and no one should be able to mint anymore tokens so the mint authority should be `None`
-- we are building the transaction and sending it to the network, notice that the order of the instructions here is important, and we have to execute them in this specific order
-- we are logging the transaction signature, so we can visit the explorer and see the transaction details
-- we are fetching the account and the mint and looking at the details, and we are also fetching the metadata using the metaplex SDK, and we are fetching the off-chain metadata, and we are printing all of that to the console
-  - we are fetching the associated token account details which should tell us that we do own one NFT
-  - we are fetching the mint details, but by logging that we will not see the metadata-pointer, in order see the metadata-pointer details we should do some extra work, and we are doing that by calling `getMetadataPointerState` and passing it the mint details, this will give us two things, the metadata-pointer, and the metadata-pointer authority.
-  - now to get the metadata since we have the address of the account that holds them we can just get the account details and we shall have the metadata, but because we are using Metaplex, the metadata will be stored in a specific format, so to make it easier we will just use the metaplex SDK to fetch the metadata, and we are doing that by calling `fetchMetadata` and passing it the umi instance and the metadata address, and we will get the metadata
-  - and finally we are fetching the off-chain metadata, and we are doing that by calling `fetch` and passing it the metadata uri, and we will get the off-chain metadata json object
 
 and that is it, we are done with the code for this file, as a recap let's see how the full file should look like after assembling all the code snippets together
 
@@ -839,8 +808,10 @@ async function getCreateMintWithMetadataPointerInstructions(
   inputs: CreateMintWithMetadataPointerInstructionsInputs,
 ): Promise<web3.TransactionInstruction[]> {
   const { mint, payer, connection, decimals } = inputs;
+  // 1. Derive the metadata account address
   const metadataPDA = getMetadataAccountAddressOnMetaplex(mint.publicKey);
 
+  // 2. Create a new account
   const mintLen = getMintLen([ExtensionType.MetadataPointer]);
   const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
@@ -852,7 +823,8 @@ async function getCreateMintWithMetadataPointerInstructions(
     space: mintLen,
   });
 
-  // we will point to the metaplex metadata account, but for now it will not be there, we will have to create it later
+  // 3. Initialize the account to use the metadata pointer instruction
+  // We will point to the Metaplex metadata account but note it doesn't exist yet
   const initMetadataPointerInstructions = createInitializeMetadataPointerInstruction(
     mint.publicKey,
     null,
@@ -860,6 +832,7 @@ async function getCreateMintWithMetadataPointerInstructions(
     TOKEN_2022_PROGRAM_ID,
   );
 
+  // 4. Initialize the account as a token mint
   const initMintInstructions = createInitializeMintInstruction(
     mint.publicKey,
     decimals,
@@ -868,11 +841,12 @@ async function getCreateMintWithMetadataPointerInstructions(
     TOKEN_2022_PROGRAM_ID,
   );
 
+  // 5. Return the instructions in the appropriate order
   return [
     // The order here matters
-    createMintAccountInstructions, // first we need to allocate the account, and pay the rent fee
-    initMetadataPointerInstructions, // second we need to init the pointer, if you init the mint before the pointer it will return an error
-    initMintInstructions, // now we can go ahead and init the mint
+    createMintAccountInstructions, // First, we need to allocate the account and pay the rent fee.
+    initMetadataPointerInstructions, // Second, we need to initialize the pointer. If you initialize the mint before the pointer, it will return an error.
+    initMintInstructions, // Now we can go ahead and initialize the mint.
   ];
 }
 
@@ -885,61 +859,16 @@ interface CreateMetadataAccountOnMetaplexInstructionsInputs {
   tokenUri: string;
 }
 
-async function getCreateMetadataAccountOnMetaplexInstructions(
-  inputs: CreateMetadataAccountOnMetaplexInstructionsInputs,
-): Promise<web3.TransactionInstruction[]> {
-  const { mint, payer, umi, tokenName, tokenSymbol, tokenUri } = inputs;
-  constsigner = createSignerFromKeypair(umi, fromWeb3JsKeypair(payer));
-  umi.ue(signerIdentity(signer, true));
-
-  const onChainData = {
-    name: tokenName,
-    symbol: tokenSymbol,
-    uri: tokenUri,
-    sellerFeeBasisPoints: percentAmount(0, 2),
-    creators: none<Creator[]>(),
-    collection: none<Collection>(),
-    uses: none<Uses>(),
-  };
-  const accounts: CreateV1InstructionAccounts = {
-    mint: createSignerFromKeypair(umi, fromWeb3JsKeypair(mint)),
-    splTokenProgram: fromWeb3JsPublicKey(TOKEN_2022_PROGRAM_ID),
-    payer: signer,
-    authority: signer,
-    updateAuthority: signer,
-  };
-  const data: CreateV1InstructionData = {
-    ...onChainData,
-    isMutable: true,
-    discriminator: 0,
-    tokenStandard: TokenStandard.Fungible,
-    collectionDetails: none<CollectionDetails>(),
-    ruleSet: none<PublicKey>(),
-    createV1Discriminator: 0,
-    primarySaleHappened: true,
-    decimals: none<number>(),
-    printSupply: none<PrintSupply>(),
-  };
-
-  // Using the Metaplex SDK we are going to build a transaction instructions so we could commit them later to the network
-  // but Metaplex uses a different structure for the instructions which is not compatible with solana web3 SDK, so we
-  // will have to change that back to make it compatible with solana web3 SDK, and to do so we are using the helper
-  // `toWeb3JsInstruction` from '@metaplex-foundation/umi-web3js-adapters'
-  return createV1(umi, { ...accounts, ...data })
-    .getInstructions()
-    .map((ix) => toWeb3JsInstruction(ix));
-}
-
 export default async function createNFTWithMetadataPointer(inputs: CreateNFTInputs) {
   const { payer, connection, tokenName, tokenSymbol, tokenUri } = inputs;
-
+  // 1. Create a new UMI instance
   const umi = createUmi('https://api.devnet.solana.com');
 
   const mint = web3.Keypair.generate();
 
   // NFT should have 0 decimals
   const decimals = 0;
-
+  // 2. Call `getCreateMintWithMetadataPointerInstructions` and `getCreateMetadataAccountOnMetaplexInstructions` to get the instructions needed to create the mint and the metadata account.
   const createMintInstructions = await getCreateMintWithMetadataPointerInstructions({
     payer,
     mint,
@@ -956,6 +885,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
     tokenUri,
   });
 
+  // 3. Create the associated token account.
   // we will need this to mint our NFT to it
   const ata = await getAssociatedTokenAddress(mint.publicKey, payer.publicKey, false, TOKEN_2022_PROGRAM_ID);
   const createATAInstructions = createAssociatedTokenAccountInstruction(
@@ -966,6 +896,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
     TOKEN_2022_PROGRAM_ID,
   );
 
+  // 4. Mint the NFT into the associated token account.
   const mintInstructions = createMintToCheckedInstruction(
     mint.publicKey,
     ata,
@@ -977,6 +908,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
     TOKEN_2022_PROGRAM_ID,
   );
 
+  // 5. Set the authority to an account. It will be used to remove the mint authority
   // NFTs should have no mint authority so no one can mint any more of the same NFT
   const removeMintAuthorityInstructions = createSetAuthorityInstruction(
     mint.publicKey,
@@ -986,8 +918,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
     undefined,
     TOKEN_2022_PROGRAM_ID,
   );
-
-  // Building and confirming the transaction
+  // 6. Put all of that in one transaction and send it to the network
   const transaction = new web3.Transaction().add(
     ...createMintInstructions,
     ...metadataInstructions,
@@ -999,8 +930,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
 
   console.log(`Transaction: https://explorer.solana.com/tx/${sig}?cluster=devnet`);
 
-  // Now we can fetch the account and the mint and look at the details
-
+  // 7. fetch and print the token account, the mint account, an the metadata to make sure that it is working correctly.
   // Feting the account
   const accountDetails = await getAccount(connection, ata, 'finalized', TOKEN_2022_PROGRAM_ID);
   console.log('Associate Token Account =====>', accountDetails);
@@ -1023,7 +953,7 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
 }
 ```
 
-### Call your from `main`
+### Call your function from `main`
 
 go back to `src/index.ts`, first you will have to import the function `createNFTWithMetadataPointer` from the file we just created, so go ahead and do that 
 
@@ -1104,9 +1034,165 @@ one of the coolest extensions that the token22 program introduces is the `metada
 
 ### Create `createNFTWithEmbeddedMetadata` function:
 
-Create new file `src/nft-with-embedded-metadata.ts`: this file will contain only one function which we will call `createNFTWithEmbeddedMetadata`, and it will take the same inputs as the previous function, and it will look like this:
+Create new file `src/nft-with-embedded-metadata.ts`: this file will contain only one function which we will call `createNFTWithEmbeddedMetadata`, and it will take the same inputs as the previous function and the logic goes as follows:
+
+- Create a new keypair for the mint
+```ts
+const mint = web3.Keypair.generate();
+```
+- Create the metadata object, and set the decimals to 0, because NFTs should have 0 decimals, the metadata extension let us set some basic defined metadata, such as name, symbol, and uri.
+At the same time it gives us the flexibility to add custom metadata fields, so we can any metadata we want, to do so we will have to put them inside a nested array, where the outer array will contain sub arrays, each will have only two elements, the first one will be the field name, and the second one will be the field value.
+```ts
+const metadata: TokenMetadata = {
+  mint: mint.publicKey,
+  name: tokenName,
+  symbol: tokenSymbol,
+  uri: tokenUri,
+  additionalMetadata: [['customField', 'customValue']],
+};
+
+// NFT should have 0 decimals
+const decimals = 0;
+```
+
+- Calculate the mint length, metadata length, and the rent fee
+```ts
+const mintLen = getMintLen([ExtensionType.MetadataPointer]);
+const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
+const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
+```
+
+- Create the mint with the metadata-pointer pointing to the mint itself.
+```ts
+const createMintAccountInstructions = web3.SystemProgram.createAccount({
+  fromPubkey: payer.publicKey,
+  lamports,
+  newAccountPubkey: mint.publicKey,
+  programId: TOKEN_2022_PROGRAM_ID,
+  space: mintLen,
+});
+
+const initMetadataPointerInstructions = createInitializeMetadataPointerInstruction(
+  mint.publicKey,
+  payer.publicKey,
+  mint.publicKey,
+  TOKEN_2022_PROGRAM_ID,
+);
+
+const initMintInstructions = createInitializeMintInstruction(
+  mint.publicKey,
+  decimals,
+  payer.publicKey,
+  payer.publicKey,
+  TOKEN_2022_PROGRAM_ID,
+);
+```
+
+- Create initialize metadata instruction, this instruction is going to resize the mint account and add the basic metadata to it, notice that it only sets the basic metadata.
+```ts
+const initMetadataInstructions = createInitializeInstruction({
+  programId: TOKEN_2022_PROGRAM_ID,
+  // metadata account address is the same as the mint address
+  metadata: mint.publicKey, 
+  mint: mint.publicKey,
+  name: metadata.name,
+  symbol: metadata.symbol,
+  uri: metadata.uri,
+  mintAuthority: payer.publicKey,
+  updateAuthority: payer.publicKey,
+});
+```
+
+- Create update field instruction, this instruction is going to add the additional metadata to the mint account, and since we are already have the metadata so we will treat it as we are updating the metadata and we can add any additional metadata we want
+```ts
+const updateMetadataFieldInstructions = createUpdateFieldInstruction({
+  metadata: mint.publicKey, 
+  updateAuthority: payer.publicKey, // who has the authority to update the metadata
+  programId: TOKEN_2022_PROGRAM_ID,
+  field: metadata.additionalMetadata[0][0],
+  value: metadata.additionalMetadata[0][1],
+});
+```
+
+- Create the associated token account, mint the NFT to it, and then remove the mint authority
+```ts
+// we will need this to mint our NFT to it
+const ata = await getAssociatedTokenAddress(mint.publicKey, payer.publicKey, false, TOKEN_2022_PROGRAM_ID);
+const createATAInstructions = createAssociatedTokenAccountInstruction(
+  payer.publicKey,
+  ata,
+  payer.publicKey,
+  mint.publicKey,
+  TOKEN_2022_PROGRAM_ID,
+);
+
+const mintIX = createMintToCheckedInstruction(
+  mint.publicKey,
+  ata,
+  payer.publicKey,
+  // NFTs should have a supply of one
+  1,
+  decimals,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+);
+
+// NFTs should have no mint authority so no one can mint any more of the same NFT
+const setMintTokenAuthorityInstructions = createSetAuthorityInstruction(
+  mint.publicKey,
+  payer.publicKey,
+  AuthorityType.MintTokens,
+  null,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+);
+```
+
+- Build the transaction, pass all the instruction to it, and send it to the network.
 
 ```ts
+const transaction = new web3.Transaction().add(
+    createMintAccountInstructions,
+    initMetadataPointerInstructions,
+    initMintInstructions,
+    initMetadataInstructions,
+    updateMetadataFieldInstructions,
+    createATAInstructions,
+    mintIX,
+    setMintTokenAuthorityInstructions,
+  );
+  const transactionSignature = await web3.sendAndConfirmTransaction(connection, transaction, [payer, mint]);
+  console.log(`Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`);
+```
+
+- Fetch and print the token account, the mint account, and the metadata to make sure that it is working correctly.
+
+```ts
+// Fetching the account
+const accountDetails = await getAccount(connection, ata, 'finalized', TOKEN_2022_PROGRAM_ID);
+console.log('Associate Token Account =====>', accountDetails);
+
+// Fetching the mint
+const mintDetails = await getMint(connection, mint.publicKey, undefined, TOKEN_2022_PROGRAM_ID);
+console.log('Mint =====>', mintDetails);
+
+// Since the mint stores the metadata in itself, we can just get it like this
+const onChainMetadata = await getTokenMetadata(connection, mint.publicKey);
+// Now we can see the metadata coming with the mint
+console.log('On-chain metadata =====>', onChainMetadata);
+
+// And we can even get the off-chain json now
+if (onChainMetadata && onChainMetadata.uri) {
+  const offChainMetadata = await fetch(onChainMetadata.uri).then((res) => res.json());
+  console.log('Mint off-chain metadata =====>', offChainMetadata);
+}
+```
+
+Now if we put all of that together the file should look like this: 
+
+```ts
+// src/nft-with-embedded-metadata.ts
+
 import * as web3 from '@solana/web3.js';
 import {
   AuthorityType,
@@ -1232,7 +1318,6 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
 
   const transaction = new web3.Transaction().add(
     createMintAccountInstructions,
-    // We should always init the metadata pointer before the mint, otherwise it will error
     initMetadataPointerInstructions,
     initMintInstructions,
     initMetadataInstructions,
@@ -1265,147 +1350,6 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
   }
 }
 ```
-
-#### Imports explanation:
-you already know must of these imports, so we will only talk about the new ones
-**from `@solana/spl-token-metadata`**:
- which is a new package that we will use to interact with the metadata extension.
-- **`createInitializeInstruction`:** Creates an instruction to initialize a token metadata account.
-- **`createUpdateFieldInstruction`:** Creates an instruction to update a specific field in a token metadata account.
-- **`pack`:** Packs a token metadata object into a byte array for storage on-chain.
-- **`TokenMetadata`:** Represents the metadata associated with a token, including its name, symbol, URI, and additional metadata fields.
-
-from `@solana/spl-token`: 
-- **`getTokenMetadata`:** Retrieves the metadata associated with a specific mint.
-- **`LENGTH_SIZE`:** The size of the length field in a byte array.
-- **`TYPE_SIZE`:** The size of the type field in a byte array.
-
-with that being said, let's start with the main function for this file, and we will call it `createNFTWithEmbeddedMetadata`, and it will take the same inputs as the previous function, and it will look like this: 
-
-#### Function logic explanation:
-- we are creating a new keypair for the mint
-```ts
-const mint = web3.Keypair.generate();
-```
-- we are creating the metadata object, and we are setting the decimals to 0, because NFTs should have 0 decimals, the metadata extension let us set some basic defined metadata, such as name, symbol, and uri
-at the same time it gives us the flexibility to add custom metadata fields, so we can any metadata we want, to do so we will have to put them inside a nested array, where the outer array will contain sub arrays, each will have only two elements, the first one will be the field name, and the second one will be the field value.
-```ts
-const metadata: TokenMetadata = {
-  mint: mint.publicKey,
-  name: tokenName,
-  symbol: tokenSymbol,
-  uri: tokenUri,
-  additionalMetadata: [['customField', 'customValue']],
-};
-
-// NFT should have 0 decimals
-const decimals = 0;
-```
-
-- we are calculating the mint length, metadata length, and the rent fee, notice that we are using the `getMintLen` function to calculate the length for the mint and we are still using the `metadataPointer` extension, we will talk about that soon, but for now keep in mind that we have to use it, also we are calculating the metadata length by using the `pack` built-in function to pack the metadata object into a byte array, and we are adding the type size and the length size to it, these two constant values are going to get stored in the mint account to make it easier to process the mint data and to know where the metadata starts and ends, so they are additional data that we have to pay for when we create the mint account, and finally we are calculating the total rent fee by adding the mint rent fee and the metadata rent fee together.
-```ts
-const mintLen = getMintLen([ExtensionType.MetadataPointer]);
-const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
-const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
-```
-
-- we are creating the mint account.
-```ts
-const createMintAccountInstructions = web3.SystemProgram.createAccount({
-  fromPubkey: payer.publicKey,
-  lamports,
-  newAccountPubkey: mint.publicKey,
-  programId: TOKEN_2022_PROGRAM_ID,
-  space: mintLen,
-});
-```
-- we are creating the metadata pointer instruction, event if we are using the metadata extension, we still have to use the metadata pointer extension, but we will point to the mint it self, this is how the system works to insure consistency and to make it easier to process the mint data.
-```ts
-const initMetadataPointerInstructions = createInitializeMetadataPointerInstruction(
-  mint.publicKey,
-  payer.publicKey,
-  mint.publicKey,
-  TOKEN_2022_PROGRAM_ID,
-);
-```
-- create initialize mint instruction
-```ts
-const initMintInstructions = createInitializeMintInstruction(
-  mint.publicKey,
-  decimals,
-  payer.publicKey,
-  payer.publicKey,
-  TOKEN_2022_PROGRAM_ID,
-);
-```
-- create initialize metadata instruction, this instruction is going to resize the mint account and add the basic metadata to it, without any additional metadata, we will handle the additional metadata in the next step
-```ts
-const initMetadataInstructions = createInitializeInstruction({
-  programId: TOKEN_2022_PROGRAM_ID,
-  // metadata account address is the same as the mint address
-  metadata: mint.publicKey, 
-  mint: mint.publicKey,
-  name: metadata.name,
-  symbol: metadata.symbol,
-  uri: metadata.uri,
-  mintAuthority: payer.publicKey,
-  updateAuthority: payer.publicKey,
-});
-```
-
-- create update field instruction, this instruction is going to add the additional metadata to the mint account, and since we are already have the metadata so we will treat it as we are updating the metadata and we can add any additional metadata we want
-```ts
-const updateMetadataFieldInstructions = createUpdateFieldInstruction({
-  metadata: mint.publicKey, 
-  updateAuthority: payer.publicKey, // who has the authority to update the metadata
-  programId: TOKEN_2022_PROGRAM_ID,
-  field: metadata.additionalMetadata[0][0], // the field name
-  value: metadata.additionalMetadata[0][1], // the field value
-});
-```
-notice here that we are only updating the metadata for one field, if we have another field we will have to add another instruction to update it, and we should do the same for all the additional metadata fields we have, at the same time if we wanted to update a built-in metadata field, we can do that using the same instruction but we will have to ass the field name in the field param and the new value in the value param
-
-- then we will create the associated token account, and mint the NFT to it, and then remove the mint authority
-```ts
-// we will need this to mint our NFT to it
-const ata = await getAssociatedTokenAddress(mint.publicKey, payer.publicKey, false, TOKEN_2022_PROGRAM_ID);
-const createATAInstructions = createAssociatedTokenAccountInstruction(
-  payer.publicKey,
-  ata,
-  payer.publicKey,
-  mint.publicKey,
-  TOKEN_2022_PROGRAM_ID,
-);
-
-const mintIX = createMintToCheckedInstruction(
-  mint.publicKey,
-  ata,
-  payer.publicKey,
-  // NFTs should have a supply of one
-  1,
-  decimals,
-  undefined,
-  TOKEN_2022_PROGRAM_ID,
-);
-
-// NFTs should have no mint authority so no one can mint any more of the same NFT
-const setMintTokenAuthorityInstructions = createSetAuthorityInstruction(
-  mint.publicKey,
-  payer.publicKey,
-  AuthorityType.MintTokens,
-  null,
-  undefined,
-  TOKEN_2022_PROGRAM_ID,
-);
-```
-- now we just need to made the transaction, pass all the instruction to it, and send it to the network
-```ts
-const transactionSignature = await web3.sendAndConfirmTransaction(connection, transaction, [payer, mint]);
-console.log(`Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`);
-```
-- And we are done with creating the NFT with the embedded metadata, and in order to make sure that everything is alright we added some code to fetch the NFT and the metadata and the associated token account, and print them to the console
-
-This file should be ready by now and we should be able to call the function `createNFTWithEmbeddedMetadata` from the `src/index.ts` file and create that NFT
 
 ### Update `src/index.ts`:
 
