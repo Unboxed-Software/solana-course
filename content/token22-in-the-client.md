@@ -1,3 +1,4 @@
+
 # Supporting Token22 from a Client
 
 # Objectives
@@ -383,3 +384,4 @@ That's it! If you get stuck at any step, you can find the complete code in [this
 
 # Challenge
 For the challenge, try and implement the burn token functionality for the legacy tokens and the Token22 tokens.
+
