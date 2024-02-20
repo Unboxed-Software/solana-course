@@ -26,8 +26,19 @@
 
 # Lab
 
-### Explain what we're building, bird's eye view
+Now let's get some hands on experience with `Token22` on-chain by implementing a token staking program that will accept both `spl-token` and `Token22` accounts. As far as staking programs go, this will be a pretty simple one as we are just using it as an example to illustrate working with `Token22` accounts in a Solana program. The progrma will have the following design:
 
+* A stake pool account will be created that will hold all of the tokens that are staked. There will only be one staking pool for a given token. All will be staked in a token account owned by the program.
+* Every stake pool will have a state account that will hold information regarding the amount of tokens staked in the pool, etc.
+* Users can stake as many tokens as they like. When doing so, the tokens are transferred out of their token account to the stake pool.
+* Each user will have a state account created for each pool they stake in. This state account will keep track of how many tokens they have staked in this pool, when they last staked, etc.
+* Users will be minted staking reward tokens upon unstaking. There is no separate claim process required. 
+* A very simple algorithm will be used to determine a user's stkaing rewards.
+* The program will accept both `spl-token` and `Token22` accounts.
+
+The program will have four instructions: `init_pool`, `init_stake_entry`, `stake`, `unstake`.
+
+This lab will utilize a lot of Anchor and Solana APIs that have been covered previously in this course. As such, we will not spend time explaining some of the concepts we expect you to know at this point. With that said, let's get started.
 
 ### 1. Verify Solana/Anchor/Rust Versions
 
