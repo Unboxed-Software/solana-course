@@ -17,7 +17,7 @@ Typically, in older systems, people interact with each other through third party
 
 - User accounts are stored on large platforms like Google, X (formerly known as Twitter), and Meta (Facebook, Instagram). These accounts can be removed at will by the companies, and items 'owned' by these accounts may be lost forever. 
 
-- Accounts that store value - like payment cards, bank accounts, and trading accounts - are handled by large platforms like credit card companies, money transfer organizations, and stock exchanges. In many cases these companies take a piece (around 1% - 3%) of every transaction that occurs on their platforms. They may often slow transaction settlement down, in order to benefit the organization. In some cases the item being transferred may not belong to the recipient at all, but are rather held on the recipient's behalf.
+- Accounts that store and transfer value - like payment cards, bank accounts, and stock trading accounts - are handled by large platforms like credit card companies, money transfer organizations, and stock exchanges. In many cases these companies take a piece (around 1% - 3%) of every transaction that occurs on their platforms. They may often slow transaction settlement down, in order to benefit the organization. In some cases the item being transferred may not belong to the recipient at all, but are rather held on the recipient's behalf.
 
 Web3 is an evolution of the internet that allows people to **transact directly with each other**:
 
@@ -33,7 +33,7 @@ Common uses of web3 include:
 
 - Selling digital or physical items, ensuring that each item is genuine and that copies are distinguishable from original items. 
 
-- Instant global payments, without the time and expense of 'money transfer' companies.
+- Instant global payments, without the time and expense of traditional money transfer companies.
 
 ## What is Solana?
 
@@ -63,21 +63,21 @@ And much more. We're keeping this course updated so as new tech joins the Solana
 
 ## What do I need before I start?
 
-You **don't** need previous blockchain experience to follow this course! 
+You **don't** need previous blockchain experience, or Rust knowledge, to follow this course! You do need:
 
-- Linux, Mac or a Windows computer. 
+- A Linux, Mac or Windows computer. 
   Windows machines should have [Windows Terminal](https://aka.ms/terminal) and [WSL](https://learn.microsoft.com/en-us/windows/wsl/) installed.
 - Basic JavaScript / TypeScript programming experience. We'll also use some Rust but we'll explain the Rust as we go. 
-- node.js 18 installed
-- Rust installed
 - Basic use of the command line 
+- Basic use of git (either via command line or your favorite GUI)
 
 ## How is this course structured?
 
-There are three tracks:
- - **dApp development** - building web and mobile apps that interact with popular onchain Solana programs. These cover things like token transfers, minting, and creating clients for arbitrary programs. if you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with,   
- - **Onchain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana on-chain, or use the blockchain to store arbitrary data, this track is for you. 
- - **Network infrastructure** - covers running Solana itself, as an RPC or validator.
+There are two tracks:
+
+ - **dApp development** - building web and mobile apps that interact with popular onchain Solana programs. These lessons cover things like token transfers, minting, and creating clients for arbitrary programs. You will use basic TypeScript skills for this track. If you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with. 
+
+ - **Onchain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana on-chain, or use the blockchain to store arbitrary data, this track is for you. You will use Rust for this track.
 
 Modules cover a particular topic. These are broken down into individual lessons.
 
