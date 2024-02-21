@@ -6,15 +6,11 @@
 # TL;DR
 
 # Overview
+The Token 2022 program is a superset of the original Token program. It is also known as Token Extensions. We can fork the original token program and add any new functionality required. Although it's simple and easy to change and deploy the program, adoption across the whole ecosystem is a challenge. Also, Solana's programming model requires programs to be included in transactions along with accounts. This makes it complicated to create transactions involving multiple token programs. To solve these challenges, Token 2022 was developed and deployed to a different address than the original Token program. It can be accessed using the `TOKEN_2022_PROGRAM_ID` constant provided by `spl-token`. 
 
--- Very briefly talk about what the `spl-token-22` program is.
--- Work on run-ons
-
-In Solana's token ecosystem, the interfaces for both the legacy token program and Token 2022 token program remain consistent, allowing the use of common `spl-token` helper functions across different token programs by simply swapping the program ID. By default, if no program ID is provided, the functions revert to using the legacy token program. It's crucial to identify the program that owns a token whenever interacting with it. This information should be dynamically retrieved at the point of interaction. There are multiple ways top achieve this. For example, we can create a local database to store metadata about token mints, including the owning program. But in some cases, this might not be feasible. In that case, with the help of `spl-token` helper functions, we can fetch the owning program. We will see how to use those functions shortly. Most user interfaces will not differentiate between legacy tokens and Token22 tokens, necessitating logic to fetch and merge information from both types for a seamless experience.
+In Solana's token ecosystem, the interfaces for both the legacy token program and Token 2022 token program remain consistent. This allows the use of common `spl-token` helper functions across different token programs by simply swapping the program ID. By default, if no program ID is provided, the functions revert to using the legacy token program. It's crucial to identify the program that owns a token whenever interacting with it. This information should be dynamically retrieved at the point of interaction. There are multiple ways top achieve this. For example, we can create a local database to store metadata about token mints, including the owning program. But in some cases, this might not be feasible. In that case, with the help of `spl-token` helper functions, we can fetch the owning program. We will see how to use those functions shortly. Most user interfaces will not differentiate between legacy tokens and Token22 tokens, necessitating logic to fetch and merge information from both types for a seamless experience.
 
 ## Differences between working with legacy tokens and Token22 tokens
-
--- The two programs, although functional the same, cannot be used together.
 
 When interacting with mints and tokens, the only thing you need to worry about is pointing your code to the correct Token program. If you want to create tokens using the legacy Token program, you need to ensure that you point to that program. If you want to create using the Token22 program you need to ensure that you point to the Token22 program. 
 
@@ -23,67 +19,98 @@ Fortunately, the `spl-token` package makes it easy to do this. It provides both 
 NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to Token22, otherwise you will get the following error: `TokenInvalidAccountOwnerError`.
 
 ## Things to consider when working with both SPL and Token22
+Although the interfaces for both of these programs remain consistent, these are two different programs. The addresses created by using these programs are different. The program IDs of these programs are not exchangeable under any circumstances. If you want to support both the legacy token and Token22 tokens, you will have to add extra logic on the client side.
 
-### Check owning program
+## Associated Token Accounts (ATA)
+Before we move on, let's take a look at what is an Associated Token Account and how it is created.
+An Associated Token Account is a Token Account whose address is created using the wallet's public key and a token mint. This mechanism provides a deterministic way of finding any Token Account associated with the wallet.
 
-When it comes to fetching token accounts, you'll need to know the creating program first, if you don't already have that information.
+### How to use Associated Token Accounts in Token22
+We can use the Associated Token Account Program to find Associated Token Accounts created with the Token22 program ID. 
+For any mint, there can be only one Associated Token Account per user. To achieve this, the `spl-token` provides `getOrCreateAssociatedTokenAccount` function. This function creates an Associated Token Account for the provided wallet and mint if one doesn't already exist.
 
-In some cases, we might not have access to the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID`. In that case, we can fetch the owning program ID for any mint account and use that program ID to differentiate between legacy tokens and Token22 tokens.
 ```ts
-  const accountInfo = await connection.getParsedAccountInfo(accountPublicKey);
-  if (accountInfo.value === null) {
-    throw new Error('Account not found');
-  }
-  const programId = accountInfo.value.owner;
+const tokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mintAddress,
+  payer.publicKey,
+  true,
+  'finalized',
+  {commitment: 'finalized'},
+  tokenProgramId // TOKEN_PROGRAM_ID for legacy tokens and TOKEN_2022_PROGRAM_ID for Token22 tokens
+)
 ```
 
-### How to use Associated Token Accounts (ATA) in Token22
-- How to derive a token address from mint, wallet and token program
-- Do some research using ATAs in Token22
+`spl-token` also provides the `ASSOCIATED_TOKEN_PROGRAM_ID` constant which is the program ID for the Associated Token Account Program. If we have access to the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` along with the mint address, we can use the ATA program ID with the wallet's public key to find the Associated Token Account.
 
+```ts
+function findAssociatedTokenAddress(
+  walletAddress: PublicKey,
+  tokenMintAddress: PublicKey
+): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [
+      walletAddress.toBuffer(),
+      TOKEN_PROGRAM_ID.toBuffer(), // replace TOKEN_PROGRAM_ID with TOKEN_2022_PROGRAM_ID for Token22 tokens
+      tokenMintAddress.toBuffer(),
+    ],
+    SPL_ASSOCIATED_TOKEN_PROGRAM_ID
+  )[0];
+}
+```
+
+There might be some cases where we want to fetch all the Associated Token Accounts for the wallet's public key, or some cases where we don't have access to the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID`. The following sections describe how we can achieve that.
 
 ## How to fetch both legacy and Token22 tokens
-
-### How to fetch all of a users token accounts
-- Requires you to know only the owner's wallet
-To fetch either
-
-
-To fetch all tokens by owner do this:
--- To fetch regular tokens, To fetch token22 tokens
--- *To fetch all tokens*
-
+When we have access to the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID`, it is very easy to fetch owned Token Accounts for any wallet.
+If we want to distinguish between legacy tokens and Token22 tokens, we can simply use the program IDs for this.
 
 ```ts
 const tokenAccounts = await connection.getTokenAccountsByOwner(
-	ownerPublicKey,
+	walletPublicKey,
 	{ programId: TOKEN_PROGRAM_ID } // or TOKEN_2022_PROGRAM_ID
 )
 ```
 
+Sometimes, the client doesn't need to distinguish between legacy tokens and Token22 tokens. In that case, we have to call the above function twice, once with `TOKEN_PROGRAM_ID` and once with `TOKEN_2022_PROGRAM_ID` (as mentioned before, these are not exchangeable).
 
-...
-to fetch all
 ```ts
-const token22Accounts = await connection.getTokenAccountsByOwner(
-	keyPair.publicKey,
-	{programId}
+const allOwnedTokens = []
+const legacyTokenAccounts = await connection.getTokenAccountsByOwner(
+	wallet.publicKey,
+	{programId: TOKEN_PROGRAM_ID}
 )
 const token22Accounts = await connection.getTokenAccountsByOwner(
-	keyPair.publicKey,
-	{programId}
+	wallet.publicKey,
+	{programId: TOKEN_2022_PROGRAM_ID}
+)
+
+allOwnedTokens.push(...legacyTokenAccounts, ...token22Accounts)
+```
+
+### Check owning program
+
+When it comes to fetching token accounts, you'll need to know the creating program first, if you don't already have that information.
+When we don't have access to the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID`, we can fetch the owning program ID for any mint account. We can use that program ID to differentiate between legacy tokens and Token22 tokens.
+
+
+```ts
+const accountInfo = await connection.getParsedAccountInfo(mintAddress);
+if (accountInfo.value === null) {
+  throw new Error('Account not found');
+}
+
+const programId = accountInfo.value.owner; // will return TOKEN_PROGRAM_ID for legacy mint address and TOKEN_2022_PROGRAM_ID for Token22 mint address
+
+//we now use the programId to fetch the tokens
+const tokenAccounts = await connection.getTokenAccountsByOwner(
+  wallet.publicKey,
+  {programId}
 )
 ```
 
-- Note, suggestions on how to store the program id when the token account has been fetched.
-
-### How to fetch a token account by mint
-- Maybe think about putting ATA as it's own section
-- Requires you to know the token program, the mint and the owners wallet. Through ATA
-- To get the token program you may have to fetch it
-
-If we have access to the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID`, we can use that directly with the wallet's public key to fetch token accounts owned by that wallet.
-
+NOTE: Depending on the use case, it might not be efficient to always fetch the owning program ID of the mint. In that case, we just have to fetch the owning programs once and then store them somewhere for future use. For example, we can create a local database which will store these program IDs and use them when necessary.
 
 # Lab - Add Token22 support to a script
 
@@ -331,16 +358,16 @@ import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.j
 export type TokenTypeForDisplay = 'Token' | 'Token22';
 
 export interface TokenInfoForDisplay {
-    mint: PublicKey
-    amount: number
-    type: TokenTypeForDisplay
+  mint: PublicKey
+  amount: number
+  type: TokenTypeForDisplay
 }
 
 export async function fetchTokenInfo(
 	connection: Connection,
 	keyPair: Keypair,
-    programId: PublicKey,
-    type: TokenTypeForDisplay
+  programId: PublicKey,
+  type: TokenTypeForDisplay
 ): Promise<TokenInfoForDisplay[]> {
 	const tokenAccounts = await connection.getTokenAccountsByOwner(
 		keyPair.publicKey,
@@ -358,7 +385,7 @@ export async function fetchTokenInfo(
 		})
 	})
 
-    return ownedTokens;
+  return ownedTokens;
 }
 ```
 
@@ -387,16 +414,16 @@ If you don't have the program ID, we can get it from the mint account. Let's add
 
 ```ts
 export async function fetchTokenProgramFromAccount(
-    connection: Connection,
-    accountPublicKey: PublicKey
+  connection: Connection,
+  accountPublicKey: PublicKey
 ){
-    //Find the program ID from the mint
+  //Find the program ID from the mint
   const accountInfo = await connection.getParsedAccountInfo(accountPublicKey);
-    if (accountInfo.value === null) {
-        throw new Error('Account not found');
-    }
-    const programId = accountInfo.value.owner;
-    return programId;
+  if (accountInfo.value === null) {
+      throw new Error('Account not found');
+  }
+  const programId = accountInfo.value.owner;
+  return programId;
 }
 ```
 
