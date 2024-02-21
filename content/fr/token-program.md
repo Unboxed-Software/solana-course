@@ -400,7 +400,7 @@ async function buildBurnTransaction(
 
 Approuver un délégué est le processus qui consiste à autoriser un autre compte à transférer ou à brûler des jetons à partir d'un compte de jetons. Lors de l'utilisation d'un délégué, l'autorité sur le compte de jetons reste avec le propriétaire d'origine. Le montant maximum de jetons qu'un délégué peut transférer ou brûler est spécifié au moment où le propriétaire du compte de jetons approuve le délégué. Notez qu'il ne peut y avoir qu'un seul compte délégué associé à un compte de jetons à un moment donné.
 
-Pour approuver un délégué en utilisant la bibliothèque `spl-token`, vous utilisez la fonction `approve`.
+Pour approuver un délégué en utilisant la bibliothèque `spl-token`, vous pouvez utiliser la fonction `approve`.
 
 ```tsx
 const transactionSignature = await approve(
@@ -648,9 +648,7 @@ async function mintTokens(
 }
 ```
 
-Appelons cette fonction dans `main` en utilisant le jeton et
-
- le compte de jetons créés précédemment.
+Appelons cette fonction dans `main` en utilisant le jeton et le compte de jetons créés précédemment.
 
 Notez que nous devons ajuster la `amount` d'entrée pour la précision décimale du jeton. Les jetons de notre `mint` ont une précision décimale de 2. Si nous spécifions uniquement 100 comme `amount` d'entrée, alors seul 1 jeton sera émis sur notre compte de jetons.
 
@@ -883,11 +881,65 @@ async function revokeDelegate(
 
 ```
 
-Dans `main`, appelons la fonction `revokeDelegate` pour révoquer le `délégué`.
+`revoke` va réinitialiser le délégué pour le compte de jetons à null et remettre la quantité déléguée à 0. Tout ce dont nous aurons besoin pour cette fonction est le compte de jetons et l'utilisateur. Appelons notre nouvelle fonction `revokeDelegate` pour révoquer le délégué du compte de jetons de l'utilisateur.
 
 ```tsx
 async function main() {
-  // Code précédent...
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
+
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
+
+  const mintInfo = await token.getMint(connection, mint);
+
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey
+  )
+
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals
+  )
+
+  const receiver = web3.Keypair.generate().publicKey
+  const receiverTokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    receiver
+  )
+
+  const delegate = web3.Keypair.generate();
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals
+  )
+
+  await transferTokens(
+    connection,
+    user,
+    tokenAccount.address,
+    receiverTokenAccount.address,
+    delegate,
+    50 * 10 ** mintInfo.decimals
+  )
 
   await revokeDelegate(
     connection,
@@ -898,6 +950,141 @@ async function main() {
 }
 ```
 
-### Conclusion
+### 8. Brûler des jetons
 
-Avec ces étapes, vous avez créé un script pour interagir avec des instructions sur le programme de jetons. Vous avez appris à créer un nouveau jeton, à créer des comptes de jetons, à émettre des jetons, à approuver un délégué, à transférer des jetons et à révoquer un délégué. Vous pouvez maintenant exécuter ce script sur le réseau Solana pour effectuer ces opérations.
+Enfin, retirons certains jetons de la circulation en les brûlant.
+
+Créez une fonction `burnTokens` qui utilise la fonction `burn` de la bibliothèque `spl-token` pour retirer la moitié de vos jetons de la circulation.
+
+```tsx
+async function burnTokens(
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  account: web3.PublicKey,
+  mint: web3.PublicKey,
+  owner: web3.Keypair,
+  amount: number
+) {
+  const transactionSignature = await token.burn(
+    connection,
+    payer,
+    account,
+    mint,
+    owner,
+    amount
+  )
+
+  console.log(
+    `Transaction de Brûlure : https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+  )
+}
+```
+
+Appelez maintenant cette nouvelle fonction dans `main` pour brûler 25 des jetons de l'utilisateur. N'oubliez pas d'ajuster le `montant` pour la précision décimale du `mint`.
+
+```tsx
+async function main() {
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
+  const user = await initializeKeypair(connection)
+
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2
+  )
+
+  const mintInfo = await token.getMint(connection, mint);
+
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey
+  )
+
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals
+  )
+
+  const receiver = web3.Keypair.generate().publicKey
+  const receiverTokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    receiver
+  )
+
+  const delegate = web3.Keypair.generate();
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals
+  )
+
+  await transferTokens(
+    connection,
+    user,
+    tokenAccount.address,
+    receiverTokenAccount.address,
+    delegate,
+    50 * 10 ** mintInfo.decimals
+  )
+
+  await revokeDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    user.publicKey,
+  )
+
+  await burnTokens(
+    connection, 
+    user, 
+    tokenAccount.address, 
+    mint, user, 
+    25 * 10 ** mintInfo.decimals
+  )
+}
+```
+
+### 9. Testez tout
+
+Avec cela, exécutez `npm start`. Vous devriez voir une série de liens Solana Explorer affichés dans la console. Cliquez dessus et voyez ce qui s'est passé à chaque étape ! Vous avez créé un nouvel émetteur de jetons, créé un compte de jetons, émis 100 jetons, approuvé un délégué, transféré 50 jetons à l'aide d'un délégué, révoqué le délégué et brûlé 25 de plus. Vous êtes bien parti pour devenir un expert en jetons.
+
+Si vous avez besoin de plus de temps avec ce projet pour vous sentir à l'aise, consultez le [code de solution complet](https://github.com/Unboxed-Software/solana-token-client)
+
+# Challenge
+
+Maintenant, c'est à votre tour de construire quelque chose de manière indépendante. Créez une application qui permet à un utilisateur de créer un nouvel émetteur, de créer un compte de jetons et d'émettre des jetons.
+
+Notez que vous ne pourrez pas utiliser directement les fonctions d'aide que nous avons vues dans le labo. Pour interagir avec le programme de jetons en utilisant l'adaptateur de portefeuille Phantom, vous devrez construire chaque transaction manuellement et soumettre la transaction à Phantom pour approbation.
+
+![Capture d'écran du défi du programme de jetons Frontend](../assets/token-program-frontend.png)
+
+1. Vous pouvez construire cela à partir de zéro ou vous pouvez [télécharger le code de démarrage](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
+2. Créez un nouvel émetteur de jetons dans le composant `CreateMint`.
+  Si vous avez besoin d'un rappel sur la manière d'envoyer des transactions à un portefeuille pour approbation, consultez la [leçon sur les portefeuilles](./interact-with-wallets).
+
+  Lors de la création d'un nouvel émetteur, la nouvelle `Keypair` générée devra également signer la transaction. Lorsque des signataires supplémentaires sont requis en plus du portefeuille connecté, utilisez le format suivant :
+
+  ```tsx
+  sendTransaction(transaction, connection, {
+    signers: [Keypair],
+  })
+  ```
+3. Créez un nouveau compte de jetons dans le composant `CreateTokenAccount`.
+4. Émettez des jetons dans le composant `MintToForm`.
+
+Si vous êtes bloqué, n'hésitez pas à consulter le [code de solution](https://github.com/ZYJLiu/solana-token-frontend).
+
+Et n'oubliez pas, soyez créatif avec ces défis et faites vos propres challenges !
