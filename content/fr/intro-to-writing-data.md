@@ -125,135 +125,88 @@ Toutes les transactions sur la blockchain sont visibles publiquement sur l'[expl
 
 # Laboratoire
 
-Nous allons créer un script `transfer.ts` pour envoyer du SOL à d'autres étudiants.
+Nous allons créer un script pour envoyer du SOL à d'autres étudiants.
 
 ### 1. Structure de base
 
 Nous commencerons par utiliser les mêmes packages et le fichier `.env` que nous avons créés précédemment dans [l'introduction à la cryptographie](./intro-to-cryptography).
 
-```typescript
-import { getKeypairFromEnvironment } from "@solana-developers/node-helpers"
-import web3 from "@solana/web3.js";
-import "dotenv/config";
-```
-
-### 2. Créer une connexion
-
-Créons une connexion :
+Créez un fichier `transfer.ts`:
 
 ```typescript
-const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-```
+import {
+  Connection,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  PublicKey,
+} from "@solana/web3.js";
+import "dotenv/config"
+import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 
-### 3. Programme Ping
-Créez maintenant une fonction asynchrone appelée `pingProgram()` avec deux paramètres nécessitant une connexion et la paire de clés du payeur en tant qu'arguments :
+const suppliedToPubkey = process.argv[2] || null;
 
-```typescript
-async function pingProgram(connection: web3.Connection, payer: web3.Keypair) { }
-```
-
-À l'intérieur de cette fonction, nous devons :
-
-1. créer une transaction
-2. créer une instruction
-3. ajouter l'instruction à la transaction
-4. envoyer la transaction.
-
-N'oubliez pas, la partie la plus difficile ici est d'inclure les bonnes informations dans l'instruction. Nous connaissons l'adresse du programme que nous appelons. Nous savons également que le programme écrit des données dans un compte séparé dont nous avons également l'adresse. Ajoutons les versions chaînes de ces deux éléments en tant que constantes en haut du fichier `transfer.ts` :
-
-```typescript
-const PING_PROGRAM_ADDRESS = new web3.PublicKey('ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa')
-const PING_PROGRAM_DATA_ADDRESS =  new web3.PublicKey('Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod')
-```
-
-Maintenant, dans la fonction `pingProgram()`, créons une nouvelle transaction, puis initialisons une `PublicKey` pour le compte du programme, et une autre pour le compte de données.
-
-```tsx
-async function pingProgram(
-  connection: web3.Connection,
-  payer: web3.Keypair
-) {
-    const transaction = new web3.Transaction()
-    const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
-    const programDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
+if (!suppliedToPubkey) {
+  console.log(`Please provide a public key to send to`);
+  process.exit(1);
 }
+
+const senderKeypair = getKeypairFromEnvironment("SECRET_KEY");
+
+console.log(`suppliedToPubkey: ${suppliedToPubkey}`);
+
+const toPubkey = new PublicKey(suppliedToPubkey);
+
+const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+
+console.log(
+  `✅ Loaded our own keypair, the destination public key, and connected to Solana`
+);
+```
+
+Lancer le script pour vérifier qu'il se connecte bien et charge votre paire de clés :
+
+```
+npx esrun transfer.ts (destination wallet address)
 ```
 
 ### Créer la transaction et l'exécuter
 
-```typescript
-const transaction = new web3.Transaction()
-const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
-const programDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
-
-const instruction = new web3.TransactionInstruction({
-  keys: [
-    {
-      pubkey: programDataId,
-      isSigner: false,
-      isWritable: true
-    },
-  ],
-  programId
-})
-```
-
-Ensuite, ajoutons l'instruction à la transaction que nous avons créée. Ensuite, appelons `sendAndConfirmTransaction()` en passant la connexion, la transaction et le payeur. Enfin, loguons le résultat de cet appel de fonction afin que nous puissions le rechercher sur l'explorateur Solana.
+Ajoutez le code suivant pour compléter la transaction et l'envoyer :
 
 ```typescript
-const transaction = new web3.Transaction()
-const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
-const programDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
+console.log(
+  `✅ Loaded our own keypair, the destination public key, and connected to Solana`
+);
 
-const instruction = new web3.TransactionInstruction({
-  keys: [
-    {
-      pubkey: programDataId,
-      isSigner: false,
-      isWritable: true
-    },
-  ],
-  programId
-})
+const transaction = new Transaction();
 
-transaction.add(instruction)
+const LAMPORTS_TO_SEND = 5000;
 
-const signature = await web3.sendAndConfirmTransaction(
-  connection,
-  transaction,
-  [payer]
-)
+const sendSolInstruction = SystemProgram.transfer({
+  fromPubkey: senderKeypair.publicKey,
+  toPubkey,
+  lamports: LAMPORTS_TO_SEND,
+});
 
-console.log(`Signature: ${signature}`);
+transaction.add(sendSolInstruction);
+
+const signature = await sendAndConfirmTransaction(connection, transaction, [
+  senderKeypair,
+]);
+
+console.log(
+  `💸 Finished! Sent ${LAMPORTS_TO_SEND} to the address ${toPubkey}. `
+);
+console.log(`Transaction signature is ${signature}!`);
 ```
 
-### 4. Exécuter le programme
-Appelez maintenant la fonction `pingProgram()` 
+### Testez!
 
-```typescript
-try {
-  const payer = getKeypairFromEnvironment("SECRET_KEY");
-  console.log(` ✅ Paire de clés du payeur chargée : ${payer.publicKey.toBase58()}`);
-
-  await pingProgram(connection, payer);
-} catch (err) {
-  console.error(err);
-}
-```
-
-### 5. Vérifier l'explorateur Solana
-
-Exécutez maintenant à nouveau le code.
+Envoyez du SOL aux autres étudiants de la classe.
 
 ```
-npx esrun transfer.ts (adresse du portefeuille de destination)
-```
-
-Cela peut prendre un moment, mais maintenant le code devrait fonctionner et vous devriez voir une longue chaîne imprimée dans la console, comme ci-dessous :
-
-```
- ✅ Paire de clés du payeur chargée : E19JjB2TgbksiLEbtoX8d8F843GmsPUz3Kd974duoxTU
-Signature: 27xWGp5wbs6QyoiMTF5J1WWLQf7J5iTUDN2T1gSENxu2KSKyfWAPKYcPqydwJbkBVMEuZPEuEGcmJze3GG87T3jt
+npx esrun transfer.ts (destination wallet address)
 ```
 
 # Défi
