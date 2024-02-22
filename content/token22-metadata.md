@@ -12,14 +12,9 @@
 - Token22 includes the `metadata` mint extensions which allows you to embed metadata right on the Mint Account
 - Token22 Mint's have direct pointers to the Metadata accounts, be that internal (embedded) or external (Metaplex)
 
-
-- Historically, developers stored metadata in data accounts using a metadata on-chain program; mainly `Metaplex`. However, this had some drawbacks. For example the mint account to which the metadata attached had no awareness of the metadata account. So to figure out if a particular account had metadata we'd have to PDA the mint and the `Metaplex` program together and see if a Metadata account existed. To solve this problem, Solana introduced an extension called `metadata-pointer` extension, which is simply a field in the mint account itself that points to the account that holds the metadata for this token. This will make it easier for client apps to find the respective metadata-account and retrieve the metadata.
-- In addition to the `metadata-pointer` extension, Solana also introduced the `metadata` extension, which is simply allow us to store the metadata in the mint itself, so we don't have to create a separate account for the metadata which makes it much easier and more convenient to work with.
-
-
 # Overview
 
-Historically, developers stored metadata in data accounts using a metadata on-chain program; mainly `Metaplex`. However, this had some drawbacks. For example the mint account to which the metadata attached had no awareness of the metadata account. So to figure out if a particular account had metadata we'd have to PDA the mint and the `Metaplex` program together and see if a Metadata account existed. That is not the only complication here, in order to create an NFT you will have to interact with another program other than the SPL token program, which could have a learning curve to grasp all knowledge needed to be able to interact with it easily, so for the `Metaplex` example, you will need to learn about the `Metaplex` library, and keep maintain it and updating, which could be a bit of a hassle. To solve this problem, Solana introduced these two extensions:
+Historically, developers stored metadata in data accounts using a metadata on-chain program; mainly `Metaplex`. However, this had some drawbacks. For example the mint account to which the metadata "attached" had no awareness of the metadata account. So to figure out if a particular account had metadata we'd have to PDA the mint and the `Metaplex` program together and see if a Metadata account existed. That is not the only complication here, in order to create an NFT you will have to interact with another program other than the SPL token program, which could have a learning curve to grasp all knowledge needed to be able to interact with it easily, so for the `Metaplex` example, you will need to learn about the `Metaplex` library, and keep maintain it and updating, which could be a bit of a hassle. To solve this problem, Solana introduced these two extensions:
 
 - `metadata-pointer` extension: which is simply a field in the mint account itself that points to the account that holds the metadata for this token
 - `metadata` extension: which will allow us to store the metadata in the mint itself, so we don't have to create a separate account for the metadata
@@ -485,7 +480,7 @@ npm run start
 
 ## 2. Create NFT with metadata-pointer
 
-Historically, developers stored metadata in data accounts using a metadata on-chain program; mainly `Metaplex`. However, this had some drawbacks. For example the mint account to which the metadata attached had no awareness of the metadata account. So to figure out if a particular account had metadata we'd have to PDA the mint and the `Metaplex` program together and see if a Metadata account existed. 
+Historically, developers stored metadata in data accounts using a metadata on-chain program; mainly `Metaplex`. However, this had some drawbacks. For example the mint account to which the metadata "attached" had no awareness of the metadata account. So to figure out if a particular account had metadata we'd have to PDA the mint and the `Metaplex` program together and see if a Metadata account existed. 
 
 To solve this problem, Solana introduced an extension called `metadata-pointer` extension, which is simply a field in the mint account itself that points to the account that holds the metadata for this token. This will make it easier for client apps to find the respective metadata-account and retrieve the metadata.
 
