@@ -11,7 +11,7 @@ Solana has multiple onchain programs you can use. Instructions that use these pr
 # Overview
 ### Instructions
 
-In previous chapters, we used `SystemProgram.transfer()` function to create and instruction to send Solana. 
+In previous chapters, we used the `SystemProgram.transfer()` function to create an instruction to send SOL.
 
 When working with non-native programs, however, you’ll need to be more specific about creating instructions that are structured to match the corresponding program.
 
@@ -80,22 +80,22 @@ All transactions on the blockchain are publicly viewable on the [Solana Explorer
 
 ![Screenshot of Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
 
-# Lab - writing transactions for the ping counter program 
+# Lab
+### Writing transactions for the ping counter program
 
-We’re going to create a script to ping an onchain program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores it's data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+We’re going to create a script to ping an onchain program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores its data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
-![Solana stores programs and data in seperate accounts](../assets/pdas-note-taking-program.svg)
+Solana stores programs and data in separate accounts.
 
 ### 1. Basic scaffolding
 
 We'll start by using the same packages and `.env` file we made earlier in [intro to writing data](./intro-to-writing-data).
 
-Call the file `send-ping-transaction.ts`:
+Name the file `send-ping-transaction.ts`:
 
 ```typescript
 import * as web3 from "@solana/web3.js";
 import "dotenv/config"
-import base58 from "bs58";
 import { getKeypairFromEnvironment, requestAndConfirmAirdropIfRequired } from "@solana-developers/helpers";
 
 const payer = getKeypairFromEnvironment('SECRET_KEY')
@@ -104,13 +104,12 @@ const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
 const newBalance = await requestAndConfirmAirdropIfRequired(
   connection,
   payer.publicKey,
-  1 * LAMPORTS_PER_SOL,
-  0.5 * LAMPORTS_PER_SOL,
+  1 * web3.LAMPORTS_PER_SOL,
+  0.5 * web3.LAMPORTS_PER_SOL,
 );
-
 ```
 
-This will connect to Solana and load some Lamports if needed.
+This will connect to the Solana Devnet and load some Lamports if needed.
 
 ### 2. Ping program
 
@@ -119,7 +118,7 @@ Now let's talk to the Ping program! To do this, we need to:
 1. create a transaction
 2. create an instruction
 3. add the instruction to the transaction
-4. send the transaction.
+4. send the transaction
 
 Remember, the most challenging piece here is including the right information in the instructions. We know the address of the program that we are calling. We also know that the program writes data to a separate account whose address we also have. Let’s add the string versions of both of those as constants at the top of the file:
 
@@ -140,7 +139,6 @@ Next, let’s create the instruction. Remember, the instruction needs to include
 
 ```typescript
 const transaction = new web3.Transaction()
-
 const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
 const pingProgramDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
 
@@ -172,13 +170,13 @@ console.log(`✅ Transaction completed! Signature is ${signature}`)
 
 ### 3. Run the ping client and check the Solana explorer
 
-Now run the code again. 
+Now run the code with the following command:
 
 ```
 npx esrun send-ping-transaction.ts
 ```
 
-It may take a moment or two, but now the code should work and you should see a long string printed to the console, like the following:
+It may take a moment or two but you should see a long string printed to the console, like the following:
 
 ```
 ✅ Transaction completed! Signature is 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
@@ -189,16 +187,16 @@ Copy the transaction signature. Open a browser and go to [https://explorer.solan
 ![Screenshot of Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
 
 Scroll around the Explorer and look at what you're seeing:
- - The **Account Input(s)** will include: 
+- The **Account Input(s)** will include:
   - The address of your payer - being debited 5000 lamports for the transaction
   - The program address for the ping program
   - The data address for the ping program
- - The **Instruction** section will contain a single instruction with no data - the ping program is a pretty simple program, so it doesn't need any data.
- - The **Program Instruction Logs** shows the logs from the ping program.  
+- The **Instruction** section will contain a single instruction with no data - the ping program is a pretty simple program, so it doesn't need any data.
+- The **Program Instruction Logs** shows the logs from the ping program.
 
 [//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
 
-If you want to make it easier to look at Solana Explorer for transactions in the future, simply change your `console.log` to the following:
+If you want to make it easier to look at the Solana Explorer for transactions in the future, simply change your `console.log` to the following:
 
 ```typescript
 console.log(`You can view your transaction on the Solana Explorer at:\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`)
