@@ -2,11 +2,10 @@
 
 # Objectives
 - Be able to explain how metadata pointers work on Token22 Mints
-
 - Create an NFT with metadata pointer
-- Understand the metadata extension
+- Be able to explain how the metadata extension
 - Create an NFT with metadata embedded in the mint account itself
-- Understand the differences between the two approaches
+- Be able to explain how the differences between the two approaches
 
 # TL;DR
 - Token22 includes the `metadata` mint extensions which allows you to embed metadata right on the Mint Account
@@ -222,6 +221,13 @@ Now we can start talking about the new methods and fields that this extension wi
     - programId: SPL Token program account
 2. the constant `LENGTH_SIZE`: The number of bytes of the length of the data
 3. the constant `TYPE_SIZE`: The number of bytes of the type of the data
+
+so the process here would be as follows:
+1. allocate the account and pay the rent fee.
+2. initialize the metadata-pointer in the mint account, and point to the account itself
+3. initialize the mint
+4. initialize the metadata in the mint account
+5. add any additional custom fields if needed
 
 ### create NFT with metadata extension
 
