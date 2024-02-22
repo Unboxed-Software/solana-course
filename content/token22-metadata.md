@@ -1,72 +1,87 @@
-# Metadata and metadata pointer extension
-
-# Objectives
-- Be able to explain how metadata pointers work on Token22 Mints
-- Create an NFT with metadata pointer
-- Be able to explain how the metadata extension
+---
+title: Metadata and metadata pointer extension
+objectives:
+- Be able to explain how the metadata pointers and metadata extensions work on Token22 Mints
+- Create an NFT with the metadata pointer extension
 - Create an NFT with metadata embedded in the mint account itself
 - Be able to explain how the differences between the two approaches
+---
 
-# TL;DR
-- Token22 includes the `metadata` mint extensions which allows you to embed metadata right on the Mint Account
-- Token22 Mint's have direct pointers to the Metadata accounts, be that internal (embedded) or external (Metaplex)
+# Summary
+- Token22 offers the `metadata` mint extensions which allows you to embed metadata right on the Mint Account
+- With the `metadata pointer` extension, Token22 mints now include a direct pointer to the Metadata account, be that internal (embedded) or external (Metaplex)
 
 # Overview
 
-Historically, developers stored metadata in data accounts using a metadata on-chain program; mainly `Metaplex`. However, this had some drawbacks. For example the mint account to which the metadata "attached" had no awareness of the metadata account. So to figure out if a particular account had metadata we'd have to PDA the mint and the `Metaplex` program together and see if a Metadata account existed. That is not the only complication here, in order to create an NFT you will have to interact with another program other than the SPL token program, which could have a learning curve to grasp all knowledge needed to be able to interact with it easily, so for the `Metaplex` example, you will need to learn about the `Metaplex` library, and keep maintain it and updating, which could be a bit of a hassle. To solve this problem, Solana introduced these two extensions:
+Without Token22, developers store metadata in data accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. So to figure out if a particular account has metadata we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program, ie `Metaplex` to accomplish this. Some problems here are vender lock-in and increasing complexity. Token22's Metadata extensions fix this by introducing these two extensions:
 
-- `metadata-pointer` extension: which is simply a field in the mint account itself that points to the account that holds the metadata for this token
-- `metadata` extension: which will allow us to store the metadata in the mint itself, so we don't have to create a separate account for the metadata
+- `metadata-pointer` extension: Adds two simple fields in the mint account itself: a publicKey pointer to the account that holds the metadata for the token following the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), and the authority to update this pointer.
+- `metadata` extension: Adds the fields described in the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/) which allows us to store the metadata in the mint itself.
 
-## Off-chain metadata:
+<!-- ## Off-chain metadata:
 
-Storing data on-chain is expensive. Because of this, developers tend to store their fat NFT metadata (such as images, description, ...etc) to an off-chain storage provider. Where this data is stored, does not matter, any storage provider will do (AWS, IPFS, Arweave, etc...). All that matters is that you have a URI pointing to the fat metadata json file that you can store on-chain. How we store that URI is the focus of today's lesson.
+Storing data on-chain is expensive. Because of this, developers tend to store their fat NFT metadata (such as images, description, ...etc) on an off-chain storage provider. Where this data is stored, does not matter, any storage provider will do (AWS, IPFS, Arweave, etc...). All that matters is that you have a URI pointing to the fat metadata json file that you can store on-chain. How we store that URI is the focus of today's lesson. -->
 
 ## Metadata-Pointer extension:
 
-Since there is multiple metadata programs out there, a mint can have multiple different accounts all claiming to describe the mint. that will make it complicated to know which one is the "official" metadata for this mint. So to make that easier, Solana intrudes the `metadata-pointer` extension, this extension will allow us to have a `publicKey` field called `metadataAddress` in the mint account itself. This `publicKey` points to the account that holds the metadata for this token. As you'll see in the "Metadata" section, this address can be the mint itself!
+Since there are multiple metadata programs out there, a mint can have multiple different accounts all claiming to describe the mint. This makes it complicated to know which one is the "official" metadata for this mint. So to make that easier, Solana introduced the `metadata-pointer` extension. This extension adds a `publicKey` field called `metadataAddress` in the mint account itself. This `publicKey` points to the account that holds the metadata for this token. As you'll see in the "Metadata" section, this address can be the mint itself!
 
-For example if we create a Metaplex Metadata account, that account's `publicKey` would be inserted into the `metadataAddress` field on the Mint account. so To avoid phony mints claiming to be stablecoins, now a client can check if the mint and the metadata both point to each other or not.
+For example if we create a Metaplex Metadata account, that account's `publicKey` would be inserted into the `metadataAddress` field on the Mint account. so to avoid phony mints claiming to be stablecoins, now a client can check if the mint and the metadata both point to each other or not.
 
-So this will introduce some new functions and a couple of additional fields that we need to keep in mind when interacting with the token22 program:
+This introduces some new functions and a couple of additional fields that we need to keep in mind when interacting with token22's metadata extensions:
 
-1. The function `createInitializeMetadataPointerInstruction`
-  - this function takes 4 params as an input:
-    - mint: the mint account that will be created.
-    - authority: the authority that can set the metadata address
-    - Metadata Address: the account address that holds the metadata
-    - Program Id: the SPL Token program Id (in this case it will be the token22 program Id)
-  - it will return an instruction that will set the metadata address in the mint account.
-2. The function `createUpdateMetadataPointerInstruction`
-  - this function takes 5 params as an input:
-    - mint: the mint account that will be created.
-    - authority: the authority that can set the metadata address
-    - Metadata Address: the account address that holds the metadata
-    - Multi Signers: the multi signers that will sign the transaction
-    - Program Id: the SPL Token program Id (in this case it will be the token22 program Id)
-  - it will return an instruction that will update the metadata address in the mint account.
-3. The function `getMetadataPointerState`
+First the extension adds two new fields in the mint account:
+- `metadataAddress`: Holds the metadata account address for this token; it can be pointing to the mint token itself, if you use the `metadata` extension we'll talk about in a bit.
+- `authority`: in the mint account, which will hold the authority that can set the metadata address.
+
+Second, the extension has given way for 3 helper functions:
+- `createInitializeMetadataPointerInstruction`
+- `createUpdateMetadataPointerInstruction`
+- `getMetadataPointerState`
+
+The function `createInitializeMetadataPointerInstruction` will return an instruction that will set the metadata address in the mint account.
+
+This function takes 4 params as an input:
+  - `mint`: the mint account that will be created.
+  - `authority`: the authority that can set the metadata address
+  - `metadataAddress`: the account address that holds the metadata
+  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+
+```ts
+function createInitializeMetadataPointerInstruction(
+    mint: PublicKey,
+    authority: PublicKey | null,
+    metadataAddress: PublicKey | null,
+    programId: PublicKey
+)
+```
+
+The function `createUpdateMetadataPointerInstruction` returns an instruction that will update the metadata address in the mint account. You can update the metadata pointer at any point if you hold the authority.
+
+This function takes 5 params as an input:
+  - mint: the mint account that will be created.
+  - authority: the authority that can set the metadata address
+  - Metadata Address: the account address that holds the metadata
+  - Multi Signers: the multi signers that will sign the transaction
+  - Program Id: the SPL Token program Id (in this case it will be the token22 program Id)
+  
+//TODO Provide Code 
+
+//TODO Same here
+1. The function `getMetadataPointerState`
   - this function takes the mint as an input
   - it will return an object with two fields:
     - `metadataAddress`: the account address that holds the metadata
     - `authority`: the authority that can set the metadata address
-4. The field `metadataAddress` in the mint account, which will hold the account address that holds the metadata for this token, and it could be pointing to the mint token it self, we will talk about that more in the metadata extension section.
-5. The field `authority` in the mint account, which will hold the authority that can set the metadata address.
 
-So in order to create a mint with a metadata pointer, we will have to follow these steps:
-1. allocate the account and pay the rent fee.
-2. initialize the pointer. If you initialize the mint before the pointer, it will return an error.
-3. initialize the mint.
+### Create NFT with metadata-pointer
 
-these are the main steps outlined, we still have to do some work around them, for example we will need to upload our off-chain metadata if we are planing to store any, and we need to get the address of the metadata account that we will point to, we will get deeper into that below.
+In order to create a mint with a metadata pointer, we will have to follow these steps:
+1. Allocate the account and pay the rent fee.
+2. Initialize the pointer. If you initialize the mint before the pointer, it will return an error.
+3. Initialize the mint.
 
-Also good to know that you can update the metadata pointer at any point if you hold the authority on updating it by simple by calling the `createUpdateMetadataPointerInstruction` method, and for sure you will need to put that instruction in a transaction and send it to the network, and if you want to get the current state of the metadata pointer you can call the `getMetadataPointerState` method.
-
-### create NFT with metadata-pointer
-
-In order to use the metadata-pointer extension, it is required that we initialize the mint with a pointer to the metadata account, and we can achieve that by following the coming steps:
-
-#### Calculating the mint length:
+#### Allocating the account:
 
 Since all accounts on the Solana blockchain owe rent proportional to the size of the account, we need to know how big the mint account is in bytes. We can do this using the `getMintLen` method from the `@solana/spl-token` library. Since we are using the `MetadataPointer` extension, the mint account will be larger. Specifically because we need to store two more fields in the account:
 
