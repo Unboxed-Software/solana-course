@@ -2,6 +2,10 @@
 
 # Summary
 
+* `Token22` is a new program to interact with on-chain and provides new functionality to tokens and mints alike
+* `token_program` is a new Anchor account constraint allowing you to verify an account owned by a specific token program
+* Anchor introduced the concept of Interfaces to allow for programs to support interaction with both `spl-token` and `Token22`
+
 # Overview
 
 `Token22` is a new program on Solana mainnet that provides new functionality to Solana tokens and mints. With this program come new ways for interacting with token accounts on-chain in a program. In addition, it means there are now two different types of tokens that we must anticipate being sent in instructions to our program.
