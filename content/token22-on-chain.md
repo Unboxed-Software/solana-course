@@ -1,8 +1,6 @@
 # Supporting Token22 in on-chain programs
 
-# Objectives
-
-# TL;DR
+# Summary
 
 # Overview
 
@@ -11,8 +9,6 @@
 In this lesson, you'll learn how to design your program to accept both `spl-token` and `Token22` accounts using Anchor. You'll also learn how to interact with `Token22` accounts in your program, identifying which token program an account belongs to, and some differences between `spl-token` and `Token22` on-chain.
 
 ## Difference between legacy Token Program and Token22 Program
-- ~~review the concept of token program in terms of creating tokens accounts/mints~~
-- ~~byte for byte the same until the last instruction on the legacy Token program, after which the Token22 program has additional instructions~~
 - TODO: Hammer home that all token accounts either belong to one or the other - they are not interoperable (tokens from one must be used with that one, not other)
 
 For starters, we must make it very clear that `Token22` is a completely new program than what has traditionally been used in the past to create and interact with tokens on Solana - the original `spl-token` program. The `Token22` program is a superset of the original Token program, meaning all the instructions and functionality that are in the original Token program come with `Token22`. 
@@ -30,10 +26,6 @@ As more and more developers came to Solana, there was a need for more and more f
 `Token22` supports the exact same instruction set as the Token program and is actually the same byte-for-byte all the way through the very last instruction on the Token program. What this means is that `Token22` has the exact same instructions as the token program with the exact same logic and expected accounts as before. This was a design choice chosen by the `Token22` development team in order to add new token functionality with minimal disruption to users, wallets, and dApps. This makes it pretty easy for an existing program to support `Token22` out of the box. Since the instructions are the same, a program can keep any CPIs to the token program exactly the same and just allow the user to pass in either the `spl-token` or `Token22` program in the instruction.
 
 All new instructions in Token-2022 start where Token stops. Token has 25 unique instructions, with indices 0 through 24. `Token22` supports all of these instructions, and then adds new functionality at index 25.
-
-## `Token22` Added Functionality
-
-- Mention what the additional instructions on Token22 are
 
 ## How to determine which program owns a particular token
 
@@ -55,7 +47,7 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 ```
 
-You can do the same thing for `Token22`. THe only difference is the pubkey that we are importing and using in the account constraint.
+You can do the same thing for `Token22`. The only difference is the pubkey that we are importing and using in the account constraint.
 ```rust
 use anchor_spl::token_2022::ID;
 
@@ -70,7 +62,7 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 ```
 
-Given that all accounts involved in an instruction are required to be passed in, a client could potentially pass in the incorrect token program and/or accounts. You can actually verify that the token accounts passed in to your program belong to the token program that was passed in as well. You would do this similarly to the previous examples, but instead of passing in the static `ID` of the token program you check the give `token_program`.
+Given that all accounts involved in an instruction are required to be passed in, a client could potentially pass in the incorrect token program and/or accounts. You can actually verify that the token accounts passed in to your program belong to the token program that was passed in as well. You would do this similarly to the previous examples, but instead of passing in the static `ID` of the token program you check the given `token_program`.
 
 ```rust
 // verify the given token and mint accounts match the given token_program
@@ -84,16 +76,110 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 pub token_program: Interface<'info, token_interface::TokenInterface>,
 ```
+Here, we introduced the `*::token_program` anchor account constraint and showed how it can be used. This constraint, along with a few other Anchor primitives were created specifically for the support of two standard token programs. Anchor has the capability to make CPI calls behind the scenes when initializing accounts. Before `Token22`, when initializing a token or mint account Anchor would automatically make the CPI to the original token program. Now that there are two token programs, the `token_program` constraint also indicates to Anchor which program to invoke when initializing a token or mint account. This specification allows you to pass in both token programs and initialize accounts on each one, if you wish.
 
-## Tools provided by Anchor for handling multiple token programs
-- Interfaces are the newest way to deserialize account types
-- `anchor_spl::token_interface` crate works with either program - just pass the appropriate program ID
-- Add Anchor constraints that verify that tokens belong to the stated program
-- Example of each interface 
-  - deserializing a token account
-  - deserializing a mint account
-  - same thing with the token program
-- Potentially show how the interfaces are working under the hood
+## Anchor Interfaces
+
+Interfaces are Anchor's newest feature that really simplify working with `Token22` in a program. There are two relevant interface types from the `anchor_lang` crate:
+* [`Interface`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface/index.html)
+* [`InterfaceAccount`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/index.html)
+
+And three from the `anchor_spl` crate:
+* [`Mint`](https://docs.rs/anchor-spl/latest/anchor_spl/token_interface/struct.Mint.html)
+* [`TokenAccount`](https://docs.rs/anchor-spl/latest/anchor_spl/token_interface/struct.TokenAccount.html)
+* [`TokenInterface`](https://docs.rs/anchor-spl/latest/anchor_spl/token_interface/struct.TokenInterface.html)
+
+In the previous section, we defined the `token_program` in our example as
+```rust
+pub token_program: Interface<'info, token_interface::TokenInterface>,
+```
+This makes use of `Interface` and `token_interface::TokenInterface`. 
+
+`Interface` is a wrapper over the original `Program` type, allowing for multiple possible program ids. It's a type validating that the account is one of a set of given Programs. The `Interface` type checks the following:
+* Given account is executable.
+* Given account is one of a set of expected accounts from the given interface type.
+
+The `Interface` wrapper must be used with a specific interface type. The `anchor_lang` and `anchor_spl` crates provide the following `Interface` type of out the box:
+* [TokenInterface](https://docs.rs/anchor-spl/latest/anchor_spl/token_interface/struct.TokenInterface.html)
+
+`TokenInterface` provides an interface type that expects the pubkey of the account passed in to match either `spl_token::ID` or `spl_token_2022::ID`, it verifies that the given account pubkey matches one of these program IDs. These program IDs are actually hard coded on the `TokenInterface` type in Anchor.
+```rust
+static IDS: [Pubkey; 2] = [spl_token::ID, spl_token_2022::ID];
+
+#[derive(Clone)]
+pub struct TokenInterface;
+
+impl anchor_lang::Ids for TokenInterface {
+    fn ids() -> &'static [Pubkey] {
+        &IDS
+    }
+}
+```
+
+And Anchor checks that the ID of the account passed in matches one of those two IDs above. If the given account does not match either of these two, then Anchor will throw an `InvalidProgramId` error and prevent the transaction from executing.
+
+```rust
+impl<T: Ids> CheckId for T {
+    fn check_id(id: &Pubkey) -> Result<()> {
+        if !Self::ids().contains(id) {
+            Err(error::Error::from(error::ErrorCode::InvalidProgramId).with_account_name(*id))
+        } else {
+            Ok(())
+        }
+    }
+}
+
+.
+.
+.
+
+impl<'a, T: CheckId> TryFrom<&'a AccountInfo<'a>> for Interface<'a, T> {
+    type Error = Error;
+    /// Deserializes the given `info` into a `Program`.
+    fn try_from(info: &'a AccountInfo<'a>) -> Result<Self> {
+        T::check_id(info.key)?;
+        if !info.executable {
+            return Err(ErrorCode::InvalidProgramExecutable.into());
+        }
+        Ok(Self::new(info))
+    }
+}
+```
+
+The `InterfaceAccount` type is similar to the `Interface` type in that it is also a wrapper, this time around `AccountInfo`. `InterfaceAccount` is used on accounts, it verifies program ownership and deserializes the underlying data into a Rust type. In this lesson, we'll focus on using the `InterfaceAccount` on token and mint accounts. We can use the `InterfaceAccount` wrapper with the `Mint` or `TokenAccount` types from the `anchor_spl::token_interface` crate that we mentioned before. Here is an example:
+
+```rust
+use {
+    anchor_lang::prelude::*,
+    anchor_spl::{token_interface},
+};
+
+#[derive(Accounts)]
+pub struct Example<'info>{
+    // Token account
+    #[account(
+        token::token_program = token_program
+    )]
+    pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+    // Mint account
+    #[account(
+        mut,
+        mint::token_program = token_program
+    )]
+    pub mint_account: InterfaceAccount<'info, token_interface::Mint>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+}
+```
+
+If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` accounts types are not anything new. In fact, the concept of the `TokenAccount` and `Mint` account types are not new, what is new is how they work with the `InterfaceAccount` wrapper now. The `InterfaceAccount` wrapper allows for either `spl-token` or `Token22` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a seamless experience for developers, giving you the flexibility to interact with both `spl-token` and `Token22` in your program.
+
+Something to note, you cannot use the any of these types from the `token_interface` module with the regular Anchor `Program` and/or `Account` wrappers. These new types can only be used with either the `Interface` or `InterfaceAccount` wrappers. For example, the following would not be valid and any transactions sent to this instruction would return an error.
+
+```rust
+// This is invalid, using as an example.
+// Cannot wrap Account over a token_interface::* type.
+pub token_account: Account<'info, token_interface::TokenAccount>
+```
 
 
 # Lab
