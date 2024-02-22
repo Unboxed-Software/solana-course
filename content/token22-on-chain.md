@@ -188,7 +188,7 @@ pub token_account: Account<'info, token_interface::TokenAccount>
 
 # Lab
 
-Now let's get some hands on experience with `Token22` on-chain by implementing a token staking program that will accept both `spl-token` and `Token22` accounts. As far as staking programs go, this will be a pretty simple one as we are just using it as an example to illustrate working with `Token22` accounts in a Solana program. The progrma will have the following design:
+Now let's get some hands on experience with `Token22` on-chain by implementing a token staking program that will accept both `spl-token` and `Token22` accounts. As far as staking programs go, this will be a pretty simple one as we are just using it as an example to illustrate working with `Token22` accounts in a Solana program. The program will have the following design:
 
 * A stake pool account will be created that will hold all of the tokens that are staked. There will only be one staking pool for a given token. All will be staked in a token account owned by the program.
 * Every stake pool will have a state account that will hold information regarding the amount of tokens staked in the pool, etc.
@@ -317,7 +317,7 @@ anchor test
 
 ### 5. Explore program design
 
-Now that we have confirmed the program builds, let's take a look at the layout of the program. You'll notice inside `/programs/token22-staking/src` there is are a few different files:
+Now that we have confirmed the program builds, let's take a look at the layout of the program. You'll notice inside `/programs/token22-staking/src` there are a few different files:
 * `lib.rs`
 * `error.rs`
 * `state.rs`
@@ -325,7 +325,7 @@ Now that we have confirmed the program builds, let's take a look at the layout o
 
 The `errors.rs` and `utils.rs` files are already filled out for you. `errors.rs` is where we have defined our custom errors for our program. To do this, you just have to create a public  `enum` and define each error.
 
-`utils.rs` is a file that only contains one function called `check_token_program`. This is just a file where you can write helper functions if you have the need. This function was written ahead of time and will be used in our program to simply log the specific token program that was passed in the instruction. We will be using both the `Token22` and regular token program in this program, so this function will help clarify that distinction.
+`utils.rs` is a file that only contains one function called `check_token_program`. This is just a file where you can write helper functions if you have the need. This function was written ahead of time and will be used in our program to simply log the specific token program that was passed in the instruction. We will be using both `Token22` and `spl-token` in this program, so this function will help clarify that distinction.
 
 `lib.rs` is the entrypoint to our program, as is the common practice in all Solana programs. Here we define our program id using the `declare_id` Anchor macro and the public `token_22_staking` module. This module is where we define our publicly callable instructions, these can be thought of as our program's API.
 
@@ -458,7 +458,7 @@ See https://www.anchor-lang.com/docs/the-accounts-struct#safety-checks for more 
 
 Next, we'll define the `pool_state` account.
 
-This account utilizes the `init` constraint, which indicates to anchor that we need to create the account. The account is expected to be a PDA derived with the `token_mint` account key and `STAKE_POOL_STATE_SEED` as keys. `payer` is required to pay the rent required to create this account. And we allocate enough space for the account to store the `PoolState` data struct that we defined in the `state.rs` file. Lastly, we use the `Account` type to deserialize the given account into the `PoolState` struct.
+This account utilizes the `init` constraint, which indicates to anchor that we need to create the account. The account is expected to be a PDA derived with the `token_mint` account key and `STAKE_POOL_STATE_SEED` as keys. `payer` is required to pay the rent required to create this account. And we allocate enough space for the account to store the `PoolState` data struct that we defined in the `state.rs` file. Lastly, we use the `Account` wrapper to deserialize the given account into the `PoolState` struct.
 
 ```rust
 // pool state account
@@ -479,7 +479,7 @@ We make use of two account constraints on this `token_mint` account. `mint::toke
 The second constraint `mint::authority = payer` verifies that the authority over the mint passed in is the `payer` account, which will also be required to be a signer. This may seem counterintuitive, but we do this because at the moment we are inherently restricting the program to one staking pool per token due to the PDA seeds we use for the `pool_state` account. We also allow the creator of the pool to define what the reward token mint is for staking in that pool. Because the program currently limits one pool per token, we wouldn't want to allow just anybody to create a staking pool for a token. This gives the creator of the pool control over what the reward is for staking here. Imagine if we did not require the `mint::authority`, this would allow anyone to create the staking pool for `Token X` and define what the reward is for everyone that stakes `Token X` with this staking program. If they decide to define the reward token as the meme coin `FooBar`, then everyone would be stuck with that staking pool in this program. For this reason, we will only allow the `token_mint` authority to create a staking pool for said `token_mint`. This program design would probably not be a good choice for the real world, it does not scale very well. But, it serves as a great example to help get the points across in this lesosn while keeping things relatively simple. This can also serve as a good exercise in program design. How would you design this program to make it more scalable for mainnet?
 
 Lastly, we utilize the `InterfaceAccount` struct to deserialize the given account into `token_interface::Mint`. 
-The `InterfaceAccount` type is a wrapper around `AccountInfo` that verifies program ownership and deserializes underlying data into a given Rust type. Used with the `token_interface::Mint` struct, anchor knows to deserialize this into a token account. The `token_interface::Mint` struct provides support for both `spl-token` and `token22` mints out of the box! This interface concept was created specifically for this use case. You can read more about the `InterfaceAccount` in the [`anchor_lang` docs](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/struct.InterfaceAccount.html).
+The `InterfaceAccount` type is a wrapper around `AccountInfo` that verifies program ownership and deserializes underlying data into a given Rust type. Used with the `token_interface::Mint` struct, Anchor knows to deserialize this into a Mint account. The `token_interface::Mint` struct provides support for both `spl-token` and `token22` mints out of the box! This interface concept was created specifically for this use case. You can read more about the `InterfaceAccount` in the [`anchor_lang` docs](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/struct.InterfaceAccount.html).
 
 ```rust
 // Mint of token
@@ -790,7 +790,7 @@ First taking a look at the `pool_state` account. This is the same account we hav
 ```rust
 #[derive(Accounts)]
 pub struct Stake<'info> {
-        // pool state account
+    // pool state account
     #[account(
         mut,
         seeds = [token_mint.key().as_ref(), STAKE_POOL_STATE_SEED.as_bytes()],
@@ -801,7 +801,7 @@ pub struct Stake<'info> {
 }
 ```
 
-Next, is the `token_mint` which is required for the transfer CPI in this instruction. This is the mint of the token that is being staked. We verify that the given mint is of the given `token_program` to make sure we are not mixing any spl-token and Token22 accounts.
+Next, is the `token_mint` which is required for the transfer CPI in this instruction. This is the mint of the token that is being staked. We verify that the given mint is of the given `token_program` to make sure we are not mixing any `spl-token` and `Token22` accounts.
 
 ```rust
 // Mint of token to stake
@@ -822,7 +822,7 @@ The `pool_authority` account is again the PDA that is the authority over all of 
 pub pool_authority: UncheckedAccount<'info>,
 ```
 
-Now we have the `token_vault` which is where the tokens will be held while they are staked. This account MUST be verified since this is where the tokens are transferred to. Here, we verify the given account is the expected PDA derived from the `token_mint`, `pool_authority`, and `VAULT_SEED` seeds. We also verify the token account belongs to the given `token_program`. We use `InterfaceAccount` and `token_interface::TokenAccount` here again to support either spl-token or Token22 accounts.
+Now we have the `token_vault` which is where the tokens will be held while they are staked. This account MUST be verified since this is where the tokens are transferred to. Here, we verify the given account is the expected PDA derived from the `token_mint`, `pool_authority`, and `VAULT_SEED` seeds. We also verify the token account belongs to the given `token_program`. We use `InterfaceAccount` and `token_interface::TokenAccount` here again to support either `spl-token` or `Token22` accounts.
 
 ```rust
 // pool token account for Token Mint
@@ -968,15 +968,13 @@ Where `T` is the accounts struct for the instruction you are invoking.
 
 This is very similar to the `Context` object that traditional Anchor instructions expect as input (i.e. `ctx: Context<Stake>`). This is the same concept here, except we are defining one for a Cross-Program Invovation instead!
 
-In our case, we will be invoking the `transfer_checked` instruction in either token programs, hence the `transfer_checked_ctx` method name and the `TransferChecked` type in the returned `CpiContext`. You may be asking, "Why `transfer_checked` instead of the regular `transfer` instruction?" Well, the regular `transfer` instruction has been deprecated in Token22 and it is suggested you use `transfer_checked` going forward.
-
-// TODO: Elaborate here. what's the difference between the two? Why is transfer deprecated?
+In our case, we will be invoking the `transfer_checked` instruction in either token programs, hence the `transfer_checked_ctx` method name and the `TransferChecked` type in the returned `CpiContext`. The regular `transfer` instruction has been deprecated in `Token22` and it is suggested you use `transfer_checked` going forward.
 
 Now that we know what the goal of this method is, we can implement it! First, we will need to define the program we will be invoking. This should be the `token_program` that was passed into our accounts struct.
 
 ```rust
 impl<'info> Stake <'info> {
-    // transfer_checked for Token2022
+    // transfer_checked for spl-token or Token2022
     pub fn transfer_checked_ctx(&self) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
         let cpi_program = self.token_program.to_account_info();
     }
@@ -1000,7 +998,7 @@ This data type expects four different `AccountInfo` objects, all of which should
 
 ```rust
 impl<'info> Stake <'info> {
-    // transfer_checked for Token2022
+    // transfer_checked for spl-token or Token2022
     pub fn transfer_checked_ctx(&self) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
         let cpi_program = self.token_program.to_account_info();
         let cpi_accounts = TransferChecked {
@@ -1034,7 +1032,7 @@ impl<'info> Stake <'info> {
 
 With this defined, we can call `transfer_checked_ctx` at any point in our `handler` method and it will return a `CpiContext` object that we can use to execute a CPI.
 
-Moving on to the `handler` function, we'll need to do a couple of things here. First, we need to use our `transfer_checked_ctx` method to create the correct `CpiContext` and make the CPI. Then, we have some critical updates to make to our two state accounts. As a reminder, we have two state accounts `PoolState` and `StakeEntry`. The former holds information regarding current of the overall staking pool, while the latter is in charge of keeping an accurate recording of the a specific user's stake in a pool. With that in mind, any time there is an update to the staking pool we should be updating both the `PoolState` and a given user's `StakeEntry` accounts in some way.
+Moving on to the `handler` function, we'll need to do a couple of things here. First, we need to use our `transfer_checked_ctx` method to create the correct `CpiContext` and make the CPI. Then, we have some critical updates to make to our two state accounts. As a reminder, we have two state accounts `PoolState` and `StakeEntry`. The former holds information regarding current state of the overall staking pool, while the latter is in charge of keeping an accurate recording of the a specific user's stake in a pool. With that in mind, any time there is an update to the staking pool we should be updating both the `PoolState` and a given user's `StakeEntry` accounts in some way.
 
 For starters, let's implement the actual CPI. Since we defined the program and accounts required for the CPI ahead of time in the `transfer_checked_ctx()` method, the actual CPI is very simple. We'll make use of another helper function from the `anchor_spl::token_2022` crate, specifically the `transfer_checked` function. This is [defined as the following](https://docs.rs/anchor-spl/latest/anchor_spl/token_2022/fn.transfer_checked.html):
 
@@ -1045,7 +1043,7 @@ pub fn transfer_checked<'info>(
     decimals: u8
 ) -> Result<()>
 ```
-It takes three things as input
+It takes three input parameters:
 * `CpiContext`
 * amount
 * decimals
@@ -1066,7 +1064,7 @@ pub fn handler(ctx: Context<Stake>, stake_amount: u64) -> Result <()> {
     msg!("User entry initial balance: {}", ctx.accounts.user_stake_entry.balance);
 
     let decimals = ctx.accounts.token_mint.decimals;
-    // transfer_checked from token22 program
+    // transfer_checked for either spl-token or token22 program
     transfer_checked(ctx.accounts.transfer_checked_ctx(), stake_amount, decimals)?;
     
     Ok(())
@@ -1105,9 +1103,9 @@ pub fn transfer_checked<'info>(
 }
 ```
 
-Using anchor's CpiContext wrapper is much more clean and it abstracts a lot away, but it's important you understand what's going on under the hood.
+Using anchor's `CpiContext` wrapper is much cleaner and it abstracts a lot away, but it's important you understand what's going on under the hood.
 
-Once the `transfer_checked` function has completed, we can start updating our state accounts because that means the transfer has taken place. The two accounts we'll wnat to update are the `pool_state` and `user_entry` accounts, which represent the overall staking pool data and this specific user's data regarding their stake in this pool.
+Once the `transfer_checked` function has completed, we can start updating our state accounts because that means the transfer has taken place. The two accounts we'll want to update are the `pool_state` and `user_entry` accounts, which represent the overall staking pool data and this specific user's data regarding their stake in this pool.
 
 Since this is the `stake` instruction and the user is transferring tokens into the pool, both values representing the amount the user has staked and the total amount staked in the pool should increase by the `stake_amount`.
 
@@ -1135,7 +1133,7 @@ Now that was a lot and we covered some new stuff, so feel free to go back throug
 
 ### 10. `unstake` Instruction
 
-Lastly, the `unstake` transaction will be pretty similar to the `stake` transaction. We'll need to transfer tokens out of the stake pool to the user, this is also when the user will receive their staking rewards. Their staking rewards will be minted to the user in this same transaction. Something to note here, we are not going to allow the user to determine how many tokens are unstaked, we will simply unstake all of the tokens that they currently have staked. Additionally, we are not going to implement a very realistic algorithm to determine how many reward tokens they have accrued. We'll simply take their stake balance and multiply by 10 to get the amount of reward tokens to mint them. We do this again to simplify the program and remain focused on the goal of the lesson, Token22!
+Lastly, the `unstake` transaction will be pretty similar to the `stake` transaction. We'll need to transfer tokens out of the stake pool to the user, this is also when the user will receive their staking rewards. Their staking rewards will be minted to the user in this same transaction. Something to note here, we are not going to allow the user to determine how many tokens are unstaked, we will simply unstake all of the tokens that they currently have staked. Additionally, we are not going to implement a very realistic algorithm to determine how many reward tokens they have accrued. We'll simply take their stake balance and multiply by 10 to get the amount of reward tokens to mint them. We do this again to simplify the program and remain focused on the goal of the lesson, `Token22`!
 
 The account structure will be very similar to the `stake` instruction, but there are a few differences. We'll need
 
@@ -1262,8 +1260,6 @@ Now, we have two different CPIs to make in this instruction - a transfer and a m
 
 Again, let's create two skeleton helper functions implemented on the `Unstake` data struct: `transfer_checked_ctx` and `mint_to_ctx`.
 
-// TODO: talk about the lifetimes here
-
 ```rust
 impl<'info> Unstake <'info> {
     // transfer_checked for Token2022
@@ -1292,7 +1288,7 @@ pub fn new_with_signer(
 Additionally, the `from` and `to` accounts in our `TransferChecked` struct will be reversed from before.
 
 ```rust
-// transfer_checked for Token2022
+// transfer_checked for spl-token or Token2022
 pub fn transfer_checked_ctx<'a>(&'a self, seeds: &'a [&[&[u8]]]) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
 
     let cpi_program = self.token_program.to_account_info();
