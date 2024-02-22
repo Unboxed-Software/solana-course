@@ -13,7 +13,8 @@
 In this lesson, you'll learn how to design your program to accept both `spl-token` and `Token22` accounts using Anchor. You'll also learn how to interact with `Token22` accounts in your program, identifying which token program an account belongs to, and some differences between `spl-token` and `Token22` on-chain.
 
 ## Difference between legacy Token Program and Token22 Program
-- TODO: Hammer home that all token accounts either belong to one or the other - they are not interoperable (tokens from one must not be used with that one, not other)
+- TODO: Hammer home that all token accounts either belong to one or the other - they are not interoperable (tokens from one program can only transfer/receive tokens from that same programm)
+- TODO: mention associated_token::token_program = token_program constraint as well
 
 For starters, we must make it very clear that `Token22` is a completely new program than what has traditionally been used in the past to create and interact with tokens on Solana - the original `spl-token` program. The `Token22` program is a superset of the original Token program, meaning all the instructions and functionality that are in the original Token program come with `Token22`. 
 
