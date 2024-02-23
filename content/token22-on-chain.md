@@ -1,18 +1,23 @@
-# Supporting Token22 in on-chain programs
+---
+title: Supporting Token22 in on-chain programs
+objectives:
+- TODO Fill out
+---
 
 # Summary
 
-* `Token22` is a new program to interact with on-chain and provides new functionality to tokens and mints alike
-* `token_program` is a new Anchor account constraint allowing you to verify an account is owned by a specific token program
-* Anchor introduced the concept of Interfaces to allow for programs to support interaction with both `spl-token` and `Token22`
+- `Token22` is a new program to interact with on-chain and provides new functionality to tokens and mints alike
+- `token_program` is a new Anchor account constraint allowing you to verify an account is owned by a specific token program
+- Anchor introduced the concept of Interfaces to allow for programs to support interaction with both `spl-token` and `Token22`
 
 # Overview
 
-`Token22` is a new program on Solana mainnet that provides new functionality to Solana tokens and mints. With this program come new ways for interacting with token accounts on-chain in a program. In addition, it means there are now two different types of tokens that we must anticipate being sent in instructions to our program.
+`Token22` is a new program on Solana mainnet that provides new functionality to Solana tokens and mints. With this program comes new ways for interacting with token accounts on-chain in a program. This means there are two different types of Token Programs that we must anticipate being sent in instructions to our program.
 
 In this lesson, you'll learn how to design your program to accept both `spl-token` and `Token22` accounts using Anchor. You'll also learn how to interact with `Token22` accounts in your program, identifying which token program an account belongs to, and some differences between `spl-token` and `Token22` on-chain.
 
 ## Difference between legacy Token Program and Token22 Program
+
 - TODO: Hammer home that all token accounts either belong to one or the other - they are not interoperable (tokens from one program can only transfer/receive tokens from that same programm)
 - TODO: mention associated_token::token_program = token_program constraint as well
 
@@ -22,11 +27,11 @@ For starters, we must make it very clear that `Token22` is a completely new prog
 
 `Token` pubkey: [TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA](https://explorer.solana.com/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA)
 
-Why does this matter? Well, all tokens and mints on Solana are created from and owned by programs. Previously, there was one primary program in charge of creating these accounts. This program defined a common implementation for fungible and non-fungible tokens alike. All interactions with tokens went through this program. Creating a token mint and/or token account required invoking the `InitializeMint`/`InitializeAccount` instructions on the token program. To transfer tokens, you invoked the `Transfer` instruction. There are many more instructions in this program, but the point is all actions taken with fungible and non-fungible tokens required invoking specific instructions on this specific program.
+This matters because all tokens and mints on Solana are created from and owned by programs. Previously, there was one primary program in charge of creating these accounts. This program defined a common implementation for fungible and non-fungible tokens alike. All interactions with tokens went through this program. Creating a token mint and/or token account required invoking the `InitializeMint`/`InitializeAccount` instructions on the token program. To transfer tokens, you invoked the `Transfer` instruction. There are many more instructions in this program, but the point is all actions taken with fungible and non-fungible tokens required invoking specific instructions on this specific program.
 
 As more and more developers came to Solana, there was a need for more and more functionality with tokens that just was not currently available in the token program. Previously if you had a desire to do something with a token that was not supported on the token program, you would have to work around it by forking the token program and adding your own logic to support your specific need. Doing so would give you the functionality you were looking for, but it creates a very fragmented ecosystem. Fundamentally, this hypothetical token you have just created is different than any other token on Solana simply from the fact that it was created from and owned by a different program. Any wallets and/or clients that would like to support this new token need to add specific logic to do so. Whereas, any token created from the standard token program just works out of the box.
 
-`Token22` is the solution to that potentially fragmented ecosystem. As we said before, `Token22` is a strict superset of the original token program and comes with all the previous functionality. The only difference is `Token22` adds quite a lot of new functionality on top of the token program. You can think of `Token22` as the upgrade for Solana tokens. Now, you may ask why does this require an entirely new program? Why not just update the original program? (TODO: Answer this question). 
+`Token22` is the solution to that potentially fragmented ecosystem. As we said before, `Token22` is a strict superset of the original token program and comes with all the previous functionality. The only difference is `Token22` adds quite a lot of new functionality on top of the token program. You can think of `Token22` as the upgrade for Solana tokens.
 
 `Token22` supports the exact same instruction set as the Token program and is actually the same byte-for-byte all the way through the very last instruction on the Token program. What this means is that `Token22` has the exact same instructions as the token program with the exact same logic and expected accounts as before. This was a design choice chosen by the `Token22` development team in order to add new token functionality with minimal disruption to users, wallets, and dApps. This makes it pretty easy for an existing program to support `Token22` out of the box. Since the instructions are the same, a program can keep any CPIs to the token program exactly the same and just allow the user to pass in either the `spl-token` or `Token22` program in the instruction.
 
@@ -67,7 +72,7 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 ```
 
-Given that all accounts involved in an instruction are required to be passed in, a client could potentially pass in the incorrect token program and/or accounts. You can actually verify that the token accounts passed in to your program belong to the token program that was passed in as well. You would do this similarly to the previous examples, but instead of passing in the static `ID` of the token program you check the given `token_program`.
+Given that all accounts involved in an instruction are required to be passed in, a client could potentially pass in the incorrect token program and/or accounts. Fortunately, you can verify that the token accounts passed in to your program belong to the token program that was passed in. You would do this similarly to the previous examples, but instead of passing in the static `ID` of the token program you check the given `token_program`.
 
 ```rust
 // verify the given token and mint accounts match the given token_program
