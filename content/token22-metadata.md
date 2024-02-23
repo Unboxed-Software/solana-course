@@ -18,10 +18,6 @@ Without Token22, developers store metadata in data accounts using a metadata on-
 - `metadata-pointer` extension: Adds two simple fields in the mint account itself: a publicKey pointer to the account that holds the metadata for the token following the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), and the authority to update this pointer.
 - `metadata` extension: Adds the fields described in the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/) which allows us to store the metadata in the mint itself.
 
-<!-- ## Off-chain metadata:
-
-Storing data on-chain is expensive. Because of this, developers tend to store their fat NFT metadata (such as images, description, ...etc) on an off-chain storage provider. Where this data is stored, does not matter, any storage provider will do (AWS, IPFS, Arweave, etc...). All that matters is that you have a URI pointing to the fat metadata json file that you can store on-chain. How we store that URI is the focus of today's lesson. -->
-
 ## Metadata-Pointer extension:
 
 Since there are multiple metadata programs out there, a mint can have multiple different accounts all claiming to describe the mint. This makes it complicated to know which one is the "official" metadata for this mint. So to make that easier, Solana introduced the `metadata-pointer` extension. This extension adds a `publicKey` field called `metadataAddress` in the mint account itself. This `publicKey` points to the account that holds the metadata for this token. As you'll see in the "Metadata" section, this address can be the mint itself!
@@ -186,65 +182,201 @@ pub struct TokenMetadata {
 ```
 
 With these added fields, the `@solana/spl-token-metadata` library has been updated with the following functions to help out:
+- `createInitializeInstruction`
+- `createUpdateFieldInstruction`
+- `createRemoveKeyInstruction`
+- `createUpdateAuthorityInstruction`
+- `createEmitInstruction`
+- `pack`
+- `unpack`
 
-//TODO - match the formatting of the functions above
-
-1. The function `createInitializeInstruction`: Initializes the metadata in the account and set the basic metadata fields (name, symbol, uri).
-  - this function takes 8 params as an input:
-    - `mint`: the mint account that will be initialize.
-    - `metadata`: the metadata account that will be created.
-    - `mintAuthority`: the authority that can mint tokens
-    - `updateAuthority`: the authority that can sign to update the metadata
-    - `name`: the longer name of the token
-    - `symbol`: the shortened symbol for the token
-    - `uri`: the URI pointing to richer metadata
-    - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
-  - it will return an instruction that will set the basic metadata fields in the mint account.
-2. The function `createUpdateFieldInstruction`: Updates a field in a token-metadata account. This may be an existing or totally new field
-  - this function takes 5 params as an input:
-    - `metadata`: the metadata account address.
-    - `updateAuthority`: the authority that can sign to update the metadata
-    - `field`: the field that we want to update
-    - `value`: the new value of the field
-    - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
-  - it will return an instruction that will set any custom field we want to store as a metadata in the mint account.
-3. The function `createRemoveKeyInstruction`:  Removes a field from a token-metadata account
-  - this function takes 5 params as an input:
-    - `metadata`: the metadata account address.
-    - `updateAuthority`: the authority that can sign to update the metadata
-    - `field`: the field that we want to remove
-    - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
-    - `idempotent`: When true, instruction will not error if the key does not exist
-  - it will return an instruction that will remove any custom field we want.
-4. the function `createUpdateAuthorityInstruction`: Updates the authority of a token-metadata account
-  - this function takes 4 params as an input:
-    - `metadata`: the metadata account address.
-    - `oldAuthority`: the current authority that can sign to update the metadata
-    - `newAuthority`: the new authority that can sign to update the metadata
-    - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
-  - it will return an instruction that will update the authority of the metadata account.
-  // TODO: not sure what does this function do, I found it in the library but I couldn't find any documentation about it. the only documentation is [here](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), maybe we should just remove it.
-1. The function `createEmitInstruction`: Emits token-metadata in the expected TokenMetadata state format. Although implementing a struct that uses the exact state is optional, this instruction is required.
-  - this function takes 4 params as an input:
-    - `metadata`: the metadata account address.
-    - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
-    - `start`: *Optional* the start the metadata
-    - `end`: *Optional* the end the metadata
-  - it will return an instruction that will emit the token-metadata in the expected TokenMetadata state format.
-2. The function `pack`: Packs the metadata into a byte array
-3. The function `unpack`: Unpacks the metadata from a byte array
-
-**From the `@solana/spl-token-metadata` library:**
-1. the function `getTokenMetadata`: Returns the metadata for the given mint
-  - this function takes 2 params as an input:
-    - connection: Connection to use
-    - address: Mint account
-    - commitment: Desired level of commitment for querying the state
-    - programId: SPL Token program account
-2. the constant `LENGTH_SIZE`: The number of bytes of the length of the data
-3. the constant `TYPE_SIZE`: The number of bytes of the type of the data
+we also have one more new functions, and two constants from the `@solana/spl-token` library:
+- `getTokenMetadata`
+- `LENGTH_SIZE`: a constant number of bytes of the length of the data
+- `TYPE_SIZE`: a constant number of bytes of the type of the data
 
 
+The function `createInitializeInstruction` initializes the metadata in the account and set the basic metadata fields (name, symbol, uri) and returns an instruction that will set the basic metadata fields in the mint account.
+
+This function takes 8 params as an input:
+  - `mint`: the mint account that will be initialize.
+  - `metadata`: the metadata account that will be created.
+  - `mintAuthority`: the authority that can mint tokens
+  - `updateAuthority`: the authority that can sign to update the metadata
+  - `name`: the longer name of the token
+  - `symbol`: the shortened symbol for the token
+  - `uri`: the URI pointing to richer metadata
+  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+
+```ts
+export interface InitializeInstructionArgs {
+    programId: PublicKey;
+    metadata: PublicKey;
+    updateAuthority: PublicKey;
+    mint: PublicKey;
+    mintAuthority: PublicKey;
+    name: string;
+    symbol: string;
+    uri: string;
+}
+
+export function createInitializeInstruction(args: InitializeInstructionArgs): TransactionInstruction {
+    ...
+}
+```
+
+The function `createUpdateFieldInstruction` updates a field in a token-metadata account. This may be an existing or totally new field and returns an instruction that will do so.
+
+this function takes 5 params as an input:
+  - `metadata`: the metadata account address.
+  - `updateAuthority`: the authority that can sign to update the metadata
+  - `field`: the field that we want to update
+  - `value`: the new value of the field
+  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+
+```ts
+export interface UpdateFieldInstruction {
+    programId: PublicKey;
+    metadata: PublicKey;
+    updateAuthority: PublicKey;
+    field: Field | string;
+    value: string;
+}
+
+export function createUpdateFieldInstruction(args: UpdateFieldInstruction): TransactionInstruction {
+    ...
+}
+```
+
+The function `createRemoveKeyInstruction` removes a field from a token-metadata account and returns an instruction that will do so.
+
+this function takes 5 params as an input:
+  - `metadata`: the metadata account address.
+  - `updateAuthority`: the authority that can sign to update the metadata
+  - `field`: the field that we want to remove
+  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+  - `idempotent`: When true, instruction will not error if the key does not exist
+
+```ts
+export interface RemoveKeyInstructionArgs {
+    programId: PublicKey;
+    metadata: PublicKey;
+    updateAuthority: PublicKey;
+    key: string;
+    idempotent: boolean;
+}
+
+export function createRemoveKeyInstruction(args: RemoveKeyInstructionArgs): TransactionInstruction {
+    ...
+}
+```
+
+The function `createUpdateAuthorityInstruction` updates the authority of a token-metadata account and returns an instruction that will do so.
+
+this function takes 4 params as an input:
+  - `metadata`: the metadata account address.
+  - `oldAuthority`: the current authority that can sign to update the metadata
+  - `newAuthority`: the new authority that can sign to update the metadata
+  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+
+```ts
+export interface UpdateAuthorityInstructionArgs {
+    programId: PublicKey;
+    metadata: PublicKey;
+    oldAuthority: PublicKey;
+    newAuthority: PublicKey | null;
+}
+
+export function createUpdateAuthorityInstruction(args: UpdateAuthorityInstructionArgs): TransactionInstruction {
+    ...
+}
+```
+// TODO: not sure what does this function do, I found it in the library but I couldn't find any documentation about it. the only documentation is [here](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), maybe we should just remove it.
+The function `createEmitInstruction` emits token-metadata in the expected TokenMetadata state format. Although implementing a struct that uses the exact state is optional, this instruction is required.
+
+this function takes 4 params as an input:
+  - `metadata`: the metadata account address.
+  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+  - `start`: *Optional* the start the metadata
+  - `end`: *Optional* the end the metadata
+
+```ts
+export interface EmitInstructionArgs {
+    programId: PublicKey;
+    metadata: PublicKey;
+    start?: bigint;
+    end?: bigint;
+}
+
+export function createEmitInstruction(args: EmitInstructionArgs): TransactionInstruction {
+    ...
+}
+```
+
+The function `pack` packs the metadata into a byte array
+
+```ts
+export interface TokenMetadata {
+    // The authority that can sign to update the metadata
+    updateAuthority?: PublicKey;
+    // The associated mint, used to counter spoofing to be sure that metadata belongs to a particular mint
+    mint: PublicKey;
+    // The longer name of the token
+    name: string;
+    // The shortened symbol for the token
+    symbol: string;
+    // The URI pointing to richer metadata
+    uri: string;
+    // Any additional metadata about the token as key-value pairs
+    additionalMetadata: [string, string][];
+}
+
+export const pack = (meta: TokenMetadata): Uint8Array => {
+    ...
+}
+```
+
+The function `unpack` unpacks the metadata from a byte array
+
+```ts
+export interface TokenMetadata {
+    // The authority that can sign to update the metadata
+    updateAuthority?: PublicKey;
+    // The associated mint, used to counter spoofing to be sure that metadata belongs to a particular mint
+    mint: PublicKey;
+    // The longer name of the token
+    name: string;
+    // The shortened symbol for the token
+    symbol: string;
+    // The URI pointing to richer metadata
+    uri: string;
+    // Any additional metadata about the token as key-value pairs
+    additionalMetadata: [string, string][];
+}
+
+export function unpack(buffer: Buffer | Uint8Array): TokenMetadata {
+    ...
+}
+```
+
+The function `getTokenMetadata` returns the metadata for the given mint
+
+this function takes 4 params as an input:
+  - `connection`: Connection to use
+  - `address`: Mint account
+  - `commitment`: Desired level of commitment for querying the state
+  - `programId`: SPL Token program account
+
+```ts
+export async function getTokenMetadata(
+    connection: Connection,
+    address: PublicKey,
+    commitment?: Commitment,
+    programId = TOKEN_2022_PROGRAM_ID
+): Promise<TokenMetadata | null> {
+    ...
+}
+```
 
 ### Create NFT with metadata extension
 
@@ -277,7 +409,13 @@ To determine all of this programmatically we use the `getMintLen` and `pack` fun
 
 ```ts
 
-//TODO - Show some example metadata in typescript form - ie what you would pass to `pack`
+const metadata: TokenMetadata = {
+  mint: mint.publicKey,
+  name: tokenName,
+  symbol: tokenSymbol,
+  uri: tokenUri,
+  additionalMetadata: [['customField', 'customValue']],
+};
 
 const mintLen = getMintLen([ExtensionType.MetadataPointer]);
 const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
@@ -436,6 +574,8 @@ You should get an output of
 ```
 
 ## 1. Uploading the off-chain metadata
+
+Storing data on-chain is expensive. Because of this, developers tend to store their fat NFT metadata (such as images, description, ...etc) on an off-chain storage provider. Where this data is stored, does not matter, any storage provider will do (AWS, IPFS, Arweave, etc...). All that matters is that you have a URI pointing to the fat metadata json file that you can store on-chain. How we store that URI is the focus of today's lesson.
 
 In order to upload our off-chain metadata, we need to first prepare an image that will represent our NFT. Add any `.png` image you want inside the `src` folder and call it `NFT.png`
 
