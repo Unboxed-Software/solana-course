@@ -65,41 +65,57 @@ This function takes 5 params as an input:
   - Multi Signers: the multi signers that will sign the transaction
   - Program Id: the SPL Token program Id (in this case it will be the token22 program Id)
   
-//TODO Provide Code 
+```ts
+function createUpdateMetadataPointerInstruction(
+    mint: PublicKey,
+    authority: PublicKey,
+    metadataAddress: PublicKey | null,
+    multiSigners: (Signer | PublicKey)[] = [],
+    programId: PublicKey = TOKEN_2022_PROGRAM_ID
+)
+```
 
-//TODO Same here
-1. The function `getMetadataPointerState`
-  - this function takes the mint as an input
-  - it will return an object with two fields:
-    - `metadataAddress`: the account address that holds the metadata
-    - `authority`: the authority that can set the metadata address
+The function `getMetadataPointerState` will return the `MetadataPointer` state for the given `Mint` object, which you can get using the `getMint` function.
+
+```ts
+function getMetadataPointerState(mint: Mint): Partial<MetadataPointer> | null
+```
+
+```ts
+export interface MetadataPointer {
+    /** Optional authority that can set the metadata address */
+    authority: PublicKey | null;
+    /** Optional Account Address that holds the metadata */
+    metadataAddress: PublicKey | null;
+}
+```
 
 ### Create NFT with metadata-pointer
 
 In order to create a mint with a metadata pointer, we will have to follow these steps:
-1. Allocate the account and pay the rent fee.
-2. Initialize the pointer. If you initialize the mint before the pointer, it will return an error.
-3. Initialize the mint.
+1. Gather our needed accounts
+2. Create the `mint` account
+3. Optional: create the new `metadataAccount`
+4. Initialize the pointer.
+5. Initialize the mint.
+ 
+To create a NFT with the `metadata-pointer` extension, we need two new accounts: the `mint` and the `metadataAccount`. 
 
-#### Allocating the account:
+The `mint` is usually just a new `Keypair` created by `Keypair.generate()`. The `metadataAccount` can be the `mint`'s `publicKey` if using the metadata mint extension or another metadata account like `Metaplex`.
 
-Since all accounts on the Solana blockchain owe rent proportional to the size of the account, we need to know how big the mint account is in bytes. We can do this using the `getMintLen` method from the `@solana/spl-token` library. Since we are using the `MetadataPointer` extension, the mint account will be larger. Specifically because we need to store two more fields in the account:
-
-1. metadataAddress: this is the pointer to the metadata account.
-2. authority: this is the authority that can change the metadata pointer in the future.
+The `mint` is only just a `Keypair` at this point, we need to save space for it on the blockchain. Since all accounts on the Solana blockchain owe rent proportional to the size of the account, we need to know how big the mint account is in bytes. We can do this using the `getMintLen` method from the `@solana/spl-token` library. Since we are using the `MetadataPointer` extension, the mint account will be larger. Specifically because we need to store two more fields in the account `metadataAddress` and `authority`.
 
 ```ts
 const mintLen = getMintLen([ExtensionType.MetadataPointer]);
 const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 ```
 
-#### Metadata PDA:
+To actually create and initialize the `mint` with the metadata pointer, we need several instructions in a particular order:
 
-Since we are going to store the metadata in a different account, so we want to get the address of that account to use it when we get to the next step of creating the mint account, so you can choose any method to create a metadata account, and save its address so that we use it in the next step, in the lab below we will use the `Metaplex` library to create the metadata account, so if you don't know how to create a metadata account, you can refer to the lab below.
+1. Create the `mint` account which reserves space on the blockchain with `web3.SystemProgram.createAccount`
+2. Initialize the metadata pointer extension with `createInitializeMetadataPointerInstruction`
+3. Initialize the mint itself with `createInitializeMintInstruction`
 
-#### Create the mint account with the metadata pointer: 
-
-Now that we have the mint length we can go ahead and ask the system to allocate a new account for us, this step will only allocate the account and pay the rent for it, in order to use this account as a mint we will have to call the `createInitializeMintInstruction` method from the `@solana/spl-token` library, but because we want to set the metadata-pointer on the mint, we will have to call the `createInitializeMetadataPointerInstruction` method from the `@solana/spl-token` library even before we initialize the mint, and we will have to pass the metadata account address to it as well as the update authority, so the order will be like this:
 ```ts
  const createMintAccountInstructions = web3.SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
@@ -112,7 +128,7 @@ Now that we have the mint length we can go ahead and ask the system to allocate 
   const initMetadataPointerInstructions = createInitializeMetadataPointerInstruction(
     mint.publicKey, 
     payer.publicKey,
-    metadataPDA,
+    metadataAccount,
     TOKEN_2022_PROGRAM_ID,
   );
 
@@ -125,13 +141,9 @@ Now that we have the mint length we can go ahead and ask the system to allocate 
   );
 ```
 
-notice that we are specifying the token22 program id each time we want to interact with the solana network, because the default program is the old token program, so if we want to do anything that requires the new program we will have to specify that.
+Remember, the order matters.
 
-#### build the transaction and commit it to the server:
-
-no we can go ahead and commit these instructions to the network. to create the mint account with the metadata pointer.
-
-
+To create the NFT, bundle all of these instructions together and send them to the blockchain:
 ```ts
 const transaction = new web3.Transaction().add(
   createMintAccountInstructions,
@@ -140,21 +152,17 @@ const transaction = new web3.Transaction().add(
 );
 const sig = await web3.sendAndConfirmTransaction(connection, transaction, [payer, mint]);
 ```
-the order here matters, so we need to add first the `createMintAccountInstructions` then the `initMetadataPointerInstructions` then the `initMintInstructions`, if you change the order it will throw an error.
 
 ## Metadata extension:
 
-While using the metadata-pointer extension makes it easier for client apps to find the metadata account and retrieve the metadata, it still has some drawbacks. It requires us to create a separate account for the metadata, which have some costs and takes up space in the blockchain. Additionally, it often requires using another library like `Metaplex` to create the metadata account, which adds more complexity, and the need to maintain one more library as we said before.
+The metadata extension is an exciting addition to the Token Program. This extension allows us to store the metadata directly in the mint itself! This eliminates the need for a separate account, greatly simplifying the handling of metadata. Not only does this make accessing metadata more connivent, it saves space and reduces network calls.
 
-To address these issues, Solana introduced the `metadata` extension. This extension allows us to store the metadata directly in the mint itself, eliminating the need for a separate account. This makes it much easier and more convenient to work with, and using this extension we will be able to set some basic metadata fields, which are the name, symbol, and uri. And to make this extension even more flexible and amazing we can provide any custom fields we want to store as a metadata!, so let's talk more about the metadata interface and the fields that we can set using it.
-1. update_authority: the authority that can sign to update the metadata
-2. mint: the associated mint, used to counter spoofing to be sure that metadata belongs to a particular mint
-3. name: the longer name of the token
-4. symbol: the shortened symbol for the token
-5. uri: the URI pointing to richer metadata
-6. additional_metadata: any additional metadata about the token as key-value pairs.
+Make a note that the metadata extension should work directly with the metadata-pointer extension. During mint creation, you should also add the metadata-pointer extension, pointed at the mint itself. Check out the [Solana Token22 docs](https://spl.solana.com/token-2022/extensions#metadata)
 
-take a look at this rust code from [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface)
+The added fields and functions in the metadata extension follows the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface)
+
+
+Now, when a mint has been initialized with the metadata extension, it will house these extra fields: 
 ```rust
 type Pubkey = [u8; 32];
 type OptionalNonZeroPubkey = Pubkey; // if all zeroes, interpreted as `None`
@@ -177,10 +185,9 @@ pub struct TokenMetadata {
 }
 ```
 
-Make a note that the metadata extension should work directly with the metadata-pointer extension. During mint creation, you should also add the metadata-pointer extension, pointed at the mint itself. Check out the [Solana Token22 docs](https://spl.solana.com/token-2022/extensions#metadata)
-Now we can start talking about the new methods and fields that this extension will introduce to the token22 program.
+With these added fields, the `@solana/spl-token-metadata` library has been updated with the following functions to help out:
 
-**From the `@solana/spl-token-metadata` library:**
+//TODO - match the formatting of the functions above
 
 1. The function `createInitializeInstruction`: Initializes the metadata in the account and set the basic metadata fields (name, symbol, uri).
   - this function takes 8 params as an input:
@@ -217,15 +224,15 @@ Now we can start talking about the new methods and fields that this extension wi
     - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
   - it will return an instruction that will update the authority of the metadata account.
   // TODO: not sure what does this function do, I found it in the library but I couldn't find any documentation about it. the only documentation is [here](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), maybe we should just remove it.
-5. The function `createEmitInstruction`: Emits token-metadata in the expected TokenMetadata state format. Although implementing a struct that uses the exact state is optional, this instruction is required.
+1. The function `createEmitInstruction`: Emits token-metadata in the expected TokenMetadata state format. Although implementing a struct that uses the exact state is optional, this instruction is required.
   - this function takes 4 params as an input:
     - `metadata`: the metadata account address.
     - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
     - `start`: *Optional* the start the metadata
     - `end`: *Optional* the end the metadata
   - it will return an instruction that will emit the token-metadata in the expected TokenMetadata state format.
-4. The function `pack`: Packs the metadata into a byte array
-5. The function `unpack`: Unpacks the metadata from a byte array
+2. The function `pack`: Packs the metadata into a byte array
+3. The function `unpack`: Unpacks the metadata from a byte array
 
 **From the `@solana/spl-token-metadata` library:**
 1. the function `getTokenMetadata`: Returns the metadata for the given mint
@@ -237,38 +244,55 @@ Now we can start talking about the new methods and fields that this extension wi
 2. the constant `LENGTH_SIZE`: The number of bytes of the length of the data
 3. the constant `TYPE_SIZE`: The number of bytes of the type of the data
 
-so the process here would be as follows:
-1. allocate the account and pay the rent fee.
-2. initialize the metadata-pointer in the mint account, and point to the account itself
-3. initialize the mint
-4. initialize the metadata in the mint account
-5. add any additional custom fields if needed
 
-### create NFT with metadata extension
 
-#### Calculating the mint length:
+### Create NFT with metadata extension
 
-Because we are going to store the metadata in the mint itself, that means the mint will get bigger in size, and the addition size will come from serval factors:
+Creating an NFT with the metadata extension is just like creating one with the metadata-pointer with a few extra steps:
+
+1. Gather our needed accounts
+2. Find/decide on the needed size of our metadata
+3. Create the `mint` account
+4. Initialize the pointer.
+5. Initialize the mint.
+6. Initialize the metadata in the mint account
+7. Add any additional custom fields if needed
+ 
+
+First, the `mint` will be a Keypair, usually given from `Keypair.generate()`. Then we have to decide what metadata we want to include, and then calculate the total size and cost.
+
+A mint account's needed size with the metadata and metadata-pointer extensions incorporate the following:
+
 1. the basic metadata felids: name, symbol, and uri.
-1. the additional custom fields we want to store as a metadata.
-1. the update authority that can change the metadata in the future.
-1. the `LENGTH_SIZE` and `TYPE_SIZE` which are constants coming from the `@solana/spl-token` library, the way solana stores the data in the account is by having some additional bytes at the beginning of the account to store the length of the data, and the type of the data, this will make it easier to parse the data in the future, so we will have to allocate enough space for those and pay for them, they are also very small, so not a big deal.
-1. the metadata pointer data:
+2. the additional custom fields we want to store as a metadata.
+3. the update authority that can change the metadata in the future.
+4. the `LENGTH_SIZE` and `TYPE_SIZE` which are constants coming from the `@solana/spl-token` library, the way solana stores the data in the account is by having some additional bytes at the beginning of the account to store the length of the data, and the type of the data, this will make it easier to parse the data in the future, so we will have to allocate enough space for those and pay for them, they are also very small, so not a big deal.
+5. the metadata pointer data:
   - yes even though we are using the metadata extension, we still have to use the metadata pointer extension on the mint, but in this case the pointer will hold the mint address itself, this will ensure consistency, so we will have to store the metadata pointer data as well, which are:
     1. the metadata account address.
-    1. the authority that can change the metadata pointer in the future.
+    2. the authority that can change the metadata pointer in the future.
 
-to do so we will have to use the method `getMintLen` from the `@solana/spl-token` library, that will give us the mint length with the metadata-pointer, also we will have to use the method pack from `@solana/spl-token-metadata` library, which will take the metadata object and return the numbers of bytes needed to store the metadata, here is the code snippet for it:
+
+To determine all of this programmatically we use the `getMintLen` and `pack` functions from the `@solana/spl-token` library:
 
 ```ts
+
+//TODO - Show some example metadata in typescript form - ie what you would pass to `pack`
+
 const mintLen = getMintLen([ExtensionType.MetadataPointer]);
 const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
 const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
 ```
 
-#### Create the mint account with the metadata extension:
+To actually create and initialize the `mint` with the metadata and metadata pointer, we need several instructions in a particular order:
 
-For creating this mint, we will follow simillar steps as for the one with the metadata pointer, we will start by allocating the mint `SystemProgram.createAccount`, and then we should initialize the metadata-pointer extension `createInitializeMetadataPointerInstruction`, but in this case will point to the mint it self as the metadata account, and then we will initialize the account as a mint `createInitializeMintInstruction`.
+1. Create the `mint` account which reserves space on the blockchain with `web3.SystemProgram.createAccount`
+2. Initialize the metadata pointer extension with `createInitializeMetadataPointerInstruction`
+3. Initialize the mint itself with `createInitializeMintInstruction`
+4. Initialize the metadata with `createInitializeInstruction`, note this ONLY sets the basic metadata fields
+5. Optional: Set the custom fields with `createUpdateFieldInstruction`
+
+
 
 ```ts
   const createMintAccountInstructions = web3.SystemProgram.createAccount({
@@ -293,12 +317,7 @@ For creating this mint, we will follow simillar steps as for the one with the me
     payer.publicKey,
     TOKEN_2022_PROGRAM_ID,
   );
-  ```
 
-these steps will create a simple mint with a metadata pointer to itself, now we will see how we can set up the metadata inside the mint account itself.
-
-to initialize the metadata inside the mint, we will have to use a method from the `@solana/spl-token-metadata` library, which is a new library that will provide us with a bunch of helpful methods to create/update/remove metadata from the mint account (or any account that you want to use as a metadata account), for this case we will use a method called `createInitializeInstruction`, this method will return the instruction that will set all the basic metadata fields (name, symbol, uri) in the mint account.
-  ```ts
   const initMetadataInstructions = createInitializeInstruction({
     programId: TOKEN_2022_PROGRAM_ID,
     mint: mint.publicKey,
@@ -309,11 +328,7 @@ to initialize the metadata inside the mint, we will have to use a method from th
     mintAuthority: payer.publicKey,
     updateAuthority: payer.publicKey,
   });
-  ```
 
-as what has been said, this method is only to initialize the metadata inside the account and it will help us set ONLY the basic metadata fields, if we want to set any custom fields we will have to use another method called `createUpdateFieldInstruction` from the same library `@solana/spl-token-metadata`, this method will return the instruction that will set any custom field we want to store as a metadata in the mint account.
-
-```ts
   const updateMetadataFieldInstructions = createUpdateFieldInstruction({
     metadata: mint.publicKey,
     updateAuthority: payer.publicKey,
@@ -322,7 +337,8 @@ as what has been said, this method is only to initialize the metadata inside the
     value: metadata.additionalMetadata[0][1],
   });
   ```
-notice that this method return an instruction to update only one field at a time, so if you want to have more than one custom field you will have to call this method multiple times, also you can use the same method to update the basic metadata fields as well, so you can use it to update the name, symbol, and uri as well.
+
+Note that the `createUpdateFieldInstruction` updates only one field at a time, so if you want to have more than one custom field you will have to call this method multiple times. You can use the same method to update the basic metadata fields as well:
 
 ```ts
   const updateMetadataFieldInstructions = createUpdateFieldInstruction({
@@ -334,10 +350,7 @@ notice that this method return an instruction to update only one field at a time
   });
   ```
 
-#### build the transaction and commit it to the server:
-
-just like what we did in the last part when we committed the instructions to the network, we will do the same here, but this time we will have to add the `initMetadataInstructions` and `updateMetadataFieldInstructions` to the transaction as well, and the order here matters, so we need to add first the `createMintAccountInstructions` then the `initMetadataPointerInstructions` then the `initMintInstructions` then the `initMetadataInstructions` then the `updateMetadataFieldInstructions`, if you change the order it will throw an error.
-
+Wrap all of these instructions in a transaction to create the embedded NFT:
 ```ts
 const transaction = new web3.Transaction().add(
   createMintAccountInstructions,
@@ -348,7 +361,8 @@ const transaction = new web3.Transaction().add(
 );
 const sig = await web3.sendAndConfirmTransaction(connection, transaction, [payer, mint]);
 ```
-Again, the order here matters, so we need to add first the `createMintAccountInstructions` then the `initMetadataPointerInstructions` then the `initMintInstructions`, if you change the order it will throw an error.
+
+Again, the order here matters.
 
 # Lab
 
