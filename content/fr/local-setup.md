@@ -1,6 +1,6 @@
 ---
 title: Développement de programme local
-objectifs:
+objectives:
 - Mettre en place un environnement local pour le développement de programmes Solana
 - Utiliser les commandes de base de la CLI Solana
 - Exécuter un validateur de test local

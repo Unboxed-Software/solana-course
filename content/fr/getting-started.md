@@ -81,7 +81,7 @@ Il existe trois parcours :
 
 Les modules abordent un sujet spécifique. Ceux-ci sont décomposés en leçons individuelles.
 
-Chaque leçon commence par énumérer les objectifs de la leçon, c'est-à-dire ce que vous apprendrez dans la leçon.
+Chaque leçon commence par énumérer les objectives de la leçon, c'est-à-dire ce que vous apprendrez dans la leçon.
 
 Ensuite, il y a un bref 'Résumé' pour que vous puissiez parcourir, avoir une idée de ce que la leçon couvre et décider si la leçon vous convient ou non.
 

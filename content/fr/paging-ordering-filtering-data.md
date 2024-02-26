@@ -1,6 +1,6 @@
 ---
 title: Paginer, ordonner et filtrer les données d'un programme
-objectifs:
+objectives:
 - Paginer, ordonner et filtrer des comptes
 - Précharger les comptes sans données
 - Déterminer où les données spécifiques d'un compte sont stockées dans la structure du tampon

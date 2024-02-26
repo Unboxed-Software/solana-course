@@ -1,6 +1,6 @@
 ---
 title: Sérialiser des données d'instruction personnalisées
-objectifs:
+objectives:
 - Expliquer le contenu d'une transaction
 - Expliquer les instructions de transaction
 - Expliquer les bases des optimisations du runtime de Solana

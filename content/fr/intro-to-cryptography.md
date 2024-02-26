@@ -1,6 +1,6 @@
 ---
 title: Cryptographie et le Réseau Solana
-objectifs :
+objectives :
 - Comprendre la cryptographie symétrique et asymétrique
 - Expliquer les paires de clés
 - Générer une nouvelle paire de clés

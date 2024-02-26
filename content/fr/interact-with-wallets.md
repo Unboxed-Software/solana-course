@@ -1,6 +1,6 @@
 ---
 title: Interagir avec les portefeuilles
-objectifs:
+objectives:
 - Expliquer les portefeuilles
 - Installer l'extension Phantom
 - Configurer le portefeuille Phantom sur le [Devnet](https://api.devnet.solana.com/)

@@ -1,6 +1,6 @@
 ---
 title: Désérialiser les données d'un programme
-objectifs:
+objectives:
 - Expliquer les comptes dérivés d'un programme
 - Dérivation des PDA avec des seeds spécifiques
 - Récupérer les comptes d'un programme

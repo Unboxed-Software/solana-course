@@ -1,6 +1,6 @@
 ---
 title: Créer un programme de base, Partie 2 - Gestion de l'état
-objectifs:
+objectives:
 - Décrire le processus de création d'un nouveau compte à l'aide d'une adresse dérivée de programme (PDA)
 - Utiliser des seeds pour dériver un PDA
 - Utiliser l'espace requis par un compte pour calculer le montant de la location (en lamports) qu'un utilisateur doit allouer
@@ -100,7 +100,7 @@ Avant de créer un compte, nous devons également avoir une adresse à attribuer
 
 Comme son nom l'indique, les PDAs sont dérivées en utilisant l'ID du programme (adresse du programme créant le compte) et une liste facultative de "seeds". Les seeds facultatives sont des entrées supplémentaires utilisées dans la fonction `find_program_address` pour dériver le PDA. La fonction utilisée pour dériver les PDAs renverra la même adresse chaque fois qu'elle recevra les mêmes entrées. Cela nous donne la possibilité de créer un nombre illimité de comptes PDA et une façon déterministe de trouver chaque compte.
 
-En plus des seeds que vous fournissez pour dériver un PDA, la fonction `find_program_address` fournira une "bump seed" supplémentaire. Ce qui rend les PDAs uniques par rapport aux autres adresses de compte Solana est qu'elles n'ont pas de clé secrète correspondante. Cela garantit que seul le programme qui possède l'adresse peut signer au nom du PDA. Lorsque la fonction `find_program_address` tente de dériver un PDA en utilisant les seeds fournies, elle utilise le nombre 255 comme "bump seed". Si l'adresse résultante est invalide (c'est-à-dire qu'elle a une clé secrète correspondante), la fonction diminue le bump seed de 1 et dérive un nouveau PDA avec ce bump seed. Une fois qu'un PDA valide est trouvé, la fonction renvoie à la fois le PDA et le bump qui a été utilisé pour dériver le PDA.
+En plus des seeds que vous fournissez pour dériver un PDA, la fonction `find_program_address` fournira une "bump seed" supplémentaire. Ce qui rend les PDAs uniques par rapport aux autres adresses de compte Solana est qu'elles n'ont pas de clé secrète correspondante. Cela garantit que seul le programme qui possède l'adresse peut signer au nom du PDA. Lorsque la fonction `find_program_address` tente de dériver un PDA en utilisant les seeds fournies, elle utilise le nombre 255 comme "bump seed". Si l'adresse résultante est invalide (c'est-à-dire qu'elle a une clé secrète correspondante), la fonction diminue la bump seed de 1 et dérive un nouveau PDA avec cette bump seed. Une fois qu'un PDA valide est trouvé, la fonction renvoie à la fois le PDA et le bump qui a été utilisé pour dériver le PDA.
 
 Pour notre programme de prise de notes, nous utiliserons la clé publique du créateur de la note et l'ID comme seeds facultatifs pour dériver le PDA. Dériver le PDA ainsi nous permet de trouver de manière déterministe le compte pour chaque note.
 
@@ -129,7 +129,7 @@ pub fn invoke_signed(
 ) -> ProgramResult
 ```
 
-Pour cette leçon, nous utiliserons `invoke_signed`. Contrairement à une signature régulière où une clé secrète est utilisée pour signer, `invoke_signed` utilise les seeds facultatives, le bump seed et l'ID du programme pour dériver un PDA et signer une instruction. Cela se fait en comparant le PDA dérivé par rapport à tous les comptes passés dans l'instruction. Si l'un des comptes correspond au PDA, le champ de signataire pour ce compte est défini sur vrai.
+Pour cette leçon, nous utiliserons `invoke_signed`. Contrairement à une signature régulière où une clé secrète est utilisée pour signer, `invoke_signed` utilise les seeds facultatives, la bump seed et l'ID du programme pour dériver un PDA et signer une instruction. Cela se fait en comparant le PDA dérivé par rapport à tous les comptes passés dans l'instruction. Si l'un des comptes correspond au PDA, le champ de signataire pour ce compte est défini sur vrai.
 
 Un programme peut signer des transactions de manière sécurisée de cette manière car `invoke_signed` génère le PDA utilisé pour signer avec l'ID du programme invoquant l'instruction. Il n'est donc pas possible pour un programme de générer un PDA correspondant pour signer un compte avec un PDA dérivé utilisant un autre ID de programme.
 
@@ -310,9 +310,9 @@ let system_program = next_account_info(account_info_iter)?;
 
 ### 5. Dérivation du PDA
 
-Ensuite, dans notre fonction `add_movie_review`, dérivons indépendamment le PDA que l'utilisateur est censé avoir passé. Nous devrons fournir le bump seed pour la dérivation plus tard, donc même si `pda_account` devrait référencer le même compte, nous devons toujours appeler `find_program_address`.
+Ensuite, dans notre fonction `add_movie_review`, dérivons indépendamment le PDA que l'utilisateur est censé avoir passé. Nous devrons fournir la bump seed pour la dérivation plus tard, donc même si `pda_account` devrait référencer le même compte, nous devons toujours appeler `find_program_address`.
 
-Notez que nous dérivons le PDA pour chaque nouveau compte en utilisant la clé publique de l'initialisateur et le titre du film en tant que graines facultatives. La mise en place du PDA de cette manière limite chaque utilisateur à un seul avis pour un titre de film donné. Cependant, elle permet toujours au même utilisateur de donner son avis sur des films avec des titres différents et à différents utilisateurs de donner leur avis sur des films avec le même titre.
+Notez que nous dérivons le PDA pour chaque nouveau compte en utilisant la clé publique de l'initialisateur et le titre du film en tant que seeds facultatives. La mise en place du PDA de cette manière limite chaque utilisateur à un seul avis pour un titre de film donné. Cependant, elle permet toujours au même utilisateur de donner son avis sur des films avec des titres différents et à différents utilisateurs de donner leur avis sur des films avec le même titre.
 
 ```rust
 // Dérivation du PDA
