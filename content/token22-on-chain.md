@@ -6,40 +6,40 @@ objectives:
 
 # Summary
 
-- `Token22` is a new program to interact with on-chain and provides new functionality to tokens and mints alike
+- The `Token Extension Program` is a new program to interact with on-chain and provides new functionality to tokens and mints alike
 - `token_program` is a new Anchor account constraint allowing you to verify an account is owned by a specific token program
-- Anchor introduced the concept of Interfaces to allow for programs to support interaction with both `spl-token` and `Token22`
+- Anchor introduced the concept of Interfaces to allow for programs to support interaction with both `spl-token` and `Token Extension Program`
 
 # Overview
 
-`Token22` is a new program on Solana mainnet that provides new functionality to Solana tokens and mints. With this program comes new ways for interacting with token accounts on-chain in a program. This means there are two different types of Token Programs that we must anticipate being sent in instructions to our program.
+The `Token Extension Program` is a new program on Solana mainnet that provides new functionality to Solana tokens and mints. This program brings new ways for interacting with token accounts on-chain in a program. With two different types of Token Programs, we must anticipate being sent the program type in instructions.
 
-In this lesson, you'll learn how to design your program to accept both `spl-token` and `Token22` accounts using Anchor. You'll also learn how to interact with `Token22` accounts in your program, identifying which token program an account belongs to, and some differences between `spl-token` and `Token22` on-chain.
+In this lesson, you'll learn how to design your program to accept both `spl-token` and `Token Extension Program` accounts using Anchor. You'll also learn how to interact with the `Token Extension Program` accounts in your program, identifying which token program an account belongs to, and some differences between `spl-token` and the `Token Extension Program` on-chain.
 
-## Difference between legacy Token Program and Token22 Program
+## Difference between legacy Token Program and Token Extension Program
 
 - TODO: Hammer home that all token accounts either belong to one or the other - they are not interoperable (tokens from one program can only transfer/receive tokens from that same programm)
 - TODO: mention associated_token::token_program = token_program constraint as well
 
-For starters, we must make it very clear that `Token22` is a completely new program than what has traditionally been used in the past to create and interact with tokens on Solana - the original `spl-token` program. The `Token22` program is a superset of the original Token program, meaning all the instructions and functionality that are in the original Token program come with `Token22`. 
+For starters, we must make it very clear that the `Token Extension Program` is a completely new program than what has traditionally been used in the past to create and interact with tokens on Solana - the original `spl-token` program. The `Token Extension Program` is a superset of the original Token program, meaning all the instructions and functionality that are in the original Token program come with the `Token Extension Program`. 
 
-`Token22` pubkey: [TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb](https://explorer.solana.com/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb)
+`Token Extension Program` pubkey: [TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb](https://explorer.solana.com/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb)
 
 `Token` pubkey: [TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA](https://explorer.solana.com/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA)
 
 This matters because all tokens and mints on Solana are created from and owned by programs. Previously, there was one primary program (the Token program) in charge of creating these accounts. This program defined a common implementation for fungible and non-fungible tokens alike. All interactions with tokens went through this program. Creating a token mint and/or token account required invoking the `InitializeMint`/`InitializeAccount` instructions on the token program. To transfer tokens, you invoked the `Transfer` instruction. There are many more instructions in this program, but the point is all actions taken with fungible and non-fungible tokens required invoking specific instructions on this specific program.
 
-As more and more developers came to Solana, there was a need for more and more functionality with tokens that just was not currently available in the token program. Previously if you had a desire to do something with a token that was not supported on the token program, you would have to work around it by forking the token program and adding your own logic to support your specific need. Doing so would give you the functionality you were looking for, but it creates a very fragmented ecosystem. Fundamentally, this hypothetical token you have just created is different than any other token on Solana simply from the fact that it was created from and owned by a different program. Any wallets and/or clients that would like to support this new token need to add specific logic to do so. Whereas, any token created from the standard token program just works out of the box.
+As more and more developers came to Solana, there was a need for new token functionality. The only way to add new token funcitonlatiy was by creating a new type of token. This was done by forking the Token program and adding the new logic. A new token required it's own program, and wallets and clients that wanted to the token had to add specific logic. On the other hand, any token created from the standard token program just worked out of the box. Hypothetically, this process would create a fragmented ecosystem.
 
-`Token22` is the solution to that potentially fragmented ecosystem. As we said before, `Token22` is a strict superset of the original token program and comes with all the previous functionality. The only difference is `Token22` adds quite a lot of new functionality on top of the token program. You can think of `Token22` as the upgrade for Solana tokens.
+The `Token Extension Program` is the solution to that potentially fragmented ecosystem. As we said before, the `Token Extension Program` is a strict superset of the original token program and comes with all the previous functionality. The only difference is the `Token Extension Program` adds quite a lot of new functionality on top of the legacy token program. You can think of the `Token Extension Program` as the upgrade for Solana tokens.
 
-`Token22` supports the exact same instruction set as the Token program and is actually the same byte-for-byte all the way through the very last instruction on the Token program. What this means is that `Token22` has the exact same instructions as the token program with the exact same logic and expected accounts as before. This was a design choice chosen by the `Token22` development team in order to add new token functionality with minimal disruption to users, wallets, and dApps. This makes it pretty easy for an existing program to support `Token22` out of the box. Since the instructions are the same, a program can keep any CPIs to the token program exactly the same and just allow the user to pass in either the `spl-token` or `Token22` program in the instruction.
+The `Token Extension Program` supports the exact same instruction set as the Token program and is actually the same byte-for-byte all the way through the very last instruction. This was a design choice chosen by the `Token Extension Program` development team in order to add new token functionality with minimal disruption to users, wallets, and dApps. This allows existing programs to easily support `Token Extensions` out of the box. A program can keep any CPIs to the token program exactly the same and just allow the user to pass in either the `spl-token` or `Token Extension` program in the instruction.
 
-All new instructions in `Token22` start where `spl-token` stops. `spl-token` has 25 unique instructions, with indices 0 through 24. `Token22` supports all of these instructions, and then adds new functionality at index 25.
+All new instructions in the `Token Extension Program` start where `spl-token` stops. `spl-token` has 25 unique instructions, with indices 0 through 24. `Token Extensions` support all of these instructions, and then adds new functionality at index 25.
 
 ## How to determine which program owns a particular token
 
-There may be times where you might want to know what type of token/mint account has been passed into your program. In anchor, if you'd like to enforce that only accounts of a specific token program are passed in you can do so via account constraints. The `token_program` anchor SPL constraint can be used for this.
+There may be times when you want to know what type of token/mint account has been passed into your program. If you'd like to enforce that only accounts of a specific token program are passed in, you can do so via account constraints using Anchor. The `token_program` anchor SPL constraint can be used for this.
 
 TODO: how to check which program an account belongs to in instruction logic. If spl-token do x, if token22 do y.
 
@@ -57,7 +57,7 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 ```
 
-You can do the same thing for `Token22`. The only difference is the pubkey that we are importing and using in the account constraint.
+You can do the same thing for the `Token Extension Program`. The only difference is the pubkey that we are importing and using in the account constraint.
 ```rust
 use anchor_spl::token_2022::ID;
 
@@ -90,7 +90,7 @@ Here, we introduced the `*::token_program` anchor account constraint and showed 
 
 ## Anchor Interfaces
 
-Interfaces are Anchor's newest feature that really simplify working with `Token22` in a program. There are two relevant interface wrapper types from the `anchor_lang` crate:
+Interfaces are Anchor's newest feature that really simplify working with `Token Extensions` in a program. There are two relevant interface wrapper types from the `anchor_lang` crate:
 * [`Interface`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface/index.html)
 * [`InterfaceAccount`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/index.html)
 
@@ -105,14 +105,14 @@ pub token_program: Interface<'info, token_interface::TokenInterface>,
 ```
 This makes use of `Interface` and `token_interface::TokenInterface`. 
 
-`Interface` is a wrapper over the original `Program` type, allowing for multiple possible program ids. It's a type validating that the account is one of a set of given Programs. The `Interface` type checks the following:
+`Interface` is a wrapper over the original `Program` type, allowing for multiple possible program ids. It's a type validating that the account is one of a set of given programs. The `Interface` type checks the following:
 * Given account is executable.
 * Given account is one of a set of expected accounts from the given interface type.
 
 The `Interface` wrapper must be used with a specific interface type. The `anchor_lang` and `anchor_spl` crates provide the following `Interface` type of out the box:
 * [TokenInterface](https://docs.rs/anchor-spl/latest/anchor_spl/token_interface/struct.TokenInterface.html)
 
-`TokenInterface` provides an interface type that expects the pubkey of the account passed in to match either `spl_token::ID` or `spl_token_2022::ID`, it verifies that the given account pubkey matches one of these program IDs. These program IDs are actually hard coded on the `TokenInterface` type in Anchor.
+`TokenInterface` provides an interface type that expects the pubkey of the account passed in to match either `spl_token::ID` or `spl_token_2022::ID`. These program IDs are actually hard coded on the `TokenInterface` type in Anchor.
 ```rust
 static IDS: [Pubkey; 2] = [spl_token::ID, spl_token_2022::ID];
 
@@ -126,7 +126,7 @@ impl anchor_lang::Ids for TokenInterface {
 }
 ```
 
-And Anchor checks that the ID of the account passed in matches one of those two IDs above. If the given account does not match either of these two, then Anchor will throw an `InvalidProgramId` error and prevent the transaction from executing.
+Anchor checks that the ID of the account passed in matches one of those two IDs above. If the given account does not match either of these two, then Anchor will throw an `InvalidProgramId` error and prevent the transaction from executing.
 
 ```rust
 impl<T: Ids> CheckId for T {
@@ -181,9 +181,9 @@ pub struct Example<'info>{
 }
 ```
 
-If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` accounts types are not anything new. In fact, the concept of the `TokenAccount` and `Mint` account types are not new, what is new is how they work with the `InterfaceAccount` wrapper now. The `InterfaceAccount` wrapper allows for either `spl-token` or `Token22` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a seamless experience for developers, giving you the flexibility to interact with both `spl-token` and `Token22` in your program.
+If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` accounts types are not new. What is new is how they work with the `InterfaceAccount` wrapper. The `InterfaceAccount` wrapper allows for either `spl-token` or `Token Extension program` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a seamless experience for developers, giving you the flexibility to interact with both `spl-token` and the `Token Extension Program` in your program.
 
-Something to note, you cannot use any of these types from the `token_interface` module with the regular Anchor `Program` and/or `Account` wrappers. These new types can only be used with either the `Interface` or `InterfaceAccount` wrappers. For example, the following would not be valid and any transactions sent to an instruction using this account deserialization would return an error.
+It's worth noting that you cannot use any of these types from the `token_interface` module with the regular Anchor `Program` and/or `Account` wrappers. These new types can only be used with either the `Interface` or `InterfaceAccount` wrappers. For example, the following would not be valid, and any transactions sent to an instruction using this account deserialization would return an error.
 
 ```rust
 // This is invalid, using as an example.
@@ -194,7 +194,7 @@ pub token_account: Account<'info, token_interface::TokenAccount>
 
 # Lab
 
-Now let's get some hands on experience with `Token22` on-chain by implementing a token staking program that will accept both `spl-token` and `Token22` accounts. As far as staking programs go, this will be a pretty simple one as we are just using it as an example to illustrate working with `Token22` accounts in a Solana program. The program will have the following design:
+Now let's get some hands on experience with the `Token Extension Program` on-chain by implementing a token staking program that will accept both `spl-token` and `Token Extension Program` accounts. As far as staking programs go, this will be a pretty simple one as we are just using it as an example to illustrate working with `Token Extension Program` accounts in a Solana program. The program will have the following design:
 
 * A stake pool account will be created that will hold all of the tokens that are staked. There will only be one staking pool for a given token. All will be staked in a token account owned by the program.
 * Every stake pool will have a state account that will hold information regarding the amount of tokens staked in the pool, etc.
