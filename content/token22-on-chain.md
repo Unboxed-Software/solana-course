@@ -1,7 +1,9 @@
 ---
 title: Supporting Token22 in on-chain programs
 objectives:
-- TODO Fill out
+- Explain the difference between the `spl-token` and `Token22` programs
+- Describe how to accept either token program, accounts, and mints in your program
+- Explain how to use Anchor Interfaces
 ---
 
 # Summary
@@ -17,9 +19,6 @@ objectives:
 In this lesson, you'll learn how to design your program to accept both `spl-token` and `Token22` accounts using Anchor. You'll also learn how to interact with `Token22` accounts in your program, identifying which token program an account belongs to, and some differences between `spl-token` and `Token22` on-chain.
 
 ## Difference between legacy Token Program and Token22 Program
-
-- TODO: Hammer home that all token accounts either belong to one or the other - they are not interoperable (tokens from one program can only transfer/receive tokens from that same programm)
-- TODO: mention associated_token::token_program = token_program constraint as well
 
 For starters, we must make it very clear that `Token22` is a completely new program than what has traditionally been used in the past to create and interact with tokens on Solana - the original `spl-token` program. The `Token22` program is a superset of the original Token program, meaning all the instructions and functionality that are in the original Token program come with `Token22`. 
 
@@ -40,8 +39,6 @@ All new instructions in `Token22` start where `spl-token` stops. `spl-token` has
 ## How to determine which program owns a particular token
 
 There may be times where you might want to know what type of token/mint account has been passed into your program. In anchor, if you'd like to enforce that only accounts of a specific token program are passed in you can do so via account constraints. The `token_program` anchor SPL constraint can be used for this.
-
-TODO: how to check which program an account belongs to in instruction logic. If spl-token do x, if token22 do y.
 
 ```rust
 use spl_token::ID;
@@ -86,6 +83,22 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 pub token_program: Interface<'info, token_interface::TokenInterface>,
 ```
+You can do the same thing with an associated token account, by specifying which token program the associaated token account should be derived from.
+
+```rust
+#[account(
+    associated_token::token_program = token_program
+)]
+pub associated_token: Box>,
+pub token_program: Interface<'info, token_interface::TokenInterface>,
+```
+
+Additionally, if you'd like to check which token program a token account and/or mint belongs to in your program logic, you can simply check the owner field on the `AccountInfo` struct. The following will log the owning program's ID. You could use this field in a conditional if you wanted to execute different logic for a `spl-token` vs `Token22` account.
+
+```rust
+msg!("Token Program Owner: {}", ctx.accounts.token_account.to_account_info().owner);
+```
+
 Here, we introduced the `*::token_program` anchor account constraint and showed how it can be used. This constraint, along with a few other Anchor primitives were created specifically for the support of two standard token programs. Now that there are two token programs, the `token_program` constraint also indicates to Anchor which program to invoke when initializing a token or mint account. This specification allows you to pass in both token programs and initialize accounts on each one, if you wish.
 
 ## Anchor Interfaces
@@ -781,7 +794,7 @@ The `stake` instruction is what is called when users actually want to stake thei
 The accounts required are:
 * `pool_state` - State account of the staking pool.
 * `token_mint` - Mint of the token being staked. This is required for the transfer.
-* `pool_authority` - PDA given authority over all staking pools. // TODO: I dont think this account is actually necessary
+* `pool_authority` - PDA given authority over all staking pools.
 * `token_vault` - Token vault account where the tokens staked in this pool are held.
 * `user` - User attempting to stake tokens.
 * `user_token_account` - User owned token account where the tokens they would like to stake will be transferred from.
@@ -1116,8 +1129,6 @@ Once the `transfer_checked` function has completed, we can start updating our st
 Since this is the `stake` instruction and the user is transferring tokens into the pool, both values representing the amount the user has staked and the total amount staked in the pool should increase by the `stake_amount`.
 
 To do this, we will deserialize the `pool_state` and `user_entry` accounts as mutable and increase the `pool_state.amount` and `user_enry.balance` fields by the `stake_amount` using `checked_add()`. `CheckedAdd` is a rust feature that allows you to safely perform mathematical operations without worrying about buffer overflow. `checked_add()` adds two numbers, checking for overflow. If overflow happens, `None` is returned.
-
-// TODO: implement overflow error on checked_add in the code.
 
 ```rust
 let pool_state = &mut ctx.accounts.pool_state;
