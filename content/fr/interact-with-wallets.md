@@ -411,7 +411,7 @@ export const PingButton: FC = () => {
 }
 ```
 
-Maintenant, utilisez le crochet `useConnection` pour créer une constante `connection` et le crochet `useWallet` pour créer les constantes `publicKey` et `sendTransaction`.
+Maintenant, utilisez le hook `useConnection` pour créer une constante `connection` et le hook `useWallet` pour créer les constantes `publicKey` et `sendTransaction`.
 
 ```tsx
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
