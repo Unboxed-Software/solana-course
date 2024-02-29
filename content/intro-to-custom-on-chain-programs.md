@@ -71,7 +71,7 @@ console.log(`✅ Success! Transaction signature is: ${signature}`);
 
 ![Screenshot of Solana Explorer set to Devnet](../assets/solana-explorer-devnet.png)
 
-All transactions on the blockchain are publicly viewable on the [Solana Explorer](http://explorer.solana.com). For example, you could take the signature returned by `sendAndConfirmTransaction()` in the example above, search for that signature in the Solana Explorer, then see:
+All transactions on the blockchain are publicly viewable on [Solana Explorer](http://explorer.solana.com). For example, you could take the signature returned by `sendAndConfirmTransaction()` in the example above, search for that signature in Solana Explorer, then see:
 
 - when it occurred
 - which block it was included in
@@ -109,7 +109,7 @@ const newBalance = await requestAndConfirmAirdropIfRequired(
 );
 ```
 
-This will connect to the Solana Devnet and load some Lamports if needed.
+This will connect to the Solana Devnet and request some test Lamports if needed.
 
 ### 2. Ping program
 
@@ -154,7 +154,7 @@ const instruction = new web3.TransactionInstruction({
 })
 ```
 
-Next, let’s add the instruction to the transaction we created. Then, call `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on the Solana Explorer.
+Next, let’s add the instruction to the transaction we created. Then, call `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on Solana Explorer.
 
 ```typescript
 transaction.add(instruction)
@@ -168,7 +168,7 @@ const signature = await web3.sendAndConfirmTransaction(
 console.log(`✅ Transaction completed! Signature is ${signature}`)
 ```
 
-### 3. Run the ping client and check the Solana explorer
+### 3. Run the ping client and check Solana Explorer
 
 Now run the code with the following command:
 
@@ -186,7 +186,7 @@ Copy the transaction signature. Open a browser and go to [https://explorer.solan
 
 ![Screenshot of Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
 
-Scroll around the Explorer and look at what you're seeing:
+Scroll around the explorer and look at what you're seeing:
 - The **Account Input(s)** will include:
   - The address of your payer - being debited 5000 lamports for the transaction
   - The program address for the ping program
@@ -196,10 +196,10 @@ Scroll around the Explorer and look at what you're seeing:
 
 [//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
 
-If you want to make it easier to look at the Solana Explorer for transactions in the future, simply change your `console.log` to the following:
+If you want to make it easier to look at Solana Explorer for transactions in the future, simply change your `console.log` to the following:
 
 ```typescript
-console.log(`You can view your transaction on the Solana Explorer at:\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`)
+console.log(`You can view your transaction on Solana Explorer at:\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`)
 ```
 
 And just like that you’re calling programs on the Solana network and writing data to chain!
@@ -212,7 +212,7 @@ In the next few lessons you’ll learn how to
 
 # Challenge
 
-Go ahead and create a script from scratch that will allow you to transfer SOL from one account to another on Devnet. Be sure to print out the transaction signature so you can look at it on the Solana Explorer.
+Go ahead and create a script from scratch that will allow you to transfer SOL from one account to another on Devnet. Be sure to print out the transaction signature so you can look at it on Solana Explorer.
 
 If you get stuck feel free to glance at the [solution code](https://github.com/Unboxed-Software/solana-ping-client).
 
