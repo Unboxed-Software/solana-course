@@ -1,7 +1,7 @@
 ---
-title: Supporting Token22 in on-chain programs
+title: Supporting Token Extension Program in on-chain programs
 objectives:
-- Explain the difference between the `spl-token` and `Token22` programs
+- Explain the difference between the `spl-token` and Token Extension programs
 - Describe how to accept either token program, accounts, and mints in your program
 - Explain how to use Anchor Interfaces
 ---
