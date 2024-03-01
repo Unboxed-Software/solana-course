@@ -1,47 +1,43 @@
 ---
 title: Metadata and metadata pointer extension
 objectives:
-- Be able to explain how the metadata pointers and metadata extensions work on Token22 Mints
+- Be able to explain how the metadata pointers and metadata extensions work on Token Extension Program Mints
 - Create an NFT with the metadata pointer extension
 - Create an NFT with metadata embedded in the mint account itself
 - Be able to explain how the differences between the two approaches
 ---
 
 # Summary
-- Token22 offers the `metadata` mint extensions which allows you to embed metadata right on the Mint Account
-- With the `metadata pointer` extension, Token22 mints now include a direct pointer to the Metadata account, be that internal (embedded) or external (Metaplex)
+- The `metadata` mint extensions allows you to embed metadata right on mint accounts created in the Token Extension Program.
+- With the `metadata pointer` extension, Token Extension Program mints now include a direct pointer to the metadata account, be that internal (embedded) or external (Metaplex)
 
 # Overview
 
-Without Token22, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. So to figure out if a particular account has metadata we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program, ie `Metaplex` to accomplish this. Some problems here are vender lock-in and increasing complexity. Token22's Metadata extensions fix this by introducing these two extensions:
+Without the Token Extension Program, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes require users to use venders and increase complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
 
 - `metadata-pointer` extension: Adds two simple fields in the mint account itself: a publicKey pointer to the account that holds the metadata for the token following the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), and the authority to update this pointer.
 - `metadata` extension: Adds the fields described in the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/) which allows us to store the metadata in the mint itself.
 
 ## Metadata-Pointer extension:
 
-Since there are multiple metadata programs out there, a mint can have multiple different accounts all claiming to describe the mint. This makes it complicated to know which one is the "official" metadata for this mint. So to make that easier, Solana introduced the `metadata-pointer` extension. This extension adds a `publicKey` field called `metadataAddress` in the mint account itself. This `publicKey` points to the account that holds the metadata for this token. As you'll see in the "Metadata" section, this address can be the mint itself!
+Since multiple metadata programs exist, a mint can have numerous accounts claiming to describe the mint, making it complicated to know which one is the mint's "official" metadata. To resolve this, the `metadata-pointer` extension adds a `publicKey` field to the mint account called `metadataAddress`, which points to the account that holds the metadata for this token. To avoid phony mints claiming to be stablecoins, a client can now check whether the mint and the metadata point to each other.
 
-For example if we create a Metaplex Metadata account, that account's `publicKey` would be inserted into the `metadataAddress` field on the Mint account. so to avoid phony mints claiming to be stablecoins, now a client can check if the mint and the metadata both point to each other or not.
-
-This introduces some new functions and a couple of additional fields that we need to keep in mind when interacting with token22's metadata extensions:
-
-First the extension adds two new fields in the mint account:
+The extension adds two new fields to the mint account to accomplish this:
 - `metadataAddress`: Holds the metadata account address for this token; it can be pointing to the mint token itself, if you use the `metadata` extension we'll talk about in a bit.
 - `authority`: in the mint account, which will hold the authority that can set the metadata address.
 
-Second, the extension has given way for 3 helper functions:
+The extension also introduces three new helper functions:
 - `createInitializeMetadataPointerInstruction`
 - `createUpdateMetadataPointerInstruction`
 - `getMetadataPointerState`
 
 The function `createInitializeMetadataPointerInstruction` will return an instruction that will set the metadata address in the mint account.
 
-This function takes 4 params as an input:
+This function takes four parameters:
   - `mint`: the mint account that will be created.
   - `authority`: the authority that can set the metadata address
   - `metadataAddress`: the account address that holds the metadata
-  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+  - `programId`: the SPL Token program Id (in this case, it will be the Token Extension program Id)
 
 ```ts
 function createInitializeMetadataPointerInstruction(
@@ -52,14 +48,14 @@ function createInitializeMetadataPointerInstruction(
 )
 ```
 
-The function `createUpdateMetadataPointerInstruction` returns an instruction that will update the metadata address in the mint account. You can update the metadata pointer at any point if you hold the authority.
+The function `createUpdateMetadataPointerInstruction` returns an instruction that will update the mint account's metadata address. You can update the metadata pointer at any point if you hold the authority.
 
-This function takes 5 params as an input:
-  - mint: the mint account that will be created.
-  - authority: the authority that can set the metadata address
-  - Metadata Address: the account address that holds the metadata
-  - Multi Signers: the multi signers that will sign the transaction
-  - Program Id: the SPL Token program Id (in this case it will be the token22 program Id)
+This function takes five parameters:
+  - `mint`: the mint account that will be created.
+  - `authority`: the authority that can set the metadata address
+  - `metadataAddress`: the account address that holds the metadata
+  - `multiSigners`: the multi-signers that will sign the transaction
+  - `programId`: the SPL Token program Id (in this case, it will be the Token Extension program Id)
   
 ```ts
 function createUpdateMetadataPointerInstruction(
@@ -88,27 +84,20 @@ export interface MetadataPointer {
 
 ### Create NFT with metadata-pointer
 
-In order to create a mint with a metadata pointer, we will have to follow these steps:
-1. Gather our needed accounts
-2. Create the `mint` account
-3. Optional: create the new `metadataAccount`
-4. Initialize the pointer.
-5. Initialize the mint.
- 
 To create a NFT with the `metadata-pointer` extension, we need two new accounts: the `mint` and the `metadataAccount`. 
 
-The `mint` is usually just a new `Keypair` created by `Keypair.generate()`. The `metadataAccount` can be the `mint`'s `publicKey` if using the metadata mint extension or another metadata account like `Metaplex`.
+The `mint` is usually a new `Keypair` created by `Keypair.generate()`. The `metadataAccount` can be the `mint`'s `publicKey` if using the metadata mint extension or another metadata account like `Metaplex`.
 
-The `mint` is only just a `Keypair` at this point, we need to save space for it on the blockchain. Since all accounts on the Solana blockchain owe rent proportional to the size of the account, we need to know how big the mint account is in bytes. We can do this using the `getMintLen` method from the `@solana/spl-token` library. Since we are using the `MetadataPointer` extension, the mint account will be larger. Specifically because we need to store two more fields in the account `metadataAddress` and `authority`.
+At this point, the `mint` is only a `Keypair`, but we need to save space for it on the blockchain. All accounts on the Solana blockchain owe rent proportional to the size of the account, and we need to know how big the mint account is in bytes. We can use the `getMintLen` method from the `@solana/spl-token` library. Using the `metadata-pointer` extension causes the mint account to be larger thanks to the two new fields in the account, `metadataAddress` and `authority.`
 
 ```ts
 const mintLen = getMintLen([ExtensionType.MetadataPointer]);
 const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 ```
 
-To actually create and initialize the `mint` with the metadata pointer, we need several instructions in a particular order:
+To create and initialize the `mint` with the metadata pointer, we need several instructions in a particular order:
 
-1. Create the `mint` account which reserves space on the blockchain with `web3.SystemProgram.createAccount`
+1. Create the `mint` account, which reserves space on the blockchain with `web3.SystemProgram.createAccount`
 2. Initialize the metadata pointer extension with `createInitializeMetadataPointerInstruction`
 3. Initialize the mint itself with `createInitializeMintInstruction`
 
@@ -151,14 +140,14 @@ const sig = await web3.sendAndConfirmTransaction(connection, transaction, [payer
 
 ## Metadata extension:
 
-The metadata extension is an exciting addition to the Token Program. This extension allows us to store the metadata directly in the mint itself! This eliminates the need for a separate account, greatly simplifying the handling of metadata. Not only does this make accessing metadata more connivent, it saves space and reduces network calls.
+The `metadata` extension is an exciting addition to the Token Extension Program. This extension allows us to store the metadata directly _in_ the mint itself! This eliminates the need for a separate account, greatly simplifying the handling of metadata. 
 
-Make a note that the metadata extension should work directly with the metadata-pointer extension. During mint creation, you should also add the metadata-pointer extension, pointed at the mint itself. Check out the [Solana Token22 docs](https://spl.solana.com/token-2022/extensions#metadata)
+Note that the `metadata` extension should work directly with the `metadata-pointer` extension. During mint creation, you should also add the `metadata-pointer` extension, pointed at the mint itself. Check out the [Solana Token Extension Program docs](https://spl.solana.com/token-2022/extensions#metadata)
 
-The added fields and functions in the metadata extension follows the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface)
+The added fields and functions in the metadata extension follow the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface)
 
 
-Now, when a mint has been initialized with the metadata extension, it will house these extra fields: 
+When a mint is initialized with the metadata extension, it will house these extra fields: 
 ```rust
 type Pubkey = [u8; 32];
 type OptionalNonZeroPubkey = Pubkey; // if all zeroes, interpreted as `None`
@@ -190,15 +179,14 @@ With these added fields, the `@solana/spl-token-metadata` library has been updat
 - `pack`
 - `unpack`
 
-we also have one more new functions, and two constants from the `@solana/spl-token` library:
+We also have one more new functions and two constants from the `@solana/spl-token` library:
 - `getTokenMetadata`
 - `LENGTH_SIZE`: a constant number of bytes of the length of the data
 - `TYPE_SIZE`: a constant number of bytes of the type of the data
 
+The function `createInitializeInstruction` initializes the metadata in the account and sets the primary metadata fields (name, symbol, URI). The function then returns an instruction that will set the metadata fields in the mint account.
 
-The function `createInitializeInstruction` initializes the metadata in the account and set the basic metadata fields (name, symbol, uri) and returns an instruction that will set the basic metadata fields in the mint account.
-
-This function takes 8 params as an input:
+This function takes eight parameters:
   - `mint`: the mint account that will be initialize.
   - `metadata`: the metadata account that will be created.
   - `mintAuthority`: the authority that can mint tokens
@@ -206,7 +194,7 @@ This function takes 8 params as an input:
   - `name`: the longer name of the token
   - `symbol`: the shortened symbol for the token
   - `uri`: the URI pointing to richer metadata
-  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+  - `programId`: the SPL Token program Id (in this case it will be the Token Extension program Id)
 
 ```ts
 export interface InitializeInstructionArgs {
@@ -225,14 +213,14 @@ export function createInitializeInstruction(args: InitializeInstructionArgs): Tr
 }
 ```
 
-The function `createUpdateFieldInstruction` updates a field in a token-metadata account. This may be an existing or totally new field and returns an instruction that will do so.
+The function `createUpdateFieldInstruction` returns an instruction that creates or updates a field in a token-metadata account.
 
-this function takes 5 params as an input:
+This function takes five parameters:
   - `metadata`: the metadata account address.
   - `updateAuthority`: the authority that can sign to update the metadata
   - `field`: the field that we want to update
   - `value`: the new value of the field
-  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+  - `programId`: the SPL Token program Id (in this case it will be the Token Extension program Id)
 
 ```ts
 export interface UpdateFieldInstruction {
@@ -248,13 +236,13 @@ export function createUpdateFieldInstruction(args: UpdateFieldInstruction): Tran
 }
 ```
 
-The function `createRemoveKeyInstruction` removes a field from a token-metadata account and returns an instruction that will do so.
+The function `createRemoveKeyInstruction` returns and instrcution that removes a field from a token-metadata account.
 
-this function takes 5 params as an input:
+This function takes five parameters:
   - `metadata`: the metadata account address.
   - `updateAuthority`: the authority that can sign to update the metadata
   - `field`: the field that we want to remove
-  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+  - `programId`: the SPL Token program Id (in this case it will be the Token Extension program Id)
   - `idempotent`: When true, instruction will not error if the key does not exist
 
 ```ts
@@ -271,13 +259,13 @@ export function createRemoveKeyInstruction(args: RemoveKeyInstructionArgs): Tran
 }
 ```
 
-The function `createUpdateAuthorityInstruction` updates the authority of a token-metadata account and returns an instruction that will do so.
+The function `createUpdateAuthorityInstruction` returns an instruction that updates the authority of a token-metadata account.
 
-this function takes 4 params as an input:
+This function takes four parameters:
   - `metadata`: the metadata account address.
   - `oldAuthority`: the current authority that can sign to update the metadata
   - `newAuthority`: the new authority that can sign to update the metadata
-  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+  - `programId`: the SPL Token program Id (in this case it will be the Token Extension program Id)
 
 ```ts
 export interface UpdateAuthorityInstructionArgs {
@@ -291,12 +279,12 @@ export function createUpdateAuthorityInstruction(args: UpdateAuthorityInstructio
     ...
 }
 ```
-// TODO: not sure what does this function do, I found it in the library but I couldn't find any documentation about it. the only documentation is [here](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), maybe we should just remove it.
-The function `createEmitInstruction` emits token-metadata in the expected TokenMetadata state format. Although implementing a struct that uses the exact state is optional, this instruction is required.
 
-this function takes 4 params as an input:
+The function `createEmitInstruction` emits token-metadata in the expected TokenMetadata state format. This function is a required function for metadata programs that want to follow the TokenMetadata interface. The emit instruction allows indexers and other off-chain users to call to get metadata.
+
+This function takes four parameters:
   - `metadata`: the metadata account address.
-  - `programId`: the SPL Token program Id (in this case it will be the token22 program Id)
+  - `programId`: the SPL Token program Id (in this case it will be the Token Extension program Id)
   - `start`: *Optional* the start the metadata
   - `end`: *Optional* the end the metadata
 
@@ -313,7 +301,7 @@ export function createEmitInstruction(args: EmitInstructionArgs): TransactionIns
 }
 ```
 
-The function `pack` packs the metadata into a byte array
+The function `pack` packs the metadata into a byte array, and conversely the function `unpack` unpacks the metadata from a byte aray.
 
 ```ts
 export interface TokenMetadata {
@@ -334,38 +322,19 @@ export interface TokenMetadata {
 export const pack = (meta: TokenMetadata): Uint8Array => {
     ...
 }
-```
-
-The function `unpack` unpacks the metadata from a byte array
-
-```ts
-export interface TokenMetadata {
-    // The authority that can sign to update the metadata
-    updateAuthority?: PublicKey;
-    // The associated mint, used to counter spoofing to be sure that metadata belongs to a particular mint
-    mint: PublicKey;
-    // The longer name of the token
-    name: string;
-    // The shortened symbol for the token
-    symbol: string;
-    // The URI pointing to richer metadata
-    uri: string;
-    // Any additional metadata about the token as key-value pairs
-    additionalMetadata: [string, string][];
-}
 
 export function unpack(buffer: Buffer | Uint8Array): TokenMetadata {
     ...
 }
 ```
 
-The function `getTokenMetadata` returns the metadata for the given mint
+The function `getTokenMetadata` returns the metadata for the given mint.
 
-this function takes 4 params as an input:
-  - `connection`: Connection to use
-  - `address`: Mint account
-  - `commitment`: Desired level of commitment for querying the state
-  - `programId`: SPL Token program account
+It takes four parameters:
+  - `connection`: Ccnnection to use
+  - `address`: mint account
+  - `commitment`: desired level of commitment for querying the state
+  - `programId`: SPL Token program account (in this case it will be the Token Extension program Id)
 
 ```ts
 export async function getTokenMetadata(
@@ -381,7 +350,7 @@ export async function getTokenMetadata(
 ### Create NFT with metadata extension
 
 Creating an NFT with the metadata extension is just like creating one with the metadata-pointer with a few extra steps:
-
+<!-- 
 1. Gather our needed accounts
 2. Find/decide on the needed size of our metadata
 3. Create the `mint` account
@@ -389,23 +358,18 @@ Creating an NFT with the metadata extension is just like creating one with the m
 5. Initialize the mint.
 6. Initialize the metadata in the mint account
 7. Add any additional custom fields if needed
- 
+  -->
+First, the `mint` will be a Keypair, usually given from `Keypair.generate()`. Then, we must decide what metadata to include and calculate the total size and cost.
 
-First, the `mint` will be a Keypair, usually given from `Keypair.generate()`. Then we have to decide what metadata we want to include, and then calculate the total size and cost.
+A mint account's size with the metadata and metadata-pointer extensions incorporate the following:
 
-A mint account's needed size with the metadata and metadata-pointer extensions incorporate the following:
-
-1. the basic metadata felids: name, symbol, and uri.
+1. the basic metadata felids: name, symbol, and URI.
 2. the additional custom fields we want to store as a metadata.
 3. the update authority that can change the metadata in the future.
-4. the `LENGTH_SIZE` and `TYPE_SIZE` which are constants coming from the `@solana/spl-token` library, the way solana stores the data in the account is by having some additional bytes at the beginning of the account to store the length of the data, and the type of the data, this will make it easier to parse the data in the future, so we will have to allocate enough space for those and pay for them, they are also very small, so not a big deal.
-5. the metadata pointer data:
-  - yes even though we are using the metadata extension, we still have to use the metadata pointer extension on the mint, but in this case the pointer will hold the mint address itself, this will ensure consistency, so we will have to store the metadata pointer data as well, which are:
-    1. the metadata account address.
-    2. the authority that can change the metadata pointer in the future.
-
-
-To determine all of this programmatically we use the `getMintLen` and `pack` functions from the `@solana/spl-token` library:
+4. the `LENGTH_SIZE` and `TYPE_SIZE` constants from the `@solana/spl-token` library. 
+5. the metadata pointer data (this will be the mint's address and is done for consistency)
+  
+To determine all of this programmatically, we use the `getMintLen` and `pack` functions from the `@solana/spl-token` library:
 
 ```ts
 
@@ -429,7 +393,6 @@ To actually create and initialize the `mint` with the metadata and metadata poin
 3. Initialize the mint itself with `createInitializeMintInstruction`
 4. Initialize the metadata with `createInitializeInstruction`, note this ONLY sets the basic metadata fields
 5. Optional: Set the custom fields with `createUpdateFieldInstruction`
-
 
 
 ```ts
@@ -476,7 +439,7 @@ To actually create and initialize the `mint` with the metadata and metadata poin
   });
   ```
 
-Note that the `createUpdateFieldInstruction` updates only one field at a time, so if you want to have more than one custom field you will have to call this method multiple times. You can use the same method to update the basic metadata fields as well:
+Note that the `createUpdateFieldInstruction` updates only one field at a time. If you want to have more than one custom field, you will have to call this method multiple times. You can use the same method to update the basic metadata fields as well:
 
 ```ts
   const updateMetadataFieldInstructions = createUpdateFieldInstruction({
@@ -520,16 +483,16 @@ Let's take a look at what's been provided in the `starter` branch.
 
 Besides the NodeJS project being initialized with all of the needed dependencies, two other files have been provided in the `src/` directory.
 
-- `index.ts`
 - `helpers.ts`
+- `index.ts`
 
-The helper file provides us two functions that we will need for later: `initializeKeypair` and `uploadOffChainMetadata`.
+The helper file provides us with a few helper functions.
 
 First `initializeKeypair` is an established helper will return us a `Keypair` to use for our script and will airdrop some solana to it if needed. Note that you can also provide it a keypair path if you'd like to use your own keypair.json file. Another important thing to note is that devnet has limits on airdrops. If you run into issues, it's recommend to run the `solana-test-validator`.
 
 Next the `airdropSolIfNeeded` function is a helper to airdrop some solana to the keypair if needed. This is important because we need solana to pay for the transactions we will be making.
 
-Last the `uploadOffChainMetadata` is a helper to store the off-chain metadata on Arweave using Bundlr. In this lab we're more focused on the token22 interaction, so this uploader function is provided. It is good to note that an NFT or any off-chain metadata can be stored anywhere with any provider, we use metaplex here for simplicity. At the end of the day, all you need is a url to the hosted metadata json file.
+Last the `uploadOffChainMetadata` is a helper to store the off-chain metadata on Arweave using Bundlr. In this lab we're more focused on the Token Extension Program interaction, so this uploader function is provided. It is good to note that while an NFT or any off-chain metadata can be stored anywhere with any provider, we use metaplex here for simplicity. At the end of the day, all you need is a url to the hosted metadata json file.
 
 Last thing to note from this helper file is some exported interfaces. Although metadata can contain more information, we'll only be using the following:
 ```ts
@@ -552,11 +515,11 @@ export interface UploadOffChainMetadataInputs {
 ```
 
 
-Lastly, let's look at `index.ts`. This is where we will add our code. Right now it just sets up a `connection` and initializes a keypair for us to use. 
+Now let's look at `index.ts`. This is where we will add our code. Right now, the code sets up a `connection` and initializes a keypair for us to use. 
 
-This keypair, which we called `payer`, will be responsible for every payment we need throughout the whole process. Also, this payer keypair will hold all the authorities, like the mint authority, mint freeze authority, etc. We can use a different keypair for the authorities other than the payer keypair, but for the sake of simplicity, we will stick to the same one.
+This keypair `payer` will be responsible for every payment we need throughout the whole process. 'payer' will also hold all the authorities, like the mint authority, mint freeze authority, etc. We can use a different keypair for the authorities other than the payer keypair, but for the sake of simplicity, we will stick to the same one.
 
-Remember that you can use your own keypair path if you choose by providing your keypair's path in `initializeKeypair`.
+Remember that you can use your own keypair path if you choose by providing your keypair's path in `initializeKeypair`. 
 
 If you'd like to use your own local validator, be sure to change the Connection constructor to something like this:
 ```ts
@@ -569,15 +532,17 @@ Now, run the code to see that everything has been set up properly.
 npm run start
 ```
 
-You should get an output of the image uir, and the token uri and at the end it should say
+You should get the following output:
 
 ```bash
 > Finished successfully
 ```
 
+If the air dropping fails, consider running a local validator.
+
 ## 1. Uploading the off-chain metadata
 
-Storing data on-chain is expensive. Because of this, developers tend to store their fat NFT metadata (such as images, description, ...etc) on an off-chain storage provider. Where this data is stored, does not matter, any storage provider will do (AWS, IPFS, Arweave, etc...). All that matters is that you have a URI pointing to the fat metadata json file that you can store on-chain. How we store that URI is the focus of today's lesson.
+Storing data on-chain is expensive. Because of this, developers tend to store their fat NFT metadata (such as images, description, ...etc) on an off-chain storage provider. Where this data is stored does not matter; any storage provider will do (AWS, IPFS, Arweave, etc...). All that matters is that you have a URI pointing to the fat metadata json file that you can store on-chain. How we store that URI is the focus of today's lesson.
 
 In order to upload our off-chain metadata, we need to first prepare an image that will represent our NFT. Add any `.png` image you want inside the `src` folder and call it `NFT.png`
 
@@ -593,7 +558,7 @@ Now, we can add some variables that will represent the NFT properties like name,
 ```ts
 const imagePath = 'NFT.png';
 const tokenName = 'NFT Name';
-const tokenDescription = 'This is a cool Token22 NFT';
+const tokenDescription = 'This is a cool Token Extension NFT';
 const tokenSymbol = 'TTT';
 ```
 
@@ -622,7 +587,7 @@ async function main() {
 
   const imagePath = 'NFT.png';
   const tokenName = 'NFT Name';
-  const tokenDescription = 'This is a cool Token22 NFT';
+  const tokenDescription = 'This is a cool Token Extension NFT';
   const tokenSymbol = 'TTT';
 
   const tokenUri = await uploadOffChainMetadata({
@@ -650,6 +615,8 @@ main()
 ```
 
 Now run and test your code you should see the URI after the uploading is done. If you visit it, you should see a JSON that holds all of our off-chain metadata.
+
+## TODO I didn't see JSON. I saw the image
 
 ```bash
 npm run start
@@ -777,6 +744,8 @@ async function getCreateMintWithMetadataPointerInstructions(
 
 ### Create metadata account
 
+## TODO Is this still in the nft-with-metadata-pointer file?
+
 This method creates the account that will hold the metadata using the `Metaplex` metadata program, it will interact with the `Metaplex` SDK to do so.
 
 Let's create an interface that represents the inputs we'll need to work with. We'll call it `CreateMetadataAccountOnMetaplexInstructionsInputs`:
@@ -877,7 +846,8 @@ async function getCreateMetadataAccountOnMetaplexInstructions(
 
 This is the last piece of code for this file, are you excited?
 
-this function will do the following:
+## TODO What function are we talking about here? What file should I be in?
+This function will do the following:
 1. Create a new UMI instance, and we are passing the devnet endpoint to it, we need it to be able to interact with the Metaplex platform.
 2. Call `getCreateMintWithMetadataPointerInstructions` and `getCreateMetadataAccountOnMetaplexInstructions` to get the instructions needed to create the mint and the metadata account.
 3. Create the associated token account.
@@ -1250,13 +1220,13 @@ export default async function createNFTWithMetadataPointer(inputs: CreateNFTInpu
 
 ### Call your function from `main`
 
-go back to `src/index.ts`, first you will have to import the function `createNFTWithMetadataPointer` from the file we just created, so go ahead and do that 
+Go back to `src/index.ts`, first you will have to import the function `createNFTWithMetadataPointer` from the file we just created, so go ahead and do that 
 
 ```ts
 import createNFTWithMetadataPointer from './nft-with-metadata-pointer';
 ```
 
-now go to the end of the main function and call the function `createNFTWithMetadataPointer` and pass the required params, and you should have something like this
+Now go to the end of the main function and call the function `createNFTWithMetadataPointer` and pass the required parameters, and you should have something like this
 ```ts
   await createNFTWithMetadataPointer({
     payer,
@@ -1266,7 +1236,7 @@ now go to the end of the main function and call the function `createNFTWithMetad
     tokenUri,
   });
 ```
-as you know, all of these variables are already declared  and ready to use from before, so after that you `srx/index.ts` file should look like this
+As you know, all of these variables are already declared and ready to use from before, so after that you `srx/index.ts` file should look like this:
 
 ```ts
 import { clusterApiUrl, Connection } from '@solana/web3.js';
@@ -1279,7 +1249,7 @@ async function main() {
 
   const imagePath = 'NFT.png';
   const tokenName = 'NFT Name';
-  const tokenDescription = 'This is a cool Token22 NFT';
+  const tokenDescription = 'This is a cool Token Extension NFT';
   const tokenSymbol = 'TTT';
 
   const tokenUri = await uploadOffChainMetadata({
@@ -1326,7 +1296,7 @@ Then, wait for the magic to happen. You will see the transaction signature in th
 
 ## 4. Create embedded metadata
 
-start by creating a file called `src/nft-with-embedded-metadata.ts`. This file will contain only one function which we will call `createNFTWithEmbeddedMetadata`, and it will take the same inputs as the  previous `createNFTWithMetadataPointer` function.
+Start by creating a file called `src/nft-with-embedded-metadata.ts`. This file will contain only one function which we will call `createNFTWithEmbeddedMetadata`, and it will take the same inputs as the  previous `createNFTWithMetadataPointer` function.
 
 The outline of this function is as follows:
 
@@ -1504,12 +1474,13 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
 
 ### Call you function from `main`
 
-Now go back to `src/index.ts`, first you will have to import the function `createNFTWithEmbeddedMetadata` from the file we just created, so go ahead and do that 
+Now go back to `src/index.ts`, first you will have to import the function `createNFTWithEmbeddedMetadata` from the file we just created.
 ```ts
 import createNFTWithEmbeddedMetadata from './nft-with-embedded-metadata';
 ```
 
-and then call it at the end of the main function and pass the required params, and you should have something like this
+Then call it at the end of the main function and pass the required parameters. Your `src/index.ts` file should look like this:
+
 ```ts
 await createNFTWithEmbeddedMetadata({
   payer,
@@ -1533,7 +1504,7 @@ async function main() {
 
   const imagePath = 'NFT.png';
   const tokenName = 'NFT Name';
-  const tokenDescription = 'This is a cool Token22 NFT';
+  const tokenDescription = 'This is a cool Token Extension NFT';
   const tokenSymbol = 'TTT';
 
   const tokenUri = await uploadOffChainMetadata({
@@ -1576,7 +1547,19 @@ main()
   });
 ```
 
-## 5. Run the code for the last time 
+Run the prgoram one more time to see your NFTs with their metadata. 
+
 ```bash
 npm run start
 ```
+
+You did it! You've made NFTs that have pointers to their metadata accounts or house the metadata on the mint themselves. 
+
+The `metadata-pointer` and `metadata` extensions streamline the retrieval and access to crucial information about the token. Prior to these extensions, accessing metadata often involved multiple transactions, introducing complexity and potential delays in token transactions. Now you can swiftly access the associated metadata, enabling seamless integration with dApps, marketplaces, and other token-related services.
+
+# Challenge
+
+
+## Completed the lab?
+
+Push your code to GitHub and [tell us what you thought of this lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=4a628916-91f5-46a9-8eb0-6ba453aa6ca6)!
