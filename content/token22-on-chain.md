@@ -3,7 +3,7 @@ title: Supporting Token Extension Program in on-chain programs
 objectives:
 - Explain the difference between the `spl-token` and Token Extension programs
 - Describe how to accept either token program, accounts, and mints in your program
-- Explain how to use Anchor Interfaces
+- Explain how to use Anchor Interfacesgi
 ---
 
 # Summary
