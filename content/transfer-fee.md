@@ -1,3 +1,11 @@
+---
+title: Create Transfer Fee Configured Mint
+objectives:
+- Create transfer fee configured mint
+- Transfer tokens of that mint
+- Collect fees for the transfer
+---
+
 # Overview
 Suppose, you have designed a skin for an equipment in a game. And every time someone trades your skin, you want to be paid some amount as a fee. How can you do that? Transfer fees!
 
@@ -11,7 +19,7 @@ Configuring a mint with transfer fee involves some important fields:
  - Transfer fee authority:  The entity that can modify the fees.
  - Withdraw withheld authority: The entity that can move tokens withheld on the mint or token accounts.
 
-# Configuring a mint with transfer fee
+## Configuring a mint with transfer fee
 `spl-token` provides the `ExtensionType` enum which has all the extensions. Configuring a mint with transfer fee extension involves three important instructions:
  - Create account: Creates mint account. Account creation involves allocate space, transfer lamports for rent and assigning it's owning program.
  - Initializing transfer fee config: Creating the configuration of transfer fee with transfer fee authority, withdraw withheld authority, fee basis points and maximum fee.
@@ -19,7 +27,7 @@ Configuring a mint with transfer fee involves some important fields:
 
 *Important note*: Transferring tokens with a transfer fee requires using `transfer_checked` or `transfer_checked_with_fee` instead of transfer. Otherwise, the transfer will fail.
 
-# Collecting fees
+## Collecting fees
 Depending on the use case, the fees can be credited to the mint authority or we can create a dedicated account for collecting fees which is called a fee vault.
 
 There are two ways in which we can collect fees. First one is batch collecting from multiple accounts which are recipients of the mint. We fetch all the accounts which have withheld tokens for our mint and then withdraw fees to desired account. 
