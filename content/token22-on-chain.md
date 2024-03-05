@@ -197,7 +197,7 @@ pub token_account: Account<'info, token_interface::TokenAccount>
 
 # Lab
 
-Now let's get some hands-on experience with the `Token Extension Program` on-chain by implementing a token staking program that will accept both `spl-token` and `Token Extension Program` accounts. As far as staking programs go, this will be a simple implementation as we illustrate how to work with `Token Extension Program` accounts in a Solana program. The program will have the following design:
+Now let's get some hands-on experience with the `Token Extension Program` on-chain by implementing a token staking program that will accept both `Token Program` and `Token Extension Program` accounts. As far as staking programs go, this will be a simple implementation with the following design:
 
 * We'll create a stake pool account to hold all the staked tokens. There will only be one staking pool for a given token. The program will own the account. 
 * Every stake pool will have a state account that will hold information regarding the amount of tokens staked in the pool, etc.
@@ -205,7 +205,7 @@ Now let's get some hands-on experience with the `Token Extension Program` on-cha
 * Each user will have a state account created for each pool they stake in. This state account will keep track of how many tokens they have staked in this pool, when they last staked, etc.
 * Users will be minted staking reward tokens upon unstaking. There is no separate claim process required. 
 * We'll determine a user's staking rewards using a simple algorithm.
-* The program will accept both `spl-token` and `Token Extension Program` accounts.
+* The program will accept both `Token Program` and `Token Extension Program` accounts.
 
 The program will have four instructions: `init_pool`, `init_stake_entry`, `stake`, `unstake`.
 
@@ -220,13 +220,13 @@ To check your version run:
 solana --version
 ```
 
-If the version printed out after running `solana --version` is less than `1.18.0` then you can update the cli version manually. Note, at the time of writing this, you cannot simply run the `solana-install update` command. This command will not update the CLI to the correct version for us, so we have to explicitly download version `1.18.0`. You can do so with the following command:
+If the version printed out after running `solana --version` is less than `1.18.0` then you can update the [cli version manually](https://docs.solanalabs.com/cli/install). Note, at the time of writing this, you cannot simply run the `solana-install update` command. This command will not update the CLI to the correct version for us, so we have to explicitly download version `1.18.0`. You can do so with the following command:
 
 ```bash
 solana-install init 1.18.0
 ```
 
-If you run into this error at any point attempting to build the program, that likely means you do not have the correct version of the solana CLI installed.
+If you run into the following error at any point attempting to build the program, that likely means you do not have the correct version of the solana CLI installed.
 
 ```bash
 anchor build
@@ -332,7 +332,7 @@ Now that we have confirmed the program builds, let's take a look at the layout o
 * `state.rs`
 * `utils.rs`
 
-The `errors.rs` and `utils.rs` files are already filled out for you. `errors.rs` is where we have defined our custom errors for our program. To do this, you just have to create a public  `enum` and define each error.
+The `errors.rs` and `utils.rs` files are already filled out for you. `errors.rs` is where we have defined our custom errors for our program. To do this, you just have to create a public `enum` and define each error.
 
 `utils.rs` is a file that only contains one function called `check_token_program`. This is just a file where you can write helper functions if you have the need. This function was written ahead of time and will be used in our program to simply log the specific token program that was passed in the instruction. We will be using both `Token Extension Program` and `spl-token` in this program, so this function will help clarify that distinction.
 
@@ -430,6 +430,7 @@ pub struct InitializePool<'info> {
 The `handler` method is defined and so is the `InitializePool` accounts struct. The accounts struct simply expects to receive a `token_program` account and that's it. The `handler` method calls the `check_token_program` method that is defined in the `utils.rs` file. As it stands, this instruction does not really do a whole lot.
 
 To get started implementing the logic of this instruction, let's first think about the accounts that will be required. We will need the following to initialize a staking pool:
+
 * `pool_authority` - PDA that is the authority over all staking pools. This will be a PDA derived with a specific seed.
 * `pool_state` - State account created in this instruction at a PDA. This account will hold state regarding this specific staking pool like the amount of tokens staked, how many users have staked, etc.
 * `token_mint` - The mint of tokens expected to be staked in this staking pool. There will be a unique staking pool for each token.
@@ -488,7 +489,7 @@ We make use of two account constraints on this `token_mint` account. `mint::toke
 The second constraint `mint::authority = payer` verifies that the authority over the mint passed in is the `payer` account, which will also be required to be a signer. This may seem counterintuitive, but we do this because at the moment we are inherently restricting the program to one staking pool per token due to the PDA seeds we use for the `pool_state` account. We also allow the creator of the pool to define what the reward token mint is for staking in that pool. Because the program currently limits one pool per token, we wouldn't want to allow just anybody to create a staking pool for a token. This gives the creator of the pool control over what the reward is for staking here. Imagine if we did not require the `mint::authority`, this would allow anyone to create the staking pool for `Token X` and define what the reward is for everyone that stakes `Token X` with this staking program. If they decide to define the reward token as the meme coin `FooBar`, then everyone would be stuck with that staking pool in this program. For this reason, we will only allow the `token_mint` authority to create a staking pool for said `token_mint`. This program design would probably not be a good choice for the real world, it does not scale very well. But, it serves as a great example to help get the points across in this lesosn while keeping things relatively simple. This can also serve as a good exercise in program design. How would you design this program to make it more scalable for mainnet?
 
 Lastly, we utilize the `InterfaceAccount` struct to deserialize the given account into `token_interface::Mint`. 
-The `InterfaceAccount` type is a wrapper around `AccountInfo` that verifies program ownership and deserializes underlying data into a given Rust type. Used with the `token_interface::Mint` struct, Anchor knows to deserialize this into a Mint account. The `token_interface::Mint` struct provides support for both `spl-token` and `TOken Extension Program` mints out of the box! This interface concept was created specifically for this use case. You can read more about the `InterfaceAccount` in the [`anchor_lang` docs](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/struct.InterfaceAccount.html).
+The `InterfaceAccount` type is a wrapper around `AccountInfo` that verifies program ownership and deserializes underlying data into a given Rust type. Used with the `token_interface::Mint` struct, Anchor knows to deserialize this into a Mint account. The `token_interface::Mint` struct provides support for both `Token Program` and `Token Extension Program` mints out of the box! This interface concept was created specifically for this use case. You can read more about the `InterfaceAccount` in the [`anchor_lang` docs](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/struct.InterfaceAccount.html).
 
 ```rust
 // Mint of token
@@ -684,7 +685,6 @@ We use some similar Anchor SPL constraints as in the previous instruction, this 
 
 Note above, we are using the `InterfaceAccount` and `token_interface::TokenAccount` types here. The `token_interface::TokenAccount` type can only be used in conjunction with `InterfaceAccount`.
 
-
 Next, we add the `staking_token_mint` account. Notice, we are using our first custom error here. This constraint verifies that the pubkey on the `staking_token_mint` account is equal to the pubkey stored in the `staking_token_mint` field of the given `PoolState` account. This field was initialized in the `handler` method of the `inti_pool` instruction in the previous step.
 
 ```rust
@@ -779,7 +779,7 @@ anchor build
 
 ### 9. `stake` Instruction
 
-The `stake` instruction is what is called when users actually want to stake their tokens. This instruction should transfer the amount of tokens the user wants to stake from their token account to the pool vault account that is owned by the program. There will be a lot of validation in this instruction to prevent any potentially malicious transactions from succeeding.
+The `stake` instruction is what is called when users actually want to stake their tokens. This instruction should transfer the amount of tokens the user wants to stake from their token account to the pool vault account that is owned by the program. There's a lot of validation in this instruction to prevent any potentially malicious transactions from succeeding.
 
 The accounts required are:
 * `pool_state` - State account of the staking pool.
@@ -973,9 +973,10 @@ where
     pub signer_seeds: &'a [&'b [&'c [u8]]],
 }
 ```
+
 Where `T` is the accounts struct for the instruction you are invoking.
 
-This is very similar to the `Context` object that traditional Anchor instructions expect as input (i.e. `ctx: Context<Stake>`). This is the same concept here, except we are defining one for a Cross-Program Invovation instead!
+This is very similar to the `Context` object that traditional Anchor instructions expect as input (i.e. `ctx: Context<Stake>`). This is the same concept here, except we are defining one for a Cross-Program Invocation instead!
 
 In our case, we will be invoking the `transfer_checked` instruction in either token programs, hence the `transfer_checked_ctx` method name and the `TransferChecked` type in the returned `CpiContext`. The regular `transfer` instruction has been deprecated in the `Token Extension Program` and it is suggested you use `transfer_checked` going forward.
 
@@ -1080,7 +1081,7 @@ pub fn handler(ctx: Context<Stake>, stake_amount: u64) -> Result <()> {
 }
 ```
 
- The `transfer_checked` method builds a `transfer_checked` insruction object and actually invokes the program in the `CpiContext` under the hood. We are just utilizing Anchor's wrapper over the top of this process. If you're curious, [here is the source code](https://docs.rs/anchor-spl/latest/src/anchor_spl/token_2022.rs.html#35-61).
+ The `transfer_checked` method builds a `transfer_checked` instruction object and actually invokes the program in the `CpiContext` under the hood. We are just utilizing Anchor's wrapper over the top of this process. If you're curious, [here is the source code](https://docs.rs/anchor-spl/latest/src/anchor_spl/token_2022.rs.html#35-61).
 
 ```rust
 pub fn transfer_checked<'info>(
@@ -1120,6 +1121,10 @@ Since this is the `stake` instruction and the user is transferring tokens into t
 
 To do this, we will deserialize the `pool_state` and `user_entry` accounts as mutable and increase the `pool_state.amount` and `user_enry.balance` fields by the `stake_amount` using `checked_add()`. `CheckedAdd` is a rust feature that allows you to safely perform mathematical operations without worrying about buffer overflow. `checked_add()` adds two numbers, checking for overflow. If overflow happens, `None` is returned.
 
+Lastly, we'll also update the `user_entry.last_staked` field with the current unix timestamp from the `Clock`. This is just meant to keep track of the most recent time a specific user staked tokens.
+
+Add this after `transfer_checked` and before `Ok(())` in the `handler` function.
+
 ```rust
 let pool_state = &mut ctx.accounts.pool_state;
 let user_entry = &mut ctx.accounts.user_stake_entry;
@@ -1134,13 +1139,18 @@ msg!("User stake balance: {}", user_entry.balance);
 user_entry.last_staked = Clock::get().unwrap().unix_timestamp;
 ```
 
-After updating the respective balances, we also update the `user_entry.last_staked` field with the current unix timestamp from the `Clock`. This is just meant to keep track of the most recent time a specific user staked tokens.
 
 Now that was a lot and we covered some new stuff, so feel free to go back through and make sure it all makes sense. Check out all of the external resources that are linked for any of the new topics. Once you're ready to move on, save your work and verify the program still builds!
 
+```bash
+anchor build
+```
+
 ### 10. `unstake` Instruction
 
-Lastly, the `unstake` transaction will be pretty similar to the `stake` transaction. We'll need to transfer tokens out of the stake pool to the user, this is also when the user will receive their staking rewards. Their staking rewards will be minted to the user in this same transaction. Something to note here, we are not going to allow the user to determine how many tokens are unstaked, we will simply unstake all of the tokens that they currently have staked. Additionally, we are not going to implement a very realistic algorithm to determine how many reward tokens they have accrued. We'll simply take their stake balance and multiply by 10 to get the amount of reward tokens to mint them. We do this again to simplify the program and remain focused on the goal of the lesson, the `Token Extension Program`!
+Lastly, the `unstake` transaction will be pretty similar to the `stake` transaction. We'll need to transfer tokens out of the stake pool to the user, this is also when the user will receive their staking rewards. Their staking rewards will be minted to the user in this same transaction. 
+
+Something to note here, we are not going to allow the user to determine how many tokens are unstaked, we will simply unstake all of the tokens that they currently have staked. Additionally, we are not going to implement a very realistic algorithm to determine how many reward tokens they have accrued. We'll simply take their stake balance and multiply by 10 to get the amount of reward tokens to mint them. We do this again to simplify the program and remain focused on the goal of the lesson, the `Token Extension Program`.
 
 The account structure will be very similar to the `stake` instruction, but there are a few differences. We'll need
 
@@ -1360,6 +1370,8 @@ pub fn handler(ctx: Context<Unstake>) -> Result <()> {
         return Err(StakeError::OverdrawError.into())
     }
 
+    // More code to come 
+
     Ok(())
 }
 ```
@@ -1407,4 +1419,63 @@ user_entry.balance = user_entry.balance.checked_sub(amount).unwrap();
 user_entry.last_staked = Clock::get().unwrap().unix_timestamp;
 ```
 
-And that is it for our staking program! There has been an entire test suite written ahead of time for you to run against this program. Please run `npm install` in your terminal to install all of the testing packages. At this point, you should simply be able to run `anchor test` and let the program build and run them.
+Putting that all together gives us our final `handler` function:
+
+```rust
+pub fn handler(ctx: Context<Unstake>) -> Result <()> {
+    check_token_program(ctx.accounts.token_program.key());
+    
+    let user_entry = &ctx.accounts.user_stake_entry;
+    let amount = user_entry.balance;
+    let decimals = ctx.accounts.token_mint.decimals;
+
+    msg!("User stake balance: {}", user_entry.balance);
+    msg!("Withdrawing all of users stake balance. Tokens to withdraw: {}", amount);
+    msg!("Total staked before withdrawal: {}", ctx.accounts.pool_state.amount);
+
+    // verify user and pool have >= requested amount of tokens staked
+    if amount > ctx.accounts.pool_state.amount {
+        return Err(StakeError::OverdrawError.into())
+    }
+
+    // program signer seeds
+    let auth_bump = ctx.accounts.pool_state.vault_auth_bump;
+    let auth_seeds = &[VAULT_AUTH_SEED.as_bytes(), &[auth_bump]];
+    let signer = &[&auth_seeds[..]];
+
+    // transfer staked tokens
+    transfer_checked(ctx.accounts.transfer_checked_ctx(signer), amount, decimals)?;
+
+    // mint users staking rewards, 10x amount of staked tokens
+    let stake_rewards = amount.checked_mul(10).unwrap();
+
+    // mint rewards to user
+    mint_to(ctx.accounts.mint_to_ctx(signer), stake_rewards)?;
+
+    // borrow mutable references
+    let pool_state = &mut ctx.accounts.pool_state;
+    let user_entry = &mut ctx.accounts.user_stake_entry;
+
+    // subtract transferred amount from pool total
+    pool_state.amount = pool_state.amount.checked_sub(amount).unwrap();
+    msg!("Total staked after withdrawal: {}", pool_state.amount);
+
+    // update user stake entry
+    user_entry.balance = user_entry.balance.checked_sub(amount).unwrap();
+    user_entry.last_staked = Clock::get().unwrap().unix_timestamp;
+
+    Ok(())
+}
+```
+
+And that is it for our staking program! There has been an entire test suite written ahead of time for you to run against this program. Go ahead and install the needed packages for testing and run the tests:
+
+```bash
+npm install
+anchor test
+```
+
+# Challenge
+
+Create your own program that is Token Program and Token Extension Program agnostic.
+
