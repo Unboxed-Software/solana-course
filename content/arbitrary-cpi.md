@@ -143,7 +143,7 @@ Note that, like the example above, Anchor has created a few [wrappers for popula
 
 Additionally and depending on the program you’re making the CPI to, you may be able to use Anchor’s [`Program` account type](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct.Program.html) to validate the passed-in program in your account validation struct. Between the [`anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) and [`anchor_spl`](https://docs.rs/anchor_spl/latest/) crates, the following `Program` types are provided out of the box:
 
-- [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/struct.System.html)
+- [`System`](https://docs.rs/anchor-lang/0.29.0/anchor_lang/system_program/struct.System.html)
 - [`AssociatedToken`](https://docs.rs/anchor-spl/latest/anchor_spl/associated_token/struct.AssociatedToken.html)
 - [`Token`](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.Token.html)
 
