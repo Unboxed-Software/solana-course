@@ -27,7 +27,7 @@ The starter code comes with following files:
 
 The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed.
 
-The `print-helpers.ts` file has a function called `printTableData`. This function logs output to the console in a structured fashion. The function simply takes any object and is passed to the `console.table` helper available to NodeJS. This helper prints the information in a tabular form with the object's keys as columns and values as rows.
+The `print-helpers.ts` file has a function called `printTableData`. This function logs output to the console in a structured fashion. The function simply takes any object and is passed to the `console.table` helper available in NodeJS. This helper prints the information in a tabular form, with the object's keys as columns and values as rows.
 
 ```ts
 import { PublicKey } from '@solana/web3.js'
@@ -75,12 +75,12 @@ Lastly, `index.ts` has a main function that creates a connection to the specifie
 
 We are now going to create a function `createClosableMint` in a new file `src/create-mint.ts`.
 
-When creating a mint with close authority, we need three instructions and then process then in a transaction: `SystemProgram.createAccount`, `createInitializeMintCloseAuthorityInstruction`, `createInitializeMintInstruction`.
+When creating a mint with close authority, we need three instructions: `SystemProgram.createAccount`, `createInitializeMintCloseAuthorityInstruction`, `createInitializeMintInstruction`.
 
-The first instruction `SystemProgram.createAccount`, allocates space on the blockchain for the mint account. This instruction accomplishes three things:
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
  - Allocate `space`
  - Transfer `lamports` for rent
- - Assign to it's owning program
+ - Assign to itself it's owning program
 
 The second instruction `createInitializeMintCloseAuthorityInstruction` initializes the close authority extension.
 
@@ -88,7 +88,7 @@ The third instruction `createInitializeMintInstruction` initializes the mint.
 
 When the transaction is sent, a new mint account is created with the specified close authority.
 
-Create a function `createClosableMint` in `src/create-mint.ts` which should take following arguments:
+Inside of `src/create-mint.ts`, create the function `createClosableMint` with the following arguments:
 - `cluster` : The cluster to which connection points to
 - `connection` : The connection object
 - `payer` : Payer for the transaction
@@ -164,7 +164,7 @@ export async function createClosableMint(
 	return signature
 }
 ```
-Now let's call this function in src/index.ts
+Now let's call this function in `src/index.ts`:
 
 ```ts
 async function main(){
@@ -175,13 +175,13 @@ async function main(){
 	await createClosableMint(CLUSTER, connection, payer, mintKeypair, decimals)
 }
 ```
-Now we can run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
+Now run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
 
 ## 3. Closing the mint
-To close a mint, the supply must be zero. If we try and close the mint when supply is non zero, the program will throw error. Let's try that.
+To close a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will create a new mint account and close it.
 
 ### 3.1 Mint token
-Now we are going to create an account and mint 1 token to that account.
+In `src/index.ts`, create an account and mint 1 token to that account.
 ```ts
 async function main(){
 	...
@@ -214,7 +214,7 @@ async function main(){
 }
 ```
 
-Now we will verify that the mint supply is non zero by fetching the mint info.
+Now we will verify that the mint supply is non-zero by fetching the mint info.
 ```ts
 async function main(){
 	...
@@ -233,10 +233,10 @@ Now we can run `npm run`. We will see the mint into printed with the supply.
 
 ### 3.2 Closing the mint with non zero supply
 
-Now we will try and close the mint when supply is non zero.
+Now we will try and close the mint when supply is non-zero.
 
 ```ts
-async function main(){
+async function main() {
 	...
 
 	// TRY CLOSING WITH NON ZERO SUPPLY
@@ -260,11 +260,11 @@ async function main(){
 	}
 }
 ```
-Now we can run `npm start`. We will see that program throws error along with the program logs.
+Now we can run `npm start`. We will see that the program throws an error along with the program logs.
 
 ### 3.3 Burning the supply
 
-Now we will burn the supply of the mint.
+Now we will burn the supply of the mint to bring the supply back to zero.
 
 ```ts
 async function main(){
@@ -295,7 +295,7 @@ async function main(){
 }
 ```
 
-Now we can run `npm start`. We will see a link which will take us to the burn transaction on Solana Explorer.
+When we run `npm start`, we will see a link which will take us to the burn transaction on Solana Explorer.
 
 ### 3.4 Close the mint
 Now that there are no tokens in circulation, we can close the mint.
@@ -333,4 +333,4 @@ async function main(){
 	}
 }
 ```
-Now we can run `npm start`. We will see a link which will take us to the close mint transaction on Solana Explorer.
+Run `npm start` once more, and we will see a link for the close mint transaction on Solana Explorer.
