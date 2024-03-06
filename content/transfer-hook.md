@@ -10,7 +10,7 @@ objectives:
 
 # Lab
 
-### 1. Verify Solana/Anchor/Rust Versions
+## 1. Verify Solana/Anchor/Rust Versions
 
 We will be interacting with the `Token Extension` program in this lab and that requires you have solana cli version ≥ 1.18.0. 
 
@@ -60,7 +60,7 @@ rustup update
 
 Now, we should have all the correct versions installed.
 
-### 2. Get starter code and add dependencies
+## 2. Get starter code and add dependencies
 
 Let's grab the starter branch.
 
@@ -70,7 +70,7 @@ cd token22-staking
 git checkout starter
 ```
 
-### 3. Update Program ID and Anchor Keypair
+## 3. Update Program ID and Anchor Keypair
 
 Once in the starter branch, run
 
@@ -106,7 +106,7 @@ If you don't know what your current keypair path is you can always run the solan
 solana config get
 ```
 
-### 4. Confirm the program builds
+## 4. Confirm the program builds
 
 Let's build the starter code to confirm we have everything configured correctly. If it does not build, please revisit the steps above.
 
@@ -129,7 +129,7 @@ anchor test
 
 you should see that 4 tests are passed, this is because we don't have any code written yet.
 
-### 5. Explore program design
+## 5. Explore program design
 
 Now that we have confirmed the program builds, let's take a look at the layout of the program. To make this as simple as possible we will have only two files to play with
 * `programs/transfer-hook/src/lib.rs`
@@ -138,25 +138,103 @@ Now that we have confirmed the program builds, let's take a look at the layout o
 
 `lib.rs` is where we will write the onchaing program logic and `anchor.ts` is where we will write the tests.
 
-### 5. Write the transfer hook program
+## 6. Write the transfer hook program
 
-the code should look like this:
+as you can see in the starter code, the `lib.rs` have two main functions `initialize_extra_account_meta_list` and `transfer_hook`. A fallback function `fallback`. And two structs `InitializeExtraAccountMetaList` and `TransferHook`.
+
 ```rust
-// in programs/transfer-hook/src/lib.rs
 use anchor_lang::{ prelude::*, system_program::{ create_account, CreateAccount } };
 use anchor_spl::{ token_2022, token, associated_token::AssociatedToken, token_interface::{ Mint, TokenAccount, TokenInterface }};
 use spl_transfer_hook_interface::instruction::{ ExecuteInstruction, TransferHookInstruction };
 use spl_tlv_account_resolution::{account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList};
 
-declare_id!("5FYsLEZ2vjDHmrs2UAVfDozy45zyPec26pjYvvgMiWhX");
+declare_id!("YOUR PROGRAM ID HERE");
 
 #[program]
 pub mod transfer_hook {
-  use anchor_spl::token::mint_to;
+    use super::*;
 
-  use super::*;
+    pub fn initialize_extra_account_meta_list(
+        ctx: Context<InitializeExtraAccountMetaList>,
+    ) -> Result<()> {
+        Ok(())
+    }
 
-  pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
+    pub fn transfer_hook(ctx: Context<TransferHook>, amount: u64) -> Result<()> {
+        Ok(())
+    }
+
+    pub fn fallback<'info>(
+        program_id: &Pubkey,
+        accounts: &'info [AccountInfo<'info>],
+        data: &[u8],
+    ) -> Result<()> {
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct InitializeExtraAccountMetaList {}
+
+#[derive(Accounts)]
+pub struct TransferHook {}
+```
+
+we will discus and implement each one of them
+
+### 1. Initialize Extra Account Meta List
+In this step, we will implement the `initialize_extra_account_meta_list` instruction for our Transfer Hook program. This instruction creates an `ExtraAccountMetas` account, which will store the additional accounts required by our `transfer_hook` instruction.
+
+In this example, the initialize_extra_account_meta_list instruction requires 7 accounts:
+- `payer` - The account that will pay for the creation of the ExtraAccountMetaList account.
+- `extra_account_meta_list` - The ExtraAccountMetaList account that will store the additional accounts required by the transfer_hook instruction.
+- `mint` - The mint account of the token to be transferred.
+- `token_program` - The token program account, we need to have it there because we are doing init for the `crumb_mint` account.
+- `system_program` - The system program account, we need to have it there because we are doing init for the `crumb_mint` account.
+- `crumb_mint` - The mint account of the token to be minted by the transfer_hook instruction.
+- `mint_authority` - The mint authority account of the token to be minted by the transfer_hook instruction.
+- `crumb_mint_ata` - The associated token account of the token to be minted by the transfer_hook instruction.
+
+This is the code for the struct `InitializeExtraAccountMetaList`:
+
+```rust
+#[derive(Accounts)]
+pub struct InitializeExtraAccountMetaList<'info> {
+  #[account(mut)]
+  payer: Signer<'info>,
+  /// CHECK: ExtraAccountMetaList Account, must use these seeds
+  #[account(
+        mut,
+        seeds = [b"extra-account-metas", mint.key().as_ref()], 
+        bump
+    )]
+  pub extra_account_meta_list: AccountInfo<'info>,
+  pub mint: InterfaceAccount<'info, Mint>,
+  pub token_program: Interface<'info, TokenInterface>,
+  pub system_program: Program<'info, System>,
+
+  #[account(init, payer = payer, mint::decimals = 0, mint::authority = mint_authority)]
+  pub crumb_mint: InterfaceAccount<'info, Mint>,
+
+  /// CHECK: mint authority Account,
+  #[account(seeds = [b"mint-authority"], bump)]
+  pub mint_authority: UncheckedAccount<'info>,
+
+  /// CHECK: ATA Account for crumb mint
+  pub crumb_mint_ata: UncheckedAccount<'info>,
+}
+```
+
+Next for the function it self, let's walk through the function logic.
+
+1. List the accounts required for the transfer hook instruction inside a vector.
+    - there are three methods for storing these accounts:
+        1. Directly store the account address by using `ExtraAccountMeta::new_with_pubkey` this is useful
+        2. Store the seeds to derive a PDA for the Transfer Hook program using `ExtraAccountMeta::new_with_seeds`
+        3. Store the seeds to derive a PDA for a program other than the Transfer Hook program using `ExtraAccountMeta::new_external_pda_with_seeds`, notice that we didn't use this method in the code provided because it was causing some issues, it should get fixed in future updates.
+    - the seed could be a string, a instruction data, an account data or an account key, and to get the account key you will need to have it's index, take a look at the this code:
+
+```rust
     // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
     let account_metas = vec![
       // index 4, Token 22 program
@@ -180,16 +258,157 @@ pub mod transfer_hook {
       // index 9, ATA
       ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)?
     ];
+```
+
+As you can see in the comments, the index 0-3 are the accounts required for token transfer (source, mint, destination, owner), and the rest are the extra accounts required from the ExtraAccountMetaList account. you will need these indexes if you want to use one of the accounts key or data as a seed. To get more familiar with the seeds take a look at the seed enum implementation from [spl_tlv_account_resolution::seeds::Seed](https://github.com/solana-labs/solana-program-library/blob/master/libraries/tlv-account-resolution/src/seeds.rs)
+
+```rust
+pub enum Seed {
+    /// Uninitialized configuration byte space
+    Uninitialized,
+    /// A literal hard-coded argument
+    /// Packed as:
+    ///     * 1 - Discriminator
+    ///     * 1 - Length of literal
+    ///     * N - Literal bytes themselves
+    Literal {
+        /// The literal value repesented as a vector of bytes.
+        ///
+        /// For example, if a literal value is a string literal,
+        /// such as "my-seed", this value would be
+        /// `"my-seed".as_bytes().to_vec()`.
+        bytes: Vec<u8>,
+    },
+    /// An instruction-provided argument, to be resolved from the instruction
+    /// data
+    /// Packed as:
+    ///     * 1 - Discriminator
+    ///     * 1 - Start index of instruction data
+    ///     * 1 - Length of instruction data starting at index
+    InstructionData {
+        /// The index where the bytes of an instruction argument begin
+        index: u8,
+        /// The length of the instruction argument (number of bytes)
+        ///
+        /// Note: Max seed length is 32 bytes, so `u8` is appropriate here
+        length: u8,
+    },
+    /// The public key of an account from the entire accounts list.
+    /// Note: This includes an extra accounts required.
+    ///
+    /// Packed as:
+    ///     * 1 - Discriminator
+    ///     * 1 - Index of account in accounts list
+    AccountKey {
+        /// The index of the account in the entire accounts list
+        index: u8,
+    },
+    /// An argument to be resolved from the inner data of some account
+    /// Packed as:
+    ///     * 1 - Discriminator
+    ///     * 1 - Index of account in accounts list
+    ///     * 1 - Start index of account data
+    ///     * 1 - Length of account data starting at index
+    AccountData {
+        /// The index of the account in the entire accounts list
+        account_index: u8,
+        /// The index where the bytes of an account data argument begin
+        data_index: u8,
+        /// The length of the argument (number of bytes)
+        ///
+        /// Note: Max seed length is 32 bytes, so `u8` is appropriate here
+        length: u8,
+    },
+}
+```
+
+2. Calculate the size and rent required to store the list of ExtraAccountMetas.
+
+```rust
+// calculate account size
+let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
+// calculate minimum required lamports
+let lamports = Rent::get()?.minimum_balance(account_size as usize);
+```
+
+3. Make a CPI to the System Program to create an account and set the Transfer Hook Program as the owner. The PDA seeds are included as signer seeds
+on the CPI because we are using the PDA as the address of the new account.
+
+```rust
+let mint = ctx.accounts.mint.key();
+let signer_seeds: &[&[&[u8]]] = &[&[
+    b"extra-account-metas",
+    &mint.as_ref(),
+    &[ctx.bumps.extra_account_meta_list],
+]];
+
+// create ExtraAccountMetaList account
+create_account(
+    CpiContext::new(
+        ctx.accounts.system_program.to_account_info(),
+        CreateAccount {
+            from: ctx.accounts.payer.to_account_info(),
+            to: ctx.accounts.extra_account_meta_list.to_account_info(),
+        },
+    )
+    .with_signer(signer_seeds),
+    lamports,
+    account_size,
+    ctx.program_id,
+)?;
+```
+
+4. Initialize the account data to store the list of ExtraAccountMetas.
+
+```rust
+// initialize ExtraAccountMetaList account with extra accounts
+ExtraAccountMetaList::init::<ExecuteInstruction>(
+    &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
+    &account_metas,
+)?;
+```
+
+if we put all of that together we get the following code:
+
+```rust
+pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
+    // 1. List the accounts required for the transfer hook instruction inside a vector.
+
+    // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+    let account_metas = vec![
+      // index 4, Token 22 program
+      ExtraAccountMeta::new_with_pubkey(&token_2022::ID, false, false)?,
+      // index 5, Token program
+      ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
+      // index 6, associated token program
+      ExtraAccountMeta::new_with_pubkey(&anchor_spl::associated_token::ID, false, false)?,
+      // index 7, crumb mint
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?,
+      // index 8, mint authority
+      ExtraAccountMeta::new_with_seeds(
+        &[
+          Seed::Literal {
+            bytes: "mint-authority".as_bytes().to_vec(),
+          },
+        ],
+        false, // is_signer
+        true // is_writable
+      )?,
+      // index 9, ATA
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)?
+    ];
+    // 2. Calculate the size and rent required to store the list of
 
     // calculate account size
     let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
     // calculate minimum required lamports
     let lamports = Rent::get()?.minimum_balance(account_size as usize);
 
+    // 3. Make a CPI to the System Program to create an account and set the
     let mint = ctx.accounts.mint.key();
     let signer_seeds: &[&[&[u8]]] = &[&[b"extra-account-metas", &mint.as_ref(), &[ctx.bumps.extra_account_meta_list]]];
 
-    // create ExtraAccountMetaList account
+    // Create ExtraAccountMetaList account
     create_account(
       CpiContext::new(ctx.accounts.system_program.to_account_info(), CreateAccount {
         from: ctx.accounts.payer.to_account_info(),
@@ -200,7 +419,212 @@ pub mod transfer_hook {
       ctx.program_id
     )?;
 
-    // initialize ExtraAccountMetaList account with extra accounts
+    // 4. Initialize the account data to store the list of ExtraAccountMetas
+    ExtraAccountMetaList::init::<ExecuteInstruction>(
+      &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
+      &account_metas
+    )?;
+
+    Ok(())
+  }
+  ```
+
+<Callout type="info">
+
+In this example, we are not using the Transfer Hook interface to create the
+ExtraAccountMetas account.
+
+</Callout>
+
+
+### 2. Transfer Hook
+In this step, we will implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the token program when a token transfer occurs. The transfer_hook instruction will mint a new token for each transfer.
+
+In this example, the transfer_hook instruction requires 10 accounts:
+- `source_token` The source token account from which tokens are transferred.
+- `mint` The mint account of the token to be transferred.
+- `destination_token` The destination token account to which tokens are transferred.
+- `owner` The owner of the source token account.
+- `extra_account_meta_list` The ExtraAccountMetaList account that stores the additional accounts required by the transfer_hook instruction.
+- `token_extension_program` The token extension program account.
+- `token_program` The token program account.
+- `associated_token_program` The associated token program account.
+- `crumb_mint` The mint account of the token to be minted by the transfer_hook instruction.
+- `mint_authority` The mint authority account of the token to be minted by the transfer_hook instruction.
+- `crumb_mint_ata` The associated token account of the token to be minted by the transfer_hook instruction.
+
+So first let's implement the `TransferHook` struct to have all the accounts above by replacing the following
+
+<Callout type="info">
+
+Note that the order of accounts in this struct matters. This is the order in
+which the Token Extensions program provides these accounts when it CPIs to this
+Transfer Hook program.
+
+</Callout>
+
+```rust
+// Order of accounts matters for this struct.
+// The first 4 accounts are the accounts required for token transfer (source, mint, destination, owner)
+// Remaining accounts are the extra accounts required from the ExtraAccountMetaList account
+// These accounts are provided via CPI to this program from the token2022 program
+#[derive(Accounts)]
+pub struct TransferHook<'info> {
+  #[account(token::mint = mint, token::authority = owner)]
+  pub source_token: InterfaceAccount<'info, TokenAccount>,
+  pub mint: InterfaceAccount<'info, Mint>,
+  #[account(token::mint = mint)]
+  pub destination_token: InterfaceAccount<'info, TokenAccount>,
+  /// CHECK: source token account owner
+  pub owner: UncheckedAccount<'info>,
+
+  /// CHECK: ExtraAccountMetaList Account,
+  #[account(seeds = [b"extra-account-metas", mint.key().as_ref()], bump)]
+  pub extra_account_meta_list: UncheckedAccount<'info>,
+
+  pub token_extension_program: Interface<'info, TokenInterface>,
+
+  pub token_program: Interface<'info, TokenInterface>,
+
+  pub associated_token_program: Program<'info, AssociatedToken>,
+
+  pub crumb_mint: InterfaceAccount<'info, Mint>,
+
+  /// CHECK: mint authority Account,
+  #[account(seeds = [b"mint-authority"], bump)]
+  pub mint_authority: UncheckedAccount<'info>,
+
+  #[account(token::mint = crumb_mint)]
+  pub crumb_mint_ata: InterfaceAccount<'info, TokenAccount>,
+}
+```
+
+Next for the function it self, all what the function will do is it will take the needed accounts from `ctx.accounts` and use them to mint a new token for each transaction.
+
+
+```rust
+  pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
+    let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
+    // mint a crumb token for each transaction
+    mint_to(
+      CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        token::MintTo {
+          mint: ctx.accounts.crumb_mint.to_account_info(),
+          to: ctx.accounts.crumb_mint_ata.to_account_info(),
+          authority: ctx.accounts.mint_authority.to_account_info(),
+        },
+        signer_seeds
+      ),
+      1
+    ).unwrap();
+
+    Ok(())
+  }
+```
+
+Notice that we do have the amount of the original transfer, in our case that will always be `1` because we are dealing with NFTs, but if you have a different token you will get the amount of how much did they transfer.
+
+Good to know that the transfer hook get called after the transfer happens, so at the point when the transfer hook is getting invoked, the tokens has already left the sender account and get to the receiver account.
+
+
+### 3. Fallback
+In addition, we must include a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions program.
+
+This is necessary because Anchor generates instruction discriminators differently from the ones used in Transfer Hook interface instructions. The instruction discriminator for the `transfer_hook` instruction will not match the one for the Transfer Hook interface
+
+Next versions of anchor should solve this for us, but for now we can implement this simpl workaround
+
+```rust
+// fallback instruction handler as workaround to anchor instruction discriminator check
+pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>], data: &[u8]) -> Result<()> {
+  let instruction = TransferHookInstruction::unpack(data)?;
+
+  // match instruction discriminator to transfer hook interface execute instruction
+  // token2022 program CPIs this instruction on token transfer
+  match instruction {
+      TransferHookInstruction::Execute { amount } => {
+      let amount_bytes = amount.to_le_bytes();
+  
+      // invoke custom transfer hook instruction on our program
+      __private::__global::transfer_hook(program_id, accounts, &amount_bytes)
+      }
+      _ => {
+      return Err(ProgramError::InvalidInstructionData.into());
+      }
+  }
+}
+```
+
+### 4. Bring it all together
+
+you `lib.rs` file should look like this:
+
+
+```rust
+// in programs/transfer-hook/src/lib.rs
+use anchor_lang::{ prelude::*, system_program::{ create_account, CreateAccount } };
+use anchor_spl::{ token_2022, token, associated_token::AssociatedToken, token_interface::{ Mint, TokenAccount, TokenInterface }};
+use spl_transfer_hook_interface::instruction::{ ExecuteInstruction, TransferHookInstruction };
+use spl_tlv_account_resolution::{account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList};
+
+declare_id!("YOUR PROGRAM ID HERE");
+
+#[program]
+pub mod transfer_hook {
+  use anchor_spl::token::mint_to;
+
+  use super::*;
+
+pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
+    // 1. List the accounts required for the transfer hook instruction inside a vector.
+
+    // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+    let account_metas = vec![
+      // index 4, Token 22 program
+      ExtraAccountMeta::new_with_pubkey(&token_2022::ID, false, false)?,
+      // index 5, Token program
+      ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
+      // index 6, associated token program
+      ExtraAccountMeta::new_with_pubkey(&anchor_spl::associated_token::ID, false, false)?,
+      // index 7, crumb mint
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?,
+      // index 8, mint authority
+      ExtraAccountMeta::new_with_seeds(
+        &[
+          Seed::Literal {
+            bytes: "mint-authority".as_bytes().to_vec(),
+          },
+        ],
+        false, // is_signer
+        true // is_writable
+      )?,
+      // index 9, ATA
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)?
+    ];
+    // 2. Calculate the size and rent required to store the list of
+
+    // calculate account size
+    let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
+    // calculate minimum required lamports
+    let lamports = Rent::get()?.minimum_balance(account_size as usize);
+
+    // 3. Make a CPI to the System Program to create an account and set the
+    let mint = ctx.accounts.mint.key();
+    let signer_seeds: &[&[&[u8]]] = &[&[b"extra-account-metas", &mint.as_ref(), &[ctx.bumps.extra_account_meta_list]]];
+
+    // Create ExtraAccountMetaList account
+    create_account(
+      CpiContext::new(ctx.accounts.system_program.to_account_info(), CreateAccount {
+        from: ctx.accounts.payer.to_account_info(),
+        to: ctx.accounts.extra_account_meta_list.to_account_info(),
+      }).with_signer(signer_seeds),
+      lamports,
+      account_size,
+      ctx.program_id
+    )?;
+
+    // 4. Initialize the account data to store the list of ExtraAccountMetas
     ExtraAccountMetaList::init::<ExecuteInstruction>(
       &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
       &account_metas
@@ -211,7 +635,7 @@ pub mod transfer_hook {
 
   pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
     let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
-   // mint a crumb token for each transaction
+    // mint a crumb token for each transaction
     mint_to(
       CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(),
@@ -252,7 +676,6 @@ pub mod transfer_hook {
 pub struct InitializeExtraAccountMetaList<'info> {
   #[account(mut)]
   payer: Signer<'info>,
-
   /// CHECK: ExtraAccountMetaList Account, must use these seeds
   #[account(
         mut,
@@ -264,12 +687,14 @@ pub struct InitializeExtraAccountMetaList<'info> {
   pub token_program: Interface<'info, TokenInterface>,
   pub associated_token_program: Program<'info, AssociatedToken>,
   pub system_program: Program<'info, System>,
-  // #[account(init, payer = payer, space = 16)]
+
   #[account(init, payer = payer, mint::decimals = 0, mint::authority = mint_authority)]
   pub crumb_mint: InterfaceAccount<'info, Mint>,
+
   /// CHECK: mint authority Account,
   #[account(seeds = [b"mint-authority"], bump)]
   pub mint_authority: UncheckedAccount<'info>,
+
   /// CHECK: ATA,
   pub crumb_mint_ata: UncheckedAccount<'info>,
 }
@@ -285,7 +710,7 @@ pub struct TransferHook<'info> {
   pub mint: InterfaceAccount<'info, Mint>,
   #[account(token::mint = mint)]
   pub destination_token: InterfaceAccount<'info, TokenAccount>,
-  /// CHECK: source token account owner, can be SystemAccount or PDA owned by another program
+  /// CHECK: source token account owner
   pub owner: UncheckedAccount<'info>,
 
   /// CHECK: ExtraAccountMetaList Account,
@@ -310,7 +735,7 @@ pub struct TransferHook<'info> {
 ```
 
 
-### 6. Write the tests
+## 6. Write the tests
 
 the code should look like this:
 ```typescript
