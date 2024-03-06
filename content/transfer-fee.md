@@ -6,6 +6,12 @@ objectives:
 - Collect fees for the transfer
 ---
 
+TODO - Figure out the 10_000, I'm guessing it has to do with TradFi and fee basis points
+
+```
+What Is a Basis Point? Basis point is a term used in finance to refer to changes in values or interest rates. One basis point equals 0.01%. Put differently, 1/100th of 1%, 0.01%, and 0.0001 all express the same thing: one basis point.
+```
+
 # Overview
 Suppose, you have designed a skin for an equipment in a game. And every time someone trades your skin, you want to be paid some amount as a fee. How can you do that? Transfer fees!
 
@@ -26,6 +32,9 @@ Configuring a mint with transfer fee involves some important fields:
  - Initializing mint: Initialize the mint with the transfer fee configuration.
 
 *Important note*: Transferring tokens with a transfer fee requires using `transfer_checked` or `transfer_checked_with_fee` instead of transfer. Otherwise, the transfer will fail.
+
+TODO 
+The `spl-token` package provides the `ExtensionType` enum which has all the extensions. We can specify multiple extensions at a time, but for this lab we will go with just the `TransferFeeConfig` extension.
 
 ## Collecting fees
 Depending on the use case, the fees can be credited to the mint authority or we can create a dedicated account for collecting fees which is called a fee vault.
@@ -101,16 +110,18 @@ await withdrawWithheldTokensFromMint(
 ```
 
 # Lab
-We are going to create a transfer fee configured mint and transfer it between two accounts. We are going to collect the fees in a dedicated fee vault account.
+
+To show off the functionality of the transfer fee extension, we are going to create a transfer fee configured mint. Then we'll transfer, collect fees and show the results.
 
 ### 1. Getting started
 To get started, clone [this repository's](https://github.com/Unboxed-Software/transfer-fee.git) `starter` branch.
+
 ```bash
 git clone https://github.com/Unboxed-Software/transfer-fee.git
 cd transfer-fee
 git checkout starter
 ```
-### 2. Get familiar with starter code
+
 The starter code comes with following files:
  - `keypair-helpers.ts`
  - `index.ts`
@@ -119,20 +130,20 @@ The `keypair-helpers.ts` file contains some boilerplate for generating a new key
 
 Lastly, `index.ts` has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This `main` function is where we'll be writing our script.
 
-### 3. Create a mint with transfer fee
+### 2. Create a mint with transfer fee
 
-`spl-token` provides the `ExtensionType` enum which has all the extensions. We can specify multiple extensions at a time, but for this lab we will go with just the `TransferFeeConfig` extension.
+We're now going to create a function `createMintWithTransferFee` in a new file `src/create-mint.ts`.
 
-When creating a mint, we need to create 3 instructions and them process them in a transaction.
+When creating a mint with a transfer fee, we need to create 3 instructions and then process them in a transaction: `SystemProgram.createAccount`, `createInitializeTransferFeeConfigInstruction`, `createInitializeMintInstruction`.
 
-The first instruction is for creating an account for the mint. This instruction involves three steps: 
+The first instruction `SystemProgram.createAccount`, allocates space on the blockchain for the mint account. This instruction accomplishes three things:
  - Allocate `space`
  - Transfer `lamports` for rent
  - Assign to it's owning program
 
-The second instruction is for constructing a transfer fee configuration.
+The second instruction `createInitializeTransferFeeConfigInstruction` initializes the transfer fee extension.
 
-The third instruction is for initializing the mint.
+The third instruction `createInitializeMintInstruction` initializes the mint.
 
 When the transaction is sent, a new mint account is created with the specified transfer fee configuration.
 
@@ -144,6 +155,8 @@ Create function `createMintWithTransferFee` in `src/create-mint.ts` which should
  - `decimals` : Mint decimals
  - `feeBasisPoints` : Fee basis points for the transfer fee
  - `maxFee` : Maximum fee points for the transfer fee
+
+TODO fix this
 ```ts
 const extensions = [ExtensionType.TransferFeeConfig]
 const mintLength = getMintLen(extensions)
@@ -175,6 +188,7 @@ const mintTransaction = new Transaction().add(
 		null,
 		TOKEN_2022_PROGRAM_ID
 	)
+
 )
 ```
 
@@ -198,6 +212,7 @@ Now let's call this function in `src/index.ts`
 ```ts
 async function main(){
 	...
+	// CREATE MINT WITH TRANSFER FEE
 
 	const decimals = 9
 	const feeBasisPoints = 50
@@ -226,7 +241,7 @@ For this lab, let's create a dedicated fee vault account.
 ```ts
 async function main(){
 	...
-	
+	// CREATE FEE VAULT ACCOUNT
 	console.log('\nCreating a fee vault account...')
 	const feeVaultKeypair = Keypair.generate()
 	const feeVaultAccount = await createAssociatedTokenAccount(
