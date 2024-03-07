@@ -60,12 +60,12 @@ rustup update
 
 Now, we should have all the correct versions installed.
 
-## 2. Get starter code and add dependencies
+## 2. Get starter code
 
 Let's grab the starter branch.
 
 ```bash
-git clone https://github.com/Unboxed-Software/token22-staking
+git clone https://github.com/Unboxed-Software/solana-lab-transfer-hooks
 cd token22-staking
 git checkout starter
 ```
@@ -74,7 +74,9 @@ git checkout starter
 
 Once in the starter branch, run
 
-`anchor keys list`
+```bash
+anchor keys list
+```
 
 to get your program ID.
 
@@ -83,21 +85,21 @@ Copy and paste this program ID in the `Anchor.toml` file
 ```rust
 // in Anchor.toml
 [programs.localnet]
-token_22_staking = "<YOUR-PROGRAM-ID-HERE>"
+token_22_staking = "YOUR PROGRAM ID HERE"
 ```
 
 And in the `programs/token-22-staking/src/lib.rs` file.
 
 ```rust
-declare_id!("<YOUR-PROGRAM-ID-HERE>");
+declare_id!("YOUR PROGRAM ID HERE");
 ```
 
-Lastly set your developer keypair path in `Anchor.toml`.
+Lastly set your developer keypair path in `Anchor.toml` if you don't want to use the default location.
 
 ```toml
 [provider]
 cluster = "Localnet"
-wallet = "/YOUR/PATH/HERE/id.json"
+wallet = "~/.config/solana/id.json" // This is the default path, you can change it if you have your keypair in a different location
 ```
 
 If you don't know what your current keypair path is you can always run the solana cli to find out.
@@ -118,7 +120,7 @@ You can safely ignore the warnings of the build script, these will go away as we
 
 ```bash
  Finished release [optimized] target(s)
- ```
+```
 
 Feel free to run the provided tests to make sure the rest of the dev environment is setup correct. You'll have to install the node dependancies using `npm` or `yarn`. The tests should run, but they'll all fail until we have completed our program.
 
@@ -140,7 +142,7 @@ Now that we have confirmed the program builds, let's take a look at the layout o
 
 ## 6. Write the transfer hook program
 
-as you can see in the starter code, the `lib.rs` have two main functions `initialize_extra_account_meta_list` and `transfer_hook`. A fallback function `fallback`. And two structs `InitializeExtraAccountMetaList` and `TransferHook`.
+as you can see in the starter code, the `lib.rs` have two main functions `initialize_extra_account_meta_list` and `transfer_hook`. as well as a fallback function `fallback`. And two structs `InitializeExtraAccountMetaList` and `TransferHook`.
 
 ```rust
 use anchor_lang::{ prelude::*, system_program::{ create_account, CreateAccount } };
@@ -180,10 +182,25 @@ pub struct InitializeExtraAccountMetaList {}
 pub struct TransferHook {}
 ```
 
-we will discus and implement each one of them
-
 ### 1. Initialize Extra Account Meta List
-In this step, we will implement the `initialize_extra_account_meta_list` instruction for our Transfer Hook program. This instruction creates an `ExtraAccountMetas` account, which will store the additional accounts required by our `transfer_hook` instruction.
+
+When we do a transfer using the Token Extension program, the program will look into our mint and see if it has a transfer hook or not, if it 
+has one the Token Extension program will make a CPI (cross-program invocation) to our transfer hook program, and it will pass 4 essential accounts to
+our program (sender, mint, receiver, owner) but before passing them it will deescalate them, in other words it will remove the mutable or signing 
+abilities for security reasons, so when our program gets these accounts, they will be read-only, the program can't change anything in these accounts,
+and it can't sign any transactions with them, so if we have logic that needs to change some account or make some transactions we only have two options:
+
+1. we can use the PDA features, because the program on Solana can sign to any PDA that it owns, so for this example we need to mint some tokens, and in 
+order to do that we need to make a transactions, and the mint authority should sign this transaction, so we set the mint authority to be a PDA of our program,
+this way we are able to do the mint operation and sign the transaction.
+2. adding the account in the `extraAccountMetaList`, we can add any account we want and make writable/signer, and when the Token Extension program makes the
+CPI to our program, it will pass the extra account meta list account, and our program can use it to get the extra accounts and use them in the logic.
+
+and that is why we will need an extra account that will hold all the accounts that the transfer hook needs for its logic to work. and to do so, we have the initialize_extra_account_meta_list instruction.
+
+Note that if you are going to pass the Mint account in the extra account list in order to get it as mutable, that is not going to work. At the time of creating this lesson,
+when the Token Extension program makes the CPI to our program, it will pass the mint account as read-only no matter how many times you add it to the extra accounts list.
+
 
 In this example, the initialize_extra_account_meta_list instruction requires 7 accounts:
 - `payer` - The account that will pay for the creation of the ExtraAccountMetaList account.
@@ -225,7 +242,15 @@ pub struct InitializeExtraAccountMetaList<'info> {
 }
 ```
 
-Next for the function it self, let's walk through the function logic.
+and it will add accounts to the extra account list:
+1. Token Extension program
+2. Token program
+3. Associated token program
+4. Crumb mint (mutable/is_writable)
+5. Mint authority PDA
+6. Crumb mint ATA (mutable/is_writable) 
+
+Now let's walk through the function logic.
 
 1. List the accounts required for the transfer hook instruction inside a vector.
     - there are three methods for storing these accounts:
@@ -244,7 +269,7 @@ Next for the function it self, let's walk through the function logic.
       // index 6, associated token program
       ExtraAccountMeta::new_with_pubkey(&anchor_spl::associated_token::ID, false, false)?,
       // index 7, crumb mint
-      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?,
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
       // index 8, mint authority
       ExtraAccountMeta::new_with_seeds(
         &[
@@ -253,10 +278,10 @@ Next for the function it self, let's walk through the function logic.
           },
         ],
         false, // is_signer
-        true // is_writable
+        false // is_writable
       )?,
       // index 9, ATA
-      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)?
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)? // is_writable true
     ];
 ```
 
@@ -383,7 +408,7 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
       // index 6, associated token program
       ExtraAccountMeta::new_with_pubkey(&anchor_spl::associated_token::ID, false, false)?,
       // index 7, crumb mint
-      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?,
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
       // index 8, mint authority
       ExtraAccountMeta::new_with_seeds(
         &[
@@ -392,10 +417,10 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
           },
         ],
         false, // is_signer
-        true // is_writable
+        false // is_writable
       )?,
       // index 9, ATA
-      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)?
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)? // is_writable true
     ];
     // 2. Calculate the size and rent required to store the list of
 
