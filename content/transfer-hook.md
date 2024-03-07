@@ -142,7 +142,16 @@ Now that we have confirmed the program builds, let's take a look at the layout o
 
 ## 6. Write the transfer hook program
 
-as you can see in the starter code, the `lib.rs` have two main functions `initialize_extra_account_meta_list` and `transfer_hook`. as well as a fallback function `fallback`. And two structs `InitializeExtraAccountMetaList` and `TransferHook`.
+
+Take a look at `lib.rs`, you'll notice we have three instructions `initialize_extra_account_meta_list`, `transfer_hook`, `fallback`. Additionally we have two instruction account structs `InitializeExtraAccountMetaList` and `TransferHook`.
+
+The `initialize_extra_account_meta_list` function initializes the additional accounts needed for the transfer hook.
+
+The `transfer_hook` is the actual CPI called "after" the transfer has been made.
+
+The `fallback` is an anchor adapter function we have to fill out.
+
+We're going to look at each in-depth.
 
 ```rust
 use anchor_lang::{ prelude::*, system_program::{ create_account, CreateAccount } };
@@ -182,19 +191,55 @@ pub struct InitializeExtraAccountMetaList {}
 pub struct TransferHook {}
 ```
 
+
+Context -Code - Context - Code. KISS, Keep It Simple Silly
+# Lab
+Today we will explore how transfer hooks work solana-side by creating a Cookie Crumb program...
+
+## 0. Setup
+To get started...
+
+```
+git clone...
+```
+
+## 1. InitializeExtraAccountMetaList
+The cookie program needs some extra accounts, here they are...
+
+```ts
+{
+  code for thing
+}
+```
+
+## 2. TransferHook
+The transfer hook also needs these extra accounts from out `ExtraAccountMetaList`...
+
+## 3. initialize_extra_account_meta_list
+To have access to these additional accounts we need to initialize the extra account meta list...
+
+## 4. transfer_hook
+Our transfer hook to adhear to our cookie program specs will mint a crumb token to the wallet...
+
+## 5. fallback
+One last instruction we have to fill out because of XYZ...
+
+## 6. Test Functions
+Now lets test our program from the client...
+
+# Challenge
+Create your own transfer hook...
+
+
 ### 1. Initialize Extra Account Meta List
 
-When we do a transfer using the Token Extension program, the program will look into our mint and see if it has a transfer hook or not, if it 
-has one the Token Extension program will make a CPI (cross-program invocation) to our transfer hook program, and it will pass 4 essential accounts to
-our program (sender, mint, receiver, owner) but before passing them it will deescalate them, in other words it will remove the mutable or signing 
-abilities for security reasons, so when our program gets these accounts, they will be read-only, the program can't change anything in these accounts,
-and it can't sign any transactions with them, so if we have logic that needs to change some account or make some transactions we only have two options:
+TODO fix run-on, put in lesson - keep the lab in context of the cookie program
+When we do a transfer using the Token Extension program, the program will look into our mint and see if it has a transfer hook or not, if it has one the Token Extension program will make a CPI (cross-program invocation) to our transfer hook program, and it will pass 4 essential accounts to our program (`sender`, `mint`, `receiver`, `owner`) but before passing them it will deescalate them, in other words it will remove the mutable or signing 
+abilities for security reasons, so when our program gets these accounts, they will be read-only, the program can't change anything in these accounts, and it can't sign any transactions with them, so if we have logic that needs to change some account or make some transactions we only have two options:
 
-1. we can use the PDA features, because the program on Solana can sign to any PDA that it owns, so for this example we need to mint some tokens, and in 
-order to do that we need to make a transactions, and the mint authority should sign this transaction, so we set the mint authority to be a PDA of our program,
+1. We can use the PDA features, because the program on Solana can sign for any PDA it owns, so for this example we need to mint some tokens. In order to do that we need to make a transaction, and the mint authority should sign this transaction, so we set the mint authority to be a PDA of our program,
 this way we are able to do the mint operation and sign the transaction.
-2. adding the account in the `extraAccountMetaList`, we can add any account we want and make writable/signer, and when the Token Extension program makes the
-CPI to our program, it will pass the extra account meta list account, and our program can use it to get the extra accounts and use them in the logic.
+2. Adding the account in the `extraAccountMetaList`, we can add any account we want and make writable/signer, and when the Token Extension program makes the CPI to our program, it will pass the extra account meta list account, and our program can use it to get the extra accounts and use them in the logic.
 
 and that is why we will need an extra account that will hold all the accounts that the transfer hook needs for its logic to work. and to do so, we have the initialize_extra_account_meta_list instruction.
 
@@ -297,7 +342,7 @@ pub enum Seed {
     ///     * 1 - Length of literal
     ///     * N - Literal bytes themselves
     Literal {
-        /// The literal value repesented as a vector of bytes.
+        /// The literal value represented as a vector of bytes.
         ///
         /// For example, if a literal value is a string literal,
         /// such as "my-seed", this value would be
