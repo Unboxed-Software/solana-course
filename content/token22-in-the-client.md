@@ -1,5 +1,5 @@
 ---
-title: Supporting Token22 from a Client
+title: Supporting Token Extensions Program from a Client
 objectives:
 - 
 ---
@@ -9,31 +9,30 @@ objectives:
 
 # Overview
 
-The Token Extensions Program is a superset of the original Token program that provides a lot of useful functionality. These extensions are solutions to use-cases that would have required a developer fork and modify the to Solana Program Library, which would result in adoption issues. Now with the Token Extensions Program, we can address those use-cases. However, the Token Program and Token Extensions Program are different on-chain programs, they are not interoperable. The do they exact same things, except the Token Extensions Program can do more. This being said, we'll have to support both programs in our client-side applications. Meaning we'll want to handle mints from both the original Token Program (`TOKEN_PROGRAM_ID`) and the Extension Program (`TOKEN_2022_PROGRAM_ID`).
+The Token Extensions Program is a superset of the original Token program that includes new and helpful functionality called extensions. These extensions solve use cases that would have previously required a developer to fork and modify the Solana Program Library, which would have resulted in adoption issues. Now, with the Token Extensions Program, we can address those use cases. 
 
-Fortunately, the interfaces for both the legacy Token Program and Token Extension Token program remain consistent. This allows the use of common `spl-token` helper functions across different token programs by simply swapping the program ID. By default, if no program ID is provided, the functions revert to using the legacy token program. 
+Although the Token Program and Token Extensions Program are different on-chain programs, they are not interoperable. As a result, we'll have to support both programs in our client-side applications. This means we'll want to explicitly handle mints from both the original Token Program (`TOKEN_PROGRAM_ID`) and the Extension Program (`TOKEN_2022_PROGRAM_ID`).
 
-Most user interfaces will not differentiate between legacy tokens and Extension tokens. Meaning additional logic to fetch and merge information from both types for a seamless experience. This can be done by keeping track of token's owning program or fetching the owning program on-demand.
+Fortunately, the interfaces for the two programs remain consistent, allowing the use of `spl-token` helper functions in either program by simply swapping the program ID (the function uses the legacy Token Program by default if no program ID is provided). However, most user interfaces will not differentiate between legacy and extension tokens, requiring additional logic to track, fetch, and merge information from both types for a seamless experience.
 
-Lastly, Token Extension Program is named internally as "Token 22" as in `TOKEN_2022_PROGRAM_ID`. They are the same thing.
+Lastly, the Token Extension Program is internally named "Token 22" as in `TOKEN_2022_PROGRAM_ID`. They are the same thing.
 
 
 ## Differences between working with legacy Tokens and Token Extension Tokens
 
+When interacting with mints and tokens, we need to be sure we're inputting the correct Token program. To create a legacy mint, use the Token Program; to create a mint with extensions, use the Token Extension Program.
 
-When interacting with mints and tokens, the only thing you need to worry about is inputting the correct Token program. To create a legacy mint use the Token Program, to create a mint with extensions, use the Token Extension program.
+Fortunately, the `spl-token` package makes it easy to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants, and all of its helper functions for creating and minting tokens take a program ID as input.
 
-Fortunately, the `spl-token` package makes it easy to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants and all of its helper functions for creating and minting tokens take a program ID as input.
-
-NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to Token Extensions Program, otherwise you will get the following error: `TokenInvalidAccountOwnerError`.
+NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to the Token Extensions Program. Otherwise, you will get the following error: `TokenInvalidAccountOwnerError`.
 
 ## Things to consider when working with both Token and Extension Tokens
-Although the interfaces for both of these programs remain consistent, these are two different programs. The addresses created by using these programs are different. The program IDs of these programs are not interchangeable. If you want to support both the legacy token and Token22 tokens, you will have to add extra logic on the client side.
+Although the interfaces for both of these programs remain consistent, they are two different programs. The program IDs of these programs are not interchangeable, and the addresses created by using them are different. If you want to support both the legacy token and the Token Extension Program token, you must add extra logic on the client side.
 
 ## Associated Token Accounts (ATA)
-An Associated Token Account is a Token Account whose address is created using the wallet's public key, a token mint and the token program. This mechanism provides a deterministic Token Account address for each mint per user. ATAs are handled the same way with both token programs.
+An Associated Token Account (ATA) is a Token Account whose address is created using the wallet's public key, a token mint, and the token program. This mechanism provides a deterministic Token Account address for each mint per user. ATAs are handled the same way with both token programs.
 
-We can use the ATAs helper functions for each token program by simply swapping the token program to the correct one. For example, to use the `getOrCreateAssociatedTokenAccount` for Extension Tokens, just pass in `TOKEN_2022_PROGRAM_ID` for the `tokenProgramId` parameter.
+We can use the ATA helper functions for each token program by providing the desired program ID. If we want to use the Token Extension Program when we call `getOrCreateAssociatedTokenAccount` Extension Tokens, we can pass in `TOKEN_2022_PROGRAM_ID` for the `tokenProgramId` parameter.
 
 
 ```ts
@@ -47,11 +46,11 @@ const tokenAccount = await getOrCreateAssociatedTokenAccount(
   true,
   'finalized',
   {commitment: 'finalized'},
-  tokenProgramId // TOKEN_PROGRAM_ID for legacy tokens and TOKEN_2022_PROGRAM_ID for Token22 tokens
+  tokenProgramId // TOKEN_PROGRAM_ID for legacy tokens and TOKEN_2022_PROGRAM_ID for Token Extension Program tokens
 )
 ```
 
-To re-create the ATA's address from scratch we can use the `findProgramAddressSync` function by providing the correct seeds.
+To re-create the ATA's address from scratch, we can use the `findProgramAddressSync` function by providing the correct seeds.
 
 ```ts
 function findAssociatedTokenAddress(
@@ -108,7 +107,7 @@ if (accountInfo.value === null) {
   throw new Error('Account not found');
 }
 
-const programId = accountInfo.value.owner; // will return TOKEN_PROGRAM_ID for legacy mint address and TOKEN_2022_PROGRAM_ID for Token22 mint address
+const programId = accountInfo.value.owner; // will return TOKEN_PROGRAM_ID for legacy mint address and TOKEN_2022_PROGRAM_ID for Token Extension Program mint address
 
 //we now use the programId to fetch the tokens
 const tokenAccounts = await connection.getTokenAccountsByOwner(
@@ -123,13 +122,14 @@ NOTE: After you fetch the owning account, it may be a good idea to save that own
 
 Let's work through a holistic example where we add Token Extension support to an existing script.
 
-You can work through this lab using either Devnet or a Localnet. Depending on the state of Devnet, it may or may not be easier to just use a local test validator. To do this, run the following command to start the local test validator:
+You can work through this lab using either Devnet or Localnet. Depending on the state of Devnet, it may or may not be easier to use a local test validator by running the following command:
 
 ```bash
 solana-test-validator
 ```
 
-Then, in `src/index.ts`, change the connection URL to point to the running validator:
+Then change the connection URL in `src/index.ts` to point to the running validator:
+
 ```ts
 // ....
 const connection = new Connection('http://127.0.0.1:8899') // use the JSON RPC URL as prompted on the console after running the validator
@@ -162,13 +162,15 @@ The starter code comes with the following files:
 
 The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed.
 
-The `print-helpers.ts` file has a function called `printTableData`. This function logs output to the console in a structured fashion. The function simply takes any object and is passed to the `console.table` helper available to NodeJS. This helper prints the information in a tabular form with the object's keys as columns and values as rows.
+The `print-helpers.ts` file has a function called `printTableData`. This function logs output to the console in a structured fashion. The function takes any object and is passed to the `console.table` helper available to NodeJS.
 
-Lastly, `index.ts` contains our `main` function. Right now it only creates a connection and calls `initializeKeypair`.
+Lastly, `index.ts` contains our `main` function. It currently only creates a connection and calls `initializeKeypair`.
 
 ### 3. Create legacy and Token22 mints
 
-Let's start by creating new token mints using both the legacy Token program and the Token22 program. Define a function called `createAndMintToken`. As the name suggests it will create a mint and mint `mintAmount` tokens to a newly generated ATA for the `payer`. This function should take the following arguments:
+Let's start by creating new token mints using both the legacy Token program and the Token Extension program. 
+
+Create a new file called `create-and-mint-token.ts` and add a function called `createAndMintToken`. As the name suggests it will create a mint and mint `mintAmount` tokens to a newly generated ATA for the `payer`. This function should take the following arguments:
 
 - `connection` - the connection object to use
 - `tokenProgramId` - the token program to point to
@@ -176,7 +178,7 @@ Let's start by creating new token mints using both the legacy Token program and 
 - `decimals` - the number of decimals to include for the mint
 - `mintAmount` - the amount of tokens to mint to the payer
 
-If you've created a token mint before, the process is similar. The only difference is specifying the specific token program ID.
+Creating token mints is the same as before, except now we must specify the token program ID.
 
 ```ts
 async function createAndMintToken(
@@ -243,9 +245,9 @@ async function createAndMintToken(
 }
 ```
 
-Note that we've added `confirmOptions` argument to the `createMint` call to make sure the function's promise doesn't resolve until the transaction has been finalized. This will avoid errors when we go to mint new tokens.
+Note that we've added the `confirmOptions` argument to the `createMint` call to ensure the function's promise doesn't resolve until the transaction is finalized. This will avoid errors when we go to mint new tokens.
 
-Lastly, let's add two separate calls to this function from our `main` function. The first will use the legacy token program and the second will use Token22.
+Lastly, let's make two calls to this function inside our `main` function. We'll use different program IDs for each call.
 
 ```ts
 async function main() {
@@ -279,9 +281,11 @@ async function main() {
 
 At this point you can run `npm run start` and see that both mints get created and their info logged to the console.
 
-### 4. Fetch legacy and Token22 tokens
+### 4. Fetch legacy and Token Extension Program tokens
 
-We can now fetch tokens using the wallet's public key and the program ID. Create the function `fetchTokenInfo` inside of `fetch-token-info.ts` with the following arguments:
+We can now fetch tokens using the wallet's public key and the program ID. 
+
+Create the function `fetchTokenInfo` inside of `fetch-token-info.ts` with the following arguments:
  - `connection` - the connection object to use
  - `wallet` - the wallet which owns the associated token accounts
  - `programId` - the token program to point to
@@ -326,7 +330,7 @@ export async function fetchTokenInfo(
 }
 ```
 
-We'll now add two separate calls to this function in `index.ts` to fetch legacy tokens and Token22 tokens.
+Inside of `index.ts`, we'll add two separate calls to this function, once for each program.
 
 ```ts
 async function main() {
@@ -335,7 +339,7 @@ async function main() {
 
 	myTokens.push(
 		...await fetchTokenInfo(connection, keyPair, TOKEN_PROGRAM_ID, 'Token'),
-		...await fetchTokenInfo(connection, keyPair, TOKEN_2022_PROGRAM_ID, 'Token22'),
+		...await fetchTokenInfo(connection, keyPair, TOKEN_2022_PROGRAM_ID, 'Token Extension Program'),
 	)
 
 	printTableData(myTokens)
@@ -343,11 +347,11 @@ async function main() {
 }
 ```
 
-Now you can run `npm run start` again. You will see information about both the legacy tokens and the Token22 tokens.
+Now you can run `npm run start` again. You will see information about both the legacy tokens and the Token Extension Program tokens.
 
-### 6. Fetch legacy and Token22 tokens without the program ID
+### 6. Fetch legacy and Token Extension Program tokens without the program ID
 
-And just to show how you would grab the owner account if you didn't already have them. Let's add a function `fetchTokenProgramFromAccount` to `fetch-token-info.ts` and have it take the following arguments:
+Let's add a function `fetchTokenProgramFromAccount` to `fetch-token-info.ts` and have it take the following arguments:
  - `connection` - the connection object to use
  - `accountPublicKey` - public key of the mint account
 
@@ -366,7 +370,7 @@ export async function fetchTokenProgramFromAccount(
 }
 ```
 
-This function will return the mint account's program ID. This works the same for both Legacy and Token22 mint accounts. Let's use this function in `index.ts` to fetch the tokens.
+This function will return the mint account's program ID. This works the same for both Legacy and Token Extension Program mint accounts. Let's use this function in `index.ts` to fetch the tokens.
 
 ```ts
 async function main(){
@@ -375,7 +379,7 @@ async function main(){
   const token22MintTokenProgram = await fetchTokenProgramFromAccount(connection, token22Mint);
 
   if(!legacyMintTokenProgram.equals(TOKEN_PROGRAM_ID)) throw new Error('Legacy mint token program is not correct');
-  if(!token22MintTokenProgram.equals(TOKEN_2022_PROGRAM_ID)) throw new Error('Token22 mint token program is not correct');
+  if(!token22MintTokenProgram.equals(TOKEN_2022_PROGRAM_ID)) throw new Error('Token Extension Program mint token program is not correct');
 
 
   //now use this program id to fetch tokens
@@ -383,7 +387,7 @@ async function main(){
 
 	myTokens.push(
 		...await fetchTokenInfo(connection, keyPair, legacyMintTokenProgram, 'Token'),
-		...await fetchTokenInfo(connection, keyPair, token22MintTokenProgram, 'Token22'),
+		...await fetchTokenInfo(connection, keyPair, token22MintTokenProgram, 'Token Extension Program'),
 	)
 
 	printTableData(myTokens)
@@ -391,11 +395,11 @@ async function main(){
 }
 ```
 
-Run `npm run start` again. You will see the same output as in step 5 where you saw the legacy and Token22 tokens owned by the user.
+Run `npm run start` again. You will see the same output as in the previous step where you saw the legacy and Token Extenion tokens owned by the user.
 
 That's it! If you get stuck at any step, you can find the complete code in [this lab's repository's](https://github.com/Unboxed-Software/token22-in-the-client/) `main` branch.
 
 # Challenge
-For the challenge, try and implement the burn token functionality for the legacy tokens and the Token22 tokens.
+For the challenge, try and implement the burn token functionality for the legacy tokens and the Token Extenion tokens.
 
 
