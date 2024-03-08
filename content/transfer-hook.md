@@ -6,6 +6,584 @@ objectives:
 
 # Summary
 
+# Overview
+
+TODO: write the first paragraph
+
+## Onchain side
+
+### 1. Initialize Extra Account Meta List
+
+TODO fix run-on, put in lesson - keep the lab in context of the cookie program
+When we do a transfer using the Token Extension program, the program will look into our mint and see if it has a transfer hook or not, if it has one the Token Extension program will make a CPI (cross-program invocation) to our transfer hook program, and it will pass 4 essential accounts to our program (`sender`, `mint`, `receiver`, `owner`) but before passing them it will deescalate them, in other words it will remove the mutable or signing 
+abilities for security reasons, so when our program gets these accounts, they will be read-only, the program can't change anything in these accounts, and it can't sign any transactions with them, so if we have logic that needs to change some account or make some transactions we only have two options:
+
+1. We can use the PDA features, because the program on Solana can sign for any PDA it owns, so for this example we need to mint some tokens. In order to do that we need to make a transaction, and the mint authority should sign this transaction, so we set the mint authority to be a PDA of our program,
+this way we are able to do the mint operation and sign the transaction.
+2. Adding the account in the `extraAccountMetaList`, we can add any account we want and make writable/signer, and when the Token Extension program makes the CPI to our program, it will pass the extra account meta list account, and our program can use it to get the extra accounts and use them in the logic.
+
+and that is why we will need an extra account that will hold all the accounts that the transfer hook needs for its logic to work. and to do so, we have the initialize_extra_account_meta_list instruction.
+
+Note that if you are going to pass the Mint account in the extra account list in order to get it as mutable, that is not going to work. At the time of creating this lesson,
+when the Token Extension program makes the CPI to our program, it will pass the mint account as read-only no matter how many times you add it to the extra accounts list.
+
+
+In this example, the initialize_extra_account_meta_list instruction requires 7 accounts:
+- `payer` - The account that will pay for the creation of the ExtraAccountMetaList account.
+- `extra_account_meta_list` - The ExtraAccountMetaList account that will store the additional accounts required by the transfer_hook instruction.
+- `mint` - The mint account of the token to be transferred.
+- `token_program` - The token program account, we need to have it there because we are doing init for the `crumb_mint` account.
+- `system_program` - The system program account, we need to have it there because we are doing init for the `crumb_mint` account.
+- `crumb_mint` - The mint account of the token to be minted by the transfer_hook instruction.
+- `mint_authority` - The mint authority account of the token to be minted by the transfer_hook instruction.
+- `crumb_mint_ata` - The associated token account of the token to be minted by the transfer_hook instruction.
+
+This is the code for the struct `InitializeExtraAccountMetaList`:
+
+```rust
+#[derive(Accounts)]
+pub struct InitializeExtraAccountMetaList<'info> {
+  #[account(mut)]
+  payer: Signer<'info>,
+  /// CHECK: ExtraAccountMetaList Account, must use these seeds
+  #[account(
+        mut,
+        seeds = [b"extra-account-metas", mint.key().as_ref()], 
+        bump
+    )]
+  pub extra_account_meta_list: AccountInfo<'info>,
+  pub mint: InterfaceAccount<'info, Mint>,
+  pub token_program: Interface<'info, TokenInterface>,
+  pub system_program: Program<'info, System>,
+
+  #[account(init, payer = payer, mint::decimals = 0, mint::authority = mint_authority)]
+  pub crumb_mint: InterfaceAccount<'info, Mint>,
+
+  /// CHECK: mint authority Account,
+  #[account(seeds = [b"mint-authority"], bump)]
+  pub mint_authority: UncheckedAccount<'info>,
+
+  /// CHECK: ATA Account for crumb mint
+  pub crumb_mint_ata: UncheckedAccount<'info>,
+}
+```
+
+and it will add accounts to the extra account list:
+1. Token Extension program
+2. Token program
+3. Associated token program
+4. Crumb mint (mutable/is_writable)
+5. Mint authority PDA
+6. Crumb mint ATA (mutable/is_writable) 
+
+Now let's walk through the function logic.
+
+1. List the accounts required for the transfer hook instruction inside a vector.
+    - there are three methods for storing these accounts:
+        1. Directly store the account address by using `ExtraAccountMeta::new_with_pubkey` this is useful
+        2. Store the seeds to derive a PDA for the Transfer Hook program using `ExtraAccountMeta::new_with_seeds`
+        3. Store the seeds to derive a PDA for a program other than the Transfer Hook program using `ExtraAccountMeta::new_external_pda_with_seeds`, notice that we didn't use this method in the code provided because it was causing some issues, it should get fixed in future updates.
+    - the seed could be a string, a instruction data, an account data or an account key, and to get the account key you will need to have it's index, take a look at the this code:
+
+```rust
+    // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+    let account_metas = vec![
+      // index 4, Token program
+      ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
+      // index 5, crumb mint
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
+      // index 6, mint authority
+      ExtraAccountMeta::new_with_seeds(
+        &[
+          Seed::Literal {
+            bytes: "mint-authority".as_bytes().to_vec(),
+          },
+        ],
+        false, // is_signer
+        false // is_writable
+      )?,
+      // index 7, ATA
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)? // is_writable true
+    ];
+```
+
+As you can see in the comments, the index 0-3 are the accounts required for token transfer (source, mint, destination, owner), and the rest are the extra accounts required from the ExtraAccountMetaList account. you will need these indexes if you want to use one of the accounts key or data as a seed. To get more familiar with the seeds take a look at the seed enum implementation from [spl_tlv_account_resolution::seeds::Seed](https://github.com/solana-labs/solana-program-library/blob/master/libraries/tlv-account-resolution/src/seeds.rs)
+
+```rust
+pub enum Seed {
+    /// Uninitialized configuration byte space
+    Uninitialized,
+    /// A literal hard-coded argument
+    /// Packed as:
+    ///     * 1 - Discriminator
+    ///     * 1 - Length of literal
+    ///     * N - Literal bytes themselves
+    Literal {
+        /// The literal value represented as a vector of bytes.
+        ///
+        /// For example, if a literal value is a string literal,
+        /// such as "my-seed", this value would be
+        /// `"my-seed".as_bytes().to_vec()`.
+        bytes: Vec<u8>,
+    },
+    /// An instruction-provided argument, to be resolved from the instruction
+    /// data
+    /// Packed as:
+    ///     * 1 - Discriminator
+    ///     * 1 - Start index of instruction data
+    ///     * 1 - Length of instruction data starting at index
+    InstructionData {
+        /// The index where the bytes of an instruction argument begin
+        index: u8,
+        /// The length of the instruction argument (number of bytes)
+        ///
+        /// Note: Max seed length is 32 bytes, so `u8` is appropriate here
+        length: u8,
+    },
+    /// The public key of an account from the entire accounts list.
+    /// Note: This includes an extra accounts required.
+    ///
+    /// Packed as:
+    ///     * 1 - Discriminator
+    ///     * 1 - Index of account in accounts list
+    AccountKey {
+        /// The index of the account in the entire accounts list
+        index: u8,
+    },
+    /// An argument to be resolved from the inner data of some account
+    /// Packed as:
+    ///     * 1 - Discriminator
+    ///     * 1 - Index of account in accounts list
+    ///     * 1 - Start index of account data
+    ///     * 1 - Length of account data starting at index
+    AccountData {
+        /// The index of the account in the entire accounts list
+        account_index: u8,
+        /// The index where the bytes of an account data argument begin
+        data_index: u8,
+        /// The length of the argument (number of bytes)
+        ///
+        /// Note: Max seed length is 32 bytes, so `u8` is appropriate here
+        length: u8,
+    },
+}
+```
+
+2. Calculate the size and rent required to store the list of ExtraAccountMetas.
+
+```rust
+// calculate account size
+let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
+// calculate minimum required lamports
+let lamports = Rent::get()?.minimum_balance(account_size as usize);
+```
+
+3. Make a CPI to the System Program to create an account and set the Transfer Hook Program as the owner. The PDA seeds are included as signer seeds
+on the CPI because we are using the PDA as the address of the new account.
+
+```rust
+let mint = ctx.accounts.mint.key();
+let signer_seeds: &[&[&[u8]]] = &[&[
+    b"extra-account-metas",
+    &mint.as_ref(),
+    &[ctx.bumps.extra_account_meta_list],
+]];
+
+// create ExtraAccountMetaList account
+create_account(
+    CpiContext::new(
+        ctx.accounts.system_program.to_account_info(),
+        CreateAccount {
+            from: ctx.accounts.payer.to_account_info(),
+            to: ctx.accounts.extra_account_meta_list.to_account_info(),
+        },
+    )
+    .with_signer(signer_seeds),
+    lamports,
+    account_size,
+    ctx.program_id,
+)?;
+```
+
+4. Initialize the account data to store the list of ExtraAccountMetas.
+
+```rust
+// initialize ExtraAccountMetaList account with extra accounts
+ExtraAccountMetaList::init::<ExecuteInstruction>(
+    &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
+    &account_metas,
+)?;
+```
+
+if we put all of that together we get the following code:
+
+```rust
+pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
+    // 1. List the accounts required for the transfer hook instruction inside a vector.
+
+    // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+    let account_metas = vec![
+      // index 4, Token program
+      ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
+      // index 5, crumb mint
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
+      // index 6, mint authority
+      ExtraAccountMeta::new_with_seeds(
+        &[
+          Seed::Literal {
+            bytes: "mint-authority".as_bytes().to_vec(),
+          },
+        ],
+        false, // is_signer
+        false // is_writable
+      )?,
+      // index 7, ATA
+      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)? // is_writable true
+    ];
+    // 2. Calculate the size and rent required to store the list of
+
+    // calculate account size
+    let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
+    // calculate minimum required lamports
+    let lamports = Rent::get()?.minimum_balance(account_size as usize);
+
+    // 3. Make a CPI to the System Program to create an account and set the
+    let mint = ctx.accounts.mint.key();
+    let signer_seeds: &[&[&[u8]]] = &[&[b"extra-account-metas", &mint.as_ref(), &[ctx.bumps.extra_account_meta_list]]];
+
+    // Create ExtraAccountMetaList account
+    create_account(
+      CpiContext::new(ctx.accounts.system_program.to_account_info(), CreateAccount {
+        from: ctx.accounts.payer.to_account_info(),
+        to: ctx.accounts.extra_account_meta_list.to_account_info(),
+      }).with_signer(signer_seeds),
+      lamports,
+      account_size,
+      ctx.program_id
+    )?;
+
+    // 4. Initialize the account data to store the list of ExtraAccountMetas
+    ExtraAccountMetaList::init::<ExecuteInstruction>(
+      &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
+      &account_metas
+    )?;
+
+    Ok(())
+  }
+  ```
+
+<Callout type="info">
+
+In this example, we are not using the Transfer Hook interface to create the
+ExtraAccountMetas account.
+
+</Callout>
+
+
+### 2. Transfer Hook
+In this step, we will implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the token program when a token transfer occurs. The transfer_hook instruction will mint a new token for each transfer.
+
+In this example, the transfer_hook instruction requires 10 accounts:
+- `source_token` The source token account from which tokens are transferred.
+- `mint` The mint account of the token to be transferred.
+- `destination_token` The destination token account to which tokens are transferred.
+- `owner` The owner of the source token account.
+- `extra_account_meta_list` The ExtraAccountMetaList account that stores the additional accounts required by the transfer_hook instruction.
+- `token_program` The token program account.
+- `crumb_mint` The mint account of the token to be minted by the transfer_hook instruction.
+- `mint_authority` The mint authority account of the token to be minted by the transfer_hook instruction.
+- `crumb_mint_ata` The associated token account of the token to be minted by the transfer_hook instruction.
+
+So first let's implement the `TransferHook` struct to have all the accounts above by replacing the following
+
+<Callout type="info">
+
+Note that the order of accounts in this struct matters. This is the order in
+which the Token Extensions program provides these accounts when it CPIs to this
+Transfer Hook program.
+
+</Callout>
+
+```rust
+// Order of accounts matters for this struct.
+// The first 4 accounts are the accounts required for token transfer (source, mint, destination, owner)
+// Remaining accounts are the extra accounts required from the ExtraAccountMetaList account
+// These accounts are provided via CPI to this program from the token2022 program
+#[derive(Accounts)]
+pub struct TransferHook<'info> {
+  #[account(token::mint = mint, token::authority = owner)]
+  pub source_token: InterfaceAccount<'info, TokenAccount>,
+  pub mint: InterfaceAccount<'info, Mint>,
+  #[account(token::mint = mint)]
+  pub destination_token: InterfaceAccount<'info, TokenAccount>,
+  /// CHECK: source token account owner
+  pub owner: UncheckedAccount<'info>,
+
+  /// CHECK: ExtraAccountMetaList Account,
+  #[account(seeds = [b"extra-account-metas", mint.key().as_ref()], bump)]
+  pub extra_account_meta_list: UncheckedAccount<'info>,
+
+  pub token_program: Interface<'info, TokenInterface>,
+
+  pub crumb_mint: InterfaceAccount<'info, Mint>,
+
+  /// CHECK: mint authority Account,
+  #[account(seeds = [b"mint-authority"], bump)]
+  pub mint_authority: UncheckedAccount<'info>,
+
+  #[account(token::mint = crumb_mint)]
+  pub crumb_mint_ata: InterfaceAccount<'info, TokenAccount>,
+}
+```
+
+Next for the function it self, all what the function will do is it will take the needed accounts from `ctx.accounts` and use them to mint a new token for each transaction.
+
+
+```rust
+  pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
+    let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
+    // mint a crumb token for each transaction
+    mint_to(
+      CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        token::MintTo {
+          mint: ctx.accounts.crumb_mint.to_account_info(),
+          to: ctx.accounts.crumb_mint_ata.to_account_info(),
+          authority: ctx.accounts.mint_authority.to_account_info(),
+        },
+        signer_seeds
+      ),
+      1
+    ).unwrap();
+
+    Ok(())
+  }
+```
+
+Notice that we do have the amount of the original transfer, in our case that will always be `1` because we are dealing with NFTs, but if you have a different token you will get the amount of how much did they transfer.
+
+Good to know that the transfer hook get called after the transfer happens, so at the point when the transfer hook is getting invoked, the tokens has already left the sender account and get to the receiver account.
+
+
+### 3. Fallback
+In addition, we must include a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions program.
+
+This is necessary because Anchor generates instruction discriminators differently from the ones used in Transfer Hook interface instructions. The instruction discriminator for the `transfer_hook` instruction will not match the one for the Transfer Hook interface
+
+Next versions of anchor should solve this for us, but for now we can implement this simpl workaround
+
+```rust
+// fallback instruction handler as workaround to anchor instruction discriminator check
+pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>], data: &[u8]) -> Result<()> {
+  let instruction = TransferHookInstruction::unpack(data)?;
+
+  // match instruction discriminator to transfer hook interface execute instruction
+  // token2022 program CPIs this instruction on token transfer
+  match instruction {
+      TransferHookInstruction::Execute { amount } => {
+      let amount_bytes = amount.to_le_bytes();
+  
+      // invoke custom transfer hook instruction on our program
+      __private::__global::transfer_hook(program_id, accounts, &amount_bytes)
+      }
+      _ => {
+      return Err(ProgramError::InvalidInstructionData.into());
+      }
+  }
+}
+```
+
+## Offchain side
+
+
+### Create an NFT with Transfer Hook Extension and Metadata
+
+One more awesome things about extensions is that you can mix and match them as you like. so in this test we will create a new NFT mint account with the transfer hook extension and the metadata extension, and it will goes as follows:
+
+1. Get the metadata object: we will use a the helper function `getMetadataObject` for that, notice that we are passing an `imagePath`, so for this you will have to grape an image and put it in the `helpers` folder, for this example let's call it `cool-cookie.png`.
+2. Get the minimum balance for the mint account, and calculate the size of the mint and the metadata
+3. Create a transaction that will:
+    - Allocate the mint account
+    - Initialize the metadata pointer and let it point to the mint itself
+    - Initialize the transfer hook extension and point to our program
+    - Initialize mint instruction
+    - Initialize metadata which will set all the metadata for the NFT
+4. send the transaction and log the transaction signature
+
+```ts
+it('Creates an NFT with Transfer Hook Extension and Metadata', async () => {
+    // 1. get the metadata object
+    const metadata = await getMetadataObject({
+      connection,
+      imagePath: 'helpers/cool-cookie.png',
+      tokenName: 'Cool Cookie',
+      tokenSymbol: 'COOKIE',
+      tokenDescription: 'A cool cookie',
+      mintPublicKey: mint.publicKey,
+      additionalMetadata: [],
+      payer: wallet.payer,
+    });
+    // NFT Should have 0 decimals
+    const decimals = 0;
+
+    // 2. Get the minimum balance for the mint account, and calculate the size of the mint and the metadata
+    const extensions = [ExtensionType.TransferHook, ExtensionType.MetadataPointer];
+    const mintLen = getMintLen(extensions);
+    const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
+    const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
+
+    // 3. Create a transaction that will:
+    const transaction = new Transaction().add(
+      // Allocate the mint account
+      SystemProgram.createAccount({
+        fromPubkey: wallet.publicKey,
+        newAccountPubkey: mint.publicKey,
+        space: mintLen,
+        lamports: lamports,
+        programId: TOKEN_2022_PROGRAM_ID,
+      }),
+      // Initialize the metadata pointer and let it point to the mint itself
+      createInitializeMetadataPointerInstruction(
+        mint.publicKey,
+        wallet.publicKey,
+        mint.publicKey,
+        TOKEN_2022_PROGRAM_ID,
+      ),
+      // Initialize the transfer hook extension and point to our program
+      createInitializeTransferHookInstruction(
+        mint.publicKey,
+        wallet.publicKey,
+        program.programId, // Transfer Hook Program ID
+        TOKEN_2022_PROGRAM_ID,
+      ),
+      // Initialize mint instruction
+      createInitializeMintInstruction(mint.publicKey, decimals, wallet.publicKey, null, TOKEN_2022_PROGRAM_ID),
+      // Initialize metadata which will set all the metadata for the NFT
+      createInitializeInstruction({
+        programId: TOKEN_2022_PROGRAM_ID,
+        mint: mint.publicKey,
+        metadata: mint.publicKey,
+        name: metadata.name,
+        symbol: metadata.symbol,
+        uri: metadata.uri,
+        mintAuthority: wallet.publicKey,
+        updateAuthority: wallet.publicKey,
+      }),
+    );
+    // 4. send the transaction and log the transaction signature
+    const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer, mint]);
+    console.log(
+      'Transaction Signature:',
+      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
+    );
+  });
+  ```
+
+
+### Initialize ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint
+
+All what we did before is kinda familiar except the fact that we are using extensions with the token account, Now we will work on some new stuff in this test.
+
+in order for the transfer hook to work it needs an extra data account that will hold any extra accounts needed for the logic of the transfer hook.
+Note when we do a transfer using the Token Extension program, the program will look into our mint and see if it has a transfer hook or not, if it 
+has one the Token Extension program will make a CPI (cross-program invocation) to our transfer hook program, and it will pass 4 essential things to
+our program (sender, mint, receiver, owner) but before passing them it will deescalate them, in other words it will remove the mutable or signing 
+abilities for security reasons, so when our program gets these accounts, they will be read-only, the program can't change anything in these accounts,
+and it can't sign any transactions with them, so if we have logic that needs to change some account or make some transactions we only have two options:
+
+1. we can use the PDA features, because the program on Solana can sign to any PDA that it owns, so for this example we need to mint some tokens, and in 
+order to do that we need to make a transactions, and the mint authority should sign this transaction, so we set the mint authority to be a PDA of our program,
+this way we are able to do the mint operation and sign the transaction.
+2. adding the account in the `extraAccountMetaList`, we can add any account we want and make writable/signer, and when the Token Extension program makes the
+CPI to our program, it will pass the extra account meta list account, and our program can use it to get the extra accounts and use them in the logic.
+
+Note that if you are going to pass the Mint account in the extra account list in order to get it as mutable, that is not going to work. At the time of creating this lesson,
+when the Token Extension program makes the CPI to our program, it will pass the mint account as read-only no matter how many times you add it to the extra accounts list.
+
+So in this test we will initialize the extra account meta list account, to do so we will have to pass the needed account (mint, crumb mint, crumb mint ATA, extraAccountMetaList).
+one more thing to do in this test is to initialize the crumb mint ATA, so we can mint from crumb tokens to it in the next test.
+
+```ts
+it('Initializes ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint', async () => {
+    const initializeExtraAccountMetaListInstruction = await program.methods
+        .initializeExtraAccountMetaList()
+        .accounts({
+        mint: mint.publicKey,
+        extraAccountMetaList: extraAccountMetaListPDA,
+        crumbMint: crumbMint.publicKey,
+        crumbMintAta: crumbMintATA,
+        })
+        .instruction();
+
+    const transaction = new Transaction().add(
+        initializeExtraAccountMetaListInstruction,
+        createAssociatedTokenAccountInstruction(wallet.publicKey, crumbMintATA, crumbMintAuthority, crumbMint.publicKey),
+    );
+
+    const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer, crumbMint], {
+        skipPreflight: true,
+        commitment: 'confirmed',
+    });
+
+    console.log(
+        'Transaction Signature:',
+        `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
+    );
+});
+```
+
+
+### Transfer the NFT and the transfer hook mints a crumb token for each transfer
+
+```ts
+  it('Transfers the NFT and the transfer hook mints a crumb token for each transfer', async () => {
+    const amount = 1;
+    const bigIntAmount = BigInt(amount);
+
+    // Standard token transfer instruction
+    const transferInstruction = await createTransferCheckedWithTransferHookInstruction(
+      connection,
+      sourceTokenAccount,
+      mint.publicKey,
+      destinationTokenAccount,
+      wallet.publicKey,
+      bigIntAmount,
+      0, // Decimals
+      [],
+      'confirmed',
+      TOKEN_2022_PROGRAM_ID,
+    );
+
+    const transferBackInstruction = await createTransferCheckedWithTransferHookInstruction(
+      connection,
+      destinationTokenAccount,
+      mint.publicKey,
+      sourceTokenAccount,
+      recipient.publicKey,
+      bigIntAmount,
+      0, // Decimals
+      [],
+      'confirmed',
+      TOKEN_2022_PROGRAM_ID,
+    );
+
+    const transaction = new Transaction().add(transferInstruction, transferBackInstruction);
+
+    const txSig = await sendAndConfirmTransaction(connection, transaction, [wallet.payer, recipient], {
+      skipPreflight: true,
+    });
+    console.log(
+      'Transfer Signature:',
+      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
+    );
+
+    const mintInfo = await getMint(connection, crumbMint.publicKey, 'processed');
+    console.log('Mint Info:', Number(mintInfo.supply));
+
+    expect(Number(mintInfo.supply)).to.equal(2);
+  });
+```
+
 # Lab
 Today we will explore how transfer hooks work solana-side by creating a Cookie Crumb program. We will have a Cookie NFT that has a transfer hook which will mint a crumb token for each transfer, so we would be able to tell how many times this NFT has been transferred by only looking at the crumb supply.
 
