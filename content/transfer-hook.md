@@ -15,20 +15,18 @@ TODO: write the first paragraph
 ### 1. Initialize Extra Account Meta List
 
 TODO fix run-on, put in lesson - keep the lab in context of the cookie program
-When we do a transfer using the Token Extension program, the program will look into our mint and see if it has a transfer hook or not, if it has one the Token Extension program will make a CPI (cross-program invocation) to our transfer hook program, and it will pass 4 essential accounts to our program (`sender`, `mint`, `receiver`, `owner`) but before passing them it will deescalate them, in other words it will remove the mutable or signing 
-abilities for security reasons, so when our program gets these accounts, they will be read-only, the program can't change anything in these accounts, and it can't sign any transactions with them, so if we have logic that needs to change some account or make some transactions we only have two options:
+When we transfer using the Token Extension program, the program will see if our mint has a transfer hook. If the has a transfer hook, the Token Extension program will make a CPI (cross-program invocation) to our transfer hook program and pass four accounts to our program: `sender`, `mint`, `receiver`, `owner`. Before passing the accounts, the program removes the mutable and signing abilities (a process called "descalation"). When our program gets these accounts, we won't be able to change or use them to sign any transactions. 
 
-1. We can use the PDA features, because the program on Solana can sign for any PDA it owns, so for this example we need to mint some tokens. In order to do that we need to make a transaction, and the mint authority should sign this transaction, so we set the mint authority to be a PDA of our program,
-this way we are able to do the mint operation and sign the transaction.
-2. Adding the account in the `extraAccountMetaList`, we can add any account we want and make writable/signer, and when the Token Extension program makes the CPI to our program, it will pass the extra account meta list account, and our program can use it to get the extra accounts and use them in the logic.
+If we need to change an account or make a transaction, we do have two options:
 
-and that is why we will need an extra account that will hold all the accounts that the transfer hook needs for its logic to work. and to do so, we have the initialize_extra_account_meta_list instruction.
+1. We can utilize Program Derived Addresses (PDAs) to sign for specific actions. For instance, we designate the program's PDA as the mint authority for minting tokens. This allows the program to execute mint operations and sign transactions securely and efficiently.
+2. We can include the accounts we need in the `extra_account_meta_list`, specifying their permissions as writable/signer. When the Token Extension program calls the CPI to our program, it will provide the extra account meta list. Our program can then utilize these additional accounts in its logic.
 
-Note that if you are going to pass the Mint account in the extra account list in order to get it as mutable, that is not going to work. At the time of creating this lesson,
-when the Token Extension program makes the CPI to our program, it will pass the mint account as read-only no matter how many times you add it to the extra accounts list.
+and that is why we will need an extra account that will hold all the accounts that the transfer hook needs for its logic to work. and to do so, we have the `initialize_extra_account_meta_list` instruction.
 
+Note that the mint account is never mutable in a tranfer, even if it's in the `extraAccountMetaList`. The Token Extension program will always pass the mint account as read-only.
 
-In this example, the initialize_extra_account_meta_list instruction requires 7 accounts:
+In this example, the `initialize_extra_account_meta_list` instruction requires 7 accounts:
 - `payer` - The account that will pay for the creation of the ExtraAccountMetaList account.
 - `extra_account_meta_list` - The ExtraAccountMetaList account that will store the additional accounts required by the transfer_hook instruction.
 - `mint` - The mint account of the token to be transferred.
