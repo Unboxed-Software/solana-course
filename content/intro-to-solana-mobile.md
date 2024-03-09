@@ -12,7 +12,7 @@ objectives:
 
 - The Solana Mobile Wallet Adapter (MWA) creates a web socket connection between mobile apps and mobile wallets, allowing native mobile apps to submit transactions for signing
 - The simplest way to get started creating Solana mobile applications is with Solana Mobile's [React Native packages](https://docs.solanamobile.com/react-native/setup) `@solana-mobile/mobile-wallet-adapter-protocol` and `@solana-mobile/mobile-wallet-adapter-protocol-web3js`
-  - React Native is very similar to React with a few mobile quirks
+- React Native is very similar to React with a few mobile quirks
 
 # Overview
 
@@ -348,7 +348,7 @@ We do this by providing the following in our `AuthProvider`:
 
 - `accounts`: If the user has multiple wallets, different accounts are maintained in this array of Accounts.
 - `selectedAccount`: The current selected account for the transaction.
-  - `authorizeSession(wallet)`: Authorizes (or reauthorizes, if token is expired) the `wallet` for the user and returns an account which will act as the selected account for the session. The `wallet` variable is from the callback of the `transact` function you call independently anytime you want to interact with a wallet.
+- `authorizeSession(wallet)`: Authorizes (or reauthorizes, if token is expired) the `wallet` for the user and returns an account which will act as the selected account for the session. The `wallet` variable is from the callback of the `transact` function you call independently anytime you want to interact with a wallet.
 - `deauthorizeSession(wallet)`: Deauthorizes the `wallet`.
 - `onChangeAccount`: Acts as a handler when `selectedAccount` is changed.
 
