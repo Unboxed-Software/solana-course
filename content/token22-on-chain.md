@@ -1,34 +1,43 @@
 ---
 title: Supporting Token Extension Program in on-chain programs
 objectives:
-- Explain the difference between the `spl-token` and Token Extension programs
+- Explain the difference between the Token Program and Token Extension programs
 - Describe how to accept either token program, accounts, and mints in your program
 - Explain how to use Anchor Interfaces
 ---
 
 # Summary
 
-- The `Token Extension Program` is a new program to interact with on-chain and provides new functionality to tokens and mints alike
-- `token_program` is a new Anchor account constraint allowing you to verify an account belongs to a specific token program
-- Anchor introduced the concept of Interfaces to allow for programs to support interaction with both `spl-token` and `Token Extension Program`
+- The `Token Extension Program` is a superset of the `Token Program` with a different program id   
+- `token_program` is an Anchor account constraint allowing you to verify an account belongs to a specific token program
+- Anchor introduced the concept of Interfaces to allow for programs to support interaction with both `Token Program` and `Token Extension Program`
 
 # Overview
 
-The `Token Extension Program` is a new program on Solana mainnet that provides new functionality to Solana tokens and mints. This program brings new ways for interacting with token accounts on-chain in a program. With two types of Token Programs, we must anticipate being sent the program type in instructions.
+The `Token Extension Program` is a program on Solana mainnet that provides additional functionality to Solana tokens and mints. The `Token Extension Program` is a superset of the `Token Program`, it's a byte for byte recreation with additional functionality. That means it is a different program. With two types of Token Programs, we must anticipate being sent the program type in instructions.
 
-In this lesson, you'll learn how to design your program to accept `spl-token` and `Token Extension Program` accounts using Anchor. You'll also learn how to interact with `Token Extension Program` accounts, identifying which token program an account belongs to, and some differences between `spl-token` and the `Token Extension Program` on-chain.
+In this lesson, you'll learn how to design your program to accept `Token Program` and `Token Extension Program` accounts using Anchor. You'll also learn how to interact with `Token Extension Program` accounts, identifying which token program an account belongs to, and some differences between `Token Program` and the `Token Extension Program` on-chain.
 
 ## Difference between legacy Token Program and Token Extension Program
 
-We must clarify that the `Token Extension Program` is an new program to create and interact with tokens on Solana - the original `spl-token` program. The `Token Extension Program` is a superset of the original Token Program, meaning all the instructions and functionality in the original Token Program come with the `Token Extension Program`.
+We must clarify that the `Token Extension Program` is separate from the original `Token Program`. The `Token Extension Program` is a superset of the original Token Program, meaning all the instructions and functionality in the original Token Program come with the `Token Extension Program`.
 
-Previously, one primary program (the Token Program) was in charge of creating accounts. As more and more developers came to Solana, there was a need for new token functionality. The only way to add new token functionality was to create a new type of token. A new token required its own program, and any wallet or client that wanted to use the token had to add specific logic. Managing numerous token programs could have led to a fragmented ecosystem, and the `Token Extension Program` was built to address this. 
+Previously, one primary program (the `Token Program`) was in charge of creating accounts. As more and more developers came to Solana, there was a need for new token functionality. The only way to add new token functionality was to create a new type of token. A new token required its own program, and any wallet or client that wanted to use the token had to add specific logic. Managing numerous token programs could have led to a fragmented ecosystem, and the `Token Extension Program` was built to address this. 
 
-As mentioned before, the `Token Extension Program` is a strict superset of the original token program and comes with all the previous functionality. The `Token Extension Program` development team chose this approach to ensure minimal disruption to users, wallets, and dApps while adding new functionality. You can think of the `Token Extension Program` as the upgrade for Solana tokens. The `Token Extension Program` supports the same instruction set as the Token program and is the same byte-for-byte throughout the very last instruction, allowing existing programs to support `Token Extensions` out of the box. 
+As mentioned before, the `Token Extension Program` is a strict superset of the original token program and comes with all the previous functionality. The `Token Extension Program` development team chose this approach to ensure minimal disruption to users, wallets, and dApps while adding new functionality. The `Token Extension Program` supports the same instruction set as the Token program and is the same byte-for-byte throughout the very last instruction, allowing existing programs to support `Token Extensions` out of the box. However this does not mean that `Token Extension Program` tokens and `Token Program` tokens are interoperable - they are not. We'll have to handle each separately. 
 
 ## How to determine which program owns a particular token
 
-You can use the `token_program` anchor SPL constraint to know what type of token or mint account you are working with. 
+With Anchor managing the two different Token Programs is pretty straight forward. Now when we work with tokens within our programs we'll check the `token_program` constraint.
+
+The two token programs `ID` are as follows:
+
+```rust
+use spl_token::ID; // Token Program
+use anchor_spl::token_2022::ID; // Token Extension Program
+```
+
+To check for the regular `Token Program` you'd use the following:
 
 ```rust
 use spl_token::ID;
@@ -44,7 +53,8 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 ```
 
-You can do the same thing for the `Token Extension Program`. The only difference is the pubkey we import and use in the account constraint.
+You can do the same thing for the `Token Extension Program`, just with a different ID.
+
 ```rust
 use anchor_spl::token_2022::ID;
 
@@ -59,7 +69,7 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 ```
 
-A client could pass in the incorrect token program and accounts. Fortunately, you can verify that the token accounts passed into your program belong to a particular token program. You would do this similarly to the previous examples. Instead of passing in the static `ID` of the token program, you check the given `token_program`.
+If a client passed in the wrong token program account, the instruction would fail. However, this raises a problem, what if we want to support both `Token Program` and `Token Extension Program`? If we hardcode the check for the program `ID`, we'd need twice as many instructions. Fortunately, you can verify that the token accounts passed into your program belong to a particular token program. You would do this similarly to the previous examples. Instead of passing in the static `ID` of the token program, you check the given `token_program`.
 
 ```rust
 // verify the given token and mint accounts match the given token_program
@@ -89,11 +99,12 @@ If you'd like to check which token program a token account and mint belongs to i
 msg!("Token Program Owner: {}", ctx.accounts.token_account.to_account_info().owner);
 ```
 
-We introduced the `*::token_program` anchor account constraint and showed how to use it. This constraint, along with a few other Anchor primitives, was created specifically to support two standard token programs. Now that there are two token programs, the `token_program` constraint also indicates to Anchor which program to invoke when initializing a token or mint account. This specification allows you to pass in both token programs and initialize accounts on each one.
+We introduced the `token_program` anchor account constraint and showed how to use it. This constraint, along with a few other Anchor primitives, was created specifically to support two standard token programs. Now that there are two token programs, the `token_program` constraint also indicates to Anchor which program to invoke when initializing a token or mint account. This specification allows you to pass in both token programs and initialize accounts on each one.
 
 ## Anchor Interfaces
 
 Interfaces are Anchor's newest feature that simplifies working with `Token Extensions` in a program. There are two relevant interface wrapper types from the `anchor_lang` crate:
+
 * [`Interface`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface/index.html)
 * [`InterfaceAccount`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/index.html)
 
@@ -102,20 +113,22 @@ And three corresponding Account Types from the `anchor_spl` crate:
 * [`TokenAccount`](https://docs.rs/anchor-spl/latest/anchor_spl/token_interface/struct.TokenAccount.html)
 * [`TokenInterface`](https://docs.rs/anchor-spl/latest/anchor_spl/token_interface/struct.TokenInterface.html)
 
-In the previous section, we defined the `token_program` in our example as
+In the previous section, we defined the `token_program` in our example as:
 ```rust
 pub token_program: Interface<'info, token_interface::TokenInterface>,
 ```
-The code above makes use of `Interface` and `token_interface::TokenInterface`. 
+This code makes use of `Interface` and `token_interface::TokenInterface`. 
 
 `Interface` is a wrapper over the original `Program` type, allowing multiple possible program IDs. It's a type validating that the account is one of a set of given programs. The `Interface` type checks the following:
 * If the given account is executable
 * If the given account is one of a set of expected accounts from the given interface type
 
 You must use the `Interface` wrapper with a specific interface type. The `anchor_lang` and `anchor_spl` crates provide the following `Interface` type of out the box:
+
 * [TokenInterface](https://docs.rs/anchor-spl/latest/anchor_spl/token_interface/struct.TokenInterface.html)
 
 `TokenInterface` provides an interface type that expects the pubkey of the account passed in to match either `spl_token::ID` or `spl_token_2022::ID`. These program IDs are hard coded on the `TokenInterface` type in Anchor.
+
 ```rust
 static IDS: [Pubkey; 2] = [spl_token::ID, spl_token_2022::ID];
 
@@ -184,9 +197,9 @@ pub struct Example<'info>{
 }
 ```
 
-If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` account types are not new. What is new is how they work with the `InterfaceAccount` wrapper. The `InterfaceAccount` wrapper allows for either `spl-token` or `Token Extension program` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a seamless experience for developers, giving you the flexibility to interact with both `spl-token` and the `Token Extension Program` in your program.
+If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` account types are not new. What is new is how they work with the `InterfaceAccount` wrapper. The `InterfaceAccount` wrapper allows for either `Token Program` or `Token Extension Program` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a seamless experience for developers, giving you the flexibility to interact with both `Token Program` and the `Token Extension Program` in your program.
 
-You cannot use any of these types from the `token_interface` module with the regular Anchor `Program` and `Account` wrappers. These new types are used with either the `Interface` or `InterfaceAccount` wrappers. For example, the following would not be valid, and any transactions sent to an instruction using this account deserialization would return an error.
+However, you cannot use any of these types from the `token_interface` module with the regular Anchor `Program` and `Account` wrappers. These new types are used with either the `Interface` or `InterfaceAccount` wrappers. For example, the following would not be valid, and any transactions sent to an instruction using this account deserialization would return an error.
 
 ```rust
 // This is invalid, using as an example.
