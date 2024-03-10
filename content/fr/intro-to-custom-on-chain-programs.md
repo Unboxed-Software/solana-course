@@ -48,7 +48,7 @@ En mettant tout cela ensemble, nous pourrions obtenir quelque chose comme ce qui
 const instruction = new web3.TransactionInstruction({
   keys: [
     {
-      pubkey: programmeDataAccount,
+      pubkey: programDataAccount,
       isSigner: false,
       isWritable: true,
     },
@@ -134,8 +134,6 @@ Maintenant, créons une nouvelle transaction, puis initialisons une `PublicKey` 
 const transaction = new web3.Transaction()
 const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
 const pingProgramDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
-
-
 ```
 
 Ensuite, créons l'instruction. Rappelez-vous, l'instruction doit inclure la clé publique du programme Ping et elle doit également inclure un tableau avec tous les comptes qui seront lus ou écrits. Dans cet exemple de programme, seul le compte de données mentionné ci-dessus est nécessaire.
@@ -169,21 +167,21 @@ const signature = await web3.sendAndConfirmTransaction(
   [payer]
 )
 
-console.log(`✅ Transaction terminée ! La signature est ${signature}`)
+console.log(`✅ Transaction completed! Signature is ${signature}`)
 ```
 
 ### 3. Exécutez le client ping et vérifiez le Solana explorer
 
 Maintenant, exécutez à nouveau le code.
 
-```
+```bash
 npx esrun send-ping-transaction.ts
 ```
 
 Cela peut prendre un moment ou deux, mais maintenant le code devrait fonctionner et vous devriez voir une longue chaîne imprimée dans la console, comme la suivante :
 
 ```
-✅ Transaction terminée ! La signature est 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
+✅ Transaction completed! Signature is 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
 ```
 
 Copiez la signature de la transaction. Ouvrez un navigateur et allez sur [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (le paramètre de requête à la fin de l'URL garantira que vous explorerez les transactions sur Devnet au lieu de Mainnet). Collez la signature dans la barre de recherche en haut de l'explorateur Devnet de Solana et appuyez sur Entrée. Vous devriez voir tous les détails sur la transaction. Si vous faites défiler jusqu'en bas, vous verrez `Program Logs`, qui montre combien de fois le programme a été pingé, y compris votre ping.
@@ -197,6 +195,8 @@ Parcourez l'explorateur et regardez ce que vous voyez :
   - L'adresse de données pour le programme ping
  - La section **Instruction** contiendra une seule instruction sans données - le programme ping est un programme assez simple, donc il n'a pas besoin de données.
  - Les **Journaux d'instructions du programme** montrent les journaux du programme ping.  
+
+[//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
 
 Si vous voulez rendre plus facile l'examen de Solana Explorer pour les transactions à l'avenir, changez simplement votre `console.log` comme suit :
 

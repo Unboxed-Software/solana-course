@@ -745,17 +745,17 @@ Pour remédier à cela, nous utiliserons `try_borrow_mut_lamports()` sur chaque 
 
 ```rust
 // 'Transfer: `from` must not carry data'
-**escrow_state.to_account_info().try_borrow_mut_lamports()? = escrow_state
-    .to_account_info()
-    .lamports()
-    .checked_sub(escrow_state.escrow_amount)
-    .ok_or(ProgramError::InvalidArgument)?;
+  **escrow_state.to_account_info().try_borrow_mut_lamports()? = escrow_state
+      .to_account_info()
+      .lamports()
+      .checked_sub(escrow_state.escrow_amount)
+      .ok_or(ProgramError::InvalidArgument)?;
 
-**ctx.accounts.user.to_account_info().try_borrow_mut_lamports()? = ctx.accounts.user
-    .to_account_info()
-    .lamports()
-    .checked_add(escrow_state.escrow_amount)
-    .ok_or(ProgramError::InvalidArgument)?;
+  **ctx.accounts.user.to_account_info().try_borrow_mut_lamports()? = ctx.accounts.user
+      .to_account_info()
+      .lamports()
+      .checked_add(escrow_state.escrow_amount)
+      .ok_or(ProgramError::InvalidArgument)?;
 ```
 
 La méthode de retrait finale dans le fichier `withdraw.rs` devrait ressembler à ceci:
@@ -814,9 +814,7 @@ pub struct Withdraw<'info> {
         bump,
         close = user
     )]
-   
-
- pub escrow_account: Account<'info, EscrowState>,
+    pub escrow_account: Account<'info, EscrowState>,
     // Aggregator SOL Switchboard
     #[account(
         address = Pubkey::from_str(SOL_USDC_FEED).unwrap()

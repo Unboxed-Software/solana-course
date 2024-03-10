@@ -221,7 +221,7 @@ pub struct Checked<'info> {
             owner = token_program.key()
     )]
     pda_derived_from_another_program: AccountInfo<'info>,
-    token_program: Program<'info, Token>,
+    token_program: Program<'info, Token>
 }
 
 #[account]

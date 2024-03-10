@@ -1050,16 +1050,16 @@ pub struct CollectActionPoints<'info> {
 
 // Quiconque paie les frais de transaction peut exécuter cette commande - donnez-la à un bot programmé
 pub fn run_collect_action_points(ctx: Context<CollectActionPoints>) -> Result<()> {
-    let montant_transfert: u64 = ctx.accounts.player.action_points_to_be_collected;
+    let transfer_amount: u64 = ctx.accounts.player.action_points_to_be_collected;
 
-    **ctx.accounts.player.to_account_info().try_borrow_mut_lamports()? -= montant_transfert;
-    **ctx.accounts.treasury.to_account_info().try_borrow_mut_lamports()? += montant_transfert;
+    **ctx.accounts.player.to_account_info().try_borrow_mut_lamports()? -= transfer_amount;
+    **ctx.accounts.treasury.to_account_info().try_borrow_mut_lamports()? += transfer_amount;
 
     ctx.accounts.player.action_points_to_be_collected = 0;
 
-    ctx.accounts.game.action_points_collected = ctx.accounts.game.action_points_collected.checked_add(montant_transfert).unwrap();
+    ctx.accounts.game.action_points_collected = ctx.accounts.game.action_points_collected.checked_add(transfer_amount).unwrap();
 
-    msg!("Le trésor a collecté {} points d'action vers le trésor", montant_transfert);
+    msg!("Le trésor a collecté {} points d'action vers le trésor", transfer_amount);
 
     Ok(())
 }
@@ -1162,7 +1162,7 @@ it("Create Game", async () => {
 
     const txHash = await program.methods
       .createGame(
-        8, // 8 items par joueur
+        8, // 8 Items par joueur
       )
       .accounts({
         game: gameKey,

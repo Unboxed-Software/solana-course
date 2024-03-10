@@ -366,7 +366,7 @@ export async function getMessageLog(connection: Connection, txSignature: string)
       ].toBase58() === SPL_NOOP_PROGRAM_ID.toBase58()
   )
 
-  let noteLog: NoteLog
+  let messageLog: MessageLog
   for (let i = noopInnerIx.length - 1; i >= 0; i--) {
     try {
       // Try to decode and deserialize the instruction data

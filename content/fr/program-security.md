@@ -586,28 +586,31 @@ if pda != *pda_account.key {
 Maintenant que notre code assure que nous pouvons faire confiance aux comptes fournis, déballons le `pda_account` et effectuons une validation des données. Nous commencerons par déballer `pda_account` et l'assigner à une variable mutable `account_data`.
 
 ```rust
+msg!("unpacking state account");
 let mut account_data = try_from_slice_unchecked::<MovieAccountState>(&pda_account.data.borrow()).unwrap();
+msg!("borrowed account data");
 ```
 
-### Validation des données
-
-Tout comme dans `add_movie_review`, effectuons quelques validations des données.
-
-Commençons par nous assurer que `rating` est comprise entre 1 et 5. Si la note fournie par l'utilisateur est en dehors de cette plage, nous retournerons notre erreur personnalisée `InvalidRating`.
+Maintenant que nous avons accès au compte et à ses champs, la première chose à faire est de vérifier si le compte a déjà été initialisé. Un compte non initialisé ne peut pas être mis à jour, donc le programme devrait renvoyer notre erreur personnalisée `UninitializedAccount`.
 
 ```rust
-if rating > 5 || rating < 1 {
-    msg!("La note ne peut pas être supérieure à 5");
-    return Err(ReviewError::InvalidRating.into())
+if !account_data.is_initialized() {
+    msg!("Le compte n'est pas initialisé");
+    return Err(ReviewError::UninitializedAccount.into());
 }
 ```
 
-Ensuite, vérifions que le contenu de la critique ne dépasse pas les 1000 octets que nous avons alloués pour le compte. Si la taille dépasse 1000 octets, nous retournerons notre erreur personnalisée `InvalidDataLength`.
+Ensuite, nous devons valider les données `rating`, `title`, et `description` de la même manière que dans la fonction `add_movie_review`. Nous voulons limiter le `rating` à une échelle de 1 à 5 et limiter la taille totale de la critique à moins de 1000 octets. Si le rating fourni par l'utilisateur est en dehors de cette plage, nous renverrons notre erreur personnalisée `InvalidRating`. Si la critique est trop longue, alors nous renverrons notre erreur personnalisée `InvalidDataLength`.
 
 ```rust
-let total_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
+if rating > 5 || rating < 1 {
+    msg!("Le rating ne peut pas être supérieur à 5");
+    return Err(ReviewError::InvalidRating.into())
+}
+
+let total_len: usize = 1 + 1 + (4 + account_data.title.len()) + (4 + description.len());
 if total_len > 1000 {
-    msg!("La longueur des données est supérieure à 1000 octets");
+    msg!("La longueur des données dépasse 1000 octets");
     return Err(ReviewError::InvalidDataLength.into())
 }
 ```

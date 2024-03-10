@@ -118,7 +118,7 @@ Avant de commencer, vous préparerez vos métadonnées NFT de la même manière 
       "value": "12"
     },
     {
-      "trait_type": "V",
+      "trait_type": "G",
       "value": "217"
     },
     {

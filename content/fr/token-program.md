@@ -16,7 +16,7 @@ objectives:
 - Les **comptes de jetons** sont utilisés pour détenir des jetons d'une monnaie de jetons spécifique
 - La création de jetons de monnaie et de comptes de jetons nécessite l'allocation de **loyer** en SOL. Le loyer d'un compte de jetons peut être remboursé lorsque le compte est fermé, cependant, les jetons de monnaie ne peuvent actuellement pas être fermés
 
-# Aperçu
+# Aperçu général
 
 Le programme de jetons est l'un des nombreux programmes mis à disposition par la bibliothèque de programmes Solana (SPL). Il contient des instructions pour créer et interagir avec les SPL-Tokens. Ces jetons représentent tous les jetons non natifs (c'est-à-dire non SOL) sur le réseau Solana.
 

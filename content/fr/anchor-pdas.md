@@ -14,7 +14,7 @@ objectives:
 - La contrainte `realloc` est utilisée pour réallouer de l'espace sur un compte existant
 - La contrainte `close` est utilisée pour fermer un compte et rembourser son loyer
 
-# Aperçu
+# Aperçu général
 
 Dans cette leçon, vous apprendrez à travailler avec les PDAs, à réallouer des comptes et à fermer des comptes dans Anchor.
 

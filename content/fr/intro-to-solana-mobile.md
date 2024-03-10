@@ -66,12 +66,12 @@ Le reste de cette leçon se concentrera sur le développement d'applications And
 
 Solana Mobile prend en charge plusieurs frameworks différents. Sont Officiellement pris en charge React Native et Android natif, avec des SDK de la communauté pour Flutter, Unity et Unreal Engine.
 
-**SDKs Solana:**
+**SDK Solana:**
 
 - [React Native](https://docs.solanamobile.com/react-native/quickstart) (Normal et Expo)
 - [Android](https://docs.solanamobile.com/android-native/quickstart)
 
-**SDKs de la communauté:**
+**SDK de la communauté:**
 
 - [Flutter](https://docs.solanamobile.com/flutter/overview)
 - [Unity](https://docs.solanamobile.com/unity/unity_sdk)

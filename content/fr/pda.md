@@ -39,7 +39,7 @@ Alternativement, les PDA sont des adresses qui se trouvent *en dehors* de la cou
 Pour trouver une PDA dans un programme Solana, nous utiliserons la fonction `find_program_address`. Cette fonction prend en entrée une liste optionnelle de "seeds" et un ID de programme, puis renvoie la PDA et une "bump seed".
 
 ```rust
-let (adp, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_input.as_bytes().as_ref(), "SEED".as_bytes()], program_id)
+let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_input.as_bytes().as_ref(), "SEED".as_bytes()], program_id)
 ```
 
 ### Seeds
@@ -71,8 +71,7 @@ pub fn try_find_program_address(seeds: &[&[u8]], program_id: &Pubkey) -> Option<
     let mut bump_seed = [std::u8::MAX];
     for _ in 0..std::u8::MAX {
         {
-            let mut seeds_with
-            _bump = seeds.to_vec();
+            let mut seeds_with_bump = seeds.to_vec();
             seeds_with_bump.push(&bump_seed);
             match Self::create_program_address(&seeds_with_bump, program_id) {
                 Ok(address) => return Some((address, bump_seed[0])),
@@ -153,7 +152,7 @@ Si vous êtes stratégique concernant les seeds que vous utilisez pour dériver 
 Maintenant, sans en parler explicitement, nous avons mappé des seeds à des comptes pendant tout ce cours. Pensez au programme de critique de film que nous avons construit dans les leçons précédentes. Ce programme utilise la clé publique du créateur d'une critique et le titre du film qu'il critique pour trouver l'adresse qui *devrait* être utilisée pour stocker la critique. Cette approche permet au programme de créer une adresse unique pour chaque nouvelle critique tout en facilitant la localisation d'une critique lorsque cela est nécessaire. Lorsque vous souhaitez trouver la critique d'un utilisateur sur "Spiderman", vous savez qu'elle est stockée dans le compte PDA dont l'adresse peut être dérivée en utilisant la clé publique de l'utilisateur et le texte "Spiderman" comme seeds.
 
 ```rust
-let (adp, bump_seed) = Pubkey::find_program_address(&[
+let (pda, bump_seed) = Pubkey::find_program_address(&[
         initializer.key.as_ref(),
         title.as_bytes().as_ref()
     ],

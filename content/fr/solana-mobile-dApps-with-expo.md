@@ -191,6 +191,7 @@ Dans cette première section, nous allons simplement faire fonctionner une appli
 Vous aurez besoin de React Native installé sur votre machine ainsi que d'un émulateur ou d'un appareil physique en cours d'exécution. [Vous pouvez réaliser tout cela avec le démarrage rapide de React Native](https://reactnative.dev/docs/environment-setup?guide=native). Vous trouverez également plus de détails sur cette configuration dans la [leçon d'introduction à Solana Mobile](./basic-solana-mobile.md#0-prerequisites).
 
 > Note : Bien que nous utilisions Expo, vous devrez suivre le guide de configuration initial de React Native CLI.
+> Note: Si vous utilisez un émulateur, il est hautement recommandé d'utiliser une version récente de téléphone avec plusieurs GO de RAM pour tourner. Nous utilisons 5GO de RAM.
 
 ### 1. S'inscrire à Expo EAS CLI
 
@@ -225,7 +226,6 @@ touch eas.json
 ```
 
 Copiez et collez ce qui suit dans le nouveau `eas.json` :
-
 ```json
 {
   "cli": {
@@ -865,7 +865,6 @@ Le flux d'état ici est : `connect`, `fetchNFTs`, puis `createNFT`. Nous allons 
     ```
 
 Nous allons regrouper tout ce qui précède dans le fichier `NFTProvider.tsx`. Dans l'ensemble, cela ressemble à ce qui suit :
-
 ```tsx
 import "react-native-url-polyfill/auto";
 import React, { ReactNode, createContext, useContext, useState } from "react";

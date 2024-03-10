@@ -166,7 +166,7 @@ console.log(
 
 Lancer le script pour vérifier qu'il se connecte bien et charge votre paire de clés :
 
-```
+```bash
 npx esrun transfer.ts (destination wallet address)
 ```
 
@@ -205,7 +205,7 @@ console.log(`Transaction signature is ${signature}!`);
 
 Envoyez du SOL aux autres étudiants de la classe.
 
-```
+```bash
 npx esrun transfer.ts (destination wallet address)
 ```
 

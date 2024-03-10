@@ -55,7 +55,7 @@ Une struct, ou structure, est un type de données personnalisé qui vous permet 
 
 ```rust
 struct User {
-    actif: bool,
+    active: bool,
     email: String,
     age: u64
 }
@@ -65,7 +65,7 @@ Pour utiliser une struct après l'avoir définie, on crée une instance de cette
 
 ```rust
 let mut user1 = User {
-    actif: true,
+    active: true,
     email: String::from("test@test.com"),
     age: 36
 };
@@ -100,7 +100,7 @@ enum LightStatus {
     Off
 }
 
-let light_status = LightStatus::On { color: String::from("rouge") };
+let light_status = LightStatus::On { color: String::from("red") };
 ```
 
 Dans cet exemple, définir une variable sur la variante `On` de `LightStatus` nécessite également de définir la valeur de `color`.

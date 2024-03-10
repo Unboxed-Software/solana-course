@@ -113,16 +113,16 @@ Créez un nouveau fichier appelé `check-balance.ts`, en remplaçant votre clé 
 
 Le script charge la clé publique, se connecte à DevNet et vérifie le solde :
 
-```
+```tsx
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 const publicKey = new PublicKey("<votre clé publique>");
 
 const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
-const balanceEnLamports = await connection.getBalance(publicKey);
+const balanceInLamports = await connection.getBalance(publicKey);
 
-const balanceEnSOL = balanceEnLamports / LAMPORTS_PER_SOL;
+const balanceInSOL = balanceInLamports / LAMPORTS_PER_SOL;
 
 console.log(
   `💰 Terminé ! Le solde du portefeuille à l'adresse ${publicKey} est de ${balanceEnSOL} !`
@@ -133,9 +133,7 @@ console.log(
 Enregistrez ceci dans un fichier, et exécutez `npx esrun check-balance.ts`. Vous devriez voir quelque chose comme :
 
 ```
-💰 Terminé ! Le solde du portefeuille à l'adresse 
-
-31ZdXAvhRQyzLC2L97PC6Lnf2yWgHhQUKKYoUo9MLQF5 est de 0 !
+💰 Terminé ! Le solde du portefeuille à l'adresse 31ZdXAvhRQyzLC2L97PC6Lnf2yWgHhQUKKYoUo9MLQF5 est de 0 !
 ```
 
 ## Obtenir du SOL de Devnet
@@ -158,7 +156,7 @@ Relancez le script. Vous devriez voir votre solde mis à jour :
 
 Vous pouvez modifier le script pour vérifier les soldes de n'importe quel portefeuille.
 
-```
+```tsx
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 const suppliedPublicKey = process.argv[2];
@@ -182,7 +180,7 @@ console.log(
 
 Échangez les adresses de portefeuille avec vos camarades de classe dans le chat et vérifiez leurs soldes.
 
-```
+```bash
 % npx esrun check-balance.ts (quelques adresses de portefeuille)
 ✅ Terminé ! Le solde du portefeuille à l'adresse 31ZdXAvhRQyzLC2L97PC6Lnf2yWgHhQUKKYoUo9MLQF5 est de 3 !
 ```

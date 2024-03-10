@@ -19,7 +19,7 @@ Généralement, dans les systèmes plus anciens, les gens interagissent les uns 
 
 - Les comptes stockant de la valeur, tels que les cartes de paiement, les comptes bancaires et les comptes de trading, sont gérés par de grandes plates-formes telles que les entreprises de cartes de crédit, les organisations de transfert d'argent et les bourses. Dans de nombreux cas, ces entreprises retiennent une partie (environ 1% à 3%) de chaque transaction qui a lieu sur leurs plates-formes. Souvent, elles peuvent retarder le règlement de la transaction pour favoriser l'organisation. Dans certains cas, l'élément transféré peut ne pas appartenir au destinataire, mais il est conservé au nom du destinataire.
 
-Le Web3 est une évolution d'Internet qui permet aux gens de faire des transactions directes les uns avec les autres :
+Le Web3 est une évolution d'Internet qui permet aux gens de **faire des transactions directes les uns avec les autres** :
 
 - Les utilisateurs possèdent leurs propres comptes, représentés par leurs portefeuilles.
 

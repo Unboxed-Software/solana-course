@@ -14,7 +14,7 @@ objectives :
 - La **clé secrète** est utilisée pour vérifier l'autorité sur le compte. Comme son nom l'indique, vous devez toujours garder les clés secrètes *secrètes*.
 - `@solana/web3.js` propose des fonctions d'aide pour créer une toute nouvelle paire de clés ou pour construire une paire de clés à l'aide d'une clé secrète existante.
 
-# Aperçu
+# Aperçu général
 
 ## Cryptographie Symétrique et Asymétrique
 

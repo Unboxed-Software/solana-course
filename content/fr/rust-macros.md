@@ -83,9 +83,7 @@ La macro peut utiliser l'AST pour analyser le code d'entrée et y apporter des m
 
 La crate `syn` est disponible pour aider à analyser un token stream en un AST que le code de la macro peut traverser et manipuler. Lorsqu'une macro procédurale est invoquée dans un programme Rust, la fonction macro est appelée avec un token stream en entrée. L'analyse de cette entrée est la première étape pour pratiquement n'importe quelle macro.
 
-Prenons comme exemple une macro procédurale
-
- que vous invoquez avec `my_macro!` comme suit :
+Prenons comme exemple une macro procédurale que vous invoquez avec `my_macro!` comme suit :
 
 ```rust
 my_macro!("hello, world");

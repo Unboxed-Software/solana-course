@@ -1,5 +1,5 @@
 ---
-titre: Créer des NFT Solana avec Metaplex
+title: Créer des NFT Solana avec Metaplex
 objectives:
 - Expliquer les NFT et comment ils sont représentés sur le réseau Solana
 - Expliquer le rôle de Metaplex dans l'écosystème NFT Solana
@@ -476,9 +476,7 @@ Tout d'abord, créons une fonction d'aide appelée `createCollectionNft`. Notez 
 
 ```tsx
 async function createCollectionNft(
-  met
-
-aplex: Metaplex,
+  metaplex: Metaplex,
   uri: string,
   data: CollectionNftData
 ): Promise<NftWithToken> {

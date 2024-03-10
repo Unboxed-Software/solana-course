@@ -1137,15 +1137,15 @@ describe("RPG", () => {
 
   const treasury = anchor.web3.Keypair.generate();
 
-it("Create Game", async () => {});
+  it("Create Game", async () => {});
 
-it("Create Player", async () => {});
+  it("Create Player", async () => {});
 
-it("Spawn Monster", async () => {});
+  it("Spawn Monster", async () => {});
 
-it("Attack Monster", async () => {});
+  it("Attack Monster", async () => {});
 
-it("Deposit Action Points", async () => {});
+  it("Deposit Action Points", async () => {});
 
 });
 ```

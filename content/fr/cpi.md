@@ -86,7 +86,9 @@ assert_eq!(v[1], 2);
 assert_eq!(v[2], 3);
 ```
 
+
 Le champ `accounts` de la structure `Instruction` attend un vecteur de type [`AccountMeta`](https://docs.rs/solana-program/latest/solana_program/instruction/struct.AccountMeta.html). La structure `AccountMeta` a la définition suivante :
+
 
 ```rust
 pub struct AccountMeta {

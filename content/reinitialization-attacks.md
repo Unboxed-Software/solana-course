@@ -65,7 +65,7 @@ pub struct User {
 
 One approach to fix this is to add an additional `is_initialized` field to the `User` account type and use it as a flag to check if an account has already been initialized.
 
-```jsx
+```rust
 if user.is_initialized {
     return Err(ProgramError::AccountAlreadyInitialized.into());
 }

@@ -538,7 +538,7 @@ if !escrow_state.out_of_jail {
 
     // vérifier si le flux a été mis à jour au cours des dernières 300 secondes
     feed.check_staleness(Clock::get().unwrap().unix_timestamp, 300)
-        .map_err(|_| error!(EscrowErrorCode::FeedObsolete))?;
+    .map_err(|_| error!(EscrowErrorCode::StaleFeed))?;
 
     msg!("Le résultat actuel du flux est {}!", val);
     msg!("Le prix de déverrouillage est {}", escrow_state.unlock_price);
@@ -866,15 +866,15 @@ pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result<()>
         msg!("tampon vrf vide");
         return Ok(());
     }
-
+		// nouveau code
     let vrf_state = &mut ctx.accounts.vrf_state.load_mut()?;
     if result_buffer == vrf_state.result_buffer {
         msg!("result_buffer inchangé");
         return Ok(());
     }
 
-    // ...
-    // ...
+    ...
+    ...
 }
 ```
 
@@ -907,8 +907,8 @@ pub fn consume_randomness_handler(ctx: Context<ConsumeRandomness>) -> Result<()>
     msg!("Valeur actuelle du dé 1 [1 - {}) = {}!", dice_type, dice_1);
     msg!("Valeur actuelle du dé 2 [1 - {}) = {}!", dice_type, dice_2);
 
-    // ...
-    // ...
+    ...
+    ...
 }
 ```
 
@@ -1107,6 +1107,7 @@ describe("burry-escrow-vrf", () => {
 ```
 
 > Note rapide : si vous voulez uniquement exécuter les tests vrf, changez
+>
 > 
 > `describe("burry-escrow-vrf", () => {`
 > 

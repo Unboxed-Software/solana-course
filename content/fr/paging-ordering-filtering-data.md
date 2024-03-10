@@ -15,7 +15,7 @@ objectives:
 - Pour économiser du temps de calcul, vous pouvez récupérer un grand nombre de comptes sans leurs données en les filtrant pour ne retourner qu'un tableau de clés publiques.
 - Une fois que vous avez une liste filtrée de clés publiques, vous pouvez les ordonner et récupérer les données de compte auxquelles elles appartiennent.
 
-# Aperçu
+# Aperçu général
 
 Vous avez peut-être remarqué dans la dernière leçon que bien que nous puissions récupérer et afficher une liste de données de compte, nous n'avions aucun contrôle granulaire sur le nombre de comptes à récupérer ou leur ordre. Dans cette leçon, nous allons découvrir quelques options de configuration pour la fonction `getProgramAccounts` qui permettront des fonctionnalités telles que le paginage, l'ordonnancement des comptes et le filtrage.
 
@@ -183,9 +183,7 @@ static async prefetchAccounts(connection: web3.Connection) {
   const accounts = await connection.getProgramAccounts(
     new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID),
     {
-      dataSlice: { offset: 0
-
-, length: 0 },
+      dataSlice: { offset: 0, length: 0 },
     }
   )
 
@@ -428,6 +426,8 @@ C'était beaucoup à assimiler, mais vous y êtes arrivé. Si vous avez besoin d
 # Défi
 
 Maintenant, c'est à votre tour d'essayer de faire cela par vous-même. En utilisant l'application d'introduction des étudiants de la leçon précédente, ajoutez la pagination, le classement alphabétique par nom et la recherche par nom.
+
+![Screenshot du frontend de Student Intros](../assets/student-intros-frontend.png)
 
 1. Vous pouvez construire cela à partir de zéro ou vous pouvez télécharger le [code de départ](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data).
 2. Ajoutez la pagination au projet en préchargeant les comptes sans données, puis en ne récupérant les données de compte pour chaque compte que lorsque cela est nécessaire.
