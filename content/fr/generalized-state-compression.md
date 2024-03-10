@@ -580,7 +580,7 @@ pub mod compressed_notes {
 }
 ```
 
-Assurez-vous que les seeds du signataire sur le CPI incluent à la fois l'adresse de l'arbre de Merkle et la seed d'autorité de l'arbre.
+Assurez-vous que les seeds du signataire sur la CPI incluent à la fois l'adresse de l'arbre de Merkle et la seed d'autorité de l'arbre.
 
 ### 5. Créer l'instruction `append_note`
 

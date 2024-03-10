@@ -71,7 +71,7 @@ pub fn new(
 }
 ```
 
-On utilise `CpiContext::new_with_signer` pour construire une nouvelle instance lors de la signature au nom d'une PDA pour le CPI.
+On utilise `CpiContext::new_with_signer` pour construire une nouvelle instance lors de la signature au nom d'une PDA pour la CPI.
 
 ```rust
 CpiContext::new_with_signer(cpi_program, cpi_accounts, seeds)
@@ -547,7 +547,7 @@ Si vous avez besoin de plus de temps avec les concepts de cette leçon ou si vou
 
 # Défi
 
-Pour appliquer ce que vous avez appris sur le CPI dans cette leçon, réfléchissez à la manière dont vous pourriez les incorporer dans le programme Student Intro. Vous pourriez faire quelque chose de similaire à ce que nous avons fait dans le laboratoire ici et ajouter une fonctionnalité pour émettre des jetons aux utilisateurs lorsqu'ils se présentent.
+Pour appliquer ce que vous avez appris sur la CPI dans cette leçon, réfléchissez à la manière dont vous pourriez les incorporer dans le programme Student Intro. Vous pourriez faire quelque chose de similaire à ce que nous avons fait dans le laboratoire ici et ajouter une fonctionnalité pour émettre des jetons aux utilisateurs lorsqu'ils se présentent.
 
 Essayez de le faire de manière indépendante si vous le pouvez ! Mais si vous êtes bloqué, n'hésitez pas à vous référer à ce [code de solution](https://github.com/Unboxed-Software/anchor-student-intro-program/tree/cpi-challenge). Notez que votre code peut être légèrement différent du code de solution en fonction de votre implémentation.
 

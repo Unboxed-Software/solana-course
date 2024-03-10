@@ -72,7 +72,7 @@ pub struct TokenPool {
 
 ## PDA spécifique au compte sécurisé
 
-Une approche pour créer une PDA spécifique au compte est d'utiliser le `withdraw_destination` comme seed pour dériver la PDA utilisée comme autorité du compte de jetons `vault`. Cela garantit que la PDA signant pour le CPI dans l'instruction `withdraw_tokens` est dérivée en utilisant le compte `withdraw_destination` `withdraw_destination` prévu. En d'autres termes, les jetons d'un compte `vault` ne peuvent être retirés que vers le `withdraw_destination` qui a été initialement initialisé avec le compte `pool`.
+Une approche pour créer une PDA spécifique au compte est d'utiliser le `withdraw_destination` comme seed pour dériver la PDA utilisée comme autorité du compte de jetons `vault`. Cela garantit que la PDA signant pour la CPI dans l'instruction `withdraw_tokens` est dérivée en utilisant le compte `withdraw_destination` `withdraw_destination` prévu. En d'autres termes, les jetons d'un compte `vault` ne peuvent être retirés que vers le `withdraw_destination` qui a été initialement initialisé avec le compte `pool`.
 
 ```rust
 use anchor_lang::prelude::*;

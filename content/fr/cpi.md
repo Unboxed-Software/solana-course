@@ -197,7 +197,7 @@ N'oubliez pas, tout compte dont les données peuvent être modifiées par le pro
 
 Pour voir cela en action, consultez cette [transaction dans l'explorateur](https://explorer.solana.com/tx/ExB9YQJiSzTZDBqx4itPaa4TpT8VK4Adk7GU5pSoGEzNz9fa7PPZsUxssHGrBbJRnCvhoKgLCWnAycFB7VYDbBg?cluster=devnet).
 
-## Pourquoi les CPI sont-elles importants ?
+## Pourquoi les CPI sont-elles importantes ?
 
 Les CPI sont une fonctionnalité très importante de l'écosystème Solana et elles rendent tous les programmes déployés interopérables les uns avec les autres. Avec les CPI, il n'est pas nécessaire de réinventer la roue en matière de développement. Cela crée l'opportunité de construire de nouveaux protocoles et applications sur ce qui a déjà été construit, tout comme des blocs de construction ou des briques Lego. Il est important de se rappeler que les CPI sont une rue à double sens et il en va de même pour tous les programmes que vous déployez ! Si vous construisez quelque chose de cool et utile, les développeurs ont la possibilité de construire dessus ou simplement brancher votre protocole dans ce qu'ils construisent. La composabilité est une grande partie de ce qui rend la crypto si unique et les CPI sont ce qui rend cela possible sur Solana.
 
