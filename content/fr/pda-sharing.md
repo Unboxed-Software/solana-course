@@ -481,6 +481,6 @@ Prenez le temps de passer en revue au moins un programme et recherchez des vuln�
 
 N'oubliez pas que si vous trouvez un bug ou une faille dans le programme de quelqu'un d'autre, veuillez les alerter ! Si vous en trouvez un dans votre propre programme, assurez-vous de le corriger immédiatement.
 
-## Vous avez terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5744079f-9473-4485-9a14-9be4d31b40d1) !

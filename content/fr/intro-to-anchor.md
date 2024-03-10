@@ -593,6 +593,6 @@ Comme toujours, soyez créatif avec ces défis et dépassez les instructions de 
 
 Essayez de le faire de manière indépendante si possible ! Mais si vous êtes bloqué, n'hésitez pas à consulter le [code de la solution](https://github.com/Unboxed-Software/anchor-counter-program/tree/solution-decrement).
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Publiez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=334874b7-b152-4473-b5a5-5474c3f8f3f1) !

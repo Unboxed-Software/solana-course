@@ -1061,6 +1061,6 @@ En tant que défi supplémentaire, créez un plan de secours si le flux de donn�
 
 Une solution potentielle à ce défi peut être trouvée [dans le dépôt Github sur la branche `challenge-solution`](https://github.com/Unboxed-Software/michael-burry-escrow/tree/challenge-solution).
 
-## Laboratoire terminé ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=1a5d266c-f4c1-4c45-b986-2afd4be59991) !

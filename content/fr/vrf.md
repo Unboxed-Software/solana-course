@@ -1359,6 +1359,6 @@ Maintenant, c'est le moment de travailler de manière indépendante. Ajoutons qu
 Si vous êtes bloqué, nous avons la solution dans la branche [`vrf-challenge-solution`](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf-challenge-solution).
 
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5af49eda-f3e7-407d-8cd7-78d0653ee17c) !

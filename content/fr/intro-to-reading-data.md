@@ -198,6 +198,6 @@ Modifiez le script comme suit :
 
 Nous transférerons du SOL dans la prochaine leçon !
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=8bbbfd93-1cdc-4ce3-9c83-637e7aa57454) !

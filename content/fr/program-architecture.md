@@ -1381,6 +1381,6 @@ Vous pouvez trouver quelques modifications d'exemple sur la branche `challenge-s
 
 Enfin, parcourez l'un de vos propres programmes et réfléchissez aux optimisations que vous pouvez apporter pour améliorer la gestion de la mémoire, la taille du stockage et/ou la concurrence.
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Publiez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=4a628916-91f5-46a9-8eb0-6ba453aa6ca6) !

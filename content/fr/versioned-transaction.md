@@ -677,6 +677,6 @@ En guise de défi, expérimentez avec la désactivation, la fermeture et la cong
 
 Vous pouvez réutiliser les fonctions que nous avons créées dans le laboratoire pour envoyer la transaction et attendre que la table de recherche s'active/désactive. N'hésitez pas à vous référer à ce [code de solution](https://github.com/Unboxed-Software/versioned-transaction/tree/challenge).
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=b58fdd00-2b23-4e0d-be55-e62677d351ef) !

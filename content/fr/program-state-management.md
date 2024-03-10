@@ -405,6 +405,6 @@ Vous pouvez tester votre programme en construisant l'[interface](https://github.
 
 Essayez de le faire de manière indépendante si vous le pouvez ! Mais si vous êtes bloqué, n'hésitez pas à consulter le [code de solution](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
-Envoyez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=8320fc87-2b6d-4b3a-8b1a-54b55afed781)!
+Envoyez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=8320fc87-2b6d-4b3a-8b1a-54b55afed781) !

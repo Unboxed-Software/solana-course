@@ -512,6 +512,6 @@ Si vous avez besoin d'aide, n'hésitez pas à [vous référer à ce programme](h
 
 Essayez de faire cela de manière indépendante si vous le pouvez ! Mais si vous êtes bloqué, n'hésitez pas à consulter le [code de solution](https://github.com/Unboxed-Software/anchor-ping-frontend/tree/solution-decrement).
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=774a4023-646d-4394-af6d-19724a6db3db) !

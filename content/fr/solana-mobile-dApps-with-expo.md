@@ -1315,6 +1315,6 @@ Maintenant, c'est à votre tour. Créez votre propre application Expo à partir 
 - Créez une application de visualisation de base des NFT pour voir toutes vos merveilleuses images JPEG.
 - Faites un clone simplifié de [Stepn](https://stepn.com/) en utilisant le podomètre de `expo-sensors`.
 
-## Vous avez terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=19cf8d3a-89a0-465e-95da-908cf8f45409) !

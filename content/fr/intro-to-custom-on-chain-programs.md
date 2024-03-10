@@ -219,6 +219,6 @@ Créez un script à partir de zéro qui vous permettra de transférer des SOL d'
 Si vous êtes bloqué, n'hésitez pas à jeter un coup d'œil à [la solution](https://github.com/Unboxed-Software/solana-ping-client).
 
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=e969d07e-ae85-48c3-976f-261a22f02e52) !

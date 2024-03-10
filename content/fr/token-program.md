@@ -1088,3 +1088,7 @@ Notez que vous ne pourrez pas utiliser directement les fonctions d'aide que nous
 Si vous êtes bloqué, n'hésitez pas à consulter le [code de solution](https://github.com/ZYJLiu/solana-token-frontend).
 
 Et n'oubliez pas, soyez créatif avec ces défis et inventez les vôtres !
+
+## Vous avez fini le laboratoire ?
+
+Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=72cab3b8-984b-4b09-a341-86800167cfc7) !

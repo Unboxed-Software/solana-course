@@ -359,6 +359,6 @@ Prenez le temps de réviser au moins un programme et assurez-vous que toutes les
 
 N'oubliez pas, si vous trouvez un bogue ou une faille dans le programme de quelqu'un d'autre, veuillez les en informer ! Si vous en trouvez un dans votre propre programme, assurez-vous de le corriger immédiatement.
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=9b759e39-7a06-4694-ab6d-e3e7ac266ea7) !

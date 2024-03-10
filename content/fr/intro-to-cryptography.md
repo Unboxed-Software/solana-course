@@ -184,8 +184,6 @@ Exécutez `npx esrun generate-keypair.ts`. Vous devriez voir le résultat suivan
 
 Nous avons maintenant appris les paires de clés et comment stocker les clés secrètes en toute sécurité sur Solana. Dans le prochain chapitre, nous les utiliserons !
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
-Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](
-
-https://form.typeform.com/to/IPH0UGz7#answers-lesson=ee06a213-5d74-4954-846e-cba883bc6db1) !
+Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=ee06a213-5d74-4954-846e-cba883bc6db1) !

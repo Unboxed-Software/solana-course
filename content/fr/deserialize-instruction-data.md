@@ -480,3 +480,8 @@ En utilisant ce que vous avez appris dans cette leçon, construisez le programme
 Vous pouvez tester votre programme en utilisant le [frontend](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data) que nous avons créé dans la [leçon sur la sérialisation des données d'instruction](serialize-instruction-data), puis en vérifiant les logs du programme sur Solana Explorer. N'oubliez pas de remplacer l'ID du programme dans le code frontend par celui que vous avez déployé.
 
 Essayez de le faire de manière indépendante si vous le pouvez ! Mais si vous êtes bloqué, n'hésitez pas à consulter le [code de solution](https://beta.solpg.io/62b0ce53f6273245aca4f5b0).
+
+
+## Vous avez fini le laboratoire ?
+
+Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=74a157dc-01a7-4b08-9a5f-27aa51a4346c) !

@@ -884,6 +884,6 @@ Si vous avez besoin de passer plus de temps avec le code de solution, n'hésitez
 
 Pour consolider ce que vous avez appris, allez-y et créez une autre macro procédurale par vous-même. Pensez au code que vous avez écrit qui pourrait être réduit ou amélioré par une macro et essayez ! Comme il s'agit toujours d'un exercice, ce n'est pas grave si cela ne fonctionne pas comme vous le souhaitez ou l'attendez. Lancez-vous et expérimentez !
 
-## Vous avez terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=eb892157-3014-4635-beac-f562af600bf8) !

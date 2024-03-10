@@ -719,6 +719,6 @@ En utilisant ce que vous avez appris dans cette leçon, essayez d'appliquer ce q
 Essayez de faire cela de manière indépendante si possible ! Mais si vous êtes bloqué, n'hésitez pas à consulter le [code de la solution](https://beta.solpg.io/62c9120df6273245aca4f5e8). Notez que votre code peut avoir l'air légèrement différent du code de la solution en fonction des vérifications que vous implémentez et des erreurs que vous écrivez. Une fois que vous aurez terminé le Module 3, nous aimerions en savoir plus sur votre expérience ! N'hésitez pas à [partager quelques commentaires rapides](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%203), afin que nous puissions continuer à améliorer le cours.
 
 
-## Vous avez terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=3dfb98cc-7ba9-463d-8065-7bdb1c841d43) !

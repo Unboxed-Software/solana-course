@@ -437,3 +437,7 @@ Maintenant, c'est à votre tour d'essayer de faire cela par vous-même. En utili
 Ceci devrait être stimulant. Si vous êtes bloqué, n'hésitez pas à vous référer au [code solution](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-paging-account-data). Avec cela, vous terminez le Module 1 ! Quelle a été votre expérience ? N'hésitez pas à [partager un feedback rapide](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%201), afin que nous puissions continuer à améliorer le cours !
 
 Comme toujours, soyez créatif avec ces défis et dépassez les instructions si vous le souhaitez !
+
+## Vous avez fini le laboratoire ?
+
+Poussez votre code sur GitHub et [et dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=9342ad0a-1741-41a5-9f68-662642c8ec93) !

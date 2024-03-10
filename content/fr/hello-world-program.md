@@ -289,6 +289,6 @@ Maintenant, c'est à votre tour de construire quelque chose de manière indépen
 
 Comme toujours, soyez créatif avec ces défis et allez au-delà des instructions de base si vous le souhaitez - et amusez-vous !
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
-Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5b56c69c-1490-46e4-850f-a7e37bbd79c2)!
+Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5b56c69c-1490-46e4-850f-a7e37bbd79c2) !

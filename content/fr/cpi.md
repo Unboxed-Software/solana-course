@@ -609,6 +609,6 @@ Un excellent exemple serait de construire un Stack Overflow décentralisé. Le p
 
 Félicitations d'avoir atteint la fin du Module 4 ! N'hésitez pas à [partager quelques retours rapides](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%204), afin que nous puissions continuer à améliorer le cours.
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Publiez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=ade5d386-809f-42c2-80eb-a6c04c471f53) !

@@ -1333,6 +1333,6 @@ Maintenant, c'est à vous de pratiquer de manière indépendante. Essayez d'impl
 
 Essayez de le faire sans aide, car c'est une excellente pratique. Cependant, si vous vous trouvez bloqué, consultez le [code de solution sur la branche `solution`](https://github.com/Unboxed-Software/react-native-fake-solana-wallet/tree/solution).
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=5a3d0f62-c5fc-4e03-b8a3-323c2c7b8f4f) !

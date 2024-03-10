@@ -865,6 +865,6 @@ anchor test --skip-deploy -- --features "local-testing"
 
 Essayez de faire cela par vous-même, mais si vous êtes bloqué, n'hésitez pas à consulter la branche `challenge` du [même dépôt](https://github.com/Unboxed-Software/solana-admin-instructions/tree/challenge) pour voir une solution possible. 
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=02a7dab7-d9c1-495b-928c-a4412006ec20) !

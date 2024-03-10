@@ -1279,8 +1279,6 @@ C'est à vous de jouer avec ces concepts ! Nous ne serons pas trop prescriptifs 
 2. Construisez une interface utilisateur pour le laboratoire de cette leçon qui vous permettra de créer un cNFT et de l'afficher.
 3. Voyez si vous pouvez reproduire une partie de la fonctionnalité du script du laboratoire dans un programme on-chain, c'est-à-dire écrivez un programme qui peut créer des cNFT.
 
-
-
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=db156789-2400-4972-904f-40375582384a) !

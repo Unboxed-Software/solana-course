@@ -584,6 +584,6 @@ Une fois que vous avez compris comment fonctionne le programme Candy Machine, me
 
 Amusez-vous bien ! Ce sera votre première collection de NFT créée de manière indépendante ! Avec cela, vous terminez le Module 2. J'espère que vous ressentez le processus ! N'hésitez pas à [partager quelques commentaires rapides](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202) afin que nous puissions continuer à améliorer le cours !
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
-Envoyez votre code sur GitHub et [dites-nous ici ce que vous avez pensé de cette lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=296745ac-503c-4b14-b3a6-b51c5004c165)!
+Envoyez votre code sur GitHub et [dites-nous ici ce que vous avez pensé de cette lesson](https://form.typeform.com/to/IPH0UGz7#answers-lesson=296745ac-503c-4b14-b3a6-b51c5004c165) !

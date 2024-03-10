@@ -1044,6 +1044,6 @@ Maintenant que vous avez pratiqué les bases de la compression d'état, ajoutez 
 
 Si vous souhaitez un exemple très simple d'une fonction de suppression, consultez la [branche `solution` sur GitHub](https://github.com/Unboxed-Software/anchor-compressed-notes/tree/solution).
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=60f6b072-eaeb-469c-b32e-5fea4b72d1d1) !

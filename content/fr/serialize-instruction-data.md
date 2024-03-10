@@ -406,3 +406,7 @@ Maintenant, c'est à vous de jouer pour construire quelque chose de manière ind
 Si vous êtes vraiment bloqué, vous pouvez [consulter la solution](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 
 N'hésitez pas à être créatif avec ces défis et à les pousser encore plus loin. Les instructions ne sont pas là pour vous retenir !
+
+## Vous avez fini le laboratoire ?
+
+Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=6cb40094-3def-4b66-8a72-dd5f00298f61) !

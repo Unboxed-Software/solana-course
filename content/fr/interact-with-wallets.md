@@ -497,6 +497,6 @@ Maintenant, c'est à vous de construire quelque chose de manière indépendante.
 Si vous êtes vraiment bloqué, n'hésitez pas à [consulter le code de la solution](https://github.com/Unboxed-Software/solana-send-sol-frontend/tree/main).
 
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
-Publiez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=69c5aac6-8a9f-4e23-a7f5-28ae2845dfe1)!
+Publiez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=69c5aac6-8a9f-4e23-a7f5-28ae2845dfe1) !

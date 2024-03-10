@@ -672,6 +672,6 @@ Si vous n'avez pas suivi les leçons précédentes ou n'avez pas sauvegardé vot
 
 Essayez de le faire de manière indépendante si possible ! Cependant, si vous vous trouvez bloqué, n'hésitez pas à consulter le [code de solution](https://github.com/Unboxed-Software/solana-student-intro-program/tree/solution-add-replies). Notez que le code de solution se trouve sur la branche `solution-add-replies` et que votre code peut avoir l'air légèrement différent.
 
-## Avez-vous terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=89d367b4-5102-4237-a7f4-4f96050fe57e) !

@@ -644,6 +644,6 @@ Développez une application en utilisant Solana Pay (ou modifiez celle du labora
 
 Soyez créatif avec cela ! La spécification Solana Pay ouvre de nombreuses portes pour des cas d'utilisation uniques.
 
-## Vous avez terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=3c7e5796-c433-4575-93e1-1429f718aa10) !

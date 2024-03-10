@@ -648,3 +648,7 @@ En utilisant ce que vous avez appris dans cette leçon, développez ce programme
 3. Fermer un compte existant
 
 Essayez de le faire de manière indépendante si possible ! Mais si vous êtes bloqué, n'hésitez pas à consulter le [code de la solution](https://github.com/Unboxed-Software/anchor-student-intro-program).
+
+## Vous avez fini le laboratoire ?
+
+Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=f58108e9-94a0-45b2-b0d5-44ada1909105) !

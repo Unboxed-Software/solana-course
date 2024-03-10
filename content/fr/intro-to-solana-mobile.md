@@ -951,6 +951,6 @@ Votre défi aujourd'hui est de prendre notre application et d'ajouter une foncti
 
 Après avoir essayé par vous-même, n'hésitez pas à jeter un coup d'œil au [code de solution sur la branche `solution`](https://github.com/Unboxed-Software/solana-react-native-counter/tree/solution).
 
-## Vous avez terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=c15928ce-8302-4437-9b1b-9aa1d65af864) !

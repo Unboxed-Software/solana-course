@@ -276,7 +276,6 @@ Si vous êtes vraiment bloqué, n'hésitez pas à [consulter le code de solution
 
 Comme toujours, soyez créatif avec ces défis et allez au-delà des instructions si vous le souhaitez !
 
-## Vous avez terminé le laboratoire ?
+## Vous avez fini le laboratoire ?
 
 Poussez votre code sur GitHub et [dites-nous ce que vous avez pensé de cette leçon](https://form.typeform.com/to/IPH0UGz7#answers-lesson=9cb89e09-2c97-4185-93b0-c89f7aca7677) !
-```  
