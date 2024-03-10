@@ -92,7 +92,7 @@ React Native prend le framework web React et l'applique aux applications mobiles
 - React Native vous donne accès au matériel du téléphone que React ne peut pas fournir. Cela inclut des choses comme la caméra du téléphone, l'accéléromètre, et plus encore.
 - React Native introduit de nouveaux fichiers de configuration et dossiers de construction. Par exemple, les répertoires `ios` et `android` contiennent des informations spécifiques à la plate-forme. De plus, il existe des fichiers de configuration tels que `Gemfile` et `metro.config.js`. En général, laissez toutes les configurations telles quelles et concentrez-vous simplement sur l'écriture de votre code, dont le point de départ sera dans `App.tsx`.
 
-Il y a une courbe d'apprentissage, mais si vous connaissez React, vous n'êtes pas aussi loin que vous le pensez pour pouvoir développer des applications mobiles. Cela peut sembler déroutant au début, mais après quelques heures de développement avec React Native, vous commencerez à vous sentir beaucoup plus à l'aise. Vous vous sentirez probablement beaucoup plus confiant même après [le laboratoire de cette leçon](#lab).
+Il y a une courbe d'apprentissage, mais si vous connaissez React, vous n'êtes pas aussi loin que vous le pensez pour pouvoir développer des applications mobiles. Cela peut sembler déroutant au début, mais après quelques heures de développement avec React Native, vous commencerez à vous sentir beaucoup plus à l'aise. Vous vous sentirez probablement beaucoup plus confiant même après [le laboratoire de cette leçon](#laboratoire).
 
 ## Création d'une dApp Solana avec React Native
 
@@ -138,7 +138,7 @@ L'envoi d'une transaction se fait à l'intérieur du rappel de `transact`. Le fl
 
 ![Transaction](../assets/basic-solana-mobile-transact.png)
 
-Remarque : Vous voudrez peut-être créer un crochet `useAuthorization()` pour gérer l'état d'autorisation du portefeuille. Nous pratiquerons cela dans [le laboratoire](#lab).
+Remarque : Vous voudrez peut-être créer un crochet `useAuthorization()` pour gérer l'état d'autorisation du portefeuille. Nous pratiquerons cela dans [le laboratoire](#laboratoire).
 
 Voici un exemple d'envoi d'une transaction en utilisant MWA :
 ```tsx

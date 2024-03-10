@@ -310,7 +310,7 @@ pub struct AccountStruct {
 
 Vous êtes maintenant prêt à créer votre propre programme Solana en utilisant le framework Anchor !
 
-# Lab
+# Laboratoire
 
 Avant de commencer, installez Anchor en [suivant les étapes de la documentation d'Anchor](https://www.anchor-lang.com/docs/installation).
 

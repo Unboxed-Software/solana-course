@@ -212,7 +212,7 @@ Dans les prochaines leçons, vous apprendrez à
 2. Ajouter des données personnalisées à vos instructions
 3. Désérialiser des données depuis la chaîne
 
-# Challenge
+# Défi
 
 Créez un script à partir de zéro qui vous permettra de transférer des SOL d'un compte à un autre sur Devnet. Assurez-vous d'afficher la signature de la transaction afin de pouvoir la consulter sur le Solana Explorer.
 

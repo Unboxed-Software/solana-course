@@ -377,7 +377,7 @@ Si vous utilisez la contrainte `init` d'Anchor, c'est généralement tout ce don
 
 Si vous voulez jeter un œil au code de solution final, vous pouvez le trouver sur la branche `solution` de [ce dépôt](https://github.com/Unboxed-Software/solana-reinitialization-attacks/tree/solution).
 
-# Challenge
+# Défi
 
 Comme pour les autres leçons de cette unité, votre opportunité de pratiquer pour éviter cette faille de sécurité réside dans la vérification de votre propre programme ou d'autres programmes.
 

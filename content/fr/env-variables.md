@@ -291,7 +291,7 @@ Il y a une petite subtilité ici : dans le laps de temps entre le déploiement d
 
 Bien que cela puisse sembler mauvais, cela signifie simplement que vous ne devriez pas considérer votre programme comme "initialisé" tant que vous n'avez pas initialisé le compte de configuration vous-même et vérifié que l'administrateur répertorié sur le compte est celui que vous attendez. Si votre script de déploiement déploie et appelle immédiatement `initialize`, il est très improbable qu'un attaquant soit même au courant de l'existence de votre programme, sans parler d'essayer de se définir comme administrateur. Si par malchance folle quelqu'un "intercepte" votre programme, vous pouvez fermer le programme avec l'autorité de mise à niveau et le redéployer.
 
-# Lab
+# Laboratoire
 
 Maintenant, essayons cela ensemble. Pour ce laboratoire, nous travaillerons avec un programme simple permettant des paiements en USDC. Le programme prélève des frais pour faciliter le transfert. Notez que c'est quelque peu artificiel car vous pouvez effectuer des transferts directs sans contrat intermédiaire, mais cela simule le fonctionnement de certains programmes DeFi complexes.
 

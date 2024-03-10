@@ -1323,7 +1323,7 @@ Enfin, modifions `MWAApp.tsx` et ajoutons notre nouvelle interface à l'instruct
     }
 ```
 
-Allez-y et construisez et exécutez à nouveau votre application de portefeuille. Vous devriez maintenant être en mesure d'autoriser votre dApp et de signer et envoyer des transactions. Notez que nous avons laissé `SignMessagesRequest` et `SignTransactionsRequest` vides afin que vous puissiez les compléter dans le Challenge.
+Allez-y et construisez et exécutez à nouveau votre application de portefeuille. Vous devriez maintenant être en mesure d'autoriser votre dApp et de signer et envoyer des transactions. Notez que nous avons laissé `SignMessagesRequest` et `SignTransactionsRequest` vides afin que vous puissiez les compléter dans le Défi.
 
 Excellent travail ! Créer un portefeuille, même une version "fausse", n'est pas une mince affaire. Si vous avez rencontré des difficultés, assurez-vous de revenir en arrière jusqu'à ce que vous compreniez ce qui se passe. De plus, n'hésitez pas à parcourir le [code de solution du laboratoire sur la branche `main`](https://github.com/Unboxed-Software/react-native-fake-solana-wallet).
 

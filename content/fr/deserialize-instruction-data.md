@@ -318,9 +318,9 @@ De plus, toutes les déclarations que vous souhaitez rendre disponibles via des 
 pub enum NoteInstruction { ... }
 ```
 
-# Lab
+# Laboratoire
 
-Pour le labo de cette leçon, nous allons développer la première moitié du programme de critique de film sur lequel nous avons travaillé dans le Module 1. Ce programme stocke les critiques de film soumis par les utilisateurs.
+Pour le laboratoire de cette leçon, nous allons développer la première moitié du programme de critique de film sur lequel nous avons travaillé dans le Module 1. Ce programme stocke les critiques de film soumis par les utilisateurs.
 
 Pour l'instant, nous nous concentrerons sur la désérialisation des données d'instruction. La leçon suivante se concentrera sur la deuxième moitié de ce programme.
 
@@ -469,11 +469,11 @@ Compilez et déployez votre programme depuis Solana Program, tout comme dans la 
 
 Vous pouvez tester votre programme en soumettant une transaction avec les bonnes données d'instruction. Pour cela, n'hésitez pas à utiliser [ce script](https://github.com/Unboxed-Software/solana-movie-client) ou [l'interface utilisateur](https://github.com/Unboxed-Software/solana-movie-frontend) que nous avons créée dans la leçon sur la sérialisation des données d'instruction. Dans les deux cas, assurez-vous de copier et coller l'ID du programme dans le code source approprié pour vous assurer que vous testez le bon programme.
 
-Si vous avez besoin de passer un peu plus de temps sur ce labo avant de passer à la suite, n'hésitez pas ! Vous pouvez également consulter le [code de solution du programme](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) si vous êtes bloqué.
+Si vous avez besoin de passer un peu plus de temps sur ce laboratoire avant de passer à la suite, n'hésitez pas ! Vous pouvez également consulter le [code de solution du programme](https://beta.solpg.io/62aa9ba3b5e36a8f6716d45b) si vous êtes bloqué.
 
-# Challenge
+# Défi
 
-Pour le challenge de cette leçon, essayez de reproduire le programme d'introduction des étudiants du Module 1. Rappelez-vous que nous avons créé une application frontend qui permet aux étudiants de se présenter ! Le programme prend le nom de l'utilisateur et un court message comme `instruction_data` et crée un compte pour stocker les données on-chain.
+Pour le défi de cette leçon, essayez de reproduire le programme d'introduction des étudiants du Module 1. Rappelez-vous que nous avons créé une application frontend qui permet aux étudiants de se présenter ! Le programme prend le nom de l'utilisateur et un court message comme `instruction_data` et crée un compte pour stocker les données on-chain.
 
 En utilisant ce que vous avez appris dans cette leçon, construisez le programme d'introduction des étudiants jusqu'à ce que vous puissiez imprimer les `name` et `message` fournis par l'utilisateur dans les logs du programme lorsque le programme est invoqué.
 

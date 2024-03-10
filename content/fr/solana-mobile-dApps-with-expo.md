@@ -180,7 +180,7 @@ Pratiquons ensemble en construisant l'application Mint-A-Day, où les utilisateu
 
 Pour créer les NFT, nous utiliserons le SDK JavaScript de Metaplex en conjonction avec [nft.storage](https://nft.storage/) pour stocker les images et les métadonnées. Tout notre travail on-chain se fera sur Devnet.
 
-La première moitié de ce lab consiste à assembler les composants nécessaires pour faire fonctionner ensemble Expo, Solana et Metaplex. Nous le ferons de manière modulaire afin que vous sachiez quelles parties du modèle de départ correspondent à quelle section.
+La première moitié de ce laboratoire consiste à assembler les composants nécessaires pour faire fonctionner ensemble Expo, Solana et Metaplex. Nous le ferons de manière modulaire afin que vous sachiez quelles parties du modèle de départ correspondent à quelle section.
 
 ## 1. Créer, construire et exécuter une application Expo locale
 
@@ -285,7 +285,7 @@ npm run install
 
 Le portefeuille devrait être installé sur votre émulateur ou appareil. Assurez-vous d'ouvrir le portefeuille nouvellement installé et de vous envoyer quelques SOL.
 
-N'oubliez pas de revenir au répertoire du portefeuille car c'est là que nous travaillerons pour le reste du labo.
+N'oubliez pas de revenir au répertoire du portefeuille car c'est là que nous travaillerons pour le reste du laboratoire.
 
 ```bash
 cd ..

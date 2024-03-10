@@ -1063,11 +1063,11 @@ Avec cela, exécutez `npm start`. Vous devriez voir une série de liens Solana E
 
 Si vous avez besoin de plus de temps avec ce projet pour vous sentir à l'aise, consultez le [code de solution complet](https://github.com/Unboxed-Software/solana-token-client)
 
-# Challenge
+# Défi
 
 Maintenant, c'est à votre tour de construire quelque chose de manière indépendante. Créez une application qui permet à un utilisateur de créer un nouvel émetteur, de créer un compte de jetons et d'émettre des jetons.
 
-Notez que vous ne pourrez pas utiliser directement les fonctions d'aide que nous avons vues dans le labo. Pour interagir avec le programme de jetons en utilisant l'adaptateur de portefeuille Phantom, vous devrez construire chaque transaction manuellement et soumettre la transaction à Phantom pour approbation.
+Notez que vous ne pourrez pas utiliser directement les fonctions d'aide que nous avons vues dans le laboratoire. Pour interagir avec le programme de jetons en utilisant l'adaptateur de portefeuille Phantom, vous devrez construire chaque transaction manuellement et soumettre la transaction à Phantom pour approbation.
 
 ![Capture d'écran du défi du programme de jetons Frontend](../assets/token-program-frontend.png)
 
@@ -1087,4 +1087,4 @@ Notez que vous ne pourrez pas utiliser directement les fonctions d'aide que nous
 
 Si vous êtes bloqué, n'hésitez pas à consulter le [code de solution](https://github.com/ZYJLiu/solana-token-frontend).
 
-Et n'oubliez pas, soyez créatif avec ces défis et faites vos propres challenges !
+Et n'oubliez pas, soyez créatif avec ces défis et inventez les vôtres !

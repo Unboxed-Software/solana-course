@@ -225,7 +225,7 @@ let note_pda_account = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-# Lab
+# Laboratoire
 
 Cette vue d'ensemble a couvert de nombreux nouveaux concepts. Pratiquons-les ensemble en continuant à travailler sur le programme de critiques de films de la leçon précédente. Pas d'inquiétude si vous commencez simplement cette leçon sans avoir suivi la leçon précédente - il devrait être possible de suivre dans les deux cas. Nous utiliserons le [Solana Playground](https://beta.solpg.io) pour écrire, compiler et déployer notre code.
 
@@ -390,7 +390,7 @@ Si vous utilisez l'interface, remplacez simplement `MOVIE_REVIEW_PROGRAM_ID` dan
 
 Si vous avez besoin de plus de temps avec ce projet pour vous sentir à l'aise avec ces concepts, jetez un œil au [code de solution](https://beta.solpg.io/62b23597f6273245aca4f5b4) avant de continuer.
 
-# Challenge
+# Défi
 
 Maintenant, c'est à vous de construire quelque chose de manière indépendante. Équipé des concepts introduits dans cette leçon, vous savez maintenant tout ce dont vous aurez besoin pour recréer l'intégralité du programme Student Intro du Module 1.
 

@@ -576,7 +576,7 @@ Félicitations ! Vous avez appris avec succès comment utiliser le SDK Metaplex 
 
 Si vous voulez jeter un coup d'œil au code de solution final, vous pouvez le trouver sur la branche de solution du même [dépôt](https://github.com/Unboxed-Software/solana-metaplex/tree/solution).
 
-# Challenge
+# Défi
 
 Pour approfondir votre compréhension des outils Metaplex, plongez dans la documentation Metaplex et familiarisez-vous avec les différents programmes et outils proposés par Metaplex. Par exemple, vous pouvez vous plonger dans l'apprentissage du programme Candy Machine pour comprendre son fonctionnement.
 
