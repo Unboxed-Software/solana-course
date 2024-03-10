@@ -171,7 +171,7 @@ Pour commencer, téléchargez le code de départ à partir de la branche `starte
 
 L'instruction `initialize_vault` initialise un nouveau compte `Vault` et un nouveau compte `TokenAccount`. Le compte `Vault` stockera l'adresse d'un compte de jeton, l'autorité du coffre et un compte de destination de retrait de jeton.
 
-L'autorité du nouveau compte de jeton sera définie comme le `vault`, un PDA du programme. Cela permet au compte `vault` de signer pour le transfert de jetons depuis le compte de jeton. 
+L'autorité du nouveau compte de jeton sera définie comme le `vault`, une PDA du programme. Cela permet au compte `vault` de signer pour le transfert de jetons depuis le compte de jeton. 
 
 L'instruction `insecure_withdraw` transfère tous les jetons du compte de jeton du compte `vault` vers un compte de jeton `withdraw_destination`.
 

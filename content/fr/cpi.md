@@ -346,7 +346,7 @@ invoke_signed(
 Ok(())
 ```
 
-Notez que nous utilisons `invoke_signed` et non `invoke` ici. Le programme de jetons exige que le compte `mint_auth` signe cette transaction. Étant donné que le compte `mint_auth` est un PDA, seul le programme dont il a été dérivé peut signer en son nom. Lorsque `invoke_signed` est appelé, le runtime de Solana appelle `create_program_address` avec les seeds et le coup fournis, puis compare l'adresse dérivée avec toutes les adresses des objets `AccountInfo` fournis. Si l'une des adresses correspond à l'adresse dérivée, le runtime sait que le compte correspondant est un PDA de ce programme et que le programme signe cette transaction pour ce compte.
+Notez que nous utilisons `invoke_signed` et non `invoke` ici. Le programme de jetons exige que le compte `mint_auth` signe cette transaction. Étant donné que le compte `mint_auth` est une PDA, seul le programme dont il a été dérivé peut signer en son nom. Lorsque `invoke_signed` est appelé, le runtime de Solana appelle `create_program_address` avec les seeds et le coup fournis, puis compare l'adresse dérivée avec toutes les adresses des objets `AccountInfo` fournis. Si l'une des adresses correspond à l'adresse dérivée, le runtime sait que le compte correspondant est une PDA de ce programme et que le programme signe cette transaction pour ce compte.
 
 À ce stade, l'instruction `add_movie_review` devrait être pleinement fonctionnelle et créera dix jetons pour le critique lorsqu'une critique est créée.
 
@@ -428,7 +428,7 @@ Ok(())
 
 ### 6. Configurer le jeton de création
 
-Nous avons écrit tout le code nécessaire pour créer des jetons pour les critiques et les commentateurs, mais tout cela suppose qu'il y a un jeton de création au PDA dérivé avec la seed "token_mint". Pour que cela fonctionne, nous allons configurer une instruction supplémentaire pour initialiser le jeton de création. Elle sera écrite de telle sorte qu'elle ne puisse être appelée qu'une seule fois et peu importe qui l'appelle.
+Nous avons écrit tout le code nécessaire pour créer des jetons pour les critiques et les commentateurs, mais tout cela suppose qu'il y a un jeton de création à la PDA dérivée avec la seed "token_mint". Pour que cela fonctionne, nous allons configurer une instruction supplémentaire pour initialiser le jeton de création. Elle sera écrite de telle sorte qu'elle ne puisse être appelée qu'une seule fois et peu importe qui l'appelle.
 
 Étant donné qu'au cours de cette leçon, nous avons déjà abordé à plusieurs reprises tous les concepts associés aux PDAs et aux CPIs, nous allons aborder cette partie avec moins d'explications que les étapes précédentes. Commencez par ajouter une quatrième variante d'instruction à l'énumération `MovieInstruction` dans `instruction.rs`.
 

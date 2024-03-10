@@ -24,7 +24,7 @@ En plus d'utiliser des contraintes pour la validation des comptes, certaines con
 
 ## PDAs avec Anchor
 
-Rappelez-vous que les [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda) sont dérivés à l'aide d'une liste de seeds facultatives, d'une bump seed et d'un ID de programme. Anchor fournit un moyen pratique de valider un PDA avec les contraintes `seeds` et `bump`.
+Rappelez-vous que les [PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda) sont dérivées à l'aide d'une liste de seeds facultatives, d'une bump seed et d'un ID de programme. Anchor fournit un moyen pratique de valider une PDA avec les contraintes `seeds` et `bump`.
 
 ```rust
 #[derive(Accounts)]
@@ -93,7 +93,7 @@ pub struct AccountType {
 
 Lorsque vous utilisez `init` pour des comptes non-PDA, Anchor définira par défaut le propriétaire du compte initialisé comme étant le programme qui exécute actuellement l'instruction.
 
-Cependant, lorsque vous utilisez `init` en combinaison avec `seeds` et `bump`, le propriétaire *doit* être le programme exécutant. Cela est dû au fait qu'initialiser un compte pour le PDA nécessite une signature que seul le programme exécutant peut fournir. En d'autres termes, la vérification de signature pour l'initialisation du compte PDA échouerait si l'ID utilisé pour dériver le PDA ne correspondait pas à l'ID du programme en cours d'exécution.
+Cependant, lorsque vous utilisez `init` en combinaison avec `seeds` et `bump`, le propriétaire *doit* être le programme exécutant. Cela est dû au fait qu'initialiser un compte pour la PDA nécessite une signature que seul le programme exécutant peut fournir. En d'autres termes, la vérification de signature pour l'initialisation du compte PDA échouerait si l'ID utilisé pour dériver la PDA ne correspondait pas à l'ID du programme en cours d'exécution.
 
 Lorsque vous déterminez la valeur de `space` pour un compte initialisé et possédé par le programme Anchor en cours d'exécution, rappelez-vous que les premiers 8 octets sont réservés pour le discriminant du compte. Il s'agit d'une valeur de 8 octets que Anchor calcule et utilise pour identifier les types de compte du programme. Vous pouvez utiliser cette [référence](https://www.anchor-lang.com/docs/space) pour calculer combien d'espace vous devez allouer pour un compte.
 
@@ -103,7 +103,7 @@ La liste des comptes pour une instruction peut devenir très longue pour certain
 
 L'inférence de seeds ajoute des informations sur les seeds PDA à l'IDL afin qu'Anchor puisse inférer les seeds PDA à partir des informations existantes de l'appel. Dans l'exemple précédent, les seeds sont `b"example_seed"` et `user.key()`. Le premier est statique et donc connu, et le deuxième est connu car `user` est le signataire de la transaction.
 
-Si vous utilisez l'inférence de seeds lors de la construction de votre programme, alors tant que vous appelez le programme en utilisant Anchor, vous n'avez pas besoin de dériver explicitement et de transmettre le PDA. Au lieu de cela, la bibliothèque Anchor le fera pour vous.
+Si vous utilisez l'inférence de seeds lors de la construction de votre programme, alors tant que vous appelez le programme en utilisant Anchor, vous n'avez pas besoin de dériver explicitement et de transmettre la PDA. Au lieu de cela, la bibliothèque Anchor le fera pour vous.
 
 Vous pouvez activer l'inférence de seeds dans le fichier `Anchor.toml` avec `seeds = true` sous `[features]`.
 
@@ -193,7 +193,7 @@ pub struct Initialize<'info> {
 }
 ```
 
-Lorsque l'instruction `initialize` est invoquée dans l'exemple précédent, Anchor vérifiera si le `token_account` existe et l'initialisera s'il n'existe pas déjà. S'il existe déjà, alors l'instruction se poursuivra sans initialiser le compte. Tout comme avec la contrainte `init`, vous pouvez utiliser `init_if_needed` en conjonction avec `seeds` et `bump` si le compte est un PDA.
+Lorsque l'instruction `initialize` est invoquée dans l'exemple précédent, Anchor vérifiera si le `token_account` existe et l'initialisera s'il n'existe pas déjà. S'il existe déjà, alors l'instruction se poursuivra sans initialiser le compte. Tout comme avec la contrainte `init`, vous pouvez utiliser `init_if_needed` en conjonction avec `seeds` et `bump` si le compte est une PDA.
 
 ## Realloc
 
@@ -573,7 +573,7 @@ describe("anchor-movie-review-program", () => {
 })
 ```
 
-Ensuite, créons le premier test pour l'instruction `addMovieReview`. Remarquez que nous n'ajoutons pas explicitement `.accounts`. C'est parce que le `Wallet` de `AnchorProvider` est automatiquement inclus en tant que signataire, Anchor peut déduire certains comptes comme `SystemProgram`, et Anchor peut également déduire le PDA `movieReview` à partir de l'argument d'instruction `title` et de la clé publique du signataire.
+Ensuite, créons le premier test pour l'instruction `addMovieReview`. Remarquez que nous n'ajoutons pas explicitement `.accounts`. C'est parce que le `Wallet` de `AnchorProvider` est automatiquement inclus en tant que signataire, Anchor peut déduire certains comptes comme `SystemProgram`, et Anchor peut également déduire la PDA `movieReview` à partir de l'argument d'instruction `title` et de la clé publique du signataire.
 
 Une fois l'instruction exécutée, nous récupérons le compte `movieReview` et vérifions que les données stockées sur le compte correspondent aux valeurs attendues.
 

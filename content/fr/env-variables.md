@@ -169,7 +169,7 @@ Eh bien, il existe quelques solutions, chacune ayant ses avantages et ses inconv
 
 ### Créer le compte de configuration
 
-La première étape consiste à ajouter ce que nous appellerons un compte "config" à votre programme. Vous pouvez le personnaliser selon vos besoins, mais nous suggérons un PDA (Program Derived Address) global unique. Dans Anchor, cela signifie simplement créer une structure de compte et utiliser une seule seed pour dériver l'adresse du compte.
+La première étape consiste à ajouter ce que nous appellerons un compte "config" à votre programme. Vous pouvez le personnaliser selon vos besoins, mais nous suggérons une PDA (Program Derived Address) globale unique. Dans Anchor, cela signifie simplement créer une structure de compte et utiliser une seule seed pour dériver l'adresse du compte.
 
 ```rust
 pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";

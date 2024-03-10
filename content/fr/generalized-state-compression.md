@@ -557,7 +557,7 @@ pub mod compressed_notes {
         // Définissez les seeds pour la signature pda
         let signer_seeds: &[&[&[u8]]] = &[&[
             merkle_tree.as_ref(), // L'adresse du compte de l'arbre de Merkle en tant que seed
-            &[*ctx.bumps.get("tree_authority").unwrap()], // La seed de modification pour le pda
+            &[*ctx.bumps.get("tree_authority").unwrap()], // La seed de modification pour la pda
         ]];
 
         // Créez un contexte cpi pour l'instruction init_empty_merkle_tree.
@@ -613,7 +613,7 @@ pub mod compressed_notes {
         // Définissez les seeds pour la signature pda
         let signer_seeds: &[&[&[u8]]] = &[&[
             merkle_tree.as_ref(), // L'adresse du compte de l'arbre de Merkle en tant que seed
-            &[*ctx.bumps.get("tree_authority").unwrap()], // La seed de modification pour le pda
+            &[*ctx.bumps.get("tree_authority").unwrap()], // La seed de modification pour la pda
         ]];
         // Créez un nouveau contexte cpi et ajoutez le nœud feuille à l'arbre de Merkle.
         let cpi_ctx = CpiContext::new_with_signer(
@@ -674,7 +674,7 @@ pub mod compressed_notes {
         // Définissez les seeds pour la signature pda
         let signer_seeds: &[&[&[u8]]] = &[&[
             merkle_tree.as_ref(), // L'adresse du compte de l'arbre de Merkle en tant que seed
-            &[*ctx.bumps.get("tree_authority").unwrap()], // La seed de modification pour le pda
+            &[*ctx.bumps.get("tree_authority").unwrap()], // La seed de modification pour la pda
         ]];
 
         // Vérifier la feuille

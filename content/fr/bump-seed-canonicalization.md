@@ -1,7 +1,7 @@
 ---
 title: Canonicalisation du "Bump Seed"
 objectives:
-- Expliquer les vulnérabilités associées à l'utilisation de PDA dérivés sans le "canonical bump"
+- Expliquer les vulnérabilités associées à l'utilisation de PDA dérivées sans le "canonical bump"
 - Initialiser une PDA en utilisant les contraintes `seeds` et `bump` d'Anchor pour utiliser automatiquement le "canonical bump"
 - Utiliser les contraintes `seeds` et `bump` d'Anchor pour garantir que le "canonical bump" est toujours utilisé dans les futures instructions lors de la dérivation d'une PDA
 ---
@@ -77,7 +77,7 @@ Si la correspondance de la seed était destinée à imposer une relation un-à-u
 
 Une manière simple de contourner ce problème est de faire en sorte que le programme n'attende que le bump canonique et d'utiliser `find_program_address` pour dériver la PDA.
 
-[`find_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) *utilise toujours le bump canonique*. Cette fonction itère en appelant `create_program_address`, en commençant par un bump de 255 et en décrémentant le bump d'un à chaque itération. Dès qu'une adresse valide est trouvée, la fonction renvoie à la fois la PDA dérivé et le bump canonique utilisé pour le dériver.
+[`find_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.find_program_address) *utilise toujours le bump canonique*. Cette fonction itère en appelant `create_program_address`, en commençant par un bump de 255 et en décrémentant le bump d'un à chaque itération. Dès qu'une adresse valide est trouvée, la fonction renvoie à la fois la PDA dériveé et le bump canonique utilisé pour la dériver.
 
 Cela garantit une correspondance unique entre vos seeds d'entrée et l'adresse qu'elles produisent.
 
@@ -148,7 +148,7 @@ pub struct Data {
 
 Si vous n'initialisez pas un compte, vous pouvez toujours valider les PDA avec les contraintes `seeds` et `bump`. Cela redérive simplement la PDA et compare l'adresse dérivée avec l'adresse du compte transmis.
 
-Dans ce scénario, Anchor *permet* de spécifier le bump à utiliser pour dériver la PDA avec `bump = <some_bump>`. L'intention ici n'est pas de vous faire utiliser des bumps arbitraires, mais plutôt de vous permettre d'optimiser votre programme. La nature itérative de `find_program_address` le rend coûteux, donc la meilleure pratique est de stocker le bump canonique dans les données du compte PDA lors de l'initialisation d'une PDA, vous permettant de référencer le bump stocké lors de la validation du PDA dans des instructions ultérieures.
+Dans ce scénario, Anchor *permet* de spécifier le bump à utiliser pour dériver la PDA avec `bump = <some_bump>`. L'intention ici n'est pas de vous faire utiliser des bumps arbitraires, mais plutôt de vous permettre d'optimiser votre programme. La nature itérative de `find_program_address` le rend coûteux, donc la meilleure pratique est de stocker le bump canonique dans les données du compte PDA lors de l'initialisation d'une PDA, vous permettant de référencer le bump stocké lors de la validation de la PDA dans des instructions ultérieures.
 
 Lorsque vous spécifiez le bump à utiliser, Anchor utilise `create_program_address` avec le bump fourni au lieu de `find_program_address`. Ce schéma de stockage du bump dans les données du compte garantit que votre programme utilise toujours le bump canonique sans dégrader les performances.
 
@@ -169,7 +169,7 @@ pub mod bump_seed_canonicalization_recommended {
     }
 
     pub fn verify_address(ctx: Context<VerifyAddress>, _key: u64) -> Result<()> {
-        msg!("PDA confirmé comme dérivé avec le bump canonique : {}", ctx.accounts.data.key());
+        msg!("PDA confirmée comme dérivée avec le bump canonique : {}", ctx.accounts.data.key());
         Ok(())
     }
 }
@@ -213,7 +213,7 @@ pub struct Data {
 
 Si vous ne spécifiez pas le bump sur la contrainte `bump`, Anchor utilisera toujours `find_program_address` pour dériver la PDA en utilisant le bump canonique. En conséquence, votre instruction encourra un budget de calcul variable. Les programmes qui risquent déjà de dépasser leur budget de calcul devraient utiliser ceci avec précaution, car il y a une chance que le budget du programme soit parfois et imprévisiblement dépassé.
 
-D'autre part, si vous devez simplement vérifier l'adresse d'une PDA transmis sans initialiser un compte, vous serez contraint de soit laisser Anchor dériver le bump canonique, soit exposer votre programme à des risques inutiles. Dans ce cas, veuillez utiliser le bump canonique malgré la légère réduction des performances.
+D'autre part, si vous devez simplement vérifier l'adresse d'une PDA transmise sans initialiser un compte, vous serez contraint de soit laisser Anchor dériver le bump canonique, soit exposer votre programme à des risques inutiles. Dans ce cas, veuillez utiliser le bump canonique malgré la légère réduction des performances.
 
 # Laboratoire
 
@@ -240,7 +240,7 @@ Jetez un œil au programme pour comprendre ce qu'il fait avant de continuer.
 
 ### 2. Testez les instructions non sécurisées
 
-Étant donné que les instructions ne nécessitent pas explicitement que le PDA `user` utilise le bump canonique, un attaquant peut créer plusieurs comptes par portefeuille et réclamer plus de récompenses que ce qui est autorisé.
+Étant donné que les instructions ne nécessitent pas explicitement que la PDA `user` utilise le bump canonique, un attaquant peut créer plusieurs comptes par portefeuille et réclamer plus de récompenses que ce qui est autorisé.
 
 Le test dans le répertoire `tests` crée une nouvelle paire de clés appelée `attacker` pour représenter un attaquant. Il parcourt ensuite tous les bumps possibles et appelle `create_user_insecure` et `claim_insecure`. À la fin, le test s'attend à ce que l'attaquant ait réussi à réclamer plusieurs fois et ait gagné plus de 10 jetons au total.
 

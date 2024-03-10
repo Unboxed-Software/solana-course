@@ -298,7 +298,7 @@ pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
 }
 ```
 
-Maintenant, implémentez le type de contexte `InitializeMint` et répertoriez les comptes et les contraintes nécessaires à l'instruction. Ici, nous initialisons un nouveau compte `Mint` en utilisant un PDA avec la chaîne "mint" comme seed. Notez que nous pouvons utiliser la même PDA à la fois pour l'adresse du compte `Mint` et l'autorité de création de jetons. L'utilisation d'une PDA comme autorité de création de jetons permet à notre programme de signer la création des jetons.
+Maintenant, implémentez le type de contexte `InitializeMint` et répertoriez les comptes et les contraintes nécessaires à l'instruction. Ici, nous initialisons un nouveau compte `Mint` en utilisant une PDA avec la chaîne "mint" comme seed. Notez que nous pouvons utiliser la même PDA à la fois pour l'adresse du compte `Mint` et l'autorité de création de jetons. L'utilisation d'une PDA comme autorité de création de jetons permet à notre programme de signer la création des jetons.
 
 Pour initialiser le compte `Mint`, nous devrons inclure les programmes `token_program`, `rent`, et `system_program` dans la liste des comptes.
 

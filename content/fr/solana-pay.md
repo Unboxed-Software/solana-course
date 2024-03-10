@@ -541,7 +541,7 @@ async function createCheckInInstruction(
 
 ### 7. Implémenter la fonction `fetchUserState`
 
-Avec la fonction `buildTransaction` terminée, commençons à implémenter les fonctions d'aide vides que nous avons créées, en commençant par `fetchUserState`. Cette fonction utilise l'ID de jeu (`gameId`) et la clé publique de l'utilisateur (`account`) pour dériver le PDA de l'état de l'utilisateur, puis récupère ce compte, renvoyant `null` s'il n'existe pas.
+Avec la fonction `buildTransaction` terminée, commençons à implémenter les fonctions d'aide vides que nous avons créées, en commençant par `fetchUserState`. Cette fonction utilise l'ID de jeu (`gameId`) et la clé publique de l'utilisateur (`account`) pour dériver la PDA de l'état de l'utilisateur, puis récupère ce compte, renvoyant `null` s'il n'existe pas.
 
 ```typescript
 async function fetchUserState(account: PublicKey): Promise<UserState | null> {

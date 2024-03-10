@@ -125,13 +125,13 @@ if !initializer.is_signer {
 
 En plus de vérifier les signataires et les propriétaires des comptes, il est important de s'assurer que les comptes fournis sont ceux que votre code s'attend à recevoir. Par exemple, vous voudriez valider qu'un compte PDA fourni peut dériver des seeds attendues. Cela garantit qu'il s'agit du compte que vous vous attendez.
 
-Dans l'exemple de l'application de prise de notes, cela signifierait s'assurer que vous pouvez dériver un PDA correspondant en utilisant la clé publique du créateur de la note et l'ID en tant que seeds (c'est ce que nous supposons avoir été utilisé lors de la création de la note). Ainsi, un utilisateur ne pourrait pas accidentellement transmettre un compte PDA pour la mauvaise note ou, plus important encore, que l'utilisateur ne transmette pas un compte PDA qui représente la note de quelqu'un d'autre.
+Dans l'exemple de l'application de prise de notes, cela signifierait s'assurer que vous pouvez dériver une PDA correspondante en utilisant la clé publique du créateur de la note et l'ID en tant que seeds (c'est ce que nous supposons avoir été utilisé lors de la création de la note). Ainsi, un utilisateur ne pourrait pas accidentellement transmettre un compte PDA pour la mauvaise note ou, plus important encore, que l'utilisateur ne transmette pas un compte PDA qui représente la note de quelqu'un d'autre.
 
 ```rust
 let (pda, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
 
 if pda != *note_pda.key {
-    msg!("Seeds invalides pour le PDA");
+    msg!("Seeds invalides pour la PDA");
     return Err(ProgramError::InvalidArgument)
 }
 ```
@@ -238,7 +238,7 @@ Avant de passer à la suite, assurez-vous d'avoir une compréhension solide de l
 Commençons par écrire nos erreurs personnalisées du programme. Nous aurons besoin d'erreurs que nous pouvons utiliser dans les situations suivantes :
 
 - L'instruction de mise à jour a été invoquée sur un compte qui n'a pas encore été initialisé
-- Le PDA fourni ne correspond pas au PDA attendu ou dérivé
+- La PDA fournie ne correspond pas à la PDA attendue ou dérivée
 - Les données d'entrée dépassent la longueur maximale autorisée par le programme
 - La note fournie n'est pas comprise entre 1 et 5
 
@@ -255,7 +255,7 @@ pub enum ReviewError{
     #[error("Compte non initialisé")]
     UninitializedAccount,
     // Erreur 1
-    #[error("Le PDA dérivé ne correspond pas au PDA fourni")]
+    #[error("La PDA dérivée ne correspond pas à la PDA fournie")]
     InvalidPDA,
     // Erreur 2
     #[error("Les données d'entrée dépassent la longueur maximale")]
@@ -304,14 +304,14 @@ if !initializer.is_signer {
 
 ### Validation du compte
 
-Ensuite, assurons-nous que le `pda_account` fourni par l'utilisateur est le `pda` que nous attendons. Rappelez-vous que nous avons dérivé le `pda` pour une critique de film en utilisant l'`initializer` et le `title` comme seeds. Dans notre instruction, nous dériverons à nouveau le `pda` puis vérifierons s'il correspond au `pda_account`. Si les adresses ne correspondent pas, nous retournerons notre erreur personnalisée `InvalidPDA`.
+Ensuite, assurons-nous que la `pda_account` fournie par l'utilisateur est la `pda` que nous attendons. Rappelez-vous que nous avons dérivé la `pda` pour une critique de film en utilisant l'`initializer` et le `title` comme seeds. Dans notre instruction, nous dériverons à nouveau la `pda` puis vérifierons si elle correspond à la `pda_account`. Si les adresses ne correspondent pas, nous retournerons notre erreur personnalisée `InvalidPDA`.
 
 ```rust
-// Dérivez le PDA et vérifiez s'il correspond au client
+// Dérivez la PDA et vérifiez si elle correspond au client
 let (pda, _bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), account_data.title.as_bytes().as_ref()], program_id);
 
 if pda != *pda_account.key {
-    msg!("Seeds invalides pour le PDA");
+    msg!("Seeds invalides pour la PDA");
     return Err(ReviewError::InvalidPDA.into())
 }
 ```
@@ -376,7 +376,7 @@ pub fn add_movie_review(
 
     let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref()], program_id);
     if pda != *pda_account.key {
-        msg!("Seeds invalides pour le PDA");
+        msg!("Seeds invalides pour la PDA");
         return Err(ProgramError::InvalidArgument)
     }
 
@@ -569,14 +569,14 @@ if !initializer.is_signer {
 
 ### Validation du compte
 
-Ensuite, vérifions que le `pda_account` fourni par l'utilisateur est le PDA que nous attendons en dérivant le PDA en utilisant `initializer` et `title` comme seeds. Si les adresses ne correspondent pas, nous retournerons notre erreur personnalisée `InvalidPDA`. Nous implémenterons cela de la même manière que nous l'avons fait dans la fonction `add_movie_review`.
+Ensuite, vérifions que la `pda_account` fournie par l'utilisateur est la PDA que nous attendons en dérivant la PDA en utilisant `initializer` et `title` comme seeds. Si les adresses ne correspondent pas, nous retournerons notre erreur personnalisée `InvalidPDA`. Nous implémenterons cela de la même manière que nous l'avons fait dans la fonction `add_movie_review`.
 
 ```rust
-// Dérivez le PDA et vérifiez s'il correspond au client
+// Dérivez la PDA et vérifiez si elle correspond au client
 let (pda, _bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), account_data.title.as_bytes().as_ref()], program_id);
 
 if pda != *pda_account.key {
-    msg!("Seeds invalides pour le PDA");
+    msg!("Seeds invalides pour la PDA");
     return Err(ReviewError::InvalidPDA.into())
 }
 ```
@@ -657,7 +657,7 @@ pub fn update_movie_review(
 
     let (pda, _bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), account_data.title.as_bytes().as_ref(),], program_id);
     if pda != *pda_account.key {
-        msg!("Seeds invalides pour le PDA");
+        msg!("Seeds invalides pour la PDA");
         return Err(ReviewError::InvalidPDA.into())
     }
 

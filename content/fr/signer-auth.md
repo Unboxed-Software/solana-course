@@ -223,7 +223,7 @@ Ce programme initialise un compte de "coffre-fort" de jetons simplifié et montr
 
 Pour commencer, téléchargez le code de départ depuis la branche `starter` de [ce dépôt](https://github.com/Unboxed-Software/solana-signer-auth/tree/starter). Le code de départ comprend un programme avec deux instructions et la configuration de base du fichier de test.
 
-L'instruction `initialize_vault` initialise deux nouveaux comptes : `Vault` et `TokenAccount`. Le compte `Vault` sera initialisé à l'aide d'une adresse dérivée du programme (PDA) et stockera l'adresse d'un compte de jetons et l'autorité du coffre-fort. L'autorité du compte de jetons sera le PDA du `vault`, ce qui permet au programme de signer le transfert de jetons.
+L'instruction `initialize_vault` initialise deux nouveaux comptes : `Vault` et `TokenAccount`. Le compte `Vault` sera initialisé à l'aide d'une adresse dérivée du programme (PDA) et stockera l'adresse d'un compte de jetons et l'autorité du coffre-fort. L'autorité du compte de jetons sera la PDA du `vault`, ce qui permet au programme de signer le transfert de jetons.
 
 L'instruction `insecure_withdraw` transférera des jetons du compte de jetons du `vault` vers un compte de jetons `withdraw_destination`. Cependant, le compte `authority` dans la structure `InsecureWithdraw` a un type de `UncheckedAccount`. Il s'agit d'un wrapper autour de `AccountInfo` pour indiquer explicitement que le compte n'est pas vérifié.
 

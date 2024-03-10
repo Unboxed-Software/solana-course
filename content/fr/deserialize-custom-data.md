@@ -11,7 +11,7 @@ objectives:
 
 - Les programmes stockent des données dans des PDA, qui signifie **Program Derived Address**.
 - Les PDA n'ont pas de clé secrète correspondante.
-- Pour stocker et localiser des données, dérivez un PDA en utilisant la méthode `findProgramAddress(seeds, programid)`.
+- Pour stocker et localiser des données, dérivez une PDA en utilisant la méthode `findProgramAddress(seeds, programid)`.
 - Vous pouvez obtenir les comptes appartenant à un programme en utilisant `getProgramAccounts(programId)`.
 - Les données de compte doivent être désérialisées en utilisant la même structure utilisée pour les stocker en premier lieu. Vous pouvez utiliser `@coral-xyz/borsh` pour créer un schéma.
 
@@ -28,25 +28,25 @@ Les programmes stockent des données séparément de leur code. Les programmes s
  - Vous pouvez considérer les PDA comme un magasin de clés, où l'adresse est la clé et les données à l'intérieur du compte sont la valeur.
  - Vous pouvez également considérer les PDA comme des enregistrements dans une base de données, l'adresse étant la clé primaire utilisée pour rechercher les valeurs à l'intérieur.
 
-Les PDA combinent une adresse de programme et quelques seeds choisies par le développeur pour créer des adresses qui stockent des données individuelles. Étant donné que les PDA sont des adresses qui se trouvent *hors* de la courbe elliptique Ed25519, les PDA n'ont pas de clés secrètes. Au lieu de cela, les PDA peuvent être signés par l'adresse de programme utilisée pour les créer.
+Les PDA combinent une adresse de programme et quelques seeds choisies par le développeur pour créer des adresses qui stockent des données individuelles. Étant donné que les PDA sont des adresses qui se trouvent *hors* de la courbe elliptique Ed25519, les PDA n'ont pas de clés secrètes. Au lieu de cela, les PDA peuvent être signées par l'adresse de programme utilisée pour les créer.
 
-Les PDA et les données à l'intérieur peuvent être trouvés de manière cohérente en fonction de l'adresse du programme, de sa version et des seeds. Pour trouver un PDA, l'ID du programme et les seeds choisies par le développeur (comme une chaîne de texte) sont transmis à travers la fonction [`findProgramAddress()`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress).
+Les PDA et les données à l'intérieur peuvent être trouvés de manière cohérente en fonction de l'adresse du programme, de sa version et des seeds. Pour trouver une PDA, l'ID du programme et les seeds choisies par le développeur (comme une chaîne de texte) sont transmis à travers la fonction [`findProgramAddress()`](https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddress).
 
 Jetons un coup d'œil à quelques exemples...
 
 #### Exemple : programme avec état global
 
-Un programme simple qui a un état global - comme notre compteur de ping - pourrait souhaiter n'utiliser qu'un seul PDA, basé sur une phrase de seed simple comme `"GLOBAL_STATE"`. Si le client voulait lire des données de ce PDA, il pourrait dériver l'adresse en utilisant l'ID du programme et cette même seed.
+Un programme simple qui a un état global - comme notre compteur de ping - pourrait souhaiter n'utiliser qu'une seule PDA, basée sur une phrase de seed simple comme `"GLOBAL_STATE"`. Si le client voulait lire des données de cette PDA, il pourrait dériver l'adresse en utilisant l'ID du programme et cette même seed.
 
 ```typescript
 const [pda, bump] = await findProgramAddress(Buffer.from("GLOBAL_STATE"), programId)
 ```
 
-![État global en utilisant un PDA](../../assets/pdas-global-state.svg)
+![État global en utilisant une PDA](../../assets/pdas-global-state.svg)
 
 #### Exemple : programme avec des données spécifiques à l'utilisateur
 
-Dans les programmes qui stockent des données spécifiques à un utilisateur, il est courant d'utiliser la clé publique de l'utilisateur comme seed. Cela sépare les données de chaque utilisateur dans son propre PDA. Cette séparation permet au client de localiser les données de chaque utilisateur en trouvant l'adresse en utilisant l'ID du programme et la clé publique de l'utilisateur.
+Dans les programmes qui stockent des données spécifiques à un utilisateur, il est courant d'utiliser la clé publique de l'utilisateur comme seed. Cela sépare les données de chaque utilisateur dans sa propre PDA. Cette séparation permet au client de localiser les données de chaque utilisateur en trouvant l'adresse en utilisant l'ID du programme et la clé publique de l'utilisateur.
 
 ```typescript
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
@@ -61,7 +61,7 @@ const [pda, bump] = await web3.PublicKey.findProgramAddress(
 
 #### Exemple : programme avec plusieurs éléments de données par utilisateur
 
-Lorsqu'il y a plusieurs éléments de données par utilisateur, un programme peut utiliser plus de seeds pour créer et identifier des comptes. Par exemple, dans une application de prise de notes, il peut y avoir un compte par note où chaque PDA est dérivé avec la clé publique de l'utilisateur et le titre de la note.
+Lorsqu'il y a plusieurs éléments de données par utilisateur, un programme peut utiliser plus de seeds pour créer et identifier des comptes. Par exemple, dans une application de prise de notes, il peut y avoir un compte par note où chaque PDA est dérivée avec la clé publique de l'utilisateur et le titre de la note.
 
 ```typescript
 const [pda, bump] = await web3.PublicKey.findProgramAddress(
@@ -73,7 +73,7 @@ const [pda, bump] = await web3.PublicKey.findProgramAddress(
 );
 ```
 
-![État global en utilisant un PDA](../../assets/pdas-note-taking-program.svg)
+![État global en utilisant une PDA](../../assets/pdas-note-taking-program.svg)
 
 Dans cet exemple, nous pouvons voir qu'Alice et Bob ont tous deux une note appelée "Liste de courses", mais comme nous utilisons leur adresse de portefeuille comme l'une des seeds, ces deux notes peuvent coexister en même temps.
 
@@ -146,7 +146,7 @@ Rappelez-vous que pour interagir correctement avec un programme Solana, vous dev
 
 ![Courbe Ed25519 montrant le programme de critique de film](../assets/movie-review-program.svg)
 
-Les données exécutables du programme sont dans un compte de programme, mais les critiques individuelles sont conservées dans des PDA. Nous utilisons `findProgramAddress()` pour créer un PDA qui est unique pour chaque portefeuille, pour chaque titre de film. Nous stockerons les données suivantes dans la `data` du PDA :
+Les données exécutables du programme sont dans un compte de programme, mais les critiques individuelles sont conservées dans des PDA. Nous utilisons `findProgramAddress()` pour créer une PDA qui est unique pour chaque portefeuille, pour chaque titre de film. Nous stockerons les données suivantes dans la `data` de la PDA :
 
 1. `initialized`, un booléen représentant si le compte a été initialisé ou non.
 2. `rating`, un entier non signé sur 8 bits représentant la note sur 5 que le critique a donnée au film.

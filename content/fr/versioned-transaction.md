@@ -119,7 +119,7 @@ const [lookupTableInst, lookupTableAddress] =
     });
 ```
 
-Sous-jacent, l'adresse de la table de recherche n'est rien d'autre qu'un PDA dérivé en utilisant l'`authority` et le `recentSlot` comme seeds.
+Sous-jacent, l'adresse de la table de recherche n'est rien d'autre qu'une PDA dérivée en utilisant l'`authority` et le `recentSlot` comme seeds.
 
 ```typescript
 const [lookupTableAddress, bumpSeed] = PublicKey.findProgramAddressSync(

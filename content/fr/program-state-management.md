@@ -2,9 +2,9 @@
 title: Créer un programme de base, Partie 2 - Gestion de l'état
 objectives:
 - Décrire le processus de création d'un nouveau compte à l'aide d'une adresse dérivée de programme (PDA)
-- Utiliser des seeds pour dériver un PDA
+- Utiliser des seeds pour dériver une PDA
 - Utiliser l'espace requis par un compte pour calculer le montant de la location (en lamports) qu'un utilisateur doit allouer
-- Utiliser une Invocation Croisée de Programme (CPI) pour initialiser un compte avec un PDA comme adresse du nouveau compte
+- Utiliser une Invocation Croisée de Programme (CPI) pour initialiser un compte avec une PDA comme adresse du nouveau compte
 - Expliquer comment mettre à jour les données stockées sur un nouveau compte
 ---
 
@@ -98,11 +98,11 @@ let rent_lamports = rent.minimum_balance(account_len);
 
 Avant de créer un compte, nous devons également avoir une adresse à attribuer au compte. Pour les comptes détenus par le programme, il s'agira d'une adresse dérivée du programme (PDA) trouvée à l'aide de la fonction `find_program_address`. 
 
-Comme son nom l'indique, les PDAs sont dérivées en utilisant l'ID du programme (adresse du programme créant le compte) et une liste facultative de "seeds". Les seeds facultatives sont des entrées supplémentaires utilisées dans la fonction `find_program_address` pour dériver le PDA. La fonction utilisée pour dériver les PDAs renverra la même adresse chaque fois qu'elle recevra les mêmes entrées. Cela nous donne la possibilité de créer un nombre illimité de comptes PDA et une façon déterministe de trouver chaque compte.
+Comme son nom l'indique, les PDAs sont dérivées en utilisant l'ID du programme (adresse du programme créant le compte) et une liste facultative de "seeds". Les seeds facultatives sont des entrées supplémentaires utilisées dans la fonction `find_program_address` pour dériver la PDA. La fonction utilisée pour dériver les PDAs renverra la même adresse chaque fois qu'elle recevra les mêmes entrées. Cela nous donne la possibilité de créer un nombre illimité de comptes PDA et une façon déterministe de trouver chaque compte.
 
-En plus des seeds que vous fournissez pour dériver un PDA, la fonction `find_program_address` fournira une "bump seed" supplémentaire. Ce qui rend les PDAs uniques par rapport aux autres adresses de compte Solana est qu'elles n'ont pas de clé secrète correspondante. Cela garantit que seul le programme qui possède l'adresse peut signer au nom du PDA. Lorsque la fonction `find_program_address` tente de dériver un PDA en utilisant les seeds fournies, elle utilise le nombre 255 comme "bump seed". Si l'adresse résultante est invalide (c'est-à-dire qu'elle a une clé secrète correspondante), la fonction diminue la bump seed de 1 et dérive un nouveau PDA avec cette bump seed. Une fois qu'un PDA valide est trouvé, la fonction renvoie à la fois le PDA et le bump qui a été utilisé pour dériver le PDA.
+En plus des seeds que vous fournissez pour dériver une PDA, la fonction `find_program_address` fournira une "bump seed" supplémentaire. Ce qui rend les PDAs uniques par rapport aux autres adresses de compte Solana est qu'elles n'ont pas de clé secrète correspondante. Cela garantit que seul le programme qui possède l'adresse peut signer au nom de la PDA. Lorsque la fonction `find_program_address` tente de dériver une PDA en utilisant les seeds fournies, elle utilise le nombre 255 comme "bump seed". Si l'adresse résultante est invalide (c'est-à-dire qu'elle a une clé secrète correspondante), la fonction diminue la bump seed de 1 et dérive une nouvelle PDA avec cette bump seed. Une fois qu'une PDA valide est trouvée, la fonction renvoie à la fois la PDA et le bump qui a été utilisé pour dériver la PDA.
 
-Pour notre programme de prise de notes, nous utiliserons la clé publique du créateur de la note et l'ID comme seeds facultatifs pour dériver le PDA. Dériver le PDA ainsi nous permet de trouver de manière déterministe le compte pour chaque note.
+Pour notre programme de prise de notes, nous utiliserons la clé publique du créateur de la note et l'ID comme seeds facultatifs pour dériver la PDA. Dériver la PDA ainsi nous permet de trouver de manière déterministe le compte pour chaque note.
 
 ```rust
 let (note_pda_account, bump_seed) = Pubkey::find_program_address(&[note_creator.key.as_ref(), id.as_bytes().as_ref(),], program_id);
@@ -110,7 +110,7 @@ let (note_pda_account, bump_seed) = Pubkey::find_program_address(&[note_creator.
 
 ### Invocation Croisée de Programme (CPI)
 
-Une fois que nous avons calculé le loyer requis pour notre compte et trouvé un PDA valide à attribuer comme adresse du nouveau compte, nous sommes enfin prêts à créer le compte. La création d'un nouveau compte au sein de notre programme nécessite une Invocation Croisée de Programme (CPI). Une CPI est lorsque un programme invoque une instruction sur un autre programme. Pour créer un nouveau compte au sein de notre programme, nous invoquerons l'instruction `create_account` sur le programme système.
+Une fois que nous avons calculé le loyer requis pour notre compte et trouvé une PDA valide à attribuer comme adresse du nouveau compte, nous sommes enfin prêts à créer le compte. La création d'un nouveau compte au sein de notre programme nécessite une Invocation Croisée de Programme (CPI). Une CPI est lorsque un programme invoque une instruction sur un autre programme. Pour créer un nouveau compte au sein de notre programme, nous invoquerons l'instruction `create_account` sur le programme système.
 
 Les CPI peuvent être effectuées à l'aide de `invoke` ou `invoke_signed`.
 
@@ -129,9 +129,9 @@ pub fn invoke_signed(
 ) -> ProgramResult
 ```
 
-Pour cette leçon, nous utiliserons `invoke_signed`. Contrairement à une signature régulière où une clé secrète est utilisée pour signer, `invoke_signed` utilise les seeds facultatives, la bump seed et l'ID du programme pour dériver un PDA et signer une instruction. Cela se fait en comparant le PDA dérivé par rapport à tous les comptes passés dans l'instruction. Si l'un des comptes correspond au PDA, le champ de signataire pour ce compte est défini sur vrai.
+Pour cette leçon, nous utiliserons `invoke_signed`. Contrairement à une signature régulière où une clé secrète est utilisée pour signer, `invoke_signed` utilise les seeds facultatives, la bump seed et l'ID du programme pour dériver une PDA et signer une instruction. Cela se fait en comparant la PDA dérivée par rapport à tous les comptes passés dans l'instruction. Si l'un des comptes correspond à la PDA, le champ de signataire pour ce compte est défini sur vrai.
 
-Un programme peut signer des transactions de manière sécurisée de cette manière car `invoke_signed` génère le PDA utilisé pour signer avec l'ID du programme invoquant l'instruction. Il n'est donc pas possible pour un programme de générer un PDA correspondant pour signer un compte avec un PDA dérivé utilisant un autre ID de programme.
+Un programme peut signer des transactions de manière sécurisée de cette manière car `invoke_signed` génère la PDA utilisée pour signer avec l'ID du programme invoquant l'instruction. Il n'est donc pas possible pour un programme de générer une PDA correspondante pour signer un compte avec une PDA dérivée utilisant un autre ID de programme.
 
 ```rust
 invoke_signed(
@@ -211,7 +211,7 @@ Rappelez-vous que l'`AccountInfo` de tous les comptes requis par une instruction
 
 À ce stade, au lieu d'utiliser l'itérateur directement, nous le passons à la fonction `next_account_info` du module `account_info` fourni par la crate `solana_program`.
 
-Par exemple, l'instruction pour créer une nouvelle note dans un programme de prise de notes nécessiterait au minimum les comptes pour l'utilisateur créant la note, un PDA pour stocker la note, et le `system_program` pour initialiser un nouveau compte. Les trois comptes seraient passés dans le point d'entrée du programme via l'argument `accounts`. Un itérateur d'`accounts` est ensuite utilisé pour séparer l'`AccountInfo` associé à chaque compte pour traiter l'instruction.
+Par exemple, l'instruction pour créer une nouvelle note dans un programme de prise de notes nécessiterait au minimum les comptes pour l'utilisateur créant la note, une PDA pour stocker la note, et le `system_program` pour initialiser un nouveau compte. Les trois comptes seraient passés dans le point d'entrée du programme via l'argument `accounts`. Un itérateur d'`accounts` est ensuite utilisé pour séparer l'`AccountInfo` associé à chaque compte pour traiter l'instruction.
 
 Notez que `&mut` signifie une référence mutable à l'argument `accounts`. Vous pouvez en savoir plus sur [les références en Rust](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) et [le mot-clé `mut`](https://doc.rust-lang.org/std/keyword.mut.html).
 
@@ -308,14 +308,14 @@ let pda_account = next_account_info(account_info_iter)?;
 let system_program = next_account_info(account_info_iter)?;
 ```
 
-### 5. Dérivation du PDA
+### 5. Dérivation de la PDA
 
-Ensuite, dans notre fonction `add_movie_review`, dérivons indépendamment le PDA que l'utilisateur est censé avoir passé. Nous devrons fournir la bump seed pour la dérivation plus tard, donc même si `pda_account` devrait référencer le même compte, nous devons toujours appeler `find_program_address`.
+Ensuite, dans notre fonction `add_movie_review`, dérivons indépendamment la PDA que l'utilisateur est censé avoir passé. Nous devrons fournir la bump seed pour la dérivation plus tard, donc même si `pda_account` devrait référencer le même compte, nous devons toujours appeler `find_program_address`.
 
-Notez que nous dérivons le PDA pour chaque nouveau compte en utilisant la clé publique de l'initialisateur et le titre du film en tant que seeds facultatives. La mise en place du PDA de cette manière limite chaque utilisateur à un seul avis pour un titre de film donné. Cependant, elle permet toujours au même utilisateur de donner son avis sur des films avec des titres différents et à différents utilisateurs de donner leur avis sur des films avec le même titre.
+Notez que nous dérivons la PDA pour chaque nouveau compte en utilisant la clé publique de l'initialisateur et le titre du film en tant que seeds facultatives. La mise en place de la PDA de cette manière limite chaque utilisateur à un seul avis pour un titre de film donné. Cependant, elle permet toujours au même utilisateur de donner son avis sur des films avec des titres différents et à différents utilisateurs de donner leur avis sur des films avec le même titre.
 
 ```rust
-// Dérivation du PDA
+// Dérivation de la PDA
 let (pda, bump_seed) = Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes().as_ref()], program_id);
 ```
 
@@ -336,7 +336,7 @@ let rent_lamports = rent.minimum_balance(account_len);
 
 ### 7. Création d'un nouveau compte
 
-Une fois que nous avons calculé le loyer et vérifié le PDA, nous sommes prêts à créer notre nouveau compte. Pour créer un nouveau compte, nous devons appeler l'instruction `create_account` du programme système. Nous le faisons avec une Invocation de Programme Croisé (CPI) en utilisant la fonction `invoke_signed`. Nous utilisons `invoke_signed` car nous créons le compte en utilisant un PDA et avons besoin que le programme d'avis de film "signe" l'instruction.
+Une fois que nous avons calculé le loyer et vérifié la PDA, nous sommes prêts à créer notre nouveau compte. Pour créer un nouveau compte, nous devons appeler l'instruction `create_account` du programme système. Nous le faisons avec une Invocation de Programme Croisé (CPI) en utilisant la fonction `invoke_signed`. Nous utilisons `invoke_signed` car nous créons le compte en utilisant une PDA et avons besoin que le programme d'avis de film "signe" l'instruction.
 
 ```rust
 // Créer le compte
@@ -352,7 +352,7 @@ invoke_signed(
     &[&[initializer.key.as_ref(), title.as_bytes().as_ref(), &[bump_seed]]],
 )?;
 
-msg!("PDA créé : {}", pda);
+msg!("PDA créée : {}", pda);
 ```
 
 ### 8. Mettre à jour les données du compte

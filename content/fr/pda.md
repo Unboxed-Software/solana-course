@@ -486,7 +486,7 @@ account_data.is_initialized = true;
 Enfin, ajoutons la logique pour initialiser le compte de compteur à l'intérieur de la fonction `add_movie_review`. Cela signifie :
 
 1. Calculer le montant d'exemption de loyer pour le compte de compteur
-2. Dériver le PDA du compteur en utilisant l'adresse de la critique et le mot "comment" comme seeds
+2. Dériver la PDA du compteur en utilisant l'adresse de la critique et le mot "comment" comme seeds
 3. Invoquer le programme système pour créer le compte
 4. Définir la valeur initiale du compteur
 5. Sérialiser les données du compte et générer le retour de la fonction
@@ -547,7 +547,7 @@ Maintenant, lorsqu'une nouvelle critique est créée, deux comptes sont initiali
 
 Enfin, implémentons notre fonction `add_comment` pour créer de nouveaux comptes de commentaires.
 
-Lorsqu'un nouveau commentaire est créé pour une critique, nous incrémenterons le compte actuel du commentaire sur le compte de compteur de commentaires et dériverons le PDA du compte de commentaire en utilisant l'adresse de la critique et le compteur actuel comme seeds.
+Lorsqu'un nouveau commentaire est créé pour une critique, nous incrémenterons le compte actuel du commentaire sur le compte de compteur de commentaires et dériverons la PDA du compte de commentaire en utilisant l'adresse de la critique et le compteur actuel comme seeds.
 
 Comme dans d'autres fonctions de traitement des instructions, nous commencerons par itérer à travers les comptes passés dans le programme. Ensuite, avant de faire quoi que ce soit d'autre, nous devons désérialiser le compte de compteur pour avoir accès au compteur de commentaires actuel :
 
@@ -577,7 +577,7 @@ pub fn add_comment(
 Maintenant que nous avons accès aux données du compteur, nous pouvons continuer avec les étapes restantes :
 
 1. Calculer le montant d'exemption de loyer pour le nouveau compte de commentaire
-2. Dériver le PDA du compte de commentaire en utilisant l'adresse de la critique et le compteur de commentaires actuel comme seeds
+2. Dériver la PDA du compte de commentaire en utilisant l'adresse de la critique et le compteur de commentaires actuel comme seeds
 3. Invoquer le programme système pour créer le nouveau compte de commentaire
 4. Définir les valeurs appropriées pour le nouveau compte créé
 5. Sérialiser les données du compte et générer le retour de la fonction
@@ -608,7 +608,7 @@ pub fn add_comment(
 
     let (pda, bump_seed) = Pubkey::find_program_address(&[pda_review.key.as_ref(), counter_data.counter.to_be_bytes().as_ref(),], program_id);
     if pda != *pda_comment.key {
-        msg!("Seeds invalides pour le PDA");
+        msg!("Seeds invalides pour la PDA");
         return Err(ReviewError::InvalidPDA.into())
     }
 

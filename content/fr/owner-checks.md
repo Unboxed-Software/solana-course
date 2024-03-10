@@ -189,7 +189,7 @@ pub struct AdminConfig {
 
 ### Utilisation de la contrainte `#[account(owner = <expr>)]` d'Anchor
 
-En plus du type `Account`, vous pouvez utiliser une contrainte `owner`. La contrainte `owner` vous permet de définir le programme qui devrait posséder un compte s'il est différent de celui en cours d'exécution. Cela est utile, par exemple, si vous écrivez une instruction qui s'attend à ce qu'un compte soit un PDA dérivé d'un programme différent. Vous pouvez utiliser les contraintes `seeds` et `bump` et définir le `owner` pour dériver correctement et vérifier l'adresse du compte passé.
+En plus du type `Account`, vous pouvez utiliser une contrainte `owner`. La contrainte `owner` vous permet de définir le programme qui devrait posséder un compte s'il est différent de celui en cours d'exécution. Cela est utile, par exemple, si vous écrivez une instruction qui s'attend à ce qu'un compte soit une PDA dérivée d'un programme différent. Vous pouvez utiliser les contraintes `seeds` et `bump` et définir le `owner` pour dériver correctement et vérifier l'adresse du compte passé.
 
 Pour utiliser la contrainte `owner`, vous devrez avoir accès à la clé publique du programme que vous vous attendez à posséder un compte. Vous pouvez soit passer le programme en tant que compte supplémentaire, soit coder en dur la clé publique quelque part dans votre programme.
 

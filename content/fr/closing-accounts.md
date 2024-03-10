@@ -74,7 +74,7 @@ Cependant, la collecte des déchets ne se produit pas tant que la transaction n'
 
 Les deux choses les plus importantes que vous pouvez faire pour fermer cette faille sont de mettre les données du compte à zéro et d'ajouter un discriminateur de compte indiquant que le compte a été fermé. Vous avez besoin *de ces deux* éléments pour éviter un comportement de programme non souhaité.
 
-Un compte avec des données mises à zéro peut encore être utilisé pour certaines choses, surtout s'il s'agit d'un PDA dont la dérivation d'adresse est utilisée à l'intérieur du programme à des fins de vérification. Cependant, les dommages peuvent être potentiellement limités si l'attaquant ne peut pas accéder aux données précédemment stockées.
+Un compte avec des données mises à zéro peut encore être utilisé pour certaines choses, surtout s'il s'agit d'une PDA dont la dérivation d'adresse est utilisée à l'intérieur du programme à des fins de vérification. Cependant, les dommages peuvent être potentiellement limités si l'attaquant ne peut pas accéder aux données précédemment stockées.
 
 Pour sécuriser davantage le programme, cependant, les comptes fermés doivent recevoir un discriminateur de compte qui les désigne comme "fermés", et toutes les instructions doivent effectuer des vérifications sur tous les comptes fournis qui renvoient une erreur si le compte est marqué comme fermé.
 
@@ -223,7 +223,7 @@ Lorsqu'un utilisateur appelle `enter_lottery`, le programme initialisera un comp
 
 Étant donné que c'est un exemple simplifié plutôt qu'un programme de loterie complet, une fois qu'un utilisateur a participé à la loterie, il peut appeler l'instruction `redeem_rewards_insecure` à tout moment. Cette instruction émettra à l'utilisateur une certaine quantité de jetons de récompense proportionnelle au nombre de fois où l'utilisateur a participé à la loterie. Après l'émission des récompenses, le programme ferme la participation à la loterie de l'utilisateur.
 
-Prenez quelques minutes pour vous familiariser avec le code du programme. L'instruction `enter_lottery` crée simplement un compte à un PDA mappé sur l'utilisateur et initialise certaines données dessus.
+Prenez quelques minutes pour vous familiariser avec le code du programme. L'instruction `enter_lottery` crée simplement un compte à une PDA mappée sur l'utilisateur et initialise certaines données dessus.
 
 L'instruction `redeem_rewards_insecure` effectue une validation de compte et de données, émet des jetons sur le compte de jetons donné, puis ferme le compte de loterie en supprimant ses lamports.
 

@@ -10,15 +10,15 @@ objectives:
 
 - Utiliser la même PDA pour plusieurs domaines d'autorité expose votre programme à la possibilité pour les utilisateurs d'accéder à des données et des fonds qui ne leur appartiennent pas.
 - Empêcher l'utilisation de la même PDA pour plusieurs comptes en utilisant des seeds spécifiques à l'utilisateur et/ou au domaine.
-- Utiliser les contraintes `seeds` et `bump` d'Anchor pour valider qu'une PDA est dérivé en utilisant les seeds et le bump attendus.
+- Utiliser les contraintes `seeds` et `bump` d'Anchor pour valider qu'une PDA est dérivée en utilisant les seeds et le bump attendus.
 
 # Aperçu général
 
-Le partage de PDA fait référence à l'utilisation de la même PDA comme signataire pour plusieurs utilisateurs ou domaines. Surtout lors de l'utilisation de PDAs pour la signature, il peut sembler approprié d'utiliser une PDA global pour représenter le programme. Cependant, cela ouvre la possibilité pour la validation du compte de réussir mais un utilisateur peut accéder à des fonds, des transferts ou des données qui ne lui appartiennent pas.
+Le partage de PDA fait référence à l'utilisation de la même PDA comme signataire pour plusieurs utilisateurs ou domaines. Surtout lors de l'utilisation de PDAs pour la signature, il peut sembler approprié d'utiliser une PDA globale pour représenter le programme. Cependant, cela ouvre la possibilité pour la validation du compte de réussir mais un utilisateur peut accéder à des fonds, des transferts ou des données qui ne lui appartiennent pas.
 
-## PDA global non sécurisé
+## PDA globale non sécurisé
 
-Dans l'exemple ci-dessous, l'`autorité` du compte `vault` est une PDA dérivée en utilisant l'adresse `mint` stockée sur le compte `pool`. Ce PDA est passé comme compte `autorité` à l'instruction pour signer le transfert des jetons du compte `vault` vers le `withdraw_destination`.
+Dans l'exemple ci-dessous, l'`autorité` du compte `vault` est une PDA dérivée en utilisant l'adresse `mint` stockée sur le compte `pool`. Cette PDA est passée comme compte `autorité` à l'instruction pour signer le transfert des jetons du compte `vault` vers le `withdraw_destination`.
 
 Utiliser l'adresse `mint` comme seed pour dériver la PDA pour signer le `vault` est non sécurisé car plusieurs comptes `pool` pourraient être créés pour le même compte `vault` de jetons, mais avec un `withdraw_destination` différent. En utilisant l'adresse `mint` comme seed pour dériver la PDA pour signer les transferts de jetons, n'importe quel compte `pool` pourrait signer le transfert de jetons depuis un compte `vault` vers un `withdraw_destination` arbitraire.
 
@@ -72,7 +72,7 @@ pub struct TokenPool {
 
 ## PDA spécifique au compte sécurisé
 
-Une approche pour créer une PDA spécifique au compte est d'utiliser le `withdraw_destination` comme seed pour dériver la PDA utilisé comme autorité du compte de jetons `vault`. Cela garantit que la PDA signant pour le CPI dans l'instruction `withdraw_tokens` est dérivé en utilisant le compte `withdraw_destination` `withdraw_destination` prévu. En d'autres termes, les jetons d'un compte `vault` ne peuvent être retirés que vers le `withdraw_destination` qui a été initialement initialisé avec le compte `pool`.
+Une approche pour créer une PDA spécifique au compte est d'utiliser le `withdraw_destination` comme seed pour dériver la PDA utilisée comme autorité du compte de jetons `vault`. Cela garantit que la PDA signant pour le CPI dans l'instruction `withdraw_tokens` est dérivée en utilisant le compte `withdraw_destination` `withdraw_destination` prévu. En d'autres termes, les jetons d'un compte `vault` ne peuvent être retirés que vers le `withdraw_destination` qui a été initialement initialisé avec le compte `pool`.
 
 ```rust
 use anchor_lang::prelude::*;

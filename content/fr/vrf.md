@@ -346,7 +346,7 @@ switchboard-v2 = "0.4.0"
 ### 3. Lib.rs
 
 Ensuite, éditons `lib.rs` et ajoutons les fonctions supplémentaires que nous allons construire aujourd'hui. Les fonctions sont les suivantes :
-- `init_vrf_client` - Crée le PDA de l'autorité VRF, qui signera et consommera l'aléatoire.
+- `init_vrf_client` - Crée la PDA de l'autorité VRF, qui signera et consommera l'aléatoire.
 - `get_out_of_jail` - Demande l'aléatoire du VRF, effectivement en lançant les dés.
 - `consume_randomess` - La fonction de rappel pour la VRF où nous vérifierons les lancers de dés.
 
