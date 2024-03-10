@@ -1,5 +1,5 @@
 ---
-title: Fonctions de Randomness Vérifiables
+title: Fonctions de hasard vérifiables
 objectives:
 - Expliquer les limitations de la génération de nombres aléatoires on-chain
 - Expliquer le fonctionnement des Fonctions Randomness Vérifiables (VRF)

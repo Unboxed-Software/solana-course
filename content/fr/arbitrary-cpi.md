@@ -1,5 +1,5 @@
 ---
-title: CPI Arbitraire
+title: CPI Arbitraires
 objectives:
 - Expliquer les risques de sécurité liés à l'invocation d'une CPI vers un programme inconnu
 - Présenter comment le module CPI d'Anchor empêche cela lors de la création d'une CPI d'un programme Anchor à un autre

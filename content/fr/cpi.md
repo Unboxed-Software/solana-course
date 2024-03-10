@@ -1,5 +1,5 @@
 ---
-title: Les Invocations Inter-programme
+title: Les Invocations Inter-Programme
 objectives:
 - Expliquer les invocations inter-programme (CPI)
 - Décrire la construction et l'utilisation des CPI

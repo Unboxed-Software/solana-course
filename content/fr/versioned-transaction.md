@@ -1,5 +1,5 @@
 ---
-title: Transactions versionnées et Tables de Recherche
+title: Transactions versionnées et tables de recherche
 objectives:
 - Créer des transactions versionnées
 - Créer des tables de recherche

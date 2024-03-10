@@ -1,5 +1,5 @@
 ---
-title: Autoriser la signature
+title: Autoriser des signatures
 objectives:
 - Expliquer les risques de sécurité liés à l'absence de vérifications appropriées du signataire
 - Implémenter des vérifications du signataire en utilisant Rust de manière détaillée

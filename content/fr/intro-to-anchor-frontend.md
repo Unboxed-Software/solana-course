@@ -1,5 +1,5 @@
 ---
-title: Introduction au développement client côté Anchor
+title: Introduction au développement côté client dans Anchor
 objectives:
 - Utiliser un IDL pour interagir avec un programme Solana depuis le client
 - Expliquer un objet Anchor `Provider` 

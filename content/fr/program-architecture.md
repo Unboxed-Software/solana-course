@@ -1,5 +1,5 @@
 ---
-title: Architecture du Programme
+title: Architecture de programme
 objectives:
 - Utiliser Box et Zero Copy pour travailler avec de grandes données on-chain
 - Prendre de meilleures décisions de conception PDA

@@ -1,5 +1,5 @@
 ---
-title: Les PDAs et les comptes dans Anchor
+title: PDAs et comptes dans Anchor
 objectives:
 - Utiliser les contraintes `seeds` et `bump` pour travailler avec les comptes PDA dans Anchor
 - Activer et utiliser la contrainte `init_if_needed`

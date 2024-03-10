@@ -1,5 +1,5 @@
 ---
-title: Cryptographie et le Réseau Solana
+title: Fondamentaux de la cryptographie
 objectives :
 - Comprendre la cryptographie symétrique et asymétrique
 - Expliquer les paires de clés
