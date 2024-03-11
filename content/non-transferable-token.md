@@ -8,10 +8,10 @@ objectives:
 
 # Summary
  - In the Token program, creating exclusively owned tokens was not possible.
- - Token22 allows creating immutably owned tokens which cannot be transferred.
+ - Token Extension Program allows creating immutably owned tokens which cannot be transferred.
 
 # Overview
-In the Token program, it was impossible to create an exclusively owned mint. The Token22 program has `NonTransferable` extension which can be used to create non transferable mint. The tokens created using this extension cannot be moved to any other entity. This extension is perfect for use cases such as awarding achievements that can only belong to one person or account.
+In the Token program, it was impossible to create an exclusively owned mint. The Token Extension Program program has `NonTransferable` extension which can be used to create non transferable mint. The tokens created using this extension cannot be moved to any other entity. This extension is perfect for use cases such as awarding achievements that can only belong to one person or account.
 
 Initializing non transferable mint involves three instruction:
 
