@@ -198,7 +198,7 @@ async function main(){
 Now run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
 
 ## 3. Closing the mint
-Remember, when closing a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will create a new mint account and close it.
+Remember, when closing a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will mint 1 token from this mint, and try to close the mint account
 
 ### 3.1 Mint token
 In `src/index.ts`, create an account and mint 1 token to that account.
