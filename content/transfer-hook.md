@@ -49,7 +49,14 @@ const [pda] = PublicKey.findProgramAddressSync(
 
 By storing the extra accounts required by the `Execute` instruction in the predefined PDA, these accounts can be automatically added to a token transfer instruction from the client, we will see how to do that in the offchain side.
 
-### 1. `ExtraAccountMetaList`
+to implement all of that using Anchor, we will have to implement 3 functions:
+1. `initialize_extra_account_meta_list` instruction: This instruction is used to create an account that stores a list of additional accounts required by the custom `Execute` instruction.
+2. `transfer_hook` instruction: This instruction is invoked on every token transfer.
+3. `fallback` instruction: This instruction is used as a workaround to handle the Cross-Program Invocation (CPI) from the Token Extensions program.
+
+Notice that we are not going to talk about the `UpdateExtraAccountMetaList`, it should be much similar to the `initialize_extra_account_meta_list` instruction, so we will just focus on the first two instructions.
+
+### 1. `initialize_extra_account_meta_list` instruction:
 
 When we initiate a transfer using the Token Extension program, the program will examine our mint to determine if it has a transfer hook. If a transfer hook is present, the Token Extension program will initiate a CPI (cross-program invocation) to our transfer hook program. It will then pass all the accounts provided for the transfer to the transfer hook program. However, before passing the 4 essential accounts (sender, mint, receiver, owner), it will deescalate them—meaning it will remove the mutable or signing abilities for security reasons.
 
@@ -357,38 +364,22 @@ As you can see in the comments, the indexes 0-3 are the accounts required for to
 
 Notice that in some guides, you will see them give the index 4 to the `extra_account_meta_list` account; therefore, in our example above, the token account will be in index 5 instead of 4. However, at the time of writing this lesson, that was not the case, and if you do so, you will get an error while the client-side method parses the accounts needed for the instruction. So keep that in mind; you might want to play with the indexes a little bit to get it to work.
 
-Another thing to note is that at the time of writing this lesson, using the `new_external_pda_with_seeds` method is not going to work; it will error when the transfer happens, and the Extension Token program CPIs our program.
+Another thing to note is that at the time of writing this lesson, using the `new_external_pda_with_seeds` method is not going to work; it will error when the transfer happens, and the Token Extension program CPIs our program.
 
 
-### 2. Transfer Hook
-In this step, we will implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the token program when a token transfer occurs. The transfer_hook instruction will mint a new token for each transfer.
+### 2. `transfer_hook` Instruction
 
-In this example, the transfer_hook instruction requires 10 accounts:
-- `source_token` The source token account from which tokens are transferred.
-- `mint` The mint account of the token to be transferred.
-- `destination_token` The destination token account to which tokens are transferred.
-- `owner` The owner of the source token account.
-- `extra_account_meta_list` The ExtraAccountMetaList account that stores the additional accounts required by the transfer_hook instruction.
-- `token_program` The token program account.
-- `crumb_mint` The mint account of the token to be minted by the transfer_hook instruction.
-- `mint_authority` The mint authority account of the token to be minted by the transfer_hook instruction.
-- `crumb_mint_ata` The associated token account of the token to be minted by the transfer_hook instruction.
+The main instruction for the transfer hook program is `transfer_hook`. This instruction is invoked on every token transfer. It is the place where we can implement our custom logic for the token transfer.
 
-So first let's implement the `TransferHook` struct to have all the accounts above by replacing the following
+When the Token Extension program CPIs our program, it will invoke this instruction and pass to it all the accounts plus the amount of the transfer that just happened. The first 5 accounts will always be (source, mint, destination, owner, extraAccountMetaList), and the rest are the extra accounts that we added to the `ExtraAccountMetaList` account if there is any.
 
-<Callout type="info">
-
-Note that the order of accounts in this struct matters. This is the order in
-which the Token Extensions program provides these accounts when it CPIs to this
-Transfer Hook program.
-
-</Callout>
+Let's take a look at an example struct `TransferHook` for this instruction:
 
 ```rust
 // Order of accounts matters for this struct.
 // The first 4 accounts are the accounts required for token transfer (source, mint, destination, owner)
 // Remaining accounts are the extra accounts required from the ExtraAccountMetaList account
-// These accounts are provided via CPI to this program from the token2022 program
+// These accounts are provided via CPI to this program from the Token Extension program
 #[derive(Accounts)]
 pub struct TransferHook<'info> {
   #[account(token::mint = mint, token::authority = owner)]
@@ -405,52 +396,38 @@ pub struct TransferHook<'info> {
 
   pub token_program: Interface<'info, TokenInterface>,
 
-  pub crumb_mint: InterfaceAccount<'info, Mint>,
+  pub another_mint: InterfaceAccount<'info, Mint>,
 
   /// CHECK: mint authority Account,
-  #[account(seeds = [b"mint-authority"], bump)]
-  pub mint_authority: UncheckedAccount<'info>,
-
-  #[account(token::mint = crumb_mint)]
-  pub crumb_mint_ata: InterfaceAccount<'info, TokenAccount>,
+  #[account(seeds = [b"some-seed"], bump)]
+  pub some_pda: UncheckedAccount<'info>,
 }
 ```
 
-Next for the function it self, all what the function will do is it will take the needed accounts from `ctx.accounts` and use them to mint a new token for each transaction.
+As mentioned in the comment, the order here matters; we should pass the first 5 accounts as shown above, then the rest of the accounts should follow the order of the accounts in the `extraAccountMetaList` account, the one we talked about before.
 
+As you know, Anchor will take it from here and make sure that everything is validated and parsed correctly, and it will pass the accounts to the instruction it gets called.
+
+Now let's take a look at the function itself:
 
 ```rust
-  pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
-    let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
-    // mint a crumb token for each transaction
-    mint_to(
-      CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(),
-        token::MintTo {
-          mint: ctx.accounts.crumb_mint.to_account_info(),
-          to: ctx.accounts.crumb_mint_ata.to_account_info(),
-          authority: ctx.accounts.mint_authority.to_account_info(),
-        },
-        signer_seeds
-      ),
-      1
-    ).unwrap();
-
+  pub fn transfer_hook(ctx: Context<TransferHook>, amount: u64) -> Result<()> {
+    // do your logic here
     Ok(())
   }
 ```
 
-Notice that we do have the amount of the original transfer, in our case that will always be `1` because we are dealing with NFTs, but if you have a different token you will get the amount of how much did they transfer.
+You can add any logic you want here; for instance, you can fail the transfer if a specific condition is not met, or you can make another CPI from here to another program, etc.
 
-Good to know that the transfer hook get called after the transfer happens, so at the point when the transfer hook is getting invoked, the tokens has already left the sender account and get to the receiver account.
-
+Good to know that the transfer hook gets called after the transfer happens, so at the point when the transfer hook is getting invoked, the tokens have already left the sender account and get to the receiver account.
 
 ### 3. Fallback
 In addition, we must include a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions program.
 
-This is necessary because Anchor generates instruction discriminators differently from the ones used in Transfer Hook interface instructions. The instruction discriminator for the `transfer_hook` instruction will not match the one for the Transfer Hook interface
+This is necessary because Anchor generates instruction discriminators differently from the ones used in the Transfer Hook interface instructions. The instruction discriminator for the `transfer_hook` instruction will not match the one for the Transfer Hook interface.
 
-Next versions of anchor should solve this for us, but for now we can implement this simpl workaround
+Next versions of Anchor should solve this for us, but for now, we can implement this simple workaround.
+
 
 ```rust
 // fallback instruction handler as workaround to anchor instruction discriminator check
