@@ -10,10 +10,10 @@ objectives:
 
 # Summary
  - The Token program allows closing token accounts, but not mint accounts.
- - Token22 program includes `MintCloseAuthority` which will be initialized when creating mint.
+ - Token Extension Program program includes `MintCloseAuthority` which will be initialized when creating mint.
 
 # Overview
-The Token program allows owners to close token accounts, but it is impossible to close mint accounts. In Token22 program, it is possible to close mint accounts by initializing the `MintCloseAuthority` extension before initializing the mint.
+The Token program allows owners to close token accounts, but it is impossible to close mint accounts. In Token Extension Program program, it is possible to close mint accounts by initializing the `MintCloseAuthority` extension before initializing the mint.
 
 Initializing the mint with close authority involves three instruction:
  - Create Account
