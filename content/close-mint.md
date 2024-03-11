@@ -8,7 +8,58 @@ objectives:
  - Close the mint
 ---
 
+# Summary
+ - The Token program allows closing token accounts, but not mint accounts.
+ - Token22 program includes `MintCloseAuthority` which will be initialized when creating mint.
+
+# Overview
+The Token program allows owners to close token accounts, but it is impossible to close mint accounts. In Token22 program, it is possible to close mint accounts by initializing the `MintCloseAuthority` extension before initializing the mint.
+
+Initializing the mint with close authority involves three instruction:
+ - Create Account
+ - Initialize close mint extension
+ - Initialize the mint
+
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
+ - Allocate `space`
+ - Transfer `lamports` for rent
+ - Assign to itself it's owning program
+```ts
+SystemProgram.createAccount({
+	fromPubkey: payer.publicKey,
+	newAccountPubkey: mintKeypair.publicKey,
+	space: mintLength,
+	lamports: mintLamports,
+	programId: TOKEN_2022_PROGRAM_ID,
+})
+```
+
+The second instruction `createInitializeMintCloseAuthorityInstruction` initializes the close authority extension.
+```ts
+createInitializeMintCloseAuthorityInstruction(
+	mintKeypair.publicKey,
+	payer.publicKey,
+	TOKEN_2022_PROGRAM_ID
+)
+```
+
+The third instruction `createInitializeMintInstruction` initializes the mint.
+```ts
+createInitializeMintInstruction(
+	mintKeypair.publicKey,
+	decimals,
+	payer.publicKey,
+	null,
+	TOKEN_2022_PROGRAM_ID
+)
+```
+
+When the transaction is sent, a new mint account is created with the specified close authority.
+
+The only constraint when closing the mint account is that the supply must be zero. If we try to close the mint account when the supply is not zero, the program will throw an error.
+
 # Lab
+We will not create a mint with close authority. We will also see what happens when we try to close the mint when supply is not zero. Then, we will burn the supply and then close the mint account.
 
 ## 1. Getting Started
 To get started, clone [this repository's](https://github.com/Unboxed-Software/close-mint-account.git) `starter` branch.
@@ -27,47 +78,7 @@ The starter code comes with following files:
 
 The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed.
 
-The `print-helpers.ts` file has a function called `printTableData`. This function logs output to the console in a structured fashion. The function simply takes any object and is passed to the `console.table` helper available in NodeJS. This helper prints the information in a tabular form, with the object's keys as columns and values as rows.
-
-```ts
-import { PublicKey } from '@solana/web3.js'
-
-function printTableData(obj: Object){
-	let tableData: any = []
-
-	if (obj instanceof Array) {
-		Object.keys(obj).map((key) => {
-			let currentValue = (obj as any)[key]
-
-			if (currentValue instanceof Object) {
-				Object.keys(currentValue).map((key) => {
-					let nestedValue = (currentValue as any)[key]
-					if (nestedValue instanceof PublicKey) {
-						nestedValue = (nestedValue as PublicKey).toBase58();
-						(currentValue as any)[key] = nestedValue
-					}
-				})
-				tableData.push(currentValue)
-			}
-		})
-	} else {
-		Object.keys(obj).map((key) => {
-			let currentValue = (obj as any)[key]
-			if (currentValue instanceof PublicKey) {
-				currentValue = (currentValue as PublicKey).toBase58()
-				;(obj as any)[key] = currentValue
-			}
-		})
-		tableData.push(obj)
-	}
-
-	console.table(tableData);
-	console.log();
-}
-
-export default printTableData
-```
-We'll be using the `printTableData` function to print information about tokens and their mints in a readable fashion.
+The `print-helpers.ts` file has a function called `printTableData`. We'll be using the `printTableData` function to print information about tokens and their mints in a readable fashion.
 
 Lastly, `index.ts` has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
 
@@ -76,17 +87,6 @@ Lastly, `index.ts` has a main function that creates a connection to the specifie
 We are now going to create a function `createClosableMint` in a new file `src/create-mint.ts`.
 
 When creating a mint with close authority, we need three instructions: `SystemProgram.createAccount`, `createInitializeMintCloseAuthorityInstruction`, `createInitializeMintInstruction`.
-
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
- - Allocate `space`
- - Transfer `lamports` for rent
- - Assign to itself it's owning program
-
-The second instruction `createInitializeMintCloseAuthorityInstruction` initializes the close authority extension.
-
-The third instruction `createInitializeMintInstruction` initializes the mint.
-
-When the transaction is sent, a new mint account is created with the specified close authority.
 
 Inside of `src/create-mint.ts`, create the function `createClosableMint` with the following arguments:
 - `cluster` : The cluster to which connection points to
@@ -167,6 +167,8 @@ export async function createClosableMint(
 Now let's call this function in `src/index.ts`:
 
 ```ts
+import { createClosableMint } from './create-mint'
+
 async function main(){
 	...
 
@@ -178,11 +180,29 @@ async function main(){
 Now run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
 
 ## 3. Closing the mint
-To close a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will create a new mint account and close it.
+Remember, when closing a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will create a new mint account and close it.
 
 ### 3.1 Mint token
 In `src/index.ts`, create an account and mint 1 token to that account.
 ```ts
+import {
+	Cluster,
+	Connection,
+	clusterApiUrl,
+	Keypair,
+	LAMPORTS_PER_SOL,
+} from '@solana/web3.js'
+
+import {
+	TOKEN_2022_PROGRAM_ID,
+	burn,
+	closeAccount,
+	createAccount,
+	getAccount,
+	getMint,
+	mintTo,
+} from '@solana/spl-token'
+
 async function main(){
 	...
 
@@ -216,6 +236,8 @@ async function main(){
 
 Now we will verify that the mint supply is non-zero by fetching the mint info.
 ```ts
+import printTableData from './print-helpers'
+
 async function main(){
 	...
 
@@ -334,3 +356,5 @@ async function main(){
 }
 ```
 Run `npm start` once more, and we will see a link for the close mint transaction on Solana Explorer.
+
+That's it! We have successfully created a mint with close authority. If you get stuck at any point, you can find working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/close-mint-account/).
