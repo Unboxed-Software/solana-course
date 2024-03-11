@@ -452,194 +452,156 @@ pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>
 
 ## Offchain side
 
+In order to create a mint with a transfer hook and ensure successful transfers, follow these steps:
 
-### Create an NFT with Transfer Hook Extension and Metadata
+1. Create the mint with the transfer hook extension and point to the transfer hook program you want to use.
+2. Initialize the `extraAccountList` account. This step must be done before any transfer, and it is the responsibility of the mint owner/creator. It needs to happen only once for each mint to add all the extra accounts that the transfer hook needs.
+3. Make sure to pass all the required accounts when invoking the transfer instruction from the Token Extension program.
 
-One more awesome things about extensions is that you can mix and match them as you like. so in this test we will create a new NFT mint account with the transfer hook extension and the metadata extension, and it will goes as follows:
+### Create a Mint with the `Transfer-Hook` Extension:
 
-1. Get the metadata object: we will use a the helper function `getMetadataObject` for that, notice that we are passing an `imagePath`, so for this you will have to grape an image and put it in the `helpers` folder, for this example let's call it `cool-cookie.png`.
-2. Get the minimum balance for the mint account, and calculate the size of the mint and the metadata
-3. Create a transaction that will:
-    - Allocate the mint account
-    - Initialize the metadata pointer and let it point to the mint itself
-    - Initialize the transfer hook extension and point to our program
-    - Initialize mint instruction
-    - Initialize metadata which will set all the metadata for the NFT
-4. send the transaction and log the transaction signature
+To create a mint with the transfer-hook extension, ensure that you allocate enough space for the mint to store the extra information about the transfer hook. You can do this by calling the `getMintLen` function from the `@solana/spl-token` library and pass to it an array of the extensions that you want to use. In our case, we only need the `TransferHook` extension. Additionally, make sure to call `createInitializeTransferHookInstruction` to initialize the transfer hook extension and point to our program before initializing the mint.
+
 
 ```ts
-it('Creates an NFT with Transfer Hook Extension and Metadata', async () => {
-    // 1. get the metadata object
-    const metadata = await getMetadataObject({
-      connection,
-      imagePath: 'helpers/cool-cookie.png',
-      tokenName: 'Cool Cookie',
-      tokenSymbol: 'COOKIE',
-      tokenDescription: 'A cool cookie',
-      mintPublicKey: mint.publicKey,
-      additionalMetadata: [],
-      payer: wallet.payer,
-    });
-    // NFT Should have 0 decimals
-    const decimals = 0;
+const extensions = [ExtensionType.TransferHook];
+const mintLen = getMintLen(extensions);
+const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
-    // 2. Get the minimum balance for the mint account, and calculate the size of the mint and the metadata
-    const extensions = [ExtensionType.TransferHook, ExtensionType.MetadataPointer];
-    const mintLen = getMintLen(extensions);
-    const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
-    const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
-
-    // 3. Create a transaction that will:
-    const transaction = new Transaction().add(
-      // Allocate the mint account
-      SystemProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        newAccountPubkey: mint.publicKey,
-        space: mintLen,
-        lamports: lamports,
-        programId: TOKEN_2022_PROGRAM_ID,
-      }),
-      // Initialize the metadata pointer and let it point to the mint itself
-      createInitializeMetadataPointerInstruction(
-        mint.publicKey,
-        wallet.publicKey,
-        mint.publicKey,
-        TOKEN_2022_PROGRAM_ID,
-      ),
-      // Initialize the transfer hook extension and point to our program
-      createInitializeTransferHookInstruction(
-        mint.publicKey,
-        wallet.publicKey,
-        program.programId, // Transfer Hook Program ID
-        TOKEN_2022_PROGRAM_ID,
-      ),
-      // Initialize mint instruction
-      createInitializeMintInstruction(mint.publicKey, decimals, wallet.publicKey, null, TOKEN_2022_PROGRAM_ID),
-      // Initialize metadata which will set all the metadata for the NFT
-      createInitializeInstruction({
-        programId: TOKEN_2022_PROGRAM_ID,
-        mint: mint.publicKey,
-        metadata: mint.publicKey,
-        name: metadata.name,
-        symbol: metadata.symbol,
-        uri: metadata.uri,
-        mintAuthority: wallet.publicKey,
-        updateAuthority: wallet.publicKey,
-      }),
-    );
-    // 4. send the transaction and log the transaction signature
-    const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer, mint]);
-    console.log(
-      'Transaction Signature:',
-      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
-  });
-  ```
-
-
-### Initialize ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint
-
-All what we did before is kinda familiar except the fact that we are using extensions with the token account, Now we will work on some new stuff in this test.
-
-in order for the transfer hook to work it needs an extra data account that will hold any extra accounts needed for the logic of the transfer hook.
-Note when we do a transfer using the Token Extension program, the program will look into our mint and see if it has a transfer hook or not, if it 
-has one the Token Extension program will make a CPI (cross-program invocation) to our transfer hook program, and it will pass 4 essential things to
-our program (sender, mint, receiver, owner) but before passing them it will deescalate them, in other words it will remove the mutable or signing 
-abilities for security reasons, so when our program gets these accounts, they will be read-only, the program can't change anything in these accounts,
-and it can't sign any transactions with them, so if we have logic that needs to change some account or make some transactions we only have two options:
-
-1. we can use the PDA features, because the program on Solana can sign to any PDA that it owns, so for this example we need to mint some tokens, and in 
-order to do that we need to make a transactions, and the mint authority should sign this transaction, so we set the mint authority to be a PDA of our program,
-this way we are able to do the mint operation and sign the transaction.
-2. adding the account in the `extraAccountMetaList`, we can add any account we want and make writable/signer, and when the Token Extension program makes the
-CPI to our program, it will pass the extra account meta list account, and our program can use it to get the extra accounts and use them in the logic.
-
-Note that if you are going to pass the Mint account in the extra account list in order to get it as mutable, that is not going to work. At the time of creating this lesson,
-when the Token Extension program makes the CPI to our program, it will pass the mint account as read-only no matter how many times you add it to the extra accounts list.
-
-So in this test we will initialize the extra account meta list account, to do so we will have to pass the needed account (mint, crumb mint, crumb mint ATA, extraAccountMetaList).
-one more thing to do in this test is to initialize the crumb mint ATA, so we can mint from crumb tokens to it in the next test.
-
-```ts
-it('Initializes ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint', async () => {
-    const initializeExtraAccountMetaListInstruction = await program.methods
-        .initializeExtraAccountMetaList()
-        .accounts({
-        mint: mint.publicKey,
-        extraAccountMetaList: extraAccountMetaListPDA,
-        crumbMint: crumbMint.publicKey,
-        crumbMintAta: crumbMintATA,
-        })
-        .instruction();
-
-    const transaction = new Transaction().add(
-        initializeExtraAccountMetaListInstruction,
-        createAssociatedTokenAccountInstruction(wallet.publicKey, crumbMintATA, crumbMintAuthority, crumbMint.publicKey),
-    );
-
-    const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer, crumbMint], {
-        skipPreflight: true,
-        commitment: 'confirmed',
-    });
-
-    console.log(
-        'Transaction Signature:',
-        `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
-});
+const transaction = new Transaction().add(
+  // Allocate the mint account
+  SystemProgram.createAccount({
+    fromPubkey: wallet.publicKey,
+    newAccountPubkey: mint.publicKey,
+    space: mintLen,
+    lamports: lamports,
+    programId: TOKEN_2022_PROGRAM_ID,
+  }),
+  // Initialize the transfer hook extension and point to our program
+  createInitializeTransferHookInstruction(
+    mint.publicKey,
+    wallet.publicKey,
+    program.programId, // Transfer Hook Program ID
+    TOKEN_2022_PROGRAM_ID,
+  ),
+  // Initialize mint instruction
+  createInitializeMintInstruction(mint.publicKey, decimals, wallet.publicKey, null, TOKEN_2022_PROGRAM_ID),
 ```
 
 
-### Transfer the NFT and the transfer hook mints a crumb token for each transfer
+### Initialize `ExtraAccountMetaList` account:
+
+One of the cool features that Anchor framework provides is autogenerated IDLs, which are TypeScript interfaces that represent the instructions and accounts of the program. This makes it easy to interact with the program from the client side. You should get the IDLs if you build the program and you can find them in `target/idl` folder. And to make it even easier, if you are inside the anchor project and you are writing tests or client code you can access the methods directly from `anchor.workspace.program_name.method`
 
 ```ts
-  it('Transfers the NFT and the transfer hook mints a crumb token for each transfer', async () => {
-    const amount = 1;
-    const bigIntAmount = BigInt(amount);
+import * as anchor from '@coral-xyz/anchor';
 
-    // Standard token transfer instruction
-    const transferInstruction = await createTransferCheckedWithTransferHookInstruction(
-      connection,
-      sourceTokenAccount,
-      mint.publicKey,
-      destinationTokenAccount,
-      wallet.publicKey,
-      bigIntAmount,
-      0, // Decimals
-      [],
-      'confirmed',
-      TOKEN_2022_PROGRAM_ID,
-    );
-
-    const transferBackInstruction = await createTransferCheckedWithTransferHookInstruction(
-      connection,
-      destinationTokenAccount,
-      mint.publicKey,
-      sourceTokenAccount,
-      recipient.publicKey,
-      bigIntAmount,
-      0, // Decimals
-      [],
-      'confirmed',
-      TOKEN_2022_PROGRAM_ID,
-    );
-
-    const transaction = new Transaction().add(transferInstruction, transferBackInstruction);
-
-    const txSig = await sendAndConfirmTransaction(connection, transaction, [wallet.payer, recipient], {
-      skipPreflight: true,
-    });
-    console.log(
-      'Transfer Signature:',
-      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
-
-    const mintInfo = await getMint(connection, crumbMint.publicKey, 'processed');
-    console.log('Mint Info:', Number(mintInfo.supply));
-
-    expect(Number(mintInfo.supply)).to.equal(2);
-  });
+const program = anchor.workspace.TransferHook as anchor.Program<TransferHook>;
+// now program.method will give you the methods of the program
 ```
+
+so to initialize the `ExtraAccountMetaList` all what we need to do is to call the `initializeExtraAccountMetaList` from the methods and pass the right accounts to it, you can use the autocomplete feature to get more help with that
+
+```ts
+const initializeExtraAccountMetaListInstruction = await program.methods
+  .initializeExtraAccountMetaList()
+  .accounts({
+    mint: mint.publicKey,
+    extraAccountMetaList: extraAccountMetaListPDA,
+    anotherMint: crumbMint.publicKey,
+  })
+  .instruction();
+
+const transaction = new Transaction().add(
+  initializeExtraAccountMetaListInstruction,
+);
+```
+
+
+### Transfer tokens successfully:
+
+To transfer tokens successfully, you need to pass all the required accounts when invoking the transfer instruction from the Token Extension program. luckily for us the `@solana/spl-token` library has a method that will help us with that, it's called `createTransferCheckedWithTransferHookInstruction` and it will take care of adding the extra accounts to the transfer instruction for us.
+
+```ts
+const transferInstruction = await createTransferCheckedWithTransferHookInstruction(
+  connection,
+  sourceTokenAccount,
+  mint.publicKey,
+  destinationTokenAccount,
+  wallet.publicKey,
+  BigInt(1), // amount
+  0, // Decimals
+  [],
+  'confirmed',
+  TOKEN_2022_PROGRAM_ID,
+);
+```
+
+Under the hood, the `createTransferCheckedWithTransferHookInstruction` method will examine if the mint has a transfer hook, if it does it will get the extra accounts and add them to the transfer instruction. [Take a look at the source code](https://github.com/solana-labs/solana-program-library/blob/8ae0c89c12cf05d0787ee349dd5454e1dcbe4a4f/token/js/src/extensions/transferHook/instructions.ts#L261) 
+
+
+```ts
+/**
+ * Construct an transferChecked instruction with extra accounts for transfer hook
+ *
+ * @param connection            Connection to use
+ * @param source                Source account
+ * @param mint                  Mint to update
+ * @param destination           Destination account
+ * @param owner                 Owner of the source account
+ * @param amount                The amount of tokens to transfer
+ * @param decimals              Number of decimals in transfer amount
+ * @param multiSigners          The signer account(s) for a multisig
+ * @param commitment            Commitment to use
+ * @param programId             SPL Token program account
+ *
+ * @return Instruction to add to a transaction
+ */
+export async function createTransferCheckedWithTransferHookInstruction(
+  connection: Connection,
+  source: PublicKey,
+  mint: PublicKey,
+  destination: PublicKey,
+  owner: PublicKey,
+  amount: bigint,
+  decimals: number,
+  multiSigners: (Signer | PublicKey)[] = [],
+  commitment?: Commitment,
+  programId = TOKEN_PROGRAM_ID
+) {
+  const instruction = createTransferCheckedInstruction(
+    source,
+    mint,
+    destination,
+    owner,
+    amount,
+    decimals,
+    multiSigners,
+    programId
+  );
+
+  const mintInfo = await getMint(connection, mint, commitment, programId);
+  const transferHook = getTransferHook(mintInfo);
+
+  if (transferHook) {
+    await addExtraAccountMetasForExecute(
+      connection,
+      instruction,
+      transferHook.programId,
+      source,
+      mint,
+      destination,
+      owner,
+      amount,
+      commitment
+    );
+  }
+
+  return instruction;
+}
+```
+
+And that is it!
 
 # Lab
 Today we will explore how transfer hooks work solana-side by creating a Cookie Crumb program. We will have a Cookie NFT that has a transfer hook which will mint a crumb token for each transfer, so we would be able to tell how many times this NFT has been transferred by only looking at the crumb supply.
