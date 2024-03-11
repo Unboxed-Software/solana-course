@@ -167,7 +167,25 @@ export async function createClosableMint(
 Now let's call this function in `src/index.ts`:
 
 ```ts
-import { createClosableMint } from './create-mint'
+import {
+	Cluster,
+	Connection,
+	clusterApiUrl,
+	Keypair,
+	LAMPORTS_PER_SOL,
+} from '@solana/web3.js'
+import {initializeKeypair} from './keypair-helpers'
+import {createClosableMint} from './create-mint'
+import {
+	TOKEN_2022_PROGRAM_ID,
+	burn,
+	closeAccount,
+	createAccount,
+	getAccount,
+	getMint,
+	mintTo,
+} from '@solana/spl-token'
+import printTableData from './print-helpers'
 
 async function main(){
 	...
@@ -184,25 +202,8 @@ Remember, when closing a mint, the supply must be zero. If we try to close the m
 
 ### 3.1 Mint token
 In `src/index.ts`, create an account and mint 1 token to that account.
+
 ```ts
-import {
-	Cluster,
-	Connection,
-	clusterApiUrl,
-	Keypair,
-	LAMPORTS_PER_SOL,
-} from '@solana/web3.js'
-
-import {
-	TOKEN_2022_PROGRAM_ID,
-	burn,
-	closeAccount,
-	createAccount,
-	getAccount,
-	getMint,
-	mintTo,
-} from '@solana/spl-token'
-
 async function main(){
 	...
 
@@ -235,9 +236,8 @@ async function main(){
 ```
 
 Now we will verify that the mint supply is non-zero by fetching the mint info.
-```ts
-import printTableData from './print-helpers'
 
+```ts
 async function main(){
 	...
 
@@ -321,6 +321,7 @@ When we run `npm start`, we will see a link which will take us to the burn trans
 
 ### 3.4 Close the mint
 Now that there are no tokens in circulation, we can close the mint.
+
 ```ts
 async function main(){
 	...
