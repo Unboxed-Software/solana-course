@@ -1,10 +1,16 @@
 ---
 title: Transfer hook
 objectives:
-- 
+- Create a program that applies the `transfer-hook` interface
+- Create a mint with a transfer hook
+- Transfer an NFT that has a transfer hook successfully
 ---
 
 # Summary
+- Transfer hook extension allows developers to implement custom logic on their tokens.
+- If the token have a transfer hook the Token Extension program will invoke the transfer hook instruction on every token transfer.
+- For the program to be able to act as a transfer-hook program it should implement the `TransferHook` interface.
+- Transferring a token that has a transfer hook requires passing all the required accounts when invoking the transfer instruction.
 
 # Overview
 
