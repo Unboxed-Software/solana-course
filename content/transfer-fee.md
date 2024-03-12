@@ -6,11 +6,10 @@ objectives:
 - Collect fees for the transfer
 ---
 
-TODO - Figure out the 10_000, I'm guessing it has to do with TradFi and fee basis points
-
-```
-What Is a Basis Point? Basis point is a term used in finance to refer to changes in values or interest rates. One basis point equals 0.01%. Put differently, 1/100th of 1%, 0.01%, and 0.0001 all express the same thing: one basis point.
-```
+# Summary
+ - Token program did not allow assessing fee on transfers.
+ - Token Extension Program enforces transfer fees on recipient accounts. Some tokens are withheld on the recipient account. These withheld tokens cannot be used by the recipient in any way.
+ - Withheld tokens can be withdrawn directly from the recipient accounts or can be harvested back to the mint and then withdrawn.
 
 # Overview
 Suppose, you have designed a skin for an equipment in a game. And every time someone trades your skin, you want to be paid some amount as a fee. How can you do that? Transfer fees!
@@ -24,6 +23,15 @@ Configuring a mint with transfer fee involves some important fields:
  - Maximum fee: The cap on transfer fees. With a maximum fee of 5000 tokens, a transfer of 10,000,000,000,000 tokens will only yield 5000 tokens.
  - Transfer fee authority:  The entity that can modify the fees.
  - Withdraw withheld authority: The entity that can move tokens withheld on the mint or token accounts.
+
+## Fee basis points
+A basis point is a unit of measure used in finance to describe the percentage change in the value or rate of a financial instrument. One basis point is equivalent to 0.01% or 0.0001 in decimal form.
+
+If ***t*** is the token amount to be transferred and ***f*** is the fee basis points, then ***Fee*** is calculated as:
+
+$$ Fee = {t * f \over 10000} $$
+
+The constant 10,000 is used to convert the fee basis point percentage to the equivalent amount.
 
 ## Configuring a mint with transfer fee
 `spl-token` provides the `ExtensionType` enum which has all the extensions. Configuring a mint with transfer fee extension involves three important instructions:
@@ -114,12 +122,13 @@ await withdrawWithheldTokensFromMint(
 To show off the functionality of the transfer fee extension, we are going to create a transfer fee configured mint. Then we'll transfer, collect fees and show the results.
 
 ### 1. Getting started
-To get started, clone [this repository's](https://github.com/Unboxed-Software/transfer-fee.git) `starter` branch.
+To get started, clone [this repository's](https://github.com/Unboxed-Software/solana-lab-transfer-fee.git) `starter` branch.
 
 ```bash
-git clone https://github.com/Unboxed-Software/transfer-fee.git
-cd transfer-fee
+git clone https://github.com/Unboxed-Software/solana-lab-transfer-fee.git
+cd solana-lab-transfer-fee
 git checkout starter
+npm install
 ```
 
 The starter code comes with following files:
@@ -156,64 +165,112 @@ Create function `createMintWithTransferFee` in `src/create-mint.ts` which should
  - `feeBasisPoints` : Fee basis points for the transfer fee
  - `maxFee` : Maximum fee points for the transfer fee
 
-TODO fix this
+
 ```ts
-const extensions = [ExtensionType.TransferFeeConfig]
-const mintLength = getMintLen(extensions)
+import {
+	Cluster,
+	sendAndConfirmTransaction,
+	Connection,
+	Keypair,
+	SystemProgram,
+	Transaction,
+	TransactionSignature,
+} from '@solana/web3.js'
 
-const mintLamports =
-	await connection.getMinimumBalanceForRentExemption(mintLength)
+import {
+	ExtensionType,
+	createInitializeMintInstruction,
+	getMintLen,
+	TOKEN_2022_PROGRAM_ID,
+	createInitializeTransferFeeConfigInstruction,
+} from '@solana/spl-token'
 
-console.log('Creating a transaction with transfer fee instruction...')
-const mintTransaction = new Transaction().add(
-	SystemProgram.createAccount({
-		fromPubkey: payer.publicKey,
-		newAccountPubkey: mintKeypair.publicKey,
-		space: mintLength,
-		lamports: mintLamports,
-		programId: TOKEN_2022_PROGRAM_ID,
-	}),
-	createInitializeTransferFeeConfigInstruction(
-		mintKeypair.publicKey,
-		payer.publicKey,
-		payer.publicKey,
-		feeBasisPoints,
-		maxFee,
-		TOKEN_2022_PROGRAM_ID
-	),
-	createInitializeMintInstruction(
-		mintKeypair.publicKey,
-		decimals,
-		payer.publicKey,
-		null,
-		TOKEN_2022_PROGRAM_ID
+export async function createMintWithTransferFee(
+	cluster: Cluster,
+	connection: Connection,
+	payer: Keypair,
+	mintKeypair: Keypair,
+	decimals: number,
+	feeBasisPoints: number,
+	maxFee: bigint
+): Promise<TransactionSignature> {
+	const extensions = [ExtensionType.TransferFeeConfig]
+	const mintLength = getMintLen(extensions)
+
+	const mintLamports =
+		await connection.getMinimumBalanceForRentExemption(mintLength)
+
+	console.log('Creating a transaction with transfer fee instruction...')
+	const mintTransaction = new Transaction().add(
+		SystemProgram.createAccount({
+			fromPubkey: payer.publicKey,
+			newAccountPubkey: mintKeypair.publicKey,
+			space: mintLength,
+			lamports: mintLamports,
+			programId: TOKEN_2022_PROGRAM_ID,
+		}),
+		createInitializeTransferFeeConfigInstruction(
+			mintKeypair.publicKey,
+			payer.publicKey,
+			payer.publicKey,
+			feeBasisPoints,
+			maxFee,
+			TOKEN_2022_PROGRAM_ID
+		),
+		createInitializeMintInstruction(
+			mintKeypair.publicKey,
+			decimals,
+			payer.publicKey,
+			null,
+			TOKEN_2022_PROGRAM_ID
+		)
 	)
 
-)
-```
+	console.log('Sending transaction...')
+	const signature = await sendAndConfirmTransaction(
+		connection,
+		mintTransaction,
+		[payer, mintKeypair],
+		{commitment: 'finalized'}
+	)
+	console.log(
+		`Check the transaction at: https://explorer.solana.com/tx/${signature}?cluster=${cluster}`
+	)
 
-Send the transaction
-```ts
-console.log('Sending transaction...')
-const signature = await sendAndConfirmTransaction(
-	connection,
-	mintTransaction,
-	[payer, mintKeypair],
-	{commitment: 'finalized'}
-)
-console.log(
-	`Check the transaction at: https://explorer.solana.com/tx/${signature}?cluster=${cluster}`
-)
-
-return signature
+	return signature
+}
 ```
 
 Now let's call this function in `src/index.ts`
 ```ts
+import {
+	Cluster,
+	Connection,
+	clusterApiUrl,
+	Keypair,
+	LAMPORTS_PER_SOL,
+} from '@solana/web3.js'
+import {initializeKeypair} from './keypair-helpers'
+import {createMintWithTransferFee} from './create-mint'
+import {
+	TOKEN_2022_PROGRAM_ID,
+	createAccount,
+	createAssociatedTokenAccount,
+	getTransferFeeAmount,
+	harvestWithheldTokensToMint,
+	mintTo,
+	transferCheckedWithFee,
+	unpackAccount,
+	withdrawWithheldTokensFromAccounts,
+	withdrawWithheldTokensFromMint,
+} from '@solana/spl-token'
+
+const CLUSTER: Cluster = 'devnet'
+
 async function main(){
 	...
-	// CREATE MINT WITH TRANSFER FEE
 
+	// CREATE MINT WITH TRANSFER FEE
 	const decimals = 9
 	const feeBasisPoints = 50
 	const maxFee = BigInt(5000)
@@ -241,6 +298,7 @@ For this lab, let's create a dedicated fee vault account.
 ```ts
 async function main(){
 	...
+
 	// CREATE FEE VAULT ACCOUNT
 	console.log('\nCreating a fee vault account...')
 	const feeVaultKeypair = Keypair.generate()
@@ -267,6 +325,7 @@ Now, let's create an account and mint 1 token to that account. The account will 
 async function main(){
 	...
 	
+	// CREATE A SOURCE ACCOUNT AND MINT TOKEN
 	console.log('Creating a source account...')
 	const sourceKeypair = Keypair.generate()
 	const sourceAccount = await createAccount(
@@ -303,6 +362,7 @@ Now, let's create a destination account for the transfer. This account will act 
 async function main(){
 	...
 	
+	// CREATE DESTINATION ACCOUNT
 	console.log('Creating a destination account...\n\n')
 	const destinationKeypair = Keypair.generate()
 	const destinationAccount = await createAccount(
@@ -324,6 +384,7 @@ In this step, we calculate the transfer fees based on the transfer amount using 
 async function main(){
 	...
 
+	// TRANSFER TOKENS
 	console.log('Transferring with fee transaction...')
 	const transferAmount = BigInt(1_000_000)
 	const fee = (transferAmount * BigInt(feeBasisPoints)) / BigInt(10_000)
@@ -359,6 +420,7 @@ First, we fetch all the accounts which have withheld tokens. To do this, we can 
 async function main(){
 	...
 
+	// FETCH ACCOUNTS WITH WITHHELD TOKENS
 	console.log('Getting all accounts to withdraw from...')
 	const accounts = await connection.getProgramAccounts(
 		TOKEN_2022_PROGRAM_ID,
@@ -399,6 +461,7 @@ Now that we have the accounts which received our mint, we can call the `withdraw
 async function main(){
 	...
 
+	// WITHDRAW WITHHELD TOKENS
 	console.log('Withdrawing withheld tokens...')
 	signature = await withdrawWithheldTokensFromAccounts(
 		connection,
@@ -423,6 +486,7 @@ After withdrawing the fees to the fee vault account, let's verify the balance of
 async function main(){
 	...
 
+	// VERIFY UPDATED FEE VAULT BALANCE 
   	balance = (
   		await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
   	).value.amount
@@ -441,6 +505,7 @@ To harvest the fees, we can call the `harvestWithheldTokensToMint` function.
 async function main(){
 	...
 
+	// HARVEST WITHHELD TOKENS TO MINT
 	console.log('Harvesting withheld tokens...')
 	signature = await harvestWithheldTokensToMint(
 		connection,
@@ -462,6 +527,7 @@ After harvesting, we can call the `withdrawWithheldTokensFromMint` function to w
 async function main(){
 	...
 
+	// WITHDRAW HARVESTED TOKENS
 	console.log('Withdrawing from mint to fee vault account...')
 	signature = await withdrawWithheldTokensFromMint(
 		connection,
@@ -485,6 +551,7 @@ After withdrawing the fees to the fee vault account, let's verify the balance of
 async function main(){
 	...
 
+	// VERIFY UPDATED FEE VAULT BALANCE
 	balance = (
 		await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
 	).value.amount
@@ -493,3 +560,4 @@ async function main(){
 ```
 Now we can run `npm run start`. We should see a console log which shows us the updated balance of the fee vault account.
 
+That's it! We have successfully created a mint with transfer fee. If you get stuck at any point, you can find the working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-transfer-fee.git).
