@@ -7,25 +7,26 @@ objectives:
 ---
 
 # Summary
- - Token program did not allow assessing fee on transfers.
- - Token Extension Program enforces transfer fees on recipient accounts. Some tokens are withheld on the recipient account. These withheld tokens cannot be used by the recipient in any way.
+ - Token program did not allow assessing fees on transfers.
+ - Token Extension Program enforces transfer fees on recipient accounts. 
+ - Some tokens are withheld on the recipient account. These withheld tokens cannot be used by the recipient in any way. 
  - Withheld tokens can be withdrawn directly from the recipient accounts or can be harvested back to the mint and then withdrawn.
 
 # Overview
 Suppose, you have designed a skin for an equipment in a game. And every time someone trades your skin, you want to be paid some amount as a fee. How can you do that? Transfer fees!
 
-Before Token22 program, it was impossible to assess a fee on every transfer. The process involved freezing user accounts and forcing them to go through a third party to unfreeze, transfer and refreeze the accounts.
+Before the Token Extension program, it was impossible to assess a fee on every transfer. The process involved freezing user accounts and forcing them to go through a third party to unfreeze, transfer and refreeze the accounts.
 
-With Token22, it is possible to configure a transfer fee on a mint so that fees are assessed at the protocol level. On every transfer, some amount is withheld on the recipient account which cannot be used by the recipient. These tokens can be withheld by a separate authority on the mint.
+With thge Token Extension program, it is possible to configure a transfer fee on a mint so that fees are assessed at the protocol level. On every transfer, some amount is withheld on the recipient account which cannot be used by the recipient. These tokens can be withheld by a separate authority on the mint.
 
-Configuring a mint with transfer fee involves some important fields:
+Configuring a mint with a transfer fee involves some important fields:
  - Fee basis points: This is the fee assessed on every transfer. For example, if 1000 tokens with 50 basis points are transferred, it will yield 5 tokens.
  - Maximum fee: The cap on transfer fees. With a maximum fee of 5000 tokens, a transfer of 10,000,000,000,000 tokens will only yield 5000 tokens.
  - Transfer fee authority:  The entity that can modify the fees.
  - Withdraw withheld authority: The entity that can move tokens withheld on the mint or token accounts.
 
-## Fee basis points
-A basis point is a unit of measure used in finance to describe the percentage change in the value or rate of a financial instrument. One basis point is equivalent to 0.01% or 0.0001 in decimal form.
+## Calculating fee basis points
+A basis point is a unit of measurement used in finance to describe the percentage change in the value or rate of a financial instrument. One basis point is equivalent to 0.01% or 0.0001 in decimal form.
 
 If ***t*** is the token amount to be transferred and ***f*** is the fee basis points, then ***Fee*** is calculated as:
 
@@ -33,21 +34,21 @@ $$ Fee = {t * f \over 10000} $$
 
 The constant 10,000 is used to convert the fee basis point percentage to the equivalent amount.
 
-## Configuring a mint with transfer fee
-`spl-token` provides the `ExtensionType` enum which has all the extensions. Configuring a mint with transfer fee extension involves three important instructions:
- - Create account: Creates mint account. Account creation involves allocate space, transfer lamports for rent and assigning it's owning program.
- - Initializing transfer fee config: Creating the configuration of transfer fee with transfer fee authority, withdraw withheld authority, fee basis points and maximum fee.
+## Configuring a mint with a transfer fee
+Configuring a mint with a transfer fee extension involves three important instructions:
+ - Create account: Creating the account, including allocating space, transfering lamports for rent, and assigning it's owning program.
+ - Initializing transfer fee configuration: Configuring the transfer fee with the transfer fee authority, withdraw withheld authority, fee basis points, and maximum fee.
  - Initializing mint: Initialize the mint with the transfer fee configuration.
 
-*Important note*: Transferring tokens with a transfer fee requires using `transfer_checked` or `transfer_checked_with_fee` instead of transfer. Otherwise, the transfer will fail.
+*Important note*: Transferring tokens with a transfer fee requires using `transfer_checked` or `transfer_checked_with_fee` instead of `transfer`. Otherwise, the transfer will fail.
 
 TODO 
 The `spl-token` package provides the `ExtensionType` enum which has all the extensions. We can specify multiple extensions at a time, but for this lab we will go with just the `TransferFeeConfig` extension.
 
 ## Collecting fees
-Depending on the use case, the fees can be credited to the mint authority or we can create a dedicated account for collecting fees which is called a fee vault.
+Depending on the use case, the fees can be credited to the mint authority or we can create a dedicated account for collecting fees called a "fee vault".
 
-There are two ways in which we can collect fees. First one is batch collecting from multiple accounts which are recipients of the mint. We fetch all the accounts which have withheld tokens for our mint and then withdraw fees to desired account. 
+We can collect fees in two ways. The first approach involves fetching all the accounts that have withheld tokens for our mint and withdraw the fees to either the mint authority or the fee valut. 
 ```ts
 const accounts = await connection.getProgramAccounts(
 	TOKEN_2022_PROGRAM_ID,
@@ -94,7 +95,7 @@ await withdrawWithheldTokensFromAccounts(
 )
 ```
 
-The second way is collecting fees immediately after the transaction. We harvest the fees back to the mint and then withdraw it from the mint to the desired account.
+The second approach collects fees immediately after the transaction. This process is called "harvesting". We harvest the fees back to the mint and then withdraw it from the mint to the desired account.
 ```ts
 await harvestWithheldTokensToMint(
 	connection,
