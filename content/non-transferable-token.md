@@ -1,29 +1,29 @@
 ---
-title: Non Transferable Token
+title: Non-Transferable Token
 objectives:
- - Create non transferable token
- - Mint a non transferable token
- - Try transfer of the non transferable token
+ - Create non-transferable token
+ - Mint a non-transferable token
+ - Try transfer of the non-transferable token
 ---
 
 # Summary
  - In the Token program, creating exclusively owned tokens was not possible.
- - Token Extension Program allows creating immutably owned tokens which cannot be transferred.
+ - The Token Extension Program allows creating tokens which cannot be transferred.
 
 # Overview
-In the Token program, it was impossible to create an exclusively owned mint. The Token Extension Program has `NonTransferable` extension which can be used to create non transferable mint. The tokens created using this extension cannot be moved to any other entity. This extension is perfect for use cases such as awarding achievements that can only belong to one person or account.
+In the Token program, it was impossible to create an exclusively owned mint. The Token Extension Program has a `NonTransferable` extension which can be used to create non-transferable mints. The tokens created using this extension cannot be moved to any other entity. This extension is perfect for use cases such as awarding achievements that can only belong to one person or account.
 
-Initializing non transferable mint involves three instruction:
+Initializing a non-transferable mint involves three instruction:
 
  - Create Account
- - Initialize non transferable extension
+ - Initialize non-transferable extension
  - Initialize the mint
 
 The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
 
- - Allocate `space`
- - Transfer `lamports` for rent
- - Assign to itself it's owning program
+ - Allocates `space`
+ - Transfers `lamports` for rent
+ - Assigns to itself it's owning program
 
 ```ts
 SystemProgram.createAccount({
@@ -35,7 +35,7 @@ SystemProgram.createAccount({
 })
 ```
 
-The second instruction `createInitializeNonTransferableMintInstruction` initializes the non transferable extension.
+The second instruction `createInitializeNonTransferableMintInstruction` initializes the non-transferable extension.
 
 ```ts
 createInitializeNonTransferableMintInstruction(
@@ -57,7 +57,7 @@ createInitializeMintInstruction(
 ```
 
 # Lab
-In this lab, we will create a non transferable token and try to transfer it to another account.
+In this lab, we will create a non-transferable token and try to transfer it to another account.
 
 ### 1. Getting started
 To get started, clone [this repository's](https://github.com/Unboxed-Software/non-transferable-token.git) `starter` branch.
@@ -78,7 +78,7 @@ The `keypair-helpers.ts` file contains some boilerplate for generating a new key
 
 Lastly, `index.ts` has a `main` function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
 
-### 2. Create a non transferable mint
+### 2. Create a non-transferable mint
 
 We are now going to create a function `createNonTransferableMint` in a new file `src/create-mint.ts`.
 
@@ -198,7 +198,7 @@ async function main(){
 Now run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
 
 ### 3. Mint token
-In `src/index.ts`, we will create a source account and mint 1 non transferable token.
+In `src/index.ts`, we will create a source account and mint 1 non-transferable token.
 
 ```ts
 async function main(){
@@ -233,10 +233,10 @@ async function main(){
 }
 ```
 
-Now run `npm start`. Our source account has been created with 1 non transferable token.
+Now run `npm start`. Our source account has been created with 1 non-transferable token.
 
 ### 4. Create a destination account
-In `src/index.ts`, we will create a destination account and try to transfer the non transferable token to this account.
+In `src/index.ts`, we will create a destination account and try to transfer the non-transferable token to this account.
 
 ```ts
 async function main(){
@@ -261,7 +261,7 @@ Now run `npm start`. Our destination account has been created and we are ready f
 
 ### 5. Transfer token
 
-In this step, we will try and transfer the non transferable token from the source account to the destination account. This call will fail and throw `SendTransactionError`.
+In this step, we will try and transfer the non-transferable token from the source account to the destination account. This call will fail and throw `SendTransactionError`.
 
 ```ts
 async function main(){
@@ -298,4 +298,4 @@ async function main(){
 
 Now run `npm start`. We should see the console log of transaction failure along with program logs.
 
-That's it! We have successfully created a non transferable mint. If you are stuck at any point, you can find the working code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/non-transferable-token.git).
+That's it! We have successfully created a non-transferable mint. If you are stuck at any point, you can find the working code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/non-transferable-token.git).
