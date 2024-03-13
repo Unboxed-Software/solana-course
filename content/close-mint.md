@@ -59,7 +59,7 @@ When the transaction is sent, a new mint account is created with the specified c
 The only constraint when closing the mint account is that the supply must be zero. If we try to close the mint account when the supply is not zero, the program will throw an error.
 
 # Lab
-We will not create a mint with close authority. We will also see what happens when we try to close the mint when supply is not zero. Then, we will burn the supply and then close the mint account.
+We will not create a mint with a close authority. We will also see what happens when we try to close the mint when supply is not zero. Then we will burn the supply and close the mint account.
 
 ## 1. Getting Started
 To get started, clone [this repository's](https://github.com/Unboxed-Software/close-mint-account.git) `starter` branch.
@@ -84,11 +84,11 @@ Lastly, `index.ts` has a main function that creates a connection to the specifie
 
 ## 2. Create a mint with close authority
 
-We are now going to create a function `createClosableMint` in a new file `src/create-mint.ts`.
+We are now going to create the function `createClosableMint` in a new file `src/create-mint.ts`.
 
 When creating a mint with close authority, we need three instructions: `SystemProgram.createAccount`, `createInitializeMintCloseAuthorityInstruction`, `createInitializeMintInstruction`.
 
-Inside of `src/create-mint.ts`, create the function `createClosableMint` with the following arguments:
+Add the `createClosableMint` with the following arguments:
 - `cluster` : The cluster to which connection points to
 - `connection` : The connection object
 - `payer` : Payer for the transaction
@@ -195,10 +195,10 @@ async function main(){
 	await createClosableMint(CLUSTER, connection, payer, mintKeypair, decimals)
 }
 ```
-Now run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
+Run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
 
 ## 3. Closing the mint
-Remember, when closing a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will mint 1 token from this mint, and try to close the mint account
+Remember, when closing a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will mint 1 token from this mint, and try to close the mint account.
 
 ### 3.1 Mint token
 In `src/index.ts`, create an account and mint 1 token to that account.
@@ -320,7 +320,7 @@ async function main(){
 When we run `npm start`, we will see a link which will take us to the burn transaction on Solana Explorer.
 
 ### 3.4 Close the mint
-Now that there are no tokens in circulation, we can close the mint.
+With no tokens in circulation, we can now close the mint.
 
 ```ts
 async function main(){
