@@ -76,11 +76,11 @@ The starter code comes with following files:
 
 The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed.
 
-Lastly, `index.ts` has a `main` function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
+`index.ts` has a `main` function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
 
 ### 2. Create a non-transferable mint
 
-We are now going to create a function `createNonTransferableMint` in a new file `src/create-mint.ts`.
+We are now going to create the function `createNonTransferableMint` in a new file `src/create-mint.ts`.
 
 When creating a mint with close authority, we need three instructions: `SystemProgram.createAccount`, `createInitializeNonTransferableMintInstruction`, `createInitializeMintInstruction`.
 
@@ -198,7 +198,7 @@ async function main(){
 Now run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
 
 ### 3. Mint token
-In `src/index.ts`, we will create a source account and mint 1 non-transferable token.
+In `src/index.ts`, we will create a source account and mint one non-transferable token.
 
 ```ts
 async function main(){
@@ -233,9 +233,9 @@ async function main(){
 }
 ```
 
-Now run `npm start`. Our source account has been created with 1 non-transferable token.
+Now run `npm start`. Our source account has been created with one non-transferable token.
 
-### 4. Create a destination account
+### 4. Attempt to transfer a non-tranferable token
 In `src/index.ts`, we will create a destination account and try to transfer the non-transferable token to this account.
 
 ```ts
@@ -257,11 +257,7 @@ async function main(){
 }
 ```
 
-Now run `npm start`. Our destination account has been created and we are ready for transfer.
-
-### 5. Transfer token
-
-In this step, we will try and transfer the non-transferable token from the source account to the destination account. This call will fail and throw `SendTransactionError`.
+Now we will try and transfer the non-transferable token from the source account to the destination account. This call will fail and throw `SendTransactionError`.
 
 ```ts
 async function main(){
