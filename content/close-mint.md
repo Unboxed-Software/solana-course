@@ -10,20 +10,20 @@ objectives:
 
 # Summary
  - The Token program allows closing token accounts, but not mint accounts.
- - Token Extension Program includes `MintCloseAuthority` which will be initialized when creating mint.
+ - Token Extension Program includes `MintCloseAuthority` which is initialized when creating mint.
 
 # Overview
-The Token program allows owners to close token accounts, but it is impossible to close mint accounts. In Token Extension Program, it is possible to close mint accounts by initializing the `MintCloseAuthority` extension before initializing the mint.
+The Token program allows owners to close token accounts, but it is impossible to close mint accounts. In the Token Extension Program, it is possible to close mint accounts by initializing the `MintCloseAuthority` extension before initializing the mint.
 
 Initializing the mint with close authority involves three instruction:
- - Create Account
- - Initialize close mint extension
- - Initialize the mint
+ - `SystemProgram.createAccount` 
+ - `createInitializeMintCloseAuthorityInstruction`
+ - `createInitializeMintInstruction`
 
 The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
- - Allocate `space`
- - Transfer `lamports` for rent
- - Assign to itself it's owning program
+ - Allocates `space`
+ - Transfers `lamports` for rent
+ - Assigns to itself it's owning program
 ```ts
 SystemProgram.createAccount({
 	fromPubkey: payer.publicKey,
