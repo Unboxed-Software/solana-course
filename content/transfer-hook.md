@@ -600,13 +600,13 @@ And that is it!
 
 # Lab
 
-In this lab we will explore how transfer hooks works by creating a Cookie Crumb program. We will have a Cookie NFT that has a transfer hook which will mint a crumb token for each transfer, so we would be able to tell how many times this NFT has been transferred by only looking at the crumb supply.
+In this lab we will explore how transfer hooks works by creating a Cookie Crumb program. We will have a Cookie NFT that has a transfer hook which will mint a crumb token for each transfer, so we would be able to tell how many times this NFT has been transferred only by looking at the crumb supply.
 
 ## 0. Setup
 
 ### 1. Verify Solana/Anchor/Rust Versions
 
-We will be interacting with the `Token Extension` program in this lab and that requires you have solana cli version ≥ 1.18.0.
+We will be interacting with the `Token Extension` program in this lab and that requires you have solana cli version ≥ 1.18.1.
 
 To check your version run:
 
@@ -617,14 +617,14 @@ solana --version
 If the version printed out after running `solana --version` is less than `1.18.0` then you can update the cli version manually. Note, at the time of writing this, you cannot simply run the `solana-install update` command. This command will not update the CLI to the correct version for us, so we have to explicitly download version `1.18.0`. You can do so with the following command:
 
 ```bash
-solana-install init 1.18.0
+solana-install init 1.18.1
 ```
 
 If you run into this error at any point attempting to build the program, that likely means you do not have the correct version of the solana CLI installed.
 
 ```bash
 anchor build
-error: package `solana-program v1.18.0` cannot be built because it requires rustc 1.72.0 or newer, while the currently active rustc version is 1.68.0-dev
+error: package `solana-program v1.18.1` cannot be built because it requires rustc 1.72.0 or newer, while the currently active rustc version is 1.68.0-dev
 Either upgrade to rustc 1.72.0 or newer, or use
 cargo update -p solana-program@1.18.0 --precise ver
 where `ver` is the latest version of `solana-program` supporting rustc 1.68.0-dev
@@ -662,7 +662,7 @@ Let's grab the starter branch.
 
 ```bash
 git clone https://github.com/Unboxed-Software/solana-lab-transfer-hooks
-cd token22-staking
+cd solana-lab-transfer-hooks
 git checkout starter
 ```
 
@@ -671,24 +671,24 @@ git checkout starter
 Once in the starter branch, run
 
 ```bash
+anchor keys sync
+```
+
+To sync your program key with the one in the `Anchor.toml`
+
+After that you can run 
+
+```bash
 anchor keys list
 ```
 
-to get your program ID.
-
-Copy and paste this program ID in the `Anchor.toml` file
+And copy the program id and look into the `programs/transfer-hook/src/lib.rs` file where is says:
 
 ```rust
-// in Anchor.toml
-[programs.localnet]
-token_22_staking = "YOUR PROGRAM ID HERE"
+declare_id!("YOUR PROGRAM ID HERE"); 
 ```
 
-And in the `programs/token-22-staking/src/lib.rs` file.
-
-```rust
-declare_id!("YOUR PROGRAM ID HERE");
-```
+and replace `YOUR PROGRAM ID HERE` with the program id you just copied.
 
 Lastly set your developer keypair path in `Anchor.toml` if you don't want to use the default location.
 
@@ -743,9 +743,9 @@ We're going to look at each in-depth.
 
 ```rust
 use anchor_lang::{ prelude::*, system_program::{ create_account, CreateAccount } };
-use anchor_spl::{ token, token_interface::{ Mint, TokenAccount, TokenInterface }};
+use anchor_spl::{ token, token_interface::{ Mint, TokenAccount, TokenInterface } };
 use spl_transfer_hook_interface::instruction::{ ExecuteInstruction, TransferHookInstruction };
-use spl_tlv_account_resolution::{account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList};
+use spl_tlv_account_resolution::{ account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList };
 
 declare_id!("YOUR PROGRAM ID HERE");
 
@@ -987,7 +987,7 @@ Since the mint_authority is a PDA of the transfer hook program itself, the progr
   pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
     let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
     // mint a crumb token for each transaction
-    mint_to(
+    token::mint_to(
       CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(), // token program
         token::MintTo {
@@ -1042,19 +1042,17 @@ to validate that we are doing fine before moving to the next part, let's bring a
 ```rust
 // in programs/transfer-hook/src/lib.rs
 use anchor_lang::{ prelude::*, system_program::{ create_account, CreateAccount } };
-use anchor_spl::{ token, token_interface::{ Mint, TokenAccount, TokenInterface }};
+use anchor_spl::{ token, token_interface::{ Mint, TokenAccount, TokenInterface } };
 use spl_transfer_hook_interface::instruction::{ ExecuteInstruction, TransferHookInstruction };
-use spl_tlv_account_resolution::{account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList};
+use spl_tlv_account_resolution::{ account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList };
 
 declare_id!("YOUR PROGRAM ID HERE");
 
 #[program]
 pub mod transfer_hook {
-  use anchor_spl::token::mint_to;
-
   use super::*;
 
-pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
+  pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
     // 1. List the accounts required for the transfer hook instruction inside a vector.
 
     // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
@@ -1110,7 +1108,7 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
   pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
     let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
     // mint a crumb token for each transaction
-    mint_to(
+    token::mint_to(
       CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(),
         token::MintTo {
@@ -1150,6 +1148,7 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
 pub struct InitializeExtraAccountMetaList<'info> {
   #[account(mut)]
   payer: Signer<'info>,
+
   /// CHECK: ExtraAccountMetaList Account, must use these seeds
   #[account(
         mut,
@@ -1159,24 +1158,23 @@ pub struct InitializeExtraAccountMetaList<'info> {
   pub extra_account_meta_list: AccountInfo<'info>,
   pub mint: InterfaceAccount<'info, Mint>,
   pub token_program: Interface<'info, TokenInterface>,
-  pub associated_token_program: Program<'info, AssociatedToken>,
   pub system_program: Program<'info, System>,
 
   #[account(init, payer = payer, mint::decimals = 0, mint::authority = mint_authority)]
   pub crumb_mint: InterfaceAccount<'info, Mint>,
 
-  /// CHECK: mint authority Account,
+  /// CHECK: mint authority Account for crumb mint
   #[account(seeds = [b"mint-authority"], bump)]
   pub mint_authority: UncheckedAccount<'info>,
 
-  /// CHECK: ATA,
+  /// CHECK: ATA Account for crumb mint
   pub crumb_mint_ata: UncheckedAccount<'info>,
 }
 
 // Order of accounts matters for this struct.
 // The first 4 accounts are the accounts required for token transfer (source, mint, destination, owner)
 // Remaining accounts are the extra accounts required from the ExtraAccountMetaList account
-// These accounts are provided via CPI to this program from the token2022 program
+// These accounts are provided via CPI to this program from the Token Extension program
 #[derive(Accounts)]
 pub struct TransferHook<'info> {
   #[account(token::mint = mint, token::authority = owner)]
@@ -1244,7 +1242,7 @@ If you got this, congratulations, you have successfully written and deployed the
 
 if you are seeing some errors try to go through the steps again and make sure you didn't miss anything.
 
-## 7. Write the tests
+## 2. Write the tests
 
 Now we will write some TS script to test our code, all of our test will live inside `tests/anchor.ts`. Additionally we have some helper functions inside `helpers/helpers.ts` that we will use in our tests.
 
@@ -1750,8 +1748,6 @@ describe('transfer-hook', () => {
     );
   });
 
-  // Create the two token accounts for the transfer-hook enabled mint
-  // Fund the sender token account with 100 tokens
   it('Creates Token Accounts and Mint The NFT', async () => {
     // 1 NFT
     const amount = 1;
