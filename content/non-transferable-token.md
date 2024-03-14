@@ -179,6 +179,8 @@ import {
 	transferChecked,
 } from '@solana/spl-token'
 
+const CLUSTER: Cluster = 'devnet'
+
 async function main(){
 	...
 
