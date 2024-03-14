@@ -187,6 +187,8 @@ import {
 } from '@solana/spl-token'
 import printTableData from './print-helpers'
 
+const CLUSTER: Cluster = 'devnet'
+
 async function main(){
 	...
 
