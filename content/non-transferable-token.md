@@ -60,11 +60,11 @@ createInitializeMintInstruction(
 In this lab, we will create a non-transferable token and try to transfer it to another account.
 
 ### 1. Getting started
-To get started, clone [this repository's](https://github.com/Unboxed-Software/non-transferable-token.git) `starter` branch.
+To get started, clone [this repository's](https://github.com/Unboxed-Software/solana-lab-non-transferable-token.git) `starter` branch.
 
 ```bash
-git clone https://github.com/Unboxed-Software/non-transferable-token.git
-cd non-transferable-token
+git clone https://github.com/Unboxed-Software/solana-lab-non-transferable-token.git
+cd solana-lab-non-transferable-token
 git checkout starter
 npm install
 ```
@@ -294,4 +294,7 @@ async function main(){
 
 Now run `npm start`. We should see the console log of transaction failure along with program logs.
 
-That's it! We have successfully created a non-transferable mint. If you are stuck at any point, you can find the working code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/non-transferable-token.git).
+That's it! We have successfully created a non-transferable mint. If you are stuck at any point, you can find the working code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-non-transferable-token.git).
+
+# Challenge
+For the challenge, create your own non-transferable token and try to transfer it.
