@@ -62,11 +62,11 @@ The only constraint when closing the mint account is that the supply must be zer
 We will not create a mint with a close authority. We will also see what happens when we try to close the mint when supply is not zero. Then we will burn the supply and close the mint account.
 
 ## 1. Getting Started
-To get started, clone [this repository's](https://github.com/Unboxed-Software/close-mint-account.git) `starter` branch.
+To get started, clone [this repository's](https://github.com/Unboxed-Software/solana-lab-close-mint-account.git) `starter` branch.
 
 ```bash
-git clone https://github.com/Unboxed-Software/close-mint-account.git
-cd close-mint-account
+git clone https://github.com/Unboxed-Software/solana-lab-close-mint-account.git
+cd solana-lab-close-mint-account
 git checkout starter
 npm install
 ```
@@ -358,4 +358,7 @@ async function main(){
 ```
 Run `npm start` once more, and we will see a link for the close mint transaction on Solana Explorer.
 
-That's it! We have successfully created a mint with close authority. If you get stuck at any point, you can find working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/close-mint-account/).
+That's it! We have successfully created a mint with close authority. If you get stuck at any point, you can find working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-close-mint-account.git).
+
+# Challenge
+For the challenge, try and create your own mint with mint close authority and see what happens when you try to mint after closing the mint account.
