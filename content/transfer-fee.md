@@ -17,7 +17,7 @@ Suppose, you have designed a skin for an equipment in a game. And every time som
 
 Before the Token Extension program, it was impossible to assess a fee on every transfer. The process involved freezing user accounts and forcing them to go through a third party to unfreeze, transfer and refreeze the accounts.
 
-With thge Token Extension program, it is possible to configure a transfer fee on a mint so that fees are assessed at the protocol level. On every transfer, some amount is withheld on the recipient account which cannot be used by the recipient. These tokens can be withheld by a separate authority on the mint.
+With the Token Extension program, it is possible to configure a transfer fee on a mint so that fees are assessed at the protocol level. On every transfer, some amount is withheld on the recipient account which cannot be used by the recipient. These tokens can be withheld by a separate authority on the mint.
 
 Configuring a mint with a transfer fee involves some important fields:
  - Fee basis points: This is the fee assessed on every transfer. For example, if 1000 tokens with 50 basis points are transferred, it will yield 5 tokens.
@@ -35,20 +35,59 @@ $$ Fee = {t * f \over 10000} $$
 The constant 10,000 is used to convert the fee basis point percentage to the equivalent amount.
 
 ## Configuring a mint with a transfer fee
-Configuring a mint with a transfer fee extension involves three important instructions:
- - Create account: Creating the account, including allocating space, transfering lamports for rent, and assigning it's owning program.
- - Initializing transfer fee configuration: Configuring the transfer fee with the transfer fee authority, withdraw withheld authority, fee basis points, and maximum fee.
- - Initializing mint: Initialize the mint with the transfer fee configuration.
+Initializing a mint with transfer fee involves three instructions:
+- `SystemProgram.createAccount`
+- `createInitializeTransferFeeConfigInstruction`
+- `createInitializeMintInstruction`
+
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
+ - Allocates `space`
+ - Transfers `lamports` for rent
+ - Assigns to it's owning program
+
+```ts
+SystemProgram.createAccount({
+	fromPubkey: payer.publicKey,
+	newAccountPubkey: mintKeypair.publicKey,
+	space: mintLength,
+	lamports: mintLamports,
+	programId: TOKEN_2022_PROGRAM_ID,
+})
+```
+
+The second instruction `createInitializeTransferFeeConfigInstruction` initializes the transfer fee extension.
+
+```ts
+createInitializeTransferFeeConfigInstruction(
+	mintKeypair.publicKey,
+	payer.publicKey,
+	payer.publicKey,
+	feeBasisPoints,
+	maxFee,
+	TOKEN_2022_PROGRAM_ID
+)
+```
+
+The third instruction `createInitializeMintInstruction` initializes the mint.
+```ts
+createInitializeMintInstruction(
+	mintKeypair.publicKey,
+	decimals,
+	payer.publicKey,
+	null,
+	TOKEN_2022_PROGRAM_ID
+)
+```
+
+When the transaction with these three instructions is sent, a new mint account is created with the specified transfer fee configuration.
 
 *Important note*: Transferring tokens with a transfer fee requires using `transfer_checked` or `transfer_checked_with_fee` instead of `transfer`. Otherwise, the transfer will fail.
-
-TODO 
-The `spl-token` package provides the `ExtensionType` enum which has all the extensions. We can specify multiple extensions at a time, but for this lab we will go with just the `TransferFeeConfig` extension.
 
 ## Collecting fees
 Depending on the use case, the fees can be credited to the mint authority or we can create a dedicated account for collecting fees called a "fee vault".
 
 We can collect fees in two ways. The first approach involves fetching all the accounts that have withheld tokens for our mint and withdraw the fees to either the mint authority or the fee vault. When tokens are withheld, the tokens remain on the recipient account and will be collected at a future time. These withheld tokens can only be transfered by the withdraw withheld authority.
+
 ```ts
 const accounts = await connection.getProgramAccounts(
 	TOKEN_2022_PROGRAM_ID,
@@ -145,20 +184,9 @@ The `keypair-helpers.ts` file contains some boilerplate for generating a new key
 
 We're now going to create a function `createMintWithTransferFee` in a new file `src/create-mint.ts`.
 
-When creating a mint with a transfer fee, we need to create 3 instructions and then process them in a transaction: `SystemProgram.createAccount`, `createInitializeTransferFeeConfigInstruction`, `createInitializeMintInstruction`.
+When creating a mint with transfer fee, we need three instructions: `SystemProgram.createAccount`, `createInitializeTransferFeeConfigInstruction` and `createInitializeMintInstruction`.
 
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
- - Allocates `space`
- - Transfers `lamports` for rent
- - Assigns to it's owning program
-
-The second instruction `createInitializeTransferFeeConfigInstruction` initializes the transfer fee extension.
-
-The third instruction `createInitializeMintInstruction` initializes the mint.
-
-When the transaction is sent, a new mint account is created with the specified transfer fee configuration.
-
-Create function `createMintWithTransferFee` in `src/create-mint.ts` which should take following arguments:
+Add `createMintWithTransferFee` with following arguments:
  - `cluster` : The cluster to which connection is pointing to
  - `connection` : The connection object
  - `payer` : Payer for the transaction
@@ -244,6 +272,7 @@ export async function createMintWithTransferFee(
 ```
 
 Now let's call this function in `src/index.ts`
+
 ```ts
 import {
 	Cluster,
@@ -296,6 +325,7 @@ Now we can run `npm run start`. We should see a console log of a link which will
 Transfer fees are paid by the recipient of the mint. We need an account to collect the transfer fees. Depending on the use case, this could be mint authority account or we could have a dedicated fee vault account for centralized fee collection.
 
 For this lab, let's create a dedicated fee vault account.
+
 ```ts
 async function main(){
 	...
@@ -322,6 +352,7 @@ Now we can run `npm start`. We should see the fee vault account created with zer
 
 ### 5. Create a source account and mint one token
 Now, let's create an account and mint one token to that account. The account will act as the source for the transfer transaction.
+
 ```ts
 async function main(){
 	...
@@ -357,8 +388,9 @@ async function main(){
 
 Now we can run `npm start`. At this point, we have a successfully created a source account and minted one token to it.
 
-### 6. Create a destination account
+### 6. Transfer one token
 Now, let's create a destination account for the transfer. This account will act as the recipient of the transfer. As the recipient of the transfer, the destination account will pay the transfer fee.
+
 ```ts
 async function main(){
 	...
@@ -377,10 +409,9 @@ async function main(){
 	)
 }
 ```
-Now we can run `npm start`. At this point, we have successfully created the destination account for our transfer.
 
-### 7. Transfer the token
-In this step, we calculate the transfer fees based on the transfer amount using fee basis points. Remember, if the transfer fee crosses the max fee cap set while creating the mint, we can only collect fees up to the max cap amount.
+Now we calculate the transfer fees based on the transfer amount using fee basis points. Remember, if the transfer fee crosses the max fee cap set while creating the mint, we can only collect fees up to the max cap amount.
+
 ```ts
 async function main(){
 	...
@@ -410,10 +441,10 @@ async function main(){
 ```
 Now we can run `npm run start`. We should see a console log of a link which will take us to the transfer transaction on Solana Explorer.
 
-### 8. Withdrawing fees
+### 7. Withdrawing fees
 There are two ways in which we can collect fees from the recipient's account into the fee vault. The first one is withdrawing the withheld fees directly from the recipient's account itself to the fee vault account. The second way is harvesting the fees from the recipient's account to the mint and then withdrawing it from the mint to the fee vault account.
 
-### 8.1 Withdraw fees directly from the recipient accounts
+### 7.1 Withdraw fees directly from the recipient accounts
 Suppose there have been multiple transactions on this mint with multiple recipients and we want to collect the fees all at once. To achieve this, we can use this way to batch collect the fees from all the accounts. 
 
 First, we fetch all the accounts which have withheld tokens. To do this, we can call the `getProgramAccounts` function. One of the parameters for the `getProgramAccounts` funciton is an array of `filters`. We will use the mint address to filter these accounts so that we only fetch those accounts which received our transfer fee configured mint.
@@ -499,7 +530,7 @@ async function main(){
 ```
 Now we can run `npm run start`. We should see a console log which shows us the updated balance of the fee vault account.
 
-### 8.2 Harvest and then withdraw
+### 7.2 Harvest and then withdraw
 Suppose we want to collect transfer fees immediately after the transaction. In this case, the batch fetching and collecting after every transaction can be inefficient.
 
 Instead we harvest the fees from the destination account to the mint and then withdraw the amount from the mint itself to the fee vault account.
@@ -565,3 +596,6 @@ async function main(){
 Now we can run `npm run start`. We should see a console log which shows us the updated balance of the fee vault account.
 
 That's it! We have successfully created a mint with a transfer fee. If you get stuck at any point, you can find the working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-transfer-fee.git).
+
+### Challenge
+Now that we know how to create a transfer fee enabled mint, it's time for you to try it yourself! Create a transfer fee enabled mint and transfer some tokens. This time, instead of transferring just one token, you can verify the maximum cap on fees by transferring a large number of tokens.
