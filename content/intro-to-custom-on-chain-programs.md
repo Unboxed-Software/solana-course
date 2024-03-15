@@ -172,7 +172,7 @@ console.log(`✅ Transaction completed! Signature is ${signature}`)
 
 Now run the code with the following command:
 
-```
+```bash
 npx esrun send-ping-transaction.ts
 ```
 

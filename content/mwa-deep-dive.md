@@ -208,7 +208,7 @@ At its core, wallets use `walletlib` by calling a single function: `useMobileWal
 Below is an example component that shows the scaffold of how wallets connect to the `walletlib`:
 
 ```tsx
-import {useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Text } from 'react-native';
 import { WalletProvider } from './components/WalletProvider';
 import { MWARequest, MWASessionEvent, MobileWalletAdapterConfig, useMobileWalletAdapterSession } from './lib/mobile-wallet-adapter-walletlib/src';
@@ -817,7 +817,7 @@ AppRegistry.registerComponent(appName, () => App);
 
 // Register the MWA component
 AppRegistry.registerComponent(
-'MobileWalletAdapterEntrypoint',
+  'MobileWalletAdapterEntrypoint',
   () => MWAApp,
 );
 ```

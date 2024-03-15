@@ -363,7 +363,7 @@ pub struct User {
 
 In the test file, we’ll initialize an `AdminConfig` account and a `User` account from the `type_checked` program. Then we’ll invoke the `updateAdmin` instruction twice passing in the newly created accounts.
 
-```rust
+```tsx
 describe("type-cosplay", () => {
 	...
 
