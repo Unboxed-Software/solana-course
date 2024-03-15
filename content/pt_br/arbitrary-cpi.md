@@ -143,7 +143,7 @@ Observe que, como no exemplo acima, o Anchor criou alguns [wrappers para program
 
 Além disso, dependendo do programa para o qual você está criando a CPI, talvez seja possível usar [o tipo de conta `Program`](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct.Program.html) Anchor para validar o programa passado em sua estrutura de validação de conta. Entre os crates [`anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) e [`anchor_spl`](https://docs.rs/anchor_spl/latest/), os seguintes tipos de `Program` são fornecidos imediatamente:
 
-- [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/struct.System.html)
+- [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/system_program/struct.System.html)
 - [`AssociatedToken`](https://docs.rs/anchor-spl/latest/anchor_spl/associated_token/struct.AssociatedToken.html)
 - [`Token`](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.Token.html)
 
