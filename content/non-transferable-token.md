@@ -299,4 +299,4 @@ Now run `npm start`. We should see the console log of transaction failure along 
 That's it! We have successfully created a non-transferable mint. If you are stuck at any point, you can find the working code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-non-transferable-token.git).
 
 # Challenge
-For the challenge, create your own non-transferable token with the metadata extention and keep a soulbound NFT to yourself.
+For the challenge, create your own non-transferable token with the metadata extension and keep a soulbound NFT to yourself.
