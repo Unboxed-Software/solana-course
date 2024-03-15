@@ -167,7 +167,7 @@ console.log(
 Run the script to ensure it connects, loads your keypair, and loads:
 
 
-```
+```bash
 npx esrun transfer.ts (destination wallet address)
 ```
 
@@ -205,7 +205,7 @@ console.log(`Transaction signature is ${signature}!`);
 
 Send SOL to other students in the class.
 
-```
+```bash
 npx esrun transfer.ts (destination wallet address)
 ```
 
