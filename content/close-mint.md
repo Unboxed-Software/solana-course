@@ -363,4 +363,4 @@ Run `npm start` once more, and we will see a link for the close mint transaction
 That's it! We have successfully created a mint with close authority. If you get stuck at any point, you can find working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-close-mint-account.git).
 
 # Challenge
-For the challenge, try and create your own mint with mint close authority and see what happens when you try to mint after closing the mint account.
+For the challenge, try and create your own mint and mint to several token accounts, then create a script to burn all of those token accounts, then close the mint.
