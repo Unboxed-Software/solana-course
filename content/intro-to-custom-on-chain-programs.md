@@ -109,7 +109,7 @@ const newBalance = await requestAndConfirmAirdropIfRequired(
 );
 ```
 
-This will connect to the Solana Devnet and request some test Lamports if needed.
+This will connect to Solana Devnet and request some test Lamports if needed.
 
 ### 2. Ping program
 
