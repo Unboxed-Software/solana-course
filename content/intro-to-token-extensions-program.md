@@ -39,7 +39,7 @@ Account extensions currently include:
 
 Mint extensions include:
  - **Confidential transfers**
-	<p></p>
+	<p>This extension enhances privacy of the transactions without revealing key details of the transaction such as the amount.</p>
 
  - **Transfer fees**
 	<p>The Token Extension Program enforces transfer fees on the protocol level. With each transfer, some amount is withheld on the recipient account, untouchable by the recipient.</p>
