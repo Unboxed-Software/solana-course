@@ -56,11 +56,7 @@ In this section, we will cover how to use Anchor to implement the `initialize_ex
 
 When we transfer a token using the Token Extension program, the program checks if our mint has a transfer hook. If a transfer hook is present, the Token Extension program initiates a CPI to our transfer hook program. The Token Extension program then passes all the accounts to the transfer hook, including the extra accounts specified in the `extra_account_meta_list`. 
 
-In other words, when our program receives these accounts, they will be read-only. The transfer hook program cannot modify these accounts, nor can it sign any transactions with them. Therefore, if we have logic that requires changes to an account or the execution of transactions, we need to have other accounts. 
-
-The Token Extension program deescalates the non-meta list accounts (sender, mint, receiver, owner) as a security measure. In other words, when our program receives these accounts, they will be read-only. The transfer hook program cannot modify nor sign any transactions with them. If we have logic that requires changes to an account or the execution of transactions, we need to have other accounts. 
-
-The `ExtraAccountMetaList` account allows Solana developers to store additional accounts required by their transfer hook. These accounts can be signers, mutable, or both, and they must be created outside of the transfer. 
+The Token Extension program deescalates the non-meta list accounts (sender, mint, receiver, owner) as a security measure. In other words, when our program receives these accounts, they will be read-only. The transfer hook program cannot modify nor sign any transactions with them. If we have logic that requires changes to an account or the execution of transactions, we need to have other accounts. The `ExtraAccountMetaList` account allows Solana developers to store additional accounts required by their transfer hook. These accounts can be signers, mutable, or both, and they must be created outside of the transfer. 
 
 The `ExtraAccountMetaList` struct has three methods for storing these extra accounts ([source code](https://github.com/solana-labs/solana-program-library/blob/4f1668510adef2117ee3c043bd26b79789e67c8d/libraries/tlv-account-resolution/src/account.rs#L90)):
 
@@ -104,22 +100,12 @@ pub struct InitializeExtraAccountMetaList<'info> {
 
   /// CHECK: mint authority Account for crumb mint
   #[account(seeds = [b"some-seed"], bump)]
-  pub PDA_account: UncheckedAccount<'info>,
+  pub pda_account: UncheckedAccount<'info>,
 
 }
 ```
 
 Anchor will validate and ensure that we are passing in the correct accounts. Anchor will also parse the accounts, add them to a `ctx` object, and pass them to the instruction when we call it. 
-
-
-{TODO: Put this where it's needed}:
-
-In Solana, a program can sign for any PDA it owns. Therefore, we can leverage the PDA features within the `ExtraAccountMetaList`. For instance, if we need to mint some tokens on each transfer, we can achieve this by setting the `mint_authority` of that token to be a PDA owned by our program.
-
-However, this approach may still be somewhat limiting for the full potential of the transfer hook. There might be a need for other accounts to be mutable or to act as signers to enable a broader range of operations. Meet the `ExtraAccountMetaList` account.
-
-{TODO: End}
-
 
 After preparing the struct, we can write the instruction itself. This instruction receives the `ctx` object from Anchor and then prepares the accounts to be stored in the `ExtraAccountMetaList` account as a vector. 
 
@@ -189,7 +175,7 @@ pub fn new_external_pda_with_seeds(
 )
 ```
 
-The seeds come from the `Seed` enum that has four main types of the seeds:
+The seeds types come from the `Seed` enum:
 1. **Literal**: A literal hard-coded argument, such as the string `"my-seed"`.
 2. **InstructionData**: An instruction-provided argument. We can resolve the seed by providing the seed's start index and length to the instruction data.
 3. **AccountKey**: The public key of an account from the accounts list. We can retrieve the account by giving the account's index.
@@ -200,13 +186,14 @@ You can take a look at the seed enum implementation from [spl_tlv_account_resolu
 For the AccountKey and the AccountData enums, you need to also provide the account index. Here is the accounts vector again but with the indexes:
 
 ```rust
-  // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+    // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+    // index 4 is the extra_account_meta_list account 
   let account_metas = vec![
-    // index 4, Token program
+    // index 5, Token program
     ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?, // we can get the address from anywhere we want and pass it here
-    // index 5, another mint
+    // index 6, another mint
     ExtraAccountMeta::new_with_pubkey(&ctx.accounts.another_mint.key(), false, true)?, // is_writable true
-    // index 6, mint authority
+    // index 7, mint authority
     ExtraAccountMeta::new_with_seeds(
       &[
         Seed::Literal {
@@ -219,7 +206,7 @@ For the AccountKey and the AccountData enums, you need to also provide the accou
   ];
 ```
 
-As you can see in the comments, the indexes 0-3 are the accounts required for token transfer (source, mint, destination, owner), and the rest are the extra accounts required from the `ExtraAccountMetaList` account. You can use them as follows:
+As you can see in the comments, the indexes 0-3 are the accounts required for token transfer (source, mint, destination, owner), and on index 4 we have the `extra_account_meta_list`, then the rest are the extra accounts required from the `ExtraAccountMetaList` account. You can use them as follows:
 
 ```rust
   ExtraAccountMeta::new_with_seeds(
@@ -232,13 +219,6 @@ As you can see in the comments, the indexes 0-3 are the accounts required for to
     false // is_writable
   )?,
 ```
-
-Notice that in some guides, you will see them give the index four to the `extra_account_meta_list` account. In our example above, this would shift the token account to index five instead of four. However, at the time of writing this lesson, that was not the case, and if you do so, you will get an error while the client-side method parses the accounts needed for the instruction. So keep that in mind; you might want to play with the indexes a little bit to get it to work.
-
-Another thing to note is that at the time of writing this lesson, using the `new_external_pda_with_seeds` method is not going to work; it will error when the transfer happens, and the Token Extension program CPIs our program.
-
-We will not go over the `UpdateExtraAccountMetaList` in this lesson, It's similar to the `initialize_extra_account_meta_list` instruction, but if you'd like to learn more about the `UpdateExtraAccountMetaList` instruction, you can go [here](https://github.com/solana-labs/solana-program-library/blob/master/token/transfer-hook/interface/src/instruction.rs).
-
 
 ### 2. `transfer_hook` Instruction
 
@@ -546,21 +526,7 @@ Once in the starter branch, run
 anchor keys sync
 ```
 
-To sync your program key with the one in the `Anchor.toml`
-
-After that you can run 
-
-```bash
-anchor keys list
-```
-
-And copy the program id and look into the `programs/transfer-hook/src/lib.rs` file where is says:
-
-```rust
-declare_id!("YOUR PROGRAM ID HERE"); 
-```
-
-and replace `YOUR PROGRAM ID HERE` with the program id you just copied.
+To sync your program key with the one in the `Anchor.toml` and the declared program id in the `programs/transfer-hook/src/lib.rs` file.
 
 Lastly set your developer keypair path in `Anchor.toml` if you don't want to use the default location.
 
@@ -619,7 +585,7 @@ use anchor_spl::{ token, token_interface::{ Mint, TokenAccount, TokenInterface }
 use spl_transfer_hook_interface::instruction::{ ExecuteInstruction, TransferHookInstruction };
 use spl_tlv_account_resolution::{ account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList };
 
-declare_id!("YOUR PROGRAM ID HERE");
+declare_id!("YOUR_PROGRAM_ID_HERE");
 
 #[program]
 pub mod transfer_hook {
@@ -702,9 +668,6 @@ pub struct InitializeExtraAccountMetaList<'info> {
   /// CHECK: mint authority Account for crumb mint
   #[account(seeds = [b"mint-authority"], bump)]
   pub mint_authority: UncheckedAccount<'info>,
-
-  /// CHECK: ATA Account for crumb mint
-  pub crumb_mint_ata: UncheckedAccount<'info>,
 }
 ```
 
@@ -732,12 +695,15 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
     // 1. List the accounts required for the transfer hook instruction inside a vector.
 
     // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+    // index 4 is the extra_account_meta_list account
     let account_metas = vec![
-      // index 4, Token program
+      // index 5, Token program
       ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
-      // index 5, crumb mint
+      // index 6, Associated Token program
+      ExtraAccountMeta::new_with_pubkey(&associated_token_id, false, false)?,
+      // index 7, crumb mint
       ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
-      // index 6, mint authority
+      // index 8, mint authority
       ExtraAccountMeta::new_with_seeds(
         &[
           Seed::Literal {
@@ -747,8 +713,17 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
         false, // is_signer
         false // is_writable
       )?,
-      // index 7, ATA
-      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)? // is_writable true
+      // index 9, crumb mint ATA
+      ExtraAccountMeta::new_external_pda_with_seeds(
+        6, // associated token program index
+        &[
+          Seed::AccountKey { index: 8 }, // owner index
+          Seed::AccountKey { index: 5 }, // token program index
+          Seed::AccountKey { index: 7 }, // crumb mint index
+        ],
+        false, // is_signer
+        true // is_writable
+      )?
     ];
     // 2. Calculate the size and rent required to store the list of
 
@@ -805,9 +780,10 @@ In this example the `TransferHook` struct will have 9 accounts:
 4. `owner` - The owner of the source token account.
 5. `extra_account_meta_list` - The ExtraAccountMetaList account that stores the additional accounts required by the transfer_hook instruction
 6. `token_program` - The token program account.
-7. `crumb_mint` - The mint account of the token to be minted by the transfer_hook instruction.
-8. `mint_authority` - The mint authority account of the token to be minted by the transfer_hook instruction.
-9. `crumb_mint_ata` - The associated token account of the token to be minted by the transfer_hook instruction.
+7. `associated_token_program` - The associated token program account.
+8. `crumb_mint` - The mint account of the token to be minted by the transfer_hook instruction.
+9. `mint_authority` - The mint authority account of the token to be minted by the transfer_hook instruction.
+10. `crumb_mint_ata` - The associated token account of the token to be minted by the transfer_hook instruction.
 
 <Callout type="info">
 
@@ -837,6 +813,8 @@ pub struct TransferHook<'info> {
   pub extra_account_meta_list: UncheckedAccount<'info>,
 
   pub token_program: Interface<'info, TokenInterface>,
+
+  pub associated_token_program: Program<'info, AssociatedToken>,
 
   pub crumb_mint: InterfaceAccount<'info, Mint>,
 
@@ -918,7 +896,7 @@ use anchor_spl::{ token, token_interface::{ Mint, TokenAccount, TokenInterface }
 use spl_transfer_hook_interface::instruction::{ ExecuteInstruction, TransferHookInstruction };
 use spl_tlv_account_resolution::{ account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList };
 
-declare_id!("YOUR PROGRAM ID HERE");
+declare_id!("YOUR_PROGRAM_ID_HERE");
 
 #[program]
 pub mod transfer_hook {
@@ -928,12 +906,15 @@ pub mod transfer_hook {
     // 1. List the accounts required for the transfer hook instruction inside a vector.
 
     // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+    // index 4 is the extra_account_meta_list account
     let account_metas = vec![
-      // index 4, Token program
+      // index 5, Token program
       ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
-      // index 5, crumb mint
+      // index 6, Associated Token program
+      ExtraAccountMeta::new_with_pubkey(&associated_token_id, false, false)?,
+      // index 7, crumb mint
       ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
-      // index 6, mint authority
+      // index 8, mint authority
       ExtraAccountMeta::new_with_seeds(
         &[
           Seed::Literal {
@@ -943,8 +924,17 @@ pub mod transfer_hook {
         false, // is_signer
         false // is_writable
       )?,
-      // index 7, ATA
-      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint_ata.key(), false, true)? // is_writable true
+      // index 9, crumb mint ATA
+      ExtraAccountMeta::new_external_pda_with_seeds(
+        6, // associated token program index
+        &[
+          Seed::AccountKey { index: 8 }, // owner index
+          Seed::AccountKey { index: 5 }, // token program index
+          Seed::AccountKey { index: 7 }, // crumb mint index
+        ],
+        false, // is_signer
+        true // is_writable
+      )?
     ];
     // 2. Calculate the size and rent required to store the list of
 
@@ -1038,9 +1028,6 @@ pub struct InitializeExtraAccountMetaList<'info> {
   /// CHECK: mint authority Account for crumb mint
   #[account(seeds = [b"mint-authority"], bump)]
   pub mint_authority: UncheckedAccount<'info>,
-
-  /// CHECK: ATA Account for crumb mint
-  pub crumb_mint_ata: UncheckedAccount<'info>,
 }
 
 // Order of accounts matters for this struct.
@@ -1062,6 +1049,8 @@ pub struct TransferHook<'info> {
   pub extra_account_meta_list: UncheckedAccount<'info>,
 
   pub token_program: Interface<'info, TokenInterface>,
+
+  pub associated_token_program: Program<'info, AssociatedToken>,
 
   pub crumb_mint: InterfaceAccount<'info, Mint>,
 
@@ -1336,7 +1325,7 @@ here we are testing two things:
 2. Mint the NFT and set the mint authority to null so no one can mint any more tokens
 
 ```ts
-  it('Create Token Accounts and Mint The NFT', async () => {
+  it('Creates Token Accounts and Mint The NFT', async () => {
     // 1 NFT
     const amount = 1;
 
@@ -1394,7 +1383,6 @@ it('Initializes ExtraAccountMetaList Account and Creates the ATA for the Crumb M
         mint: mint.publicKey,
         extraAccountMetaList: extraAccountMetaListPDA,
         crumbMint: crumbMint.publicKey,
-        crumbMintAta: crumbMintATA,
         })
         .instruction();
 
@@ -1668,7 +1656,6 @@ describe('transfer-hook', () => {
         mint: mint.publicKey,
         extraAccountMetaList: extraAccountMetaListPDA,
         crumbMint: crumbMint.publicKey,
-        crumbMintAta: crumbMintATA,
       })
       .instruction();
 
