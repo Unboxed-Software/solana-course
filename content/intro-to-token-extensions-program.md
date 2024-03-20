@@ -25,22 +25,45 @@ The Token Extensions Program, as it is a superset of the Token Program, is deplo
 Adding new functionality requires new fields in mints and accounts. This makes it impossible to have the same layout for all accounts in the Token Extensions Program. So, the new functionality is added in the form of extensions. Extensions are simply new functionality added on top of the existing Token Program.
 
 Account extensions currently include:
- - memo required on incoming transfers
- - immutable ownership
- - default account state
- - CPI guard
+ - **Memo required on incoming transfers**
+	<p>This extension makes it mandatory to have a memo on on all transfers, just like traditional banking systems.</p>
+
+ - **Immutable ownership**
+	<p>Token account owners can transfer ownership to any other address which is useful in many scenarios but can lead to security vulnerabilities. To avoid this issue, we can use this extension which makes it impossible to reassign ownership.</p>
+
+ - **Default account state**
+	<p>Mint creators can use this extension which forces all new token accounts to be frozen. This way, users must eventually interact with some service to unfreeze their accounts and use tokens.</p>
+
+ - **CPI guard**
+	<p>This extension protects users from signing for actions that they can't see, hidden programs that aren't the System or Token programs by prohibiting certain actions inside cross-program invocations.</p>
 
 Mint extensions include:
- - confidential transfers
- - transfer fees
- - closing mint
- - interest-bearing tokens
- - non-transferable tokens
- - permanent delegate
- - transfer hook
- - metadata pointer
- - metadata
+ - **Confidential transfers**
+	<p></p>
 
+ - **Transfer fees**
+	<p>The Token Extension Program enforces transfer fees on the protocol level. With each transfer, some amount is withheld on the recipient account, untouchable by the recipient.</p>
+
+ - **Closing mint**
+	<p>In Token Program it was possible to close only token accounts but with the close authority extension, we can now close mint accounts.</p>
+
+ - **Interest-bearing tokens**
+	<p>Tokens which have constantly growing and decreasing value, reflecting the updated value in clients required proxies that require regular rebase or update operations. With this extension, we can change how the UI amount of tokens are represented. We can set an interest rate on your token and fetch its amount with interest at any time.</p>
+
+ - **Non-transferable tokens**
+	<p>This extension allows us to create "soul-bound" tokens that cannot be transferred to any other entity.</p>
+
+ - **Permanent delegate**
+	<p>This extension allows us to specify a permanent delegate for a mint. This authority has unlimited delegate privileges over an account, meaning that it can burn or transfer any amount of tokens.</p>
+
+ - **Transfer hook**
+	<p>This extension allows token creators to have more control over how their tokens are transferred. The creators must develop and deploy a program that implements the interface and then configure their token mint to use their program.</p>
+
+ - **Metadata pointer**
+	<p>A mint can have multiple different account claiming to describe the mint. This extension allows the token creator to designate an address that describes the canonical metadata.</p>
+
+ - **Metadata**
+	<p>This extension allows a mint creator to include their token's metadata directly into the mint account. </p>
 
 These extensions can be mixed and matched, meaning we can create a token with only transfer fees, only interest-bearing tokens, both or neither.
 
