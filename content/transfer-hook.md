@@ -452,13 +452,13 @@ And that is it!
 
 # Lab
 
-In this lab we will explore how transfer hooks works by creating a Cookie Crumb program. We will have a Cookie NFT that has a transfer hook which will mint a crumb token for each transfer, so we would be able to tell how many times this NFT has been transferred only by looking at the crumb supply.
+In this lab, we will explore how transfer hooks work by creating a Cookie Crumb program. We will have a Cookie NFT with a transfer hook that mints a crumb token for each transfer, so we will be able to tell how many times this NFT has been transferred only by looking at the crumb supply.
 
 ## 0. Setup
 
 ### 1. Verify Solana/Anchor/Rust Versions
 
-We will be interacting with the `Token Extension` program in this lab and that requires you have solana cli version ≥ 1.18.1.
+We will be interacting with the `Token Extension` program in this lab, which requires you to have solana cli version ≥ 1.18.1.
 
 To check your version run:
 
@@ -466,13 +466,13 @@ To check your version run:
 solana --version
 ```
 
-If the version printed out after running `solana --version` is less than `1.18.0` then you can update the cli version manually. Note, at the time of writing this, you cannot simply run the `solana-install update` command. This command will not update the CLI to the correct version for us, so we have to explicitly download version `1.18.0`. You can do so with the following command:
+If the version printed out after running `solana --version` is less than `1.18.0`, you can manually update the CLI version. Note that you cannot simply run the `solana-install update` command. This command will not update the CLI to the correct version, so we must download version `1.18.0`. You can do so with the following command:
 
 ```bash
 solana-install init 1.18.1
 ```
 
-If you run into this error at any point attempting to build the program, that likely means you do not have the correct version of the solana CLI installed.
+If you run into this error attempting to build the program at any point, that likely means you do not have the correct version of the Solana CLI installed.
 
 ```bash
 anchor build
@@ -482,9 +482,7 @@ cargo update -p solana-program@1.18.0 --precise ver
 where `ver` is the latest version of `solana-program` supporting rustc 1.68.0-dev
 ```
 
-You will also want the latest version of the anchor CLI installed. You can follow along the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
-
-or simply run
+We will also be using the Anchor CLI in this Lab. If you need to install the Anchor CLI, you can the steps [here to update via avm](https://www.anchor-lang.com/docs/avm) or run:
 
 ```bash
 avm install latest
@@ -493,24 +491,21 @@ avm use latest
 
 At the time of writing, the latest version of the Anchor CLI is `0.29.0`
 
-Now, we can check our rust version.
+Make sure your Rust compiler is at least `1.76.0` by running:
 
 ```bash
 rustc --version
 ```
 
-At the time of writing, version `1.76.0` was used for the rust compiler. If you would like to update, you can do so via `rustup`
-https://doc.rust-lang.org/book/ch01-01-installation.html
+If you would like to update, you can do so via `rustup`:
 
 ```bash
 rustup update
 ```
 
-Now, we should have all the correct versions installed.
-
 ### 2. Get starter code
 
-Let's grab the starter branch.
+Pull down this lab's starter branch using the following commands:
 
 ```bash
 git clone https://github.com/Unboxed-Software/solana-lab-transfer-hooks
@@ -528,7 +523,7 @@ anchor keys sync
 
 To sync your program key with the one in the `Anchor.toml` and the declared program id in the `programs/transfer-hook/src/lib.rs` file.
 
-Lastly set your developer keypair path in `Anchor.toml` if you don't want to use the default location.
+Now set your developer keypair path in `Anchor.toml` if you don't want to use the default location.
 
 ```toml
 [provider]
@@ -536,7 +531,7 @@ cluster = "Localnet"
 wallet = "~/.config/solana/id.json" // This is the default path, you can change it if you have your keypair in a different location
 ```
 
-If you don't know what your current keypair path is you can always run the solana cli to find out.
+If you don't know your current keypair path, you can always run the Solana CLI to find out.
 
 ```bash
 solana config get
@@ -544,38 +539,39 @@ solana config get
 
 ### 4. Confirm the program builds
 
-Let's build the starter code to confirm we have everything configured correctly. If it does not build, please revisit the steps above.
+Let's start by building the starter code to confirm everything is configured correctly (if it does not build, please revisit the steps above).
 
 ```bash
 anchor build
 ```
 
-You can safely ignore the warnings of the build script, these will go away as we add in the necessary code. But at the end you should see a message like this:
+You can ignore any warnings from the build script, but you should see a message like this at the end:
 
 ```bash
  Finished release [optimized] target(s)
 ```
 
-Feel free to run the provided tests to make sure the rest of the dev environment is setup correct. You'll have to install the node dependencies using `npm` or `yarn`. The tests should run, but they'll all fail until we have completed our program.
+{TODO: Are the tests supposed to pass or fail? This line says fail, and the bottom line says pass. }
+Feel free to run the provided tests to ensure the rest of the dev environment is set up correctly. You can install the node dependencies using `npm` or `yarn`. The tests should run and fail. We'll fix each one as we complete the lab.
 
 ```bash
 yarn install
 anchor test
 ```
 
-you should see that 4 tests are passed, this is because we don't have any code written yet.
+You should see that four tests are passed, this is because we don't have any code written yet.
 
 ## 1. Write the transfer hook program
 
-In this section we will dive into writing the onchain transfer hook program using anchor, all the code will go into the `programs/transfer-hook/src/lib.rs` file.
+We'll start buildling the onchain transfer hook program using Anchor. All the code will go into the `programs/transfer-hook/src/lib.rs` file.
 
-by Takeing a look inside that file, you'll notice we have three instructions `initialize_extra_account_meta_list`, `transfer_hook`, `fallback`. Additionally we have two instruction account struct `InitializeExtraAccountMetaList` and `TransferHook`.
+Inside the file, you'll notice we have three instructions:
 
-- The `initialize_extra_account_meta_list` function initializes the additional accounts needed for the transfer hook.
+- The `initialize_extra_account_meta_list` instruction initializes the additional accounts needed for the transfer hook.
 
-- The `transfer_hook` is the actual CPI called "after" the transfer has been made.
+- The `transfer_hook` instruction is the actual CPI called "after" the transfer has been made.
 
-- The `fallback` is an anchor adapter function we have to fill out.
+- The `fallback` instruction is an anchor adapter function we have to fill out.
 
 We're going to look at each in-depth.
 
@@ -610,6 +606,7 @@ pub mod transfer_hook {
     }
 }
 
+// Two structs we'll go over later
 #[derive(Accounts)]
 pub struct InitializeExtraAccountMetaList {}
 
@@ -619,31 +616,31 @@ pub struct TransferHook {}
 
 ### 1. Initialize Extra Account Meta List instruction
 
-The cookie program needs some extra accounts to be able to mint the crumb tokens which are:
+The cookie program wants to mint the crumb tokens on each transfer and needs the following accounts:
 
 1. `crumb_mint` - The mint account of the token to be minted by the transfer_hook instruction.
 2. `crumb_mint_ata` - The associated token account of the crumb mint.
 3. `mint_authority` - For the crumb mint.
 4. `token_program` - this mint will be a regular SPL token mint.
 
-We are going to store these accounts in the `extra_account_meta_list` account, by invoking the instruction `initialize_extra_account_meta_list` and passing the required accounts to it.
+We'll store these accounts in the ' `extra_account_meta_list` account by passing them into the `initialize_extra_account_meta_list` instruction.
 
-First we have to build the struct `InitializeExtraAccountMetaList`, then we can write the instruction itself.
+We'll first build the struct `InitializeExtraAccountMetaList`, and then we can write the instruction itself.
 
 **`InitializeExtraAccountMetaList` Struct**
 
-The Instruction requires the following accounts:
+The instruction requires the following accounts:
 
-1. `extra_account_meta_list` - The PDA that will hold the extra account.
+1. `extra_account_meta_list` - The PDA holding the extra account.
 2. `crumb_mint` - The mint account of the crumb token.
 3. `crumb_mint_ata` - The associated token account of the crumb token.
 4. `mint` - The mint account of the cookie NFT.
 5. `mint_authority` - The mint authority account of the crumb token.
-6. `payer` - The account that will pay for the creation of the ExtraAccountMetaList account.
+6. `payer` - The account that will pay for creating the ExtraAccountMetaList account.
 7. `token_program` - The token program account.
 8. `system_program` - The system program account.
 
-The code for the struct will goes as follows
+In our struct, we'll have Anchor initialize the `crumb_mint` and `mint_authority`. We'll need to provide the rest of the accounts. Here's the code:
 
 ```rust
 #[derive(Accounts)]
@@ -671,24 +668,20 @@ pub struct InitializeExtraAccountMetaList<'info> {
 }
 ```
 
-Thanks to anchor it could make our life easier and infer a few of these accounts, therefore we will have to pass the first 4 accounts (extra_account_meta_list, crumb_mint, crumb_mint_ata, mint) when invoking the instruction, and Anchor will infer the rest.
+It's important to make the `mint_authority` a PDA of the transfer hook program itself; this way, the program can sign for it when making the mint CPI.
 
-Notice that we are asking anchor to initialize the `crumb_mint` account for us, by using the `#[account(init, payer = payer,mint::decimals = 0, mint::authority = mint_authority)]` attribute. At the same time we are asking anchor to drive the `mint_authority` account from the seed `b"mint-authority"`.
-
-It's important to make the `mint_authority` a PDA of the transfer hook program itself, this way the program can sign for it when making the mint CPI.
-
-Note that we should be able to also drive the `crumb_mint_ata` using `Seed::new_external_pda_with_seeds` but at the time of writing this lesson, this method was causing some issues, so we will derive it in the TS code and pass it as a regular address.
+We should also be able to derive the `crumb_mint_ata` using `Seed::new_external_pda_with_seeds`. However, at the time of writing this lesson, this method was causing some issues, so we will derive it in the TS code and pass it as a regular address.
 
 **`initialize_extra_account_meta_list` Instruction**
 
-The instruction logic will be as follows:
+Let's break down the steps for the `initialize_extra_account_meta_list` instruction:
 
 1. List the accounts required for the transfer hook instruction inside a vector.
 2. Calculate the size and rent required to store the list of ExtraAccountMetas.
 3. Make a CPI to the System Program to create an account and set the Transfer Hook Program as the owner.
 4. Initialize the account data to store the list of ExtraAccountMetas.
 
-here is the code for it:
+Here is the code for it:
 
 ```rust
 pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
@@ -759,16 +752,15 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
 
 <Callout type="info">
 
-In this example, we are not using the Transfer Hook interface to create the
-ExtraAccountMetas account.
+In this example, we are not using the Transfer Hook interface to create the ExtraAccountMetas account.
 
 </Callout>
 
 ### 2. Transfer Hook instruction
 
-In this step, we will implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the token program when a token transfer occurs. The transfer_hook instruction will mint a new crumb token for each transfer.
+In this step, we will implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the token program when a token transfer occurs. The `transfer_hook` instruction will mint a new crumb token for each transfer.
 
-Again we will have a struct `TransferHook` that will hold the accounts required for the instruction.
+Again, we will use a struct to hold the accounts required for the instruction.
 
 **`TransferHook` Struct**
 
@@ -787,9 +779,7 @@ In this example the `TransferHook` struct will have 9 accounts:
 
 <Callout type="info">
 
-Note that the order of accounts in this struct matters. This is the order in
-which the Token Extensions program provides these accounts when it CPIs to this
-Transfer Hook program.
+Note that the order of accounts in this struct matters. This is the order in which the Token Extensions program provides these accounts when it CPIs to this Transfer Hook program.
 
 </Callout>
 
@@ -829,9 +819,9 @@ pub struct TransferHook<'info> {
 
 **`transfer_hook` Instruction**
 
-This instruction is fairly simple, it will only make one CPI to the token program to mint a new crumb token for each transfer, all what we need to do is to pass the write accounts to the CPI.
+The `transfer_hook` instruction will make one CPI to the token program to mint a new crumb token for each transfer. We will pass the write accounts to the CPI.
 
-Since the mint_authority is a PDA of the transfer hook program itself, the program can sign for it. Therefore we will use `new_with_signer` and pass mint_authority seeds as the signer seeds.
+Since the `mint_authority` is a PDA of the transfer hook program, the program can sign for it. We will use `new_with_signer` and pass `mint_authority` seeds as the signer seeds. We'll also include the amount of the original transfer as an parameters.
 
 ```rust
   pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
@@ -854,11 +844,10 @@ Since the mint_authority is a PDA of the transfer hook program itself, the progr
   }
 ```
 
-Notice that we do have the amount of the original transfer, in our case that will always be `1` because we are dealing with NFTs, but if you have a different token you will get the amount of how much did they transfer.
 
 ### 3. Fallback instruction
 
-The last instruction we have to fill out is the `fallback`, this is necessary because Anchor generates instruction discriminators differently from the ones used in Transfer Hook interface instructions. The instruction discriminator for the `transfer_hook` instruction will not match the one for the Transfer Hook interface.
+The last instruction we have to fill out is the `fallback`. Naming this function `fallback` is necessary because Anchor generates instruction discriminators differently from the ones used in Transfer Hook Interface instructions. The instruction discriminator for the `transfer_hook` instruction will not match the one for the Transfer Hook interface.
 
 ```rust
 // fallback instruction handler as workaround to anchor instruction discriminator check
