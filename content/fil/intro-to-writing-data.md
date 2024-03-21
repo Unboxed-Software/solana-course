@@ -12,7 +12,7 @@ objectives:
 
 Ang lahat ng pagbabago sa on-chain na data ay nangyayari sa pamamagitan ng **mga transaksyon**. Ang mga transaksyon ay kadalasang isang hanay ng mga tagubilin na humihimok ng mga programang Solana. Ang mga transaksyon ay atomic, ibig sabihin ay magtagumpay sila - kung ang lahat ng mga tagubilin ay naisakatuparan nang maayos - o nabigo, na parang hindi pa natakbo ang transaksyon.
 
-# Overview
+# Lesson
 
 ## Transactions
 

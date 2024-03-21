@@ -17,7 +17,7 @@ objectives:
   ```
 - To simplify this, use Anchor’s `init` constraint to create an account via a CPI to the system program and sets its discriminator
 
-# Overview
+# Lesson
 
 Initialization refers to setting the data of a new account for the first time. When initializing a new account, you should implement a way to check if the account has already been initialized. Without an appropriate check, an existing account could be reinitialized and have existing data overwritten.
 

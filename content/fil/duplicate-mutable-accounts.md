@@ -19,7 +19,7 @@ objectives:
 
 - Sa Anchor, maaari mong gamitin ang `constraint` upang magdagdag ng isang tahasang pagpilit sa isang account upang suriin na hindi ito katulad ng isa pang account.
 
-# Overview
+# Lesson
 
 Ang mga Duplicate na Mutable na Account ay tumutukoy sa isang tagubilin na nangangailangan ng dalawang nababagong account ng parehong uri. Kapag nangyari ito, dapat mong patunayan na ang dalawang account ay magkaiba upang maiwasan ang parehong account na maipasa sa pagtuturo nang dalawang beses.
 

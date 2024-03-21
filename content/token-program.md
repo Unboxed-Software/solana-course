@@ -16,7 +16,7 @@ objectives:
 - **Token Accounts** are used to hold Tokens of a specific Token Mint
 - Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed, however, Token Mints currently cannot be closed
 
-# Overview
+# Lesson
 
 The Token Program is one of many programs made available by the Solana Program Library (SPL). It contains instructions for creating and interacting with SPL-Tokens. These tokens represent all non-native (i.e. not SOL) tokens on the Solana network.
 

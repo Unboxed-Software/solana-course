@@ -37,7 +37,7 @@ objectives:
 - Sa Anchor, awtomatikong ipinapatupad ng mga uri ng program account ang katangiang `Discriminator` na lumilikha ng 8 byte na natatanging identifier para sa isang uri
 - Gamitin ang uri ng `Account<'info, T>` ng Anchor upang awtomatikong suriin ang discriminator ng account kapag deserialize ang data ng account
 
-# Overview
+# Lesson
 
 Ang "Type cosplay" ay tumutukoy sa isang hindi inaasahang uri ng account na ginagamit sa halip na isang inaasahang uri ng account. Sa ilalim ng hood, ang data ng account ay iniimbak lamang bilang isang hanay ng mga byte na na-deserialize ng isang programa sa isang custom na uri ng account. Nang hindi nagpapatupad ng paraan upang tahasang makilala ang mga uri ng account, ang data ng account mula sa hindi inaasahang account ay maaaring magresulta sa paggamit ng pagtuturo sa mga hindi sinasadyang paraan.
 

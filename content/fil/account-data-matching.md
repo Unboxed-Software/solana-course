@@ -19,7 +19,7 @@ objectives:
     
 - Sa Anchor, maaari mong gamitin ang `constraint` upang suriin kung ang ibinigay na expression ay nagsusuri sa true. Bilang kahalili, maaari mong gamitin ang `may_isa` upang tingnan kung ang isang target na field ng account na nakaimbak sa account ay tumutugma sa susi ng isang account sa `Mga Account` na struct.
 
-# Overview
+# Lesson
 
 Ang pagtutugma ng data ng account ay tumutukoy sa mga pagsusuri sa pagpapatunay ng data na ginagamit upang i-verify na ang data na nakaimbak sa isang account ay tumutugma sa inaasahang halaga. Ang mga pagsusuri sa pagpapatunay ng data ay nagbibigay ng paraan upang magsama ng mga karagdagang paghihigpit upang matiyak na ang mga naaangkop na account ay naipapasa sa isang tagubilin.
 

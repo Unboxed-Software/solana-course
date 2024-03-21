@@ -15,7 +15,7 @@ objectives:
 - Makukuha mo ang mga account na kabilang sa isang program gamit ang `getProgramAccounts(programId)`.
 - Kailangang ma-deserialize ang data ng account gamit ang parehong layout na ginamit upang iimbak ito sa unang lugar. Maaari mong gamitin ang `@project-serum/borsh` para gumawa ng schema.
 
-# Overview
+# Lesson
 
 Sa huling aralin, na-serialize namin ang data ng programa na kasunod na inimbak on-chain ng isang Solana program. Sa araling ito, tatalakayin natin nang mas detalyado kung paano nag-iimbak ang mga program ng data sa chain, kung paano kunin ang data, at kung paano i-deserialize ang data na iniimbak nila.
 ## Programs

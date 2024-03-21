@@ -12,7 +12,7 @@ objectives:
 - Pigilan ang parehong PDA na gamitin para sa maramihang mga account sa pamamagitan ng paggamit ng mga buto na user at/o domain-specific
 - Gamitin ang mga hadlang sa `seeds` at `bump` ng Anchor upang patunayan na ang isang PDA ay nakuha gamit ang inaasahang mga buto at bump
 
-# Overview
+# Lesson
 
 Ang pagbabahagi ng PDA ay tumutukoy sa paggamit ng parehong PDA bilang isang lumagda sa maraming user o domain. Lalo na kapag gumagamit ng mga PDA para sa pagpirma, maaaring mukhang angkop na gumamit ng isang pandaigdigang PDA upang kumatawan sa programa. Gayunpaman, nagbubukas ito ng posibilidad na pumasa ang pagpapatunay ng account ngunit naa-access ng isang user ang mga pondo, paglilipat, o data na hindi sa kanila.
 

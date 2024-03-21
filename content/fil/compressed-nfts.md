@@ -14,7 +14,7 @@ objectives:
 - Pagsuporta sa mga provider ng RPC **index** cNFT data off-chain kapag ang cNFT ay minted para magamit mo ang **Read API** para ma-access ang data
 - Ang **Metaplex Bubblegum program** ay isang abstraction sa ibabaw ng **State Compression** program na nagbibigay-daan sa iyo upang mas simpleng lumikha, mag-mint, at pamahalaan ang mga koleksyon ng cNFT
 
-# Overview
+# Lesson
 
 Ang mga naka-compress na NFT (cNFTs) ay eksakto kung ano ang iminumungkahi ng kanilang pangalan: Mga NFT na ang istraktura ay tumatagal ng mas kaunting storage ng account kaysa sa mga tradisyonal na NFT. Ang mga naka-compress na NFT ay gumagamit ng isang konsepto na tinatawag na **State Compression** upang mag-imbak ng data sa paraang lubhang nakakabawas sa mga gastos.
 

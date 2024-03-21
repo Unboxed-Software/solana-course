@@ -14,7 +14,7 @@ objectives:
 - Katulad nito, maaari mong gamitin ang `cfg!` **macro** upang mag-compile ng iba't ibang mga path ng code batay sa mga feature na pinagana.
 - Bilang kahalili, makakamit mo ang isang bagay na katulad ng mga variable ng kapaligiran na maaaring mabago pagkatapos ng pag-deploy sa pamamagitan ng paggawa ng mga account at tagubilin na maa-access lamang ng awtoridad sa pag-upgrade ng programa.
 
-# Overview
+# Lesson
 
 Ang isa sa mga paghihirap na kinakaharap ng mga inhinyero sa lahat ng uri ng software development ay ang pagsulat ng masusubok na code at paglikha ng mga natatanging kapaligiran para sa lokal na pag-unlad, pagsubok, produksyon, atbp.
 

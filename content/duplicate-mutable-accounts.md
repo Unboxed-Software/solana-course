@@ -19,7 +19,7 @@ objectives:
 
 - In Anchor, you can use `constraint` to add an explicit constraint to an account checking that it is not the same as another account.
 
-# Overview
+# Lesson
 
 Duplicate Mutable Accounts refers to an instruction that requires two mutable accounts of the same type. When this occurs, you should validate that two accounts are different to prevent the same account from being passed into the instruction twice.
 

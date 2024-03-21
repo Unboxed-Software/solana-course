@@ -13,7 +13,7 @@ objectives:
 - A VRF is a public-key pseudorandom function that provides proofs that its outputs were calculated correctly.
 - Switchboard offers a developer-friendly VRF for the Solana ecosystem.
 
-# Overview
+# Lesson
 
 ## Randomness On-Chain
 

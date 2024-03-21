@@ -12,7 +12,7 @@ objectives:
 - Prevent the same PDA from being used for multiple accounts by using seeds that are user and/or domain-specific
 - Use Anchor’s `seeds` and `bump` constraints to validate that a PDA is derived using the expected seeds and bump
 
-# Overview
+# Lesson
 
 PDA sharing refers to using the same PDA as a signer across multiple users or domains. Especially when using PDAs for signing, it may seem appropriate to use a global PDA to represent the program. However, this opens up the possibility of account validation passing but a user being able to access funds, transfers, or data not belonging to them.
 

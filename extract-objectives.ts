@@ -44,13 +44,13 @@ await Promise.all(
     let link = `https://www.soldev.app/course/${file.split(".")[0]}`;
     let objectives = thingsWeCareAbout.objectives.join(", ");
 
-    // cut the thingsWeCareAbout.content string for only items between '# Summary' and '# Overview'
+    // cut the thingsWeCareAbout.content string for only items between '# Summary' and '# Lesson'
     let summaryParagraph = "";
 
     try {
       summaryParagraph = thingsWeCareAbout.content
         .split("# Summary")[1]
-        .split("# Overview")[0]
+        .split("# Lesson")[0]
         .replace(/\n/g, " ");
     } catch (error) {
       log(`Error: bad formatting in ${file}`);

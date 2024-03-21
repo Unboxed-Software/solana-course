@@ -8,7 +8,7 @@ objectives:
 
 Solana has multiple onchain programs you can use. Instructions that use these programs need to have data in a custom format determined by the program.
 
-# Overview
+# Lesson
 ### Instructions
 
 In previous chapters, we used the `SystemProgram.transfer()` function to create an instruction to send SOL.

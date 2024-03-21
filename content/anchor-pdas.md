@@ -14,7 +14,7 @@ objectives:
 - The `realloc` constraint is used to reallocate space on an existing account
 - The `close` constraint is used to close an account and refund its rent
 
-# Overview
+# Lesson
 
 In this lesson you'll learn how to work with PDAs, reallocate accounts, and close accounts in Anchor.
 

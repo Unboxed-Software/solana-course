@@ -14,7 +14,7 @@ objectives:
 - The size and the order of fields in an account matter; put variable length fields at the end
 - Solana can process in parallel, but you can still run into bottlenecks; be mindful of "shared" accounts that all users interacting with the program have to write to
 
-# Overview
+# Lesson
 
 Program Architecture is what separates the hobbyist from the professional. Crafting performant programs has more to do with system **design** than it does with the code. And you, as the designer, need to think about: 
 

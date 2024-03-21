@@ -15,7 +15,7 @@ objectives:
 - To save on compute time, you can fetch a large number of accounts without their data by filtering them to return just an array of public keys
 - Once you have a filtered list of public keys, you can order them and fetch the account data they belong to
 
-# Overview
+# Lesson
 
 You may have noticed in the last lesson that while we could fetch and display a list of account data, we didn’t have any granular control over how many accounts to fetch or their order. In this lesson, we’ll learn about some configuration options for the `getProgramAccounts` function that will enable things like paging, ordering accounts, and filtering.
 

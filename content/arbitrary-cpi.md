@@ -12,7 +12,7 @@ objectives:
 - Perform program checks in native programs by simply comparing the public key of the passed-in program to the progam you expected.
 - If a program is written in Anchor, then it may have a publicly available CPI module. This makes invoking the program from another Anchor program simple and secure. The Anchor CPI module automatically checks that the address of the program passed in matches the address of the program stored in the module.
 
-# Overview
+# Lesson
 
 A cross program invocation (CPI) is when one program invokes an instruction on another program. An “arbitrary CPI” is when a program is structured to issue a CPI to whatever program is passed into the instruction rather than expecting to perform a CPI to one specific program. Given that the callers of your program's instruction can pass any program they'd like into the instruction's list of accounts, failing to verify the address of a passed-in program results in your program performing CPIs to arbitrary programs.
 

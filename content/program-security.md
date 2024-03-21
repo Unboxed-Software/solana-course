@@ -17,7 +17,7 @@ objectives:
 - **Account validation** entails ensuring that provided accounts are the accounts you expect them to be, e.g. deriving PDAs with the expected seeds to make sure the address matches the provided account
 - **Data validation** entails ensuring that any provided data meets the criteria required by the program
 
-# Overview
+# Lesson
 
 In the last two lessons we worked through building a Movie Review program together. The end result is pretty cool! It's exciting to get something working in a new development environment.
 

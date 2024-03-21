@@ -17,7 +17,7 @@ objectives:
 - **Pagpapatunay ng account** ay nangangailangan ng pagtiyak na ang mga ibinigay na account ay ang mga account na inaasahan mong magiging mga ito, hal. pagkuha ng mga PDA na may inaasahang mga binhi upang matiyak na ang address ay tumutugma sa ibinigay na account
 - Ang **Pagpapatunay ng data** ay nangangailangan ng pagtiyak na ang anumang ibinigay na data ay nakakatugon sa mga pamantayang kinakailangan ng programa
 
-# Overview
+# Lesson
 
 Sa huling dalawang aralin, pinagsikapan namin ang pagbuo ng programa sa Pagsusuri ng Pelikula. Ang resulta ay medyo cool! Nakakatuwang makakuha ng isang bagay na gumagana sa isang bagong kapaligiran sa pag-unlad.
 

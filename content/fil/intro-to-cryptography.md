@@ -14,7 +14,7 @@ objectives:
 - Ang **secret key** ay ginagamit upang i-verify ang awtoridad sa account. Gaya ng ipinahihiwatig ng pangalan, dapat mong palaging panatilihing *lihim* ang mga lihim na susi.
 - Ang `@solana/web3.js` ay nagbibigay ng mga function ng helper para sa paglikha ng bagong keypair, o para sa pagbuo ng keypair gamit ang isang umiiral nang secret key.
 
-# Overview
+# Lesson
 
 ## Symmetric and Asymmetric Cryptography
 

@@ -13,7 +13,7 @@ objectives:
 - MWA handles all of its wallet interaction within the `transact` function
 - Solana Mobile's `walletlib` does the heavy lifting for surfacing wallet requests to wallet apps
 
-# Overview
+# Lesson
 
 Wallets exist to protect your secret keys. While some applications might have app-specific keys, many crypto use cases rely on a single identity used across multiple apps. In these cases, you very much want to be careful about how you expose signing across these apps. You don't want to share your secret key with all of them, which means you need a standard for allowing apps to submit transactions for signature to a secure wallet app that holds your secret key. This is where the Mobile Wallet Adapter (MWA) comes in. It's the transport layer to connect your mobile dApps to your wallet.
 

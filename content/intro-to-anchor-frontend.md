@@ -17,7 +17,7 @@ objectives:
 - An **Anchor `Program`** object provides a custom API to interact with a specific program. You create a `Program` instance using a program's IDL and `Provider`.
 - The **Anchor `MethodsBuilder`** provides a simple interface through `Program` for building instructions and transactions
 
-# Overview
+# Lesson
 
 Anchor simplifies the process of interacting with Solana programs from the client by providing an Interface Description Language (IDL) file that reflects the structure of a program. Using the IDL in conjunction with Anchor's Typescript library (`@coral-xyz/anchor`) provides a simplified format for building instructions and transactions.
 

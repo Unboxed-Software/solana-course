@@ -14,7 +14,7 @@ objectives:
 - The **secret key** is used to verify authority over the account. As the name suggests, you should always keep secret keys *secret*.
 - `@solana/web3.js` provides helper functions for creating a brand new keypair, or for constructing a keypair using an existing secret key. 
 
-# Overview
+# Lesson
 
 ## Symmetric and Asymmetric Cryptography
 

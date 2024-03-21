@@ -12,7 +12,7 @@ objectives:
 - **Partial signing** ng mga transaksyon ay nagbibigay-daan para sa paglikha ng mga transaksyon na nangangailangan ng maramihang mga lagda bago sila isumite sa network
 - Ang **Transaction gating** ay nagsasangkot ng pagpapatupad ng mga panuntunan na tumutukoy kung ang ilang partikular na transaksyon ay pinapayagang iproseso o hindi, batay sa ilang kundisyon o pagkakaroon ng partikular na data sa transaksyon
 
-# Overview
+# Lesson
 
 Ang komunidad ng Solana ay patuloy na pinapabuti at pinapalawak ang paggana ng network. Ngunit hindi iyon palaging nangangahulugan ng pagbuo ng bagong teknolohiya. Minsan ito ay nangangahulugan ng paggamit ng mga umiiral na tampok ng network sa bago at kawili-wiling mga paraan.
 

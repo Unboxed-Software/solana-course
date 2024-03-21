@@ -24,7 +24,7 @@ objectives:
     }
     ```
 
-# Overview
+# Lesson
 
 Ang bump seeds ay isang numero sa pagitan ng 0 at 255, kasama, na ginagamit upang matiyak na ang isang address ay nakuha gamit ang [`create_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html# method.create_program_address) ay isang wastong PDA. Ang **canonical bump** ay ang pinakamataas na bump value na gumagawa ng valid PDA. Ang pamantayan sa Solana ay ang *palaging gamitin ang canonical bump* kapag kumukuha ng mga PDA, kapwa para sa seguridad at kaginhawahan.
 

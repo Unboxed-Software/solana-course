@@ -124,7 +124,7 @@ Each **Lesson** is a block of added understanding, starting from scratch and bui
 
 Lessons should follow the format:
 
- - **Overview** section is a conceptual overview. The equivalent would be when a teacher in a classroom says "don't do this yet, just watch.". The overview is intentionally not meant to be something readers code along with.
+ - **Lesson** section is the main body of the lesson, explaining the new concepts. The equivalent would be when a teacher in a classroom says "don't do this yet, just watch.". This section is intentionally not meant to be something readers code along with.
 
  - **Lab** section is when students code along and should follow a step-by-step process.
 

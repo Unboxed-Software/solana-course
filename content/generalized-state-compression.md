@@ -13,7 +13,7 @@ objectives:
 - Concurrent merkle trees are a specialized version of merkle trees that allow concurrent updates.
 - Because data in a state-compressed program is not stored on-chain, you have to user indexers to keep an off-chain cache of the data and then verify that data against the onchain merkle tree.
 
-# Overview
+# Lesson
 
 Previously, we discussed state compression in the context of compressed NFTs. At the time of writing, compressed NFTs represent the most common use case for state compression, but it’s possible to use state compression within any program. In this lesson, we’ll discuss state compression in more generalized terms so that you can apply it to any of your programs.
 

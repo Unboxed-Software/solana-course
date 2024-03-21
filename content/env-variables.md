@@ -14,7 +14,7 @@ objectives:
 -   Similarly, you can use the `cfg!` **macro** to compile different code paths based on the features that are enabled.
 -   Alternatively, you can achieve something similar to environment variables that can be modified after deployment by creating accounts and instructions that are only accessible by the program’s upgrade authority.
 
-# Overview
+# Lesson
 
 One of the difficulties engineers face across all types of software development is that of writing testable code and creating distinct environments for local development, testing, production, etc.
 

@@ -15,7 +15,7 @@ objectives:
 - You can get the accounts belonging to a program using `getProgramAccounts(programId)`.
 - Account data needs to be deserialized using the same layout used to store it in the first place. You can use `@coral-xyz/borsh` to create a schema.
 
-# Overview
+# Lesson
 
 In the last lesson, we serialized program data that was subsequently stored onchain by a Solana program. In this lesson, we’ll cover in greater detail how programs store data on the chain, how to retrieve data, and how to deserialize the data they store.
 ## Programs

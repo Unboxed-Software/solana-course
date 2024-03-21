@@ -14,7 +14,7 @@ objectives:
 - Nagagawa ng mga developer na lumikha at gumamit ng **mga liquidity pool** upang magpalit sa pagitan ng anumang SPL token na gusto nila.
 - Gumagamit ang program ng mathematical formula na tinatawag na "**curve**" para kalkulahin ang presyo ng lahat ng trade. Nilalayon ng mga curves na gayahin ang normal na dynamics ng market: halimbawa, habang bumibili ang mga trader ng maraming isang uri ng token, tumataas ang halaga ng ibang uri ng token.
 
-# Overview
+# Lesson
 
 ## Swap Pools
 

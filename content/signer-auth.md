@@ -21,7 +21,7 @@ objectives:
 - In Anchor, you can use the **`Signer`** account type in your account validation struct to have Anchor automatically perform a signer check on a given account
 - Anchor also has an account constraint that will automatically verify that a given account has signed a transaction
 
-# Overview
+# Lesson
 
 Signer checks are used to verify that a given account’s owner has authorized a transaction. Without a signer check, operations whose execution should be limited to only specific accounts can potentially be performed by any account. In the worst case scenario, this could result in wallets being completely drained by attackers passing in whatever account they want to an instruction.
 

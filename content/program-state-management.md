@@ -16,7 +16,7 @@ objectives:
 - Creating a new account requires a Cross Program Invocation (CPI) to the `create_account` instruction on the System Program
 - Updating the data field on an account requires that we serialize (convert to byte array) the data into the account
 
-# Overview
+# Lesson
 
 Solana maintains speed, efficiency, and extensibility in part by making programs stateless. Rather than having state stored on the program itself, programs use Solana's account model to read state from and write state to separate PDA accounts.
 
