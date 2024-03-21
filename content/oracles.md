@@ -15,7 +15,7 @@ objectives:
 - You can build your own Oracle to create a custom data feed
 - You have to be careful when choosing your data feed providers
 
-# Overview
+# Lesson
 
 Oracles are services that provide external data to a blockchain network. Blockchains by nature are siloed environments that have no knowledge of the outside world. This constraint inherently puts a limit on the use cases for decentralized applications (dApps). Oracles provide a solution to this limitation by creating a decentralized way to get real-world data on-chain.
 

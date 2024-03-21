@@ -15,7 +15,7 @@ objectives:
 - Maaari kang bumuo ng iyong sariling Oracle upang lumikha ng isang pasadyang feed ng data
 - Kailangan mong maging maingat sa pagpili ng iyong mga provider ng data feed
 
-# Overview
+# Lesson
 
 Ang Oracles ay mga serbisyong nagbibigay ng panlabas na data sa isang blockchain network. Ang mga blockchain ay likas na mga siled na kapaligiran na walang kaalaman sa labas ng mundo. Ang paghihigpit na ito ay likas na naglalagay ng limitasyon sa mga kaso ng paggamit para sa mga desentralisadong aplikasyon (dApps). Nagbibigay ang Oracles ng solusyon sa limitasyong ito sa pamamagitan ng paglikha ng isang desentralisadong paraan upang makakuha ng real-world na data na on-chain.
 

@@ -16,7 +16,7 @@ objectives:
 - Ang paggawa ng bagong account ay nangangailangan ng Cross Program Invocation (CPI) sa `create_account` na pagtuturo sa System Program
 - Ang pag-update sa field ng data sa isang account ay nangangailangan na i-serialize namin (i-convert sa byte array) ang data sa account
 
-# Overview
+# Lesson
 
 Ang Solana ay nagpapanatili ng bilis, kahusayan, at pagpapalawak sa bahagi sa pamamagitan ng paggawa ng mga programa na walang estado. Sa halip na magkaroon ng estado na naka-imbak sa mismong programa, ginagamit ng mga program ang modelo ng account ni Solana upang basahin ang estado mula at isulat ang estado upang paghiwalayin ang mga PDA account.
 

@@ -15,7 +15,7 @@ objectives:
 - Solana programs have a single **entry point** to process instructions
 - A program processes an instruction using the **program_id**, list of **accounts**, and **instruction_data** included with the instruction
 
-# Overview
+# Lesson
 
 Solana's ability to run arbitrary executable code is part of what makes it so powerful. Solana programs, similar to "smart contracts" in other blockchain environments, are quite literally the backbone of the Solana ecosystem. And the collection of programs grows daily as developers and creators dream up and deploy new programs.
 

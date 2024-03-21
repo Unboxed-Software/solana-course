@@ -18,7 +18,7 @@ objectives:
     pub receiver: SystemAccount<'info>
     ```
 
-# Overview
+# Lesson
 
 While it sounds simple, closing accounts properly can be tricky. There are a number of ways an attacker could circumvent having the account closed if you don't follow specific steps.
 

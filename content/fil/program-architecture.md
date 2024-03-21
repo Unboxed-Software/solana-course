@@ -13,7 +13,7 @@ objectives:
 - Gamitin ang Zero-Copy upang harapin ang mga account na masyadong malaki para sa `Box` (< 10MB)
 - Ang laki at ang pagkakasunud-sunod ng mga patlang sa isang bagay na account; ilagay ang mga patlang ng variable na haba sa dulo
 - Ang Solana ay maaaring magproseso nang magkatulad, ngunit maaari ka pa ring magkaroon ng mga bottleneck; alalahanin ang mga "nakabahaging" account na kailangang sulatan ng lahat ng user na nakikipag-ugnayan sa program
-# Overview
+# Lesson
 
 Ang Arkitektura ng Programa ang naghihiwalay sa hobbyist mula sa propesyonal. Ang paggawa ng mga gumaganang programa ay may higit na kinalaman sa system **design** kaysa sa code. At ikaw, bilang taga-disenyo, ay kailangang mag-isip tungkol sa:
 

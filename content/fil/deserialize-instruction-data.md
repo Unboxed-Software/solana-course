@@ -17,7 +17,7 @@ objectives:
 - Maaari mong gamitin ang `borsh` crate at ang `derive` attribute para magbigay ng Borsh deserialization at serialization functionality sa Rust structs
 - Tumutulong ang mga expression na `match` na kalawang na lumikha ng mga conditional code path batay sa ibinigay na pagtuturo
 
-# Overview
+# Lesson
 
 Isa sa mga pinakapangunahing elemento ng isang programa ng Solana ay ang lohika para sa paghawak ng data ng pagtuturo. Karamihan sa mga program ay sumusuporta sa maraming nauugnay na function at gumagamit ng mga pagkakaiba sa data ng pagtuturo upang matukoy kung aling code path ang isasagawa. Halimbawa, ang dalawang magkaibang format ng data sa data ng pagtuturo na ipinasa sa program ay maaaring kumatawan sa mga tagubilin para sa paggawa ng bagong piraso ng data kumpara sa pagtanggal ng parehong piraso ng data.
 

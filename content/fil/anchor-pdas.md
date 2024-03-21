@@ -14,7 +14,7 @@ objectives:
 - Ang hadlang na `realloc` ay ginagamit upang muling maglaan ng espasyo sa isang umiiral nang account
 - Ginagamit ang `close` constraint upang isara ang isang account at i-refund ang renta nito
 
-# Overview
+# Lesson
 
 Sa araling ito, matututunan mo kung paano magtrabaho sa mga PDA, muling italaga ang mga account, at isara ang mga account sa Anchor.
 

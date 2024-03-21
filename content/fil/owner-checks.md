@@ -21,7 +21,7 @@ if ctx.accounts.account.owner != ctx.program_id {
 - Ang mga uri ng account ng anchor program ay nagpapatupad ng katangiang `May-ari` na nagbibigay-daan sa wrapper ng `Account<'info, T>` na awtomatikong i-verify ang pagmamay-ari ng programa
 - Binibigyan ka ng Anchor ng opsyon na tahasang tukuyin ang may-ari ng isang account kung ito ay dapat na anuman maliban sa kasalukuyang nagsasagawa ng programa
 
-# Overview
+# Lesson
 
 Ang mga tseke ng may-ari ay ginagamit upang i-verify na ang isang account na ipinasa sa isang pagtuturo ay pagmamay-ari ng isang inaasahang programa. Pinipigilan nito ang mga account na pagmamay-ari ng isang hindi inaasahang programa na magamit sa isang pagtuturo.
 

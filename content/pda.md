@@ -16,7 +16,7 @@ objectives:
 - Seeds can be used to map to the data stored in a separate PDA account
 - A program can sign instructions on behalf of the PDAs derived from its ID
 
-# Overview
+# Lesson
 
 ## What is a Program Derived Address?
 

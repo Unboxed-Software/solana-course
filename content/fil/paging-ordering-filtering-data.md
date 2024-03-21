@@ -15,7 +15,7 @@ objectives:
 - Upang makatipid sa oras ng pagkalkula, maaari kang kumuha ng malaking bilang ng mga account nang wala ang kanilang data sa pamamagitan ng pag-filter sa mga ito upang magbalik lamang ng hanay ng mga pampublikong key
 - Kapag mayroon ka nang na-filter na listahan ng mga pampublikong key, maaari mong i-order ang mga ito at kunin ang data ng account na kinabibilangan nila
 
-# Overview
+# Lesson
 
 Maaaring napansin mo sa huling aralin na habang maaari kaming kumuha at magpakita ng listahan ng data ng account, wala kaming anumang butil na kontrol sa kung ilang account ang kukunin o ang kanilang order. Sa araling ito, malalaman natin ang tungkol sa ilang opsyon sa configuration para sa function na `getProgramAccounts` na magbibigay-daan sa mga bagay tulad ng paging, pag-order ng mga account, at pag-filter.
 
