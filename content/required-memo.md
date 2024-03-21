@@ -227,7 +227,7 @@ Thats it for the token accounts! Now we can move on and start ensuring that the 
 
 ### 6. Tests
 
-Test transfer without memo
+**Test transfer without memo**
 
 Above the main IIFE, declare a function named `testTryingToTransferWithoutMemo` along with its input types. 
 
@@ -291,7 +291,7 @@ Inside the main script, invoke the `testTryingToTransferWithoutMemo` test and ru
  })()
 ```
 
-Test transfer with memo
+**Test transfer with memo**
 
 This test will attempt to transfer with a memo. This test is also expected to pass. Pay extra attention to the following code block. It is the part of the transaction that adds the memo instruction to it:
 
@@ -387,7 +387,7 @@ In the main IIFE, paste the following beneath the previous code and run `npm run
 })()
 ```
 
-Test transfer with disabled memo
+**Test transfer with disabled memo**
 
 Below the previous test, declare a function named `testTransferWithDisabledMemo`. We don’t need to redeclare input types as we’ve already created them in the previous test (`TransferWithoutMemoInputs`).
 
