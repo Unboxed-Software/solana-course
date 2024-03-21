@@ -10,11 +10,11 @@ objectives:
 # Summary
 
 - The `RequiredMemo` extension allows developers to mandate that all incoming transfers to a token account include a memo, facilitating enhanced transaction tracking and user identification.
-- The demonstration includes the creation of a token account that necessitates memos for all incoming transfers, alongside tests to verify the extension's functionality in enforcing memo inclusion for transactions.
+- The demonstration includes the creation of a token account that necessitates memos for all incoming transfers, alongside tests to verify the extension's functionality in enforcing and disabling memo inclusion for transactions.
 
 # Overview
 
-For certain applications, such as exchanges or financial services, tracking the purpose or origin of a transaction is crucial. The `RequiredMemo` extension empowers mint creators to require a memo for every incoming transfer to a token account. This requirement ensures that each transaction is accompanied by additional information, which can be used for compliance, auditing, or user-specific purposes. If the need for strict tracking diminishes, the requirement can be adjusted to make memos optional, offering flexibility in how transactions are handled and recorded.
+For certain applications, such as exchanges or financial services, tracking the purpose or origin of a transaction is crucial. The `RequiredMemo` extension empowers mint creators to require a memo for every incoming transfer to a token account. This requirement ensures that each transaction is accompanied by additional information, which can be used for compliance, auditing, or user-specific purposes. If the need for strict tracking is removed, the requirement can be adjusted to make memos optional, offering flexibility in how transactions are handled and recorded.
 
 ## Creating token with required memo
 
