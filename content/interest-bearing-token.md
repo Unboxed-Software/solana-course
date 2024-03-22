@@ -1,3 +1,11 @@
+---
+title: Interest Bearing Token
+objectives:
+ - Create mint account with interest bearing config
+ - Attempt to update interest rate
+ - Attempt to update interest rate with incorrect owner
+ - Display interest rate information
+---
 # Summary
 
 - Creators can set an interest rate and store it directly on the mint account.
