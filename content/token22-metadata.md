@@ -498,13 +498,9 @@ Besides the NodeJS project being initialized with all of the needed dependencies
 - `helpers.ts`
 - `index.ts`
 
-The helper file provides us with a few helper functions.
+The helper file provides us with a nice helper function `uploadOffChainMetadata`.
 
-First `initializeKeypair` is an established helper will return us a `Keypair` to use for our script and will airdrop some solana to it if needed. Note that you can also provide it a keypair path if you'd like to use your own keypair.json file. Another important thing to note is that devnet has limits on airdrops. If you run into issues, it's recommend to run the `solana-test-validator`.
-
-Next the `airdropSolIfNeeded` function is a helper to airdrop some solana to the keypair if needed. This is important because we need solana to pay for the transactions we will be making.
-
-Last the `uploadOffChainMetadata` is a helper to store the off-chain metadata on Arweave using Bundlr. In this lab we're more focused on the Token Extension Program interaction, so this uploader function is provided. It is good to note that while an NFT or any off-chain metadata can be stored anywhere with any provider, we use metaplex here for simplicity. At the end of the day, all you need is a url to the hosted metadata json file.
+`uploadOffChainMetadata` is a helper to store the off-chain metadata on Arweave using Bundlr. In this lab we're more focused on the Token Extension Program interaction, so this uploader function is provided. It is good to note that while an NFT or any off-chain metadata can be stored anywhere with any provider, we use metaplex here for simplicity. At the end of the day, all you need is a url to the hosted metadata json file.
 
 Last thing to note from this helper file is some exported interfaces. Although metadata can contain more information, we'll only be using the following:
 ```ts
@@ -562,7 +558,8 @@ To upload the off-chain metadata, we need to import the helper function `uploadO
 
 ```ts
 import { clusterApiUrl, Connection } from '@solana/web3.js';
-import { initializeKeypair, uploadOffChainMetadata } from './helpers';
+import { initializeKeypair } from '@solana-developers/helpers';
+import { uploadOffChainMetadata } from './helpers';
 ```
 
 Now, we can add some variables that will represent the NFT properties like name, symbol, and image:
@@ -591,7 +588,8 @@ As a recap, our `src/index.ts` should look like this:
 
 ```ts
 import { clusterApiUrl, Connection } from '@solana/web3.js';
-import { initializeKeypair, uploadOffChainMetadata } from './helpers';
+import { initializeKeypair } from '@solana-developers/helpers';
+import { uploadOffChainMetadata } from './helpers';
 
 async function main() {
   const connection = new Connection(clusterApiUrl('devnet'), 'finalized');
@@ -627,8 +625,6 @@ main()
 ```
 
 Now run and test your code you should see the URI after the uploading is done. If you visit it, you should see a JSON that holds all of our off-chain metadata.
-
-## TODO I didn't see JSON. I saw the image
 
 ```bash
 npm run start
