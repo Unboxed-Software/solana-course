@@ -214,7 +214,9 @@ export function createInitializeInstruction(args: InitializeInstructionArgs): Tr
 }
 ```
 
-The function `createUpdateFieldInstruction` returns an instruction that creates or updates a field in a token-metadata account. Note you are limited to the space you've initally reserved in the `SystemProgram.createAccount` instruction. So if you're planning on updating metadata in the future, you'll want to allocate more space than nesscary as a buffer.
+The function `createUpdateFieldInstruction` returns an instruction that creates or updates a field in a token-metadata account. 
+
+Note: This function will automatically reallocate the mint's size to fit the data! That being said, the caller will be charged for the extra space allocated.
 
 This function takes five parameters:
   - `metadata`: the metadata account address.
@@ -308,7 +310,7 @@ export function createEmitInstruction(args: EmitInstructionArgs): TransactionIns
 }
 ```
 
-The function `pack` packs the metadata into a byte array, and conversely the function `unpack` unpacks the metadata from a byte aray. This is primarily used to get the size of the metadata in bytes, which helps with allocating space.
+The function `pack` packs the metadata into a byte array, and conversely the function `unpack` unpacks the metadata from a byte aray. This is primarily used to get the size of the metadata in bytes, which is needed to allocate enough space for it.
 
 ```ts
 export interface TokenMetadata {
@@ -375,6 +377,8 @@ A mint account's size with the metadata and metadata-pointer extensions incorpor
 3. the update authority that can change the metadata in the future.
 4. the `LENGTH_SIZE` and `TYPE_SIZE` constants from the `@solana/spl-token` library - these are sizes associated with mint extensions that are usually added with the call `getMintLen`, but since the metadata extension is vaiable length, they need to be added manually.
 5. the metadata pointer data (this will be the mint's address and is done for consistency)
+
+Note: There is no need to allocate more space than what is neccesary. The `createUpdateFieldInstruction` will automatically reallocate space and charge the payer accordingly to accomidate new data!
   
 To determine all of this programmatically, we use the `getMintLen` and `pack` functions from the `@solana/spl-token` library:
 
