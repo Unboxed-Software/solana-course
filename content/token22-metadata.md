@@ -654,7 +654,8 @@ This function will create an NFT by doing the following:
 
 This new function will take `CreateNFTInputs` defined in out `helpers.ts` file.
 
-As a first step, create a new file `src/nft-with-embedded-metadata.ts` and paste the following:
+As a first step, let's create a new file `src/nft-with-embedded-metadata.ts` and paste the following:
+
 ```typescript
 import { Keypair, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 import { CreateNFTInputs } from "./helpers";
@@ -677,9 +678,9 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
 }
 ```
 
-We will fill in the steps one by one.
+Now let's fill in the gaps one by one.
 
-Step 0 is to create the mint's keypair, make sure our decimals for our NFT to 0, and the supply is 1.
+For step 0, let's create the mint's keypair, make sure our decimals for our NFT to 0, and the supply is 1.
 
 ```typescript
   // 0. Setup Mint
@@ -688,7 +689,7 @@ Step 0 is to create the mint's keypair, make sure our decimals for our NFT to 0,
   const supply = 1; // NFTs should have a supply of 1
 ```
 
-Then we'll construct our `TokenMetadata` object interfaced from `@solana/spl-token-metadata`, and pass it all of our inputs. Note we have to do some conversion of our `tokenAdditionalMetadata` to match.
+Now let's construct our `TokenMetadata` object interfaced from `@solana/spl-token-metadata`, and pass it all of our inputs. Note we have to do some conversion of our `tokenAdditionalMetadata` to match.
 
 ```typescript
   // 1. Create the metadata object
@@ -702,7 +703,11 @@ Then we'll construct our `TokenMetadata` object interfaced from `@solana/spl-tok
   };
 ```
 
-Now we'll create our first instuction - `SystemProgram.createAccount`. To do this we need to know the size of our NFT's mint account. We are using two extentions for this, `metadata pointer` and the `metadata` exentions. Since the metadata is embedded using the metadata extension, it's variable length. So we use a combination of `getMintLen`, `pack` and some hardcoded amounts to get our final length. Then we call `getMinimumBalanceForRentExemption` to see how many lamports it costs to spin up the account. Finally we put everything into the `SystemProgram.createAccount` function to get our first insruction.
+Now let's create our first on-chain instuction using `SystemProgram.createAccount`. To do this we need to know the size of our NFT's mint account. Remeber we're using two extentions for our NFT, `metadata pointer` and the `metadata` exentions. Additionally, since the metadata is 'embedded' using the metadata extension, it's variable length. So we use a combination of `getMintLen`, `pack` and some hardcoded amounts to get our final length. 
+
+Then we call `getMinimumBalanceForRentExemption` to see how many lamports it costs to spin up the account.
+
+Finally we put everything into the `SystemProgram.createAccount` function to get our first insruction:
 
 ```typescript
   // 2. Allocate the mint
@@ -721,7 +726,7 @@ Now we'll create our first instuction - `SystemProgram.createAccount`. To do thi
 
 Note: the more information in the metadata, the more it costs.
 
-Now we need an instruciton to initialze the `metadata pointer` extension. We do this by calling `createInitializeMetadataPointerInstruction`. The metadata account in this case is the mint itself.
+Step 3 has us initialzing the `metadata pointer` extension. Let's do that by calling the `createInitializeMetadataPointerInstruction` function with the metadata account point to our mint.
 
 ```typescript
 // 3. Initialize the metadata-pointer making sure that it points to the mint itself 
@@ -733,7 +738,8 @@ const initMetadataPointerInstruction = createInitializeMetadataPointerInstructio
 );
 ```
 
-Let's crete the initialize mint instruction:
+Next is the `createInitializeMintInstruction`. Note that we do this before we initalize the metdata.
+
 ```typescript
 // 4. Initialize the mint
 const initMintInstruction = createInitializeMintInstruction(
@@ -744,6 +750,8 @@ const initMintInstruction = createInitializeMintInstruction(
   TOKEN_2022_PROGRAM_ID,
 );
 ```
+
+Now we can initilize our metdata with the `createInitializeInstruction`. We pass in all of our NFT metadata except for our `tokenAdditionalMetadata`, this is covered in our next step.
 
 ```typescript
 // 5. Initialize the metadata inside the mint
@@ -758,6 +766,7 @@ const initMetadataInstructions = createInitializeInstruction({
   updateAuthority: payer.publicKey,
 });
 ```
+In our NFT, we have `tokenAdditionalMetadata`, and as we saw in the previous step this cannot be set using the `createInitializeInstruction`. So we have to make an instruction to set each new additional field. We do this by calling `createUpdateFieldInstruction` for each of our entries in `tokenAdditionalMetadata`.
 
 ```typescript
 // 6. Set the additional metadata in the mint
@@ -774,6 +783,12 @@ for (const attributes of Object.entries(tokenAdditionalMetadata)) {
     )
 }
 ```
+
+Now let's mint this NFT to ourselves, and then revoke the mint authority. This will make it a true NFT where there will ever only be one. We accomplish this with the following functions:
+
+- `createAssociatedTokenAccountInstruction`
+- `createMintToCheckedInstruction`
+- `createSetAuthorityInstruction`
 
 ```typescript
 // 7. Create the associated token account and mint the NFT to it and remove the mint authority
@@ -807,6 +822,8 @@ const setMintTokenAuthorityInstruction = createSetAuthorityInstruction(
 );
 ```
 
+Now, let's bundle all of our transactions together and send it out to Solana. It is very important to note that order matters here.
+
 ```typescript
 // 8. Put all of that in one transaction and send it to the network.
 const transaction = new Transaction().add(
@@ -814,12 +831,15 @@ const transaction = new Transaction().add(
     initMetadataPointerInstruction,
     initMintInstruction,
     initMetadataInstruction,
+    ...setExtraMetadataInstructions,
     createATAInstruction,
     mintInstruction,
     setMintTokenAuthorityInstruction,
 );
 const transactionSignature = await sendAndConfirmTransaction(connection, transaction, [payer, mint]);
 ```
+
+Lastly, let's fetch and print out all of the information about our NFT so we know everything worked.
 
 ```typescript
 // 9. fetch and print the token account, the mint account, an the metadata to make sure that it is working correctly.
@@ -845,6 +865,7 @@ if (onChainMetadata && onChainMetadata.uri) {
 
 
 Putting it all together you get the following in `src/nft-with-embedded-metadata.ts`:
+
 ```ts
 import { Keypair, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 import { CreateNFTInputs } from "./helpers";
@@ -956,7 +977,7 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
       TOKEN_2022_PROGRAM_ID,
   );
 
-  // 7. Put all of that in one transaction and send it to the network.
+  // 8. Put all of that in one transaction and send it to the network.
   const transaction = new Transaction().add(
       createMintAccountInstruction,
       initMetadataPointerInstruction,
@@ -969,7 +990,7 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
   );
   const transactionSignature = await sendAndConfirmTransaction(connection, transaction, [payer, mint]);
 
-  // 8. fetch and print the token account, the mint account, an the metadata to make sure that it is working correctly.
+  // 9. fetch and print the token account, the mint account, an the metadata to make sure that it is working correctly.
   // Fetching the account
   const accountDetails = await getAccount(connection, ata, 'finalized', TOKEN_2022_PROGRAM_ID);
   console.log('Associate Token Account =====>', accountDetails);
@@ -993,9 +1014,10 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
 
 ## 3. Call Create NFT Function
 
-Let's put everything together in `src/index.ts`. 
+We have everything we need, let's put everything together in `src/index.ts`. 
 
-Now go back to `src/index.ts`, first you will have to import the function `createNFTWithEmbeddedMetadata` from the file we just created.
+Go back to `src/index.ts`, and import the function `createNFTWithEmbeddedMetadata` from the file we just created.
+
 ```ts
 import createNFTWithEmbeddedMetadata from './nft-with-embedded-metadata';
 ```
@@ -1012,7 +1034,7 @@ await createNFTWithEmbeddedMetadata({
 });
 ```
 
-the `src/index.ts` file should look like this
+`src/index.ts` file should look like this
 ```ts 
 import { clusterApiUrl, Connection } from '@solana/web3.js';
 import { initializeKeypair, uploadOffChainMetadata } from './helpers';
