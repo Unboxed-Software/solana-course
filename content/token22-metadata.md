@@ -1094,5 +1094,7 @@ npm run start
 
 You did it! You've made an NFT using the `metadata` and `metadata pointer` extensions.
 
+If you run into any problems, check out the [solution](https://github.com/Unboxed-Software/solana-lab-token22-metadata/tree/solution).
+
 # Challenge
 Taking what you've learned here, go and create your own NFT or SFT.
