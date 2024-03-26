@@ -149,11 +149,11 @@ const payer = await initializeKeypair(connection)
 
 ### 1. Clone the starter code
 
-To get started, clone [this lab's repository](https://github.com/Unboxed-Software/token22-in-the-client/) and checkout the `starter` branch. This branch contains a couple of helper files and some boilerplate code to get you started.
+To get started, clone [this lab's repository](https://github.com/Unboxed-Software/solana-lab-token22-in-the-client/) and checkout the `starter` branch. This branch contains a couple of helper files and some boilerplate code to get you started.
 
 ```bash
-git clone https://github.com/Unboxed-Software/token22-in-the-client.git
-cd token22-in-the-client
+git clone https://github.com/Unboxed-Software/solana-lab-token22-in-the-client.git
+cd solana-lab-token22-in-the-client
 git checkout starter
 ```
 
@@ -456,7 +456,7 @@ main()
 
 Run `npm run start` again. You should see the same output as before - meaning the expected token programs were correct.
 
-That's it! If you get stuck at any step, you can find the complete code in [this lab's repository's](https://github.com/Unboxed-Software/token22-in-the-client/) `solution` branch.
+That's it! If you get stuck at any step, you can find the complete code in [this lab's repository's](https://github.com/Unboxed-Software/solana-lab-token22-in-the-client/) `solution` branch.
 
 # Challenge
 For the challenge, try and implement the burn token functionality for the Token Program tokens and the Token Extension tokens.
