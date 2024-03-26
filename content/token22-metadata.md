@@ -591,6 +591,8 @@ When we put all of this together, our `index.ts` file will look as follows:
 import { clusterApiUrl, Connection } from '@solana/web3.js';
 import { initializeKeypair } from '@solana-developers/helpers';
 import { uploadOffChainMetadata } from './helpers';
+import dotenv from 'dotenv';
+dotenv.config();
 
 async function main() {
   const connection = new Connection(clusterApiUrl('devnet'), 'finalized');
@@ -1040,6 +1042,8 @@ import { clusterApiUrl, Connection } from '@solana/web3.js';
 import { initializeKeypair, uploadOffChainMetadata } from './helpers';
 import createNFTWithMetadataPointer from './nft-with-metadata-pointer';
 import createNFTWithEmbeddedMetadata from './nft-with-embedded-metadata';
+import dotenv from 'dotenv';
+dotenv.config();
 
 async function main() {
   const connection = new Connection(clusterApiUrl('devnet'), 'finalized');
