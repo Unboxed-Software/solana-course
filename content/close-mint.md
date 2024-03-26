@@ -72,11 +72,8 @@ npm install
 ```
 
 The starter code comes with following files:
- - `keypair-helpers.ts`
  - `print-helpers.ts`
  - `index.ts`
-
-The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed.
 
 The `print-helpers.ts` file has a function called `printTableData`. We'll be using the `printTableData` function to print information about tokens and their mints in a readable fashion.
 
@@ -174,7 +171,7 @@ import {
 	Keypair,
 	LAMPORTS_PER_SOL,
 } from '@solana/web3.js'
-import {initializeKeypair} from './keypair-helpers'
+import {initializeKeypair} from '@solana-developers/helpers'
 import {createClosableMint} from './create-mint'
 import {
 	TOKEN_2022_PROGRAM_ID,
@@ -186,6 +183,8 @@ import {
 	mintTo,
 } from '@solana/spl-token'
 import printTableData from './print-helpers'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const CLUSTER: Cluster = 'devnet'
 
@@ -196,6 +195,8 @@ async function main(){
 	const decimals = 9
 	await createClosableMint(CLUSTER, connection, payer, mintKeypair, decimals)
 }
+
+main()
 ```
 Run `npm start`. We will see a link which will take us to the create mint transaction on Solana Explorer.
 
@@ -235,6 +236,8 @@ async function main(){
 		TOKEN_2022_PROGRAM_ID
 	)
 }
+
+main()
 ```
 
 Now we will verify that the mint supply is non-zero by fetching the mint info.
@@ -252,6 +255,8 @@ async function main(){
 	)
 	printTableData(mintInfo)
 }
+
+main()
 ```
 Now we can run `npm run`. We will see the mint into printed with the supply.
 
@@ -283,6 +288,8 @@ async function main() {
 		)
 	}
 }
+
+main()
 ```
 Now we can run `npm start`. We will see that the program throws an error along with the program logs.
 
@@ -317,6 +324,8 @@ async function main(){
 		`Check the transaction at: https://explorer.solana.com/tx/${burnSignature}?cluster=${CLUSTER} \n\n`
 	)
 }
+
+main()
 ```
 
 When we run `npm start`, we will see a link which will take us to the burn transaction on Solana Explorer.
@@ -357,6 +366,8 @@ async function main(){
 		console.log(e)
 	}
 }
+
+main()
 ```
 Run `npm start` once more, and we will see a link for the close mint transaction on Solana Explorer.
 
