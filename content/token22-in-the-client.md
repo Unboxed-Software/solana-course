@@ -270,6 +270,8 @@ import {Cluster, Connection, clusterApiUrl} from '@solana/web3.js'
 import createAndMintToken from './create-and-mint-token'
 import printTableData from './print-helpers'
 import {TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID} from '@solana/spl-token'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const CLUSTER: Cluster = 'devnet'
 
