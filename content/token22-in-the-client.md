@@ -166,11 +166,8 @@ npm run start
 ### 2. Get familiar with the starter code
 
 The starter code comes with the following files:
-- `keypair-helpers.ts`
 - `print-helpers.ts`
 - `index.ts`
-
-The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed.
 
 The `print-helpers.ts` file has a function called `printTableData`. This function logs output to the console in a structured fashion. The function takes any object and is passed to the `console.table` helper available to NodeJS.
 
@@ -261,11 +258,21 @@ export async function createAndMintToken(
 
 	return mint
 }
+
+export default createAndMintToken
 ```
 
 Let's now take out new function and add a couple of calls to in within our `main` function. We'll want a `Token Program` and `Token Extension Program` token to test against. So we'll use our two different program IDs:
 
 ```ts
+import {initializeKeypair} from '@solana-developers/helpers'
+import {Cluster, Connection, clusterApiUrl} from '@solana/web3.js'
+import createAndMintToken from './create-and-mint-token'
+import printTableData from './print-helpers'
+import {TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID} from '@solana/spl-token'
+
+const CLUSTER: Cluster = 'devnet'
+
 async function main() {
   /**
    * Create a connection and initialize a keypair if one doesn't already exists.
@@ -291,6 +298,8 @@ async function main() {
     1000
   )
 }
+
+main()
 ```
 
 At this point you can run `npm run start` and see that both mints get created and their info logged to the console.
@@ -304,11 +313,16 @@ Let's create a new file `fetch-token-info.ts`.
 Within that new file, let's create the `fetchTokenInfo` function. This function will fetch the token account provided and return a new interface we'll create called `TokenInfoForDisplay`. This will allow us to format the returning info nicely in our console. Again, this function will be agnostic about which token program the account it from.
 
 ```ts
+import { AccountLayout, getMint } from "@solana/spl-token"
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
+
 export type TokenTypeForDisplay = 'Token Program' | 'Token Extension Program';
 
 export interface TokenInfoForDisplay {
   mint: PublicKey
   amount: number
+  decimals: number
+  displayAmount: number
   type: TokenTypeForDisplay
 }
 ```
@@ -323,8 +337,6 @@ To accomplish this the `fetchTokenInfo` function will need the following paramet
 - `type` - either `Token` or `Token22`; used for console logging purpose
 
 ```ts
-import { AccountLayout, getMint } from "@solana/spl-token"
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
 
 export type TokenTypeForDisplay = 'Token Program' | 'Token Extension Program';
 
@@ -370,8 +382,11 @@ export async function fetchTokenInfo(
 Let's see this function in action. Inside of `index.ts`, let's add two separate calls to this function, once for each program.
 
 ```ts
+...
+import { TokenInfoForDisplay, fetchTokenInfo } from './fetch-token-info'
+
 async function main() {
-  ...
+  	...
 	const myTokens: TokenInfoForDisplay[] = []
 
 	myTokens.push(
@@ -382,6 +397,8 @@ async function main() {
 	printTableData(myTokens)
 
 }
+
+main()
 ```
 
 Now you can run `npm run start` again. You will now see all of the tokens the payer wallet owns.
@@ -420,6 +437,9 @@ export async function fetchTokenProgramFromAccount(
 Finally let's add see this in action in our `index.ts`:
 
 ```ts
+...
+import { TokenInfoForDisplay, fetchTokenInfo, fetchTokenProgramFromAccount } from './fetch-token-info'
+
 async function main(){
   ...
 	const tokenProgramTokenProgram = await fetchTokenProgramFromAccount(connection, tokenProgramMint);
@@ -428,6 +448,8 @@ async function main(){
 	if(!tokenProgramTokenProgram.equals(TOKEN_PROGRAM_ID)) throw new Error('Token Program mint token program is not correct');
 	if(!tokenExtensionProgramTokenProgram.equals(TOKEN_2022_PROGRAM_ID)) throw new Error('Token Extension Program mint token program is not correct');
 }
+
+main()
 ```
 
 Run `npm run start` again. You should see the same output as before - meaning the expected token programs were correct.
