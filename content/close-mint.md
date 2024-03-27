@@ -1,33 +1,38 @@
 ---
 title: Close Mint Extension
 objectives:
- - Create a closable mint
- - Mint tokens
- - Try closing with non zero supply
- - Burn supply
- - Close the mint
+ - Create a mint that is closable
+ - Describe all of the prerequisites needed to close a mint
 ---
 
 # Summary
- - The Token program allows closing token accounts, but not mint accounts.
- - Token Extension Program includes `MintCloseAuthority` which is initialized when creating mint.
+ - The orignal Token Program only allowed closing token accounts, but not mint accounts.
+ - Token Extension Program includes `MintCloseAuthority` extension which allows mint accounts to be closed.
+ - For a mint with the `MintCloseAuthority` extension, all supply of the mint needs to be burned first.
 
 # Overview
-The Token program allows owners to close token accounts, but it is impossible to close mint accounts. In the Token Extension Program, it is possible to close mint accounts by initializing the `MintCloseAuthority` extension before initializing the mint.
+The oringal Token Program only allows owners to close token accounts, but it is impossible to close mint accounts. In the Token Extension Program, it is possible to close mint accounts that are initialized with the `MintCloseAuthority` extension.
 
-Initializing the mint with close authority involves three instruction:
+This is a nice quality of life improvement for developers, who may have thousands of mint accounts that could be cleaned up and be refunded for. Additionally, users who decide to burn their NFTs can now recoup the entire rent cost, since they can now also close the mint account.
+
+
+## Create Mint with Close Authority
+
+Initializing the mint with the close authority extension involves three instructions:
  - `SystemProgram.createAccount` 
  - `createInitializeMintCloseAuthorityInstruction`
  - `createInitializeMintInstruction`
 
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
- - Allocates `space`
- - Transfers `lamports` for rent
- - Assigns to itself it's owning program
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extension Program mints, we need to calculate the size of the mint. This can be accomplished by using `getMintLen` giving it an array of TODO 
+
+To get the mint length and create account instruction, do the following:
 ```ts
-SystemProgram.createAccount({
-	fromPubkey: payer.publicKey,
-	newAccountPubkey: mintKeypair.publicKey,
+
+//TODO talk about how to get the `mintLength`
+
+const createAccountInstruction = SystemProgram.createAccount({
+	fromPubkey: payer,
+	newAccountPubkey: mint,
 	space: mintLength,
 	lamports: mintLamports,
 	programId: TOKEN_2022_PROGRAM_ID,
@@ -36,32 +41,57 @@ SystemProgram.createAccount({
 
 The second instruction `createInitializeMintCloseAuthorityInstruction` initializes the close authority extension.
 ```ts
-createInitializeMintCloseAuthorityInstruction(
-	mintKeypair.publicKey,
-	payer.publicKey,
+
+const initializeMintCloseAuthorityInstruction = createInitializeMintCloseAuthorityInstruction(
+	mint,
+	authority,
 	TOKEN_2022_PROGRAM_ID
 )
 ```
 
 The third instruction `createInitializeMintInstruction` initializes the mint.
 ```ts
-createInitializeMintInstruction(
-	mintKeypair.publicKey,
+const initializeMintInstruction = createInitializeMintInstruction(
+	mint,
 	decimals,
-	payer.publicKey,
+	payer.publicKey, // TODO check authority or payer?
 	null,
 	TOKEN_2022_PROGRAM_ID
 )
 ```
 
+TODO - Send them to the blockchain
+```typescript
+const mintTransaction = new Transaction().add(
+	createAccountInstruction,
+	initializeMintCloseAuthorityInstruction,
+	initializeMintInstruction,
+)
+
+const signature = await sendAndConfirmTransaction(
+	connection,
+	mintTransaction,
+	[payer, mintKeypair],
+	{commitment: 'finalized'}
+)
+```
+
 When the transaction is sent, a new mint account is created with the specified close authority.
 
+
+## Close Mint with Close Authority
+
+TODO rewrite:
 The only constraint when closing the mint account is that the supply must be zero. If we try to close the mint account when the supply is not zero, the program will throw an error.
 
+TODO
+
 # Lab
+TODO Rewrite
 We will not create a mint with a close authority. We will also see what happens when we try to close the mint when supply is not zero. Then we will burn the supply and close the mint account.
 
 ## 1. Getting Started
+
 To get started, clone [this repository's](https://github.com/Unboxed-Software/solana-lab-close-mint-account.git) `starter` branch.
 
 ```bash
@@ -78,6 +108,8 @@ The starter code comes with following files:
 The `print-helpers.ts` file has a function called `printTableData`. We'll be using the `printTableData` function to print information about tokens and their mints in a readable fashion.
 
 Lastly, `index.ts` has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
+
+TODO Talk about devnet/localhost
 
 ## 2. Create a mint with close authority
 
@@ -111,6 +143,7 @@ import {
 	createInitializeMintCloseAuthorityInstruction,
 } from '@solana/spl-token'
 
+//TODO refactor to take out cluster
 export async function createClosableMint(
 	cluster: Cluster,
 	connection: Connection,
@@ -154,6 +187,8 @@ export async function createClosableMint(
 		[payer, mintKeypair],
 		{commitment: 'finalized'}
 	)
+
+	//TODO move to index.ts or remove completely
 	console.log(
 		`Check the transaction at: https://explorer.solana.com/tx/${signature}?cluster=${cluster} \n\n`
 	)
@@ -203,7 +238,7 @@ Run `npm start`. We will see a link which will take us to the create mint transa
 ## 3. Closing the mint
 Remember, when closing a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will mint 1 token from this mint, and try to close the mint account.
 
-### 3.1 Mint token
+### 3.1 Mint a token
 In `src/index.ts`, create an account and mint 1 token to that account.
 
 ```ts
