@@ -489,7 +489,7 @@ it('Fails if the nonce has advanced', async () => {
 
 ## 4. The nonce account advanced even if the transaction fails
 
-One of the edge cases that you should pay attention to it is this. Even if the transaction fails for any reason other than the nonce advance instruction, the nonce will still advance. This is for security reasons, so if the user signs a transaction and it fails, he dosn't have to to keep thinking about it, and no one can hold it on him.
+One of the edge cases that you should pay attention to it is this. Even if the transaction fails for any reason other than the nonce advance instruction, the nonce will still advance. This is for security reasons, so if the user signs a transaction and it fails, he doesn't have to to keep thinking about it, and no one can hold it on him.
 
 Let's imagine this use case, you sign a transaction to transfer 3 SOL from your wallet to buy something, and you discover after signing it that you don't have enough SOL, in this case you would say OK I changed my mind and I don't want to buy this thing anymore.
 
@@ -577,17 +577,7 @@ balance / LAMPORTS_PER_SOL
 
 Notice that we are setting `skipPreflight: true` in the `sendAndConfirmRawTransaction` function, this is because if we don't do that the transaction will never reach the network, and the library will reject it and throw an error, therefore it will fail but the nonce will not advance.
 
-This is not all, in the coming test case we will see that sometimes even if the transaction fails, the nonce will not advance, let's dive right into it.
-
-## 5. The nonce account will not advance if the transaction fails because of the nonce advance instruction
-
-In order to advance the nonce, the `advanceNonce` instruction must go though, so if for any reason this transaction fails the nonce will not advance.
-
-The `nonceAdvance` instruction could fail for many reasons:
-1. if the nonce authority is not the one who signed the transaction.
-2. if there was any mistakes in the instruction.
-
-**1. The Nonce authority didn't sign the transaction**
+## 5. The nonce account will not advance if the transaction fails because the nonce auth did not sign the transaction
 
 ```ts
   it('The nonce account will not advance if the transaction fails because the nonce auth did not sign the transaction', async () => {
@@ -651,15 +641,7 @@ The `nonceAdvance` instruction could fail for many reasons:
   });
 ```
 
-**2. Submits after changing the nonce auth to an already signed address**
-
-This an important edge case, The attacker might trick the user to sign a transaction that will eventually fails, for example a purchase, and then he could hold on this transaction for sometime and submit it to the network at any point in the future after changing the nonce authority to a keypair that already signed the transaction
-
-Imagen that a user signs a transaction to transfer 10 SOL from his wallet, and this transaction is a durable transaction. In the first instruction the `nonceAdvance` instruction the attacker will say that the nonce authority is the user wallet even though in reality it is not. After submitting the transaction it will fail, because the nonce authority is not what the `nonceAdvance` claims it to be, here the use will just giveup  on this transaction and he might sign another one or whatever. At this time the attacker have the transaction signature and because it is a durable transaction it will never get expired.
-
-Now at any point in the future if the attacker changes the nonce authority to be the user wallet, the advance instruction will get fixed, and this time if he submits the transaction it will go though!
-
-Below you can find a code that will demonstrate this use case:
+## 6. Submits after changing the nonce auth to an already signed address
 
 ```ts
   it('Submits after changing the nonce auth to an already signed address', async () => {
@@ -1069,7 +1051,7 @@ describe('transfer-hook', () => {
   });
 
   // If the transaction fails because the nonce advance instruction fails, the nonce account will not advance
-  // so if in the future the nonce advanced get fixed (maybe by chaning the nonce-auth to the users wallet) the trannsaction will be valid
+  // so if in the future the nonce advanced get fixed (maybe by chaining the nonce-auth to the users wallet) the transaction will be valid
   // will be valid and it could be submitted
   it('Submits after changing the nonce auth to an already signed address', async () => {
     const payer = await initializeKeypair(connection, {
