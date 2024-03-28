@@ -71,10 +71,8 @@ npm install
 
 The starter code comes with following files:
 
- - `keypair-helpers.ts`
  - `index.ts`
 
-The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed.
 
 `index.ts` has a `main` function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
 
@@ -170,7 +168,7 @@ import {
 	Keypair,
 	LAMPORTS_PER_SOL,
 } from '@solana/web3.js'
-import {initializeKeypair} from './keypair-helpers'
+import {initializeKeypair} from '@solana-developers/helpers'
 import {createNonTransferableMint} from './create-mint'
 import {
 	TOKEN_2022_PROGRAM_ID,
@@ -178,6 +176,8 @@ import {
 	mintTo,
 	transferChecked,
 } from '@solana/spl-token'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const CLUSTER: Cluster = 'devnet'
 
