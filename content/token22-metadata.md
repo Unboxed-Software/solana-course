@@ -431,7 +431,7 @@ To actually create and initialize the `mint` with the metadata and metadata poin
     TOKEN_2022_PROGRAM_ID,
   );
 
-  const initMetadataInstructions = createInitializeInstruction({
+  const initMetadataInstruction = createInitializeInstruction({
     programId: TOKEN_2022_PROGRAM_ID,
     mint: mint.publicKey,
     metadata: mint.publicKey,
@@ -457,7 +457,7 @@ const transaction = new web3.Transaction().add(
   createMintAccountInstructions,
   initMetadataPointerInstructions,
   initMintInstructions,
-  initMetadataInstructions,
+  initMetadataInstruction,
   updateMetadataFieldInstructions, // if you want to add any custom field
 );
 const sig = await web3.sendAndConfirmTransaction(connection, transaction, [payer, mint]);
@@ -746,7 +746,7 @@ Now we can initialize our metadata with the `createInitializeInstruction`. We pa
 
 ```typescript
 // 5. Initialize the metadata inside the mint
-const initMetadataInstructions = createInitializeInstruction({
+const initMetadataInstruction = createInitializeInstruction({
   programId: TOKEN_2022_PROGRAM_ID,
   mint: mint.publicKey,
   metadata: mint.publicKey,
