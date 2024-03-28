@@ -895,7 +895,7 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
 
   // 2. Allocate the mint
   const mintLen = getMintLen([ExtensionType.MetadataPointer]);
-  const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length + 500;
+  const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
   const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
 
   const createMintAccountInstruction = SystemProgram.createAccount({
