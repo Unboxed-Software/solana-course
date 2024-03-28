@@ -513,7 +513,7 @@ export interface CreateNFTInputs {
   tokenName: string;
   tokenSymbol: string;
   tokenUri: string;
-  tokenAdditionalMetadata: Record<string, string>;
+  tokenAdditionalMetadata?: Record<string, string>;
 }
 
 export interface UploadOffChainMetadataInputs {
@@ -521,7 +521,7 @@ export interface UploadOffChainMetadataInputs {
   tokenSymbol: string;
   tokenDescription: string;
   tokenExternalUrl: string;
-  tokenAdditionalMetadata: Record<string, string>;
+  tokenAdditionalMetadata?: Record<string, string>;
   imagePath: string;
 }
 ```
@@ -762,7 +762,7 @@ In our NFT, we have `tokenAdditionalMetadata`, and as we saw in the previous ste
 ```typescript
 // 6. Set the additional metadata in the mint
 const setExtraMetadataInstructions = [];
-for (const attributes of Object.entries(tokenAdditionalMetadata)) {
+for (const attributes of Object.entries(tokenAdditionalMetadata || [])) {
     setExtraMetadataInstructions.push(
         createUpdateFieldInstruction({
             updateAuthority: payer.publicKey,
@@ -924,7 +924,7 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
 
   // 6. Set the additional metadata in the mint
   const setExtraMetadataInstructions = [];
-  for (const attributes of Object.entries(tokenAdditionalMetadata)) {
+  for (const attributes of Object.entries(tokenAdditionalMetadata || [])) {
       setExtraMetadataInstructions.push(
           createUpdateFieldInstruction({
               updateAuthority: payer.publicKey,
@@ -1027,7 +1027,6 @@ await createNFTWithEmbeddedMetadata({
 ```ts
 import { Connection } from '@solana/web3.js';
 import { initializeKeypair, uploadOffChainMetadata } from './helpers';
-import createNFTWithMetadataPointer from './nft-with-metadata-pointer';
 import createNFTWithEmbeddedMetadata from './nft-with-embedded-metadata';
 import dotenv from 'dotenv';
 dotenv.config();
