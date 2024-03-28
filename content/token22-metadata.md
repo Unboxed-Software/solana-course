@@ -588,7 +588,7 @@ import { uploadOffChainMetadata } from './helpers';
 import dotenv from 'dotenv';
 dotenv.config();
 
-async function main() {
+(async () => {
   const connection = new Connection('http://127.0.0.1:8899', 'finalized');
   const payer = await initializeKeypair(connection);
   const imagePath = 'src/cat.jpg';
@@ -612,9 +612,7 @@ async function main() {
 
   // You can log the URI here and run the code to test it
   console.log('Token URI:', tokenUri);
-}
-
-main()
+})()
   .then(() => {
     console.log('Finished successfully');
     process.exit(0);
@@ -690,7 +688,7 @@ Now let's construct the `TokenMetadata` object interfaced from `@solana/spl-toke
       symbol: tokenSymbol,
       uri: tokenUri,
       // additionalMetadata: [['customField', 'customValue']],
-      additionalMetadata: Object.entries(tokenAdditionalMetadata).map(([key, value]) => [key, value]),
+      additionalMetadata: Object.entries(tokenAdditionalMetadata || []).map(([key, value]) => [key, value]),
   };
 ```
 
@@ -877,7 +875,7 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
       symbol: tokenSymbol,
       uri: tokenUri,
       // additionalMetadata: [['customField', 'customValue']],
-      additionalMetadata: Object.entries(tokenAdditionalMetadata).map(([key, value]) => [key, value]),
+      additionalMetadata: Object.entries(tokenAdditionalMetadata || []).map(([key, value]) => [key, value]),
   };
 
   // 2. Allocate the mint
@@ -1031,7 +1029,7 @@ import createNFTWithEmbeddedMetadata from './nft-with-embedded-metadata';
 import dotenv from 'dotenv';
 dotenv.config();
 
-async function main() {
+(async () => {
   const connection = new Connection('http://127.0.0.1:8899', 'finalized');
   const payer = await initializeKeypair(connection);
 
@@ -1059,9 +1057,7 @@ async function main() {
     tokenSymbol,
     tokenUri,
   });
-}
-
-main()
+})()
   .then(() => {
     console.log('Finished successfully');
     process.exit(0);
