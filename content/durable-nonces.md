@@ -213,22 +213,21 @@ In the case of a failing transaction, the known behavior is that all the instruc
 
 in this case the transaction will fail, and the nonce will not get advanced, because the only one allowed to advance the nonce is the authority of the nonce account.
 
-But if after that the authority of the nonce account changes to be someone who is in the signers list of the transaction, then submitting the transaction now will success, so you should keep in mind that even if you sign a durable transaction and it fails because the authority was not one of the signers, keep in mind that this transaction can still be submitted later if the authority of the nonce account transfer the authority to an account that has already signed the transaction (like your wallet account), so you should be extra carful with signing anything online before knowing all the details of what you are signing into.
+But if after that the authority of the nonce account changes to be someone who is in the signers list of the transaction, then submitting the transaction now will success, so you should keep in mind that even if you sign a durable transaction and it fails because the authority was not one of the signers, keep in mind that this transaction can still be submitted later if the authority of the nonce account transfer the authority to an account that has already signed the transaction (like your wallet account), so you should be extra careful with signing anything online before knowing all the details of what you are signing into.
 
 After explaining all of that, we are ready to start the lab to get our hands dirty with some code.
 
 # Lab
 
-In this lab we will learn how to create a durable transaction and then we will focus on you can and you can't do with it. Also we will discuss some of the edge cases and how to handle them.
+In this lab, we will learn how to create a durable transaction. We will focus on what you can and can't do with it. Additionally, we will discuss some edge cases and how to handle them.
 
-Durable transaction are the solution for having a long-lived transaction that can be signed and stored for a long time before submitting it to the network. We talked before about the how the regular transaction uses the recent blockhash and because of that they had a short lifespan where we would have to sign the transaction and submit it within 80-90 seconds.
+Durable transactions are the solution for having a long-lived transaction that can be signed and stored for an extended period before submitting it to the network. Previously, we discussed how the regular transaction uses the recent blockhash, which gives them a short lifespan. This means we would have to sign and submit the transaction within 80-90 seconds.
 
-Durable Transaction have two differences than a regular transaction:
+Durable transactions have two key differences compared to regular transactions:
+1. The recent blockhash is replaced with a nonce.
+2. The first instruction in the transaction should be a nonce advance instruction.
 
-1. the recent blockhash is replaced with a nonce.
-2. the first instruction in the transaction should be a nonce advance instruction.
-
-Therefore to create a durable transaction we should first prepare a nonce account, and then we can assemble the transaction and sign it, and that is what we will see in the lab.
+To create a durable transaction, we need to first prepare a nonce account. Then, we can assemble the transaction, sign it, and that is what we will see in the lab.
 
 ## 0. Getting started
 
@@ -236,7 +235,7 @@ Let's go ahead and clone our starter code
 
 ```bash
 git clone https://github.com/Unboxed-Software/solana-lab-durable-nonces
-cd solana-lab-durable-nonces
+cd Solana-lab-durable-nonces
 git checkout starter
 npm install
 ```
@@ -280,18 +279,17 @@ describe('transfer-hook', () => {
 });
 ```
 
-And as you can see, the lab will be divided into 5 steps that will help us understand the durable nonces better.
+As you can see, the lab will be divided into 5 steps that will help us understand durable nonces better.
 
-We will talk about each test case in-depth, in addition to that we will start by implementing a helper function that will create a nonce account for us, we will do that because we will have to create more than one nonce account though out the lab, so we want to have one function that does that for us and call it whenever we need a new nonce account.
-
+We will discuss each test case in depth. In addition, we will start by implementing a helper function that will create a nonce account for us. We will do this because we will need to create more than one nonce account throughout the lab, so we want to have one function that does that for us and call it whenever we need a new nonce account.
 
 ## 1. Create the Nonce Account
 
-To create the nonce account we will have to do the following:
-1. Get the payer, nonce account, and the nonce authority keypairs from the function parameters, as well as the connection
+To create the nonce account, we will have to do the following:
+1. Get the payer, nonce account, and the nonce authority keypairs from the function parameters, as well as the connection.
 2. Assemble and submit a transaction that will:
-  1. Allocate the account that will be the nonce account.
-  2. Initialize the nonce account using the `SystemProgram.nonceInitialize` instruction.
+   1. Allocate the account that will be the nonce account.
+   2. Initialize the nonce account using the `SystemProgram.nonceInitialize` instruction.
 3. Fetch the nonce account.
 4. Serialize the nonce account data and return it.
 
@@ -414,13 +412,13 @@ To create and submit a durable transaction we must follow these steps:
   });
 ```
 
-## 3. The transaction Fails if the nonce has advanced
+## 3. The Transaction Fails if the Nonce Has Advanced
 
-Because we are using the nonce in replacement of the recent blockhash, the system will do check to make sure that the nonce we provided is the same as the nonce in the `nonce_account,` this is important for security reasons, so no one can submit the same transaction twice. Because with each transaction we should add the `nonceAdvance` instruction as the first instruction, by that we will ensure that if the transaction will go through the nonce will change and no one would be able to submit it twice
+Because we are using the nonce in place of the recent blockhash, the system will check to ensure that the nonce we provided matches the nonce in the `nonce_account`. This is crucial for security reasons, so no one can submit the same transaction twice. With each transaction, we should add the `nonceAdvance` instruction as the first instruction. This ensures that if the transaction goes through, the nonce will change, and no one will be able to submit it twice.
 
-So that is what we will write a test for
-1. Create a durable transaction just like in the last step
-2. Advance the nonce
+Here is what we will test:
+1. Create a durable transaction just like in the previous step.
+2. Advance the nonce.
 3. Try to submit the transaction, and it should fail.
 
 ```ts
@@ -487,17 +485,17 @@ it('Fails if the nonce has advanced', async () => {
 });
 ```
 
-## 4. The nonce account advanced even if the transaction fails
+## 4. The Nonce Account Advances Even if the Transaction Fails
 
-One of the edge cases that you should pay attention to it is this. Even if the transaction fails for any reason other than the nonce advance instruction, the nonce will still advance. This is for security reasons, so if the user signs a transaction and it fails, he doesn't have to to keep thinking about it, and no one can hold it on him.
+An important edge case to be aware of is that even if a transaction fails for any reason other than the nonce advance instruction, the nonce will still advance. This feature is designed for security purposes, ensuring that once a user signs a transaction and it fails, they don't have to worry about it anymore, and it cannot be held against them.
 
-Let's imagine this use case, you sign a transaction to transfer 3 SOL from your wallet to buy something, and you discover after signing it that you don't have enough SOL, in this case you would say OK I changed my mind and I don't want to buy this thing anymore.
+Consider this scenario: you sign a transaction to transfer 3 SOL from your wallet to make a purchase, but then you realize you don't have enough SOL. In this case, you might decide you no longer want to make the purchase.
 
-If that was a regular transaction, you are OK because it will get expired in a minute and no one can submit it anymore, but in the case of a durable transaction, the transaction will never get expired, so if the nonce will not advance, the merchant in this case can still hold this transaction on you and it will wait until you have enough SOL in your wallet to submit the transaction.
+For regular transactions, this wouldn't be a problem since the transaction would expire in a minute, and it couldn't be submitted anymore. However, for a durable transaction, which never expires, if the nonce did not advance, the merchant could potentially wait until you have enough SOL in your wallet and then submit the transaction.
 
-Because of that the system program will make sure to advance the nonce even though the transaction fails, and you will have to sign the transaction again
+To prevent such situations, the system program is designed to ensure that the nonce advances even if the transaction fails. This means you would have to sign the transaction again.
 
-The code below will demonstrate this use case, we will try to create a durable transaction that transfers 50 SOL from the payer to the recipient, but the payer doesn't have enough SOL to do that, so the transaction will fail, but the nonce will still advance.
+The following code demonstrates this use case. We will attempt to create a durable transaction to transfer 50 SOL from the payer to the recipient. However, the payer doesn't have enough SOL for the transfer, so the transaction will fail, but the nonce will still advance.
 
 ```ts
 it('Advances the nonce account even if the transaction fails', async () => {
@@ -575,9 +573,19 @@ balance / LAMPORTS_PER_SOL
 });
 ```
 
-Notice that we are setting `skipPreflight: true` in the `sendAndConfirmRawTransaction` function, this is because if we don't do that the transaction will never reach the network, and the library will reject it and throw an error, therefore it will fail but the nonce will not advance.
+Notice that we are setting `skipPreflight: true` in the `sendAndConfirmRawTransaction` function. This step is crucial because, without it, the transaction would never reach the network. Instead, the library would reject it and throw an error, leading to a failure where the nonce does not advance.
 
-## 5. The nonce account will not advance if the transaction fails because the nonce auth did not sign the transaction
+However, this is not the whole story. In the upcoming test case, we will discover scenarios where even if the transaction fails, the nonce will not advance. Let's dive right into it.
+
+## 5. The Nonce Account Will Not Advance if the Transaction Fails Because of the Nonce Advance Instruction
+
+For the nonce to advance, the `advanceNonce` instruction must succeed. Thus, if the transaction fails for any reason related to this instruction, the nonce will not advance.
+
+The `nonceAdvance` instruction could fail for several reasons:
+1. If the nonce authority did not sign the transaction.
+2. If there were any mistakes in the instruction.
+
+**1. The Nonce Authority Didn't Sign the Transaction**
 
 ```ts
   it('The nonce account will not advance if the transaction fails because the nonce auth did not sign the transaction', async () => {
@@ -641,7 +649,15 @@ Notice that we are setting `skipPreflight: true` in the `sendAndConfirmRawTransa
   });
 ```
 
-## 6. Submits after changing the nonce auth to an already signed address
+**2. Submits After Changing the Nonce Authority to an Already Signed Address**
+
+This is an important edge case to consider. An attacker might trick the user into signing a transaction that will eventually fail, such as a purchase, and then hold onto this transaction for some time. They could submit it to the network at any point in the future after changing the nonce authority to a keypair that has already signed the transaction.
+
+Imagine that a user signs a transaction to transfer 10 SOL from his wallet, and this transaction is a durable transaction. In the first instruction, the `nonceAdvance` instruction, the attacker claims that the nonce authority is the user's wallet, even though in reality, it is not. After submitting the transaction, it will fail because the nonce authority is not what the `nonceAdvance` claims it to be. Here, the user will just give up on this transaction and might sign another one or whatever. At this time, the attacker has the transaction signature, and because it is a durable transaction, it will never expire.
+
+Now, at any point in the future, if the attacker changes the nonce authority to be the user's wallet, the advance instruction will be corrected, and this time, if he submits the transaction, it will go through!
+
+Below you can find a code that will demonstrate this use case:
 
 ```ts
   it('Submits after changing the nonce auth to an already signed address', async () => {
