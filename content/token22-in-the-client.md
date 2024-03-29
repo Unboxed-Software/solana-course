@@ -43,7 +43,7 @@ We can use the ATA helper functions for each token program by providing the desi
 
 If we want to use the Token Extension Program when we call `getOrCreateAssociatedTokenAccount` Extension Tokens, we can pass in `TOKEN_2022_PROGRAM_ID` for the `tokenProgramId` parameter:
 
-```
+```ts
 const tokenProgramId = TOKEN_2022_PROGRAM_ID;
 
 const tokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -56,12 +56,11 @@ const tokenAccount = await getOrCreateAssociatedTokenAccount(
   {commitment: 'finalized'},
   tokenProgramId // TOKEN_PROGRAM_ID for Token Program tokens and TOKEN_2022_PROGRAM_ID for Token Extension Program tokens
 )
-
 ```
 
 To re-create the ATA's address from scratch, we can use the `findProgramAddressSync` function by providing the correct seeds:
 
-```
+```ts
 function findAssociatedTokenAddress(
   walletAddress: PublicKey,
   tokenMintAddress: PublicKey
@@ -75,24 +74,22 @@ function findAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID
   )[0];
 }
-
 ```
 
 ## How to fetch tokens
 
 When it comes to fetching tokens, there is no difference between tokens and extension tokens. All we have to do is provide the correct token program:
 
-```
+```ts
 const tokenAccounts = await connection.getTokenAccountsByOwner(
 	walletPublicKey,
 	{ programId: TOKEN_PROGRAM_ID } // or TOKEN_2022_PROGRAM_ID
 )
-
 ```
 
 If we want to fetch all of the tokens for a particular owner, we can use a function like `getTokenAccountsByOwner`, and then call it twice, once with `TOKEN_PROGRAM_ID` and another with `TOKEN_2022_PROGRAM_ID`.
 
-```
+```ts
 const allOwnedTokens = []
 const tokenAccounts = await connection.getTokenAccountsByOwner(
 	wallet.publicKey,
@@ -104,7 +101,6 @@ const tokenExtensionAccounts = await connection.getTokenAccountsByOwner(
 )
 
 allOwnedTokens.push(...tokenAccounts, ...tokenExtensionAccounts)
-
 ```
 
 NOTE: It may be advised to store and associate the token program with the token upon fetching.
@@ -126,7 +122,6 @@ const tokenAccounts = await connection.getTokenAccountsByOwner(
   wallet.publicKey,
   {programId}
 )
-
 ```
 
 NOTE: After you fetch the owning account, it may be a good idea to save that owner and associate it with the mints/tokens you are handling.
@@ -196,7 +191,7 @@ Here are the arguments we'll be passing into this function:
 
 All put together this is what the final `createAndMintToken` function looks like:
 
-```
+```ts
 import { createMint, getMint, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import printTableData from "./print-helpers";
@@ -279,7 +274,7 @@ The `createAndMintToken` function does the following:
 
 Let's now take our new function and invoke it twice within our main script in `index.ts`. We'll want a `Token Program` and `Token Extension Program` token to test against. So we'll use our two different program IDs:
 
-```
+```tsx
 import { initializeKeypair } from '@solana-developers/helpers';
 import { Cluster, Connection } from '@solana/web3.js';
 import createAndMintToken from './create-and-mint-token';
@@ -325,7 +320,7 @@ Let's create a new file `fetch-token-info.ts`.
 
 Within that new file, let's create the `fetchTokenInfo` function. This function will fetch the token account provided and return a new interface we'll create named `TokenInfoForDisplay`. This will allow us to format the returning data nicely in our console. Again, this function will be agnostic about which token program the account it from.
 
-```
+```ts
 import { AccountLayout, getMint } from "@solana/spl-token"
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
 
@@ -350,8 +345,7 @@ To accomplish this the `fetchTokenInfo` function will need the following paramet
 - `programId` - The token program to point to
 - `type` - Either `Token` or `Token22`; used for console logging purpose
 
-```
-
+```ts
 export type TokenTypeForDisplay = 'Token Program' | 'Token Extension Program';
 
 export interface TokenInfoForDisplay {
@@ -395,7 +389,7 @@ export async function fetchTokenInfo(
 
 Let's see this function in action. Inside of `index.ts`, let's add two separate calls to this function, once for each program.
 
-```
+```ts
 // previous imports
 import { TokenInfoForDisplay, fetchTokenInfo } from './fetch-token-info'
 
@@ -430,7 +424,7 @@ The `fetchTokenProgramFromAccount` function will need the following parameters:
 
 The final function will look like this:
 
-```
+```ts
 // previous imports and code
 
 export async function fetchTokenProgramFromAccount(
@@ -449,7 +443,7 @@ export async function fetchTokenProgramFromAccount(
 
 Finally let's add see this in action in our `index.ts`:
 
-```
+```ts
 // previous imports
 import { TokenInfoForDisplay, fetchTokenInfo, fetchTokenProgramFromAccount } from './fetch-token-info'
 
