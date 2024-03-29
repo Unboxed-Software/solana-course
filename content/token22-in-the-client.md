@@ -1,13 +1,10 @@
 # 
 
 ---
-
 title: Supporting Token Extension Program from a Client
 objectives:
-
 - Learn how to effectively integrate multiple Solana token programs within client applications
 - Become proficient in utilizing the SPL TypeScript library for comprehensive token operations
-
 ---
 
 # Summary
