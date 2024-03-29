@@ -11,21 +11,21 @@ objectives:
 - These two programs are distinct and not directly compatible
 - Supporting both requires simply specifying the correct program ID in client-side functions
 - By default, the SPL program library uses the **`Token Program`** unless another is specified
-- **`Token22`** serves as an alternative reference to the **`Token Extension Program`**.
+- The `Token Extension Program` may also be referred to as `Token22`
 
 # Overview
 
-The Token Extensions Program enhances the original Token program by incorporating additional features known as extensions. These extensions are designed to address specific scenarios that previously necessitated developers to fork and alter the Solana Program Library, leading to challenges in adoption. The introduction of the Token Extensions Program allows for these scenarios to be effectively handled.
+The Token Extensions Program enhances the original Token Program by incorporating additional features known as extensions. These extensions are designed to address specific scenarios that previously necessitated developers to fork and alter the Solana Program Library, leading to challenges in adoption. The introduction of the Token Extensions Program allows for these scenarios to be effectively handled.
 
 Since the `Token Program` and `Token Extensions Program` are different onchain programs, they are not interoperable. As a result, we'll have to support both programs in our client-side applications. This means we'll want to explicitly handle mints from both the original Token Program (`TOKEN_PROGRAM_ID`) and the Extension Program (`TOKEN_2022_PROGRAM_ID`).
 
-Fortunately, the interfaces for the two programs remain consistent, allowing the use of `spl-token` helper functions in either program by simply swapping the program ID (the function uses the original Token Program by default if no program ID is provided). Yet, the majority of user interfaces will not make a distinction between tokens from the Token Program and those from the Token Extension Program. This requires additional logic to track, gather, and integrate information from both types of tokens to ensure a smooth user experience.
+Fortunately, the interfaces for the two programs remain consistent, allowing the use of `spl-token` helper functions in either program by simply swapping the program ID (the function uses the original Token Program by default if no program ID is provided). Most of the time, end users are not concerned with the specific token program being used. As such, implementing additional logic to track, assemble, and merge details from both token varieties is essential to guarantee a smooth user experience.
 
 Lastly, the Token Extension Program is internally named "Token 22" as in `TOKEN_2022_PROGRAM_ID`. They are the same thing.
 
 ## Differences between working with Token Program Tokens and Token Extension Tokens
 
-When interacting with mints and tokens, we need to be sure we're using the correct Token program. To create a `Token Program` mint, use the `Token Program`; to create a mint with extensions, use the `Token Extension Program`.
+When interacting with mints and tokens, we need to be sure we're using the correct Token Program. To create a `Token Program` mint, use `Token Program`; to create a mint with extensions, use the `Token Extension Program`.
 
 Fortunately, the `spl-token` package makes it simple to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants, along with all of its helper functions for creating and minting tokens that take a program ID as input.
 
