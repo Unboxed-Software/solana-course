@@ -1,5 +1,3 @@
-# 
-
 ---
 title: Supporting Token Extension Program from a Client
 objectives:
