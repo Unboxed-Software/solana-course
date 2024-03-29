@@ -1,49 +1,54 @@
+# 
+
 ---
+
 title: Supporting Token Extension Program from a Client
 objectives:
-- Learn how to support different token programs in the client
-- Interact with the spl ts library for all common token functions
+
+- Learn how to effectivly integrate multiple Solana token programs within client applications
+- Become proficient in utilizing the SPL TypeScript library for comprehensive token operations
+
 ---
 
 # Summary
 
 - The `Token Extension Program` is a superset of the `Token Program`
-- `Token Extension Program` and `Token Program` are not compatible
-- Handling the two programs is as easy as passing in the correct program id to client-side functions
-- If a program is not specified in the spl program library, it will default to the original `Token Program`
-- `Token22` is another way of referring to the `Token Extension Program`
+- These two programs are distinct and not directly compatible
+- Supporting both requires simply specifying the correct program ID in client-side functions
+- By default, the SPL program library uses the **`Token Program`** unless another is specified
+- **`Token22`** serves as an alternative reference to the **`Token Extension Program`**.
 
 # Overview
 
-The Token Extensions Program is a superset of the original Token program that includes new and helpful functionality called extensions. These extensions solve use cases that would have previously required a developer to fork and modify the Solana Program Library, which would have resulted in adoption issues. Now, with the Token Extensions Program, we can address those use cases. 
+The Token Extensions Program enhances the original Token program by incorporating additional features known as extensions. These extensions are designed to address specific scenarios that previously necessitated developers to fork and alter the Solana Program Library, leading to challenges in adoption. The introduction of the Token Extensions Program allows for these scenarios to be effectively handled.
 
-Since the `Token Program` and `Token Extensions Program` are different on-chain programs, they are not interoperable. As a result, we'll have to support both programs in our client-side applications. This means we'll want to explicitly handle mints from both the original Token Program (`TOKEN_PROGRAM_ID`) and the Extension Program (`TOKEN_2022_PROGRAM_ID`).
+Since the `Token Program` and `Token Extensions Program` are different onchain programs, they are not interoperable. As a result, we'll have to support both programs in our client-side applications. This means we'll want to explicitly handle mints from both the original Token Program (`TOKEN_PROGRAM_ID`) and the Extension Program (`TOKEN_2022_PROGRAM_ID`).
 
-Fortunately, the interfaces for the two programs remain consistent, allowing the use of `spl-token` helper functions in either program by simply swapping the program ID (the function uses the original Token Program by default if no program ID is provided). However, most user interfaces will not differentiate between Token Program and Token Extension Program tokens, requiring additional logic to track, fetch, and merge information from both types for a seamless experience.
+Fortunately, the interfaces for the two programs remain consistent, allowing the use of `spl-token` helper functions in either program by simply swapping the program ID (the function uses the original Token Program by default if no program ID is provided). Yet, the majority of user interfaces will not make a distinction between tokens from the Token Program and those from the Token Extension Program. This requires additional logic to track, gather, and integrate information from both types of tokens to ensure a smooth user experience.
 
 Lastly, the Token Extension Program is internally named "Token 22" as in `TOKEN_2022_PROGRAM_ID`. They are the same thing.
 
-
 ## Differences between working with Token Program Tokens and Token Extension Tokens
 
-When interacting with mints and tokens, we need to be sure we're inputting the correct Token program. To create a `Token Program` mint, use the `Token Program`; to create a mint with extensions, use the `Token Extension Program`.
+When interacting with mints and tokens, we need to be sure we're using the correct Token program. To create a `Token Program` mint, use the `Token Program`; to create a mint with extensions, use the `Token Extension Program`.
 
-Fortunately, the `spl-token` package makes it easy to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants, and all of its helper functions for creating and minting tokens take a program ID as input.
+Fortunately, the `spl-token` package makes it simple to do this. It provides both the `TOKEN_PROGRAM_ID` and `TOKEN_2022_PROGRAM_ID` constants, along with all of its helper functions for creating and minting tokens that take a program ID as input.
 
-NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless specified otherwise. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to the Token Extensions Program. Otherwise, you will get the following error: `TokenInvalidAccountOwnerError`.
+NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless otherwise specified. Make sure to explicitly pass the `TOKEN_2022_PROGRAM_ID` for all function calls related to the Token Extensions Program. Otherwise, you will get the following error: `TokenInvalidAccountOwnerError`.
 
-## Things to consider when working with both Token and Extension Tokens
+## Considerations when working with both Token and Extension Tokens
 
-Although the interfaces for both of these programs remain consistent, they are two different programs. The program IDs of these programs are not interchangeable, and the addresses created by using them are different. If you want to support both `Token Program`  tokens and `Token Extension Program` tokens, you must add extra logic on the client side.
+Although the interfaces for both of these programs remain consistent, they are two different programs. The program IDs for these programs are unique and non-interchangeable, resulting in distinct addresses when utilized. If you want to support both `Token Program`  tokens and `Token Extension Program` tokens, you must add extra logic on the client side.
 
 ## Associated Token Accounts (ATA)
 
 An Associated Token Account (ATA) is a Token Account whose address is derived using the wallet's public key, the token's mint, and the token program. This mechanism provides a deterministic Token Account address for each mint per user. The ATA account is usually the default account for most holders. Fortunately, ATAs are handled the same way with both token programs.
 
-We can use the ATA helper functions for each token program by providing the desired program ID. If we want to use the Token Extension Program when we call `getOrCreateAssociatedTokenAccount` Extension Tokens, we can pass in `TOKEN_2022_PROGRAM_ID` for the `tokenProgramId` parameter.
+We can use the ATA helper functions for each token program by providing the desired program ID. 
 
+If we want to use the Token Extension Program when we call `getOrCreateAssociatedTokenAccount` Extension Tokens, we can pass in `TOKEN_2022_PROGRAM_ID` for the `tokenProgramId` parameter:
 
-```ts
+```
 const tokenProgramId = TOKEN_2022_PROGRAM_ID;
 
 const tokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -56,11 +61,12 @@ const tokenAccount = await getOrCreateAssociatedTokenAccount(
   {commitment: 'finalized'},
   tokenProgramId // TOKEN_PROGRAM_ID for Token Program tokens and TOKEN_2022_PROGRAM_ID for Token Extension Program tokens
 )
+
 ```
 
-To re-create the ATA's address from scratch, we can use the `findProgramAddressSync` function by providing the correct seeds.
+To re-create the ATA's address from scratch, we can use the `findProgramAddressSync` function by providing the correct seeds:
 
-```ts
+```
 function findAssociatedTokenAddress(
   walletAddress: PublicKey,
   tokenMintAddress: PublicKey
@@ -74,21 +80,24 @@ function findAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID
   )[0];
 }
+
 ```
 
 ## How to fetch tokens
-When it comes to fetching tokens, there is no difference between tokens and extension tokens. All we have to do is provide the correct token program.
 
-```ts
+When it comes to fetching tokens, there is no difference between tokens and extension tokens. All we have to do is provide the correct token program:
+
+```
 const tokenAccounts = await connection.getTokenAccountsByOwner(
 	walletPublicKey,
 	{ programId: TOKEN_PROGRAM_ID } // or TOKEN_2022_PROGRAM_ID
 )
+
 ```
 
 If we want to fetch all of the tokens for a particular owner, we can use a function like `getTokenAccountsByOwner`, and then call it twice, once with `TOKEN_PROGRAM_ID` and another with `TOKEN_2022_PROGRAM_ID`.
 
-```ts
+```
 const allOwnedTokens = []
 const tokenAccounts = await connection.getTokenAccountsByOwner(
 	wallet.publicKey,
@@ -100,16 +109,16 @@ const tokenExtensionAccounts = await connection.getTokenAccountsByOwner(
 )
 
 allOwnedTokens.push(...tokenAccounts, ...tokenExtensionAccounts)
+
 ```
 
-NOTE: It may be advised to store and associate the token program with the token upon fetch.
+NOTE: It may be advised to store and associate the token program with the token upon fetching.
 
 ### Check owning program
 
-You may run into the scenario you don't know the token program for a given account. Fortunately `getParsedAccountInfo` will allow us to determine the owning program.
+You may run into a scenario where you don't know the token program for a given account. Fortunately, `getParsedAccountInfo` will allow us to determine the owning program:
 
-
-```ts
+```tsx
 const accountInfo = await connection.getParsedAccountInfo(mintAddress);
 if (accountInfo.value === null) {
   throw new Error('Account not found');
@@ -122,30 +131,16 @@ const tokenAccounts = await connection.getTokenAccountsByOwner(
   wallet.publicKey,
   {programId}
 )
+
 ```
 
 NOTE: After you fetch the owning account, it may be a good idea to save that owner and associate it with the mints/tokens you are handling.
 
 # Lab - Add Extension Token support to a script
 
-Let's work through a holistic example where we add Token Extension support to an existing script.
+Let's work through a holistic example where we add Token Extension support to an existing script. This lab will lead us through the necessary adjustments and expansions to embrace the capabilities and nuances of both the original Token Program and its extension counterpart. 
 
-You can work through this lab using either Devnet or Localnet. 
-
-Depending on the state of Devnet, it may or may not be easier to use a local test validator by running the following command:
-
-```bash
-solana-test-validator
-```
-
-Then change the connection URL in `src/index.ts` to point to the running validator:
-
-```ts
-// ....
-const connection = new Connection('http://127.0.0.1:8899') // use the JSON RPC URL as prompted on the console after running the validator
-const payer = await initializeKeypair(connection)
-// ....
-```
+By the end of this lab, we'll have navigated the complexities of supporting these two distinct but related token systems, ensuring our script can interact smoothly with both.
 
 ### 1. Clone the starter code
 
@@ -157,41 +152,56 @@ cd solana-lab-token22-in-the-client
 git checkout starter
 ```
 
-Run the following commands to install the dependencies and run the script.
-```bash
-npm install
-npm run start
+Run `npm install` to install the dependencies.
+
+### 2. Run validator node
+
+For the sake of this lab, we will be running our own validator node. We do this because sometimes testnet or devnets on Solana can become congested and in turn, less reliable.
+
+In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
+
+```tsx
+const connection = new Connection('http://127.0.0.1:8899', 'confirmed');
 ```
 
-### 2. Get familiar with the starter code
+Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
+
+```tsx
+const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+```
+
+Lets test that it all works so far by running `npm run start`. You should see the `payer` public key logged out in your terminal.
+
+### 3. Get familiar with the starter code
 
 The starter code comes with the following files:
+
 - `print-helpers.ts`
 - `index.ts`
 
-The `print-helpers.ts` file has a function called `printTableData`. This function logs output to the console in a structured fashion. The function takes any object and is passed to the `console.table` helper available to NodeJS.
+The **`print-helpers.ts`** file contains a function called **`printTableData`**, which is designed to output data to the console in a structured format. This function is capable of accepting any object as its argument, and it utilizes the **`console.table`** method, a feature provided by NodeJS, to display the data in an easily readable table format.
 
-Lastly, `index.ts` contains our `main` function. It currently only creates a connection and calls `initializeKeypair`.
+Lastly, `index.ts` contains our main script. It currently only creates a connection and calls `initializeKeypair` to generate the keypair for `payer`.
 
-### 3. Create Token Program and Token Extension Program mints
+### 4. Create Token Program and Token Extension Program mints
 
-Let's start by creating new token mints using both the `Token Program` and the `Token Extension Program`. 
+Let's start by creating new token mints using both the `Token Program` and the `Token Extension Program`.
 
-Create a new file called `create-and-mint-token.ts`.
+Create a new file called `create-and-mint-token.ts`. In this file we will create a function called `createAndMintToken`. As the name suggests it will create a mint, token account (ATA) and then mint some amount of tokens to that account.
 
-In this file we will create a function called `createAndMintToken`. As the name suggests it will create a mint, token account (ATA) and then mint some amount of tokens to that account.
+Inside this function we will be call `createMint`, `getOrCreateAssociatedTokenAccount` and `mintTo`. This function in **`print-helpers.ts`** is designed to be indifferent to the specific token program being used, allowing for the creation of tokens from either the `Token Program` or the `Token Extension Program`. This capability is achieved by accepting a program ID as a parameter, enabling the function to adapt its behavior based on the provided ID.
 
-Inside this function we will be call `createMint`, `getOrCreateAssociatedTokenAccount`, and `mintTo`. The cool part is that this function we are creating is token program agnostic, so we'll be able to create both `Token Program` and `Token Extension Program` tokens within it just by passing in the desired program ID. That being said, here are the arguments we'll be passing into this function:
+Here are the arguments we'll be passing into this function:
 
-- `connection` - the connection object to use
-- `tokenProgramId` - the token program to point to
-- `payer` - the keypair paying for the transaction
-- `decimals` - the number of decimals to include for the mint
-- `mintAmount` - the amount of tokens to mint to the payer
+- `connection` - The connection object to use
+- `tokenProgramId` - The token program to point to
+- `payer` - The keypair paying for the transaction
+- `decimals` - The number of decimals to include for the mint
+- `mintAmount` - The amount of tokens to mint to the payer
 
-All put together this is what the final function `createAndMintToken` looks like:
+All put together this is what the final `createAndMintToken` function looks like:
 
-```ts
+```
 import { createMint, getMint, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import printTableData from "./print-helpers";
@@ -203,8 +213,7 @@ export async function createAndMintToken(
 	decimals: number,
 	mintAmount: number,
 ): Promise<PublicKey> {
-
-	console.log('\nCreating a new mint...')
+	console.log('\\nCreating a new mint...')
 	const mint = await createMint(
 		connection,
 		payer,
@@ -218,7 +227,7 @@ export async function createAndMintToken(
 		tokenProgramId
 	)
 
-	console.log('\nFetching mint info...')
+	console.log('\\nFetching mint info...')
 
 	const mintInfo = await getMint(
 		connection,
@@ -229,7 +238,7 @@ export async function createAndMintToken(
 
 	printTableData(mintInfo);
 
-	console.log('\nCreating associated token account...')
+	console.log('\\nCreating associated token account...')
 	const tokenAccount = await getOrCreateAssociatedTokenAccount(
 		connection,
 		payer,
@@ -243,7 +252,7 @@ export async function createAndMintToken(
 
 	console.log(`Associated token account: ${tokenAccount.address.toBase58()}`)
 
-	console.log('\nMinting to associated token account...')
+	console.log('\\nMinting to associated token account...')
 	await mintTo(
 		connection,
 		payer,
@@ -262,59 +271,66 @@ export async function createAndMintToken(
 export default createAndMintToken
 ```
 
-Let's now take out new function and add a couple of calls to in within our `main` function. We'll want a `Token Program` and `Token Extension Program` token to test against. So we'll use our two different program IDs:
+The `createAndMintToken` function does the following:
 
-```ts
-import {initializeKeypair} from '@solana-developers/helpers'
-import {Cluster, Connection, clusterApiUrl} from '@solana/web3.js'
-import createAndMintToken from './create-and-mint-token'
-import printTableData from './print-helpers'
-import {TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID} from '@solana/spl-token'
-import dotenv from 'dotenv'
-dotenv.config()
+- Create a new mint using **`createMint`**
+- Fetch mint information using **`getMint`**
+- Log mint information using **`printTableData`**
+- Create an associated token account with **`getOrCreateAssociatedTokenAccount`**
+- Log the address of the associated token account
+- Mint tokens to the associated token account with **`mintTo`**
 
-const CLUSTER: Cluster = 'devnet'
+### 5. Creating and minting tokens
 
-async function main() {
-  /**
-   * Create a connection and initialize a keypair if one doesn't already exists.
-   * If a keypair exists, airdrop a sol if needed.
-   */
-  const connection = new Connection(clusterApiUrl(CLUSTER))
-  const payer = await initializeKeypair(connection)
+Let's now take our new function and invoke it twice within our main script in `index.ts`. We'll want a `Token Program` and `Token Extension Program` token to test against. So we'll use our two different program IDs:
 
-  console.log(`Payer: ${payer.publicKey.toBase58()}`)
+```
+import { initializeKeypair } from '@solana-developers/helpers';
+import { Cluster, Connection } from '@solana/web3.js';
+import createAndMintToken from './create-and-mint-token';
+import printTableData from './print-helpers';
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import dotenv from 'dotenv';
+dotenv.config();
 
-  const tokenProgramMint = await createAndMintToken(
-    connection,
-    TOKEN_PROGRAM_ID,
-    payer,
-    0,
-    1000
-  )
-  const tokenExtensionProgramMint = await createAndMintToken(
-    connection,
-    TOKEN_2022_PROGRAM_ID,
-    payer,
-    0,
-    1000
-  )
-}
+(async () => {
+	/**
+	 * Create a connection and initialize a keypair if one doesn't already exists.
+	 * If a keypair exists, airdrop a sol if needed.
+	 */
+	const connection = new Connection('http://127.0.0.1:8899', 'confirmed')
+	const payer = await initializeKeypair(connection)
 
-main()
+	console.log(`Payer: ${payer.publicKey.toBase58()}`)
+
+	const tokenProgramMint = await createAndMintToken(
+		connection,
+		TOKEN_PROGRAM_ID,
+		payer,
+		0,
+		1000
+	)
+	const tokenExtensionProgramMint = await createAndMintToken(
+		connection,
+		TOKEN_2022_PROGRAM_ID,
+		payer,
+		0,
+		1000
+	)
+})();
 ```
 
 At this point you can run `npm run start` and see that both mints get created and their info logged to the console.
 
-### 4. Fetch Token Program and Token Extension Program tokens
+### 6. Fetch Token Program and Token Extension Program tokens
 
-We can now fetch tokens using the wallet's public key and the program ID. 
+We can now fetch tokens using the wallet's public key and the program ID.
 
 Let's create a new file `fetch-token-info.ts`.
 
-Within that new file, let's create the `fetchTokenInfo` function. This function will fetch the token account provided and return a new interface we'll create called `TokenInfoForDisplay`. This will allow us to format the returning info nicely in our console. Again, this function will be agnostic about which token program the account it from.
+Within that new file, let's create the `fetchTokenInfo` function. This function will fetch the token account provided and return a new interface we'll create named `TokenInfoForDisplay`. This will allow us to format the returning data nicely in our console. Again, this function will be agnostic about which token program the account it from.
 
-```ts
+```
 import { AccountLayout, getMint } from "@solana/spl-token"
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
 
@@ -327,18 +343,19 @@ export interface TokenInfoForDisplay {
   displayAmount: number
   type: TokenTypeForDisplay
 }
+
 ```
 
 To actually fetch all of this information we will be calling `getTokenAccountsByOwner` and mapping the results into our new `TokenInfoForDisplay` interface.
 
 To accomplish this the `fetchTokenInfo` function will need the following parameters:
 
-- `connection` - the connection object to use
-- `owner` - the wallet which owns the associated token accounts
-- `programId` - the token program to point to
-- `type` - either `Token` or `Token22`; used for console logging purpose
+- `connection` - The connection object to use
+- `owner` - The wallet which owns the associated token accounts
+- `programId` - The token program to point to
+- `type` - Either `Token` or `Token22`; used for console logging purpose
 
-```ts
+```
 
 export type TokenTypeForDisplay = 'Token Program' | 'Token Extension Program';
 
@@ -356,26 +373,26 @@ export async function fetchTokenInfo(
   programId: PublicKey,
   type: TokenTypeForDisplay
 ): Promise<TokenInfoForDisplay[]> {
-	const tokenAccounts = await connection.getTokenAccountsByOwner(
-		owner,
-		{programId}
-	)
+  const tokenAccounts = await connection.getTokenAccountsByOwner(
+    owner,
+    { programId }
+  )
 
-    const ownedTokens: TokenInfoForDisplay[] = []
+  const ownedTokens: TokenInfoForDisplay[] = []
 
-    for (const tokenAccount of tokenAccounts.value) {
-        const accountData = AccountLayout.decode(tokenAccount.account.data)
+  for (const tokenAccount of tokenAccounts.value) {
+    const accountData = AccountLayout.decode(tokenAccount.account.data)
 
-        const mintInfo = await getMint(connection, accountData.mint, 'finalized', programId)
-        
-        ownedTokens.push({
-			mint: accountData.mint,
-            amount: Number(accountData.amount),
-            decimals: mintInfo.decimals,
-			displayAmount: Number(accountData.amount) / (10**mintInfo.decimals),
-			type,
-		})
-    }
+    const mintInfo = await getMint(connection, accountData.mint, 'finalized', programId)
+
+    ownedTokens.push({
+      mint: accountData.mint,
+      amount: Number(accountData.amount),
+      decimals: mintInfo.decimals,
+      displayAmount: Number(accountData.amount) / (10 ** mintInfo.decimals),
+      type,
+    })
+  }
 
   return ownedTokens;
 }
@@ -383,12 +400,12 @@ export async function fetchTokenInfo(
 
 Let's see this function in action. Inside of `index.ts`, let's add two separate calls to this function, once for each program.
 
-```ts
-...
+```
+// previous imports
 import { TokenInfoForDisplay, fetchTokenInfo } from './fetch-token-info'
 
-async function main() {
-  	...
+(async () => {
+  // previous code
 	const myTokens: TokenInfoForDisplay[] = []
 
 	myTokens.push(
@@ -398,35 +415,34 @@ async function main() {
 
 	printTableData(myTokens)
 
-}
-
-main()
+})();
 ```
 
-Now you can run `npm run start` again. You will now see all of the tokens the payer wallet owns.
+Run `npm run start`. You should now see all of the tokens the payer wallet owns.
 
-### 6. Fetch Token Program and Token Extension Program tokens without the program ID
+### 7. Fetch Token Program and Token Extension Program tokens without the program ID
 
-Lastly, let's take a look at how we can grab the owning program from a given mint account.
+Now let's take a look at how we can retrieve the owning program from a given mint account.
 
 To do this we will create a new function `fetchTokenProgramFromAccount` to `fetch-token-info.ts`. This function will simply return us the `programId` of the given mint.
 
-To accomplish this we will call the `getParsedAccountInfo` function and return the `.value.owner` which is the owning program.
+To accomplish this we will call the `getParsedAccountInfo` function and return the owning program from `.value.owner`.
 
 The `fetchTokenProgramFromAccount` function will need the following parameters:
-- `connection` - the connection object to use
-- `mint` - public key of the mint account
+
+- `connection` - The connection object to use
+- `mint` - Public key of the mint account
 
 The final function will look like this:
 
-```ts
-...
+```
+// previous imports and code
 
 export async function fetchTokenProgramFromAccount(
   connection: Connection,
   mint: PublicKey
 ){
-  //Find the program ID from the mint
+  // Find the program ID from the mint
   const accountInfo = await connection.getParsedAccountInfo(mint);
   if (accountInfo.value === null) {
       throw new Error('Account not found');
@@ -438,20 +454,18 @@ export async function fetchTokenProgramFromAccount(
 
 Finally let's add see this in action in our `index.ts`:
 
-```ts
-...
+```
+// previous imports
 import { TokenInfoForDisplay, fetchTokenInfo, fetchTokenProgramFromAccount } from './fetch-token-info'
 
-async function main(){
-  ...
+(async () => {
+  // previous code
 	const tokenProgramTokenProgram = await fetchTokenProgramFromAccount(connection, tokenProgramMint);
 	const tokenExtensionProgramTokenProgram = await fetchTokenProgramFromAccount(connection, tokenExtensionProgramMint);
 
 	if(!tokenProgramTokenProgram.equals(TOKEN_PROGRAM_ID)) throw new Error('Token Program mint token program is not correct');
 	if(!tokenExtensionProgramTokenProgram.equals(TOKEN_2022_PROGRAM_ID)) throw new Error('Token Extension Program mint token program is not correct');
-}
-
-main()
+})();
 ```
 
 Run `npm run start` again. You should see the same output as before - meaning the expected token programs were correct.
@@ -459,6 +473,5 @@ Run `npm run start` again. You should see the same output as before - meaning th
 That's it! If you get stuck at any step, you can find the complete code in [this lab's repository's](https://github.com/Unboxed-Software/solana-lab-token22-in-the-client/) `solution` branch.
 
 # Challenge
+
 For the challenge, try and implement the burn token functionality for the Token Program tokens and the Token Extension tokens.
-
-
