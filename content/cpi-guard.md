@@ -827,24 +827,23 @@ try {
 
 This transaction should fail, so we wrap the call in a try/catch block and ensure the error is the expected error.
 
-Next, we can disable the CPI Guard and re-send the transaction using the same API.
+Next, we will create another token account without the CPI Guard enabled and attempt the same thing.
 
 ```typescript
     it("Set Authority without CPI on Non-CPI Guarded Account", async () => {
-        await disableCpiGuard(
+        let nonCpiGuardTokenAccount = anchor.web3.Keypair.generate()
+        await createTokenAccount(
             provider.connection,
+            testTokenMint,
             payer,
-            userTokenAccount.publicKey,
             payer,
-            [],
-            undefined,
-            TOKEN_2022_PROGRAM_ID
+            nonCpiGuardTokenAccount
         )
 
         await setAuthority(
             provider.connection,
             payer,
-            userTokenAccount.publicKey,
+            userTokenAccount1.publicKey,
             payer,
             AuthorityType.AccountOwner,
             newOwner.publicKey,
@@ -855,28 +854,20 @@ Next, we can disable the CPI Guard and re-send the transaction using the same AP
     })
 ```
 
-Now, let's test this out using a CPI. To do that, we will create a new token account with exentesions for a fresh start. Then, we just have to send a transaction to the `set_owner` instruction of our program.
+Now, let's test this out using a CPI. To do that, we just have to send a transaction to the `set_owner` instruction of our program.
 
 ```typescript
 it("[CPI Guard] Set Authority via CPI on CPI Guarded Account", async () => {
-    await createTokenAccountWithExtensions(
-        provider.connection,
-        testTokenMint,
-        payer,
-        payer,
-        userTokenAccount2
-    )
-
     try {
         await program.methods.setOwner()
-        .accounts({
-            authority: payer.publicKey,
-            tokenAccount: userTokenAccount2.publicKey,
-            newOwner: newOwner.publicKey,
-            tokenProgram: TOKEN_2022_PROGRAM_ID,
-        })
-        .signers([payer])
-        .rpc();
+            .accounts({
+                authority: payer.publicKey,
+                tokenAccount: userTokenAccount.publicKey,
+                newOwner: newOwner.publicKey,
+                tokenProgram: TOKEN_2022_PROGRAM_ID,
+            })
+            .signers([payer])
+            .rpc();
 
     } catch (e) {
         assert(e.message == "failed to send transaction: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x2e")
@@ -885,24 +876,23 @@ it("[CPI Guard] Set Authority via CPI on CPI Guarded Account", async () => {
 })
 ```
 
-Lastly, we can disable the CPI Guard on this token account and re-send the transaction which should succeed this time.
+Lastly, we can create another token account without the CPI Guard enabled and pass this to the program instruction. This time, the CPI should go through.
 
 ```typescript
 it("Set Authority via CPI on Non-CPI Guarded Account", async () => {
-    await disableCpiGuard(
+    let nonCpiGuardTokenAccount = anchor.web3.Keypair.generate()
+    await createTokenAccount(
         provider.connection,
+        testTokenMint,
         payer,
-        userTokenAccount2.publicKey,
         payer,
-        [],
-        undefined,
-        TOKEN_2022_PROGRAM_ID
+        nonCpiGuardTokenAccount
     )
-    
+
     await program.methods.setOwner()
         .accounts({
             authority: payer.publicKey,
-            tokenAccount: userTokenAccount2.publicKey,
+            tokenAccount: nonCpiGuardTokenAccount.publicKey,
             newOwner: newOwner.publicKey,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
         })
