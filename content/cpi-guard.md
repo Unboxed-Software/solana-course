@@ -404,3 +404,511 @@ it("Close Account without CPI Guard", async () => {
         .rpc();
 })
 ```
+
+### 7. Set Authority
+
+Moving on to the `prohibited_set_authority` instruction, the CPI Guard protects against a CPI setting the `CloseAccount` authority. If this were allowed, then it could be used as a workaround for the previous `close_account` protection. So, the CPI Guard does not allow a CPI to change the `CloseAccount` authority either, unless it is unsetting.
+
+```rust
+pub fn prohibted_set_authority(ctx: Context<SetAuthorityAccount>) -> Result<()> {
+    msg!("Invoked ProhibitedSetAuthority");
+
+    msg!("Setting authority of token account: {} to address: {}", ctx.accounts.token_account.key(), ctx.accounts.new_authority.key());
+
+    set_authority(
+        ctx.accounts.set_authority_ctx(),
+        spl_token_2022::instruction::AuthorityType::CloseAccount,
+        Some(ctx.accounts.new_authority.key()),
+    )?;
+
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct SetAuthorityAccount<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(
+        mut,
+        token::token_program = token_program,
+        token::authority = authority
+    )]
+    pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+    /// CHECK: delegat to approve
+    #[account(mut)]
+    pub new_authority: AccountInfo<'info>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+}
+
+impl <'info> SetAuthorityAccount <'info> {
+    pub fn set_authority_ctx(&self) -> CpiContext<'_, '_, '_, 'info, SetAuthority<'info>> {
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = SetAuthority {
+            current_authority: self.authority.to_account_info(),
+            account_or_mint: self.token_account.to_account_info(),
+        };
+
+        CpiContext::new(cpi_program, cpi_accounts)
+    } 
+}
+```
+
+Our program instruction simply invokes the `SetAuthority` `Token Extensions Program` instruction and indicates we want to set the `spl_token_2022::instruction::AuthorityType::CloseAccount` authority of the given token account.
+
+Open the `/tests/set-authority-example.ts` file and let's define our test accounts.
+
+```typescript
+// test accounts
+const payer = anchor.web3.Keypair.generate()
+let testTokenMint: PublicKey = null
+let userTokenAccount = anchor.web3.Keypair.generate()
+let maliciousAccount = anchor.web3.Keypair.generate()
+```
+
+And same as the previous tests, we will create our Mint and Token account with extensions. Then, we can send a transaction to our `prohibited_set_authority` instruction.
+
+```typescript
+it("[CPI Guard] Set Authority Example", async () => {
+    await safeAirdrop(payer.publicKey, provider.connection)
+    await safeAirdrop(provider.wallet.publicKey, provider.connection)
+    delay(10000)
+
+    testTokenMint = await createMint(
+        provider.connection,
+        payer,
+        provider.wallet.publicKey,
+        undefined,
+        6,
+        undefined,
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+    )
+    await createTokenAccountWithExtensions(
+        provider.connection,
+        testTokenMint,
+        payer,
+        payer,
+        userTokenAccount
+    )
+
+    try {
+        const tx = await program.methods.prohibtedSetAuthority()
+        .accounts({
+            authority: payer.publicKey,
+            tokenAccount: userTokenAccount.publicKey,
+            newAuthority: maliciousAccount.publicKey,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([payer])
+        .rpc();
+
+    console.log("Your transaction signature", tx);
+    } catch (e) {
+        assert(e.message == "failed to send transaction: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x2e")
+        console.log("CPI Guard is enabled, and a program attempted to add or change an authority");
+    }
+})
+```
+
+For the "Set Authority Example" test, we can disable the CPI Guard and re-send the transaction.
+
+```typescript
+it("Set Authority Example", async () => {
+    await disableCpiGuard(
+        provider.connection,
+        payer,
+        userTokenAccount.publicKey,
+        payer,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+    )
+
+    await program.methods.prohibtedSetAuthority()
+        .accounts({
+            authority: payer.publicKey,
+            tokenAccount: userTokenAccount.publicKey,
+            newAuthority: maliciousAccount.publicKey,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([payer])
+        .rpc();
+})
+```
+
+### 8. Burn
+
+The next instruction we will test is the `unauthorized_burn` instruction from our test program. This instruction invokes the `burn` instruction from the `Token Extensions Program` and attempts to burn a given amount of tokens from the given token account.
+
+The CPI Guard ensures that this is only possible if the signing authority is the token account delegate.
+
+```rust
+pub fn unauthorized_burn(ctx: Context<BurnAccounts>, amount: u64) -> Result<()> {
+        msg!("Invoked Burn");
+
+        msg!("Burning {} tokens from address: {}", amount, ctx.accounts.token_account.key());
+
+        burn(
+            ctx.accounts.burn_ctx(),
+            amount
+        )?;
+
+        Ok(())
+    }
+
+...
+
+#[derive(Accounts)]
+pub struct BurnAccounts<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(
+        mut,
+        token::token_program = token_program,
+        token::authority = authority
+    )]
+    pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+    #[account(
+        mut,
+        mint::token_program = token_program
+    )]
+    pub token_mint: InterfaceAccount<'info, token_interface::Mint>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>
+}
+
+...
+
+impl <'info> BurnAccounts <'info> {
+    pub fn burn_ctx(&self) -> CpiContext<'_, '_, '_, 'info, Burn<'info>> {
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = Burn {
+            mint: self.token_mint.to_account_info(),
+            from: self.token_account.to_account_info(),
+            authority: self.authority.to_account_info()
+        };
+
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
+}
+```
+To test this, open up the `tests/burn-example.ts` file. Add our test accounts.
+
+```typescript
+// test accounts
+const payer = anchor.web3.Keypair.generate()
+let testTokenMint: PublicKey = null
+let userTokenAccount = anchor.web3.Keypair.generate()
+let delegate = anchor.web3.Keypair.generate()
+```
+
+Then, we can create our Mint and Token account with extensions.
+
+```typescript
+it("[CPI Guard] Burn without Delegate Signature Example", async () => {
+        await safeAirdrop(payer.publicKey, provider.connection)
+        await safeAirdrop(provider.wallet.publicKey, provider.connection)
+        delay(10000)
+
+        testTokenMint = await createMint(
+            provider.connection,
+            payer,
+            payer.publicKey,
+            undefined,
+            6,
+            undefined,
+            undefined,
+            TOKEN_2022_PROGRAM_ID
+        )
+        await createTokenAccountWithExtensions(
+            provider.connection,
+            testTokenMint,
+            payer,
+            payer,
+            userTokenAccount
+        )
+    })
+```
+
+Next, we will also need to mint some tokens to our test account.
+
+```typescript
+// inside "[CPI Guard] Burn without Delegate Signature Example" test block
+const mintToTx = await mintTo(
+    provider.connection,
+    payer,
+    testTokenMint,
+    userTokenAccount.publicKey,
+    payer,
+    1000,
+    undefined,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+)
+```
+
+And then we will approve a delegate over our token account. This token account has a CPI Guard enabled currently, but we are still able to approve a delegate. This is because we are doing so by invoking the `Token Extensions Program` directly and not via a CPI like our earlier example.
+
+```typescript
+// inside "[CPI Guard] Burn without Delegate Signature Example" test block
+const approveTx = await approve(
+    provider.connection,
+    payer,
+    userTokenAccount.publicKey,
+    delegate.publicKey,
+    payer,
+    500,
+    undefined,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+)
+```
+
+Now that we have a delegate over our token account, we can send a transaction to our program to attempt to burn some tokens. We will be passing in the `payer` account as the authority. This account is the owner over the `userTokenAccount`, but since we have approved the `delegate` account as the delegate, the CPI Guard will prevent this transaction from going through.
+
+```typescript
+// inside "[CPI Guard] Burn without Delegate Signature Example" test block
+try {
+    const tx = await program.methods.unauthorizedBurn(new anchor.BN(500))
+    .accounts({
+        // payer is not the delegate
+        authority: payer.publicKey,
+        tokenAccount: userTokenAccount.publicKey,
+        tokenMint: testTokenMint,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+    })
+    .signers([payer])
+    .rpc();
+
+    console.log("Your transaction signature", tx);
+} catch (e) {
+    assert(e.message == "failed to send transaction: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x2b")
+    console.log("CPI Guard is enabled, and a program attempted to burn user funds without using a delegate.");
+}
+```
+
+For the "Burn without Delegate Signature Example" test, we will simply disable the CPI Guard and re-send the transaction.
+
+```typescript
+it("Burn without Delegate Signature Example", async () => {
+    await disableCpiGuard(
+        provider.connection,
+        payer,
+        userTokenAccount.publicKey,
+        payer,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+    )
+
+    const tx = await program.methods.unauthorizedBurn(new anchor.BN(500))
+        .accounts({
+            // payer is not the delegate
+            authority: payer.publicKey,
+            tokenAccount: userTokenAccount.publicKey,
+            tokenMint: testTokenMint,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([payer])
+        .rpc();
+})
+```
+
+### 9. Set Owner
+
+The last CPI Guard we will test is the `SetOwner` protection. With the CPI Guard enabled, this action is always prohibited even outside of a CPI. To test this, we will attempt to set the owner of a token account from the client side, as well as CPI via our test program.
+
+Here is the program instruction.
+
+```rust
+pub fn set_owner(ctx: Context<SetOwnerAccounts>) -> Result<()> {
+
+    msg!("Invoked SetOwner");
+
+    msg!("Setting owner of token account: {} to address: {}", ctx.accounts.token_account.key(), ctx.accounts.new_owner.key());
+
+    set_authority(
+        ctx.accounts.set_owner_ctx(),
+        spl_token_2022::instruction::AuthorityType::AccountOwner,
+        Some(ctx.accounts.new_owner.key()),
+    )?;
+
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct SetOwnerAccounts<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(
+        mut,
+        token::token_program = token_program,
+        token::authority = authority
+    )]
+    pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
+    /// CHECK: delegat to approve
+    #[account(mut)]
+    pub new_owner: AccountInfo<'info>,
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
+}
+
+impl <'info> SetOwnerAccounts <'info> {
+    pub fn set_owner_ctx(&self) -> CpiContext<'_, '_, '_, 'info, SetAuthority<'info>> {
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = SetAuthority {
+            current_authority: self.authority.to_account_info(),
+            account_or_mint: self.token_account.to_account_info(),
+        };
+
+        CpiContext::new(cpi_program, cpi_accounts)
+    } 
+}
+```
+
+Open up the `/tests/set-owner-example.ts` file. There are four tests we will write for this one. Two for setting the Owner without a CPI and two for setting the owner via CPI.
+
+Define our test accounts.
+
+```typescript
+// test accounts
+const payer = anchor.web3.Keypair.generate()
+let testTokenMint: PublicKey = null
+let userTokenAccount = anchor.web3.Keypair.generate()
+let newOwner = anchor.web3.Keypair.generate()
+```
+
+Starting with the first "[CPI Guard] Set Authority without CPI on CPI Guarded Account" test, we will create the Mint and Token Account with extensions.
+
+```typescript
+it("[CPI Guard] Set Authority without CPI on CPI Guarded Account", async () => {
+    await safeAirdrop(payer.publicKey, provider.connection)
+    delay(10000)
+
+    testTokenMint = await createMint(
+        provider.connection,
+        payer,
+        payer.publicKey,
+        undefined,
+        6,
+        undefined,
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+    )
+    await createTokenAccountWithExtensions(
+        provider.connection,
+        testTokenMint,
+        payer,
+        payer,
+        userTokenAccount
+    )
+})
+```
+
+Then, we will try to send a transaction to the `set_authority` instruction of the `Token Extensions Program` with the `setAuthority` function from the `@solana/spl-token` API.
+
+```typescript
+// inside the "[CPI Guard] Set Authority without CPI on CPI Guarded Account" test block
+try {
+    await setAuthority(
+        provider.connection,
+        payer,
+        userTokenAccount.publicKey,
+        payer,
+        AuthorityType.AccountOwner,
+        newOwner.publicKey,
+        undefined,
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+    )
+} catch(e) {
+    assert(e.message == "failed to send transaction: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x2f")
+    console.log("Account ownership cannot be changed while CPI Guard is enabled.")
+}
+```
+
+This transaction should fail, so we wrap the call in a try/catch block and ensure the error is the expected error.
+
+Next, we can disable the CPI Guard and re-send the transaction using the same API.
+
+```typescript
+    it("Set Authority without CPI on Non-CPI Guarded Account", async () => {
+        await disableCpiGuard(
+            provider.connection,
+            payer,
+            userTokenAccount.publicKey,
+            payer,
+            [],
+            undefined,
+            TOKEN_2022_PROGRAM_ID
+        )
+
+        await setAuthority(
+            provider.connection,
+            payer,
+            userTokenAccount.publicKey,
+            payer,
+            AuthorityType.AccountOwner,
+            newOwner.publicKey,
+            undefined,
+            undefined,
+            TOKEN_2022_PROGRAM_ID
+        )
+    })
+```
+
+Now, let's test this out using a CPI. To do that, we will create a new token account with exentesions for a fresh start. Then, we just have to send a transaction to the `set_owner` instruction of our program.
+
+```typescript
+it("[CPI Guard] Set Authority via CPI on CPI Guarded Account", async () => {
+    await createTokenAccountWithExtensions(
+        provider.connection,
+        testTokenMint,
+        payer,
+        payer,
+        userTokenAccount2
+    )
+
+    try {
+        await program.methods.setOwner()
+        .accounts({
+            authority: payer.publicKey,
+            tokenAccount: userTokenAccount2.publicKey,
+            newOwner: newOwner.publicKey,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([payer])
+        .rpc();
+
+    } catch (e) {
+        assert(e.message == "failed to send transaction: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x2e")
+        console.log("CPI Guard is enabled, and a program attempted to add or change an authority.")
+    }
+})
+```
+
+Lastly, we can disable the CPI Guard on this token account and re-send the transaction which should succeed this time.
+
+```typescript
+it("Set Authority via CPI on Non-CPI Guarded Account", async () => {
+    await disableCpiGuard(
+        provider.connection,
+        payer,
+        userTokenAccount2.publicKey,
+        payer,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+    )
+    
+    await program.methods.setOwner()
+        .accounts({
+            authority: payer.publicKey,
+            tokenAccount: userTokenAccount2.publicKey,
+            newOwner: newOwner.publicKey,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([payer])
+        .rpc();
+})
+```
+
+And that is it! You should be able to save your work and run anchor test. All of the tests we have written should pass.
