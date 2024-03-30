@@ -57,9 +57,70 @@ pub fn in_cpi() -> bool {
 
 Using these two helper functions, the `Token Extensions Program` can easily determine if it should reject an instruction or not.
 
+## Toggle CPI Guard
+
+To toggle the CPI Guard on/off, a Token Account must have been initialized for this specific extension. Then, an instruction can be sent to enable the CPI Guard. This can only be done from a client. You cannot toggle the CPI Guard via CPI. The `Enable` instruction [checks if it was invoked via CPI and will return an error if so](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/extension/cpi_guard/processor.rs#L44). This means only the end user can toggle the CPI Guard.
+
+```rust
+// inside process_toggle_cpi_guard()
+if in_cpi() {
+        return Err(TokenError::CpiGuardSettingsLocked.into());
+    }
+```
+
+You can toggle the CPI using the `@solana/spl-token` TS package. Here is an example.
+
+```typescript
+// create token account with the CPI Guard extension
+const tokenAccount = tokenAccountKeypair.publicKey;
+const extensions = [
+    ExtensionType.CpiGuard,
+];
+const tokenAccountLen = getAccountLen(extensions);
+const lamports = await connection.getMinimumBalanceForRentExemption(tokenAccountLen);
+
+const createTokenAccountInstruction = SystemProgram.createAccount({
+    fromPubkey: payer.publicKey,
+    newAccountPubkey: tokenAccount,
+    space: tokenAccountLen,
+    lamports,
+    programId: TOKEN_2022_PROGRAM_ID,
+});
+
+// create enable CPI Guard instruction
+const initializeCpiGuard =
+    createEnableCpiGuardInstruction(tokenAccount, owner.publicKey, [], TOKEN_2022_PROGRAM_ID)
+
+const initializeAccountInstruction = createInitializeAccountInstruction(
+    tokenAccount,
+    mint,
+    owner.publicKey,
+    TOKEN_2022_PROGRAM_ID,
+);
+
+// construct transaction with these instructions
+const transaction = new Transaction().add(
+    createTokenAccountInstruction,
+    initializeAccountInstruction,  
+    initializeCpiGuard,
+);
+
+transaction.feePayer = payer.publicKey;
+// Send transaction
+await sendAndConfirmTransaction(
+    connection,
+    transaction,
+    [payer, owner, tokenAccountKeypair],
+)
+```
+
+You can also use the [`enableCpiGuard`](https://solana-labs.github.io/solana-program-library/token/js/functions/enableCpiGuard.html) and [`disableCpiGuard`](https://solana-labs.github.io/solana-program-library/token/js/functions/disableCpiGuard.html) helper functions from the `@solana/spl-token` API. These functions will construct and send the transaction for you.
+
 ## Transfer
 
 The transfer feature of the CPI Guard prevents anyone but the account delegate from authorizing a transfer instruction. This is enforced in the various transfer functions in the `Token Extensions Program`. For example, [looking at the `transfer` instruction](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L428) we can see a check that will return an error if the required circumstances are met.
+
+Using the helper functions we discussed above, the program is able to determine if it should throw an error or not.
 
 ```rust
 // from the token extensions program
@@ -69,7 +130,6 @@ if let Ok(cpi_guard) = source_account.get_extension::<CpiGuard>() {
     }
 }
 ```
-
 
 ## Burn
 
