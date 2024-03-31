@@ -123,7 +123,7 @@ The transfer feature of the CPI Guard prevents anyone but the account delegate f
 Using the helper functions we discussed above, the program is able to determine if it should throw an error or not.
 
 ```rust
-// from the token extensions program
+// inside process_transfer in the token extensions program
 if let Ok(cpi_guard) = source_account.get_extension::<CpiGuard>() {
     if cpi_guard.lock_cpi.into() && in_cpi() {
         return Err(TokenError::CpiGuardTransferBlocked.into());
@@ -133,13 +133,86 @@ if let Ok(cpi_guard) = source_account.get_extension::<CpiGuard>() {
 
 ## Burn
 
+The CPI Guard also ensures only the account delegate can burn tokens from a token account, just like the transfer protection.
+
+The `process_burn` function in the `Token Extension Program` functions in the same way as the transfer instructions. It will [return an error under the same circumstances](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L1076).
+
+```rust
+// inside process_burn in the token extenstions program
+if let Ok(cpi_guard) = source_account.get_extension::<CpiGuard>() {
+    if cpi_guard.lock_cpi.into() && in_cpi() {
+        return Err(TokenError::CpiGuardBurnBlocked.into());
+    }
+}
+```
+
 ## Approve
+
+The CPI Guard prevents from approving a delegate of a token account via CPI. You can approve a delegate via a client instruction, but not CPI. The `process_approve` function of the `Token Extension Program` runs the [same checks to determine if the guard is enabled and its currently in a CPI](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L583).
 
 ## Close
 
+To close a token account via CPI, having the guard enabled means that the `Token Extension Program` will check that the [destination account receiving the token account's lamports is the account owner](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L1128).
+
+Here is the exact code block from the `process_close_account` function.
+
+```rust
+if !source_account
+    .base
+    .is_owned_by_system_program_or_incinerator()
+{
+    if let Ok(cpi_guard) = source_account.get_extension::<CpiGuard>() {
+        if cpi_guard.lock_cpi.into()
+            && in_cpi()
+            && !cmp_pubkeys(destination_account_info.key, &source_account.base.owner)
+        {
+            return Err(TokenError::CpiGuardCloseAccountBlocked.into());
+        }
+    }
+...
+}
+```
+
 ## Set Close Authority
 
+The CPI Guard prevents from setting the `CloseAccount` authority via CPI, you can unset a previously set `CloseAccount` authority however. The `Token Extension Program` enforces this by [checking if a value has been passed in the `new_authority` parameter](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L697) to the `process_set_authority` function.
+
+```rust
+AuthorityType::CloseAccount => {
+    let authority = account.base.close_authority.unwrap_or(account.base.owner);
+    Self::validate_owner(
+        program_id,
+        &authority,
+        authority_info,
+        authority_info_data_len,
+        account_info_iter.as_slice(),
+    )?;
+
+    if let Ok(cpi_guard) = account.get_extension::<CpiGuard>() {
+        if cpi_guard.lock_cpi.into() && in_cpi() && new_authority.is_some() {
+            return Err(TokenError::CpiGuardSetAuthorityBlocked.into());
+        }
+    }
+
+    account.base.close_authority = new_authority;
+}
+```
+
 ## Set Owner
+
+The CPI Guard prevents from changing the account owner in all circumstances, whether via CPI or not. The account authority is updated in the same `process_set_authority` function as the `CloseAccount` authority in the previous section. If the instruction is attempting to update the authority of an account with the CPI Guard enabled, the [funciton will return one of two possible errors](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L662).
+
+If the instruction is being executed in a CPI, the function will return a `CpiGuardSetAuthorityBlocked` error. Otherwise it will return a `CpiGuardOwnerChangeBlocked` error.
+
+```rust
+if let Ok(cpi_guard) = account.get_extension::<CpiGuard>() {
+    if cpi_guard.lock_cpi.into() && in_cpi() {
+        return Err(TokenError::CpiGuardSetAuthorityBlocked.into());
+    } else if cpi_guard.lock_cpi.into() {
+        return Err(TokenError::CpiGuardOwnerChangeBlocked.into());
+    }
+}
+```
 
 # Lab
 
