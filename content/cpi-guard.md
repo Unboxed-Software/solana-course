@@ -26,7 +26,7 @@ The CPI Guard can be enabled and disabled on a token account that was created wi
 * Check if CPI Guard is enabled on the token account
 * Check if the function is being executed within a CPI
 
-A good way to think about the CPI Guard token extension is simply as a lock that is either enabled or disabled. The guard uses a [data struct called `CpiGuard`](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/extension/cpi_guard/mod.rs#L24) that only stores a boolean value. That value indicates whether the guard is enabled or disabled. The CPI Guard extension only has two instructions, `Enable` and `Disable`. They each toggle this boolean.
+A good way to think about the CPI Guard token extension is simply as a lock that is either enabled or disabled. The guard uses a [data struct called `CpiGuard`](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/extension/cpi_guard/mod.rs#L24) that stores a boolean value. That value indicates whether the guard is enabled or disabled. The CPI Guard extension only has two instructions, `Enable` and `Disable`. They each toggle this boolean value.
 
 ```rust
 pub struct CpiGuard {
@@ -34,7 +34,7 @@ pub struct CpiGuard {
     pub lock_cpi: PodBool,
 }
 ```
-The CPI Guard has a two additional helper functions that the `Token Extension Program` is able to use to help determine when the CPI Guard is enabled and when the instruction is being executed as part of a CPI. The first, `cpi_guard_enabled()`, simply returns the current value of the CpiGuard.lock_cpi field if the exetension is enabled, otherwise it just returns false. The rest of the program can use this to determine if the guard is enabled or not.
+The CPI Guard has a two additional helper functions that the `Token Extension Program` is able to use to help determine when the CPI Guard is enabled and when the instruction is being executed as part of a CPI. The first, `cpi_guard_enabled()`, simply returns the current value of the `CpiGuard.lock_cpi` field if the exetension exists on the account, otherwise it returns false. The rest of the program can use this function to determine if the guard is enabled or not.
 
 ```rust
 /// Determine if CPI Guard is enabled for this account
@@ -46,7 +46,7 @@ pub fn cpi_guard_enabled(account_state: &StateWithExtensionsMut<Account>) -> boo
 }
 ```
 
-The second helper function is called `in_cpi()` and determines whether or not the current instruction is within a CPI. The function is able to determine if its currently in a CPI by calling []`get_stack_height()` from the `solana_program` rust crate](https://docs.rs/solana-program/latest/solana_program/instruction/fn.get_stack_height.html). This function returns the current stack height of instructions. Instructions created at the initial transaction level will have a height of `TRANSACTION_LEVEL_STACK_HEIGHT` or 1. The first inner invoked transaction, or CPI, will have a height of `TRANSACTION_LEVEL_STACK_HEIGHT` + 1 and so on. With this information, we know that if `get_stack_height()` returns a value greater than `TRANSACTION_LEVEL_STACK_HEIGHT`, we're currently in a CPI! This is exactly what the `in_cpi()` function checks. If `get_stack_height() > TRANSACTION_LEVEL_STACK_HEIGHT`, it returns `True`. Otherwise it returns `False`.
+The second helper function is called `in_cpi()` and determines whether or not the current instruction is within a CPI. The function is able to determine if it's currently in a CPI by calling [`get_stack_height()` from the `solana_program` rust crate](https://docs.rs/solana-program/latest/solana_program/instruction/fn.get_stack_height.html). This function returns the current stack height of instructions. Instructions created at the initial transaction level will have a height of [`TRANSACTION_LEVEL_STACK_HEIGHT`](https://docs.rs/solana-program/latest/solana_program/instruction/constant.TRANSACTION_LEVEL_STACK_HEIGHT.html) or 1. The first inner invoked transaction, or CPI, will have a height of `TRANSACTION_LEVEL_STACK_HEIGHT` + 1 and so on. With this information, we know that if `get_stack_height()` returns a value greater than `TRANSACTION_LEVEL_STACK_HEIGHT`, we're currently in a CPI! This is exactly what the `in_cpi()` function checks. If `get_stack_height() > TRANSACTION_LEVEL_STACK_HEIGHT`, it returns `True`. Otherwise it returns `False`.
 
 ```rust
 /// Determine if we are in CPI
@@ -59,16 +59,16 @@ Using these two helper functions, the `Token Extensions Program` can easily dete
 
 ## Toggle CPI Guard
 
-To toggle the CPI Guard on/off, a Token Account must have been initialized for this specific extension. Then, an instruction can be sent to enable the CPI Guard. This can only be done from a client. You cannot toggle the CPI Guard via CPI. The `Enable` instruction [checks if it was invoked via CPI and will return an error if so](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/extension/cpi_guard/processor.rs#L44). This means only the end user can toggle the CPI Guard.
+To toggle the CPI Guard on/off, a Token Account must have been initialized for this specific extension. Then, an instruction can be sent to enable the CPI Guard. This can only be done from a client. _You cannot toggle the CPI Guard via CPI_. The `Enable` instruction [checks if it was invoked via CPI and will return an error if so](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/extension/cpi_guard/processor.rs#L44). This means only the end user can toggle the CPI Guard.
 
 ```rust
 // inside process_toggle_cpi_guard()
 if in_cpi() {
-        return Err(TokenError::CpiGuardSettingsLocked.into());
-    }
+    return Err(TokenError::CpiGuardSettingsLocked.into());
+}
 ```
 
-You can toggle the CPI using the `@solana/spl-token` TS package. Here is an example.
+You can toggle the CPI using the [`@solana/spl-token` Typescript package](https://solana-labs.github.io/solana-program-library/token/js/modules.html). Here is an example.
 
 ```typescript
 // create token account with the CPI Guard extension
@@ -116,7 +116,29 @@ await sendAndConfirmTransaction(
 
 You can also use the [`enableCpiGuard`](https://solana-labs.github.io/solana-program-library/token/js/functions/enableCpiGuard.html) and [`disableCpiGuard`](https://solana-labs.github.io/solana-program-library/token/js/functions/disableCpiGuard.html) helper functions from the `@solana/spl-token` API. These functions will construct and send the transaction for you.
 
-## Transfer
+```typescript
+// enable CPI Guard
+await enableCpiGuard(
+    connection, // connection
+    payer, // payer
+    userTokenAccount.publicKey, // account
+    payer, // owner
+    [] // multiSigners
+)
+
+// disable CPI Guard
+await disableCpiGuard(
+    connection, // connection
+    payer, // payer
+    userTokenAccount.publicKey, // account
+    payer, // owner
+    [] // multiSigners
+)
+```
+
+## CPI Guard Protections
+
+### Transfer
 
 The transfer feature of the CPI Guard prevents anyone but the account delegate from authorizing a transfer instruction. This is enforced in the various transfer functions in the `Token Extensions Program`. For example, [looking at the `transfer` instruction](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L428) we can see a check that will return an error if the required circumstances are met.
 
@@ -131,9 +153,11 @@ if let Ok(cpi_guard) = source_account.get_extension::<CpiGuard>() {
 }
 ```
 
-## Burn
+This guard means that not even the owner of a token account can transfer tokens out of the account while another account is an authorized delegate.
 
-The CPI Guard also ensures only the account delegate can burn tokens from a token account, just like the transfer protection.
+### Burn
+
+This CPI Guard also ensures only the account delegate can burn tokens from a token account, just like the transfer protection.
 
 The `process_burn` function in the `Token Extension Program` functions in the same way as the transfer instructions. It will [return an error under the same circumstances](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L1076).
 
@@ -146,11 +170,15 @@ if let Ok(cpi_guard) = source_account.get_extension::<CpiGuard>() {
 }
 ```
 
-## Approve
+This guard means that not even the owner of a token account can burn tokens out of the account while another account is an authorized delegate.
+
+### Approve
 
 The CPI Guard prevents from approving a delegate of a token account via CPI. You can approve a delegate via a client instruction, but not CPI. The `process_approve` function of the `Token Extension Program` runs the [same checks to determine if the guard is enabled and its currently in a CPI](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L583).
 
-## Close
+This means an end user is not at risk of signing a transaction that indirectly approves a delegate over their token account without the knowledge of the user. Before, the user was at the mercy of their wallet to notify them of transactions like this ahead of time.
+
+### Close
 
 To close a token account via CPI, having the guard enabled means that the `Token Extension Program` will check that the [destination account receiving the token account's lamports is the account owner](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L1128).
 
@@ -172,8 +200,9 @@ if !source_account
 ...
 }
 ```
+This guard protects the user from signing a transaction that closes a token account they own and transferring that account's lamports to another account via CPI. This would be hard to detect from an end user's perspective without inspecting the instructions themselves. This guard ensures those lamports are transferred only to their owner when closing a token account via CPI.
 
-## Set Close Authority
+### Set Close Authority
 
 The CPI Guard prevents from setting the `CloseAccount` authority via CPI, you can unset a previously set `CloseAccount` authority however. The `Token Extension Program` enforces this by [checking if a value has been passed in the `new_authority` parameter](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L697) to the `process_set_authority` function.
 
@@ -198,7 +227,9 @@ AuthorityType::CloseAccount => {
 }
 ```
 
-## Set Owner
+This guard prevents the user from signing a transaction that gives another account the ability to close their Token account behind the scenes.
+
+### Set Owner
 
 The CPI Guard prevents from changing the account owner in all circumstances, whether via CPI or not. The account authority is updated in the same `process_set_authority` function as the `CloseAccount` authority in the previous section. If the instruction is attempting to update the authority of an account with the CPI Guard enabled, the [funciton will return one of two possible errors](https://github.com/solana-labs/solana-program-library/blob/ce8e4d565edcbd26e75d00d0e34e9d5f9786a646/token/program-2022/src/processor.rs#L662).
 
@@ -213,6 +244,8 @@ if let Ok(cpi_guard) = account.get_extension::<CpiGuard>() {
     }
 }
 ```
+
+This guard prevents from changing the ownership of a Token account at all times when enabled.
 
 # Lab
 
