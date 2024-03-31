@@ -251,17 +251,17 @@ This guard prevents from changing the ownership of a Token account at all times 
 
 This lab will primarily focus on writing tests in typescript, but we will need to run a program locally against these tests. For this reason, we will need to go through a few steps to ensure we have a proper environment on your machine for the program to run. The on-chain program has already been written for you and is included in the lab starter code.
 
-The program contains a few instructions that showcase what the CPI Guard can protect against. We will write tests invoking these instructionsboth with a CPI Guarded Token Account and a Token Account without a CPI Guard.
+The program contains a few instructions that showcase what the CPI Guard can protect against. We will write tests invoking these instructions both with a CPI Guard enabled and disabled.
 
-The tests have been broken up into specific files in the `/tests` directory. Each file serves as its own unit test that will invoke a specific instruction on our program.
+The tests have been broken up into inidividual files in the `/tests` directory. Each file serves as its own unit test that will invoke a specific instruction on our program and illustrate a specific CPI Guard.
 
 The program has five instructions: `malicious_close_account`, `prohibited_approve_account`, `prohibited_set_authority`, `unauthorized_burn`, `set_owner`.
 
-Each of these instructions makes a CPI to the `Token Extension Program` and attempts to take an action on the given token program that is potentially malicious unknowingly to the signer of the original transaction.
+Each of these instructions makes a CPI to the `Token Extension Program` and attempts to take an action on the given token account that is potentially malicious unknowingly to the signer of the original transaction. We will not test the `Transfer` CPI Guard, this guard is the same as the `Burn` guard so we will just test that one instead.
 
 ### 1. Verify Solana/Anchor/Rust Versions
 
-We will be interacting with the `token22` program in this lab and that requires you have solana cli version ≥ 1.18.0. 
+We will be interacting with the `Token Extensions Program` in this lab and that requires you have solana cli version ≥ 1.18.0. 
 
 To check your version run:
 ```bash
@@ -314,8 +314,8 @@ Now, we should have all the correct versions installed.
 Let's grab the starter branch.
 
 ```bash
-git clone https://github.com/Unboxed-Software/token22-staking
-cd token22-staking
+git clone https://github.com/Unboxed-Software/solana-lab-cpi-guard
+cd solana-lab-cpi-guard
 git checkout starter
 ```
 
@@ -332,10 +332,10 @@ Copy and paste this program ID in the `Anchor.toml` file
 ```rust
 // in Anchor.toml
 [programs.localnet]
-token_22_staking = "<YOUR-PROGRAM-ID-HERE>"
+solana_lab_cpi_guard = "<YOUR-PROGRAM-ID-HERE>"
 ```
 
-And in the `programs/token-22-staking/src/lib.rs` file.
+And in the `programs/solana-lab-cpi-guard/src/lib.rs` file.
 
 ```rust
 declare_id!("<YOUR-PROGRAM-ID-HERE>");
@@ -379,12 +379,15 @@ The first CPI Guard we will test is the approve delegate functionality. The CPI 
 Before we write our test, we need to take a look at the program code we are testing. The `prohibited_approve_account` instruction is what we will be targeting here. 
 
 ```rust
+// inside src/lib.rs
+
 pub fn prohibited_approve_account(ctx: Context<ApproveAccount>, amount: u64) -> Result<()> {
         msg!("Invoked ProhibitedApproveAccount");
 
         msg!("Approving delegate: {} to transfer up to {} tokens.", ctx.accounts.delegate.key(), amount);
 
         approve(ctx.accounts.approve_delegate_ctx(), amount)?;
+
         Ok(())
     }
     ...
@@ -432,7 +435,7 @@ let testTokenMint: PublicKey = null
 let userTokenAccount = anchor.web3.Keypair.generate()
 let maliciousAccount = anchor.web3.Keypair.generate()
 ```
-Then, we can move on to the "[CPI Guard] Approve Delegate Example" test. You'll notice that some test names have "[CPI Guard]" in the title. Those with this in the title are tests with a CPI Guarded token account and those without it use token accounts without the CPI Guard enabled. They invoke the same exact instruction in our target program, the only difference is whether or not they have the CPI Guard enabled or not. This is done to illustrate what the CPI Guard protects against versus an account without one.
+Then, we can move on to the `"[CPI Guard] Approve Delegate Example"` test. You'll notice that some test names have "[CPI Guard]" in the title. Those with this in the title are tests with a CPI Guard enabled and those without it use token accounts with the CPI Guard disabled. They invoke the same exact instruction in our target program, the only difference is whether or not they have the CPI Guard enabled or not. This is done to illustrate what the CPI Guard protects against versus an account without one.
 
 To test our instruction, we first need to create our token mint and a token account with extensions.
 
@@ -469,14 +472,14 @@ We have created a Mint and a token account with the CPI Guard enabled. We can no
 // inside "[CPI Guard] Approve Delegate Example" test block
 try {
     const tx = await program.methods.prohibitedApproveAccount(new anchor.BN(1000))
-    .accounts({
-    authority: payer.publicKey,
-    tokenAccount: userTokenAccount.publicKey,
-    delegate: maliciousAccount.publicKey,
-    tokenProgram: TOKEN_2022_PROGRAM_ID,
-    })
-    .signers([payer])
-    .rpc();
+        .accounts({
+            authority: payer.publicKey,
+            tokenAccount: userTokenAccount.publicKey,
+            delegate: maliciousAccount.publicKey,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([payer])
+        .rpc();
 
     console.log("Your transaction signature", tx);
 } catch (e) {
@@ -487,7 +490,7 @@ try {
 
 Notice we wrap this in a try/catch block. This is because this instruction should fail if the CPI Guard works correctly. We catch the error and assert that the error message is what we expect. 
 
-Now, we essentially do the same thing for the "Approve Delegate Example" test, except we want to pass in a token account without a CPI Guard. To do this, we can simply disavle the CPI Guard on the `userTokenAccount` and resend the transaction.
+Now, we essentially do the same thing for the `"Approve Delegate Example"` test, except we want to pass in a token account without a CPI Guard. To do this, we can simply disable the CPI Guard on the `userTokenAccount` and resend the transaction.
 
 ```typescript
  it("Approve Delegate Example", async () => {
@@ -518,7 +521,7 @@ Feel free to save your work and run `anchor test`. All of the tests will run, bu
 
 ### 6. Close Account
 
-The close account instruction invokes the `close_account` instrucion on the `Token Extensions Program`. This simply will close the given token account, but you have the ability to define which account you'd like the lamports in this account used for rent can be transferred to. The CPI Guard ensures that this account is always the account owner.
+The close account instruction invokes the `close_account` instrucion on the `Token Extensions Program`. This simply will close the given token account, but you have the ability to define which account you'd like the lamports stored in this account to be transferred to. The CPI Guard ensures that this account is always the account owner.
 
 ```rust
 pub fn malicious_close_account(ctx: Context<MaliciousCloseAccount>) -> Result<()> {
@@ -527,6 +530,7 @@ pub fn malicious_close_account(ctx: Context<MaliciousCloseAccount>) -> Result<()
         msg!("Token account to close : {}", ctx.accounts.token_account.key());
 
         close_account(ctx.accounts.close_account_ctx())?;
+
         Ok(())
     }
 
@@ -624,7 +628,7 @@ const tx = await program.methods.maliciousCloseAccount()
 }
 ```
 
-Now, we can disable the CPI Guard and send the same exact transaction in the "Close Account without CPI Guard" test. This transaction should succeed this time.
+Now, we can disable the CPI Guard and send the same exact transaction in the `"Close Account without CPI Guard"` test. This transaction should succeed this time.
 
 ```typescript
 it("Close Account without CPI Guard", async () => {
@@ -652,7 +656,7 @@ it("Close Account without CPI Guard", async () => {
 
 ### 7. Set Authority
 
-Moving on to the `prohibited_set_authority` instruction, the CPI Guard protects against a CPI setting the `CloseAccount` authority. If this were allowed, then it could be used as a workaround for the previous `close_account` protection. So, the CPI Guard does not allow a CPI to change the `CloseAccount` authority either, unless it is unsetting.
+Moving on to the `prohibited_set_authority` instruction, the CPI Guard protects against a CPI setting the `CloseAccount` authority.
 
 ```rust
 pub fn prohibted_set_authority(ctx: Context<SetAuthorityAccount>) -> Result<()> {
@@ -755,7 +759,7 @@ it("[CPI Guard] Set Authority Example", async () => {
 })
 ```
 
-For the "Set Authority Example" test, we can disable the CPI Guard and re-send the transaction.
+For the `"Set Authority Example"` test, we can disable the CPI Guard and re-send the transaction.
 
 ```typescript
 it("Set Authority Example", async () => {
@@ -931,7 +935,7 @@ try {
 }
 ```
 
-For the "Burn without Delegate Signature Example" test, we will simply disable the CPI Guard and re-send the transaction.
+For the `"Burn without Delegate Signature Example"` test, we will simply disable the CPI Guard and re-send the transaction.
 
 ```typescript
 it("Burn without Delegate Signature Example", async () => {
@@ -1021,7 +1025,7 @@ let userTokenAccount = anchor.web3.Keypair.generate()
 let newOwner = anchor.web3.Keypair.generate()
 ```
 
-Starting with the first "[CPI Guard] Set Authority without CPI on CPI Guarded Account" test, we will create the Mint and Token Account with extensions.
+Starting with the first `"[CPI Guard] Set Authority without CPI on CPI Guarded Account"` test, we will create the Mint and Token Account with extensions.
 
 ```typescript
 it("[CPI Guard] Set Authority without CPI on CPI Guarded Account", async () => {
