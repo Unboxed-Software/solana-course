@@ -249,7 +249,9 @@ There are few things that you need to consider when dealing with durable transac
 
 ### If the transaction fails due to an instruction other than the nonce advanced instruction
 
-In the case of a failing transaction, the known behavior is that all the instructions in the transaction will get reverted to the original state. But in the case of a durable transaction, even if it fails the nonce will still get advanced although all other instruction will get reverted, and this is for security reasons.
+In the case of a failing transaction, the known behavior is that all the instructions in the transaction will get reverted to the original state. But in the case of a durable transaction, even if it fails the nonce will still get advanced although all other instruction will get reverted. This feature is designed for security purposes, ensuring that once a user signs a transaction and it fails, they don't have to worry about it anymore, and it cannot be held against them.
+
+Consider this scenario: you sign a transaction that includes transferring some SOL from your wallet to make a purchase, but then the transaction fails for some reason. In this case, you might decide that you no longer want to proceed with this transaction. For regular a transaction, this wouldn't be a problem since the transaction would expire in a minute, and it couldn't be submitted anymore. However, for a durable transaction, which never expires, the transaction could get submitting again and again until it go though. To prevent such situations, the system program is designed to ensure that the nonce advances even if the transaction fails.
 
 ### If the transaction fails due to the nonce advanced instruction
 
@@ -384,7 +386,7 @@ To create and submit a durable transaction we must follow these steps:
   5. Add the transfer instruction (you can add any instruction you want here).
   6. Sign the transaction with the keyPairs that need to sign it, and make sure to add the nonce authority as a signer as well.
   7. Serialize the transaction and encode it.
-  8. at this point you have a durable transaction, you can store it in a database or a file or send it somewhere else, etc.
+  8. At this point you have a durable transaction, you can store it in a database or a file or send it somewhere else, etc.
 2. Submit the durable transaction.
   1. Decode the serialized transaction.
   2. Submit it using the `sendAndConfirmRawTransaction` function.
@@ -453,7 +455,7 @@ To create and submit a durable transaction we must follow these steps:
 
 ## 3. The Transaction Fails if the Nonce Has Advanced
 
-Because we are using the nonce in place of the recent blockhash, the system will check to ensure that the nonce we provided matches the nonce in the `nonce_account`. This is crucial for security reasons, so no one can submit the same transaction twice. With each transaction, we should add the `nonceAdvance` instruction as the first instruction. This ensures that if the transaction goes through, the nonce will change, and no one will be able to submit it twice.
+Because we are using the nonce in place of the recent blockhash, the system will check to ensure that the nonce we provided matches the nonce in the `nonce_account`. This is crucial for security reasons. With each transaction, we should add the `nonceAdvance` instruction as the first instruction. This ensures that if the transaction goes through, the nonce will change, and no one will be able to submit it twice.
 
 Here is what we will test:
 1. Create a durable transaction just like in the previous step.
@@ -528,12 +530,6 @@ it('Fails if the nonce has advanced', async () => {
 
 An important edge case to be aware of is that even if a transaction fails for any reason other than the nonce advance instruction, the nonce will still advance. This feature is designed for security purposes, ensuring that once a user signs a transaction and it fails, they don't have to worry about it anymore, and it cannot be held against them.
 
-Consider this scenario: you sign a transaction to transfer 3 SOL from your wallet to make a purchase, but then you realize you don't have enough SOL. In this case, you might decide you no longer want to make the purchase.
-
-For regular transactions, this wouldn't be a problem since the transaction would expire in a minute, and it couldn't be submitted anymore. However, for a durable transaction, which never expires, if the nonce did not advance, the merchant could potentially wait until you have enough SOL in your wallet and then submit the transaction.
-
-To prevent such situations, the system program is designed to ensure that the nonce advances even if the transaction fails. This means you would have to sign the transaction again.
-
 The following code demonstrates this use case. We will attempt to create a durable transaction to transfer 50 SOL from the payer to the recipient. However, the payer doesn't have enough SOL for the transfer, so the transaction will fail, but the nonce will still advance.
 
 ```ts
@@ -559,9 +555,7 @@ it('Advances the nonce account even if the transaction fails', async () => {
   // making sure that we don't have 50 SOL in the account
   assert(
     balance < TRANSFER_AMOUNT * LAMPORTS_PER_SOL,
-    `Too much balance, try to change the transfer amount constant 'TRANSFER_AMOUNT' at the top of the function to be more than ${
-balance / LAMPORTS_PER_SOL
-}`,
+    `Too much balance, try to change the transfer amount constant 'TRANSFER_AMOUNT' at the top of the function to be more than ${ balance / LAMPORTS_PER_SOL }`,
   );
 
   const durableTx = new Transaction();
@@ -627,65 +621,65 @@ The `nonceAdvance` instruction could fail for several reasons:
 **1. The Nonce Authority Didn't Sign the Transaction**
 
 ```ts
-  it('The nonce account will not advance if the transaction fails because the nonce auth did not sign the transaction', async () => {
-    const payer = await initializeKeypair(connection, {
-      airdropAmount: 3 * LAMPORTS_PER_SOL,
-      minimumBalance: 1 * LAMPORTS_PER_SOL,
-    });
-
-    const [nonceKeypair, nonceAuthority, recipient] = makeKeypairs(3);
-
-    // Create the Nonce Account
-    const nonceAccount = await createNonceAccount(payer, nonceKeypair, nonceAuthority.publicKey, connection);
-    const nonceBeforeAdvancing = nonceAccount.nonce;
-
-    console.log('Nonce before submitting:', nonceBeforeAdvancing);
-
-    // Assemble a durable transaction that will fail
-
-    const durableTx = new Transaction();
-    durableTx.feePayer = payer.publicKey;
-
-    // use the nonceAccount's stored nonce as the recentBlockhash
-    durableTx.recentBlockhash = nonceAccount.nonce;
-
-    // make a nonce advance instruction
-    durableTx.add(
-      SystemProgram.nonceAdvance({
-        authorizedPubkey: nonceAuthority.publicKey,
-        noncePubkey: nonceKeypair.publicKey,
-      }),
-    );
-
-    durableTx.add(
-      SystemProgram.transfer({
-        fromPubkey: payer.publicKey,
-        toPubkey: recipient.publicKey,
-        lamports: 0.1 * LAMPORTS_PER_SOL,
-      }),
-    );
-
-    // sign the tx with the payer keypair
-    durableTx.sign(payer);
-
-    // once you have the signed tx, you can serialize it and store it in a database, or send it to another device
-    const serializedTx = base58.encode(durableTx.serialize({ requireAllSignatures: false }));
-
-    const tx = base58.decode(serializedTx);
-
-    // assert the promise to throw an error
-    await assert.rejects(
-      sendAndConfirmRawTransaction(connection, tx as Buffer, {
-        skipPreflight: true,
-      }),
-    );
-
-    const nonceAccountAfterAdvancing = await connection.getAccountInfo(nonceKeypair.publicKey);
-    const nonceAfterAdvancing = NonceAccount.fromAccountData(nonceAccountAfterAdvancing!.data).nonce;
-
-    // We can see that the nonce did not advanced, because the error was in the nonce advance instruction
-    assert.equal(nonceBeforeAdvancing, nonceAfterAdvancing);
+it('The nonce account will not advance if the transaction fails because the nonce auth did not sign the transaction', async () => {
+  const payer = await initializeKeypair(connection, {
+    airdropAmount: 3 * LAMPORTS_PER_SOL,
+    minimumBalance: 1 * LAMPORTS_PER_SOL,
   });
+
+  const [nonceKeypair, nonceAuthority, recipient] = makeKeypairs(3);
+
+  // Create the Nonce Account
+  const nonceAccount = await createNonceAccount(payer, nonceKeypair, nonceAuthority.publicKey, connection);
+  const nonceBeforeAdvancing = nonceAccount.nonce;
+
+  console.log('Nonce before submitting:', nonceBeforeAdvancing);
+
+  // Assemble a durable transaction that will fail
+
+  const durableTx = new Transaction();
+  durableTx.feePayer = payer.publicKey;
+
+  // use the nonceAccount's stored nonce as the recentBlockhash
+  durableTx.recentBlockhash = nonceAccount.nonce;
+
+  // make a nonce advance instruction
+  durableTx.add(
+    SystemProgram.nonceAdvance({
+      authorizedPubkey: nonceAuthority.publicKey,
+      noncePubkey: nonceKeypair.publicKey,
+    }),
+  );
+
+  durableTx.add(
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: recipient.publicKey,
+      lamports: 0.1 * LAMPORTS_PER_SOL,
+    }),
+  );
+
+  // sign the tx with the payer keypair
+  durableTx.sign(payer);
+
+  // once you have the signed tx, you can serialize it and store it in a database, or send it to another device
+  const serializedTx = base58.encode(durableTx.serialize({ requireAllSignatures: false }));
+
+  const tx = base58.decode(serializedTx);
+
+  // assert the promise to throw an error
+  await assert.rejects(
+    sendAndConfirmRawTransaction(connection, tx as Buffer, {
+      skipPreflight: true,
+    }),
+  );
+
+  const nonceAccountAfterAdvancing = await connection.getAccountInfo(nonceKeypair.publicKey);
+  const nonceAfterAdvancing = NonceAccount.fromAccountData(nonceAccountAfterAdvancing!.data).nonce;
+
+  // We can see that the nonce did not advanced, because the error was in the nonce advance instruction
+  assert.equal(nonceBeforeAdvancing, nonceAfterAdvancing);
+});
 ```
 
 **2. Submits After Changing the Nonce Authority to an Already Signed Address**
@@ -699,96 +693,96 @@ Now, at any point in the future, if the attacker changes the nonce authority to 
 Below you can find a code that will demonstrate this use case:
 
 ```ts
-  it('Submits after changing the nonce auth to an already signed address', async () => {
-    const payer = await initializeKeypair(connection, {
-      airdropAmount: 3 * LAMPORTS_PER_SOL,
-      minimumBalance: 1 * LAMPORTS_PER_SOL,
-    });
-
-    const [nonceKeypair, nonceAuthority, recipient] = makeKeypairs(3);
-
-    // Create the Nonce Account
-    const nonceAccount = await createNonceAccount(payer, nonceKeypair, nonceAuthority.publicKey, connection);
-    const nonceBeforeAdvancing = nonceAccount.nonce;
-
-    console.log('Nonce before submitting:', nonceBeforeAdvancing);
-
-    // Assemble a durable transaction that will fail
-
-    const durableTx = new Transaction();
-    durableTx.feePayer = payer.publicKey;
-
-    // use the nonceAccount's stored nonce as the recentBlockhash
-    durableTx.recentBlockhash = nonceAccount.nonce;
-
-    // make a nonce advance instruction
-    durableTx.add(
-      SystemProgram.nonceAdvance({
-        // The nonce auth is not the payer at this point of time, so the transaction will fail
-        // But in the future we can change the nonce auth to be the payer and submit the transaction when ever we want
-        authorizedPubkey: payer.publicKey,
-        noncePubkey: nonceKeypair.publicKey,
-      }),
-    );
-
-    durableTx.add(
-      SystemProgram.transfer({
-        fromPubkey: payer.publicKey,
-        toPubkey: recipient.publicKey,
-        lamports: 0.1 * LAMPORTS_PER_SOL,
-      }),
-    );
-
-    // sign the tx with the payer keypair
-    durableTx.sign(payer);
-
-    // once you have the signed tx, you can serialize it and store it in a database, or send it to another device
-    const serializedTx = base58.encode(durableTx.serialize({ requireAllSignatures: false }));
-
-    const tx = base58.decode(serializedTx);
-
-    // assert the promise to throw an error
-    // It will fail because the nonce auth is not the payer
-    await assert.rejects(
-      sendAndConfirmRawTransaction(connection, tx as Buffer, {
-        skipPreflight: true,
-      }),
-    );
-
-    const nonceAccountAfterAdvancing = await connection.getAccountInfo(nonceKeypair.publicKey);
-    const nonceAfterAdvancing = NonceAccount.fromAccountData(nonceAccountAfterAdvancing!.data).nonce;
-
-    // We can see that the nonce did not advanced, because the error was in the nonce advance instruction
-    assert.equal(nonceBeforeAdvancing, nonceAfterAdvancing);
-
-    // Now we can change the nonce auth to be the payer
-    const nonceAuthSig = await sendAndConfirmTransaction(
-      connection,
-      new Transaction().add(
-        SystemProgram.nonceAuthorize({
-          noncePubkey: nonceKeypair.publicKey,
-          authorizedPubkey: nonceAuthority.publicKey,
-          newAuthorizedPubkey: payer.publicKey,
-        }),
-      ),
-      [payer, nonceAuthority],
-    );
-
-    console.log(
-      'Nonce Auth Signature:',
-      `https://explorer.solana.com/tx/${nonceAuthSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
-
-    // At any time in the future we can submit the transaction and it will go through
-    const txSig = await sendAndConfirmRawTransaction(connection, tx as Buffer, {
-      skipPreflight: true,
-    });
-
-    console.log(
-      'Transaction Signature:',
-      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
+it('Submits after changing the nonce auth to an already signed address', async () => {
+  const payer = await initializeKeypair(connection, {
+    airdropAmount: 3 * LAMPORTS_PER_SOL,
+    minimumBalance: 1 * LAMPORTS_PER_SOL,
   });
+
+  const [nonceKeypair, nonceAuthority, recipient] = makeKeypairs(3);
+
+  // Create the Nonce Account
+  const nonceAccount = await createNonceAccount(payer, nonceKeypair, nonceAuthority.publicKey, connection);
+  const nonceBeforeAdvancing = nonceAccount.nonce;
+
+  console.log('Nonce before submitting:', nonceBeforeAdvancing);
+
+  // Assemble a durable transaction that will fail
+
+  const durableTx = new Transaction();
+  durableTx.feePayer = payer.publicKey;
+
+  // use the nonceAccount's stored nonce as the recentBlockhash
+  durableTx.recentBlockhash = nonceAccount.nonce;
+
+  // make a nonce advance instruction
+  durableTx.add(
+    SystemProgram.nonceAdvance({
+      // The nonce auth is not the payer at this point of time, so the transaction will fail
+      // But in the future we can change the nonce auth to be the payer and submit the transaction when ever we want
+      authorizedPubkey: payer.publicKey,
+      noncePubkey: nonceKeypair.publicKey,
+    }),
+  );
+
+  durableTx.add(
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: recipient.publicKey,
+      lamports: 0.1 * LAMPORTS_PER_SOL,
+    }),
+  );
+
+  // sign the tx with the payer keypair
+  durableTx.sign(payer);
+
+  // once you have the signed tx, you can serialize it and store it in a database, or send it to another device
+  const serializedTx = base58.encode(durableTx.serialize({ requireAllSignatures: false }));
+
+  const tx = base58.decode(serializedTx);
+
+  // assert the promise to throw an error
+  // It will fail because the nonce auth is not the payer
+  await assert.rejects(
+    sendAndConfirmRawTransaction(connection, tx as Buffer, {
+      skipPreflight: true,
+    }),
+  );
+
+  const nonceAccountAfterAdvancing = await connection.getAccountInfo(nonceKeypair.publicKey);
+  const nonceAfterAdvancing = NonceAccount.fromAccountData(nonceAccountAfterAdvancing!.data).nonce;
+
+  // We can see that the nonce did not advanced, because the error was in the nonce advance instruction
+  assert.equal(nonceBeforeAdvancing, nonceAfterAdvancing);
+
+  // Now we can change the nonce auth to be the payer
+  const nonceAuthSig = await sendAndConfirmTransaction(
+    connection,
+    new Transaction().add(
+      SystemProgram.nonceAuthorize({
+        noncePubkey: nonceKeypair.publicKey,
+        authorizedPubkey: nonceAuthority.publicKey,
+        newAuthorizedPubkey: payer.publicKey,
+      }),
+    ),
+    [payer, nonceAuthority],
+  );
+
+  console.log(
+    'Nonce Auth Signature:',
+    `https://explorer.solana.com/tx/${nonceAuthSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
+  );
+
+  // At any time in the future we can submit the transaction and it will go through
+  const txSig = await sendAndConfirmRawTransaction(connection, tx as Buffer, {
+    skipPreflight: true,
+  });
+
+  console.log(
+    'Transaction Signature:',
+    `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
+  );
+});
 ```
 
 ## 7. Put it all together
