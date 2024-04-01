@@ -8,30 +8,25 @@ objectives:
 
 # Overview
 
-To understand Durable Nonces, we better start at the concepts behind the regular transactions. Each transaction in Solana must have a recent Blockhash, but what is a blockhash?
+Durable Nonce are a way to bypass the expiration date of the regular transactions. To understand That better, we will start by looking at the concepts behind the regular transactions.
 
-To understand the blockhash better let's look at the problem that it tries to solve, The [Double-Spend](https://solana.com/developers/guides/advanced/introduction-to-durable-nonces#double-spend) problem.
+In Solana, transactions are made of three main parts:
 
-{TODO: this text is copy past from the docs, might need some rephrasing}
+1. **Instructions**: Instructions are the operations that you want to perform on the blockchain, like transferring tokens, creating accounts, or calling a program.
+
+2. **Signatures**: Signatures are the proof that the transaction was signed by the account owner. For instance, if you are transaction SOL from a wallet, that wallet needs to sign the transaction so the network can verify that the transaction is valid.
+
+3. **Recent Blockhash**: The recent blockhash is a unique identifier for each transaction. It is used to prevent replay attacks, where an attacker records a transaction and then tries to submit it again. The recent blockhash ensures that each transaction is unique and can only be submitted once.
+
+The first two concepts will remain the same when we want to make a durable transaction, but we will change a little bit in the recent blockhash. Let's dive deep into the recent blockhash, to understand the blockhash better let's look at the problem that it tries to solve, The [Double-Spend](https://solana.com/developers/guides/advanced/introduction-to-durable-nonces#double-spend) problem.
+
 Imagine you're buying an NFT on MagicEden or Tensor. You have to sign a transaction that allows the marketplace's program to extract some SOL from your wallets. after signing the transaction the marketplace will submit it to the network, but what if the marketplace submit it twice?
 
 This is known as the problem of Double-Spend and is one of the core issues that blockchains like Solana solve. A naive solution could be to crosscheck all transactions made in the past and see if we find the signature there. This is not practically possible, as the size of the Solana ledger is >80 TB. So to Solve that Solana uses Blockhashes or Recent Blockhash. 
 
-{ TODO: not sure why are they get rejected if the blockhash is found in the last 150 blocks}
-Recent Blockhashes are used to achieve this. A blockhash contains a 32-byte SHA-256 hash. It is used to indicate when a client last observed the ledger. Using recent blockhashes, transactions are checked in the last 150 blocks. If they are found, they are rejected. They are also rejected if they get older than 150 blocks. The only case they are accepted is if they are unique and the blockhash is more recent than 150 blocks (~80-90 seconds).
+Recent Blockhashes are used to achieve this. A blockhash contains a 32-byte SHA-256 hash. It is used to indicate when a client last observed the ledger. Using recent blockhashes, transactions are checked in the last 150 blocks. If they are found, they are rejected (which means that this transaction got submitted before). They are also rejected if they get older than 150 blocks (that is for optimizations, so the network will only have to check the recent 150 blocks instead of checking the whole Solana ledger). The only case they are accepted is if they are unique and the blockhash is more recent than 150 blocks (~80-90 seconds).
 
-Therefore the transaction should get signed and submitted to the network within 80-90 seconds, and this is somehow limiting for some use cases. 
-
-1. what if I want to sign a transaction on a device that is not connected to the internet? and then submit it later from a different device?
-2. what if I want to schedule a transaction to be executed at a specific time in the future?
-3. what if I want to sign a transaction and send it to someone else to submit it to the network?
-4. What if I want to co-sign the transaction from multiple devices owned by multiple people, and the co-signing takes more than 90 seconds, like in a case of a multi-sig operated by a DAO?
-
-All of these use cases are not possible with the regular transactions, and this is where Durable Nonces come in.
-
-## Durable Nonces To overcome the short lifespan of the regular transaction:
-
-Durable Nonces is a way to sign a transaction offchain and keep in a store or a database for some time and then eventually submit it to the network, this feature provides an opportunity to create and sign a transaction that can be submitted at any point in the future. And this (as [mentioned in the official documentations](https://solana.com/developers/guides/advanced/introduction-to-durable-nonces#durable-nonce-applications)) is useful for many use cases such as:
+While this solution is great for most use cases, it has some limitations. The transaction should get signed and submitted to the network within 80-90 seconds. But there are some use cases were we need more than 90 seconds to submit the transaction like:
 
 1. **Scheduled Transactions**: One of the most apparent applications of Durable Nonces is the ability to schedule transactions. Users can pre-sign a transaction and then submit it at a later date, allowing for planned transfers, contract interactions, or even executing pre-determined investment strategies.
 
@@ -43,42 +38,59 @@ Durable Nonces is a way to sign a transaction offchain and keep in a store or a 
 
 5. **Decentralized Derivatives Platforms**: In a decentralized derivatives platform, complex transactions might need to be executed based on specific triggers. With Durable Nonces, these transactions can be pre-signed and executed when the trigger condition is met.
 
-Durable Transaction Nonces, which are 32-byte in length (usually represented as base58 encoded strings), are used in place of recent blockhashes to make every transaction unique (to avoid double-spending) while removing the mortality on the unexecuted transaction.
 
-If nonces are used in place of recent blockhashes, the first instruction of the transaction needs to be a nonceAdvance instruction, which changes or advances the nonce. This ensures that every transaction which is signed using the nonce as the recent blockhash, irrespective of being successfully submitted or not, will be unique.
+All of these use cases are not possible with the regular transactions, and this is where Durable Nonces come in.
+
+## Durable Nonces To overcome the short lifespan of the regular transaction:
+
+Durable Nonces is a way to sign a transaction offchain and keep in a store or a database for some time and then eventually submit it to the network, this feature provides an opportunity to create and sign a transaction that can be submitted at any point in the future. And this (as [mentioned in the official documentations](https://solana.com/developers/guides/advanced/introduction-to-durable-nonces#durable-nonce-applications)) is useful for many use cases such as the ones we talked about above:
+
+Durable Nonces, which are 32-byte in length (usually represented as base58 encoded strings), are used in place of recent blockhashes to make every transaction unique (to avoid double-spending) while removing the mortality on the unexecuted transaction.
+
+If nonces are used in place of recent blockhashes, the first instruction of the transaction needs to be a `nonceAdvance` instruction, which changes or advances the nonce. This ensures that every transaction which is signed using the nonce as the recent blockhash will be unique.
 
 Let's get deep into the technical stuff
 
 ## Durable Nonces in-depth
 
-The concept of Durable Nonces is to replace the recent blockhash with a nonce. and This Nonce will be stored in an account called (Nonce Account) and will be used only once in one transaction. The Nonce is a blockhash hashed with some data to make it unique.
+Durable transaction differs from regular transactions in the following ways:
 
-Each durable transaction must start with the Nonce Advance instruction, which will change the nonce in the Nonce Account. This will ensure that the nonce is unique and can't be used again in another transaction.
+1. Durable Nonces replaces the recent blockhash with a nonce. and This Nonce will be stored in an account called (Nonce Account) and will be used only once in one transaction. The Nonce is a blockhash hashed with some data to make it unique.
+2. Each durable transaction must start with the Nonce Advance instruction, which will change the nonce in the Nonce Account. This will ensure that the nonce is unique and can't be used again in another transaction.
 
-Each Nonce Account has an Authority, the Authority is the public key that can change the Nonce, therefore each durable transaction must be signed by the Authority of the Nonce Account.
+And the Nonce Account is an account that holds a couple of values:
+1. The Nonce value: the nonce value that will be used in the transaction.
+2. The Authority: the public key that can change the nonce value.
+3. The Fee Calculator: the fee calculator for the transaction.
 
-Nonce will introduce a few things into the `@solana/web3.js`:
+
+Note that because durable transactions must starts with a nonce advance instruction, therefore the nonce authority will have to be a signer in the transaction.
+
+The durable nonce feature will introduce a few helpers and constants into the `@solana/web3.js`:
 1. 4 new instructions under the SystemProgram:
   1. `nonceInitialize`: This instruction will create a new Nonce Account.
   2. `nonceAdvance`: This instruction will change the Nonce in the Nonce Account.
   3. `nonceWithdraw`: This instruction will withdraw the funds from the Nonce Account, to delete the nonce account withdraw all the funds in it.
   4. `nonceAuthorize`: This instruction will change the Authority of the Nonce Account.
 2. NONCE_ACCOUNT_LENGTH: a constant that represents the length of the Nonce Account data.
-3. NonceAccount: a class that represents the Nonce Account, it contains a static function `fromAccountData` that can take the nonce account data and return a Nonce Account object.
+3. `NonceAccount`: a class that represents the Nonce Account, it contains a static function `fromAccountData` that can take the nonce account data and return a Nonce Account object.
 
-### Creating the `Nonce-Account`
+Let's look into each one of the helpers functions in details.
 
-To create the Nonce-Account using typescript, we will have to:
-1. generate a keypair for the nonce account, and generate/get a keypair for the authority.
-2. allocate the account and transfer funds to it (the least amount is 0.0015 SOL)
-3. initialize the nonce account using the `SystemProgram.nonceInitialize` instruction.
+### `nonceInitialize`
+
+This instruction is used to create a new Nonce Account, it will take two parameters:
+1. `noncePubkey`: the public key of the Nonce Account.
+2. `authorizedPubkey`: the public key of the authority of the Nonce Account.
+
+Here is a code example for it:
 
 ```ts
-// 1. generate a keypair for the nonce account, and generate/get a keypair for the authority.
+// 1. Generate/get a keypair for the nonce account, and the authority.
 const [nonceKeypair, nonceAuthority] = makeKeypairs(2); // from '@solana-developers/helpers'
 
 const tx = new Transaction().add(
-  // 2. allocate the account and transfer funds to it (the least amount is 0.0015 SOL)
+  // 2. Allocate the account and transfer funds to it (the least amount is 0.0015 SOL)
   SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
     newAccountPubkey: nonceKeypair.publicKey,
@@ -86,7 +98,7 @@ const tx = new Transaction().add(
     space: NONCE_ACCOUNT_LENGTH,
     programId: SystemProgram.programId,
   }),
-  // 3. initialize the nonce account using the `SystemProgram.nonceInitialize` instruction.
+  // 3. Initialize the nonce account using the `SystemProgram.nonceInitialize` instruction.
   SystemProgram.nonceInitialize({
     noncePubkey: nonceKeypair.publicKey,
     authorizedPubkey: nonceAuthority.publicKey,
@@ -99,7 +111,72 @@ await sendAndConfirmTransaction(connection, tx, [payer, nonceKeypair]);
 
 The system program will take care of setting the nonce value for us inside the nonce-account.
 
-### fetch the nonce account
+
+### `nonceAdvance`
+
+This instruction is used to change the nonce value in the Nonce Account, it will take two parameters:
+
+1. `noncePubkey`: the public key of the Nonce Account.
+2. `authorizedPubkey`: the public key of the authority of the Nonce Account.
+
+Here is a code example for it:
+
+```ts
+const instuction = SystemProgram.nonceAdvance({
+  authorizedPubkey: nonceAuthority.publicKey,
+  noncePubkey: nonceKeypair.publicKey,
+});
+```
+
+You will often see this instruction as the first instruction in any durable transaction, but that doesn't mean that you can't use it in a regular transaction, you could have a regular transaction that have this instruction alongside with any other instructions.
+
+### `nonceWithdraw`
+
+This instruction is used to withdraw the funds from the Nonce Account, it will take four parameters:
+1. `noncePubkey`: the public key of the Nonce Account.
+2. `toPubkey`: the public key of the account that will receive the funds.
+3. `lamports`: the amount of lamports that will be withdrawn.
+4. `authorizedPubkey`: the public key of the authority of the Nonce Account.
+
+Here is a code example for it:
+
+```ts
+const instuction = SystemProgram.nonceWithdraw({
+  noncePubkey: nonceKeypair.publicKey,
+  toPubkey: payer.publicKey,
+  lamports: amount,
+  authorizedPubkey: nonceAuthority.publicKey,
+});
+```
+
+You can also use this instruction to close the nonce account by withdrawing all the funds in it.
+
+
+### `nonceAuthorize`
+
+This instruction is used to change the authority of the Nonce Account, it will take three parameters:
+1. `noncePubkey`: the public key of the Nonce Account.
+2. `authorizedPubkey`: the public key of the current authority of the Nonce Account.
+3. `newAuthorizedPubkey`: the public key of the new authority of the Nonce Account.
+
+Here is a code example for it:
+```ts
+const instruction = SystemProgram.nonceAuthorize({
+  noncePubkey: nonceKeypair.publicKey,
+  authorizedPubkey: nonceAuthority.publicKey,
+  newAuthorizedPubkey: newAuthority.publicKey,
+});
+```
+
+## How to use the durable nonces
+
+Now that we learned about the nonce account and what are the different operations that we can perform over it, let's talk about:
+
+1. Fetching the nonce account.
+2. Using the nonce in the transaction to make a durable transaction.
+3. Submitting a durable transaction.
+
+### Fetching the nonce account
 
 We can fetch the nonce account to get the nonce value
 
@@ -110,9 +187,9 @@ const nonceAccount = await connection.getAccountInfo(nonceKeypair.publicKey);
 const nonce = NonceAccount.fromAccountData(nonceAccount.data); 
 ```
 
-### Use the Nonce in the transaction:
+### Using the nonce in the transaction to make a durable transaction
 
-To build a durable transaction, we should make sure to do the following:
+To build a fully functioning durable transaction, we should make sure to do the following:
 
 1. use the nonce value in replacement of the recent blockhash.
 2. add the nonceAdvance instruction as the first instruction in the transaction.
@@ -121,36 +198,36 @@ To build a durable transaction, we should make sure to do the following:
 After building and signing the transaction we can serialize it and encode it into a base58 string, and we can save this string in some store to submit it later.
 
 ```ts
-    // Assemble the durable transaction
-    const durableTx = new Transaction();
-    durableTx.feePayer = payer.publicKey;
+  // Assemble the durable transaction
+  const durableTx = new Transaction();
+  durableTx.feePayer = payer.publicKey;
 
-    // use the nonceAccount's stored nonce as the recentBlockhash
-    durableTx.recentBlockhash = nonceAccount.nonce;
+  // use the nonceAccount's stored nonce as the recentBlockhash
+  durableTx.recentBlockhash = nonceAccount.nonce;
 
-    // make a nonce advance instruction
-    durableTx.add(
-      SystemProgram.nonceAdvance({
-        authorizedPubkey: nonceAuthority.publicKey,
-        noncePubkey: nonceKeypair.publicKey,
-      }),
-    );
+  // make a nonce advance instruction
+  durableTx.add(
+    SystemProgram.nonceAdvance({
+      authorizedPubkey: nonceAuthority.publicKey,
+      noncePubkey: nonceKeypair.publicKey,
+    }),
+  );
 
-    // Add any instructions you want to the transaction in this case we are just doing a transfer
-    durableTx.add(
-      SystemProgram.transfer({
-        fromPubkey: payer.publicKey,
-        toPubkey: recipient.publicKey,
-        lamports: 0.1 * LAMPORTS_PER_SOL,
-      }),
-    );
+  // Add any instructions you want to the transaction in this case we are just doing a transfer
+  durableTx.add(
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: recipient.publicKey,
+      lamports: 0.1 * LAMPORTS_PER_SOL,
+    }),
+  );
 
-    // sign the tx with the nonce authority's keypair
-    durableTx.sign(payer, nonceAuthority);
+  // sign the tx with the nonce authority's keypair
+  durableTx.sign(payer, nonceAuthority);
 
-    // once you have the signed tx, you can serialize it and store it in a database, or send it to another device.
-    // You can submit it at a later point.
-    const serializedTx = base58.encode(durableTx.serialize({ requireAllSignatures: false }));
+  // once you have the signed tx, you can serialize it and store it in a database, or send it to another device.
+  // You can submit it at a later point.
+  const serializedTx = base58.encode(durableTx.serialize({ requireAllSignatures: false }));
 ```
 
 ### submitting a durable transaction:
@@ -161,73 +238,35 @@ Since we use `base58.encode` to encode the transaction, we will have to decoded 
 
 ```ts
 const tx = base58.decode(serializedTx);
-
 const sig = await sendAndConfirmRawTransaction(connection, tx as Buffer);
-```
-
-### advancing the nonce:
-
-Advancing the Nonce means that you will discard the current nonce value and take a new one. You might want to do that to expire an old transaction that has been built using the current nonce, or to make sure that the nonce is unique.
-
-This can be done using the `SystemProgram.nonceAdvance` instruction.
-
-```ts
-SystemProgram.nonceAdvance({
-  authorizedPubkey: nonceAuthority.publicKey,
-  noncePubkey: nonceKeypair.publicKey,
-}),
-```
-
-### withdrawing the funds from the nonce account:
-
-In the case of closing the account, or just withdrawing some funds from it, you can use the `SystemProgram.nonceWithdraw` instruction.
-
-```ts
-SystemProgram.nonceWithdraw({
-  noncePubkey: nonceKeypair.publicKey,
-  toPubkey: payer.publicKey,
-  lamports: 0.0015 * LAMPORTS_PER_SOL,
-  authorizedPubkey: nonceAuthority.publicKey,
-})
-```
-
-### changing the authority of the nonce account:
-
-You can change the authority of the nonce account using the `SystemProgram.nonceAuthorize` instruction.
-
-```ts
-SystemProgram.nonceAuthorize({
-  noncePubkey: nonceKeypair.publicKey,
-  authorizedPubkey: oldAuthority.publicKey,
-  newAuthorizedPubkey: newAuthority.publicKey,
-})
 ```
 
 ## Some important edge cases
 
-### If the transaction Fails
+There are few things that you need to consider when dealing with durable transactions:
+1. If the transaction fails due to an instruction other than the nonce advanced instruction.
+2. If the transaction fails due to the nonce advanced instruction.
 
-In the case of a failing transaction, the known behavior is that all the instructions in the transaction will get reverted to the original state, and that is in the definition of an atom transaction. But in the case of a durable transaction, even if it fails the nonce will still get advanced although all other instruction will get reverted, and this is for security reasons.
+### If the transaction fails due to an instruction other than the nonce advanced instruction
 
-### If the nonce authority dose not sign the transaction
+In the case of a failing transaction, the known behavior is that all the instructions in the transaction will get reverted to the original state. But in the case of a durable transaction, even if it fails the nonce will still get advanced although all other instruction will get reverted, and this is for security reasons.
 
-in this case the transaction will fail, and the nonce will not get advanced, because the only one allowed to advance the nonce is the authority of the nonce account.
+### If the transaction fails due to the nonce advanced instruction
 
-But if after that the authority of the nonce account changes to be someone who is in the signers list of the transaction, then submitting the transaction now will success, so you should keep in mind that even if you sign a durable transaction and it fails because the authority was not one of the signers, keep in mind that this transaction can still be submitted later if the authority of the nonce account transfer the authority to an account that has already signed the transaction (like your wallet account), so you should be extra careful with signing anything online before knowing all the details of what you are signing into.
+In this case the transaction will fail, and the nonce will not get advanced.
 
-After explaining all of that, we are ready to start the lab to get our hands dirty with some code.
+This could OK in most of the cases, but in a particular case, this might be dangerous. Imagine that you signed a transaction to transfer 3 SOL from your wallet to make a purchase, but then the transaction fails because the `nonceAdvance` instruction throws an error, in this case the error was because the `nonceAuthority` has been set to wallet `X` which is not the true authority, the true authority is wallet `Y`. In this case you might decide that you no longer want to make the purchase. For a regular transaction this will not be a problem because the transaction will get expired in a minute and it can't be submitted anymore. But for a durable transaction, which never expires, this might not be the case, because the nonce didn't advance and the transaction never get expired.
+
+Now, if wallet `X` is a signer on this transaction, the attacker could at any point in the future changes the authority of the nonce account from wallet `Y` to wallet `X` and submits the transaction. This means that the attacker could hold a transaction on you indefinitely and submit it at any point in the future.
+
+BTW wallet `X` could be you own wallet, which means it is always a signer.
+
+
+In the lab below we would write code to demonstrate all of the edge cases as well as how to do a proper durable transaction.
 
 # Lab
 
-In this lab, we will learn how to create a durable transaction. We will focus on what you can and can't do with it. Additionally, we will discuss some edge cases and how to handle them.
-
-Durable transactions are the solution for having a long-lived transaction that can be signed and stored for an extended period before submitting it to the network. Previously, we discussed how the regular transaction uses the recent blockhash, which gives them a short lifespan. This means we would have to sign and submit the transaction within 80-90 seconds.
-
-Durable transactions have two key differences compared to regular transactions:
-1. The recent blockhash is replaced with a nonce.
-2. The first instruction in the transaction should be a nonce advance instruction.
-
-To create a durable transaction, we need to first prepare a nonce account. Then, we can assemble the transaction, sign it, and that is what we will see in the lab.
+In this lab, we will learn how to create a durable transaction. We will focus on what you can and you can't do with it. Additionally, we will discuss some edge cases and how to handle them.
 
 ## 0. Getting started
 
@@ -340,7 +379,7 @@ To create and submit a durable transaction we must follow these steps:
 1. Create a Durable Transaction.
   1. Create the Nonce Account.
   2. Create a new Transaction.
-  3. Ste the recentBlockhash to be the nonce value.
+  3. Ste the `recentBlockhash` to be the nonce value.
   4. Add the `nonceAdvance` instruction as the first instruction in the transaction.
   5. Add the transfer instruction (you can add any instruction you want here).
   6. Sign the transaction with the keyPairs that need to sign it, and make sure to add the nonce authority as a signer as well.
