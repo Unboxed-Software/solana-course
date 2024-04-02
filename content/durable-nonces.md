@@ -315,17 +315,26 @@ dotenv.config();
 describe('transfer-hook', () => {
   const connection = new Connection('http://localhost:8899', 'confirmed');
 
-  it('Creates a durable transaction and submits it', async () => { });
+  it('Creates a durable transaction and submits it', async () => {});
 
-  it('Fails if the nonce has advanced', async () => { });
+  it('Fails if the nonce has advanced', async () => {});
 
-  it('Advances the nonce account even if the transaction fails', async () => { });
+  it('Advances the nonce account even if the transaction fails', async () => {});
 
-  it('The nonce account will not advance if the transaction fails because the nonce auth did not sign the transaction', async () => { });
+  it('The nonce account will not advance if the transaction fails because the nonce auth did not sign the transaction', async () => {});
 
-  it('Submits after changing the nonce auth to an already signed address', async () => { });
+  it('Submits after changing the nonce auth to an already signed address', async () => {});
 });
 ```
+
+As you can see we are using local validator, so you will need to have it installed, if you don't you can refer to [installing the Solana CLI](https://docs.solanalabs.com/cli/install), once you install the CLI you will have access to the `solana-test-validator` and much more cool stuff.
+
+Running the local validator is easy, you just have to run this command in your terminal:
+
+```bash
+solana-test-validator
+```
+
 
 As you can see, the lab will be divided into 5 steps that will help us understand durable nonces better.
 
@@ -399,65 +408,65 @@ To create and submit a durable transaction we must follow these steps:
   2. Submit it using the `sendAndConfirmRawTransaction` function.
 
 ```ts
-  it('Creates a durable transaction and submits it', async  => {
-    const payer = await initializeKeypair(connection, {
-      airdropAmount: 3 * LAMPORTS_PER_SOL,
-      minimumBalance: 1 * LAMPORTS_PER_SOL,
-    });
-
-    // 1. Create a Durable Transaction.
-    const [nonceKeypair, recipient] = makeKeypairs(2);
-
-    // 1.1 Create the Nonce Account.
-    const nonceAccount = await createNonceAccount(payer, nonceKeypair, payer.publicKey, connection);
-
-    // 1.2 Create a new Transaction.
-    const durableTx = new Transaction();
-    durableTx.feePayer = payer.publicKey;
-
-    // 1.3 Ste the recentBlockhash to be the nonce value.
-    durableTx.recentBlockhash = nonceAccount.nonce;
-
-    // 1.4 Add the `nonceAdvance` instruction as the first instruction in the transaction.
-    durableTx.add(
-      SystemProgram.nonceAdvance({
-        authorizedPubkey: payer.publicKey,
-        noncePubkey: nonceKeypair.publicKey,
-      }),
-    );
-
-    // 1.5 Add the transfer instruction (you can add any instruction you want here).
-    durableTx.add(
-      SystemProgram.transfer({
-        fromPubkey: payer.publicKey,
-        toPubkey: recipient.publicKey,
-        lamports: 0.1 * LAMPORTS_PER_SOL,
-      }),
-    );
-
-    // 1.6 Sign the transaction with the keyPairs that need to sign it, and make sure to add the nonce authority as a signer as well.
-    // In this particular example the nonce auth is the payer, and the only signer needed for our transfer instruction is the payer as well, so the payer here as a sign is sufficient.
-    durableTx.sign(payer);
-
-    // 1.7 Serialize the transaction and encode it.
-    const serializedTx = base58.encode(durableTx.serialize({ requireAllSignatures: false }));
-    // 1.8 at this point you have a durable transaction, you can store it in a database or a file or send it somewhere else, etc.
-    // ----------------------------------------------------------------
-
-    // 2. Submit the durable transaction.
-    // 2.1 Decode the serialized transaction.
-    const tx = base58.decode(serializedTx);
-
-    // 2.2 Submit it using the `sendAndConfirmRawTransaction` function.
-    const sig = await sendAndConfirmRawTransaction(connection, tx as Buffer, {
-      skipPreflight: true,
-    });
-
-    console.log(
-      'Transaction Signature:',
-      `https://explorer.solana.com/tx/${sig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
+it('Creates a durable transaction and submits it', async () => {
+  const payer = await initializeKeypair(connection, {
+    airdropAmount: 3 * LAMPORTS_PER_SOL,
+    minimumBalance: 1 * LAMPORTS_PER_SOL,
   });
+
+  // 1. Create a Durable Transaction.
+  const [nonceKeypair, recipient] = makeKeypairs(2);
+
+  // 1.1 Create the Nonce Account.
+  const nonceAccount = await createNonceAccount(payer, nonceKeypair, payer.publicKey, connection);
+
+  // 1.2 Create a new Transaction.
+  const durableTx = new Transaction();
+  durableTx.feePayer = payer.publicKey;
+
+  // 1.3 Ste the recentBlockhash to be the nonce value.
+  durableTx.recentBlockhash = nonceAccount.nonce;
+
+  // 1.4 Add the `nonceAdvance` instruction as the first instruction in the transaction.
+  durableTx.add(
+    SystemProgram.nonceAdvance({
+      authorizedPubkey: payer.publicKey,
+      noncePubkey: nonceKeypair.publicKey,
+    }),
+  );
+
+  // 1.5 Add the transfer instruction (you can add any instruction you want here).
+  durableTx.add(
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: recipient.publicKey,
+      lamports: 0.1 * LAMPORTS_PER_SOL,
+    }),
+  );
+
+  // 1.6 Sign the transaction with the keyPairs that need to sign it, and make sure to add the nonce authority as a signer as well.
+  // In this particular example the nonce auth is the payer, and the only signer needed for our transfer instruction is the payer as well, so the payer here as a sign is sufficient.
+  durableTx.sign(payer);
+
+  // 1.7 Serialize the transaction and encode it.
+  const serializedTx = base58.encode(durableTx.serialize({ requireAllSignatures: false }));
+  // 1.8 at this point you have a durable transaction, you can store it in a database or a file or send it somewhere else, etc.
+  // ----------------------------------------------------------------
+
+  // 2. Submit the durable transaction.
+  // 2.1 Decode the serialized transaction.
+  const tx = base58.decode(serializedTx);
+
+  // 2.2 Submit it using the `sendAndConfirmRawTransaction` function.
+  const sig = await sendAndConfirmRawTransaction(connection, tx as Buffer, {
+    skipPreflight: true,
+  });
+
+  console.log(
+    'Transaction Signature:',
+    `https://explorer.solana.com/tx/${sig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
+  );
+});
 ```
 
 ## 3. The Transaction Fails if the Nonce Has Advanced
