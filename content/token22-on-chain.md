@@ -1,7 +1,7 @@
 ---
 title: Supporting Token Extension Program in on-chain programs
 objectives:
-- Explain the difference between the Token Program and Token Extension programs
+- Explain the differences between the Token Program and Token Extension programs
 - Describe how to accept either token program, accounts, and mints in your program
 - Explain how to use Anchor Interfaces
 ---
@@ -14,9 +14,9 @@ objectives:
 
 # Overview
 
-The `Token Extension Program` is a program on Solana mainnet that provides additional functionality to Solana tokens and mints. The `Token Extension Program` is a superset of the `Token Program`, it's a byte for byte recreation with additional functionality. That means it is a different program. With two types of Token Programs, we must anticipate being sent the program type in instructions.
+The `Token Extension Program` is a program on Solana mainnet that provides additional functionality to Solana tokens and mints. The `Token Extension Program` is a superset of the `Token Program`. Essentially it is a byte for byte recreation with additional functionality. That means it is a different program. With two types of Token Programs, we must anticipate being sent the program type in instructions.
 
-In this lesson, you'll learn how to design your program to accept `Token Program` and `Token Extension Program` accounts using Anchor. You'll also learn how to interact with `Token Extension Program` accounts, identifying which token program an account belongs to, and some differences between `Token Program` and the `Token Extension Program` on-chain.
+In this lesson, you'll learn how to design your program to accept `Token Program` and `Token Extension Program` accounts using Anchor. You will also learn how to interact with `Token Extension Program` accounts, identifying which token program an account belongs to, and some differences between `Token Program` and the `Token Extension Program` on-chain.
 
 ## Difference between legacy Token Program and Token Extension Program
 
@@ -83,7 +83,7 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 pub token_program: Interface<'info, token_interface::TokenInterface>,
 ```
-You can do the same thing with an associated token account by supplying a speicfic token program.
+You can do the same thing with an associated token account by supplying a specific token program.
 
 ```rust
 #[account(
@@ -93,13 +93,13 @@ pub associated_token: Box>,
 pub token_program: Interface<'info, token_interface::TokenInterface>,
 ```
 
-If you'd like to check which token program a token account and mint belongs to in your program logic, you can check the owner field on the `AccountInfo` struct. The following will log the owning program's ID. You could use this field in a conditional to execute different logic for `spl-token` and `Token Extension Program` accounts.
+If you'd like to check which token program a token account and mint belongs to in your program logic, you can refer to the owner field on the `AccountInfo` struct. The following code will log the owning program's ID. You could use this field in a conditional to execute different logic for `spl-token` and `Token Extension Program` accounts.
 
 ```rust
 msg!("Token Program Owner: {}", ctx.accounts.token_account.to_account_info().owner);
 ```
 
-We introduced the `token_program` anchor account constraint and showed how to use it. This constraint, along with a few other Anchor primitives, was created specifically to support two standard token programs. Now that there are two token programs, the `token_program` constraint also indicates to Anchor which program to invoke when initializing a token or mint account. This specification allows you to pass in both token programs and initialize accounts on each one.
+We introduced the `token_program` Anchor account constraint and showed how to use it. This constraint, along with a few other Anchor primitives, was created specifically to support two standard token programs. Now that there are two token programs, the `token_program` constraint also indicates to Anchor which program to invoke when initializing a token or mint account. This specification allows you to pass in both token programs and initialize accounts on each one.
 
 ## Anchor Interfaces
 
@@ -197,7 +197,7 @@ pub struct Example<'info>{
 }
 ```
 
-If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` account types are not new. What is new is how they work with the `InterfaceAccount` wrapper. The `InterfaceAccount` wrapper allows for either `Token Program` or `Token Extension Program` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a seamless experience for developers, giving you the flexibility to interact with both `Token Program` and the `Token Extension Program` in your program.
+If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` account types are not new. Although what is new is how they work with the `InterfaceAccount` wrapper. The `InterfaceAccount` wrapper allows for either `Token Program` or `Token Extension Program` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a smooth and straight-forward experience for developers, giving you the flexibility to interact with both `Token Program` and the `Token Extension Program` in your program.
 
 However, you cannot use any of these types from the `token_interface` module with the regular Anchor `Program` and `Account` wrappers. These new types are used with either the `Interface` or `InterfaceAccount` wrappers. For example, the following would not be valid, and any transactions sent to an instruction using this account deserialization would return an error.
 
@@ -226,7 +226,7 @@ This lab will utilize a lot of Anchor and Solana APIs that have been covered pre
 
 ### 1. Verify Solana/Anchor/Rust Versions
 
-We will be interacting with the `Token Extension` program in this lab and that requires you have solana cli version ≥ 1.18.0. 
+We will be interacting with the `Token Extension` program in this lab and that requires you have solana cli version ≥ `1.18.0`. 
 
 To check your version run:
 ```bash
@@ -239,7 +239,7 @@ If the version printed out after running `solana --version` is less than `1.18.0
 solana-install init 1.18.0
 ```
 
-If you run into the following error at any point attempting to build the program, that likely means you do not have the correct version of the solana CLI installed.
+If you run into the following error at any point attempting to build the program, that likely means you do not have the correct version of the Solana CLI installed.
 
 ```bash
 anchor build
@@ -249,9 +249,7 @@ cargo update -p solana-program@1.18.0 --precise ver
 where `ver` is the latest version of `solana-program` supporting rustc 1.68.0-dev
 ```
 
-You will also want the latest version of the anchor CLI installed. You can follow along the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
-
-or simply run
+You will also want the latest version of the Anchor CLI installed. You can follow along the steps listed here to update via avm https://www.anchor-lang.com/docs/avm or simply run:
 ```bash
 avm install latest
 avm use latest
@@ -259,13 +257,13 @@ avm use latest
 
 At the time of writing, the latest version of the Anchor CLI is `0.29.0`
 
-Now, we can check our rust version.
+Now, we can check our Rust version.
 
 ```bash
 rustc --version
 ```
 
-At the time of writing, version `1.26.0` was used for the rust compiler. If you would like to update, you can do so via `rustup`
+At the time of writing, version `1.26.0` was used for the Rust compiler. If you would like to update, you can do so via `rustup`
 https://doc.rust-lang.org/book/ch01-01-installation.html
 
 ```bash
@@ -286,13 +284,9 @@ git checkout starter
 
 ### 3. Update Program ID and Anchor Keypair
 
-Once in the starter branch, run
+Once in the starter branch, run `anchor keys list` to get your program ID.
 
-`anchor keys list`
-
-to get your program ID.
-
-Copy and paste this program ID in the `Anchor.toml` file
+Copy and paste this program ID in the `Anchor.toml` file:
 
 ```rust
 // in Anchor.toml
@@ -300,7 +294,7 @@ Copy and paste this program ID in the `Anchor.toml` file
 token_22_staking = "<YOUR-PROGRAM-ID-HERE>"
 ```
 
-And in the `programs/token-22-staking/src/lib.rs` file.
+And in the `programs/token-22-staking/src/lib.rs` file:
 
 ```rust
 declare_id!("<YOUR-PROGRAM-ID-HERE>");
@@ -314,7 +308,7 @@ cluster = "Localnet"
 wallet = "/YOUR/PATH/HERE/id.json"
 ```
 
-If you don't know what your current keypair path is you can always run the solana cli to find out.
+If you don't know what your current keypair path is you can always run the Solana cli to find out.
 
 ```bash
 solana config get
@@ -330,7 +324,7 @@ anchor build
 
 You can safely ignore the warnings of the build script, these will go away as we add in the necessary code.
 
-Feel free to run the provided tests to make sure the rest of the dev environment is setup correct. You'll have to install the node dependancies using `npm` or `yarn`. The tests should run, but they'll all fail until we have completed our program.
+Feel free to run the provided tests to make sure the rest of the development environment is set up correctly. You'll have to install the node dependencies using `npm` or `yarn`. The tests should run, but they'll all fail until we have completed our program.
 
 ```bash
 yarn install
@@ -349,7 +343,7 @@ The `errors.rs` and `utils.rs` files are already filled out for you. `errors.rs`
 
 `utils.rs` is a file that only contains one function called `check_token_program`. This is just a file where you can write helper functions if you have the need. This function was written ahead of time and will be used in our program to simply log the specific token program that was passed in the instruction. We will be using both `Token Extension Program` and `spl-token` in this program, so this function will help clarify that distinction.
 
-`lib.rs` is the entrypoint to our program, as is the common practice in all Solana programs. Here we define our program id using the `declare_id` Anchor macro and the public `token_22_staking` module. This module is where we define our publicly callable instructions, these can be thought of as our program's API.
+`lib.rs` is the entrypoint to our program, as is the common practice in all Solana programs. Here we define our program ID using the `declare_id` Anchor macro and the public `token_22_staking` module. This module is where we define our publicly callable instructions, these can be thought of as our program's API.
 
 We have four separate instructions defined here:
 * `init_pool`
@@ -451,12 +445,12 @@ To get started implementing the logic of this instruction, let's first think abo
 * `staking_token_mint` - The reward token mint for staking in this pool. 
 * `payer` - Account responsible for paying for the creation of the staking pool.
 * `token_program` - The token program associated with the given token and mint accounts. Should work for either the Token Extension or the Token program.
-* `system_program` - System program
-* `rent` - Rent program
+* `system_program` - System program.
+* `rent` - Rent program.
 
 Let's implement this accounts struct starting with the `pool_authority` account and its constraints.
 
-The `pool_authority` account is a PDA derived with the `VAULT_AUTH_SEED` that we defined in the `state.rs` file. This account does not hold any state, so we do not need to deserialize it into any specific account structure. For this reason, we use the `UncheckedAccount` anchor account type.
+The `pool_authority` account is a PDA derived with the `VAULT_AUTH_SEED` that we defined in the `state.rs` file. This account does not hold any state, so we do not need to deserialize it into any specific account structure. For this reason, we use the `UncheckedAccount` Anchor account type.
 
 ```rust
 #[derive(Accounts)]
@@ -471,7 +465,7 @@ pub struct InitializePool<'info> {
 }
 ```
 
- Note that the `UncheckedAccount` is considered unsafe by anchor because anchor does not do any additional verification under the hood. However, this is okay here because we do verify that the account is the expected PDA and we do not read or write from the account. However, the `/// CHECK:` comment is required above an account utilizing the `UncheckedAccount` or `AccountInfo` structs. Without that annotation, your program will throw the following error while building:
+ Note that the `UncheckedAccount` is considered unsafe by Anchor because Anchor does not do any additional verification under the hood. However, this is okay here because we do verify that the account is the expected PDA and we do not read or write from the account. However, the `/// CHECK:` comment is required above an account utilizing the `UncheckedAccount` or `AccountInfo` structs. Without that annotation, your program will throw the following error while building:
 
 ```bash
 Struct field "pool_authority" is unsafe, but is not documented.
@@ -481,7 +475,7 @@ See https://www.anchor-lang.com/docs/the-accounts-struct#safety-checks for more 
 
 Next, we'll define the `pool_state` account.
 
-This account utilizes the `init` constraint, which indicates to anchor that we need to create the account. The account is expected to be a PDA derived with the `token_mint` account key and `STAKE_POOL_STATE_SEED` as keys. `payer` is required to pay the rent required to create this account. And we allocate enough space for the account to store the `PoolState` data struct that we defined in the `state.rs` file. Lastly, we use the `Account` wrapper to deserialize the given account into the `PoolState` struct.
+This account utilizes the `init` constraint, which indicates to Anchor that we need to create the account. The account is expected to be a PDA derived with the `token_mint` account key and `STAKE_POOL_STATE_SEED` as keys. `payer` is required to pay the rent required to create this account. We allocate enough space for the account to store the `PoolState` data struct that we defined in the `state.rs` file. Lastly, we use the `Account` wrapper to deserialize the given account into the `PoolState` struct.
 
 ```rust
 // pool state account
@@ -499,7 +493,7 @@ Moving on to the `token_mint` account.
 
 We make use of two account constraints on this `token_mint` account. `mint::token_program = <token_program>` verifies that the given account is a mint created from the given `<token_program>`. Before the Token Extension Program, this was not really a concern as there was only one token program. Now, there are two! The reason we verify the `token_mint` account belongs to the given `token_program` is because token accounts and mints of one program are not compatible with token accounts and mints from the other program. So, for every instruction in our program, we will be verifying that all the given token accounts and mints belong to the same `token_program`.
 
-The second constraint `mint::authority = payer` verifies that the authority over the mint passed in is the `payer` account, which will also be required to be a signer. This may seem counterintuitive, but we do this because at the moment we are inherently restricting the program to one staking pool per token due to the PDA seeds we use for the `pool_state` account. We also allow the creator of the pool to define what the reward token mint is for staking in that pool. Because the program currently limits one pool per token, we wouldn't want to allow just anybody to create a staking pool for a token. This gives the creator of the pool control over what the reward is for staking here. Imagine if we did not require the `mint::authority`, this would allow anyone to create the staking pool for `Token X` and define what the reward is for everyone that stakes `Token X` with this staking program. If they decide to define the reward token as the meme coin `FooBar`, then everyone would be stuck with that staking pool in this program. For this reason, we will only allow the `token_mint` authority to create a staking pool for said `token_mint`. This program design would probably not be a good choice for the real world, it does not scale very well. But, it serves as a great example to help get the points across in this lesosn while keeping things relatively simple. This can also serve as a good exercise in program design. How would you design this program to make it more scalable for mainnet?
+The second constraint `mint::authority = payer` verifies that the authority over the mint passed in is the `payer` account, which will also be required to be a signer. This may seem counterintuitive, but we do this because at the moment we are inherently restricting the program to one staking pool per token due to the PDA seeds we use for the `pool_state` account. We also allow the creator of the pool to define what the reward token mint is for staking in that pool. Because the program currently limits one pool per token, we wouldn't want to allow just anybody to create a staking pool for a token. This gives the creator of the pool control over what the reward is for staking here. Imagine if we did not require the `mint::authority`, this would allow anyone to create the staking pool for `Token X` and define what the reward is for everyone that stakes `Token X` with this staking program. If they decide to define the reward token as the meme coin `FooBar`, then everyone would be stuck with that staking pool in this program. For this reason, we will only allow the `token_mint` authority to create a staking pool for said `token_mint`. This program design would probably not be a good choice for the real world, it does not scale very well. But, it serves as a great example to help get the points across in this lesson while keeping things relatively simple. This can also serve as a good exercise in program design. How would you design this program to make it more scalable for mainnet?
 
 Lastly, we utilize the `InterfaceAccount` struct to deserialize the given account into `token_interface::Mint`. 
 The `InterfaceAccount` type is a wrapper around `AccountInfo` that verifies program ownership and deserializes underlying data into a given Rust type. Used with the `token_interface::Mint` struct, Anchor knows to deserialize this into a Mint account. The `token_interface::Mint` struct provides support for both `Token Program` and `Token Extension Program` mints out of the box! This interface concept was created specifically for this use case. You can read more about the `InterfaceAccount` in the [`anchor_lang` docs](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/struct.InterfaceAccount.html).
@@ -611,7 +605,7 @@ pub struct InitializePool<'info> {
 }
 ```
 
-Setting up the account struct is the bulk of the logic for this instruction. All we have to do inside the `handler` function, is to initialize all of the `pool_state` fields. 
+Setting up the account struct is the bulk of the logic for this instruction. All we have to do inside the `handler` function, is to initialize all of the `pool_state` fields.
 
 The `handler` function should be:
 ```rust
@@ -648,16 +642,16 @@ Let's get started with the accounts required for this instruction. We will need 
 
 * `user` - The user that is creating the `stake_entry` account. This account must sign the transaction and will need to pay for the rent required to create the `stake_entry` account.
 * `user_stake_entry` - State account that will be created at a PDA derived from the user, mint the staking pool was created for, and the `STAKE_ENTRY_SEED` as seeds.
-* `user_stake_token_account` - User's associated token account for the staking reward token
-* `staking_token_mint` - mint of the staking reward token of this pool
-* `pool_state` - `PoolState` account for this staking pool
-* `token_program` - Token Program
-* `associated_token_program` - Associated token program
-* `system_program` - System Program
+* `user_stake_token_account` - User's associated token account for the staking reward token.
+* `staking_token_mint` - Mint of the staking reward token of this pool.
+* `pool_state` - `PoolState` account for this staking pool.
+* `token_program` - Token Program.
+* `associated_token_program` - Associated token program.
+* `system_program` - System Program.
 
 Let's start by adding in the `user` account to the `InitializeStakeEntry` account struct.
 
-We need to check that the `user` account is a signer and mutable. Signer because they are the owner and mutable because they're also the payer of the transaction (which will mutate their balance).
+It's necessary to verify that the user account has the authority to sign, indicating ownership, and is also changeable, as they are the payer of the transaction (which will mutate their balance).
 
 ```rust
 #[derive(Accounts)]
@@ -681,9 +675,9 @@ The `user_stake_entry` account requires a few more constraints. We need to initi
     pub user_stake_entry: Account<'info, StakeEntry>,
 ```
 
-The `user_stake_token_account` is again the account where the user's staking rewards will eventually be sent. We create the account in this instruction so we don't have to worry about it later on when it's time to dole out the staking rewards. Because we initialize this account in this instruction, it puts a limit on the number of pools a user can stake in with the same reward token. This current design would prevent a user from creating another `user_stake_entry` account for another pool with the same `staking_token_mint`. This is another design choice that probably would not scale in production. Think about how else this could be designed.
+The `user_stake_token_account` is, again, the account where the user's staking rewards will eventually be sent. We create the account in this instruction so we don't have to worry about it later on when it's time to dole out the staking rewards. Because we initialize this account in this instruction, it puts a limit on the number of pools a user can stake in with the same reward token. This current design would prevent a user from creating another `user_stake_entry` account for another pool with the same `staking_token_mint`. This is another design choice that probably would not scale in production. Think about how else this could be designed.
 
-We use some similar Anchor SPL constraints as in the previous instruction, this time targeting the associated token program. With the `init` constraint, these tell anchor what mint, authority, and token program to use while initializing this associated token account.
+We use some similar Anchor SPL constraints as in the previous instruction, this time targeting the associated token program. With the `init` constraint, these tell Anchor what mint, authority, and token program to use while initializing this associated token account.
 
 ```rust
 #[account(
@@ -696,9 +690,9 @@ We use some similar Anchor SPL constraints as in the previous instruction, this 
     pub user_stake_token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
 ```
 
-Note above, we are using the `InterfaceAccount` and `token_interface::TokenAccount` types here. The `token_interface::TokenAccount` type can only be used in conjunction with `InterfaceAccount`.
+Note: We are using the `InterfaceAccount` and `token_interface::TokenAccount` types here. The `token_interface::TokenAccount` type can only be used in conjunction with `InterfaceAccount`.
 
-Next, we add the `staking_token_mint` account. Notice, we are using our first custom error here. This constraint verifies that the pubkey on the `staking_token_mint` account is equal to the pubkey stored in the `staking_token_mint` field of the given `PoolState` account. This field was initialized in the `handler` method of the `inti_pool` instruction in the previous step.
+Next, we add the `staking_token_mint` account. Notice we are using our first custom error here. This constraint verifies that the pubkey on the `staking_token_mint` account is equal to the pubkey stored in the `staking_token_mint` field of the given `PoolState` account. This field was initialized in the `handler` method of the `inti_pool` instruction in the previous step.
 
 ```rust
 #[account(
@@ -720,7 +714,7 @@ The `pool_state` account is pretty much the same here as in the `init_pool` inst
 ```
 
 
-The remaining accounts ones that we are familiar with already and there are not any special constraints on them.
+The remaining accounts are ones that we are familiar with already and there are not any special constraints on them.
 
 ```rust
     pub token_program: Interface<'info, token_interface::TokenInterface>,
@@ -767,7 +761,7 @@ pub struct InitializeStakeEntry<'info> {
 }
 ```
 
-The `handler` method is also very simple in this instruction. All we need to is initialize the state of the newly created `user_stake_entry` account.
+The `handler` method is also very straight-forward in this instruction. All we need to is initialize the state of the newly created `user_stake_entry` account.
 
 ```rust
 pub fn handler(ctx: Context<InitializeStakeEntry>) -> Result<()> {
@@ -869,9 +863,9 @@ The `user` account is marked as mutable and must sign the transaction. They are 
     pub user: Signer<'info>,
 ```
 
-Note, we also verify the given user is the same pubkey stored in the given `user_stake_entry` account. If it is not, our program will throw the `InvalidUser` custom error.
+Note: We also verify that the given user is the same pubkey stored in the given `user_stake_entry` account. If it is not, our program will throw the `InvalidUser` custom error.
 
-The `user_token_account` is the token account where the tokens being transferred to be staked should be currently held. The mint of this token account must match the mint of the staking pool. If it does not, a custom `InvalidMint` error will be thrown. We also verify the given token account matches the given  `token_program`.
+The `user_token_account` is the token account where the tokens being transferred to be staked should be currently held. The mint of this token account must match the mint of the staking pool. If it does not, a custom `InvalidMint` error will be thrown. We also verify the given token account matches the given `token_program`.
 
 ```rust
 #[account(
@@ -961,7 +955,7 @@ That is it for the accounts struct. Save your work and verify your program still
 anchor build
 ```
 
-Next, we are going to implement a helper function to assist with the transfer cpi that we will have to make. We'll add the skeleton for the implementation of a `transfer_checked_ctx` method on our `Stake` data struct. Below the `Stake` accounts struct we just built, add the following:
+Next, we are going to implement a helper function to assist with the transfer CPI that we will have to make. We'll add the skeleton for the implementation of a `transfer_checked_ctx` method on our `Stake` data struct. Below the `Stake` accounts struct we just built, add the following:
 
 ```rust
 impl<'info> Stake <'info> {
@@ -1057,7 +1051,7 @@ With this defined, we can call `transfer_checked_ctx` at any point in our `handl
 
 Moving on to the `handler` function, we'll need to do a couple of things here. First, we need to use our `transfer_checked_ctx` method to create the correct `CpiContext` and make the CPI. Then, we have some critical updates to make to our two state accounts. As a reminder, we have two state accounts `PoolState` and `StakeEntry`. The former holds information regarding current state of the overall staking pool, while the latter is in charge of keeping an accurate recording of the a specific user's stake in a pool. With that in mind, any time there is an update to the staking pool we should be updating both the `PoolState` and a given user's `StakeEntry` accounts in some way.
 
-For starters, let's implement the actual CPI. Since we defined the program and accounts required for the CPI ahead of time in the `transfer_checked_ctx()` method, the actual CPI is very simple. We'll make use of another helper function from the `anchor_spl::token_2022` crate, specifically the `transfer_checked` function. This is [defined as the following](https://docs.rs/anchor-spl/latest/anchor_spl/token_2022/fn.transfer_checked.html):
+For starters, let's implement the actual CPI. Since we defined the program and accounts required for the CPI ahead of time in the `transfer_checked_ctx()` method, the actual CPI is very straight-forward. We'll make use of another helper function from the `anchor_spl::token_2022` crate, specifically the `transfer_checked` function. This is [defined as the following](https://docs.rs/anchor-spl/latest/anchor_spl/token_2022/fn.transfer_checked.html):
 
 ```rust
 pub fn transfer_checked<'info>(
@@ -1075,7 +1069,7 @@ The `CpiContext` is exactly what is returned in our `transfer_checked_ctx()` met
 
 The amount is simply the amount of tokens to transfer, which our `handler` method expects as an input parameter.
 
-Lastly, the decimals argument is the amount of decimals on the token mint of what is being transferred. This is a requirement of the transfer checked instruction. Since the `token_mint` account is passed in, you can actually fetch the decimals on the token mint in this instruction. Then, we just pass that in as the third argument.
+Lastly, the `decimals` argument is the amount of decimals on the token mint of what is being transferred. This is a requirement of the transfer checked instruction. Since the `token_mint` account is passed in, you can actually fetch the decimals on the token mint in this instruction. Then, we just pass that in as the third argument.
 
 All in all, it should look something like this:
 
@@ -1126,13 +1120,13 @@ pub fn transfer_checked<'info>(
 }
 ```
 
-Using anchor's `CpiContext` wrapper is much cleaner and it abstracts a lot away, but it's important you understand what's going on under the hood.
+Using Anchor's `CpiContext` wrapper is much cleaner and it abstracts a lot away, but it's important you understand what's going on under the hood.
 
 Once the `transfer_checked` function has completed, we can start updating our state accounts because that means the transfer has taken place. The two accounts we'll want to update are the `pool_state` and `user_entry` accounts, which represent the overall staking pool data and this specific user's data regarding their stake in this pool.
 
 Since this is the `stake` instruction and the user is transferring tokens into the pool, both values representing the amount the user has staked and the total amount staked in the pool should increase by the `stake_amount`.
 
-To do this, we will deserialize the `pool_state` and `user_entry` accounts as mutable and increase the `pool_state.amount` and `user_enry.balance` fields by the `stake_amount` using `checked_add()`. `CheckedAdd` is a rust feature that allows you to safely perform mathematical operations without worrying about buffer overflow. `checked_add()` adds two numbers, checking for overflow. If overflow happens, `None` is returned.
+To do this, we will deserialize the `pool_state` and `user_entry` accounts as mutable and increase the `pool_state.amount` and `user_enry.balance` fields by the `stake_amount` using `checked_add()`. `CheckedAdd` is a Rust feature that allows you to safely perform mathematical operations without worrying about buffer overflow. `checked_add()` adds two numbers, checking for overflow. If overflow happens, `None` is returned.
 
 Lastly, we'll also update the `user_entry.last_staked` field with the current unix timestamp from the `Clock`. This is just meant to keep track of the most recent time a specific user staked tokens.
 
@@ -1165,7 +1159,7 @@ Lastly, the `unstake` transaction will be pretty similar to the `stake` transact
 
 Something to note here, we are not going to allow the user to determine how many tokens are unstaked, we will simply unstake all of the tokens that they currently have staked. Additionally, we are not going to implement a very realistic algorithm to determine how many reward tokens they have accrued. We'll simply take their stake balance and multiply by 10 to get the amount of reward tokens to mint them. We do this again to simplify the program and remain focused on the goal of the lesson, the `Token Extension Program`.
 
-The account structure will be very similar to the `stake` instruction, but there are a few differences. We'll need
+The account structure will be very similar to the `stake` instruction, but there are a few differences. We'll need:
 
 * `pool_state`
 * `token_mint`
@@ -1364,7 +1358,7 @@ pub fn mint_to_ctx<'a>(&'a self, seeds: &'a [&[&[u8]]]) -> CpiContext<'_, '_, '_
 
 Now we can move on to the logic of our `handler` function. This instruction will need to update both the pool and user state accounts, transfer all of the user's staked tokens, and mint the user their reward tokens. To get started, we are going to log some info and determine how many tokens to transfer to the user.
 
-Because we have kept track of the user's stake amount in the `user_stake_entry` account, we know exactly how many tokens this user has staked at this point in time. We can fetch this amount from the `user_entry.balance` field. Then, we'll log some information so that we can inspect this later. We'll also verify that the amount to transfer out is _not_ greater than the amount that is stored in the pool as an extra safety measure. If so, we will return a custom `OverdrawError` and prevent the user from draining the pool.
+We have kept track of the user's stake amount in the `user_stake_entry` account, so we know exactly how many tokens this user has staked at this point in time. We can fetch this amount from the `user_entry.balance` field. Then, we'll log some information so that we can inspect this later. We'll also verify that the amount to transfer out is _not_ greater than the amount that is stored in the pool as an extra safety measure. If so, we will return a custom `OverdrawError` and prevent the user from draining the pool.
 
 ```rust
 pub fn handler(ctx: Context<Unstake>) -> Result <()> {
@@ -1398,7 +1392,7 @@ let auth_seeds = &[VAULT_AUTH_SEED.as_bytes(), &[auth_bump]];
 let signer = &[&auth_seeds[..]];
 ```
 
-Once we have those seeds stored in the `signer` variable, we can easily pass it into the `transfer_checked_ctx()` method. At the same time, we'll call the `transfer_checked` helper function from the anchor crate to acually invoke the CPI behind the scenes.
+Once we have those seeds stored in the `signer` variable, we can easily pass it into the `transfer_checked_ctx()` method. At the same time, we'll call the `transfer_checked` helper function from the Anchor crate to acually invoke the CPI behind the scenes.
 ```rust
 // transfer staked tokens
 transfer_checked(ctx.accounts.transfer_checked_ctx(signer), amount, decimals)?;
@@ -1481,7 +1475,7 @@ pub fn handler(ctx: Context<Unstake>) -> Result <()> {
 }
 ```
 
-And that is it for our staking program! There has been an entire test suite written ahead of time for you to run against this program. Go ahead and install the needed packages for testing and run the tests:
+That is it for our staking program! There has been an entire test suite written ahead of time for you to run against this program. Go ahead and install the needed packages for testing and run the tests:
 
 ```bash
 npm install
@@ -1491,4 +1485,3 @@ anchor test
 # Challenge
 
 Create your own program that is Token Program and Token Extension Program agnostic.
-
