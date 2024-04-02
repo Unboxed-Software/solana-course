@@ -1,20 +1,20 @@
 ---
-title: Metadata and metadata pointer extension
+title: Metadata and Metadata Pointer Extension
 objectives:
 - Explain how the metadata pointers and metadata extensions work on Token Extension Program Mints
-- Create an NFT with the metadata pointer extension
 - Create an NFT with metadata embedded in the mint account itself
+- Create an NFT with the metadata pointer extension
 ---
 
 # Summary
-- The `metadata pointer` extension associates a public key directly to a metadata account, whether it's stored internally or via an external platform like Metaplex. This setup simplifies the association of tokens with their metadata.
+- The `metadata pointer` extension associates a public key directly to a metadata account, whether it's stored internally or via an external metadata account like Metaplex. This setup simplifies the association of tokens with their metadata.
 - The `metadata` mint extension allows embedding of metadata directly into mint accounts through the Token Extension Program, typically utilized alongside a self-referencing metadata pointer. This facilitates embedding comprehensive token information at the minting stage.
 - These extensions enhance the interoperability of tokens across different applications and platforms by standardizing how metadata is associated and accessed.
 - Directly embedding or pointing to metadata can streamline transactions and interactions by reducing the need for additional lookups or external calls.
 
 # Overview
 
-The Token Extension Program streamlines metadata on Solana. Without the Token Extension Program, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes require users to use vendors and increase complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
+The Token Extension Program streamlines metadata on Solana. Without the Token Extension Program, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes introduces vender lock and increased complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
 
 - `metadata-pointer` extension: Adds two simple fields in the mint account itself: a publicKey pointer to the account that holds the metadata for the token following the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), and the authority to update this pointer.
 - `metadata` extension: Adds the fields described in the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/) which allows us to store the metadata in the mint itself.
@@ -26,7 +26,7 @@ Note: The `metadata` extension is usually used in conjunction with the `metadata
 Since multiple metadata programs exist, a mint can have numerous accounts claiming to describe the mint, making it complicated to know which one is the mint's "official" metadata. To resolve this, the `metadata-pointer` extension adds a `publicKey` field to the mint account called `metadataAddress`, which points to the account that holds the metadata for this token. To avoid imitation mints claiming to be a stablecoin, a client can now check whether the mint and the metadata point to each other.
 
 The extension adds two new fields to the mint account to accomplish this:
-- `metadataAddress`: Holds the metadata account address for this token; it can be pointing to the mint token itself, if you use the `metadata` extension we'll talk about in a bit.
+- `metadataAddress`: Holds the metadata account address for this token; it can point to itself if you use the `metadata` extension.
 - `authority`: The authority that can set the metadata address.
 
 The extension also introduces three new helper functions:
@@ -89,7 +89,7 @@ export interface MetadataPointer {
 
 To create an NFT with the `metadata-pointer` extension, we need two new accounts: the `mint` and the `metadataAccount`.
 
-The `mint` is usually a new `Keypair` created by `Keypair.generate()`. The `metadataAccount` can be the `mint`'s `publicKey` if using the metadata mint extension or another metadata account like from `Metaplex`.
+The `mint` is usually a new `Keypair` created by `Keypair.generate()`. The `metadataAccount` can be the `mint`'s `publicKey` if using the metadata mint extension or another metadata account like from Metaplex.
 
 At this point, the `mint` is only a `Keypair`, but we need to save space for it on the blockchain. All accounts on the Solana blockchain owe rent proportional to the size of the account, and we need to know how big the mint account is in bytes. We can use the `getMintLen` method from the `@solana/spl-token` library. The metadata-pointer extension increases the size of the mint account by adding two new fields: `metadataAddress` and `authority`.
 
@@ -100,12 +100,12 @@ const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
 To create and initialize the `mint` with the metadata pointer, we need several instructions in a particular order:
 
-1. Create the `mint` account, which reserves space on the blockchain with `web3.SystemProgram.createAccount`
+1. Create the `mint` account, which reserves space on the blockchain with `SystemProgram.createAccount`
 2. Initialize the metadata pointer extension with `createInitializeMetadataPointerInstruction`
 3. Initialize the mint itself with `createInitializeMintInstruction`
 
 ```ts
- const createMintAccountInstructions = web3.SystemProgram.createAccount({
+ const createMintAccountInstructions = SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
     lamports,
     newAccountPubkey: mint.publicKey,
@@ -133,19 +133,19 @@ Please note that the order of the instructions matter.
 
 To create the NFT, bundle all of these instructions together and send them to the Solana network:
 ```ts
-const transaction = new web3.Transaction().add(
+const transaction = new Transaction().add(
   createMintAccountInstructions,
   initMetadataPointerInstructions,
   initMintInstructions,
 );
-const sig = await web3.sendAndConfirmTransaction(connection, transaction, [payer, mint]);
+const sig = await sendAndConfirmTransaction(connection, transaction, [payer, mint]);
 ```
 
 ## Metadata extension:
 
 The `metadata` extension is an exciting addition to the Token Extension Program. This extension allows us to store the metadata directly *in* the mint itself! This eliminates the need for a separate account, greatly simplifying the handling of metadata.
 
-Note that the `metadata` extension works directly with the `metadata-pointer` extension. During the mint creation, you should also add the `metadata-pointer` extension, pointed at the mint itself. Check out the [Solana Token Extension Program docs](https://spl.solana.com/token-2022/extensions#metadata)
+Note: The `metadata` extension works directly with the `metadata-pointer` extension. During the mint creation, you should also add the `metadata-pointer` extension, pointed at the mint itself. Check out the [Solana Token Extension Program docs](https://spl.solana.com/token-2022/extensions#metadata)
 
 The added fields and functions in the metadata extension follow the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface)
 
@@ -217,8 +217,6 @@ export function createInitializeInstruction(args: InitializeInstructionArgs): Tr
 
 The function `createUpdateFieldInstruction` returns the instruction that creates or updates a field in a token-metadata account.
 
-Note: This function will automatically reallocate the mint's size to fit the data! That being said, the caller will be charged for the extra space allocated.
-
 This function takes five parameters:
   - `metadata`: the metadata account address.
   - `updateAuthority`: the authority that can sign to update the metadata
@@ -245,6 +243,9 @@ export function createUpdateFieldInstruction(args: UpdateFieldInstruction): Tran
     ...
 }
 ```
+
+Note: If the metadata you are updating requires more space than the initial allocated space, you'll have to pair it with a `system.transfer` to have enough rent for the `createUpdateFieldInstruction` to realloc with. You can get the extra space needed with `getAdditionalRentForUpdatedMetadata`. Or if you're calling this update as a standalone, you can use the `tokenMetadataUpdateFieldWithRentTransfer` helper to do all of this at once. 
+
 
 The function `createRemoveKeyInstruction` returns the instruction that removes the `additional_metadata` field from a token-metadata account.
 
@@ -360,7 +361,7 @@ export async function getTokenMetadata(
 ### Create NFT with metadata extension
 
 Creating an NFT with the metadata extension is just like creating one with the metadata-pointer with a few extra steps:
-<!--
+
 1. Gather our needed accounts
 2. Find/decide on the needed size of our metadata
 3. Create the `mint` account
@@ -368,7 +369,7 @@ Creating an NFT with the metadata extension is just like creating one with the m
 5. Initialize the mint
 6. Initialize the metadata in the mint account
 7. Add any additional custom fields if needed
-  -->
+
 First, the `mint` will be a Keypair, usually generated using `Keypair.generate()`. Then, we must decide what metadata to include and calculate the total size and cost.
 
 A mint account's size with the metadata and metadata-pointer extensions incorporate the following:
@@ -379,7 +380,7 @@ A mint account's size with the metadata and metadata-pointer extensions incorpor
 4. the `LENGTH_SIZE` and `TYPE_SIZE` constants from the `@solana/spl-token` library - these are sizes associated with mint extensions that are usually added with the call `getMintLen`, but since the metadata extension is variable length, they need to be added manually
 5. the metadata pointer data (this will be the mint's address and is done for consistency)
 
-Note: There is no need to allocate more space than what is necessary. The `createUpdateFieldInstruction` will automatically reallocate space and charge the payer accordingly to accommodate new data!
+Note: There is no need to allocate more space than what is necessary if you're anticipating more metadata. The `createUpdateFieldInstruction` will automatically reallocate space! However, you'll have to add another `system.transfer` transaction to make sure the mint account has enough rent.
 
 To determine all of this programmatically, we use the `getMintLen` and `pack` functions from the `@solana/spl-token` library:
 
@@ -401,14 +402,14 @@ const lamports = await connection.getMinimumBalanceForRentExemption(totalLen);
 
 To actually create and initialize the `mint` with the metadata and metadata pointer, we need several instructions in a particular order:
 
-1. Create the `mint` account which reserves space on the blockchain with `web3.SystemProgram.createAccount`
+1. Create the `mint` account which reserves space on the blockchain with `SystemProgram.createAccount`
 2. Initialize the metadata pointer extension with `createInitializeMetadataPointerInstruction`
 3. Initialize the mint itself with `createInitializeMintInstruction`
-4. Initialize the metadata with `createInitializeInstruction`. Note: this ONLY sets the basic metadata fields
-5. Optional: Set the custom fields with `createUpdateFieldInstruction`
+4. Initialize the metadata with `createInitializeInstruction` (this ONLY sets the basic metadata fields)
+5. Optional: Set the custom fields with `createUpdateFieldInstruction` (one field per call)
 
 ```ts
-  const createMintAccountInstructions = web3.SystemProgram.createAccount({
+  const createMintAccountInstructions = SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
     lamports,
     newAccountPubkey: mint.publicKey,
@@ -453,19 +454,19 @@ To actually create and initialize the `mint` with the metadata and metadata poin
 
 Wrap all of these instructions in a transaction to create the embedded NFT:
 ```ts
-const transaction = new web3.Transaction().add(
+const transaction = new Transaction().add(
   createMintAccountInstructions,
   initMetadataPointerInstructions,
   initMintInstructions,
   initMetadataInstruction,
   updateMetadataFieldInstructions, // if you want to add any custom field
 );
-const sig = await web3.sendAndConfirmTransaction(connection, transaction, [payer, mint]);
+const sig = await sendAndConfirmTransaction(connection, transaction, [payer, mint]);
 ```
 
 Again, the order here matters.
 
-Note: The `createUpdateFieldInstruction` updates only one field at a time. If you want to have more than one custom field, you will have to call this method multiple times. You can use the same method to update the basic metadata fields as well:
+Note: The `createUpdateFieldInstruction` updates only one field at a time. If you want to have more than one custom field, you will have to call this method multiple times. Additionally, you can use the same method to update the basic metadata fields as well:
 
 ```ts
   const updateMetadataFieldInstructions = createUpdateFieldInstruction({
@@ -479,7 +480,7 @@ Note: The `createUpdateFieldInstruction` updates only one field at a time. If yo
 
 # Lab
 
-Now it is time to practice what we have learned so far. In this lab, we will create a script that will illustrate how to create an NFT with the `metadata` and `metadata pointer` extensions.
+Now it is time to practice what we have learned so far. In this lab, we'll create a script that will illustrate how to create an NFT with the `metadata` and `metadata pointer` extensions.
 
 ## 0. Getting started
 
@@ -556,7 +557,6 @@ NFT_STORAGE_API_KEY=YOUR_KEY_HERE
 ```
 
 4. Copy `.env.example` to `.env`
-
 ```bash
 cp .env .env.example
 ```
@@ -713,7 +713,7 @@ Finally, we put everything into the `SystemProgram.createAccount` function to ge
   });
 ```
 
-Note: The more information in the metadata, the more it affects the cost.
+Note: The more information in the metadata, the more it costs.
 
 Step 3 has us initializing the `metadata pointer` extension. Let's do that by calling the `createInitializeMetadataPointerInstruction` function with the metadata account point to our mint.
 
@@ -755,6 +755,7 @@ const initMetadataInstruction = createInitializeInstruction({
   updateAuthority: payer.publicKey,
 });
 ```
+
 In our NFT, we have `tokenAdditionalMetadata`, and as we saw in the previous step this cannot be set using the `createInitializeInstruction`. So we have to make an instruction to set each new additional field. We do this by calling `createUpdateFieldInstruction` for each of our entries in `tokenAdditionalMetadata`.
 
 ```typescript
@@ -1001,7 +1002,7 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
 
 ## 3. Call Create NFT Function
 
-We have everything we need, let's put everything together in `src/index.ts`.
+Let's put everything together in `src/index.ts`.
 
 Go back to `src/index.ts`, and import the function `createNFTWithEmbeddedMetadata` from the file we just created.
 
@@ -1009,7 +1010,7 @@ Go back to `src/index.ts`, and import the function `createNFTWithEmbeddedMetadat
 import createNFTWithEmbeddedMetadata from './nft-with-embedded-metadata';
 ```
 
-Then call it at the end of the main function and pass the required parameters. Your `src/index.ts` file should look like this:
+Then call it at the end of the main function and pass the required parameters.
 
 ```ts
 await createNFTWithEmbeddedMetadata({
