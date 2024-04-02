@@ -1,10 +1,17 @@
 ---
 title: Transfer hook
 objectives:
-- 
+- Beeing able to explain the differences between durable transactions and regular transactions.
+- Beeing able to create and submits a durable transaction.
+- Learing about the edge cases that could happen when dealing with durable transactions.
 ---
 
 # Summary
+1. Durable transactions have no expiration date unlike regular transactions that have a 80-90 seconds expiration date.
+2. After signing a durable transaction you can store it in a database or a file or send it to another device to submit it later.
+3. Nonce Account will hold the authority and the nonce value, which what will be used instead of the recent blockhash to make a durable transaction
+4. Durable transaction must start with an `advanceNonce` instruction, and the nonce authority will have to be a signer in the transaction.
+5. If the transaction fails for any reason other than the nonce advanced instruction the nonce will still get advanced, even though all other instruction will get reverted.
 
 # Overview
 
@@ -20,7 +27,7 @@ In Solana, transactions are made of three main parts:
 
 The first two concepts will remain the same when we want to make a durable transaction, but we will change a little bit in the recent blockhash. Let's dive deep into the recent blockhash, to understand the blockhash better let's look at the problem that it tries to solve, The [Double-Spend](https://solana.com/developers/guides/advanced/introduction-to-durable-nonces#double-spend) problem.
 
-Imagine you're buying an NFT on MagicEden or Tensor. You have to sign a transaction that allows the marketplace's program to extract some SOL from your wallets. after signing the transaction the marketplace will submit it to the network, but what if the marketplace submit it twice?
+Imagine you're buying an NFT on MagicEden or Tensor. You have to sign a transaction that allows the marketplace's program to extract some SOL from your wallets. After signing the transaction the marketplace will submit it to the network, but what if the marketplace submit it twice?
 
 This is known as the problem of Double-Spend and is one of the core issues that blockchains like Solana solve. A naive solution could be to crosscheck all transactions made in the past and see if we find the signature there. This is not practically possible, as the size of the Solana ledger is >80 TB. So to Solve that Solana uses Blockhashes or Recent Blockhash. 
 
@@ -55,7 +62,7 @@ Let's get deep into the technical stuff
 
 Durable transaction differs from regular transactions in the following ways:
 
-1. Durable Nonces replaces the recent blockhash with a nonce. and This Nonce will be stored in an account called (Nonce Account) and will be used only once in one transaction. The Nonce is a blockhash hashed with some data to make it unique.
+1. Durable Nonces replaces the recent blockhash with a nonce. And This Nonce will be stored in an account called (Nonce Account) and will be used only once in one transaction. The Nonce is a blockhash hashed with some data to make it unique.
 2. Each durable transaction must start with the Nonce Advance instruction, which will change the nonce in the Nonce Account. This will ensure that the nonce is unique and can't be used again in another transaction.
 
 And the Nonce Account is an account that holds a couple of values:
@@ -191,9 +198,9 @@ const nonce = NonceAccount.fromAccountData(nonceAccount.data);
 
 To build a fully functioning durable transaction, we should make sure to do the following:
 
-1. use the nonce value in replacement of the recent blockhash.
-2. add the nonceAdvance instruction as the first instruction in the transaction.
-3. sign the transaction with the authority of the nonce account.
+1. Use the nonce value in replacement of the recent blockhash.
+2. Add the nonceAdvance instruction as the first instruction in the transaction.
+3. Sign the transaction with the authority of the nonce account.
 
 After building and signing the transaction we can serialize it and encode it into a base58 string, and we can save this string in some store to submit it later.
 
