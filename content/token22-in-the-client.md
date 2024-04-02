@@ -8,14 +8,14 @@ objectives:
 # Summary
 
 - The `Token Extension Program` is a superset of the `Token Program`
-- These two programs are distinct and not directly compatible
+- These two token programs: `Token Program` and `Token Extension Program` are distinct and not directly compatible
 - Supporting both requires simply specifying the correct program ID in client-side functions
-- By default, the SPL program library uses the **`Token Program`** unless another is specified
+- By default, the SPL program library uses the original **`Token Program`** unless another is specified
 - The `Token Extension Program` may also be referred to as `Token22`
 
 # Overview
 
-The Token Extensions Program enhances the original Token Program by incorporating additional features known as extensions. These extensions are designed to address specific scenarios that previously necessitated developers to fork and alter the Solana Program Library, leading to challenges in adoption. The introduction of the Token Extensions Program allows for these scenarios to be effectively handled.
+The `Token Extensions Program` enhances the original `Token Program` by incorporating additional features known as extensions. These extensions are designed to address specific scenarios that previously necessitated developers to fork and alter the Solana Program Library, leading to split ecosystems and challenges in adoption. The introduction of the Token Extensions Program allows for these scenarios to be effectively handled.
 
 Since the `Token Program` and `Token Extensions Program` are different onchain programs, they are not interoperable. As a result, we'll have to support both programs in our client-side applications. This means we'll want to explicitly handle mints from both the original Token Program (`TOKEN_PROGRAM_ID`) and the Extension Program (`TOKEN_2022_PROGRAM_ID`).
 
@@ -33,7 +33,7 @@ NOTE: `spl-token` defaults to using the `TOKEN_PROGRAM_ID` unless otherwise spec
 
 ## Considerations when working with both Token and Extension Tokens
 
-Although the interfaces for both of these programs remain consistent, they are two different programs. The program IDs for these programs are unique and non-interchangeable, resulting in distinct addresses when utilized. If you want to support both `Token Program`  tokens and `Token Extension Program` tokens, you must add extra logic on the client side.
+Although the interfaces for both of these programs remain consistent, they are two different programs. The program IDs for these programs are unique and non-interchangeable, resulting in distinct addresses when utilized. If you want to support both `Token Program` tokens and `Token Extension Program` tokens, you must add extra logic on the client side.
 
 ## Associated Token Accounts (ATA)
 
@@ -144,25 +144,7 @@ git checkout starter
 
 Run `npm install` to install the dependencies.
 
-### 2. Run validator node
-
-For the sake of this lab, we will be running our own validator node. We do this because sometimes testnet or devnets on Solana can become congested and in turn, less reliable.
-
-In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
-
-```tsx
-const connection = new Connection('http://127.0.0.1:8899', 'confirmed');
-```
-
-Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
-
-```tsx
-const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
-```
-
-Lets test that it all works so far by running `npm run start`. You should see the `payer` public key logged out in your terminal.
-
-### 3. Get familiar with the starter code
+### 2. Get familiar with the starter code
 
 The starter code comes with the following files:
 
@@ -173,13 +155,33 @@ The **`print-helpers.ts`** file contains a function called **`printTableData`**,
 
 Lastly, `index.ts` contains our main script. It currently only creates a connection and calls `initializeKeypair` to generate the keypair for `payer`.
 
+
+### 3. Run validator node
+
+We suggest running your own validator for this lab (and most development/testing) to get around airdrop restrictions on devnet.
+
+In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
+
+```tsx
+const connection = new Connection('http://127.0.0.1:8899', 'confirmed');
+```
+
+If you'd like to use Devnet and provide you're own devnet wallet, you still can - just reconfigure the `Connection` and the keypair path input to `initializeKeypair`.
+
+```tsx
+const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+```
+
+Lets test that it all works so far by running `npm run start`. You should see the `payer` public key logged out in your terminal.
+
+
 ### 4. Create Token Program and Token Extension Program mints
 
 Let's start by creating new token mints using both the `Token Program` and the `Token Extension Program`.
 
 Create a new file called `create-and-mint-token.ts`. In this file we will create a function called `createAndMintToken`. As the name suggests it will create a mint, token account (ATA) and then mint some amount of tokens to that account.
 
-Inside this function we will be call `createMint`, `getOrCreateAssociatedTokenAccount` and `mintTo`. This function in **`print-helpers.ts`** is designed to be indifferent to the specific token program being used, allowing for the creation of tokens from either the `Token Program` or the `Token Extension Program`. This capability is achieved by accepting a program ID as a parameter, enabling the function to adapt its behavior based on the provided ID.
+Within this `createAndMintToken` function we will be call `createMint`, `getOrCreateAssociatedTokenAccount` and `mintTo`. This function is designed to be indifferent to the specific token program being used, allowing for the creation of tokens from either the `Token Program` or the `Token Extension Program`. This capability is achieved by accepting a program ID as a parameter, enabling the function to adapt its behavior based on the provided ID.
 
 Here are the arguments we'll be passing into this function:
 
@@ -188,6 +190,15 @@ Here are the arguments we'll be passing into this function:
 - `payer` - The keypair paying for the transaction
 - `decimals` - The number of decimals to include for the mint
 - `mintAmount` - The amount of tokens to mint to the payer
+
+And this is what the function will do:
+
+- Create a new mint using **`createMint`**
+- Fetch mint information using **`getMint`**
+- Log mint information using **`printTableData`**
+- Create an associated token account with **`getOrCreateAssociatedTokenAccount`**
+- Log the address of the associated token account
+- Mint tokens to the associated token account with **`mintTo`**
 
 All put together this is what the final `createAndMintToken` function looks like:
 
@@ -261,14 +272,7 @@ export async function createAndMintToken(
 export default createAndMintToken
 ```
 
-The `createAndMintToken` function does the following:
 
-- Create a new mint using **`createMint`**
-- Fetch mint information using **`getMint`**
-- Log mint information using **`printTableData`**
-- Create an associated token account with **`getOrCreateAssociatedTokenAccount`**
-- Log the address of the associated token account
-- Mint tokens to the associated token account with **`mintTo`**
 
 ### 5. Creating and minting tokens
 
