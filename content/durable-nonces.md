@@ -1,52 +1,54 @@
 ---
-title: Transfer hook
+title: Durable Nonces
 objectives:
-- Beeing able to explain the differences between durable transactions and regular transactions.
-- Beeing able to create and submits a durable transaction.
-- Learing about the edge cases that could happen when dealing with durable transactions.
+- Create and submit durable transactions.
+- Be able to explain the differences between durable transactions and regular transactions.
+- Navigate edge cases that can happen when dealing with durable transactions.
 ---
 
 # Summary
-1. Durable transactions have no expiration date unlike regular transactions that have a 80-90 seconds expiration date.
-2. After signing a durable transaction you can store it in a database or a file or send it to another device to submit it later.
-3. Nonce Account will hold the authority and the nonce value, which what will be used instead of the recent blockhash to make a durable transaction
-4. Durable transaction must start with an `advanceNonce` instruction, and the nonce authority will have to be a signer in the transaction.
-5. If the transaction fails for any reason other than the nonce advanced instruction the nonce will still get advanced, even though all other instruction will get reverted.
+- Durable transactions have no expiration date unlike regular transactions that have an expiration date of 150 blocks (~80-90 seconds).
+- After signing a durable transaction you can store it in a database or a file or send it to another device to submit it later.
+- A Nonce Account will hold the authority and the nonce value, which will be used instead of the recent blockhash to make a durable transaction
+- Durable transaction must start with an `advanceNonce` instruction, and the nonce authority will have to be a signer in the transaction.
+- If the transaction fails for any reason other than the nonce advanced instruction the nonce will still get advanced, even though all other instruction will get reverted.
 
 # Overview
 
-Durable Nonce are a way to bypass the expiration date of the regular transactions. To understand That better, we will start by looking at the concepts behind the regular transactions.
+Durable Nonces are a way to bypass the expiration date of regular transactions. To understand That better, we will start by looking at the concepts behind regular transactions.
 
 In Solana, transactions are made of three main parts:
 
-1. **Instructions**: Instructions are the operations that you want to perform on the blockchain, like transferring tokens, creating accounts, or calling a program.
+1. **Instructions**: Instructions are the operations that you want to perform on the blockchain, like transferring tokens, creating accounts, or calling a program. These happen in order.
 
-2. **Signatures**: Signatures are the proof that the transaction was signed by the account owner. For instance, if you are transaction SOL from a wallet, that wallet needs to sign the transaction so the network can verify that the transaction is valid.
+2. **Signatures**: Signatures are the proof that the transaction was signed by the required singers/authorities. For instance, if you are transferring SOL from your wallet to another, you'll need to sign the transaction so the network can verify that the transaction is valid.
 
-3. **Recent Blockhash**: The recent blockhash is a unique identifier for each transaction. It is used to prevent replay attacks, where an attacker records a transaction and then tries to submit it again. The recent blockhash ensures that each transaction is unique and can only be submitted once.
+3. **Recent Blockhash**: The recent blockhash is a unique identifier for each transaction. It is used to prevent replay attacks, where an attacker records a transaction and then tries to submit it again. The recent blockhash ensures that each transaction is unique and can only be submitted once. A recent blockhash will only be valid for 150 blocks.
 
-The first two concepts will remain the same when we want to make a durable transaction, but we will change a little bit in the recent blockhash. Let's dive deep into the recent blockhash, to understand the blockhash better let's look at the problem that it tries to solve, The [Double-Spend](https://solana.com/developers/guides/advanced/introduction-to-durable-nonces#double-spend) problem.
+The first two concepts will remain the same when we want to make a durable transaction, the third concept changes with durable nonces. 
 
-Imagine you're buying an NFT on MagicEden or Tensor. You have to sign a transaction that allows the marketplace's program to extract some SOL from your wallets. After signing the transaction the marketplace will submit it to the network, but what if the marketplace submit it twice?
+Let's dive deep into the recent blockhash, to understand the blockhash better let's look at the problem that it tries to solve, The [Double-Spend](https://solana.com/developers/guides/advanced/introduction-to-durable-nonces#double-spend) problem.
 
-This is known as the problem of Double-Spend and is one of the core issues that blockchains like Solana solve. A naive solution could be to crosscheck all transactions made in the past and see if we find the signature there. This is not practically possible, as the size of the Solana ledger is >80 TB. So to Solve that Solana uses Blockhashes or Recent Blockhash. 
+Imagine you're buying an NFT on MagicEden or Tensor. You have to sign a transaction that allows the marketplace's program to extract some SOL from your wallet. After signing the transaction the marketplace will submit it to the network. If the marketplace submits it again, without checks, you could be charged twice.
 
-Recent Blockhashes are used to achieve this. A blockhash contains a 32-byte SHA-256 hash. It is used to indicate when a client last observed the ledger. Using recent blockhashes, transactions are checked in the last 150 blocks. If they are found, they are rejected (which means that this transaction got submitted before). They are also rejected if they get older than 150 blocks (that is for optimizations, so the network will only have to check the recent 150 blocks instead of checking the whole Solana ledger). The only case they are accepted is if they are unique and the blockhash is more recent than 150 blocks (~80-90 seconds).
+This is known as the Double-Spend problem and is one of the core issues that blockchains, like Solana, solve. A naive solution could be to crosscheck all transactions made in the past and see if we find the signature there. This is not practically possible, as the size of the Solana ledger is >80 TB. So to Solve that Solana uses recent blockhashs. 
 
-While this solution is great for most use cases, it has some limitations. The transaction should get signed and submitted to the network within 80-90 seconds. But there are some use cases were we need more than 90 seconds to submit the transaction like:
+A recent blockhash is a 32-byte SHA-256 hash of a valid block's last [entry id](https://solana.com/docs/terminology#blockhash) within the last 150 blocks. Since this recent blockhash is part of the transaction before it signed, we can gaurentee the signer has singed it within the last 150 blocks. Checking 150 blocks is much more reasonable than the entire ledger.
 
-1. **Scheduled Transactions**: One of the most apparent applications of Durable Nonces is the ability to schedule transactions. Users can pre-sign a transaction and then submit it at a later date, allowing for planned transfers, contract interactions, or even executing pre-determined investment strategies.
+When the transaction is submitted, the Solana validators will do the following:
 
-2. **Multisig Wallets**: Durable Nonces are very useful for multi-signature wallets where one party signs a transaction, and others may confirm at a later time. This feature enables the proposal, review, and later execution of a transaction within a trustless system.
+1. Checks if the signature of the transaction has been submitted within the last 150 blocks - if there is a duplicate signature it'll fail the duplicate transaction.
+2. If the transaction signature has not been found, it will check the recent blockhash to see if it exsits within the last 150 blocks - if it does not, it will return a "Blockhash not found" error. If it does, the transaction goes through to it's execution checks. 
 
-3. **Programs Requiring Future Interaction**: If a program on Solana requires interaction at a future point (such as a vesting contract or a timed release of funds), a transaction can be pre-signed using a Durable Nonce. This ensures the contract interaction happens at the correct time without necessitating the presence of the transaction creator.
+While this solution is great for most use cases, it has some limitations. The transaction needs to get signed and submitted to the network within 150 blocks or around ~80-90 seconds. But there are some use cases were we need more than 90 seconds to submit a transaction.
 
-4. **Cross-chain Interactions**: When you need to interact with another blockchain, and it requires waiting for confirmations, you could sign the transaction with a Durable Nonce and then execute it once the required confirmations are received.
+[From Solana](https://solana.com/developers/guides/advanced/introduction-to-durable-nonces#durable-nonce-applications):
+> 1. **Scheduled Transactions**: One of the most apparent applications of Durable Nonces is the ability to schedule transactions. Users can pre-sign a transaction and then submit it at a later date, allowing for planned transfers, contract interactions, or even executing pre-determined investment strategies.
+> 2. **Multisig Wallets**: Durable Nonces are very useful for multi-signature wallets where one party signs a transaction, and others may confirm at a later time. This feature enables the proposal, review, and later execution of a transaction within a trustless system.
+> 3. **Programs Requiring Future Interaction**: If a program on Solana requires interaction at a future point (such as a vesting contract or a timed release of funds), a transaction can be pre-signed using a Durable Nonce. This ensures the contract interaction happens at the correct time without necessitating the presence of the transaction creator.
+> 4. **Cross-chain Interactions**: When you need to interact with another blockchain, and it requires waiting for confirmations, you could sign the transaction with a Durable Nonce and then execute it once the required confirmations are received.
+> 5. **Decentralized Derivatives Platforms**: In a decentralized derivatives platform, complex transactions might need to be executed based on specific triggers. With Durable Nonces, these transactions can be pre-signed and executed when the trigger condition is met.
 
-5. **Decentralized Derivatives Platforms**: In a decentralized derivatives platform, complex transactions might need to be executed based on specific triggers. With Durable Nonces, these transactions can be pre-signed and executed when the trigger condition is met.
-
-
-All of these use cases are not possible with the regular transactions, and this is where Durable Nonces come in.
 
 ## Durable Nonces To overcome the short lifespan of the regular transaction:
 
