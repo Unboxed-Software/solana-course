@@ -1,34 +1,34 @@
 ---
 title: Supporting Token Extension Program in on-chain programs
 objectives:
+- Accept both token programs' accounts, and mints in your program
 - Explain the differences between the Token Program and Token Extension programs
-- Describe how to accept either token program, accounts, and mints in your program
 - Explain how to use Anchor Interfaces
 ---
 
 # Summary
 
-- The `Token Extension Program` is a superset of the `Token Program` with a different program id   
+- The `Token Extension Program` is a superset of the `Token Program` with a different program id
 - `token_program` is an Anchor account constraint allowing you to verify an account belongs to a specific token program
-- Anchor introduced the concept of Interfaces to allow for programs to support interaction with both `Token Program` and `Token Extension Program`
+- Anchor introduced the concept of Interfaces to easily allow for programs to support interaction with both `Token Program` and `Token Extension Program`
 
 # Overview
 
-The `Token Extension Program` is a program on Solana mainnet that provides additional functionality to Solana tokens and mints. The `Token Extension Program` is a superset of the `Token Program`. Essentially it is a byte for byte recreation with additional functionality. That means it is a different program. With two types of Token Programs, we must anticipate being sent the program type in instructions.
+The `Token Extension Program` is a program on Solana mainnet that provides additional functionality to Solana tokens and mints. The `Token Extension Program` is a superset of the `Token Program`. Essentially it is a byte for byte recreation with additional functionality tagged on at the end. However they are sill separate programs. With two types of Token Programs, we must anticipate being sent the program type in instructions.
 
 In this lesson, you'll learn how to design your program to accept `Token Program` and `Token Extension Program` accounts using Anchor. You will also learn how to interact with `Token Extension Program` accounts, identifying which token program an account belongs to, and some differences between `Token Program` and the `Token Extension Program` on-chain.
 
 ## Difference between legacy Token Program and Token Extension Program
 
-We must clarify that the `Token Extension Program` is separate from the original `Token Program`. The `Token Extension Program` is a superset of the original Token Program, meaning all the instructions and functionality in the original Token Program come with the `Token Extension Program`.
+We must clarify that the `Token Extension Program` is separate from the original `Token Program`. The `Token Extension Program` is a superset of the original `Token Program`, meaning all the instructions and functionality in the original `Token Program` come with the `Token Extension Program`.
 
-Previously, one primary program (the `Token Program`) was in charge of creating accounts. As more and more developers came to Solana, there was a need for new token functionality. The only way to add new token functionality was to create a new type of token. A new token required its own program, and any wallet or client that wanted to use the token had to add specific logic. Managing numerous token programs could have led to a fragmented ecosystem, and the `Token Extension Program` was built to address this. 
+Previously, one primary program (the `Token Program`) was in charge of creating accounts. As more and more use cases came to Solana, there was a need for new token functionality. Historically, only way to add new token functionality was to create a new type of token. A new token required its own program, and any wallet or client that wanted to use this new token had to add specific logic to support it. Fortunately the headache of supporting different types of tokens, made this option not very popular. However, new functionality was still very much needed, and the `Token Extension Program` was built to address this. 
 
 As mentioned before, the `Token Extension Program` is a strict superset of the original token program and comes with all the previous functionality. The `Token Extension Program` development team chose this approach to ensure minimal disruption to users, wallets, and dApps while adding new functionality. The `Token Extension Program` supports the same instruction set as the Token program and is the same byte-for-byte throughout the very last instruction, allowing existing programs to support `Token Extensions` out of the box. However this does not mean that `Token Extension Program` tokens and `Token Program` tokens are interoperable - they are not. We'll have to handle each separately. 
 
 ## How to determine which program owns a particular token
 
-With Anchor managing the two different Token Programs is pretty straight forward. Now when we work with tokens within our programs we'll check the `token_program` constraint.
+With Anchor managing the two different token programs is pretty straight forward. Now when we work with tokens within our programs we'll check the `token_program` constraint.
 
 The two token programs `ID` are as follows:
 
@@ -98,8 +98,6 @@ If you'd like to check which token program a token account and mint belongs to i
 ```rust
 msg!("Token Program Owner: {}", ctx.accounts.token_account.to_account_info().owner);
 ```
-
-We introduced the `token_program` Anchor account constraint and showed how to use it. This constraint, along with a few other Anchor primitives, was created specifically to support two standard token programs. Now that there are two token programs, the `token_program` constraint also indicates to Anchor which program to invoke when initializing a token or mint account. This specification allows you to pass in both token programs and initialize accounts on each one.
 
 ## Anchor Interfaces
 
@@ -210,7 +208,7 @@ pub token_account: Account<'info, token_interface::TokenAccount>
 
 # Lab
 
-Now let's get some hands-on experience with the `Token Extension Program` on-chain by implementing a token staking program that will accept both `Token Program` and `Token Extension Program` accounts. As far as staking programs go, this will be a simple implementation with the following design:
+Now let's get some hands-on experience with the `Token Extension Program` on-chain by implementing a generalized token staking program that will accept both `Token Program` and `Token Extension Program` accounts. As far as staking programs go, this will be a simple implementation with the following design:
 
 * We'll create a stake pool account to hold all the staked tokens. There will only be one staking pool for a given token. The program will own the account. 
 * Every stake pool will have a state account that will hold information regarding the amount of tokens staked in the pool, etc.
@@ -365,7 +363,6 @@ use {
     solana_program::{pubkey::Pubkey},
 };
 ```
-We are just importing the `anchor_lang` crate and the `pubkey::Pubkey` data type from the `solana_program` crate.
 
 Next, we we will need a handful of seeds defined that will be referenced throughout the program. These seeds will be used to derive different PDAs our program will expect to receive.
 
@@ -375,8 +372,6 @@ pub const VAULT_SEED: &str = "vault";
 pub const VAULT_AUTH_SEED: &str = "vault_authority";
 pub const STAKE_ENTRY_SEED: &str = "stake_entry";
 ```
-
-We define four different constants here. Each one is a different seed for a different PDA.
 
 Now, we'll define two data structs that will define the data of two different accounts our program will use to hold state. The `PoolState` and `StakeEntry` accounts.
 
@@ -1146,7 +1141,6 @@ msg!("User stake balance: {}", user_entry.balance);
 user_entry.last_staked = Clock::get().unwrap().unix_timestamp;
 ```
 
-
 Now that was a lot and we covered some new stuff, so feel free to go back through and make sure it all makes sense. Check out all of the external resources that are linked for any of the new topics. Once you're ready to move on, save your work and verify the program still builds!
 
 ```bash
@@ -1481,6 +1475,8 @@ That is it for our staking program! There has been an entire test suite written 
 npm install
 anchor test
 ```
+
+If you run into problems feel free to checkout the [solution branch](https://github.com/Unboxed-Software/token22-staking/tree/solution).
 
 # Challenge
 
