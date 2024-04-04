@@ -35,7 +35,7 @@ The first instruction `SystemProgram.createAccount` allocates space on the block
 - Transfers `lamports` for rent
 - Assigns to itself it's owning program
 
-```
+```ts
 SystemProgram.createAccount({
 	fromPubkey: payer.publicKey,
 	newAccountPubkey: mintKeypair.publicKey,
@@ -47,7 +47,7 @@ SystemProgram.createAccount({
 
 The second instruction `createInitializeNonTransferableMintInstruction` initializes the non-transferable extension.
 
-```
+```ts
 createInitializeNonTransferableMintInstruction(
 	mintKeypair.publicKey,
 	TOKEN_2022_PROGRAM_ID
@@ -56,7 +56,7 @@ createInitializeNonTransferableMintInstruction(
 
 The third instruction `createInitializeMintInstruction` initializes the mint.
 
-```
+```ts
 createInitializeMintInstruction(
 	mintKeypair.publicKey,
 	decimals,
