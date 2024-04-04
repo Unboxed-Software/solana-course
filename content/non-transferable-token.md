@@ -3,7 +3,7 @@ title: Non-Transferable Token
 objectives:
  - Create non-transferable token
  - Mint a non-transferable token
- - Try transfer of the non-transferable token
+ - Attempt to transfer the non-transferable token
 ---
 
 # Summary
