@@ -45,7 +45,7 @@ In particular:
   - Use 'token mint account' to refer to the address a token is minted at. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
 - Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
 - Don't use 'here' links. They make the course hard to scan and ['here' links are bad for SEO](https://www.smashingmagazine.com/2012/06/links-should-never-say-click-here/).
-- JS/TS clients send `transactions` made from `instructions`. On chain programs have `instruction handlers` that process `instructions`. Do not refer to instruction handlers as instructions! The reason is simple: an instruction cannot process an instruction. The `multiple` template in Anchor 0.29 also calls the actual functions `handler`.
+- JS/TS clients send `transactions` made from `instructions`. On chain programs have `instruction handlers` that process `instructions`. Do not refer to [instruction handlers](https://solana.com/docs/terminology#instruction-handler) as instructions! The reason is simple: an instruction cannot process an instruction. The `multiple` template in Anchor 0.29 also calls the actual functions `handler`.
 
 Code examples should be formatted as follows:
 
