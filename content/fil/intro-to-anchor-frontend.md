@@ -17,7 +17,7 @@ objectives:
 - Isang bagay na **Anchor `Program`** ay nagbibigay ng custom na API upang makipag-ugnayan sa isang partikular na program. Lumilikha ka ng instance ng `Program` gamit ang IDL at `Provider` ng isang program.
 - Ang **Anchor `MethodsBuilder`** ay nagbibigay ng isang simpleng interface sa pamamagitan ng `Program` para sa mga tagubilin sa pagbuo at mga transaksyon
 
-# Overview
+# Lesson
 
 Pinapasimple ng Anchor ang proseso ng pakikipag-ugnayan sa mga program ng Solana mula sa kliyente sa pamamagitan ng pagbibigay ng file ng Interface Description Language (IDL) na sumasalamin sa istruktura ng isang programa. Ang paggamit ng IDL kasabay ng Anchor's Typescript library (`@coral-xyz/anchor`) ay nagbibigay ng pinasimpleng format para sa pagbuo ng mga tagubilin at transaksyon.
 

@@ -16,7 +16,7 @@ objectives:
 - In order to pass instruction data from a client, it must be serialized into a byte buffer. To facilitate this process of serialization, we will be using [Borsh](https://borsh.io/).
 - Transactions can fail to be processed by the blockchain for any number of reasons, we’ll discuss some of the most common ones here.
 
-# Overview
+# Lesson
 
 ## Transactions
 

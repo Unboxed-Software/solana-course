@@ -37,7 +37,7 @@ objectives:
 - In Anchor, program account types automatically implement the `Discriminator` trait which creates an 8 byte unique identifier for a type
 - Use Anchor’s `Account<'info, T>` type to automatically check the discriminator of the account when deserializing the account data
 
-# Overview
+# Lesson
 
 “Type cosplay” refers to an unexpected account type being used in place of an expected account type. Under the hood, account data is simply stored as an array of bytes that a program deserializes into a custom account type. Without implementing a way to explicitly distinguish between account types, account data from an unexpected account could result in an instruction being used in unintended ways.
 

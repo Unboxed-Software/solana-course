@@ -16,7 +16,7 @@ objectives:
 - Upang maipasa ang data ng pagtuturo mula sa isang kliyente, dapat itong i-serialize sa isang byte buffer. Upang mapadali ang prosesong ito ng serialization, gagamitin namin ang [Borsh](https://borsh.io/).
 - Maaaring mabigo ang mga transaksyon na maproseso ng blockchain para sa anumang bilang ng mga kadahilanan, tatalakayin natin ang ilan sa mga pinakakaraniwan dito.
 
-# Overview
+# Lesson
 
 ## Transactions
 

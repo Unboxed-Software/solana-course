@@ -16,7 +16,7 @@ objectives:
 - Maaaring gamitin ang mga buto upang i-map ang data na nakaimbak sa isang hiwalay na PDA account
 - Maaaring lagdaan ng isang programa ang mga tagubilin sa ngalan ng mga PDA na nagmula sa ID nito
 
-# Overview
+# Lesson
 
 ## What is a Program Derived Address?
 

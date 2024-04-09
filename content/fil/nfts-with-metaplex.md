@@ -16,7 +16,7 @@ objectives:
 - Ang programang **Candy Machine** ay isang tool sa pamamahagi ng NFT na ginagamit upang lumikha at mag-mint ng mga NFT mula sa isang koleksyon
 - **Ang Sugar CLI** ay isang tool na nagpapasimple sa proseso ng pag-upload ng mga media/metadata file at paggawa ng Candy Machine para sa isang koleksyon
 
-# Overview
+# Lesson
 
 Ang Solana Non-Fungible Token (NFTs) ay mga SPL token na ginawa gamit ang Token program. Ang mga token na ito, gayunpaman, ay mayroon ding karagdagang metadata account na nauugnay sa bawat token mint. Nagbibigay-daan ito para sa isang malawak na iba't ibang mga kaso ng paggamit para sa mga token. Maaari mong epektibong i-tokenize ang anumang bagay, mula sa imbentaryo ng laro hanggang sa sining.
 

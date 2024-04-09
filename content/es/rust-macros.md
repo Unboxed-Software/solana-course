@@ -15,7 +15,7 @@ objectives:
 -   An **Item** is a declaration that defines something that can be used in a Rust program, such as a struct, an enum, a trait, a function, or a method.
 -   A **TokenStream** is a sequence of tokens that represents a piece of source code, and can be passed to a procedural macro to allow it to access and manipulate the individual tokens in the code.
 
-# Overview
+# Lesson
 
 In Rust, a macro is a piece of code that you can write once and then "expand" to generate code at compile time. This can be useful when you need to generate code that is repetitive or complex, or when you want to use the same code in multiple places in your program.
 

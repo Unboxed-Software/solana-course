@@ -12,7 +12,7 @@ objectives:
 -   **Partial signing** of transactions allows for the creation of transactions that require multiple signatures before they are submitted to the network
 -   **Transaction gating** involves implementing rules that determine whether certain transactions are allowed to be processed or not, based on certain conditions or the presence of specific data in the transaction
 
-# Overview
+# Lesson
 
 The Solana community is continually improving and expanding the network's functionality. But that doesn't always mean developing brand new technology. Sometimes it means leveraging the network's existing features in new and interesting ways.
 

@@ -19,7 +19,7 @@ objectives:
     pub receiver: SystemAccount<'info>
     ```
 
-# Overview
+# Lesson
 
 Bagama't ito ay simple, ang pagsasara ng mga account nang maayos ay maaaring nakakalito. Mayroong ilang mga paraan na maaaring iwasan ng isang umaatake ang pagsasara ng account kung hindi mo susundin ang mga partikular na hakbang.
 

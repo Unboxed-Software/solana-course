@@ -16,7 +16,7 @@ objectives:
 - **Token Accounts** ay ginagamit upang maghawak ng mga Token ng isang partikular na Token Mint
 - Ang paggawa ng Mga Token Mint at Token Account ay nangangailangan ng paglalaan ng **renta** sa SOL. Ang renta para sa isang Token Account ay maaaring i-refund kapag ang account ay sarado, gayunpaman, ang Token Mint ay kasalukuyang hindi maaaring isara
 
-# Overview
+# Lesson
 
 Ang Token Program ay isa sa maraming programa na ginawang available ng Solana Program Library (SPL). Naglalaman ito ng mga tagubilin para sa paglikha at pakikipag-ugnayan sa SPL-Tokens. Ang mga token na ito ay kumakatawan sa lahat ng hindi katutubong (i.e. hindi SOL) na mga token sa network ng Solana.
 

@@ -12,7 +12,7 @@ objectives:
 - **Anchor macros** speed up the process of building Solana programs by abstracting away a significant amount of boilerplate code
 - Anchor allows you to build **secure programs** more easily by performing certain security checks, requiring account validation, and providing a simple way to implement additional checks.
 
-# Overview
+# Lesson
 
 ## What is Anchor?
 

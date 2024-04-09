@@ -15,7 +15,7 @@ objectives:
 - Ang mga software wallet ay kadalasang **mga extension ng browser** na nagpapadali sa pagkonekta sa mga website
 - Pinapasimple ng **Wallet-Adapter library** ni Solana ang suporta ng mga extension ng browser ng wallet, na nagbibigay-daan sa iyong bumuo ng mga website na maaaring humiling ng address ng wallet ng user at magmungkahi ng mga transaksyon para lagdaan nila
 
-# Overview
+# Lesson
 
 ## Wallets
 

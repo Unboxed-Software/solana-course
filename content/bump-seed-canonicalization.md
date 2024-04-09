@@ -24,7 +24,7 @@ objectives:
     }
     ```
 
-# Overview
+# Lesson
 
 Bump seeds are a number between 0 and 255, inclusive, used to ensure that an address derived using [`create_program_address`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_program_address) is a valid PDA. The **canonical bump** is the highest bump value that produces a valid PDA. The standard in Solana is to *always use the canonical bump* when deriving PDAs, both for security and convenience. 
 

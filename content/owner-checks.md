@@ -21,7 +21,7 @@ if ctx.accounts.account.owner != ctx.program_id {
 - Anchor program account types implement the `Owner` trait which allows the `Account<'info, T>` wrapper to automatically verify program ownership
 - Anchor gives you the option to explicitly define the owner of an account if it should be anything other than the currently executing program
 
-# Overview
+# Lesson
 
 Owner checks are used to verify that an account passed into an instruction is owned by an expected program. This prevents accounts owned by an unexpected program from being used in an instruction.
 

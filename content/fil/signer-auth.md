@@ -21,7 +21,7 @@ objectives:
 - Sa Anchor, maaari mong gamitin ang **`Signer`** na uri ng account sa struct ng pagpapatunay ng iyong account upang awtomatikong magsagawa ang Anchor ng signer check sa isang partikular na account
 - Ang Anchor ay mayroon ding hadlang sa account na awtomatikong magbe-verify na ang isang partikular na account ay pumirma ng isang transaksyon
 
-# Overview
+# Lesson
 
 Ginagamit ang mga tseke ng signer para i-verify na pinahintulutan ng may-ari ng isang account ang isang transaksyon. Kung walang tseke ng signer, ang mga pagpapatakbo na ang pagpapatupad ay dapat na limitado sa mga partikular na account lamang ang posibleng gawin ng anumang account. Sa pinakamasamang sitwasyon, maaari itong magresulta sa mga wallet na ganap na maubos ng mga umaatake na pumasa sa anumang account na gusto nila sa isang pagtuturo.
 

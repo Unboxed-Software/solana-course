@@ -12,7 +12,7 @@ objectives:
 - **Accounts** store tokens, NFTs, programs, and data. For now we’ll focus on accounts that store SOL. 
 - **Addresses** point to accounts on the Solana network. Anyone can read the data in a given address. Most addresses are also **public keys**.
 
-# Overview
+# Lesson
 
 ### Accounts
 

@@ -14,7 +14,7 @@ objectives:
 - Kung wala kang access sa mga function ng helper ng CPI, maaari mo pa ring gamitin ang `invoke` at `invoke_signed` nang direkta
 - Ginagamit ang **`error_code`** attribute macro para gumawa ng custom na Anchor Error
 
-# Overview
+# Lesson
 
 Kung iisipin mo ang [unang CPI lesson](cpi.md), maaalala mo na ang paggawa ng mga CPI ay maaaring maging mahirap gamit ang vanilla Rust. Ang Anchor ay ginagawa itong medyo mas simple, lalo na kung ang program na iyong ginagamit ay isa ring Anchor program na ang crate ay maaari mong ma-access.
 
