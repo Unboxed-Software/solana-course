@@ -7,8 +7,8 @@ objectives:
 
 # Summary
 
-- The `Token Extension Program` is a superset of the `Token Program`
-- These two token programs: `Token Program` and `Token Extension Program` are distinct and not directly compatible
+- The `Token Extension Program` has all of the same functions as the `Token Program`, with added `extensions`
+- These two token programs: `Token Program` and `Token Extension Program` use seperate addresses and are not directly compatable
 - Supporting both requires simply specifying the correct program ID in client-side functions
 - By default, the SPL program library uses the original **`Token Program`** unless another is specified
 - The `Token Extension Program` may also be referred to as `Token22`
@@ -17,7 +17,7 @@ objectives:
 
 The `Token Extensions Program` enhances the original `Token Program` by incorporating additional features known as extensions. These extensions are designed to address specific scenarios that previously necessitated developers to fork and alter the Solana Program Library, leading to split ecosystems and challenges in adoption. The introduction of the Token Extensions Program allows for these scenarios to be effectively handled.
 
-Since the `Token Program` and `Token Extensions Program` are different onchain programs, they are not interoperable. As a result, we'll have to support both programs in our client-side applications. This means we'll want to explicitly handle mints from both the original Token Program (`TOKEN_PROGRAM_ID`) and the Extension Program (`TOKEN_2022_PROGRAM_ID`).
+Since the `Token Program` and `Token Extensions Program` are different onchain programs, they are not interoperable. For example, a token minted with `Token Extensions Program` may not be transferred with the `Token Program`. As a result, we'll have to support both programs in our client-side applications. This means we'll want to explicitly handle mints from both the original Token Program (`TOKEN_PROGRAM_ID`) and the Extension Program (`TOKEN_2022_PROGRAM_ID`).
 
 Fortunately, the interfaces for the two programs remain consistent, allowing the use of `spl-token` helper functions in either program by simply swapping the program ID (the function uses the original Token Program by default if no program ID is provided). Most of the time, end users are not concerned with the specific token program being used. As such, implementing additional logic to track, assemble, and merge details from both token varieties is essential to guarantee a smooth user experience.
 
@@ -78,13 +78,13 @@ function findAssociatedTokenAddress(
 
 ## How to fetch tokens
 
-When it comes to fetching tokens, there is no difference between tokens and extension tokens. All we have to do is provide the correct token program:
+There is no difference between tokens made with Token Program or Token Extensions Program. That means, when it comes to fetching tokens, there is no difference between how we fetch Token Program or Token Extensions Program tokens. All we have to do is provide the correct token program:
 
 ```ts
 const tokenAccounts = await connection.getTokenAccountsByOwner(
 	walletPublicKey,
 	{ programId: TOKEN_PROGRAM_ID } // or TOKEN_2022_PROGRAM_ID
-)
+);
 ```
 
 If we want to fetch all of the tokens for a particular owner, we can use a function like `getTokenAccountsByOwner`, and then call it twice, once with `TOKEN_PROGRAM_ID` and another with `TOKEN_2022_PROGRAM_ID`.
@@ -124,7 +124,7 @@ const tokenAccounts = await connection.getTokenAccountsByOwner(
 )
 ```
 
-NOTE: After you fetch the owning account, it may be a good idea to save that owner and associate it with the mints/tokens you are handling.
+NOTE: After you fetch the owning program, it may be a good idea to save that owner and associate it with the mints/tokens you are handling.
 
 # Lab - Add Extension Token support to a script
 
@@ -156,9 +156,9 @@ The **`print-helpers.ts`** file contains a function called **`printTableData`**,
 Lastly, `index.ts` contains our main script. It currently only creates a connection and calls `initializeKeypair` to generate the keypair for `payer`.
 
 
-### 3. Run validator node
+### 3. Run validator node (Optional)
 
-We suggest running your own validator for this lab (and most development/testing) to get around airdrop restrictions on devnet.
+Optionally, you may want to run your own local validator instead of using devnet. This a good way around any issues with airdroping.
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
 
@@ -172,7 +172,7 @@ If you'd like to use Devnet and provide you're own devnet wallet, you still can 
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
 
-Lets test that it all works so far by running `npm run start`. You should see the `payer` public key logged out in your terminal.
+Let's test that it all works so far by running `npm run start`. You should see the `payer` public key logged out in your terminal.
 
 
 ### 4. Create Token Program and Token Extension Program mints
@@ -347,7 +347,7 @@ To accomplish this the `fetchTokenInfo` function will need the following paramet
 - `connection` - The connection object to use
 - `owner` - The wallet which owns the associated token accounts
 - `programId` - The token program to point to
-- `type` - Either `Token` or `Token22`; used for console logging purpose
+- `type` - Either `Token Program` or `Token Extension Program`; used for console logging purpose
 
 ```ts
 export type TokenTypeForDisplay = 'Token Program' | 'Token Extension Program';
