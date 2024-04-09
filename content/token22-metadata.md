@@ -7,19 +7,19 @@ objectives:
 ---
 
 # Summary
-- The `metadata pointer` extension associates a public key directly to a metadata account, whether it's stored internally or via an external metadata account like Metaplex. This setup simplifies the association of tokens with their metadata.
-- The `metadata` mint extension allows embedding of metadata directly into mint accounts through the Token Extension Program, typically utilized alongside a self-referencing metadata pointer. This facilitates embedding comprehensive token information at the minting stage.
+- The `metadata pointer` extension associates a token mint directly to a metadata account. This happens by storing the metadata account's address in the mint. This metadata account address can be an external metadata account, like Metaplex, or can be the mint itself if using the `metadata` extension.
+- The `metadata` mint extension allows embedding of metadata directly into mint accounts through the Token Extension Program. This is always accompanied with a self-refrencing `metadata pointer`. This facilitates embedding comprehensive token information at the minting stage.
 - These extensions enhance the interoperability of tokens across different applications and platforms by standardizing how metadata is associated and accessed.
 - Directly embedding or pointing to metadata can streamline transactions and interactions by reducing the need for additional lookups or external calls.
 
 # Overview
 
-The Token Extension Program streamlines metadata on Solana. Without the Token Extension Program, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes introduces vender lock and increased complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
+The Token Extension Program streamlines metadata on Solana. Without the Token Extension Program, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes introduces vender lock in and increased complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
 
 - `metadata-pointer` extension: Adds two simple fields in the mint account itself: a publicKey pointer to the account that holds the metadata for the token following the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), and the authority to update this pointer.
 - `metadata` extension: Adds the fields described in the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/) which allows us to store the metadata in the mint itself.
 
-Note: The `metadata` extension is usually used in conjunction with the `metadata-pointer` extension which points back to the mint itself.
+Note: The `metadata` extension has to be used in conjunction with the `metadata-pointer` extension which points back to the mint itself.
 
 ## Metadata-Pointer extension:
 
@@ -129,9 +129,7 @@ To create and initialize the `mint` with the metadata pointer, we need several i
   );
 ```
 
-Please note that the order of the instructions matter.
-
-To create the NFT, bundle all of these instructions together and send them to the Solana network:
+To create the NFT, add the instructions to a transaction and send it to the Solana network:
 ```ts
 const transaction = new Transaction().add(
   createMintAccountInstructions,
@@ -210,9 +208,7 @@ export interface InitializeInstructionArgs {
     uri: string;
 }
 
-export function createInitializeInstruction(args: InitializeInstructionArgs): TransactionInstruction {
-    ...
-}
+export function createInitializeInstruction(args: InitializeInstructionArgs): TransactionInstruction
 ```
 
 The function `createUpdateFieldInstruction` returns the instruction that creates or updates a field in a token-metadata account.
@@ -239,9 +235,7 @@ export interface UpdateFieldInstruction {
     value: string;
 }
 
-export function createUpdateFieldInstruction(args: UpdateFieldInstruction): TransactionInstruction {
-    ...
-}
+export function createUpdateFieldInstruction(args: UpdateFieldInstruction): TransactionInstruction
 ```
 
 Note: If the metadata you are updating requires more space than the initial allocated space, you'll have to pair it with a `system.transfer` to have enough rent for the `createUpdateFieldInstruction` to realloc with. You can get the extra space needed with `getAdditionalRentForUpdatedMetadata`. Or if you're calling this update as a standalone, you can use the `tokenMetadataUpdateFieldWithRentTransfer` helper to do all of this at once. 
@@ -265,9 +259,7 @@ export interface RemoveKeyInstructionArgs {
     idempotent: boolean;
 }
 
-export function createRemoveKeyInstruction(args: RemoveKeyInstructionArgs): TransactionInstruction {
-    ...
-}
+export function createRemoveKeyInstruction(args: RemoveKeyInstructionArgs): TransactionInstruction
 ```
 
 The function `createUpdateAuthorityInstruction` returns the instruction that updates the authority of a token-metadata account.
@@ -286,9 +278,7 @@ export interface UpdateAuthorityInstructionArgs {
     newAuthority: PublicKey | null;
 }
 
-export function createUpdateAuthorityInstruction(args: UpdateAuthorityInstructionArgs): TransactionInstruction {
-    ...
-}
+export function createUpdateAuthorityInstruction(args: UpdateAuthorityInstructionArgs): TransactionInstruction
 ```
 
 The function `createEmitInstruction` "emits" or logs out token-metadata in the expected TokenMetadata state format. This is a required function for metadata programs that want to follow the TokenMetadata interface. The emit instruction allows indexers and other off-chain users to call to get metadata. This also allows custom metadata programs to store [metadata in a different format while maintaining compatibility with the Interface standards](https://solana.com/developers/guides/token-extensions/metadata-pointer#metadata-interface-instructions).
@@ -307,9 +297,7 @@ export interface EmitInstructionArgs {
     end?: bigint;
 }
 
-export function createEmitInstruction(args: EmitInstructionArgs): TransactionInstruction {
-    ...
-}
+export function createEmitInstruction(args: EmitInstructionArgs): TransactionInstruction
 ```
 
 The `pack` function encodes metadata into a byte array, while its counterpart, `unpack`, decodes metadata from a byte array. These operations are essential for determining the metadata's byte size, crucial for allocating adequate storage space.
@@ -330,13 +318,9 @@ export interface TokenMetadata {
     additionalMetadata: [string, string][];
 }
 
-export const pack = (meta: TokenMetadata): Uint8Array => {
-    ...
-}
+export const pack = (meta: TokenMetadata): Uint8Array
 
-export function unpack(buffer: Buffer | Uint8Array): TokenMetadata {
-    ...
-}
+export function unpack(buffer: Buffer | Uint8Array): TokenMetadata
 ```
 
 The function `getTokenMetadata` returns the metadata for the given mint.
@@ -353,9 +337,7 @@ export async function getTokenMetadata(
     address: PublicKey,
     commitment?: Commitment,
     programId = TOKEN_2022_PROGRAM_ID
-): Promise<TokenMetadata | null> {
-    ...
-}
+): Promise<TokenMetadata | null>
 ```
 
 ### Create NFT with metadata extension
@@ -461,7 +443,7 @@ const transaction = new Transaction().add(
   initMetadataInstruction,
   updateMetadataFieldInstructions, // if you want to add any custom field
 );
-const sig = await sendAndConfirmTransaction(connection, transaction, [payer, mint]);
+const signature = await sendAndConfirmTransaction(connection, transaction, [payer, mint]);
 ```
 
 Again, the order here matters.
