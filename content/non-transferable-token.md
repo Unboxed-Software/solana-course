@@ -189,21 +189,17 @@ import { createNonTransferableMint } from './create-mint';
 import { createAccount, mintTo, TOKEN_2022_PROGRAM_ID, transferChecked } from '@solana/spl-token';
 dotenv.config();
 
-(async () => {
-	// previous code
+/**
+  * Creating a non-transferable token mint
+*/
+const decimals = 9
 
-	/**
-	 * Creating a non-transferable token mint
-	 */
-	const decimals = 9
-
-	await createNonTransferableMint(
-		connection,
-		payer,
-		mintKeypair,
-		decimals
-	)
-})();
+await createNonTransferableMint(
+  connection,
+  payer,
+  mintKeypair,
+  decimals
+)
 ```
 
 The non-transferable mint has been set up correctly and will be created when we run `npm start`. Let’s move on to the next step and create a source account and mint a token to it.
@@ -213,41 +209,39 @@ The non-transferable mint has been set up correctly and will be created when we 
 In `src/index.ts`, we will create a source account and mint one non-transferable token. 
 
 ```tsx
-(async () => {
-	// previous code
+// previous code
 
-	/**
-	 * Create a source account and mint 1 token to that account
-	 */
-	console.log('Creating a source account...')
-	const sourceKeypair = Keypair.generate()
-	const sourceAccount = await createAccount(
-		connection,
-		payer,
-		mint,
-		sourceKeypair.publicKey,
-		undefined,
-		{ commitment: 'finalized' },
-		TOKEN_2022_PROGRAM_ID
-	)
+/**
+  * Create a source account and mint 1 token to that account
+*/
+console.log('Creating a source account...')
+const sourceKeypair = Keypair.generate()
+const sourceAccount = await createAccount(
+  connection,
+  payer,
+  mint,
+  sourceKeypair.publicKey,
+  undefined,
+  { commitment: 'finalized' },
+  TOKEN_2022_PROGRAM_ID
+)
 
-	console.log('Minting 1 token...')
-	const amount = 1 * LAMPORTS_PER_SOL
-	await mintTo(
-		connection,
-		payer,
-		mint,
-		sourceAccount,
-		payer,
-		amount,
-		[payer],
-		{ commitment: 'finalized' },
-		TOKEN_2022_PROGRAM_ID
-	);
-	const tokenBalance = await connection.getTokenAccountBalance(sourceAccount, 'finalized');
+console.log('Minting 1 token...')
+const amount = 1 * LAMPORTS_PER_SOL
+await mintTo(
+  connection,
+  payer,
+  mint,
+  sourceAccount,
+  payer,
+  amount,
+  [payer],
+  { commitment: 'finalized' },
+  TOKEN_2022_PROGRAM_ID
+);
+const tokenBalance = await connection.getTokenAccountBalance(sourceAccount, 'finalized');
 
-	console.log(`Account ${sourceAccount.toBase58()} now has ${tokenBalance.value.uiAmount} token.`);
-})();
+console.log(`Account ${sourceAccount.toBase58()} now has ${tokenBalance.value.uiAmount} token.`);
 ```
 
 Run `npm start`. When you run the executable you should see the account address and token amount, similar to this: `Account GDS3HX16WCzSs3z2ehYA9L8tu7hwdbQZCjFVnM3gxTB1 now has 1 token.`
@@ -259,61 +253,57 @@ This indicates to use that the non-transferable token has been minted to our sou
 In `src/index.ts`, we will create a destination account and try to transfer the non-transferable token to this account.
 
 ```tsx
-(async () => {
-	// previous code
+// previous code
 
-	/**
-	 * Creating a destination account for a transfer
-	 */
-	console.log('Creating a destination account...\\n\\n')
-	const destinationKeypair = Keypair.generate()
-	const destinationAccount = await createAccount(
-		connection,
-		payer,
-		mintKeypair.publicKey,
-		destinationKeypair.publicKey,
-		undefined,
-		{ commitment: 'finalized' },
-		TOKEN_2022_PROGRAM_ID
-	)
-})();
+/**
+  * Creating a destination account for a transfer
+*/
+console.log('Creating a destination account...\\n\\n')
+const destinationKeypair = Keypair.generate()
+const destinationAccount = await createAccount(
+  connection,
+  payer,
+  mintKeypair.publicKey,
+  destinationKeypair.publicKey,
+  undefined,
+  { commitment: 'finalized' },
+  TOKEN_2022_PROGRAM_ID
+)
 ```
 
 Now we will try and transfer the non-transferable token from the source account to the destination account. This call will fail and throw `SendTransactionError`.
 
 ```tsx
-(async () => {
-	// previous code
+// previous code
 
-	/**
-	 * Trying transferring 1 token from source account to destination account.
-	 *
-	 * Should throw `SendTransactionError`
-	 */
-	console.log('Attempting to transfer non-transferable mint...')
-	try {
-		const signature = await transferChecked(
-			connection,
-			payer,
-			sourceAccount,
-			mint,
-			destinationAccount,
-			sourceAccount,
-			amount,
-			decimals,
-			[sourceKeypair, destinationKeypair],
-			{ commitment: 'finalized' },
-			TOKEN_2022_PROGRAM_ID
-		)
+/**
+  * Trying transferring 1 token from source account to destination account.
+  *
+  * Should throw `SendTransactionError`
+*/
+console.log('Attempting to transfer non-transferable mint...')
+try {
+  const signature = await transferChecked(
+    connection,
+    payer,
+    sourceAccount,
+    mint,
+    destinationAccount,
+    sourceAccount,
+    amount,
+    decimals,
+    [sourceKeypair, destinationKeypair],
+    { commitment: 'finalized' },
+    TOKEN_2022_PROGRAM_ID
+  )
 
-	} catch (e) {
-		console.log(
-			'This transfer is failing because the mint is non-transferable. Check out the program logs: ',
-			(e as any).logs,
-			'\\n\\n'
-		)
-	}
-})();
+} catch (e) {
+  console.log(
+    'This transfer is failing because the mint is non-transferable. Check out the program logs: ',
+    (e as any).logs,
+    '\\n\\n'
+  )
+}
 ```
 
 Now run `npm start`. We should see the console log of transaction failure along with program logs.
