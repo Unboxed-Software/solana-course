@@ -37,11 +37,11 @@ The first instruction `SystemProgram.createAccount` allocates space on the block
 
 ```ts
 SystemProgram.createAccount({
-	fromPubkey: payer.publicKey,
-	newAccountPubkey: mintKeypair.publicKey,
-	space: mintLength,
-	lamports: mintLamports,
-	programId: TOKEN_2022_PROGRAM_ID,
+  fromPubkey: payer.publicKey,
+  newAccountPubkey: mintKeypair.publicKey,
+  space: mintLength,
+  lamports: mintLamports,
+  programId: TOKEN_2022_PROGRAM_ID,
 })
 ```
 
@@ -49,8 +49,8 @@ The second instruction `createInitializeNonTransferableMintInstruction` initiali
 
 ```ts
 createInitializeNonTransferableMintInstruction(
-	mintKeypair.publicKey,
-	TOKEN_2022_PROGRAM_ID
+  mintKeypair.publicKey,
+  TOKEN_2022_PROGRAM_ID
 )
 ```
 
@@ -58,11 +58,11 @@ The third instruction `createInitializeMintInstruction` initializes the mint.
 
 ```ts
 createInitializeMintInstruction(
-	mintKeypair.publicKey,
-	decimals,
-	payer.publicKey,
-	null,
-	TOKEN_2022_PROGRAM_ID
+  mintKeypair.publicKey,
+  decimals,
+  payer.publicKey,
+  null,
+  TOKEN_2022_PROGRAM_ID
 )
 ```
 
