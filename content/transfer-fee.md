@@ -175,11 +175,25 @@ npm install
 The starter code comes with following file:
  - `index.ts`
 
-The `keypair-helpers.ts` file contains some boilerplate for generating a new keypair and airdropping test SOL if needed.
-
 `index.ts` has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This `main` function is where we'll be writing our script.
 
-### 2. Create a mint with transfer fee
+### 2. Run validator node
+
+For the sake of this guide, we will be running our own validator node. We do this because sometimes testnet or devnets on Solana can become congested and in turn less reliable.
+
+In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
+
+```tsx
+const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
+```
+
+Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
+
+```tsx
+const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+```
+
+### 3. Create a mint with transfer fee
 
 We're now going to create a function `createMintWithTransferFee` in a new file `src/create-mint.ts`.
 
@@ -262,9 +276,7 @@ export async function createMintWithTransferFee(
 		[payer, mintKeypair],
 		{commitment: 'finalized'}
 	)
-	console.log(
-		`Check the transaction at: https://explorer.solana.com/tx/${signature}?cluster=${cluster}`
-	)
+  console.log('Transaction sent')
 
 	return signature
 }
@@ -274,14 +286,12 @@ Now let's call this function in `src/index.ts`
 
 ```ts
 import {
-	Cluster,
 	Connection,
-	clusterApiUrl,
 	Keypair,
 	LAMPORTS_PER_SOL,
 } from '@solana/web3.js'
-import {initializeKeypair} from './keypair-helpers'
-import {createMintWithTransferFee} from './create-mint'
+import { initializeKeypair } from '@solana-developers/helpers'
+import { createMintWithTransferFee } from './create-mint'
 import {
 	TOKEN_2022_PROGRAM_ID,
 	createAccount,
@@ -295,29 +305,22 @@ import {
 	withdrawWithheldTokensFromMint,
 } from '@solana/spl-token'
 
-const CLUSTER: Cluster = 'devnet'
+// CREATE MINT WITH TRANSFER FEE
+const decimals = 9
+const feeBasisPoints = 50
+const maxFee = BigInt(5000)
 
-async function main(){
-	...
-
-	// CREATE MINT WITH TRANSFER FEE
-	const decimals = 9
-	const feeBasisPoints = 50
-	const maxFee = BigInt(5000)
-
-	await createMintWithTransferFee(
-		CLUSTER,
-		connection,
-		payer,
-		mintKeypair,
-		decimals,
-		feeBasisPoints,
-		maxFee
-	)
-}
+await createMintWithTransferFee(
+  connection,
+  payer,
+  mintKeypair,
+  decimals,
+  feeBasisPoints,
+  maxFee
+)
 ```
 
-Now we can run `npm start`. We should see a log of a link which will take us to the mint creation transaction on Solana Explorer.
+Now we can run `npm start` which will create the mint.
 
 ### 4. Create a fee vault account
 
@@ -326,25 +329,23 @@ Transfer fees are paid by the recipient of the mint. We need an account to colle
 For this lab, let's create a dedicated fee vault account.
 
 ```ts
-async function main(){
-	...
+// previous code
 
-	// CREATE FEE VAULT ACCOUNT
-	console.log('\nCreating a fee vault account...')
-	const feeVaultKeypair = Keypair.generate()
-	const feeVaultAccount = await createAssociatedTokenAccount(
-		connection,
-		payer,
-		mintKeypair.publicKey,
-		feeVaultKeypair.publicKey,
-		{commitment: 'finalized'},
-		TOKEN_2022_PROGRAM_ID
-	)
-	var balance = await (
-		await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
-	).value.amount
-	console.log('Current fee vault balance: ' + balance + '\n\n')
-}
+// CREATE FEE VAULT ACCOUNT
+console.log('\nCreating a fee vault account...')
+const feeVaultKeypair = Keypair.generate()
+const feeVaultAccount = await createAssociatedTokenAccount(
+  connection,
+  payer,
+  mintKeypair.publicKey,
+  feeVaultKeypair.publicKey,
+  { commitment: 'finalized' },
+  TOKEN_2022_PROGRAM_ID
+)
+let balance = (
+  await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
+).value.amount
+console.log('Current fee vault balance: ' + balance + '\n\n')
 ```
 
 Now we can run `npm start`. We should see the fee vault account created with zero balance.
@@ -353,36 +354,34 @@ Now we can run `npm start`. We should see the fee vault account created with zer
 Now, let's create an account and mint one token to it. The account will act as the source for the transfer transaction.
 
 ```ts
-async function main(){
-	...
-	
-	// CREATE A SOURCE ACCOUNT AND MINT TOKEN
-	console.log('Creating a source account...')
-	const sourceKeypair = Keypair.generate()
-	const sourceAccount = await createAccount(
-		connection,
-		payer,
-		mint,
-		sourceKeypair.publicKey,
-		undefined,
-		{commitment: 'finalized'},
-		TOKEN_2022_PROGRAM_ID
-	)
+// previous code
 
-	console.log('Minting 1 token...\n\n')
-	const amount = 1 * LAMPORTS_PER_SOL
-	await mintTo(
-		connection,
-		payer,
-		mint,
-		sourceAccount,
-		payer,
-		amount,
-		[payer],
-		{commitment: 'finalized'},
-		TOKEN_2022_PROGRAM_ID
-	)
-}
+// CREATE A SOURCE ACCOUNT AND MINT TOKEN
+console.log('Creating a source account...')
+const sourceKeypair = Keypair.generate()
+const sourceAccount = await createAccount(
+  connection,
+  payer,
+  mint,
+  sourceKeypair.publicKey,
+  undefined,
+  {commitment: 'finalized'},
+  TOKEN_2022_PROGRAM_ID
+)
+
+console.log('Minting 1 token...\n\n')
+const amount = 1 * LAMPORTS_PER_SOL
+await mintTo(
+  connection,
+  payer,
+  mint,
+  sourceAccount,
+  payer,
+  amount,
+  [payer],
+  { commitment: 'finalized' },
+  TOKEN_2022_PROGRAM_ID
+)
 ```
 
 Now we can run `npm start`. At this point, we have a successfully created a source account and minted a single token to it.
@@ -391,54 +390,47 @@ Now we can run `npm start`. At this point, we have a successfully created a sour
 Next, let's create a destination account for the transfer. This account will act as the recipient of the transfer. As the recipient of the transfer, the destination account will pay the transfer fee.
 
 ```ts
-async function main(){
-	...
-	
-	// CREATE DESTINATION ACCOUNT
-	console.log('Creating a destination account...\n\n')
-	const destinationKeypair = Keypair.generate()
-	const destinationAccount = await createAccount(
-		connection,
-		payer,
-		mint,
-		destinationKeypair.publicKey,
-		undefined,
-		{commitment: 'finalized'},
-		TOKEN_2022_PROGRAM_ID
-	)
-}
+// previous code
+
+// CREATE DESTINATION ACCOUNT
+console.log('Creating a destination account...\n\n')
+const destinationKeypair = Keypair.generate()
+const destinationAccount = await createAccount(
+  connection,
+  payer,
+  mint,
+  destinationKeypair.publicKey,
+  undefined,
+  {commitment: 'finalized'},
+  TOKEN_2022_PROGRAM_ID
+)
 ```
 
 We will now calculate the transfer fees based on the transfer amount using fee basis points. Remember, if the transfer fee crosses the max fee cap set while creating the mint, we can only collect fees up to the max cap amount.
 
 ```ts
-async function main(){
-	...
+// previous code
 
-	// TRANSFER TOKENS
-	console.log('Transferring with fee transaction...')
-	const transferAmount = BigInt(1_000_000)
-	const fee = (transferAmount * BigInt(feeBasisPoints)) / BigInt(10_000)
-	var signature = await transferCheckedWithFee(
-		connection,
-		payer,
-		sourceAccount,
-		mint,
-		destinationAccount,
-		sourceKeypair.publicKey,
-		transferAmount,
-		decimals,
-		fee,
-		[sourceKeypair, destinationKeypair],
-		{commitment: 'finalized'},
-		TOKEN_2022_PROGRAM_ID
-	)
-	console.log(
-		`Check the transaction at: https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER} \n\n`
-	)
-}
+// TRANSFER TOKENS
+console.log('Transferring with fee transaction...')
+const transferAmount = BigInt(1_000_000)
+const fee = (transferAmount * BigInt(feeBasisPoints)) / BigInt(10_000)
+let signature = await transferCheckedWithFee(
+  connection,
+  payer,
+  sourceAccount,
+  mint,
+  destinationAccount,
+  sourceKeypair.publicKey,
+  transferAmount,
+  decimals,
+  fee,
+  [sourceKeypair, destinationKeypair],
+  { commitment: 'finalized' },
+  TOKEN_2022_PROGRAM_ID
+)
 ```
-Now we can run `npm start`. We should see a log of a link which will take us to the transfer transaction on Solana Explorer.
+Now we can run `npm start`.
 
 ### 7. Withdrawing fees
 There are two ways in which we can collect fees from the recipient's account into the fee vault. The first one is withdrawing the withheld fees directly from the recipient's account itself to the fee vault account. The second approach is harvesting the fees from the recipient's account to the mint and then withdrawing it from the mint to the fee vault account.
@@ -449,83 +441,73 @@ Suppose there have been multiple transactions on this mint with multiple recipie
 First, we fetch all the accounts which have withheld tokens. To do this, we can call the `getProgramAccounts` function. One of the parameters for the `getProgramAccounts` function is an array of `filters`. We will use the mint address to filter these accounts so that we only fetch those accounts which received our transfer fee configured mint.
 
 ```ts
-async function main(){
-	...
+// previous code
 
-	// FETCH ACCOUNTS WITH WITHHELD TOKENS
-	console.log('Getting all accounts to withdraw from...')
-	const accounts = await connection.getProgramAccounts(
-		TOKEN_2022_PROGRAM_ID,
-		{
-			commitment: 'finalized',
-			filters: [
-				{
-					memcmp: {
-						offset: 0,
-						bytes: mint.toString(),
-					},
-				},
-			],
-		}
-	)
+// FETCH ACCOUNTS WITH WITHHELD TOKENS
+console.log('Getting all accounts to withdraw from...')
+const accounts = await connection.getProgramAccounts(
+  TOKEN_2022_PROGRAM_ID,
+  {
+    commitment: 'finalized',
+    filters: [
+      {
+        memcmp: {
+          offset: 0,
+          bytes: mint.toString(),
+        },
+      },
+    ],
+  }
+)
 
-	const accountsToWithdrawFrom = []
-	for (const accountInfo of accounts) {
-		const unpackedAccount = unpackAccount(
-			accountInfo.pubkey,
-			accountInfo.account,
-			TOKEN_2022_PROGRAM_ID
-		)
+const accountsToWithdrawFrom = []
+for (const accountInfo of accounts) {
+  const unpackedAccount = unpackAccount(
+    accountInfo.pubkey,
+    accountInfo.account,
+    TOKEN_2022_PROGRAM_ID
+  )
 
-		const transferFeeAmount = getTransferFeeAmount(unpackedAccount)
-		if (
-			transferFeeAmount != null &&
-			transferFeeAmount.withheldAmount > BigInt(0)
-		) {
-			accountsToWithdrawFrom.push(accountInfo.pubkey)
-		}
-	}
+  const transferFeeAmount = getTransferFeeAmount(unpackedAccount)
+  if (
+    transferFeeAmount != null &&
+    transferFeeAmount.withheldAmount > BigInt(0)
+  ) {
+    accountsToWithdrawFrom.push(accountInfo.pubkey)
+  }
 }
 ```
 
 Now that we have the accounts which received our mint, we can call the `withdrawWithheldTokensFromAccounts` function to withdraw the withheld tokens to our fee vault account.
 
 ```ts
-async function main(){
-	...
+// previous code
 
-	// WITHDRAW WITHHELD TOKENS
-	console.log('Withdrawing withheld tokens...')
-	signature = await withdrawWithheldTokensFromAccounts(
-		connection,
-		payer,
-		mint,
-		feeVaultAccount,
-		payer.publicKey,
-		[],
-		accountsToWithdrawFrom,
-		{commitment: 'finalized'},
-		TOKEN_2022_PROGRAM_ID
-	)
-
-	console.log(
-		`Check the transaction at: https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER} \n\n`
-	)
-}
+// WITHDRAW WITHHELD TOKENS
+console.log('Withdrawing withheld tokens...')
+signature = await withdrawWithheldTokensFromAccounts(
+  connection,
+  payer,
+  mint,
+  feeVaultAccount,
+  payer.publicKey,
+  [],
+  accountsToWithdrawFrom,
+  {commitment: 'finalized'},
+  TOKEN_2022_PROGRAM_ID
+)
 ```
 
 After withdrawing the fees to the fee vault account, let's verify the balance of our fee vault account.
 
 ```ts
-async function main(){
-	...
+// previous code
 
-	// VERIFY UPDATED FEE VAULT BALANCE 
-  	balance = (
-  		await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
-  	).value.amount
-  	console.log('Current fee vault balance: ' + balance + '\n\n')
-}
+// VERIFY UPDATED FEE VAULT BALANCE 
+  balance = (
+    await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
+  ).value.amount
+  console.log('Current fee vault balance: ' + balance + '\n\n')
 ```
 Now we can run `npm start`. This will show us the updated balance of the fee vault account.
 
@@ -536,61 +518,47 @@ Instead we harvest the fees from the destination account to the mint and then wi
 
 To harvest the fees, we can call the `harvestWithheldTokensToMint` function.
 ```ts
-async function main(){
-	...
+// previous code
 
-	// HARVEST WITHHELD TOKENS TO MINT
-	console.log('Harvesting withheld tokens...')
-	signature = await harvestWithheldTokensToMint(
-		connection,
-		payer,
-		mint,
-		[destinationAccount],
-		{commitment: 'finalized'},
-		TOKEN_2022_PROGRAM_ID
-	)
-
-	console.log(
-		`Check the transaction at: https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER} \n\n`
-	)
-}
+// HARVEST WITHHELD TOKENS TO MINT
+console.log('Harvesting withheld tokens...')
+signature = await harvestWithheldTokensToMint(
+  connection,
+  payer,
+  mint,
+  [destinationAccount],
+  {commitment: 'finalized'},
+  TOKEN_2022_PROGRAM_ID
+)
 ```
 
 After harvesting, we can call the `withdrawWithheldTokensFromMint` function to withdraw the amount to the fee vault account.
 ```ts
-async function main(){
-	...
+// previous code
 
-	// WITHDRAW HARVESTED TOKENS
-	console.log('Withdrawing from mint to fee vault account...')
-	signature = await withdrawWithheldTokensFromMint(
-		connection,
-		payer,
-		mint,
-		feeVaultAccount,
-		payer.publicKey,
-		[],
-		{commitment: 'finalized'},
-		TOKEN_2022_PROGRAM_ID
-	)
-
-	console.log(
-		`Check the transaction at: https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER} \n\n`
-	)
-}
+// WITHDRAW HARVESTED TOKENS
+console.log('Withdrawing from mint to fee vault account...')
+signature = await withdrawWithheldTokensFromMint(
+  connection,
+  payer,
+  mint,
+  feeVaultAccount,
+  payer.publicKey,
+  [],
+  {commitment: 'finalized'},
+  TOKEN_2022_PROGRAM_ID
+)
 ```
 
 After withdrawing the fees to the fee vault account, let's verify the balance of our fee vault account.
 ```ts
-async function main(){
-	...
+// previous code
 
-	// VERIFY UPDATED FEE VAULT BALANCE
-	balance = (
-		await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
-	).value.amount
-	console.log('Current fee vault balance: ' + balance + '\n\n')
-}
+// VERIFY UPDATED FEE VAULT BALANCE
+balance = (
+  await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
+).value.amount
+console.log('Current fee vault balance: ' + balance + '\n\n')
 ```
 Now we can run `npm start`. We should see a log which shows us the updated balance of the fee vault account.
 
