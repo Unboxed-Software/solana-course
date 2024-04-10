@@ -75,7 +75,7 @@ You **don't** need previous blockchain experience, or Rust knowledge, to follow 
 
 There are two tracks:
 
- - **dApp development** - building web and mobile apps that interact with popular onchain Solana programs. These lessons cover things like token transfers, minting, and creating clients for arbitrary programs. You will use basic TypeScript skills for this track. If you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with. 
+ - **Client side development** - building web and mobile apps that interact with popular onchain Solana programs. These lessons cover things like token transfers, minting, and creating clients for arbitrary programs. You will use basic TypeScript skills for this track. If you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with. 
 
  - **Onchain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana on-chain, or use the blockchain to store arbitrary data, this track is for you. You will use Rust for this track.
 
