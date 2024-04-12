@@ -7,12 +7,21 @@ objectives:
 
 # Summary
  - The existing Token Program on Solana provides interfaces for fungible and non-fungible tokens but has led to forks for added functionality, posing adoption challenges across the ecosystem.
- - Solana's model requires programs and accounts in transactions, complicating multi-token program transactions and requiring trust in supported token programs by wallets and on-chain programs.
- - To introduce new token features without disrupting current users, wallets, and decentralized applications (dApps), and to ensure the safety of existing tokens, a new token program, Token-2022 (also called as Token Extensions Program), has been developed.
- - Token-2022 was deployed to a separate address from the original Token Program to address these issues, aiming for easier adoption and enhanced functionality while maintaining system integrity.
+ - To introduce new token features without disrupting current users, wallets, and decentralized applications (dApps), and to ensure the safety of existing tokens, a new token program, Token Extensions Program (also called as Token-2022), has been developed.
+ - Token Extensions Program is a seperate program with a seperate address from the orginal Token Program. It supports the exact same functions plus additional ones through extensions.
 
 # Overview
-The Token 2022 Program, also known as Token Extensions Program, is a superset of the functionality provided by the Token Program. The Token Program serves most needs for fungible and non-fungible tokens through a simple set of interfaces and structures. Though, as more developers come to Solana with new ideas, this can introduce more challenges:
+
+The Token Extensions Program, also known internally as Token 2022, is a superset of the functionality provided by the original Token Program. The Token Program serves most needs for fungible and non-fungible tokens through a simple set of interfaces and structures. Though simple and performant, the Token Program lacked features that the developer community soon found need of. This nessecitated forks of the Token Program, potentially splitting the ecosystem.
+
+For example, say a university wants to grant a soul-bound NFT version of a deploma to a graduate's wallet. How can we be sure that deploma never got transferred away? In the current Token Program, this is not possilbe 
+
+ - ...
+ - ...
+ - ...
+
+This introduced some challenges.
+
  - Developers with new ideas have forked the Token Program to add new functionality according to their needs and deployed the program on-chain. Though it's easy to modify and deploy the program on-chain, it's difficult to achieve it's adoption across the ecosystem.
  - Solana's programming model requires programs to be included in the transactions along with accounts. This makes it complicated to create transactions involving multiple token programs.
  - In addition to the technical difficulty, wallets and other on-chain programs must trust the token programs that they choose to support.
@@ -22,48 +31,49 @@ The Token Extension Program was developed to address the aforementioned challeng
 The Token Extensions Program, as it is a superset of the Token Program, is deployed to a separate address. Even if the interfaces of these two programs are same, the addresses of these programs are **not interchangeable** in any case. As a result, if we want to add support for Token Extensions program, our client application will need some extra logic to differentiate between the tokens owned by these two programs.
 
 ## Extensions
+
 Adding new functionality requires new fields in mints and accounts. This makes it impossible to have the same layout for all accounts in the Token Extensions Program so the new functionality is added in the form of extensions. Extensions are simply new functionality added on top of the existing Token Program.
 
 Account extensions currently include:
  - **Memo required on incoming transfers**
-	<p>This extension makes it mandatory to have a memo on on all transfers, just like traditional banking systems.</p>
+	This extension makes it mandatory to have a memo on on all transfers, just like traditional banking systems.
 
  - **Immutable ownership**
-	<p>Token account owners can transfer ownership to any other address which is useful in many scenarios but can lead to security vulnerabilities. To avoid this issue, we can use this extension which makes it impossible to reassign ownership.</p>
+	Token account owners can transfer ownership to any other address which is useful in many scenarios but can lead to security vulnerabilities. To avoid this issue, we can use this extension which makes it impossible to reassign ownership.
 
  - **Default account state**
-	<p>Mint creators can use this extension which forces all new token accounts to be frozen. This way, users must eventually interact with some type of service to unfreeze their accounts and use the tokens.</p>
+	Mint creators can use this extension which forces all new token accounts to be frozen. This way, users must eventually interact with some type of service to unfreeze their accounts and use the tokens.
 
  - **CPI guard**
-	<p>This extension safeguards users against authorizing actions that are not visible to them, specifically targeting concealed programs that are neither the System nor Token programs. It does this by restricting certain activities within cross-program invocations.</p>
+	This extension safeguards users against authorizing actions that are not visible to them, specifically targeting concealed programs that are neither the System nor Token programs. It does this by restricting certain activities within cross-program invocations.
 
 Mint extensions include:
  - **Confidential transfers**
-	<p>This extension enhances privacy of the transactions without revealing key details of the transaction such as the amount.</p>
+	This extension enhances privacy of the transactions without revealing key details of the transaction such as the amount.
 
  - **Transfer fees**
-	<p>The Token Extension Program implements transfer fees at the protocol level, deducting a certain amount from each transfer to the recipient's account. This withheld amount is inaccessible to the recipient.</p>
+	The Token Extension Program implements transfer fees at the protocol level, deducting a certain amount from each transfer to the recipient's account. This withheld amount is inaccessible to the recipient.
 
  - **Closing mint**
-	<p>Under the Token Program, only token accounts could be closed. However, the introduction of the close authority extension now allows for the closure of mint accounts as well.</p>
+	Under the Token Program, only token accounts could be closed. However, the introduction of the close authority extension now allows for the closure of mint accounts as well.
 
  - **Interest-bearing tokens**
-	<p>Tokens which have constantly growing and decreasing value, reflecting the updated value in clients required proxies that require regular rebase or update operations. With this extension, we can change how the UI amount of tokens are represented by setting an interest rate on the token and fetching it's amount with interest at any time.</p>
+	Tokens which have constantly growing and decreasing value, reflecting the updated value in clients required proxies that require regular rebase or update operations. With this extension, we can change how the UI amount of tokens are represented by setting an interest rate on the token and fetching it's amount with interest at any time.
 
  - **Non-transferable tokens**
-	<p>This extension enables the creation of tokens that are "bound" to their owner, meaning they cannot be transferred to others.</p>
+	This extension enables the creation of tokens that are "bound" to their owner, meaning they cannot be transferred to others.
 
  - **Permanent delegate**
-	<p>This extension allows us to specify a permanent delegate for a mint. This authority has unlimited delegate privileges over an account. This means that it can burn or transfer any amount of tokens, but also assign another account with these privileges.</p>
+	This extension allows us to specify a permanent delegate for a mint. This authority has unlimited delegate privileges over an account. This means that it can burn or transfer any amount of tokens, but also assign another account with these privileges.
 
  - **Transfer hook**
-	<p>This extension allows token creators to have more control over how their tokens are transferred. The creators must develop and deploy a program that implements the interface and then configure their token mint to use their program.</p>
+	This extension allows token creators to have more control over how their tokens are transferred. The creators must develop and deploy a program that implements the interface and then configure their token mint to use their program.
 
  - **Metadata pointer**
-	<p>A mint can have multiple different account claiming to describe the mint. This extension allows the token creator to designate an address that describes the canonical metadata.</p>
+	A mint can have multiple different account claiming to describe the mint. This extension allows the token creator to designate an address that describes the canonical metadata.
 
  - **Metadata**
-	<p>This extension allows a mint creator to include their token's metadata directly into the mint account.</p>
+	This extension allows a mint creator to include their token's metadata directly into the mint account.
 
 These extensions can be mixed and matched, meaning we can create a token with only transfer fees, only interest-bearing tokens, both or neither.
 
