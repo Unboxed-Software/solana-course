@@ -284,7 +284,7 @@ const mintInfo = await getMint(
 )
 console.log("Initial supply: ", mintInfo.supply)
 ```
-Now we can run `npm start`. We will see the mint into printed with the supply.
+Now we can run `npm start`. We will see the mint's initial supply logged into the terminal.
 `Initial supply:  1000000000n` 
 
 ### 4.2 Closing the mint with non zero supply
