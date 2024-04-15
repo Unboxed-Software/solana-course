@@ -163,15 +163,7 @@ dotenv.config()
 
 const CLUSTER: Cluster = 'devnet'
 
-/**
- * Create a connection and initialize a keypair if one doesn't already exists.
- * If a keypair exists, airdrop a sol if needed.
- */
-const connection = new Connection(clusterApiUrl(CLUSTER))
-
-const payer = await initializeKeypair(connection, {
-	keypairPath: 'path-to-solana-keypair',
-})
+// ...rest of the index.ts
 
 // DEFINE GROUP METADATA
 const collectionMintKeypair = Keypair.generate()
