@@ -8,18 +8,16 @@ objectives:
 
 # Summary
 
-- In the Token program, creating exclusively owned tokens was not possible
-- The Token Extension Program allows creating tokens which cannot be transferred
+- In the original Token Program, creating "soul-bound" or non-transferrable tokens is impossible
+- The Token Extension Program's `non-transferrable token` enables "soul-bound" tokens 
 
 # Overview
 
-In the Token Program, it was impossible to create an exclusively owned mint. The Token Extension Program has a `NonTransferable` extension which can be used to create non-transferable mints. It allows for the generation of tokens that are non-transferable, facilitating the development of "soul-bound" tokens that are permanently associated with a single individual. 
+In the Token Program, it's impossible to create a token that cannot be transferred away. While this may seem unimportant, there are several reasons one may want to issue a "soul-bound" or non-transferrable token.
 
-Imagine you want to award your users with a unique achievement, distribute pre-order tokens for a product or service, or verify student accomplishments in an online educational platform. By leveraging non-transferable tokens for these purposes, you can ensure that each token remains permanently linked to its original recipient.
+Take the following example: Say you are a Solana game dev, and your new game, "Bits and Bytes", wants to award achievements to the players. Achievements are not transferrable, and you want their hard work to be proudly displayed in their wallet. The solution is to send them a "soul-bound" NFT. However, in the Token Program, this is not possible. However, it is in the Token Extension Program! Enter, the `non-transferable` extension.
 
-Or in the context of education, for instance, universities and online courses can issue soulbound tokens as digital diplomas or course completion certificates. This not only streamlines the verification process for employers but also significantly reduces the potential for fraudulent claims of educational achievements. 
-
-Concluding, the Token Extension Program's **`NonTransferable`** extension revolutionizes the digital landscape by introducing the capacity to create mints that generate non-transferable, or "soul-bound," tokens. These tokens are uniquely tailored to forge an indelible link between the digital asset and its owner, opening a realm of possibilities across various sectors.
+Token Extension Program has the `non-transferable` extension which can be used to create non-transferable mints. These mints can be burned, but they can't be transferred.
 
 ## Creating non-transferable mint account
 
@@ -35,8 +33,17 @@ The first instruction `SystemProgram.createAccount` allocates space on the block
 - Transfers `lamports` for rent
 - Assigns to itself it's owning program
 
+Like all other extensions, you'll need to calculate the space and lamports needed for the mint account. You can do this by calling: `getMintLen` and `getMinimumBalanceForRentExemption`.
+
+
 ```ts
-SystemProgram.createAccount({
+const extensions = [ExtensionType.NonTransferable]
+const mintLength = getMintLen(extensions)
+
+const mintLamports =
+  await connection.getMinimumBalanceForRentExemption(mintLength)
+
+const createAccountInstruction = SystemProgram.createAccount({
   fromPubkey: payer.publicKey,
   newAccountPubkey: mintKeypair.publicKey,
   space: mintLength,
@@ -48,7 +55,7 @@ SystemProgram.createAccount({
 The second instruction `createInitializeNonTransferableMintInstruction` initializes the non-transferable extension.
 
 ```ts
-createInitializeNonTransferableMintInstruction(
+const initializeNonTransferableMintInstruction = createInitializeNonTransferableMintInstruction(
   mintKeypair.publicKey,
   TOKEN_2022_PROGRAM_ID
 )
@@ -57,20 +64,37 @@ createInitializeNonTransferableMintInstruction(
 The third instruction `createInitializeMintInstruction` initializes the mint.
 
 ```ts
-createInitializeMintInstruction(
+const initializeMintInstruction = createInitializeMintInstruction(
   mintKeypair.publicKey,
   decimals,
   payer.publicKey,
-  null,
+  null, // Confirmation Config
   TOKEN_2022_PROGRAM_ID
 )
 ```
 
-When the transaction with these three instructions is sent, a new mint account is created with the non-transferable token extension.
+Lastly, add all of the instructions to a transaction and send to Solana.
+
+```ts
+const mintTransaction = new Transaction().add(
+  createAccountInstruction,
+  initializeNonTransferableMintInstruction,
+  initializeMintInstruction
+);
+
+await sendAndConfirmTransaction(
+  connection,
+  mintTransaction,
+  [payer, mintKeypair],
+  { commitment: 'finalized' }
+);
+```
+
+And that's it! You now have a mint account, that when minted, cannot be transferred. This extension gets more exciting when you mix it with the `metadata` and `metadata-pointer` extensions to create soul-bound NFTs.
 
 # Lab
 
-In this lab, we will create a non-transferable token and attempt to transfer it to another account.
+In this lab, we will create a non-transferable token and then see what happens when we try to transfer it. (hint, it will fail the transfer)
 
 ### 1. Getting started
 
@@ -89,9 +113,21 @@ The starter code comes with following file:
 
 `index.ts` has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
 
-### 2. Run validator node
+Go ahead and install and run the script to make sure everything is working properly.
 
-For the sake of this guide, we will be running our own validator node. We do this because sometimes testnet or devnets on Solana can become congested and in turn less reliable.
+```bash
+npm install
+npm run start
+```
+
+If you run into an error in `initializeKeypair` with airdropping, follow the next step.
+
+### 2. Setting up dev environment (optional)
+
+If you are having issues with airdropping devnet sol. You can either:
+
+1. Add the `keypairPath` parameter to `initializeKeypair` and get some devnet sol from [Solana's faucet.](https://faucet.solana.com/)
+2. Run a local validator by doing the following:
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
 
@@ -99,15 +135,9 @@ In a separate terminal, run the following command: `solana-test-validator`. This
 const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
 ```
 
-Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
-
-```tsx
-const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
-```
-
 ### 3. Create a non-transferable mint
 
-We are now going to create the function `createNonTransferableMint` in a new file `src/create-mint.ts`.
+Let's create the function `createNonTransferableMint` in a new file `src/create-mint.ts`.
 
 Inside the file, create the function `createNonTransferableMint` with the following arguments:
 
@@ -115,6 +145,15 @@ Inside the file, create the function `createNonTransferableMint` with the follow
 - `payer` : Payer for the transaction
 - `mintKeypair` : Keypair for new mint
 - `decimals` : Mint decimals
+
+Inside the function, we'll call the following:
+
+- `getMintLen` - to get the space needed for the mint account
+- `getMinimumBalanceForRentExemption` - to get the amount of lamports needed for the mint account
+- `createAccount` - Allocates space on the blockchain for the mint account
+- `createInitializeNonTransferableMintInstruction` - initializes the extension
+- `createInitializeMintInstruction` - initializes the mint
+- `sendAndConfirmTransaction` - sends the transaction to the blockchain
 
 ```tsx
 import {
@@ -182,16 +221,7 @@ export async function createNonTransferableMint(
 Now let's invoke this function in `src/index.ts` to create the non-transferable mint:
 
 ```tsx
-import { Connection, Keypair, LAMPORTS_PER_SOL } from '@solana/web3.js'
-import { initializeKeypair } from '@solana-developers/helpers'
-import dotenv from 'dotenv'
-import { createNonTransferableMint } from './create-mint';
-import { createAccount, mintTo, TOKEN_2022_PROGRAM_ID, transferChecked } from '@solana/spl-token';
-dotenv.config();
-
-/**
-  * Creating a non-transferable token mint
-*/
+// CREATE MINT
 const decimals = 9
 
 await createNonTransferableMint(
@@ -202,63 +232,78 @@ await createNonTransferableMint(
 )
 ```
 
+The script should run with no errors
+
+```bash
+npm run start
+```
+
 The non-transferable mint has been set up correctly and will be created when we run `npm start`. Let’s move on to the next step and create a source account and mint a token to it.
 
 ### 4. Mint token
 
-In `src/index.ts`, we will create a source account and mint one non-transferable token. 
+Let's test that we can't actually transfer tokens created from this mint. To do this, we need to mint a token to an account.
+
+Let's do this in `src/index.ts`. Let's create a source account and mint one non-transferable token. 
+
+We can accomplish this in two functions:
+- `getOrCreateAssociatedTokenAccount`: from the `@solana/spl-token` library, this creates an associated token account (ATA) for the given mint and owner.
+- `mintTo`: This function will mint an `amount` of tokens to the given token account.
 
 ```tsx
-// previous code
-
-/**
-  * Create a source account and mint 1 token to that account
-*/
-console.log('Creating a source account...')
-const sourceKeypair = Keypair.generate()
-const sourceAccount = await createAccount(
+// CREATE PAYER ATA AND MINT TOKEN
+console.log('Creating an Associated Token Account...')
+const ata = (await getOrCreateAssociatedTokenAccount(
   connection,
   payer,
   mint,
-  sourceKeypair.publicKey,
+  payer.publicKey,
   undefined,
-  { commitment: 'finalized' },
+  undefined,
+  undefined,
   TOKEN_2022_PROGRAM_ID
-)
+)).address;
 
 console.log('Minting 1 token...')
-const amount = 1 * LAMPORTS_PER_SOL
+
+const amount = 1 * 10 ** decimals;
 await mintTo(
   connection,
   payer,
   mint,
-  sourceAccount,
+  ata,
   payer,
   amount,
   [payer],
   { commitment: 'finalized' },
   TOKEN_2022_PROGRAM_ID
 );
-const tokenBalance = await connection.getTokenAccountBalance(sourceAccount, 'finalized');
+const tokenBalance = await connection.getTokenAccountBalance(ata, 'finalized');
 
-console.log(`Account ${sourceAccount.toBase58()} now has ${tokenBalance.value.uiAmount} token.`);
+console.log(`Account ${ata.toBase58()} now has ${tokenBalance.value.uiAmount} token.`);
 ```
 
-Run `npm start`. When you run the executable you should see the account address and token amount, similar to this: `Account GDS3HX16WCzSs3z2ehYA9L8tu7hwdbQZCjFVnM3gxTB1 now has 1 token.`
+Run the script and confirm a token has been minted to an account:
 
-This indicates to use that the non-transferable token has been minted to our source account and we can move on to the next section and attempt to transfer it to another account.
+```bash
+npm run start
+```
 
-### 5. Attempt to transfer a non-tranferable token
+### 5. Attempt to transfer a non-transferable token
+
+Lastly, let's try and actually transfer the token somewhere else. First we need to create a token account to transfer to, and then we want to try and transfer.
 
 In `src/index.ts`, we will create a destination account and try to transfer the non-transferable token to this account.
 
-```tsx
-// previous code
+We can accomplish this in two functions:
+- `createAccount`: This will create a token account for a given mint and the keypair of said account. So instead of using an ATA here, let's generate a new keypair as the token account. We're doing this just to show different options of accounts.
+- `transferChecked`: This will attempt to transfer the token.
 
-/**
-  * Creating a destination account for a transfer
-*/
-console.log('Creating a destination account...\\n\\n')
+First, the `createAccount` function:
+
+```tsx
+// CREATE DESTINATION ACCOUNT FOR TRANSFER
+console.log('Creating a destination account...\n\n')
 const destinationKeypair = Keypair.generate()
 const destinationAccount = await createAccount(
   connection,
@@ -271,28 +316,22 @@ const destinationAccount = await createAccount(
 )
 ```
 
-Now we will try and transfer the non-transferable token from the source account to the destination account. This call will fail and throw `SendTransactionError`.
+Now, the `transferChecked` function:
 
 ```tsx
-// previous code
-
-/**
-  * Trying transferring 1 token from source account to destination account.
-  *
-  * Should throw `SendTransactionError`
-*/
+// TRY TRANSFER
 console.log('Attempting to transfer non-transferable mint...')
 try {
   const signature = await transferChecked(
     connection,
     payer,
-    sourceAccount,
+    ata,
     mint,
     destinationAccount,
-    sourceAccount,
+    ata,
     amount,
     decimals,
-    [sourceKeypair, destinationKeypair],
+    [destinationKeypair],
     { commitment: 'finalized' },
     TOKEN_2022_PROGRAM_ID
   )
@@ -301,14 +340,18 @@ try {
   console.log(
     'This transfer is failing because the mint is non-transferable. Check out the program logs: ',
     (e as any).logs,
-    '\\n\\n'
+    '\n\n'
   )
 }
 ```
 
-Now run `npm start`. We should see the console log of transaction failure along with program logs.
+Now let's run everything and see what happens:
 
-Take a look at the following logs. Take note of line that says `Transfer is disabled for this mint`. This is indicating that the token we are attempting to transfer is in fact non-transferable!
+```
+npm run start
+```
+
+You should get an error message at the very end that says `Transfer is disabled for this mint`. This is indicating that the token we are attempting to transfer is in fact non-transferable!
 
 ```bash
 Attempting to transfer non-transferable mint...
