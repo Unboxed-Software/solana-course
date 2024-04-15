@@ -222,7 +222,7 @@ solana config get
 Don't worry about the `metadataFileName` for now. The JSON file will be created by the `helpers.ts` script. The `uploadOffChainMetadata` function from `helpers.ts` will upload the images and the metadata json using the Irys SDK. It returns the token URI for the metadata JSON which will be stored on the mint account.
 
 ### 4. Create member mints
-Now that we have uploaded the members metadata, we can call the `createMember` function in `index.ts` created in step 2.
+Now we will upload the member metadata and then call the `createMember` function in `index.ts` created in step 2.
 
 ```ts
 // UPLOAD MEMBER METADATA AND CREATE MEMBER MINT
