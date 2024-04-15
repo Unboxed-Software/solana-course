@@ -170,7 +170,7 @@ const CLUSTER: Cluster = 'devnet'
 const connection = new Connection(clusterApiUrl(CLUSTER))
 
 const payer = await initializeKeypair(connection, {
-	keypairPath: '/home/aditya-kulkarni/.config/solana/id.json',
+	keypairPath: 'path-to-solana-keypair',
 })
 
 // DEFINE GROUP METADATA
@@ -202,6 +202,12 @@ const collectionTokenMetadata: TokenMetadata = {
 		collectionMetadata.tokenAdditionalMetadata || []
 	).map(([trait_type, value]) => [trait_type, value]),
 }
+```
+
+Replace the `'path-to-solana-keypair'` with the keypair path of the solana wallet installed on your machine. You can check the path of the keypair by running the command:
+
+```bash
+solana config get
 ```
 
 The `uploadOffChainMetadata` function from `helpers.ts` will upload the cover image and the metadata json using the Irys SDK. It returns the token URI for the metadata JSON which will be stored on the mint account.
