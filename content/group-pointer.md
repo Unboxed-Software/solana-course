@@ -153,7 +153,7 @@ Add the following metadata definition in `index.ts`
 
 ```ts
 import {initializeKeypair} from '@solana-developers/helpers'
-import {Cluster, Connection, Keypair, LAMPORTS_PER_SOL} from '@solana/web3.js'
+import {Cluster, Connection, Keypair, , clusterApiUrl, LAMPORTS_PER_SOL} from '@solana/web3.js'
 import dotenv from 'dotenv'
 import {createGroup} from './create-mint'
 import {TokenMetadata} from '@solana/spl-token-metadata'
@@ -167,7 +167,7 @@ const CLUSTER: Cluster = 'devnet'
  * Create a connection and initialize a keypair if one doesn't already exists.
  * If a keypair exists, airdrop a sol if needed.
  */
-const connection = new Connection('http://127.0.0.1:8899')
+const connection = new Connection(clusterApiUrl(CLUSTER))
 
 const payer = await initializeKeypair(connection, {
 	keypairPath: '/home/aditya-kulkarni/.config/solana/id.json',
