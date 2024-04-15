@@ -478,15 +478,15 @@ Let's take a look at what's been provided in the `starter` branch.
 
 Along with the NodeJS project being initialized with all of the needed dependencies, two other files have been provided in the `src/` directory.
 
-- `cat.jpg`
+- `cat.png`
 - `helpers.ts`
 - `index.ts`
 
-**`cat.jpg`** is the image we'll use for the NFT. Feel free to replace it with your own image.
+**`cat.png`** is the image we'll use for the NFT. Feel free to replace it with your own image. Note: we are using Irys on devent to upload files, this is capped at 100 KiB.  
 
 **`helpers.ts`** file provides us with a useful helper function `uploadOffChainMetadata`.
 
-`uploadOffChainMetadata` is a helper to store the off-chain metadata on IPFS using NFT.storage. In this lab we will be more focused on the Token Extension Program interaction, so this uploader function is provided. It is important to note that an NFT or any off-chain metadata can be stored anywhere with any storage provider like [NFT.storage](https://nft.storage/), Solana's native [ShadowDrive](https://www.shdwdrive.com/), or [Irys (Formerly Bundlr)](https://irys.xyz/). At the end of the day, all you need is a url to the hosted metadata json file.
+`uploadOffChainMetadata` is a helper to store the off-chain metadata on Arweave using Irys (Formerly Bundlr). In this lab we will be more focused on the Token Extension Program interaction, so this uploader function is provided. It is important to note that an NFT or any off-chain metadata can be stored anywhere with any storage provider like [NFT.storage](https://nft.storage/), Solana's native [ShadowDrive](https://www.shdwdrive.com/), or [Irys (Formerly Bundlr)](https://irys.xyz/). At the end of the day, all you need is a url to the hosted metadata json file.
 
 This helper has some exported interfaces. These will clean up our functions as we make them.
 ```ts
@@ -506,6 +506,7 @@ export interface UploadOffChainMetadataInputs {
   tokenExternalUrl: string;
   tokenAdditionalMetadata?: Record<string, string>;
   imagePath: string;
+	metadataFileName: string;
 }
 ```
 
@@ -513,43 +514,17 @@ export interface UploadOffChainMetadataInputs {
 
 The keypair `payer` will be responsible for every payment we need throughout the whole process. `payer` will also hold all the authorities, like the mint authority, mint freeze authority, etc. While it's possible to use a distinct keypair for the authorities, for simplicity's sake, we'll continue using `payer`.
 
-Lastly, we recommend to use your [own local validator](https://docs.solanalabs.com/cli/examples/test-validator). If you do, be sure to change the Connection constructor to something like this:
-```ts
-  const connection = new Connection('http://127.0.0.1:8899', 'finalized');
-```
+Lastly, this lab will all be done on devnet. This is because we are using Irys to upload metadata to Arweave - the requires a devnet or mainnet connection. If you are running into airdropping problems:
 
-Now, run `npm run start` in your terminal to see that everything has been set up properly. You should get the following output:
-
-```bash
-> Finished successfully
-```
-
-If the air dropping fails, consider running a local validator.
-
-## 0.5 Setup NFT.Storage
-
-Before we can make our NFT we need a place to store the image and metadata json file. We'll do this with [NFT.Storage](https://nft.storage/), which requires a little setup.
-
-1. Create a free account at [NFT.Storage](https://nft.storage/)
-2. Generate a new API Key
-3. Paste in the API key in `.env.example`
-
-```env
-NFT_STORAGE_API_KEY=YOUR_KEY_HERE
-```
-
-4. Copy `.env.example` to `.env`
-```bash
-cp .env .env.example
-```
-
-This enables our `uploadOffChainMetadata` in `helpers.ts` to upload metadata to NFT.Storage.
+- Add the `keypairPath` parameter to `initializeKeypair` - path can be gotten by running `solana config get` in your terminal
+- Get the address of your keypair by running `solana address` in your terminal
+- Copy the address and airdrop some devnet sol from [faucet.solana](https://faucet.solana.com/).
 
 ## 1. Uploading the off-chain metadata
 
 In this section we will decide on our NFT metadata and upload our files to NFT.Storage using the helper functions provided in the starting code.
 
-In order to upload our off-chain metadata, we need to first prepare an image that will represent our NFT. We've provided `cat.jpg`, but feel free to replace it with your own. Most image types are supported by most wallets.
+In order to upload our off-chain metadata, we need to first prepare an image that will represent our NFT. We've provided `cat.png`, but feel free to replace it with your own. Most image types are supported by most wallets. (Again devenet Irys allows up to 100KiB per file)
 
 Next, let's decide on what metadata our NFT will have. The fields we are deciding on are `name`, `description`, `symbol`, `externalUrl`, and some `attributes` (additional metadata). We'll provide some cat adjacent metadata, but feel free to make up your own.
 
@@ -571,9 +546,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 (async () => {
-  const connection = new Connection('http://127.0.0.1:8899', 'finalized');
-  const payer = await initializeKeypair(connection);
-  const imagePath = 'src/cat.jpg';
+  const connection = new Connection(clusterApiUrl('devnet'), 'finalized');
+  const payer = await initializeKeypair(connection, {keypairPath: 'your/path/to/keypair.json'});
+
+  const imagePath = 'src/cat.png';
+  const metadataPath = 'src/temp.json';
   const tokenName = 'Cat NFT';
   const tokenDescription = 'This is a cat';
   const tokenSymbol = 'EMB';
@@ -588,9 +565,10 @@ dotenv.config();
     tokenDescription,
     tokenSymbol,
     imagePath,
+    metadataPath,
     tokenExternalUrl,
     tokenAdditionalMetadata,
-  });
+  }, payer);
 
   // You can log the URI here and run the code to test it
   console.log('Token URI:', tokenUri);
