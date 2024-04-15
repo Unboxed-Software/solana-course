@@ -213,6 +213,12 @@ const membersMetadata = [
 ]
 ```
 
+Replace the `'path-to-solana-keypair'` with the keypair path of the solana wallet installed on your machine. You can check the path of the keypair by running the command:
+
+```bash
+solana config get
+```
+
 Don't worry about the `metadataFileName` for now. The JSON file will be created by the `helpers.ts` script. The `uploadOffChainMetadata` function from `helpers.ts` will upload the images and the metadata json using the Irys SDK. It returns the token URI for the metadata JSON which will be stored on the mint account.
 
 ### 4. Create member mints
