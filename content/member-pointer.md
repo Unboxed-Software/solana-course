@@ -12,7 +12,7 @@ To get started, clone [this](https://github.com/Unboxed-Software/solana-lab-memb
 
 ```bash
 git clone https://github.com/Unboxed-Software/solana-lab-member-pointer.git
-cd solana-lab-member-extension
+cd solana-lab-member-pointer
 git checkout starter
 npm install
 ```
