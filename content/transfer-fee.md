@@ -7,8 +7,7 @@ objectives:
 ---
 
 # Summary
- - Token program did not allow assessing fees on transfers
- - Token Extension Program enforces transfer fees on recipient accounts
+ - The Token Extension Program's `transfer fee` extension allows fees to be withheld on every transfer. These fees are held on the recipient's account. They can only be redeemed from the 
  - Some tokens are withheld on the recipient account. These withheld tokens cannot be used by the recipient in any way
  - Withheld tokens can be withdrawn directly from the recipient accounts or can be harvested back to the mint and then withdrawn
 
