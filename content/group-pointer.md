@@ -4,10 +4,86 @@ objectives:
  - Create a group mint pointing to itself
 ---
 
-# Lab
-For this lab, we will be creating a Cool Cats NFT collection. We will create a mint with the group pointer extension. The group information will be stored on the mint itself.
+# Summary
 
-### 1. Getting Started
+ - **Group Pointer** allows us to designate a group account that describes the mint.
+ - Unlike metadata, it describes the configurations for the group.
+ - The pointer can point to a dedicated group account or the mint itself.
+
+# Overview
+In the Token Program, we used metadata to describe any token, be it a collection or a individual token. In the Token22 program, the group pointer extension allows us to designate a group account that describes the mint. But, this is not like our usual metadata description. The group account describes the configurations for grouping tokens together.
+
+The Token22 mint possessing a group pointer is known as a group mint, just like a collection NFT. These group mints have configurations which allow them to be used as a point of reference for a related set of tokens. This extension is really useful when it comes to managing tokens which are closely related to each other. This extension allows us to set mint authority, update authority and max size of the group. Max size is the maximum number of members said group can have. These configurations give us more control over the token.
+
+The group pointer extension can point to a separate token account or it can point to the mint itself. If the pointer is pointing to the mint itself, a client must check that the mint and the group both point to each other.
+
+## Creating a mint with group pointer
+
+Creating a mint with a group pointer involves four instructions:
+ - `SystemProgram.createAccount`
+ - `createInitializeGroupPointerInstruction`
+ - `createInitializeMintInstruction`
+ - `createInitializeGroupInstruction`
+
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
+ - Allocates `space`
+ - Transfers `lamports` for rent
+ - Assigns to it's owning program
+
+```ts
+SystemProgram.createAccount({
+	fromPubkey: payer.publicKey,
+	newAccountPubkey: mintKeypair.publicKey,
+	space: mintLength,
+	lamports: mintLamports,
+	programId: TOKEN_2022_PROGRAM_ID,
+})
+```
+
+The second instruction `createInitializeGroupPointerInstruction` initializes the group pointer. It takes the mint, optional authority that can set the group address, address that holds the group and the owning program as it's arguments.
+
+```ts
+createInitializeGroupPointerInstruction(
+	mintKeypair.publicKey,
+	payer.publicKey,
+	mintKeypair.publicKey,
+	TOKEN_2022_PROGRAM_ID
+)
+```
+
+The third instruction `createInitializeMintInstruction` initializes the mint.
+
+```ts
+createInitializeMintInstruction(
+	mintKeypair.publicKey,
+	decimals,
+	payer.publicKey,
+	payer.publicKey,
+	TOKEN_2022_PROGRAM_ID
+)
+```
+
+The fourth instruction `createInitializeGroupInstruction` actually initializes the group and stores the configuration on the group account.
+
+```ts
+createInitializeGroupInstruction({
+	group: mintKeypair.publicKey,
+	maxSize: maxMembers,
+	mint: mintKeypair.publicKey,
+	mintAuthority: payer.publicKey,
+	programId: TOKEN_2022_PROGRAM_ID,
+	updateAuthority: payer.publicKey,
+})		
+```
+
+Please remember that the `createInitializeGroupInstruction` assumes that the mint has already been initialized.
+
+
+
+# Lab
+For this lab, we will be creating a Cool Cats NFT collection. We will create a mint with the group pointer and metadata pointer extensions. The group information will be stored on the mint itself.
+
+### 1. Getting started
 To get started, clone [this](https://github.com/Unboxed-Software/solana-lab-group-extension) repository's `starter` branch.
 
 ```bash
@@ -28,7 +104,13 @@ We are now going to create the function `createGroup` in a new file `src/create-
 
 This new mint will be created with group pointer and metadata extension. The group pointer address will be the mint itself. It means, we will store the group related information on the mint account itself. The metadata extension will be used to store the metadata about our collection.
 
-When creating a mint with group pointer and metadata extension, we need six instructions: `SystemProgram.createAccount`, `createInitializeGroupPointerInstruction`, `createInitializeMetadataPointerInstruction`, `createInitializeMintInstruction`, `createInitializeGroupInstruction`, `createInitializeInstruction`.
+Since we are creating the mint with group and metadata pointer extensions, in addition to the four instructions mentioned above we need two more for the metadata pointer extension:
+ - `SystemProgram.createAccount`
+ - `createInitializeGroupPointerInstruction`
+ - `createInitializeMetadataPointerInstruction`
+ - `createInitializeMintInstruction`
+ - `createInitializeGroupInstruction`
+ - `createInitializeInstruction`.
 
 Add the `createGroup` function with following arguments:
  - `connection` : The connection object
