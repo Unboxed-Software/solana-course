@@ -4,6 +4,76 @@ objectives:
  - Create NFT mints with member pointer
 ---
 
+# Summary
+ - Allows token creator to designate a member account.
+ - Describes configurations for a mint's membership.
+
+# Overview
+Similar to metadata pointer or group pointer, the member pointer allows us to designate a account that describes the mint. This pointer describes configurations for a mint's membership of a group.
+
+A mint with a member pointer is known as the member mint. The member pointer makes the mint a member of the specified group, just like an NFT belongs to a collection. The member pointer can point to a dedicated account or to the mint itself. Again similar to group pointer, a client must check that the mint and the member point to each other.
+
+## Creating a mint with member pointer
+
+Creating a mint with a member pointer involves four instructions:
+ - `SystemProgram.createAccount`
+ - `createInitializeGroupMemberPointerInstruction`
+ - `createInitializeMintInstruction`
+ - `createInitializeMemberInstruction`
+
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
+
+ - Allocates `space`
+ - Transfers `lamports` for rent
+ - Assigns to it's owning program
+
+```ts
+SystemProgram.createAccount({
+	fromPubkey: payer.publicKey,
+	newAccountPubkey: mintKeypair.publicKey,
+	space: mintLength,
+	lamports: mintLamports,
+	programId: TOKEN_2022_PROGRAM_ID,
+})
+```
+The second instructions `createInitializeGroupMemberPointerInstruction` initializes a member pointer. It takes the mint, an optional authority that can set the member address, member account address and the owning program as arguments.
+
+```ts
+createInitializeGroupMemberPointerInstruction(
+	mintKeypair.publicKey,
+	payer.publicKey,
+	mintKeypair.publicKey,
+	TOKEN_2022_PROGRAM_ID
+)
+```
+
+The third instruction `createInitializeMintInstruction` initializes the mint.
+
+```ts
+createInitializeMintInstruction(
+	mintKeypair.publicKey,
+	decimals,
+	payer.publicKey,
+	payer.publicKey,
+	TOKEN_2022_PROGRAM_ID
+)
+```
+
+The fourth instruction `createInitializeMemberInstruction` actually initializes the member and stores the configuration on the member account.
+
+```ts
+createInitializeMemberInstruction({
+	group: groupAddress,
+	groupUpdateAuthority: payer.publicKey,
+	member: mintKeypair.publicKey,
+	memberMint: mintKeypair.publicKey,
+	memberMintAuthority: payer.publicKey,
+	programId: TOKEN_2022_PROGRAM_ID,
+})
+```
+
+Please remember that the `createInitializeMemberInstruction` assumes that the member mint and the group have already been initialized.
+
 # Lab
 For this lab, we will create three member mints which will be part of the group we created in the Group Pointer lesson.
 
