@@ -7,14 +7,18 @@ objectives:
 
 # Summary
  - The original Token Program only allowed closing token accounts, but not mint accounts.
- - Token Extension Program includes `MintCloseAuthority` extension which allows mint accounts to be closed.
- - For a mint with the `MintCloseAuthority` extension, all supply of the mint needs to be burned first.
+ - Token Extensions Program includes the `close mint` extension which allows mint accounts to be closed.
+ - To close a mint with the `close mint` extension, the supply of said mint needs to be 0.
 
 # Overview
-The original Token Program only allows owners to close token accounts, but it is impossible to close mint accounts. In the Token Extension Program, it is possible to close mint accounts that are initialized with the `MintCloseAuthority` extension.
 
-This is a nice improvement for developers, who may have thousands of mint accounts that could be cleaned up and be refunded for. Additionally, users who decide to burn their NFTs can now recoup the entire rent cost, since they can now also close the mint account.
+The original Token Program only allows owners to close token accounts, not mint accounts. So if you create a mint, you'll never be able to close the account. This has resulted in a lot of wasted space on the blockchain. To remedy this, the Token Extensions Program introduced the `close mint` extension. This simply allows a mint account to be closed and the lamports refunded. The only caveat, is the supply of said mint needs to be 0.
 
+This extension is a nice improvement for developers, who may have thousands of mint accounts that could be cleaned up and be refunded for. Additionally it's great for NFT holders who wish to burn their NFT. They will not be able to recuperate all of the costs, ie closing the mint, metadata and token accounts. Whereas before, if someone burned an NFT would only recuperate the metadata and token account's rents.
+
+The `close mint` extension, adds an additional field `MintCloseAuthority` to the mint account. This is the address of the authority to actually close the account.
+
+Again, for a mint to be closed with this extension, the supply has to be 0. So if any of this token is minted, it will have to be burned first.
 
 ## Create Mint with Close Authority
 
@@ -23,16 +27,16 @@ Initializing the mint with the close authority extension involves three instruct
  - `createInitializeMintCloseAuthorityInstruction`
  - `createInitializeMintInstruction`
 
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extension Program mints, we need to calculate the size of the mint. This can be accomplished by using `getMintLen`, passing it an array of extensions that will be used with the mint. For our purposes, we include the MintCloseAuthority extension to enable closing of the mint account. 
-
-This block of code effectively calculates the necessary space for the mint account by including specific extensions that affect the account's data size, ensuring the mint has enough space allocated for its features before creating the mint account.
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extensions Program mints, we need to calculate the size and cost of the mint. This can be accomplished by using `getMintLen` and `getMinimumBalanceForRentExemption`. In this case, we'll call `getMintLen` with only the `ExtensionType.MintCloseAuthority`.
 
 To get the mint length and create account instruction, do the following:
 ```ts
-
 // get mint length
 const extensions = [ExtensionType.MintCloseAuthority]
 const mintLength = getMintLen(extensions)
+
+const mintLamports =
+	await connection.getMinimumBalanceForRentExemption(mintLength)
 
 const createAccountInstruction = SystemProgram.createAccount({
 	fromPubkey: payer,
@@ -43,7 +47,10 @@ const createAccountInstruction = SystemProgram.createAccount({
 })
 ```
 
-The second instruction `createInitializeMintCloseAuthorityInstruction` initializes the close authority extension.
+The second instruction `createInitializeMintCloseAuthorityInstruction` initializes the close authority extension. The only notable parameter is the `mintCloseAuthority` in the second position. This is the address that can close the mint. 
+
+Note: This authority is not updatable 
+
 ```ts
 
 const initializeMintCloseAuthorityInstruction = createInitializeMintCloseAuthorityInstruction(
@@ -53,7 +60,7 @@ const initializeMintCloseAuthorityInstruction = createInitializeMintCloseAuthori
 )
 ```
 
-The third instruction `createInitializeMintInstruction` initializes the mint.
+The last instruction `createInitializeMintInstruction` initializes the mint.
 ```ts
 const initializeMintInstruction = createInitializeMintInstruction(
 	mint,
@@ -82,12 +89,44 @@ const signature = await sendAndConfirmTransaction(
 
 When the transaction is sent, a new mint account is created with the specified close authority.
 
-
 ## Close Mint with Close Authority
-When attempting to close a mint account, it is essential that all tokens issued from this account have been returned or burned, reducing the supply to zero. If any tokens remain in circulation (i.e., the supply is not zero), the attempt to close the mint will be blocked, and the program will issue an error message indicating that the account cannot be closed until the supply is zero.
+
+To close a mint with the `close mint` extension, all that is needed is to call the `closeAccount` function. 
+
+Remember, that to close the mint account, the total supply has to be 0. So if any tokens exist, they have to be burned first. You can do this with the `burn` function.
+
+Note: The `closeAccount` function works for mints and token accounts alike.
+
+```ts
+// burn tokens to 0
+const burnSignature = await burn(
+	connection, // connection - Connection to use
+	payer, // payer -Payer of the transaction fees
+	sourceAccount, // account - Account to burn tokens from 
+	mintKeypair.publicKey, // mint - Mint for the account
+	sourceKeypair, // owner - Account owner
+	sourceAccountInfo.amount, // amount -  Amount to burn
+	[], // multiSigners - Signing accounts if `owner` is a multisig
+	{ commitment: 'finalized' }, // confirmOptions - Options for confirming the transaction
+	TOKEN_2022_PROGRAM_ID // programId - SPL Token program account
+)
+
+// account can be closed as total supply is now 0
+await closeAccount(
+	connection, // connection - Connection to use
+	payer, // payer - Payer of the transaction fees
+	mintKeypair.publicKey, // account - Account to close
+	payer.publicKey, // destination - Account to receive the remaining balance of the closed account
+	payer, // authority - Authority which is allowed to close the account
+	[], // multiSigners - Signing accounts if `authority` is a multisig
+	{ commitment: 'finalized' }, // confirmOptions - Options for confirming the transaction
+	TOKEN_2022_PROGRAM_ID // programIdSPL Token program account
+)
+```
 
 # Lab
-We will proceed to create a mint with the close authority extension. Following this, we will explore the process of attempting to close the mint while its supply is not zero, to demonstrate how the system handles such scenarios. Afterward, we will burn all existing tokens to reduce the supply to zero and then successfully close the mint account.
+
+In this lab, we'll create a mint with the `close mint` extension. We will then mint some of the tokens and see what happens when we try to close it with a non-zero supply (hint, the close transaction will fail). Lastly, we will burn the supply and close the account.
 
 ## 1. Getting Started
 
@@ -107,7 +146,7 @@ The starter code comes with following file:
 
 ### 2. Run validator node
 
-For the sake of this guide, we will be running our own validator node. We do this because sometimes testnet or devnets on Solana can become congested and in turn less reliable.
+For the sake of this guide, we'll be running our own validator node.
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
 
@@ -121,18 +160,29 @@ Alternatively, if you’d like to use testnet or devnet, import the `clusterApiU
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
 
+If you decide to use devnet, and have issues with airdropping sol. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some sol to your address. You can get your address from running `solana address` in your terminal.
+
 ## 3. Create a mint with close authority
 
-We are now going to create the function `createClosableMint` in a new file `src/create-mint.ts`.
+Let's create a closable mint by creating the function `createClosableMint` in a new file `src/create-mint.ts`.
 
-When creating a mint with close authority, we need three instructions: `SystemProgram.createAccount`, `createInitializeMintCloseAuthorityInstruction`, `createInitializeMintInstruction`.
+To create a closable mint, we need several instructions: 
 
-Add the `createClosableMint` with the following arguments:
-- `connection` : The connection object
-- `payer` : Payer for the transaction
-- `mintKeypair` : Keypair for new mint
-- `decimals` : Mint decimals
+- `getMintLen`: Gets the space needed for the mint account
+- `SystemProgram.getMinimumBalanceForRentExemption`: Tells us the cost of the rent for the mint account
+- `SystemProgram.createAccount`: Creates the instruction to allocates space on Solana for the mint account
+- `createInitializeMintCloseAuthorityInstruction`: Creates the instruction to initialize the close mint extension - this takes the `closeMintAuthority` as a parameter.
+- `createInitializeMintInstruction`: Creates the instruction to initialize the mint
+- `sendAndConfirmTransaction`: Sends the transaction to the blockchain
 
+We'll call all of these functions in turn. But before that, let's define the inputs to our `createClosableMint` function:
+- `connection: Connection` : The connection object
+- `payer: Keypair` : Payer for the transaction
+- `mintKeypair: Keypair` : Keypair for new mint
+- `decimals: number` : Mint decimals
+
+
+Putting it all together we get:
 ```ts
 import {
 	sendAndConfirmTransaction,
@@ -197,48 +247,36 @@ export async function createClosableMint(
 	return signature
 }
 ```
-Now let's call this function in `src/index.ts`:
+
+Now let's call this function in `src/index.ts`. First you'll need to import our new function. Then paste the following under the right comment section:
 
 ```ts
-import {
-	Connection,
-	Keypair,
-	LAMPORTS_PER_SOL,
-} from '@solana/web3.js'
-import { initializeKeypair } from '@solana-developers/helpers'
-import { createClosableMint } from './create-mint'
-import {
-	TOKEN_2022_PROGRAM_ID,
-	burn,
-	closeAccount,
-	createAccount,
-	getAccount,
-	getMint,
-	mintTo,
-} from '@solana/spl-token'
-import dotenv from 'dotenv'
-dotenv.config()
-
-// previous code
-
-/**
- * Creating a mint with close authority
-*/
+// CREATE A MINT WITH CLOSE AUTHORITY
 const decimals = 9
 
 await createClosableMint(connection, payer, mintKeypair, decimals)
 ```
+
 This will create a transaction with close mint instruction.
 
+Feel free to run this and check that everything is working:
+
+```bash
+npm run start
+```
+
 ## 4. Closing the mint
-Remember, when closing a mint, the supply must be zero. If we try to close the mint when supply is non-zero, the program will throw an error. We will mint 1 token from this mint, and try to close the mint account.
+
+We're going to close the mint, but first, lets explore what happens when we have a supply when trying to close (hint, it'll fail). 
+
+To do this, we are going to mint some tokens, try to close, then burn the tokens and then actually close.
 
 ### 4.1 Mint a token
 In `src/index.ts`, create an account and mint 1 token to that account.
 
+We can accomplish this by calling 2 functions: `createAccount` and `mintTo`:
 ```ts
-// previous code
-
+// MINT TOKEN
 /**
  * Creating an account and mint 1 token to that account
 */
@@ -272,7 +310,7 @@ await mintTo(
 Now we can verify that the mint supply is non-zero by fetching the mint info. Underneath the minting functions, add the following code block:
 
 ```ts
-// previous code
+// VERIFY SUPPLY
 /**
  * Get mint information to verify supply
 */
@@ -284,16 +322,24 @@ const mintInfo = await getMint(
 )
 console.log("Initial supply: ", mintInfo.supply)
 ```
-Now we can run `npm start`. We will see the mint's initial supply logged into the terminal.
-`Initial supply:  1000000000n` 
+
+Let's run the script and check the initial supply:
+
+```bash
+npm run start
+```
+
+You should see the following in your terminal:
+
+```bash
+Initial supply:  1000000000n
+```
 
 ### 4.2 Closing the mint with non zero supply
 
-Now we will attempt to close the mint when supply is non-zero.
-
+Now we'll attempt to close the mint when supply is non-zero. We know this is going to fail, since the `close mint` extension requires a non-zero supply. So to see the resulting error message, we'll wrap the `closeAccount` function in a try catch and log out the error:
 ```ts
-// previous code
-
+// TRY CLOSING WITH NON ZERO SUPPLY
 /**
  * Try closing the mint account when supply is not 0
  *
@@ -318,14 +364,24 @@ try {
 	)
 }
 ```
-Now we can run `npm start`. We will see that the program throws an error along with the program logs. The error displayed will be `Close account fails here because the supply is not zero.` meaning that the extension is enforcing that the supply must be zero before closing.
+
+Give this a run:
+```bash
+npm run start
+```
+
+We'll see that the program throws an error along with the program logs. You should see the following:
+
+```bash
+Close account fails here because the supply is not zero.
+```
 
 ### 4.3 Burning the supply
 
-Now we will burn the supply of the mint to bring the supply back to zero.
+Let's burn the whole supply so we can actually close the mint. We do this by calling `burn`:
 
 ```ts
-// previous code
+// BURN SUPPLY
 const sourceAccountInfo = await getAccount(
 	connection,
 	sourceAccount,
@@ -346,59 +402,64 @@ const burnSignature = await burn(
 	TOKEN_2022_PROGRAM_ID
 )
 ```
-In the next section we will be logging out the account information of the mint to ensure that the tokens have been burned. 
 
 ### 4.4 Close the mint
-With no tokens in circulation, we can now close the mint. 
+With no tokens in circulation, we can now close the mint. At this point, we can simply call `closeAccount`, however, for the sake of visualizing how this works, we'll do the following:
 
-Let's review the following steps outlined in the rest of the script:
+	- Retrieve Mint Information: Initially, we fetch and inspect the mint's details, particularly focusing on the supply, which should be zero at this stage. This shows that the mint is eligible to be closed.
 
-	- Retrieve Mint Information: Initially, we fetch and inspect the mint's details, particularly focusing on the supply, which should be zero at this stage. This ensures that the mint is eligible to be closed.
-
-	- Verify Account Status: Next, we confirm the status of the account to ensure that it is still open and active. This check is crucial before proceeding with any closure operations.
+	- Verify Account Status: Next, we confirm the status of the account to ensure that it is still open and active.
 
 	- Close the Account: Once we've verified the account's open status, we proceed to close the mint account.
 
 	- Confirm Closure: Finally, after invoking the `closeAccount` function, we check the account status once more to confirm that it has indeed been closed successfully.
 
-These steps help ensure that the process of closing a mint account is handled correctly and that all necessary conditions are met before the account is permanently deactivated.
+We can accomplish all of this with the following functions:
+- `getMint`: Grabs the mint account and deserializes the information
+- `getAccountInfo`: Grabs the mint account, so we can check it exists - we'll call this before and after the close.
+- `closeAccount`: Closes the mint
+
+Putting this all together we get:
 
 ```ts
-// previous code
-/**
- * Try closing the mint account when supply is 0
-*/
-try {
-	const mintInfo = await getMint(
-		connection,
-		mintKeypair.publicKey,
-		'finalized',
-		TOKEN_2022_PROGRAM_ID
-	)
+// CLOSE MINT
+const mintInfo = await getMint(
+	connection,
+	mintKeypair.publicKey,
+	'finalized',
+	TOKEN_2022_PROGRAM_ID
+)
 
-	console.log("After burn supply: ", mintInfo.supply)
-	let accountInfo = await connection.getAccountInfo(mintKeypair.publicKey, 'finalized');
-	console.log("Account closed? ", accountInfo === null)
-	console.log('Closing account after burning the supply...')
-	const closeSignature = await closeAccount(
-		connection,
-		payer,
-		mintKeypair.publicKey,
-		payer.publicKey,
-		payer,
-		[],
-		{ commitment: 'finalized' },
-		TOKEN_2022_PROGRAM_ID
-	)
+console.log("After burn supply: ", mintInfo.supply)
 
-	accountInfo = await connection.getAccountInfo(mintKeypair.publicKey, 'finalized');
+const accountInfoBeforeClose = await connection.getAccountInfo(mintKeypair.publicKey, 'finalized');
 
-	console.log("Account closed? ", accountInfo === null)
-} catch (e) {
-	console.log(e)
-}
+console.log("Account closed? ", accountInfoBeforeClose === null)
+
+console.log('Closing account after burning the supply...')
+const closeSignature = await closeAccount(
+	connection,
+	payer,
+	mintKeypair.publicKey,
+	payer.publicKey,
+	payer,
+	[],
+	{ commitment: 'finalized' },
+	TOKEN_2022_PROGRAM_ID
+)
+
+const accountInfoAfterClose = await connection.getAccountInfo(mintKeypair.publicKey, 'finalized');
+
+console.log("Account closed? ", accountInfoAfterClose === null)
 ```
-Run `npm start` once more. It'll display what's happening with the mint's supply before and after we burn it, and also let you know if the account is still open before we close it and confirm it's closed afterwards.
+
+Run the script one last time.
+
+```bash
+npm run start
+```
+
+You should see the whole process of creating a closable mint, minting a token, trying to close, burning the token, and finally closing the account.
 
 That's it! We have successfully created a mint with close authority. If you get stuck at any point, you can find working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-close-mint-account.git).
 
