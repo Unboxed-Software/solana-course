@@ -25,13 +25,18 @@ Creating a mint with a group pointer involves four instructions:
  - `createInitializeMintInstruction`
  - `createInitializeGroupInstruction`
 
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
- - Allocates `space`
- - Transfers `lamports` for rent
- - Assigns to it's owning program
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extensions Program mints, we need to calculate the size and cost of the mint. This can be accomplished by using `getMintLen` and `getMinimumBalanceForRentExemption`. In this case, we'll call `getMintLen` with only the `ExtensionType.MintCloseAuthority`.
+
+To get the mint length and create account instruction, do the following:
 
 ```ts
-SystemProgram.createAccount({
+// get mint length
+const extensions = [ExtensionType.MintCloseAuthority]
+const mintLength = getMintLen(extensions)
+
+const mintLamports = await connection.getMinimumBalanceForRentExemption(mintLength)
+
+const createAccountInstruction = SystemProgram.createAccount({
 	fromPubkey: payer.publicKey,
 	newAccountPubkey: mintKeypair.publicKey,
 	space: mintLength,
@@ -43,7 +48,7 @@ SystemProgram.createAccount({
 The second instruction `createInitializeGroupPointerInstruction` initializes the group pointer. It takes the mint, optional authority that can set the group address, address that holds the group and the owning program as it's arguments.
 
 ```ts
-createInitializeGroupPointerInstruction(
+const initializeGroupPointerInstruction = createInitializeGroupPointerInstruction(
 	mintKeypair.publicKey,
 	payer.publicKey,
 	mintKeypair.publicKey,
@@ -54,7 +59,7 @@ createInitializeGroupPointerInstruction(
 The third instruction `createInitializeMintInstruction` initializes the mint.
 
 ```ts
-createInitializeMintInstruction(
+const initializeMintInstruction = createInitializeMintInstruction(
 	mintKeypair.publicKey,
 	decimals,
 	payer.publicKey,
@@ -66,7 +71,7 @@ createInitializeMintInstruction(
 The fourth instruction `createInitializeGroupInstruction` actually initializes the group and stores the configuration on the group account.
 
 ```ts
-createInitializeGroupInstruction({
+const initializeGroupInstruction = createInitializeGroupInstruction({
 	group: mintKeypair.publicKey,
 	maxSize: maxMembers,
 	mint: mintKeypair.publicKey,
@@ -78,6 +83,61 @@ createInitializeGroupInstruction({
 
 Please remember that the `createInitializeGroupInstruction` assumes that the mint has already been initialized.
 
+Finally, we add the instructions to the transaction and submit it to the Solana network.
+```ts
+const mintTransaction = new Transaction().add(
+	createAccountInstruction,
+	initializeGroupPointerInstruction,
+	initializeMintInstruction,
+	initializeGroupInstruction
+)
+
+const signature = await sendAndConfirmTransaction(
+	connection,
+	mintTransaction,
+	[payer, mintKeypair],
+	{commitment: 'finalized'}
+)
+```
+When the transaction is sent, a new mint with a group pointer pointing to the specified group address will be created.
+
+## Update group authority
+
+To update the authority of a group, we just need the `tokenGroupUpdateGroupAuthority` function.
+
+```ts
+import {tokenGroupUpdateGroupAuthority} from "@solana/spl-token"
+
+const signature = await tokenGroupUpdateGroupAuthority(
+	connection, //connection - Connection to use
+	payer, // payer - Payer for the transaction fees
+	mint.publicKey, // mint - Group mint
+	oldAuthority, // account - Public key of the old update authority
+	newAuthority, // account - Public key of the new update authority
+	undefined, // multiSigners - Signing accounts if `authority` is a multisig
+	{commitment: 'finalized'}, // confirmOptions - Options for confirming thr transaction
+	TOKEN_2022_PROGRAM_ID // programId - SPL Token program account
+)
+```
+
+## Update max size of a group
+
+To update the max size of a group we just need the `tokenGroupUpdateGroupMaxSize` function.
+
+```ts
+import {tokenGroupUpdateGroupMaxSize} from "@solana/spl-token"
+
+const signature = tokenGroupUpdateGroupMaxSize(
+	connection, //connection - Connection to use
+	payer, // payer - Payer for the transaction fees
+	mint.publicKey, // mint - Group mint
+	updpateAuthority, // account - Update authority of the group
+	4, // maxSize - new max size of the group
+	undefined, // multiSigners — Signing accounts if `authority` is a multisig
+	{commitment: "finalized"}, // confirmOptions - Options for confirming thr transaction
+	TOKEN_2022_PROGRAM_ID // programId - SPL Token program account
+)
+```
 
 
 # Lab
@@ -104,15 +164,18 @@ We are now going to create the function `createGroup` in a new file `src/create-
 
 This new mint will be created with group pointer and metadata extension. The group pointer address will be the mint itself. It means, we will store the group related information on the mint account itself. The metadata extension will be used to store the metadata about our collection.
 
-Since we are creating the mint with group and metadata pointer extensions, in addition to the four instructions mentioned above we need two more for the metadata pointer extension:
- - `SystemProgram.createAccount`
- - `createInitializeGroupPointerInstruction`
- - `createInitializeMetadataPointerInstruction`
- - `createInitializeMintInstruction`
- - `createInitializeGroupInstruction`
- - `createInitializeInstruction`.
+Since we are creating the mint with group and metadata pointer extensions, we need some additional instructions:
+- `getMintLen`: Gets the space needed for the mint account
+- `SystemProgram.getMinimumBalanceForRentExemption`: Tells us the cost of the rent for the mint account
+ - `SystemProgram.createAccount`: Creates the instruction to allocates space on Solana for the mint account
+ - `createInitializeGroupPointerInstruction`: Create the instruction to initialize the group pointer
+ - `createInitializeMetadataPointerInstruction`: Create the instruction to initialize the metadata pointer
+ - `createInitializeMintInstruction`: Creates the instruction to initialize the mint
+ - `createInitializeGroupInstruction`: Creates the instruction to initialize the group
+ - `createInitializeInstruction`: Creates the instruction to initialize the metadata
+ - `sendAndConfirmTransaction`: Sends the transaction to the blockchain
 
-Add the `createGroup` function with following arguments:
+We'll call all of these functions in turn. But before that let's define the inputs to our `createGroup` function:
  - `connection` : The connection object
  - `payer` : Payer for the transactions
  - `mintKeypair` : Keypair of the group mint
@@ -231,22 +294,9 @@ export async function createGroup(
 ### 3. Define collection metadata
 Now, we will define our collection metadata. The metadata object will contain typical information about the NFT such as token name, symbol, etc.
 
-Add the following metadata definition in `index.ts`
+Paste the following metadata definition in `index.ts` under the right comment section:
 
 ```ts
-import {initializeKeypair} from '@solana-developers/helpers'
-import {Cluster, Connection, Keypair, , clusterApiUrl} from '@solana/web3.js'
-import dotenv from 'dotenv'
-import {createGroup} from './create-mint'
-import {TokenMetadata} from '@solana/spl-token-metadata'
-import {uploadOffChainMetadata} from './helpers'
-
-dotenv.config()
-
-const CLUSTER: Cluster = 'devnet'
-
-// ...rest of the index.ts
-
 // DEFINE GROUP METADATA
 const collectionMintKeypair = Keypair.generate()
 
@@ -289,9 +339,10 @@ The `uploadOffChainMetadata` function from `helpers.ts` will upload the cover im
 ### 4. Create the mint
 Now that we have uploaded the collection metadata, we can call the `createGroup` function in `index.ts` created in step 2.
 
+First you'll need to import our new function. Then paste the following under the right comment section:
+
 ```ts
 // CREATE GROUP MINT
-
 const decimals = 0
 const maxMembers = 3
 
