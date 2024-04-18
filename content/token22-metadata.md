@@ -8,7 +8,7 @@ objectives:
 
 # Summary
 - The `metadata pointer` extension associates a token mint directly to a metadata account. This happens by storing the metadata account's address in the mint. This metadata account address can be an external metadata account, like Metaplex, or can be the mint itself if using the `metadata` extension.
-- The `metadata` mint extension allows embedding of metadata directly into mint accounts through the Token Extension Program. This is always accompanied with a self-refrencing `metadata pointer`. This facilitates embedding comprehensive token information at the minting stage.
+- The `metadata` mint extension allows embedding of metadata directly into mint accounts through the Token Extension Program. This is always accompanied with a self-referencing `metadata pointer`. This facilitates embedding comprehensive token information at the minting stage.
 - These extensions enhance the interoperability of tokens across different applications and platforms by standardizing how metadata is associated and accessed.
 - Directly embedding or pointing to metadata can streamline transactions and interactions by reducing the need for additional lookups or external calls.
 
@@ -545,42 +545,32 @@ import { uploadOffChainMetadata } from './helpers';
 import dotenv from 'dotenv';
 dotenv.config();
 
-(async () => {
-  const connection = new Connection(clusterApiUrl('devnet'), 'finalized');
-  const payer = await initializeKeypair(connection, {keypairPath: 'your/path/to/keypair.json'});
+const connection = new Connection(clusterApiUrl('devnet'), 'finalized');
+const payer = await initializeKeypair(connection, {keypairPath: 'your/path/to/keypair.json'});
 
-  const imagePath = 'src/cat.png';
-  const metadataPath = 'src/temp.json';
-  const tokenName = 'Cat NFT';
-  const tokenDescription = 'This is a cat';
-  const tokenSymbol = 'EMB';
-  const tokenExternalUrl = 'https://solana.com/';
-  const tokenAdditionalMetadata = {
-    species: 'Cat',
-    breed: 'Cool',
-  }
+const imagePath = 'src/cat.png';
+const metadataPath = 'src/temp.json';
+const tokenName = 'Cat NFT';
+const tokenDescription = 'This is a cat';
+const tokenSymbol = 'EMB';
+const tokenExternalUrl = 'https://solana.com/';
+const tokenAdditionalMetadata = {
+  species: 'Cat',
+  breed: 'Cool',
+}
 
-  const tokenUri = await uploadOffChainMetadata({
-    tokenName,
-    tokenDescription,
-    tokenSymbol,
-    imagePath,
-    metadataPath,
-    tokenExternalUrl,
-    tokenAdditionalMetadata,
-  }, payer);
+const tokenUri = await uploadOffChainMetadata({
+  tokenName,
+  tokenDescription,
+  tokenSymbol,
+  imagePath,
+  metadataPath,
+  tokenExternalUrl,
+  tokenAdditionalMetadata,
+}, payer);
 
-  // You can log the URI here and run the code to test it
-  console.log('Token URI:', tokenUri);
-})()
-  .then(() => {
-    console.log('Finished successfully');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.log(error);
-    process.exit(1);
-  });
+// You can log the URI here and run the code to test it
+console.log('Token URI:', tokenUri);
 ```
 
 Now run `npm run start` in your terminal and test your code. You should see the URI logged once the uploading is done. If you visit the link you should see a JSON object that holds all of our off-chain metadata.
@@ -990,43 +980,33 @@ import createNFTWithEmbeddedMetadata from './nft-with-embedded-metadata';
 import dotenv from 'dotenv';
 dotenv.config();
 
-(async () => {
-  const connection = new Connection('http://127.0.0.1:8899', 'finalized');
-  const payer = await initializeKeypair(connection);
+const connection = new Connection('http://127.0.0.1:8899', 'finalized');
+const payer = await initializeKeypair(connection);
 
-  const imagePath = 'NFT.png';
-  const tokenName = 'NFT Name';
-  const tokenDescription = 'This is a cool Token Extension NFT';
-  const tokenSymbol = 'TTT';
+const imagePath = 'NFT.png';
+const tokenName = 'NFT Name';
+const tokenDescription = 'This is a cool Token Extension NFT';
+const tokenSymbol = 'TTT';
 
-  const tokenUri = await uploadOffChainMetadata({
-    connection,
-    payer,
-    tokenName,
-    tokenDescription,
-    tokenSymbol,
-    imagePath,
-  });
+const tokenUri = await uploadOffChainMetadata({
+  connection,
+  payer,
+  tokenName,
+  tokenDescription,
+  tokenSymbol,
+  imagePath,
+});
 
-  // You can log the URI here and run the code to test it
-  console.log('Token URI:', tokenUri);
+// You can log the URI here and run the code to test it
+console.log('Token URI:', tokenUri);
 
-  await createNFTWithEmbeddedMetadata({
-    payer,
-    connection,
-    tokenName,
-    tokenSymbol,
-    tokenUri,
-  });
-})()
-  .then(() => {
-    console.log('Finished successfully');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.log(error);
-    process.exit(1);
-  });
+await createNFTWithEmbeddedMetadata({
+  payer,
+  connection,
+  tokenName,
+  tokenSymbol,
+  tokenUri,
+});
 ```
 
 Run the program one more time to see your NFT and metadata.
