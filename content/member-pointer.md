@@ -21,14 +21,18 @@ Creating a mint with a member pointer involves four instructions:
  - `createInitializeMintInstruction`
  - `createInitializeMemberInstruction`
 
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extensions Program mints, we need to calculate the size and cost of the mint. This can be accomplished by using `getMintLen` and `getMinimumBalanceForRentExemption`. In this case, we'll call `getMintLen` with only the `ExtensionType.GroupMemberPointer`.
 
- - Allocates `space`
- - Transfers `lamports` for rent
- - Assigns to it's owning program
+To get the mint length and create account instruction, do the following:
 
 ```ts
-SystemProgram.createAccount({
+// get mint length
+const extensions = [ExtensionType.GroupMemberPointer]
+const mintLength = getMintLen(extensions)
+
+const mintLamports = await connection.getMinimumBalanceForRentExemption(mintLength)
+
+const createAccountInstruction = SystemProgram.createAccount({
 	fromPubkey: payer.publicKey,
 	newAccountPubkey: mintKeypair.publicKey,
 	space: mintLength,
@@ -39,7 +43,7 @@ SystemProgram.createAccount({
 The second instructions `createInitializeGroupMemberPointerInstruction` initializes a member pointer. It takes the mint, an optional authority that can set the member address, member account address and the owning program as arguments.
 
 ```ts
-createInitializeGroupMemberPointerInstruction(
+const initializeGroupMemberPointerInstruction = createInitializeGroupMemberPointerInstruction(
 	mintKeypair.publicKey,
 	payer.publicKey,
 	mintKeypair.publicKey,
@@ -50,7 +54,7 @@ createInitializeGroupMemberPointerInstruction(
 The third instruction `createInitializeMintInstruction` initializes the mint.
 
 ```ts
-createInitializeMintInstruction(
+const initializeMintInstruction = createInitializeMintInstruction(
 	mintKeypair.publicKey,
 	decimals,
 	payer.publicKey,
@@ -62,7 +66,7 @@ createInitializeMintInstruction(
 The fourth instruction `createInitializeMemberInstruction` actually initializes the member and stores the configuration on the member account.
 
 ```ts
-createInitializeMemberInstruction({
+const initializeMemberInstruction = createInitializeMemberInstruction({
 	group: groupAddress,
 	groupUpdateAuthority: payer.publicKey,
 	member: mintKeypair.publicKey,
@@ -73,6 +77,26 @@ createInitializeMemberInstruction({
 ```
 
 Please remember that the `createInitializeMemberInstruction` assumes that the member mint and the group have already been initialized.
+
+Finally, we add the instructions to the transaction and submit it to the Solana network.
+
+```ts
+const mintTransaction = new Transaction().add(
+	createAccountInstruction,
+	initializeGroupMemberPointerInstruction,
+	initializeMintInstruction,
+	initializeMemberInstruction
+)
+
+const signature = await sendAndConfirmTransaction(
+	connection,
+	mintTransaction,
+	[payer, mintKeypair],
+	{commitment: 'finalized'}
+)
+```
+
+When the transaction is sent, a new mint with a member pointer pointing to the specified group will be created.
 
 # Lab
 For this lab, we will create three member mints which will be part of the group we created in the Group Pointer lesson.
@@ -99,9 +123,17 @@ We are now going to create the function `createMember` in a new file `src/create
 
 These new mints will be created with member pointer and metadata extension. These member mints will be part of the group which is created by the `createGroup` function. The metadata extension will be used to store the metadata about the members.
 
-When creating a mint with member pointer and metadata extension, we need six instructions: `SystemProgram.createAccount`, `createInitializeGroupMemberPointerInstruction`, `createInitializeMetadataPointerInstruction`, `createInitializeMintInstruction`, `createInitializeMemberInstruction`, `createInitializeInstruction`.
+Since we are creating the mint with group and metadata pointer extensions, we need some additional instructions:
+- `getMintLen`: Gets the space needed for the mint account
+- `SystemProgram.getMinimumBalanceForRentExemption`: Tells us the cost of the rent for the mint account
+- `SystemProgram.createAccount`: Creates the instruction to allocates space on Solana for the mint account
+- `createInitializeGroupMemberPointerInstruction`: Creates the instruction to initialize group member pointer
+- `createInitializeMetadataPointerInstruction`: Create the instruction to initialize the metadata pointer
+- `createInitializeMintInstruction`: Creates the instruction to initialize the mint
+- `createInitializeMemberInstruction`: Creates the instruction to initialize the member
+- `createInitializeInstruction`: Sends the transaction to the blockchain
 
-Add the `createGroup` function with following arguments:
+We'll call all of these functions in turn. But before that let's define the inputs to our `createMember` function:
  - `connection` : The connection object
  - `payer` : Payer for the transactions
  - `mintKeypair` : Keypair of the member mint
@@ -222,23 +254,9 @@ export async function createMember(
 ### 3. Define member metadata
 Now, we will define our member mints metadata. The metadata object will contain typical information about the NFT such as token name, symbol, etc.
 
-Add the following metadata definition in `index.ts`
+Paste the following metadata definition in `index.ts` under the right comment section:
 
 ```ts
-import {initializeKeypair} from '@solana-developers/helpers'
-import {Cluster, Connection, Keypair} from '@solana/web3.js'
-import dotenv from 'dotenv'
-import {createGroup} from './create-group'
-import {TokenMetadata} from '@solana/spl-token-metadata'
-import {uploadOffChainMetadata} from './helpers'
-import {createMember} from './create-member'
-dotenv.config()
-
-const CLUSTER: Cluster = 'devnet'
-
-// ... rest of the index.ts
-
-
 // DEFINE MEMBER METADATA
 const membersMetadata = [
 	{
@@ -294,6 +312,7 @@ Don't worry about the `metadataFileName` for now. The JSON file will be created 
 ### 4. Create member mints
 Now we will upload the member metadata and then call the `createMember` function in `index.ts` created in step 2.
 
+First you'll need to import the new function. Then paste the following under the right comment section:
 ```ts
 // UPLOAD MEMBER METADATA AND CREATE MEMBER MINT
 membersMetadata.forEach(async (memberMetadata) => {
