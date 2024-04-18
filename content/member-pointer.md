@@ -131,7 +131,8 @@ Since we are creating the mint with group and metadata pointer extensions, we ne
 - `createInitializeMetadataPointerInstruction`: Create the instruction to initialize the metadata pointer
 - `createInitializeMintInstruction`: Creates the instruction to initialize the mint
 - `createInitializeMemberInstruction`: Creates the instruction to initialize the member
-- `createInitializeInstruction`: Sends the transaction to the blockchain
+- `createInitializeInstruction`: Creates the instruction to initialize the metadata
+ - `sendAndConfirmTransaction`: Sends the transaction to the blockchain
 
 We'll call all of these functions in turn. But before that let's define the inputs to our `createMember` function:
  - `connection` : The connection object
