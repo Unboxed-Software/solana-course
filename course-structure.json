@@ -287,7 +287,7 @@
         },
         {
             "title": "Solana Mobile Development",
-            "slug": "solana-mobile-development-track-title",
+            "slug": "solana-mobile-development",
             "units": [
                 {
                     "title": "Solana Mobile Development",
@@ -307,6 +307,33 @@
                             "title": "Building Solana Mobile dApps with Expo",
                             "slug": "solana-mobile-dApps-with-expo",
                             "lab": "Build a mobile dApp that mints NFTs from photos"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Token Extensions Program",
+            "slug": "token-extensions-program",
+            "units": [
+                {
+                    "title": "Token Extensions Program",
+                    "slug": "token-extension-program-unit",
+                    "lessons": [
+                        {
+                            "title": "Intro to Token Extensions Program in the Client",
+                            "slug": "token22-in-the-client",
+                            "lab": "Integrate Token Program and Token Extensions Program in the client"
+                        },
+                        {
+                            "title": "Intro to Token Extensions Program On-Chain",
+                            "slug": "token22-on-chain",
+                            "lab": "Integrate Token Program and Token Extensions Program on-chain"
+                        },
+                        {
+                            "title": "Metadata and Metadata Pointer Extension",
+                            "slug": "token22-metadata",
+                            "lab": "Make an NFT using the Token Extensions Program"
                         }
                     ]
                 }
