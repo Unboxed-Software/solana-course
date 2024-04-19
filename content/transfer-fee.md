@@ -117,6 +117,23 @@ const signature = await sendAndConfirmTransaction(
 
 ## Transferring mint with transfer fees
 
+TODO
+First, to send one full token is actually sending `1 * (10 ^ decimals)` tokens. In Solana programming, we always specify amounts to be transferred, minted or burned in their smallest divisor. To send one SOL to someone, we actually send `1 * 10 ^ 9` lamports. Another way to look at it is if you wanted to send one US dollar, you're actually sending 100 pennies.
+
+TODO
+```ts
+const secondTransferAmount = BigInt(1 * (10 ** decimals));
+const mintAccount = await getMint(
+	connection,
+	mint,
+	undefined,
+	TOKEN_2022_PROGRAM_ID,
+)
+const transferFeeAmount = getTransferFeeConfig(mintAccount);
+const secondFee = calculateFee(transferFeeAmount?.newerTransferFee!, secondTransferAmount)
+```
+
+
 When a token with the `transfer fee` extension is transferred, it will take `transferFeeBasisPoints`, up to the `maximumFee` amount of the token being transferred and store it on the recipient's wallet in the `withheld` section. This can only be redeemed by the `withdrawWithheldAuthority`. We'll talk about redeeming soon. But first, why not just automatically transfer the transfer fee right to it's final destination? Put simply, it doesn't do that to avoid bottlenecks.
 
 Say you have a very popular token with `transfer fee` enabled and your wallet is the recipient of the fees. If thousands of people are trying to transact the token simultaneously, they'll all have to update your wallet's balance - your wallet has to be "writable". While it's true Solana can execute in parallel, it cannot execute in parallel when there is a shared account being written to. So, these thousands of people would have to wait in line, slowing down the transfer drastically. This is solved by setting aside the `withheld` transfer fees within the recipient's account - this way, only the sender and receiver's wallets are writable. Then the `withdrawWithheldAuthority` can withdraw at anytime after!
@@ -290,7 +307,7 @@ await withdrawWithheldTokensFromMint(
 )
 ```
 
-### Updating Fee
+## Updating Fee
 
 As of right now there is no way to set the transfer fee post [creation with the JS library](https://solana.stackexchange.com/questions/7775/spl-token-2022-how-to-modify-transfer-fee-configuration-for-an-existing-mint). However you can from the CLI assuming the result of `solana config` wallet is the `transferFeeConfigAuthority`:
 
@@ -300,6 +317,39 @@ solana address
 spl-token set-transfer-fee <MINT_ID> <FEE_IN_BASIS_POINTS> <MAX_FEE>
 ```
 
+## Updating Authorities
+
+If you'd like to change the `transferFeeConfigAuthority` or the `withdrawWithheldAuthority` you can with the `setAuthority` function. Just pass in the correct accounts and the `authorityType`, which in these cases are: `TransferFeeConfig` and `WithheldWithdraw`, respectively.
+
+```ts
+/**
+ * Assign a new authority to the account
+ *
+ * @param connection       Connection to use
+ * @param payer            Payer of the transaction fees
+ * @param account          Address of the account
+ * @param currentAuthority Current authority of the specified type
+ * @param authorityType    Type of authority to set
+ * @param newAuthority     New authority of the account
+ * @param multiSigners     Signing accounts if `currentAuthority` is a multisig
+ * @param confirmOptions   Options for confirming the transaction
+ * @param programId        SPL Token program account
+ *
+ * @return Signature of the confirmed transaction
+ */
+
+await setAuthority(
+  connection,
+  payer,
+  mint,
+  currentAuthority, 
+  AuthorityType.TransferFeeConfig, // or AuthorityType.WithheldWithdraw
+  newAuthority, 
+  [],
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+)
+```
 
 # Lab
 
@@ -340,12 +390,11 @@ If you decide to use devnet, and have issues with airdropping SOL. Feel free to 
 
 ### 3. Create a mint with transfer fee
 
-We're now going to create a function `createMintWithTransferFee` in a new file `src/create-mint.ts`.
+Let's create a function `createMintWithTransferFee` in a new file `src/create-mint.ts`.
 
-When creating a mint with transfer fee, we need three instructions: `SystemProgram.createAccount`, `createInitializeTransferFeeConfigInstruction` and `createInitializeMintInstruction`.
+To create a mint with the `transfer fee` extension, we need three instructions: `SystemProgram.createAccount`, `createInitializeTransferFeeConfigInstruction` and `createInitializeMintInstruction`.
 
-Add `createMintWithTransferFee` with following arguments:
- - `cluster` : The cluster to which connection is pointing to
+We'll also want the our new `createMintWithTransferFee` function to have following arguments:
  - `connection` : The connection object
  - `payer` : Payer for the transaction
  - `mintKeypair` : Keypair for the new mint
@@ -374,7 +423,6 @@ import {
 } from '@solana/spl-token'
 
 export async function createMintWithTransferFee(
-	cluster: Cluster,
 	connection: Connection,
 	payer: Keypair,
 	mintKeypair: Keypair,
@@ -421,38 +469,18 @@ export async function createMintWithTransferFee(
 		[payer, mintKeypair],
 		{commitment: 'finalized'}
 	)
-  console.log('Transaction sent')
+  	console.log('Transaction sent')
 
 	return signature
 }
 ```
 
-Now let's call this function in `src/index.ts`
+Now let's import and call our new function in `src/index.ts`. We'll create a mint that has nine decimal points, 1000 fee basis points (10%), and a max fee of 5000.
 
 ```ts
-import {
-	Connection,
-	Keypair,
-	LAMPORTS_PER_SOL,
-} from '@solana/web3.js'
-import { initializeKeypair } from '@solana-developers/helpers'
-import { createMintWithTransferFee } from './create-mint'
-import {
-	TOKEN_2022_PROGRAM_ID,
-	createAccount,
-	createAssociatedTokenAccount,
-	getTransferFeeAmount,
-	harvestWithheldTokensToMint,
-	mintTo,
-	transferCheckedWithFee,
-	unpackAccount,
-	withdrawWithheldTokensFromAccounts,
-	withdrawWithheldTokensFromMint,
-} from '@solana/spl-token'
-
 // CREATE MINT WITH TRANSFER FEE
 const decimals = 9
-const feeBasisPoints = 50
+const feeBasisPoints = 1000
 const maxFee = BigInt(5000)
 
 await createMintWithTransferFee(
@@ -465,44 +493,55 @@ await createMintWithTransferFee(
 )
 ```
 
-Now we can run `npm start` which will create the mint.
+Run the script to make sure it's working so far.
+
+```bash
+npm run start
+```
 
 ### 4. Create a fee vault account
 
-Transfer fees are paid by the recipient of the mint. We need an account to collect the transfer fees. Depending on the use case, this could be mint authority account or a dedicated fee vault account for centralized fee collection.
+Before we transfer any tokens and accrue transfer fees, let's create a "fee vault" that will be the final recipient of all transfer fees.
 
-For this lab, let's create a dedicated fee vault account.
+For simplicity, let's make the fee vault the associated token account (ATA) of our payer.
 
 ```ts
-// previous code
-
 // CREATE FEE VAULT ACCOUNT
-console.log('\nCreating a fee vault account...')
-const feeVaultKeypair = Keypair.generate()
+console.log("\nCreating a fee vault account...");
+
 const feeVaultAccount = await createAssociatedTokenAccount(
   connection,
   payer,
   mintKeypair.publicKey,
-  feeVaultKeypair.publicKey,
-  { commitment: 'finalized' },
+  payer.publicKey,
+  { commitment: "finalized" },
   TOKEN_2022_PROGRAM_ID
-)
-let balance = (
-  await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
-).value.amount
-console.log('Current fee vault balance: ' + balance + '\n\n')
+);
+
+const initialBalance = (
+  await connection.getTokenAccountBalance(feeVaultAccount, "finalized")
+).value.amount;
+
+console.log("Current fee vault balance: " + initialBalance + "\n\n");
 ```
 
-Now we can run `npm start`. We should see the fee vault account created with zero balance.
+Let's run the script again, we should have a zero balance.
+```bash
+npm run start
+```
 
-### 5. Create a source account and mint one token
-Now, let's create an account and mint one token to it. The account will act as the source for the transfer transaction.
+### 5. Create two token accounts and mint to one
+
+Let's now create two test token accounts we'll call the `source` and `destination` accounts. Then let's mint some tokens to the `source`.
+
+We can do this by calling `createAccount` and `mintTo`.
+
+We'll mint 10 full tokens. 
 
 ```ts
-// previous code
+// CREATE TEST ACCOUNTS AND MINT TOKENS
+console.log('Creating source account...')
 
-// CREATE A SOURCE ACCOUNT AND MINT TOKEN
-console.log('Creating a source account...')
 const sourceKeypair = Keypair.generate()
 const sourceAccount = await createAccount(
   connection,
@@ -514,31 +553,8 @@ const sourceAccount = await createAccount(
   TOKEN_2022_PROGRAM_ID
 )
 
-console.log('Minting 1 token...\n\n')
-const amount = 1 * LAMPORTS_PER_SOL
-await mintTo(
-  connection,
-  payer,
-  mint,
-  sourceAccount,
-  payer,
-  amount,
-  [payer],
-  { commitment: 'finalized' },
-  TOKEN_2022_PROGRAM_ID
-)
-```
+console.log('Creating destination account...')
 
-Now we can run `npm start`. At this point, we have a successfully created a source account and minted a single token to it.
-
-### 6. Transfer one token
-Next, let's create a destination account for the transfer. This account will act as the recipient of the transfer. As the recipient of the transfer, the destination account will pay the transfer fee.
-
-```ts
-// previous code
-
-// CREATE DESTINATION ACCOUNT
-console.log('Creating a destination account...\n\n')
 const destinationKeypair = Keypair.generate()
 const destinationAccount = await createAccount(
   connection,
@@ -549,18 +565,60 @@ const destinationAccount = await createAccount(
   {commitment: 'finalized'},
   TOKEN_2022_PROGRAM_ID
 )
+
+console.log('Minting 10 tokens to source...\n\n')
+
+const amountToMint = 10 * (10 ** decimals)
+
+await mintTo(
+  connection,
+  payer,
+  mint,
+  sourceAccount,
+  payer,
+  amountToMint,
+  [payer],
+  { commitment: 'finalized' },
+  TOKEN_2022_PROGRAM_ID
+)
 ```
 
-We will now calculate the transfer fees based on the transfer amount using fee basis points. Remember, if the transfer fee crosses the max fee cap set while creating the mint, we can only collect fees up to the max cap amount.
+If you'd like, run the script to check that everything is working:
+```bash
+npm run start
+```
+
+### 6. Transfer one token
+
+Now, let's transfer 1 token from our `sourceAccount` to our `destinationAccount` and see what happens.
+
+To transfer a token with the `transfer fee` extension enabled, we have to call `transferCheckedWithFee`. This requires us to decide how much we want to send, and to calculate the correct fee associated.
+
+To do this, we can do a little math:
+
+First, to send one full token is actually sending `1 * (10 ^ decimals)` tokens. In Solana programming, we always specify amounts to be transferred, minted or burned in their smallest divisor. To send one SOL to someone, we actually send `1 * 10 ^ 9` lamports. Another way to look at it is if you wanted to send one US dollar, you're actually sending 100 pennies.
+
+Now, we can take the resulting amount: `1 * (10 ^ decimals)` and calculate the fee using the basis points. We can do this by taking the `transferAmount` multiplying it by the `feeBasisPoints` and dividing by `10_000` (the definition of a fee basis point).
+
+Lastly, we need to check if the fee is more than the max fee, if it is, then we call `transferCheckedWithFee` with our max fee.
 
 ```ts
-// previous code
+const transferAmount = BigInt(1 * (10 ** decimals))
+const basisPointFee = (transferAmount * BigInt(feeBasisPoints)) / BigInt(10_000)
+const fee = (basisPointFee > maxFee) ? maxFee : basisPointFee;
+```
 
+With all of this information, take a second, what do you think the final balances and withheld amounts for this transaction will be?
+
+Now, let's transfer one of our tokens and print out the resulting balances:
+```ts
 // TRANSFER TOKENS
 console.log('Transferring with fee transaction...')
-const transferAmount = BigInt(1_000_000)
+
+const transferAmount = BigInt(1 * (10 ** decimals))
 const fee = (transferAmount * BigInt(feeBasisPoints)) / BigInt(10_000)
-let signature = await transferCheckedWithFee(
+
+const transferSignature = await transferCheckedWithFee(
   connection,
   payer,
   sourceAccount,
@@ -570,26 +628,132 @@ let signature = await transferCheckedWithFee(
   transferAmount,
   decimals,
   fee,
-  [sourceKeypair, destinationKeypair],
+  [sourceKeypair],
   { commitment: 'finalized' },
   TOKEN_2022_PROGRAM_ID
 )
+
+const sourceAccountAfterTransfer = await getAccount(
+	connection,
+	sourceAccount,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
+
+const destinationAccountAfterTransfer = await getAccount(
+	connection,
+	destinationAccount,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
+
+const withheldAmountAfterTransfer = getTransferFeeAmount(destinationAccountAfterTransfer);
+
+console.log(`Source Token Balance: ${sourceAccountAfterTransfer.amount}`)
+console.log(`Destination Token Balance: ${destinationAccountAfterTransfer.amount}`)
+console.log(`Withheld Transfer Fees: ${withheldAmountAfterTransfer?.withheldAmount}\n`)
 ```
-Now we can run `npm start`.
+
+Go ahead and run the script:
+
+```bash
+npm run start
+```
+
+You should get the following:
+
+```bash
+Transferring with fee transaction...
+Source Token Balance: 9000000000
+Destination Token Balance: 999995000
+Withheld Transfer Fees: 5000
+```
+
+A little breakdown:
+
+Our fee basis points are 1000, meaning 10% of the amount transferred should be used as a fee. In this case 10% of 1,000,000,000 is 100,000,000, which is way bigger than our 5000 max fee. So that's why we see 5000 withheld. Additionally, note that the receiver is the one who "pays" for the transfer fee.
+
+Note: From now on, to calculate fees, you may want to use the `calculateFee` helper function. We did it manually for demonstration purposes. The following is one way to accomplish this:
+```ts
+const transferAmount = BigInt(1 * (10 ** decimals));
+const mintAccount = await getMint(
+	connection,
+	mint,
+	undefined,
+	TOKEN_2022_PROGRAM_ID,
+)
+const transferFeeAmount = getTransferFeeConfig(mintAccount);
+const fee = calculateFee(transferFeeAmount?.newerTransferFee!, secondTransferAmount)
+```
 
 ### 7. Withdrawing fees
-There are two ways in which we can collect fees from the recipient's account into the fee vault. The first one is withdrawing the withheld fees directly from the recipient's account itself to the fee vault account. The second approach is harvesting the fees from the recipient's account to the mint and then withdrawing it from the mint to the fee vault account.
+There are two ways in which we can collect fees from the recipient's account into the fee vault. The first one is withdrawing the withheld fees directly from the recipient's account itself to the fee vault account using `withdrawWithheldTokensFromAccounts`. The second approach is "harvesting" the fees from the recipient's account to the mint with `harvestWithheldTokensToMint` and then withdrawing it from the mint to the fee vault account with `withdrawWithheldTokensFromMint`.
 
 ### 7.1 Withdraw fees directly from the recipient accounts
-Suppose there have been multiple transactions on this mint with multiple recipients and we want to collect the fees all at once. To achieve this we can batch collect the fees from all the accounts. 
 
-First, we fetch all the accounts which have withheld tokens. To do this, we can call the `getProgramAccounts` function. One of the parameters for the `getProgramAccounts` function is an array of `filters`. We will use the mint address to filter these accounts so that we only fetch those accounts which received our transfer fee configured mint.
+First, let's withdraw the fees directly. We can accomplish this by calling `withdrawWithheldTokensFromAccounts`. This is a permissioned function, meaning only the `withdrawWithheldAuthority` can sign for it.
+
+The `withdrawWithheldTokensFromAccounts` function takes the following parameters:
+- `connection`: The connection to use
+- `payer`: The payer keypair of the transaction fees
+- `mint`: The token mint
+- `destination`: The destination account - in our case, the fee vault
+- `authority`: The mint's withdraw withheld tokens authority - in our case, the payer
+- `multiSigners`: Signing accounts if `owner` is a multisig
+- `sources`: Source accounts from which to withdraw withheld fees
+- `confirmOptions`: Options for confirming the transaction
+- `programId`: SPL Token program account - in our case `TOKEN_2022_PROGRAM_ID`
+
+Now, let's directly withdraw the fees from the destination account and check the resulting balances:
 
 ```ts
-// previous code
+// DIRECTLY WITHDRAW
+await withdrawWithheldTokensFromAccounts(
+	connection,
+	payer,
+	mint,
+	feeVaultAccount,
+	payer.publicKey,
+	[],
+	[destinationAccount],
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+);
 
-// FETCH ACCOUNTS WITH WITHHELD TOKENS
-console.log('Getting all accounts to withdraw from...')
+const withheldAccountAfterWithdraw = await getAccount(
+	connection,
+	destinationAccount,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
+
+const withheldAmountAfterWithdraw = getTransferFeeAmount(withheldAccountAfterWithdraw);
+
+const feeVaultAfterWithdraw = await getAccount(
+	connection,
+	feeVaultAccount,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
+
+console.log(`Withheld amount after withdraw: ${withheldAmountAfterWithdraw?.withheldAmount}`);
+console.log(`Fee vault balance after withdraw: ${feeVaultAfterWithdraw.amount}\n`);
+```
+
+Go ahead and run the script:
+```bash
+npm run start
+```
+
+You should get the following:
+```bash
+Withheld amount after withdraw: 0
+Fee vault balance after withdraw: 5000
+```
+
+Note: the `withdrawWithheldTokensFromAccounts` can also be used to collect all fees from all token accounts, if you fetch them all first. Something like the following would work:
+
+```ts
 const accounts = await connection.getProgramAccounts(
   TOKEN_2022_PROGRAM_ID,
   {
@@ -621,93 +785,165 @@ for (const accountInfo of accounts) {
     accountsToWithdrawFrom.push(accountInfo.pubkey)
   }
 }
+
+await withdrawWithheldTokensFromAccounts(
+	connection,
+	payer,
+	mint,
+	feeVaultAccount,
+	payer.publicKey,
+	[],
+	accountsToWithdrawFrom,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+);
 ```
-
-Now that we have the accounts which received our mint, we can call the `withdrawWithheldTokensFromAccounts` function to withdraw the withheld tokens to our fee vault account.
-
-```ts
-// previous code
-
-// WITHDRAW WITHHELD TOKENS
-console.log('Withdrawing withheld tokens...')
-signature = await withdrawWithheldTokensFromAccounts(
-  connection,
-  payer,
-  mint,
-  feeVaultAccount,
-  payer.publicKey,
-  [],
-  accountsToWithdrawFrom,
-  {commitment: 'finalized'},
-  TOKEN_2022_PROGRAM_ID
-)
-```
-
-After withdrawing the fees to the fee vault account, let's verify the balance of our fee vault account.
-
-```ts
-// previous code
-
-// VERIFY UPDATED FEE VAULT BALANCE 
-  balance = (
-    await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
-  ).value.amount
-  console.log('Current fee vault balance: ' + balance + '\n\n')
-```
-Now we can run `npm start`. This will show us the updated balance of the fee vault account.
 
 ### 7.2 Harvest and then withdraw
-Suppose we want to collect transfer fees immediately after the transaction. In this case, the batch fetching and collecting after every transaction can be inefficient.
 
-Instead we harvest the fees from the destination account to the mint and then withdraw the amount from the mint itself to the fee vault account.
+Let's look at the second option to retrieving the withheld fees: "harvesting". The difference here is that instead of withdrawing the fees directly, we "harvest" them back to the mint itself using `harvestWithheldTokensToMint`. This is a permissionless function, meaning anyone can call it. This is useful if you use something like [clockwork](https://www.clockwork.xyz/) to "crank" these harvesting functions. 
 
-To harvest the fees, we can call the `harvestWithheldTokensToMint` function.
+After the fees are harvested to the mint account, we can call `withdrawWithheldTokensFromMint` to transfer these tokens into our fee vault. This function is permissioned and we need the `withdrawWithheldAuthority` to sign for it.
+
+To do this, we need to transfer some more tokens to accrue more fees. This time, we're going to take a shortcut and use the `transferChecked` function instead. This will automatically calculate our fees for us. Then we'll print out the balances to see where we are at:
+
 ```ts
-// previous code
+// TRANSFER TOKENS PT2
+console.log('Transferring with fee transaction pt2...')
 
+const secondTransferAmount = BigInt(1 * (10 ** decimals));
+const secondTransferSignature = await transferChecked(
+	connection,
+	payer,
+	sourceAccount,
+	mint,
+	destinationAccount,
+	sourceKeypair,
+	secondTransferAmount,
+	decimals, // Can also be gotten by getting the mint account details with `getMint(...)`
+	[],
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
+
+const sourceAccountAfterSecondTransfer = await getAccount(
+	connection,
+	sourceAccount,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
+
+const destinationAccountAfterSecondTransfer = await getAccount(
+	connection,
+	destinationAccount,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
+
+const withheldAmountAfterSecondTransfer = getTransferFeeAmount(destinationAccountAfterTransfer);
+
+console.log(`Source Token Balance: ${sourceAccountAfterSecondTransfer.amount}`)
+console.log(`Destination Token Balance: ${destinationAccountAfterSecondTransfer.amount}`)
+console.log(`Withheld Transfer Fees: ${withheldAmountAfterSecondTransfer?.withheldAmount}\n`)
+```
+
+Now, let's harvest the tokens back to the mint account. We will do this using the `harvestWithheldTokensToMint` function. This function takes the following parameters:
+- `connection`: Connection to use
+- `payer`: Payer of the transaction fees
+- `mint`: The token mint
+- `sources`: Source accounts from which to withdraw withheld fees
+- `confirmOptions`: Options for confirming the transaction
+- `programId`: SPL Token program account
+
+Then we'll check the resulting balances. However, since the withheld amount will now be stored in the mint, we have to fetch the mint account with `getMint` and then read the `transfer fee` extension data on it by calling `getTransferFeeConfig`:
+
+```ts
 // HARVEST WITHHELD TOKENS TO MINT
-console.log('Harvesting withheld tokens...')
-signature = await harvestWithheldTokensToMint(
-  connection,
-  payer,
-  mint,
-  [destinationAccount],
-  {commitment: 'finalized'},
-  TOKEN_2022_PROGRAM_ID
+await harvestWithheldTokensToMint(
+	connection,
+	payer,
+	mint,
+	[destinationAccount],
+	undefined,
+	TOKEN_2022_PROGRAM_ID
 )
+
+const withheldAccountAfterHarvest = await getAccount(
+	connection,
+	destinationAccount,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+);
+
+const withheldAmountAfterHarvest = getTransferFeeAmount(withheldAccountAfterHarvest);
+
+const mintAccountAfterHarvest = await getMint(
+	connection,
+	mint,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
+
+const mintTransferFeeConfigAfterHarvest = getTransferFeeConfig(mintAccountAfterHarvest);
+
+console.log(`Withheld amount after harvest: ${withheldAmountAfterHarvest?.withheldAmount}`);
+console.log(`Mint withheld amount after harvest: ${mintTransferFeeConfigAfterHarvest?.withheldAmount}\n`)
 ```
 
-After harvesting, we can call the `withdrawWithheldTokensFromMint` function to withdraw the amount to the fee vault account.
-```ts
-// previous code
+Lastly, let's withdraw these fees from the mint itself using the `withdrawWithheldTokensFromMint` function. This function takes the following parameters:
 
+- `connection`: Connection to use
+- `payer`: Payer of the transaction fees
+- `mint`: The token mint
+- `destination`: The destination account
+- `authority`: The mint's withdraw withheld tokens authority
+- `multiSigners`: Signing accounts if `owner` is a multisig
+- `confirmOptions`: Options for confirming the transaction
+- `programId`: SPL Token program account
+
+After that, let's check the balances:
+
+```ts
 // WITHDRAW HARVESTED TOKENS
-console.log('Withdrawing from mint to fee vault account...')
-signature = await withdrawWithheldTokensFromMint(
-  connection,
-  payer,
-  mint,
-  feeVaultAccount,
-  payer.publicKey,
-  [],
-  {commitment: 'finalized'},
-  TOKEN_2022_PROGRAM_ID
+await withdrawWithheldTokensFromMint(
+	connection,
+	payer,
+	mint,
+	feeVaultAccount,
+	payer,
+	[],
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+);
+
+const mintAccountAfterSecondWithdraw = await getMint(
+	connection,
+	mint,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
 )
+
+const mintTransferFeeConfigAfterSecondWithdraw = getTransferFeeConfig(mintAccountAfterSecondWithdraw);
+
+const feeVaultAfterSecondWithdraw = await getAccount(
+	connection,
+	feeVaultAccount,
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+);
+
+console.log(`Mint withheld balance after second withdraw: ${mintTransferFeeConfigAfterSecondWithdraw?.withheldAmount}`)
+console.log(`Fee Vault balance after second withdraw: ${feeVaultAfterSecondWithdraw.amount}`)
 ```
 
-After withdrawing the fees to the fee vault account, let's verify the balance of our fee vault account.
-```ts
-// previous code
-
-// VERIFY UPDATED FEE VAULT BALANCE
-balance = (
-  await connection.getTokenAccountBalance(feeVaultAccount, 'finalized')
-).value.amount
-console.log('Current fee vault balance: ' + balance + '\n\n')
+Now, let's run it.
+```bash
+npm run start
 ```
-Now we can run `npm start`. We should see a log which shows us the updated balance of the fee vault account.
+
+You should see the balances after every step of the way.
 
 That's it! We have successfully created a mint with a transfer fee. If you get stuck at any point, you can find the working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-transfer-fee.git).
 
 ### Challenge
-Now that we know how to create a transfer fee enabled mint, it's time for you to try it yourself! Create a transfer fee enabled mint and transfer some tokens. This time, instead of transferring just one token, you can verify the maximum cap on fees by transferring a large number of tokens.
+NCreate a transfer fee enabled mint and transfer some tokens with different decimals, fee transfer points and max fees.
