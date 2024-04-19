@@ -9,14 +9,15 @@ objectives:
  - The original Token Program only allowed closing token accounts, but not mint accounts.
  - Token Extensions Program includes the `close mint` extension which allows mint accounts to be closed.
  - To close a mint with the `close mint` extension, the supply of said mint needs to be 0.
+ - The `mintCloseAuthority` can be updated by calling `setAuthority`
 
 # Overview
 
 The original Token Program only allows owners to close token accounts, not mint accounts. So if you create a mint, you'll never be able to close the account. This has resulted in a lot of wasted space on the blockchain. To remedy this, the Token Extensions Program introduced the `close mint` extension. This simply allows a mint account to be closed and the lamports refunded. The only caveat, is the supply of said mint needs to be 0.
 
-This extension is a nice improvement for developers, who may have thousands of mint accounts that could be cleaned up and be refunded for. Additionally it's great for NFT holders who wish to burn their NFT. They will not be able to recuperate all of the costs, ie closing the mint, metadata and token accounts. Whereas before, if someone burned an NFT would only recuperate the metadata and token account's rents.
+This extension is a nice improvement for developers, who may have thousands of mint accounts that could be cleaned up and be refunded for. Additionally it's great for NFT holders who wish to burn their NFT. They will not be able to recuperate all of the costs, ie closing the mint, metadata and token accounts. Whereas before, if someone burned an NFT would only recuperate the metadata and token account's rents. Note, the burner would also have to be the `mintCloseAuthority`.
 
-The `close mint` extension, adds an additional field `MintCloseAuthority` to the mint account. This is the address of the authority to actually close the account.
+The `close mint` extension, adds an additional field `mintCloseAuthority` to the mint account. This is the address of the authority to actually close the account.
 
 Again, for a mint to be closed with this extension, the supply has to be 0. So if any of this token is minted, it will have to be burned first.
 
@@ -48,8 +49,6 @@ const createAccountInstruction = SystemProgram.createAccount({
 ```
 
 The second instruction `createInitializeMintCloseAuthorityInstruction` initializes the close authority extension. The only notable parameter is the `mintCloseAuthority` in the second position. This is the address that can close the mint. 
-
-Note: This authority is not updatable 
 
 ```ts
 
@@ -121,6 +120,40 @@ await closeAccount(
 	[], // multiSigners - Signing accounts if `authority` is a multisig
 	{ commitment: 'finalized' }, // confirmOptions - Options for confirming the transaction
 	TOKEN_2022_PROGRAM_ID // programIdSPL Token program account
+)
+```
+
+## Update Close Mint Authority
+
+To change the `closeMintAuthority` you can call the `setAuthority` function and pass in the right accounts, as well as the `authorityType`, which in this case is `AuthorityType.CloseMint`
+
+```ts
+/**
+ * Assign a new authority to the account
+ *
+ * @param connection       Connection to use
+ * @param payer            Payer of the transaction fees
+ * @param account          Address of the account
+ * @param currentAuthority Current authority of the specified type
+ * @param authorityType    Type of authority to set
+ * @param newAuthority     New authority of the account
+ * @param multiSigners     Signing accounts if `currentAuthority` is a multisig
+ * @param confirmOptions   Options for confirming the transaction
+ * @param programId        SPL Token program account
+ *
+ * @return Signature of the confirmed transaction
+ */
+
+await setAuthority(
+  connection,
+  payer,
+  mint,
+  currentAuthority, 
+  AuthorityType.CloseMint,
+  newAuthority, 
+  [],
+  undefined,
+  TOKEN_2022_PROGRAM_ID
 )
 ```
 
