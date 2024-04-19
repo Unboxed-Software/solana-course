@@ -313,27 +313,27 @@
             ]
         },
         {
-            "title": "Token Extension Program",
+            "title": "Token Extensions Program",
             "slug": "token-extensions-program",
             "units": [
                 {
-                    "title": "Token Extension Program",
+                    "title": "Token Extensions Program",
                     "slug": "token-extension-program-unit",
                     "lessons": [
                         {
-                            "title": "Intro to Token Extension Program in the Client",
+                            "title": "Intro to Token Extensions Program in the Client",
                             "slug": "token22-in-the-client",
-                            "lab": "Integrate Token Program and Token Extension Program in the client"
+                            "lab": "Integrate Token Program and Token Extensions Program in the client"
                         },
                         {
-                            "title": "Intro to Token Extension Program On-Chain",
+                            "title": "Intro to Token Extensions Program On-Chain",
                             "slug": "token22-on-chain",
-                            "lab": "Integrate Token Program and Token Extension Program on-chain"
+                            "lab": "Integrate Token Program and Token Extensions Program on-chain"
                         },
                         {
                             "title": "Metadata and Metadata Pointer Extension",
                             "slug": "token22-metadata",
-                            "lab": "Make an NFT using the Token Extension Program"
+                            "lab": "Make an NFT using the Token Extensions Program"
                         }
                     ]
                 }

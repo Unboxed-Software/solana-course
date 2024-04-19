@@ -1,5 +1,5 @@
 ---
-title: Supporting Token Extension Program in on-chain programs
+title: Supporting Token Extensions Program in on-chain programs
 objectives:
 - Accept both token programs' accounts, and mints in your program
 - Explain the differences between the Token Program and Token Extension programs
@@ -8,23 +8,23 @@ objectives:
 
 # Summary
 
-- The `Token Extension Program` is a superset of the `Token Program` with a different program id
+- The `Token Extensions Program` is a superset of the `Token Program` with a different program id
 - `token_program` is an Anchor account constraint allowing you to verify an account belongs to a specific token program
-- Anchor introduced the concept of Interfaces to easily allow for programs to support interaction with both `Token Program` and `Token Extension Program`
+- Anchor introduced the concept of Interfaces to easily allow for programs to support interaction with both `Token Program` and `Token Extensions Program`
 
 # Overview
 
-The `Token Extension Program` is a program on Solana mainnet that provides additional functionality to Solana tokens and mints. The `Token Extension Program` is a superset of the `Token Program`. Essentially it is a byte for byte recreation with additional functionality tagged on at the end. However they are sill separate programs. With two types of Token Programs, we must anticipate being sent the program type in instructions.
+The `Token Extensions Program` is a program on Solana mainnet that provides additional functionality to Solana tokens and mints. The `Token Extensions Program` is a superset of the `Token Program`. Essentially it is a byte for byte recreation with additional functionality tagged on at the end. However they are sill separate programs. With two types of Token Programs, we must anticipate being sent the program type in instructions.
 
-In this lesson, you'll learn how to design your program to accept `Token Program` and `Token Extension Program` accounts using Anchor. You will also learn how to interact with `Token Extension Program` accounts, identifying which token program an account belongs to, and some differences between `Token Program` and the `Token Extension Program` on-chain.
+In this lesson, you'll learn how to design your program to accept `Token Program` and `Token Extensions Program` accounts using Anchor. You will also learn how to interact with `Token Extensions Program` accounts, identifying which token program an account belongs to, and some differences between `Token Program` and the `Token Extensions Program` on-chain.
 
-## Difference between legacy Token Program and Token Extension Program
+## Difference between legacy Token Program and Token Extensions Program
 
-We must clarify that the `Token Extension Program` is separate from the original `Token Program`. The `Token Extension Program` is a superset of the original `Token Program`, meaning all the instructions and functionality in the original `Token Program` come with the `Token Extension Program`.
+We must clarify that the `Token Extensions Program` is separate from the original `Token Program`. The `Token Extensions Program` is a superset of the original `Token Program`, meaning all the instructions and functionality in the original `Token Program` come with the `Token Extensions Program`.
 
-Previously, one primary program (the `Token Program`) was in charge of creating accounts. As more and more use cases came to Solana, there was a need for new token functionality. Historically, only way to add new token functionality was to create a new type of token. A new token required its own program, and any wallet or client that wanted to use this new token had to add specific logic to support it. Fortunately the headache of supporting different types of tokens, made this option not very popular. However, new functionality was still very much needed, and the `Token Extension Program` was built to address this. 
+Previously, one primary program (the `Token Program`) was in charge of creating accounts. As more and more use cases came to Solana, there was a need for new token functionality. Historically, only way to add new token functionality was to create a new type of token. A new token required its own program, and any wallet or client that wanted to use this new token had to add specific logic to support it. Fortunately the headache of supporting different types of tokens, made this option not very popular. However, new functionality was still very much needed, and the `Token Extensions Program` was built to address this. 
 
-As mentioned before, the `Token Extension Program` is a strict superset of the original token program and comes with all the previous functionality. The `Token Extension Program` development team chose this approach to ensure minimal disruption to users, wallets, and dApps while adding new functionality. The `Token Extension Program` supports the same instruction set as the Token program and is the same byte-for-byte throughout the very last instruction, allowing existing programs to support `Token Extensions` out of the box. However this does not mean that `Token Extension Program` tokens and `Token Program` tokens are interoperable - they are not. We'll have to handle each separately. 
+As mentioned before, the `Token Extensions Program` is a strict superset of the original token program and comes with all the previous functionality. The `Token Extensions Program` development team chose this approach to ensure minimal disruption to users, wallets, and dApps while adding new functionality. The `Token Extensions Program` supports the same instruction set as the Token program and is the same byte-for-byte throughout the very last instruction, allowing existing programs to support `Token Extensions` out of the box. However this does not mean that `Token Extensions Program` tokens and `Token Program` tokens are interoperable - they are not. We'll have to handle each separately. 
 
 ## How to determine which program owns a particular token
 
@@ -34,7 +34,7 @@ The two token programs `ID` are as follows:
 
 ```rust
 use spl_token::ID; // Token Program
-use anchor_spl::token_2022::ID; // Token Extension Program
+use anchor_spl::token_2022::ID; // Token Extensions Program
 ```
 
 To check for the regular `Token Program` you'd use the following:
@@ -53,7 +53,7 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 ```
 
-You can do the same thing for the `Token Extension Program`, just with a different ID.
+You can do the same thing for the `Token Extensions Program`, just with a different ID.
 
 ```rust
 use anchor_spl::token_2022::ID;
@@ -69,7 +69,7 @@ pub token_a_mint: Box>,
 pub token_a_account: Box>,
 ```
 
-If a client passed in the wrong token program account, the instruction would fail. However, this raises a problem, what if we want to support both `Token Program` and `Token Extension Program`? If we hardcode the check for the program `ID`, we'd need twice as many instructions. Fortunately, you can verify that the token accounts passed into your program belong to a particular token program. You would do this similarly to the previous examples. Instead of passing in the static `ID` of the token program, you check the given `token_program`.
+If a client passed in the wrong token program account, the instruction would fail. However, this raises a problem, what if we want to support both `Token Program` and `Token Extensions Program`? If we hardcode the check for the program `ID`, we'd need twice as many instructions. Fortunately, you can verify that the token accounts passed into your program belong to a particular token program. You would do this similarly to the previous examples. Instead of passing in the static `ID` of the token program, you check the given `token_program`.
 
 ```rust
 // verify the given token and mint accounts match the given token_program
@@ -93,7 +93,7 @@ pub associated_token: Box>,
 pub token_program: Interface<'info, token_interface::TokenInterface>,
 ```
 
-If you'd like to check which token program a token account and mint belongs to in your program logic, you can refer to the owner field on the `AccountInfo` struct. The following code will log the owning program's ID. You could use this field in a conditional to execute different logic for `spl-token` and `Token Extension Program` accounts.
+If you'd like to check which token program a token account and mint belongs to in your program logic, you can refer to the owner field on the `AccountInfo` struct. The following code will log the owning program's ID. You could use this field in a conditional to execute different logic for `spl-token` and `Token Extensions Program` accounts.
 
 ```rust
 msg!("Token Program Owner: {}", ctx.accounts.token_account.to_account_info().owner);
@@ -195,7 +195,7 @@ pub struct Example<'info>{
 }
 ```
 
-If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` account types are not new. Although what is new is how they work with the `InterfaceAccount` wrapper. The `InterfaceAccount` wrapper allows for either `Token Program` or `Token Extension Program` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a smooth and straight-forward experience for developers, giving you the flexibility to interact with both `Token Program` and the `Token Extension Program` in your program.
+If you're familiar with Anchor, then you may notice the `TokenAccount` and `Mint` account types are not new. Although what is new is how they work with the `InterfaceAccount` wrapper. The `InterfaceAccount` wrapper allows for either `Token Program` or `Token Extensions Program` accounts to be passed in and deserialized, just like the `Interface` and the `TokenInterface` types. These wrappers and account types work together to provide a smooth and straight-forward experience for developers, giving you the flexibility to interact with both `Token Program` and the `Token Extensions Program` in your program.
 
 However, you cannot use any of these types from the `token_interface` module with the regular Anchor `Program` and `Account` wrappers. These new types are used with either the `Interface` or `InterfaceAccount` wrappers. For example, the following would not be valid, and any transactions sent to an instruction using this account deserialization would return an error.
 
@@ -208,7 +208,7 @@ pub token_account: Account<'info, token_interface::TokenAccount>
 
 # Lab
 
-Now let's get some hands-on experience with the `Token Extension Program` on-chain by implementing a generalized token staking program that will accept both `Token Program` and `Token Extension Program` accounts. As far as staking programs go, this will be a simple implementation with the following design:
+Now let's get some hands-on experience with the `Token Extensions Program` on-chain by implementing a generalized token staking program that will accept both `Token Program` and `Token Extensions Program` accounts. As far as staking programs go, this will be a simple implementation with the following design:
 
 * We'll create a stake pool account to hold all the staked tokens. There will only be one staking pool for a given token. The program will own the account. 
 * Every stake pool will have a state account that will hold information regarding the amount of tokens staked in the pool, etc.
@@ -216,7 +216,7 @@ Now let's get some hands-on experience with the `Token Extension Program` on-cha
 * Each user will have a state account created for each pool they stake in. This state account will keep track of how many tokens they have staked in this pool, when they last staked, etc.
 * Users will be minted staking reward tokens upon unstaking. There is no separate claim process required. 
 * We'll determine a user's staking rewards using a simple algorithm.
-* The program will accept both `Token Program` and `Token Extension Program` accounts.
+* The program will accept both `Token Program` and `Token Extensions Program` accounts.
 
 The program will have four instructions: `init_pool`, `init_stake_entry`, `stake`, `unstake`.
 
@@ -339,7 +339,7 @@ Now that we have confirmed the program builds, let's take a look at the layout o
 
 The `errors.rs` and `utils.rs` files are already filled out for you. `errors.rs` is where we have defined our custom errors for our program. To do this, you just have to create a public `enum` and define each error.
 
-`utils.rs` is a file that only contains one function called `check_token_program`. This is just a file where you can write helper functions if you have the need. This function was written ahead of time and will be used in our program to simply log the specific token program that was passed in the instruction. We will be using both `Token Extension Program` and `spl-token` in this program, so this function will help clarify that distinction.
+`utils.rs` is a file that only contains one function called `check_token_program`. This is just a file where you can write helper functions if you have the need. This function was written ahead of time and will be used in our program to simply log the specific token program that was passed in the instruction. We will be using both `Token Extensions Program` and `spl-token` in this program, so this function will help clarify that distinction.
 
 `lib.rs` is the entrypoint to our program, as is the common practice in all Solana programs. Here we define our program ID using the `declare_id` Anchor macro and the public `token_22_staking` module. This module is where we define our publicly callable instructions, these can be thought of as our program's API.
 
@@ -486,12 +486,12 @@ pub pool_state: Account<'info, PoolState>,
 
 Moving on to the `token_mint` account.
 
-We make use of two account constraints on this `token_mint` account. `mint::token_program = <token_program>` verifies that the given account is a mint created from the given `<token_program>`. Before the Token Extension Program, this was not really a concern as there was only one token program. Now, there are two! The reason we verify the `token_mint` account belongs to the given `token_program` is because token accounts and mints of one program are not compatible with token accounts and mints from the other program. So, for every instruction in our program, we will be verifying that all the given token accounts and mints belong to the same `token_program`.
+We make use of two account constraints on this `token_mint` account. `mint::token_program = <token_program>` verifies that the given account is a mint created from the given `<token_program>`. Before the Token Extensions Program, this was not really a concern as there was only one token program. Now, there are two! The reason we verify the `token_mint` account belongs to the given `token_program` is because token accounts and mints of one program are not compatible with token accounts and mints from the other program. So, for every instruction in our program, we will be verifying that all the given token accounts and mints belong to the same `token_program`.
 
 The second constraint `mint::authority = payer` verifies that the authority over the mint passed in is the `payer` account, which will also be required to be a signer. This may seem counterintuitive, but we do this because at the moment we are inherently restricting the program to one staking pool per token due to the PDA seeds we use for the `pool_state` account. We also allow the creator of the pool to define what the reward token mint is for staking in that pool. Because the program currently limits one pool per token, we wouldn't want to allow just anybody to create a staking pool for a token. This gives the creator of the pool control over what the reward is for staking here. Imagine if we did not require the `mint::authority`, this would allow anyone to create the staking pool for `Token X` and define what the reward is for everyone that stakes `Token X` with this staking program. If they decide to define the reward token as the meme coin `FooBar`, then everyone would be stuck with that staking pool in this program. For this reason, we will only allow the `token_mint` authority to create a staking pool for said `token_mint`. This program design would probably not be a good choice for the real world, it does not scale very well. But, it serves as a great example to help get the points across in this lesson while keeping things relatively simple. This can also serve as a good exercise in program design. How would you design this program to make it more scalable for mainnet?
 
 Lastly, we utilize the `InterfaceAccount` struct to deserialize the given account into `token_interface::Mint`. 
-The `InterfaceAccount` type is a wrapper around `AccountInfo` that verifies program ownership and deserializes underlying data into a given Rust type. Used with the `token_interface::Mint` struct, Anchor knows to deserialize this into a Mint account. The `token_interface::Mint` struct provides support for both `Token Program` and `Token Extension Program` mints out of the box! This interface concept was created specifically for this use case. You can read more about the `InterfaceAccount` in the [`anchor_lang` docs](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/struct.InterfaceAccount.html).
+The `InterfaceAccount` type is a wrapper around `AccountInfo` that verifies program ownership and deserializes underlying data into a given Rust type. Used with the `token_interface::Mint` struct, Anchor knows to deserialize this into a Mint account. The `token_interface::Mint` struct provides support for both `Token Program` and `Token Extensions Program` mints out of the box! This interface concept was created specifically for this use case. You can read more about the `InterfaceAccount` in the [`anchor_lang` docs](https://docs.rs/anchor-lang/latest/anchor_lang/accounts/interface_account/struct.InterfaceAccount.html).
 
 ```rust
 // Mint of token
@@ -812,7 +812,7 @@ pub struct Stake<'info> {
 }
 ```
 
-Next, is the `token_mint` which is required for the transfer CPI in this instruction. This is the mint of the token that is being staked. We verify that the given mint is of the given `token_program` to make sure we are not mixing any `spl-token` and `Token Extension Program` accounts.
+Next, is the `token_mint` which is required for the transfer CPI in this instruction. This is the mint of the token that is being staked. We verify that the given mint is of the given `token_program` to make sure we are not mixing any `spl-token` and `Token Extensions Program` accounts.
 
 ```rust
 // Mint of token to stake
@@ -833,7 +833,7 @@ The `pool_authority` account is again the PDA that is the authority over all of 
 pub pool_authority: UncheckedAccount<'info>,
 ```
 
-Now we have the `token_vault` which is where the tokens will be held while they are staked. This account MUST be verified since this is where the tokens are transferred to. Here, we verify the given account is the expected PDA derived from the `token_mint`, `pool_authority`, and `VAULT_SEED` seeds. We also verify the token account belongs to the given `token_program`. We use `InterfaceAccount` and `token_interface::TokenAccount` here again to support either `spl-token` or `Token Extension Program` accounts.
+Now we have the `token_vault` which is where the tokens will be held while they are staked. This account MUST be verified since this is where the tokens are transferred to. Here, we verify the given account is the expected PDA derived from the `token_mint`, `pool_authority`, and `VAULT_SEED` seeds. We also verify the token account belongs to the given `token_program`. We use `InterfaceAccount` and `token_interface::TokenAccount` here again to support either `spl-token` or `Token Extensions Program` accounts.
 
 ```rust
 // pool token account for Token Mint
@@ -980,7 +980,7 @@ Where `T` is the accounts struct for the instruction you are invoking.
 
 This is very similar to the `Context` object that traditional Anchor instructions expect as input (i.e. `ctx: Context<Stake>`). This is the same concept here, except we are defining one for a Cross-Program Invocation instead!
 
-In our case, we will be invoking the `transfer_checked` instruction in either token programs, hence the `transfer_checked_ctx` method name and the `TransferChecked` type in the returned `CpiContext`. The regular `transfer` instruction has been deprecated in the `Token Extension Program` and it is suggested you use `transfer_checked` going forward.
+In our case, we will be invoking the `transfer_checked` instruction in either token programs, hence the `transfer_checked_ctx` method name and the `TransferChecked` type in the returned `CpiContext`. The regular `transfer` instruction has been deprecated in the `Token Extensions Program` and it is suggested you use `transfer_checked` going forward.
 
 Now that we know what the goal of this method is, we can implement it! First, we will need to define the program we will be invoking. This should be the `token_program` that was passed into our accounts struct.
 
@@ -1151,7 +1151,7 @@ anchor build
 
 Lastly, the `unstake` transaction will be pretty similar to the `stake` transaction. We'll need to transfer tokens out of the stake pool to the user, this is also when the user will receive their staking rewards. Their staking rewards will be minted to the user in this same transaction. 
 
-Something to note here, we are not going to allow the user to determine how many tokens are unstaked, we will simply unstake all of the tokens that they currently have staked. Additionally, we are not going to implement a very realistic algorithm to determine how many reward tokens they have accrued. We'll simply take their stake balance and multiply by 10 to get the amount of reward tokens to mint them. We do this again to simplify the program and remain focused on the goal of the lesson, the `Token Extension Program`.
+Something to note here, we are not going to allow the user to determine how many tokens are unstaked, we will simply unstake all of the tokens that they currently have staked. Additionally, we are not going to implement a very realistic algorithm to determine how many reward tokens they have accrued. We'll simply take their stake balance and multiply by 10 to get the amount of reward tokens to mint them. We do this again to simplify the program and remain focused on the goal of the lesson, the `Token Extensions Program`.
 
 The account structure will be very similar to the `stake` instruction, but there are a few differences. We'll need:
 
@@ -1480,4 +1480,4 @@ If you run into problems feel free to checkout the [solution branch](https://git
 
 # Challenge
 
-Create your own program that is Token Program and Token Extension Program agnostic.
+Create your own program that is Token Program and Token Extensions Program agnostic.

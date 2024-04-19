@@ -1,20 +1,20 @@
 ---
 title: Metadata and Metadata Pointer Extension
 objectives:
-- Explain how the metadata pointers and metadata extensions work on Token Extension Program Mints
+- Explain how the metadata pointers and metadata extensions work on Token Extensions Program Mints
 - Create an NFT with metadata embedded in the mint account itself
 - Create an NFT with the metadata pointer extension
 ---
 
 # Summary
 - The `metadata pointer` extension associates a token mint directly to a metadata account. This happens by storing the metadata account's address in the mint. This metadata account address can be an external metadata account, like Metaplex, or can be the mint itself if using the `metadata` extension.
-- The `metadata` mint extension allows embedding of metadata directly into mint accounts through the Token Extension Program. This is always accompanied with a self-referencing `metadata pointer`. This facilitates embedding comprehensive token information at the minting stage.
+- The `metadata` mint extension allows embedding of metadata directly into mint accounts through the Token Extensions Program. This is always accompanied with a self-referencing `metadata pointer`. This facilitates embedding comprehensive token information at the minting stage.
 - These extensions enhance the interoperability of tokens across different applications and platforms by standardizing how metadata is associated and accessed.
 - Directly embedding or pointing to metadata can streamline transactions and interactions by reducing the need for additional lookups or external calls.
 
 # Overview
 
-The Token Extension Program streamlines metadata on Solana. Without the Token Extension Program, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes introduces vender lock in and increased complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
+The Token Extensions Program streamlines metadata on Solana. Without the Token Extensions Program, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes introduces vender lock in and increased complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
 
 - `metadata-pointer` extension: Adds two simple fields in the mint account itself: a publicKey pointer to the account that holds the metadata for the token following the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), and the authority to update this pointer.
 - `metadata` extension: Adds the fields described in the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/) which allows us to store the metadata in the mint itself.
@@ -141,9 +141,9 @@ const sig = await sendAndConfirmTransaction(connection, transaction, [payer, min
 
 ## Metadata extension:
 
-The `metadata` extension is an exciting addition to the Token Extension Program. This extension allows us to store the metadata directly *in* the mint itself! This eliminates the need for a separate account, greatly simplifying the handling of metadata.
+The `metadata` extension is an exciting addition to the Token Extensions Program. This extension allows us to store the metadata directly *in* the mint itself! This eliminates the need for a separate account, greatly simplifying the handling of metadata.
 
-Note: The `metadata` extension works directly with the `metadata-pointer` extension. During the mint creation, you should also add the `metadata-pointer` extension, pointed at the mint itself. Check out the [Solana Token Extension Program docs](https://spl.solana.com/token-2022/extensions#metadata)
+Note: The `metadata` extension works directly with the `metadata-pointer` extension. During the mint creation, you should also add the `metadata-pointer` extension, pointed at the mint itself. Check out the [Solana Token Extensions Program docs](https://spl.solana.com/token-2022/extensions#metadata)
 
 The added fields and functions in the metadata extension follow the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface)
 
@@ -486,7 +486,7 @@ Along with the NodeJS project being initialized with all of the needed dependenc
 
 **`helpers.ts`** file provides us with a useful helper function `uploadOffChainMetadata`.
 
-`uploadOffChainMetadata` is a helper to store the off-chain metadata on Arweave using Irys (Formerly Bundlr). In this lab we will be more focused on the Token Extension Program interaction, so this uploader function is provided. It is important to note that an NFT or any off-chain metadata can be stored anywhere with any storage provider like [NFT.storage](https://nft.storage/), Solana's native [ShadowDrive](https://www.shdwdrive.com/), or [Irys (Formerly Bundlr)](https://irys.xyz/). At the end of the day, all you need is a url to the hosted metadata json file.
+`uploadOffChainMetadata` is a helper to store the off-chain metadata on Arweave using Irys (Formerly Bundlr). In this lab we will be more focused on the Token Extensions Program interaction, so this uploader function is provided. It is important to note that an NFT or any off-chain metadata can be stored anywhere with any storage provider like [NFT.storage](https://nft.storage/), Solana's native [ShadowDrive](https://www.shdwdrive.com/), or [Irys (Formerly Bundlr)](https://irys.xyz/). At the end of the day, all you need is a url to the hosted metadata json file.
 
 This helper has some exported interfaces. These will clean up our functions as we make them.
 ```ts
