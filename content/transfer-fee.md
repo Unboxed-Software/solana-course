@@ -322,12 +322,12 @@ The starter code comes with following file:
 
 ### 2. Run validator node
 
-For the sake of this guide, we will be running our own validator node. We do this because sometimes testnet or devnets on Solana can become congested and in turn less reliable.
+For the sake of this guide, we'll be running our own validator node.
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
 
 ```tsx
-const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
+const connection = new Connection("http://127.0.0.1:8899", "confirmed");
 ```
 
 Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
@@ -335,6 +335,8 @@ Alternatively, if you’d like to use testnet or devnet, import the `clusterApiU
 ```tsx
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
+
+If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some sol to your address. You can get your address from running `solana address` in your terminal.
 
 ### 3. Create a mint with transfer fee
 
