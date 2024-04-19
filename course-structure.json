@@ -317,9 +317,14 @@
             "slug": "token-extensions-program",
             "units": [
                 {
-                    "title": "Token Extensions Program",
-                    "slug": "token-extension-program-unit",
+                    "title": "Intro To Token Extensions Program",
+                    "slug": "intro-to-token-extensions-program-unit",
                     "lessons": [
+                        {
+                            "title": "Intro to Token Extensions Program",
+                            "slug": "",
+                            "lab": "Use the CLI to interact with the Token Extensions Program"
+                        },
                         {
                             "title": "Intro to Token Extensions Program in the Client",
                             "slug": "token22-in-the-client",
@@ -329,11 +334,43 @@
                             "title": "Intro to Token Extensions Program On-Chain",
                             "slug": "token22-on-chain",
                             "lab": "Integrate Token Program and Token Extensions Program on-chain"
-                        },
+                        }
+                    ]
+                },
+                {
+                    "title": "Mint Extensions",
+                    "slug": "mint-extensions-unit",
+                    "lessons": [
                         {
                             "title": "Metadata and Metadata Pointer Extension",
                             "slug": "token22-metadata",
                             "lab": "Make an NFT using the Token Extensions Program"
+                        },
+                        {
+                            "title": "Non-Transferrable Token Extension",
+                            "slug": "",
+                            "lab": "Create a soul-bound NFT"
+                        },
+                        {
+                            "title": "Transfer Fee Extension",
+                            "slug": "",
+                            "lab": "Create a mint with transfer fees enabled"
+                        },
+                        {
+                            "title": "Close Mint Extension",
+                            "slug": "",
+                            "lab": "Create a closable mint"
+                        }
+                    ]
+                },
+                {
+                    "title": "Token Extensions",
+                    "slug": "token-extensions-unit",
+                    "lessons": [
+                        {
+                            "title": "Default State Extension",
+                            "slug": "",
+                            "lab": "Test token interactions with frozen default states"
                         }
                     ]
                 }
