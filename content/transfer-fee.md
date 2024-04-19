@@ -117,34 +117,29 @@ const signature = await sendAndConfirmTransaction(
 
 ## Transferring mint with transfer fees
 
-TODO
-First, to send one full token is actually sending `1 * (10 ^ decimals)` tokens. In Solana programming, we always specify amounts to be transferred, minted or burned in their smallest divisor. To send one SOL to someone, we actually send `1 * 10 ^ 9` lamports. Another way to look at it is if you wanted to send one US dollar, you're actually sending 100 pennies.
+There are a couple of notes when transferring tokens with the `transfer fee` extension.
 
-TODO
+First, the recipient is the one who "pays" for the fee. If I send 100 tokens with basis points of 50 (5%), the recipient will receive 95 tokens (five withheld)
+
+Second, the fee is calculated not by the tokens sent, but the smallest unit of said token. In Solana programming, we always specify amounts to be transferred, minted or burned in their smallest unit. To send one SOL to someone, we actually send `1 * 10 ^ 9` lamports. Another way to look at it is if you wanted to send one US dollar, you're actually sending 100 pennies. Let's make this dollar a token with a 50 basis points (5%) transfer fee. Sending one dollar, would result in a five cent fee. Now let's say we have a max fee of 10 cents, this will always be the highest fee, even if we send $10,000.
+
+The calculation can be summed up like this:
 ```ts
-const secondTransferAmount = BigInt(1 * (10 ** decimals));
-const mintAccount = await getMint(
-	connection,
-	mint,
-	undefined,
-	TOKEN_2022_PROGRAM_ID,
-)
-const transferFeeAmount = getTransferFeeConfig(mintAccount);
-const secondFee = calculateFee(transferFeeAmount?.newerTransferFee!, secondTransferAmount)
+const transferAmount = BigInt(tokensToSend * (10 ** decimals))
+const basisPointFee = (transferAmount * BigInt(feeBasisPoints)) / BigInt(10_000)
+const fee = (basisPointFee > maxFee) ? maxFee : basisPointFee;
 ```
 
+Third and final, there are two ways to transfer tokens with the `transfer fee` extension: `transfer_checked` or `transfer_checked_with_fee`. The regular `transfer` function lacks the necessary logic to handle fees. 
 
-When a token with the `transfer fee` extension is transferred, it will take `transferFeeBasisPoints`, up to the `maximumFee` amount of the token being transferred and store it on the recipient's wallet in the `withheld` section. This can only be redeemed by the `withdrawWithheldAuthority`. We'll talk about redeeming soon. But first, why not just automatically transfer the transfer fee right to it's final destination? Put simply, it doesn't do that to avoid bottlenecks.
+You have the choice of which function to use for transferring: 
+- `transfer_checked_with_fee`: You have to calculate and provide the correct fees
+- `transfer_checked`: This will calculate the fees for you
 
-Say you have a very popular token with `transfer fee` enabled and your wallet is the recipient of the fees. If thousands of people are trying to transact the token simultaneously, they'll all have to update your wallet's balance - your wallet has to be "writable". While it's true Solana can execute in parallel, it cannot execute in parallel when there is a shared account being written to. So, these thousands of people would have to wait in line, slowing down the transfer drastically. This is solved by setting aside the `withheld` transfer fees within the recipient's account - this way, only the sender and receiver's wallets are writable. Then the `withdrawWithheldAuthority` can withdraw at anytime after!
-
-With the bottleneck explained, let's look at what it actually takes to transfer a token with `transfer fee` enabled. For most tokens, you'd just use the `transfer` method. However, there is a caveat using the `transfer fee` extension: You need to use either `transfer_checked` or `transfer_checked_with_fee`, not `transfer`. 
-
-The `transfer` method lacks the necessary logic to handle fees, leading to transaction failure. Additionally, `transfer_checked` ensures the correctness of mint accounts and decimals, crucial for maintaining transaction integrity and preventing errors in token type and amount.
 
 ```ts
 /**
- * Transfer tokens from one account to another, asserting the transfer fee, token mint, and decimals
+ * Transfer tokens from one account to another, asserting the token mint and decimals
  *
  * @param connection     Connection to use
  * @param payer          Payer of the transaction fees
@@ -160,20 +155,21 @@ The `transfer` method lacks the necessary logic to handle fees, leading to trans
  *
  * @return Signature of the confirmed transaction
  */
-export async function transferCheckedWithFee(
-    connection: Connection,
-    payer: Signer,
-    source: PublicKey,
-    mint: PublicKey,
-    destination: PublicKey,
-    owner: Signer | PublicKey,
-    amount: bigint,
-    decimals: number,
-    fee: bigint,
-    multiSigners: Signer[] = [],
-    confirmOptions?: ConfirmOptions,
-    programId = TOKEN_2022_PROGRAM_ID
-): Promise<TransactionSignature>
+
+const secondTransferAmount = BigInt(1 * (10 ** decimals));
+const secondTransferSignature = await transferChecked(
+	connection,
+	payer,
+	sourceAccount,
+	mint,
+	destinationAccount,
+	sourceKeypair,
+	secondTransferAmount,
+	decimals, // Can also be gotten by getting the mint account details with `getMint(...)`
+	[],
+	undefined,
+	TOKEN_2022_PROGRAM_ID
+)
 ```
 
 ## Collecting fees
@@ -183,7 +179,19 @@ There are two ways to "collect fees" from the withheld portion of the token acco
 1. The `withdrawWithheldAuthority` can withdraw directly from the withheld portion of a user's token account into any "token vault"
 2. We can "harvest" the withheld tokens and store them within the mint account itself, which can be withdrawn at any point from the `withdrawWithheldAuthority`
 
-If we want to withdraw all withheld transfer fees from all token accounts directly we can do the following:
+But first, why have these two options?
+
+Simply put, directly withdrawing is a permissioned function, meaning only the `withdrawWithheldAuthority` can call it. Whereas harvesting is permissionless, where anyone can call the harvest function consolidating all of the fees into the mint itself.
+
+But why not just directly transfer the tokens to the fee collector on each transfer? 
+
+Two reasons: one, where the mint creator wants the fees to end up may change. Two, this would create a bottleneck.
+
+Say you have a very popular token with `transfer fee` enabled and your fee vault is the recipient of the fees. If thousands of people are trying to transact the token simultaneously, they'll all have to update your fee vault's balance - your fee vault has to be "writable". While it's true Solana can execute in parallel, it cannot execute in parallel if the same accounts are being written to at the same time. So, these thousands of people would have to wait in line, slowing down the transfer drastically. This is solved by setting aside the `withheld` transfer fees within the recipient's account - this way, only the sender and receiver's accounts are writable. Then the `withdrawWithheldAuthority` can withdraw to the fee vault anytime after.
+
+### Directly withdrawing fees
+
+In the first case, If we want to withdraw all withheld transfer fees from all token accounts directly we can do the following:
 
 1. Grab all token accounts associated with the mint using `getProgramAccounts`
 2. Add all token accounts with some withheld tokens to a list
@@ -252,6 +260,8 @@ await withdrawWithheldTokensFromAccounts(
 )
 ```
 
+### Harvesting fees
+
 The second approach we call "harvesting" - this is a permissionless function meaning anyone can call it. This approach is great for "cranking" the harvest instruction with tools like [clockwork](https://www.clockwork.xyz/). The difference is when we harvest, the withheld tokens get stored in the mint itself. Then the `withdrawWithheldAuthority` can withdraw the tokens from the mint at any point.
 
 To harvest:
@@ -307,7 +317,7 @@ await withdrawWithheldTokensFromMint(
 )
 ```
 
-## Updating Fee
+## Updating fees
 
 As of right now there is no way to set the transfer fee post [creation with the JS library](https://solana.stackexchange.com/questions/7775/spl-token-2022-how-to-modify-transfer-fee-configuration-for-an-existing-mint). However you can from the CLI assuming the result of `solana config` wallet is the `transferFeeConfigAuthority`:
 
@@ -317,7 +327,7 @@ solana address
 spl-token set-transfer-fee <MINT_ID> <FEE_IN_BASIS_POINTS> <MAX_FEE>
 ```
 
-## Updating Authorities
+## Updating authorities
 
 If you'd like to change the `transferFeeConfigAuthority` or the `withdrawWithheldAuthority` you can with the `setAuthority` function. Just pass in the correct accounts and the `authorityType`, which in these cases are: `TransferFeeConfig` and `WithheldWithdraw`, respectively.
 
@@ -596,7 +606,7 @@ To transfer a token with the `transfer fee` extension enabled, we have to call `
 
 To do this, we can do a little math:
 
-First, to send one full token is actually sending `1 * (10 ^ decimals)` tokens. In Solana programming, we always specify amounts to be transferred, minted or burned in their smallest divisor. To send one SOL to someone, we actually send `1 * 10 ^ 9` lamports. Another way to look at it is if you wanted to send one US dollar, you're actually sending 100 pennies.
+First, to send one full token is actually sending `1 * (10 ^ decimals)` tokens. In Solana programming, we always specify amounts to be transferred, minted or burned in their smallest unit. To send one SOL to someone, we actually send `1 * 10 ^ 9` lamports. Another way to look at it is if you wanted to send one US dollar, you're actually sending 100 pennies.
 
 Now, we can take the resulting amount: `1 * (10 ^ decimals)` and calculate the fee using the basis points. We can do this by taking the `transferAmount` multiplying it by the `feeBasisPoints` and dividing by `10_000` (the definition of a fee basis point).
 
