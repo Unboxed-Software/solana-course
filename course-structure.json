@@ -290,7 +290,7 @@
             "slug": "solana-mobile-development",
             "units": [
                 {
-                    "title": "Solana Mobile Development",
+                    "title": "Exploring Solana Mobile Development",
                     "slug": "solana-mobile-development-unit",
                     "lessons": [
                         {
@@ -317,8 +317,8 @@
             "slug": "token-extensions-program",
             "units": [
                 {
-                    "title": "Token Extensions Program",
-                    "slug": "token-extension-program-unit",
+                    "title": "Intro to Token Extensions Program",
+                    "slug": "intro-to-token-extension-program-unit",
                     "lessons": [
                         {
                             "title": "Intro to Token Extensions Program in the Client",
