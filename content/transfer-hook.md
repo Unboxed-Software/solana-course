@@ -1,39 +1,42 @@
 ---
-title: Transfer hook
+title: Transfer Hook
 objectives:
 - Create a program that applies the "transfer-hook" interface
 - Create a mint with a transfer hook
-- Transfer a token that has a transfer hook successfully
+- Transfer a token with a transfer hook successfully
 ---
 
 # Summary
 
-- Transfer hook extension allows developers to implement custom logic on their tokens
-- If the token has a transfer hook, the Token Extension program will invoke the transfer hook instruction on every token transfer
-- For the program to be able to act as a transfer hook program, it should implement the `TransferHook` interface
-- Invoking a transfer instruction with a transfer hook requires passing extra accounts, such as `extra-account-metas`
+- The `transfer hook` extension allows developers to run custom logic on their tokens on every transfer
+- When a token has a transfer hook, the Token Extensions Program will invoke the transfer hook instruction on every token transfer
+- For the program to be able to act as a transfer hook program, it needs to implement the `TransferHook` interface
+- Some transfer hooks will require additional accounts, if this is the case, every transfer instruction will have to pass them. These are defined in `extra-account-metas` on the transfer hook extension.
+- Within the transfer hook CPI, the sender, mint, receiver, owner are all de-escalated, meaning they are read-only to the hook. Meaning non of those accounts can sign or be written to.
 
 # Overview
 
-The Token Extension program is providing lots of new features that extend the mint/token accounts, allowing the developers to add more functionality to their tokens. One of the most interesting extensions is the `transfer-hook` extension.
+The `transfer-hook` extension allows custom logic to be run on each transfer. More specifically, the `transfer-hook` extension requires a 'hook' or 'callback' in the form of a solana program following the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface). Then every time any token of that mint is transferred the Token Extensions Program calls this 'hook' as a CPI.
 
-The `transfer-hook` extension allows custom logic on each transfer. This opens the door for many use cases. You could use it to mint/burn/transfer tokens on each transfer, or maybe fail the transfer if a specific condition is not met.
+Additionally, the `transfer-hook` can also store `extra-account-metas`, which are any additional accounts needed for the hook to function. 
 
-In this lesson, we will explore how to implement transfer hooks onchain and work with them offchain.
+TODO However
+
+This extension opens up the door to unique use-cases. One use case it's great for is acting as a token guard, only allowing tokens to be transferred if specific requirements are met.
+
+In this lesson, we will explore how to implement transfer hooks on-chain and work with them off-chain.
 
 ## Implementing transfer hooks onchain
 
-The Token Extension program requires any program that claims to be a transfer hook to implement the `TransferHook` interface.
-
-The Transfer Hook Interface provides a way for developers to implement custom instruction logic that is executed on every token transfer for a specific Mint Account.
+The first part of creating a mint with a `transfer hook` is to find or create an on-chain program that follows the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface).
 
 The Transfer Hook Interface specifies the following [instructions](https://github.com/solana-labs/solana-program-library/blob/master/token/transfer-hook/interface/src/instruction.rs):
 
-- `Execute`: An instruction that the Token Extension program invokes on every token transfer
+- `Execute`: An instruction that the Token Extensions Program invokes on every token transfer
 - `InitializeExtraAccountMetaList` (optional): Creates an account (`extra_account_meta_list`) that stores a list of additional accounts required by the `Execute` instruction
 - `UpdateExtraAccountMetaList` (optional): Updates the list of additional accounts by overwriting the existing list
 
-Technically it is not required to implement the `InitializeExtraAccountMetaList` instruction using the interface, but it is required to have the `extra_account_meta_list` instruction. This list can be created by any instruction on a Transfer Hook program. However, the Program Derived Address (PDA) for the account must be derived using the following seeds:
+Technically it's not required to implement the `InitializeExtraAccountMetaList` instruction using the interface, but it's still required to have the `extra_account_meta_list` account. This account can be created by any instruction on a Transfer Hook program. However, the Program Derived Address (PDA) for the account must be derived using the following seeds:
 
 - The hard coded string `extra-account-metas`
 - The Mint Account address
@@ -49,27 +52,17 @@ const [pda] = PublicKey.findProgramAddressSync(
 );
 ```
 
-By storing the extra accounts required by the `Execute` instruction in the predefined PDA, these accounts can be automatically added to a token transfer instruction from the client. We will see how to do that in the offchain section.
-
-When implementing transfer hooks using Anchor, we will start by implementing `initialize_extra_account_meta_list` first. We will then take the list and create the execute instruction that Anchor renames to `transfer_hook`. Finally, we'll create a `fallback` instruction to handle Cross-Program Invocation (CPI).
-
-For now, we will not go over the `UpdateExtraAccountMetaList`. It's similar to the `initialize_extra_account_meta_list` instruction, but if you'd like to learn more about the `UpdateExtraAccountMetaList` instruction, you can go [here](https://github.com/solana-labs/solana-program-library/blob/master/token/transfer-hook/interface/src/instruction.rs).
+By storing the extra accounts required by the `Execute` instruction in the `extra_account_meta_list` PDA, these accounts can be automatically added to a token transfer instruction from the client. We'll see how to do that in the off-chain section.
 
 ### 1. `initialize_extra_account_meta_list` instruction:
 
-When we transfer a token using the Token Extension program, the program will examine our mint to determine if it has a transfer hook. If a transfer hook is present, the Token Extension program will initiate a CPI (cross-program invocation) to our transfer hook program. The Token Extension program will then pass all the accounts in the transfer (including the extra accounts specified in the `extra_account_meta_list`) to the transfer hook program. However, before passing the 4 essential accounts (sender, mint, receiver, owner), it will de-escalate them (i.e. Remove the mutable or signing abilities for security reasons).
+When we transfer a token using the Token Extensions Program, the program will examine our mint to determine if it has a transfer hook. If a transfer hook is present, the Token Extensions Program will initiate a CPI (cross-program invocation) to our transfer hook program. The Token Extensions Program will then pass all the accounts in the transfer (including the extra accounts specified in the `extra_account_meta_list`) to the transfer hook program. However, before passing the 4 essential accounts (sender, mint, receiver, owner), it will de-escalate them (i.e. Remove the mutable or signing abilities for security reasons).
 
-In other words, when our program receives these accounts, they will be read-only. The transfer hook program cannot modify these accounts, nor can it sign any transactions with them. Therefore, if we have logic that requires changes to an account or the execution of transactions, we need to have other accounts.
+In other words, when our hook receives these accounts, they will be read-only. The transfer hook program cannot modify these accounts, nor can it sign any transactions with them. Although we cannot alter or sign with any of these four accounts, we can specify        `is_signer` and is `is_writable` to any of the additional accounts in the `extra_account_meta_list` PDA. Additionally, we can use the `extra_account_meta_list` PDA as a signer for any new data accounts specified in the hook program.
 
-## TODO Consider moving this explanation to the end of the section
-In Solana, a program can sign for any PDA it owns. Therefore, we can leverage the PDA features. For instance, if we need to mint some tokens on each transfer, we can achieve this by setting the `mint_authority` of that token to be a PDA owned by our program.
+The `extra_account_meta_list` has to be created before any transfer occurs. It's also worth noting that we can update the list of accounts in the `extra_account_meta_list` by implementing and using the `UpdateExtraAccountMetaList` instruction if necessary.
 
-However, this approach may still be somewhat limiting for the full potential of the transfer hook. There might be a need for other accounts to be mutable or to act as signers to enable a broader range of operations. Meet the `ExtraAccountMetaList` account.
-## end of explanation
-
-The `ExtraAccountMetaList` account allows Solana developers to store additional accounts (as signer, mutable, or both) required by their transfer hook. This account should be created before any transfer occurs. It's worth noting that we can update the list of accounts in the `ExtraAccountMetaList` account using the `UpdateExtraAccountMetaList` instruction if necessary.
-
-Let's take a look at the struct `ExtraAccountMetaList` [in the source code](https://github.com/solana-labs/solana-program-library/blob/4f1668510adef2117ee3c043bd26b79789e67c8d/libraries/tlv-account-resolution/src/account.rs#L90):
+The `extra_account_meta_list` is just a list of `ExtraAccountMeta`. Let's take a look at the struct `ExtraAccountMeta` [in the source code](https://github.com/solana-labs/solana-program-library/blob/4f1668510adef2117ee3c043bd26b79789e67c8d/libraries/tlv-account-resolution/src/account.rs#L90):
 
 ```rust
 impl ExtraAccountMeta {
@@ -126,17 +119,19 @@ impl ExtraAccountMeta {
     }
 ```
 
-We have three methods for storing these extra accounts:
+We have three methods for creating an `ExtraAccountMeta`:
 
-1. Directly store the account address by using `ExtraAccountMeta::new_with_pubkey`
-2. Store the seeds to derive a PDA of the program itself using `ExtraAccountMeta::new_with_seeds`
-3. Store the seeds to derive a PDA for a program other than the Transfer Hook program using `ExtraAccountMeta::new_external_pda_with_seeds`
+1. `ExtraAccountMeta::new_with_pubkey` - For any normal account ( Not a program account )
+2. `ExtraAccountMeta::new_with_seeds` - For a program account PDA from the calling transfer hook program 
+3. `ExtraAccountMeta::new_external_pda_with_seeds` - For a program account PDA from a different external program
 
-Note: It will not work if you pass the Mint account in the extra account list to get it as mutable/signer. At the time of creating this lesson, when the Token Extension program makes the CPI to our program, it will pass the mint account as read-only no matter how many times you add it to the extra accounts list.
+Now that we know the accounts we can store in `extra_account_meta_list` the let's talk about the `InitializeExtraAccountMetaList` instruction itself. For most implementations, it should simply just create the `extra_account_meta_list` account and load it up with any additional accounts it needs. 
 
-Now let's talk about the instruction itself and see some code to help us wrap our heads around it better.
+Let's take a look at a simple example where we'll initialize a `extra_account_meta_list` with two additional arbitrary accounts, `some_account` and a `pda_account`. The `initialize_extra_account_meta_list` function will do the following:
 
-In Anchor, each instruction may contain its own struct of accounts required for that instruction. Anchor will help us parse and validate these accounts. Let's see what this looks like in the `InitializeExtraAccountMetaList` struct:
+1. Prepare the accounts that we need to store in the `extra_account_meta_list` account as a vector (we will talk about that in depth in a sec).
+2. Calculate the size and rent required to store the list of `ExtraAccountMetas`.
+3. Make a CPI to the System Program to create an account and set the Transfer Hook Program as the owner, and then initializing the account data to store the list of `ExtraAccountMetas`.
 
 ```rust
 #[derive(Accounts)]
@@ -152,46 +147,27 @@ pub struct InitializeExtraAccountMetaList<'info> {
     )]
   pub extra_account_meta_list: AccountInfo<'info>,
   pub mint: InterfaceAccount<'info, Mint>,
-  pub token_program: Interface<'info, TokenInterface>,
+
   pub system_program: Program<'info, System>,
 
-  #[account(init, payer = payer, mint::decimals = 0, mint::authority = mint_authority)]
-  pub another_mint: InterfaceAccount<'info, Mint>,
-
-  /// CHECK: mint authority Account for crumb mint
+  // Accounts to add to the extra-account-metas
+  pub some_account: UncheckedAccount<'info>,
   #[account(seeds = [b"some-seed"], bump)]
   pub pda_account: UncheckedAccount<'info>,
 
 }
-```
 
-In this struct, we have the following accounts:
-
-1. `payer` - the account that will pay for the transaction fees (**required**).
-2. `extra_account_meta_list` - the account that will store the extra accounts needed for the transfer hook (**required**).
-3. `mint` - the mint account of the token to be transferred (**required**).
-4. `token_program` - the token program account (**required because we are initializing the `another_mint` account in a later step**).
-5. `system_program` - the system program account (**required because we are initializing the `another_mint` account in a later step**).
-6. `another_mint` - the mint account of the token to be minted by the transfer hook instruction (**optional**).
-7. `PDA_account` - the PDA account that will be used as the mint authority for the `another_mint` account (**optional**).
-
-We will have to pass all of these accounts when calling the `initialize_extra_account_meta_list` instruction. However, Anchor will help us a lot here; it will validate the accounts and ensure that we are passing the right accounts. Also, it will parse the accounts and add them to an object called the `ctx` and pass them to the instruction when we call it. Good to know that there is a specific setting that you can enable in your `anchor.toml` file under the features section that will make Anchor generate the derived accounts without passing them by using the seeds from the struct validation. [Read more about it here](https://www.anchor-lang.com/docs/manifest#features). Basically, turning this on will make passing the PDA account address optional.
-
-After preparing the struct, we can go ahead and write the instruction itself, which will look like this:
-
-```rust
 pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
   let account_metas = vec![
-    ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?, // we can get the address from anywhere we want and pass it here
-    ExtraAccountMeta::new_with_pubkey(&ctx.accounts.another_mint.key(), false, true)?, // is_writable true
+    ExtraAccountMeta::new_with_pubkey(&ctx.accounts.some_account.key(), false, true)?, // Read only
     ExtraAccountMeta::new_with_seeds(
       &[
         Seed::Literal {
           bytes: "some-seed".as_bytes().to_vec(),
         },
       ],
-      false, // is_signer
-      false // is_writable
+      true, // is_signer
+      true // is_writable
     )?,
   ];
 
@@ -224,17 +200,11 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
 }
 ```
 
-The logic might not feel simple, but we are basically doing three things:
+Let's dive a little deeper into the `ExtraAccountMeta` you can store. 
 
-1. Preparing the accounts that we need to store in the `ExtraAccountMetaList` account as a vector (we will talk about that in depth in a sec).
-2. Calculating the size and rent required to store the list of `ExtraAccountMetas`.
-3. Making a CPI to the System Program to create an account and set the Transfer Hook Program as the owner, and then initializing the account data to store the list of `ExtraAccountMetas`.
+You can directly store the account address, store the seeds to derive a PDA of the program itself, and store the seeds to derive a PDA for a program other than the Transfer Hook program.
 
-The last two steps are fairly easy, nothing crazy or new, so we will just focus on explaining the first step.
-
-Previously we've learned that there are three ways to store the accounts: directly store the account address, store the seeds to derive a PDA of the program itself, and store the seeds to derive a PDA for a program other than the Transfer Hook program.
-
-The first method is straight-forward; you just need to get the account address. You can pass it to the instruction or get it from a library (like the system program or the token program), or you can even hardcode it.
+The first method is straight-forward `ExtraAccountMeta::new_with_pubkey`; you just need an account address. You can pass it to the instruction or get it from a library (like the system program or the token program), or you can even hardcode it.
 
 However, the most interesting part here is storing the seeds, and it could either be a PDA of the transfer hook program itself or a PDA of another program like an associated token account. We can do both of them by using `ExtraAccountMeta::new_with_seeds` and `ExtraAccountMeta::new_external_pda_with_seeds`, respectively, and pass the seeds to them.
 
@@ -255,9 +225,9 @@ pub fn new_external_pda_with_seeds(
 )
 ```
 
-Both of these methods are similar; the only change is we need to pass the `program_id` for the PDAs that are not of our program in the `new_external_pda_with_seeds` method, and we need to provide a list of seeds (which we will talk about soon) and two booleans for `is_signer` and `is_writable` to determine if the account should be a signer or writable.
+Both of these methods are similar; the only change is we need to pass the `program_id` for the PDAs that are not of our program in the `new_external_pda_with_seeds` method. Other that that we need to provide a list of seeds (which we will talk about soon) and two booleans for `is_signer` and `is_writable` to determine if the account should be a signer or writable.
 
-Now providing the seeds themselves is the most challenging part here, so we will break it down to make it easier to understand. Let's first take a look at the seed enum implementation from [spl_tlv_account_resolution::seeds::Seed](https://github.com/solana-labs/solana-program-library/blob/master/libraries/tlv-account-resolution/src/seeds.rs):
+Providing the seeds themselves takes a little explanation. Hard-coded literal seeds are easy enough, but what happens if you want a seed to be variable, say created with the public key of a passed in account? To make sense of this, let's break it down to make it easier to understand. First take a look at the seed enum implementation from [spl_tlv_account_resolution::seeds::Seed](https://github.com/solana-labs/solana-program-library/blob/master/libraries/tlv-account-resolution/src/seeds.rs):
 
 ```rust
 pub enum Seed {
@@ -319,63 +289,77 @@ pub enum Seed {
 }
 ```
 
-From this code, we can tell that there are four main ways to provide the seeds:
+As we can see from the code above, there are four main ways to provide seeds:
 
 1. A literal hard-coded argument, such as the string `"some-seed"`.
 2. An instruction-provided argument, to be resolved from the instruction data. This can be done by giving the start index and the length of the data we want to have as a seed.
 3. The public key of an account from the entire accounts list. This can be done by giving the index of the account (we will talk about this more soon).
 4. An argument to be resolved from the inner data of some account. This can be done by giving the index of the account, the start index of the data, along with the length of the data we want to have as a seed.
 
-To use the 2 last methods of setting the seed, you need to get the account index, and there is a way to tell which account is in which index. So let's get to it; here is the accounts vector again but with the indexes:
+To use the 2 last methods of setting the seed, you need to get the account index. This represents the index of the account passed into the `Execute` function of the hook. This is standardized. 
+
+- index 0-3 will always be, `source`, `mint`, `destination`, `owner` respectively
+- index 4: will be the `extra_account_meta_list`
+- index 5+: will be in whatever order you create your `account_metas`
 
 ```rust
     // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
     // index 4 is the extra_account_meta_list account
   let account_metas = vec![
-    // index 5, Token program
-    ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?, // we can get the address from anywhere we want and pass it here
-    // index 6, another mint
-    ExtraAccountMeta::new_with_pubkey(&ctx.accounts.another_mint.key(), false, true)?, // is_writable true
-    // index 7, mint authority
+    // index 5 - some_account
+    ExtraAccountMeta::new_with_pubkey(&ctx.accounts.some_account.key(), false, true)?, 
+    // index 6 - pda_account
     ExtraAccountMeta::new_with_seeds(
       &[
         Seed::Literal {
           bytes: "some-seed".as_bytes().to_vec(),
         },
       ],
-      false, // is_signer
-      false // is_writable
+      true, // is_signer
+      true // is_writable
     )?,
   ];
 ```
 
-As you can see in the comments, the indexes 0-3 are the accounts required for token transfer (source, mint, destination, owner), and on index 4 we have the `extra_account_meta_list`, then the rest are the extra accounts required from the `ExtraAccountMetaList` account. You can use them as follows:
+Now, let's say that the `pda_account` was PDA'd off of "some-seed" and `some_account`. This is where we can specify the account key index:
 
 ```rust
-  ExtraAccountMeta::new_with_seeds(
-    &[
-      Seed::AccountKey {
-        index: 5,
-      }
-    ],
-    false, // is_signer
-    false // is_writable
-  )?,
+  // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+  // index 4 is the extra_account_meta_list account
+  let account_metas = vec![
+    // index 5 - some_account
+    ExtraAccountMeta::new_with_pubkey(&ctx.accounts.some_account.key(), false, true)?, 
+    // index 6 - pda_account
+    ExtraAccountMeta::new_with_seeds(
+      &[
+        Seed::AccountKey {
+          index: 5, // index of `some_account`
+        },
+        Seed::Literal {
+          bytes: "some-seed".as_bytes().to_vec(),
+        },
+      ],
+      true, // is_signer
+      true // is_writable
+    )?,
+  ];
 ```
+
+Note: Remember that the accounts indexed 0-4 are defined by the `Execute` function of the transfer hook. They are: `source`, `mint`, `destination`, `owner`, `extra_account_meta_list` respectively. The first four of which, are de-escalated, or read-only. These will always be read only. If you try to be sneaky and add any of these first four accounts into the `extra_account_meta_list`, they will always be interpreted as read-only, even if you specify them differently with `is_writable` or `is_signer`. 
 
 ### 2. `transfer_hook` Instruction
 
-The main instruction for the transfer hook program is `transfer_hook`. This instruction is invoked on every token transfer. It is the place where we can implement our custom logic for the token transfer.
+In Anchor, when the `Execute` function it looks for and calls the `transfer_hook` instruction. It is the place where we can implement our custom logic for the token transfer.
 
-When the Token Extension program CPIs our program, it will invoke this instruction and pass to it all the accounts plus the amount of the transfer that just happened. The first 5 accounts will always be (source, mint, destination, owner, extraAccountMetaList), and the rest are the extra accounts that we added to the `ExtraAccountMetaList` account if there is any.
+When the Token Extensions Program CPIs our program, it will invoke this instruction and pass to it all the accounts plus the amount of the transfer that just happened. The first 5 accounts will always be `source`, `mint`, `destination`, `owner`, `extraAccountMetaList`, and the rest are the extra accounts that we added to the `ExtraAccountMetaList` account if there is any.
 
-Let's take a look at an example struct `TransferHook` for this instruction:
+Let's take a look at an example `TransferHook` struct for this instruction:
 
 ```rust
 // Order of accounts matters for this struct.
 // The first 4 accounts are the accounts required for token transfer (source, mint, destination, owner)
 // Remaining accounts are the extra accounts required from the ExtraAccountMetaList account
-// These accounts are provided via CPI to this program from the Token Extension program
+// These accounts are provided via CPI to this program from the Token Extensions Program
 #[derive(Accounts)]
 pub struct TransferHook<'info> {
   #[account(token::mint = mint, token::authority = owner)]
@@ -390,21 +374,16 @@ pub struct TransferHook<'info> {
   #[account(seeds = [b"extra-account-metas", mint.key().as_ref()], bump)]
   pub extra_account_meta_list: UncheckedAccount<'info>,
 
-  pub token_program: Interface<'info, TokenInterface>,
-
-  pub another_mint: InterfaceAccount<'info, Mint>,
-
-  /// CHECK: mint authority Account,
+  // Accounts to add to the extra-account-metas
+  pub some_account: UncheckedAccount<'info>,
   #[account(seeds = [b"some-seed"], bump)]
-  pub some_pda: UncheckedAccount<'info>,
+  pub pda_account: UncheckedAccount<'info>,
 }
 ```
 
-As mentioned in the comment, the order here matters; we should pass the first 5 accounts as shown above, then the rest of the accounts should follow the order of the accounts in the `extraAccountMetaList` account, the one we talked about before.
+As mentioned in the comment, the order here matters; we need the first 5 accounts as shown above, then the rest of the accounts need to follow the order of the accounts in the `extraAccountMetaList` account.
 
-As you know, Anchor will take it from here and make sure that everything is validated and parsed correctly, and it will pass the accounts to the instruction it gets called.
-
-Now let's take a look at the function itself:
+Other than that, you can write any functionality you want in within the transfer hook. But remember, if the hook fails, the entire transaction fails. 
 
 ```rust
   pub fn transfer_hook(ctx: Context<TransferHook>, amount: u64) -> Result<()> {
@@ -413,17 +392,15 @@ Now let's take a look at the function itself:
   }
 ```
 
-You can add any logic you want here; for instance, you can fail the transfer if a specific condition is not met, or you can make another CPI from here to another program, etc.
-
-Good to know that the transfer hook gets called after the transfer happens, so at the point when the transfer hook is getting invoked, the tokens have already left the sender account and get to the receiver account.
+Note: The transfer hook gets called *after* the transfer happens, so at the point when the transfer hook is getting invoked, so the tokens have been transferred from the sender to the receiver.
 
 ### 3. Fallback
 
-In addition, we must include a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions program.
+One last caveat to the on-chain portion of transfer hooks: When dealing with Anchor, we need to specify a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions Program.
 
 This is necessary because Anchor generates instruction discriminators differently from the ones used in the Transfer Hook interface instructions. The instruction discriminator for the `transfer_hook` instruction will not match the one for the Transfer Hook interface.
 
-Next versions of Anchor should solve this for us, but for now, we can implement this simple workaround.
+Next versions of Anchor should solve this for us, but for now, we can implement this simple workaround:
 
 ```rust
 // fallback instruction handler as workaround to anchor instruction discriminator check
@@ -446,13 +423,13 @@ pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>
 }
 ```
 
-## Using transfer hooks offchain
+## Using transfer hooks off-chain
 
 In order to create a mint with a transfer hook and ensure successful transfers, follow these steps:
 
 1. Create the mint with the transfer hook extension and point to the transfer hook program you want to use.
 2. Initialize the `extraAccountList` account. This step must be done before any transfer, and it is the responsibility of the mint owner/creator. It needs to happen only once for each mint to add all the extra accounts that the transfer hook needs.
-3. Make sure to pass all the required accounts when invoking the transfer instruction from the Token Extension program.
+3. Make sure to pass all the required accounts when invoking the transfer instruction from the Token Extensions Program.
 
 ### Create a Mint with the `Transfer-Hook` Extension:
 
@@ -513,7 +490,7 @@ const transaction = new Transaction().add(
 
 ### Transfer tokens successfully:
 
-To transfer tokens successfully, you need to pass all the required accounts when invoking the transfer instruction from the Token Extension program. luckily for us the `@solana/spl-token` library has a method that will help us with that, it's called `createTransferCheckedWithTransferHookInstruction` and it will take care of adding the extra accounts to the transfer instruction for us.
+To transfer tokens successfully, you need to pass all the required accounts when invoking the transfer instruction from the Token Extensions Program. luckily for us the `@solana/spl-token` library has a method that will help us with that, it's called `createTransferCheckedWithTransferHookInstruction` and it will take care of adding the extra accounts to the transfer instruction for us.
 
 ```ts
 const transferInstruction = await createTransferCheckedWithTransferHookInstruction(
@@ -933,7 +910,7 @@ In this example the `TransferHook` struct will have 9 accounts:
 <Callout type="info">
 
 Note that the order of accounts in this struct matters. This is the order in
-which the Token Extensions program provides these accounts when it CPIs to this
+which the Token Extensions Program provides these accounts when it CPIs to this
 Transfer Hook program.
 
 </Callout>
@@ -942,7 +919,7 @@ Transfer Hook program.
 // Order of accounts matters for this struct.
 // The first 4 accounts are the accounts required for token transfer (source, mint, destination, owner)
 // Remaining accounts are the extra accounts required from the ExtraAccountMetaList account
-// These accounts are provided via CPI to this program from the Token Extension program
+// These accounts are provided via CPI to this program from the Token Extensions Program
 #[derive(Accounts)]
 pub struct TransferHook<'info> {
   #[account(token::mint = mint, token::authority = owner)]
@@ -1178,7 +1155,7 @@ pub struct InitializeExtraAccountMetaList<'info> {
 // Order of accounts matters for this struct.
 // The first 4 accounts are the accounts required for token transfer (source, mint, destination, owner)
 // Remaining accounts are the extra accounts required from the ExtraAccountMetaList account
-// These accounts are provided via CPI to this program from the Token Extension program
+// These accounts are provided via CPI to this program from the Token Extensions Program
 #[derive(Accounts)]
 pub struct TransferHook<'info> {
   #[account(token::mint = mint, token::authority = owner)]
@@ -1550,12 +1527,12 @@ it('Initializes ExtraAccountMetaList Account and Creates the ATA for the Crumb M
 
 ### Transfer the NFT and the transfer hook mints a crumb token for each transfer
 
-The final test is the transfer test, the whole idea of our lab is to be able to transfer the NFT and making sure that the Token Extension Program is calling our transfer hook program under the hood correctly.
+The final test is the transfer test, the whole idea of our lab is to be able to transfer the NFT and making sure that the Token Extensions Program is calling our transfer hook program under the hood correctly.
 
 The test will have three parts:
 
-1. Transfer the NFT from the sender to the recipient, after doing that the Token Extension program should call our program and a crumb token should be minted, which means the supply after this transfer finishes should be 1.
-2. Transfer the NFT back to the sender, after doing that the Token Extension program should call our program and a crumb token should be minted, which means the supply after this transfer finishes should be 2.
+1. Transfer the NFT from the sender to the recipient, after doing that the Token Extensions Program should call our program and a crumb token should be minted, which means the supply after this transfer finishes should be 1.
+2. Transfer the NFT back to the sender, after doing that the Token Extensions Program should call our program and a crumb token should be minted, which means the supply after this transfer finishes should be 2.
 3. Assert that the supply of the crumb mint is 2.
 
 ```ts
