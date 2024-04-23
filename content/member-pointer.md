@@ -191,7 +191,7 @@ export async function createMember(
 	const mintLamports =
 		await connection.getMinimumBalanceForRentExemption(totalLen)
 
-	console.log('Creating a transaction with group instruction... ')
+	console.log('Creating a transaction with member instruction... ')
 
 	const mintTransaction = new Transaction().add(
 		SystemProgram.createAccount({
