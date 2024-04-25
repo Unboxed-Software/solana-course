@@ -140,7 +140,7 @@ pub struct ConceptZeroCopy<'info> {
 }
 ```
 
-**Note**: In older versions of anchor `< 0.28.0` you may have to use: `zero_copy(unsafe))` ( [Thanks @0xk2_](https://twitter.com/0xk2_) for this find )
+**Note**: In older versions of anchor `< 0.28.0` you may have to use: `zero_copy(unsafe))` ( [Thanks @0xk2_](https://github.com/Unboxed-Software/solana-course/issues/347) for this find )
 
 To understand what's happening here, take a look at the [rust Anchor documentation](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html)
 
