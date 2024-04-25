@@ -301,7 +301,7 @@ Paste the following metadata definition in `index.ts` under the right comment se
 const collectionMintKeypair = Keypair.generate()
 
 const collectionMetadata = {
-	imagePath: 'collection.jpeg',
+	imagePath: 'src/assets/collection.jpeg',
 	tokenName: 'cool-cats-collection',
 	tokenDescription: 'Collection of Cool Cat NFTs',
 	tokenSymbol: 'MEOWs',
