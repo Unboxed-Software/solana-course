@@ -140,6 +140,8 @@ pub struct ConceptZeroCopy<'info> {
 }
 ```
 
+**Note**: In older versions of anchor `< 0.28.0` you may have to use: `zero_copy(unsafe))` ( [Thanks @0xk2_](https://github.com/Unboxed-Software/solana-course/issues/347) for this find )
+
 To understand what's happening here, take a look at the [rust Anchor documentation](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html)
 
 > Other than being more efficient, the most salient benefit [`zero_copy`] provides is the ability to define account types larger than the max stack or heap size. When using borsh, the account has to be copied and deserialized into a new data structure and thus is constrained by stack and heap limits imposed by the BPF VM. With zero copy deserialization, all bytes from the account’s backing `RefCell<&mut [u8]>` are simply re-interpreted as a reference to the data structure. No allocations or copies necessary. Hence the ability to get around stack and heap limitations.
@@ -571,9 +573,11 @@ We'll walk through the tradeoffs of various design decisions as we go to give yo
 
 We'll build this from scratch. Start by creating a new Anchor project:
 
-```powershell
+```bash
 anchor init rpg
 ```
+
+Note: This lab was created with Anchor version `0.28.0` in mind. If there are problems compiling, please refer to the [solution code](https://github.com/Unboxed-Software/anchor-rpg/tree/challenge-solution) for the environment setup.
 
 Next, replace the program ID in `programs/rpg/lib.rs` and `Anchor.toml` with the program ID shown when you run `anchor keys list`.
 
