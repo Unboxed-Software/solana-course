@@ -675,20 +675,14 @@ Once in the starter branch, run
 anchor keys sync
 ```
 
-To sync your program key with the one in the `Anchor.toml` and the declared program id in the `programs/transfer-hook/src/lib.rs` file.
+This syncs your program key with the one in the `Anchor.toml` and the declared program id in the `programs/transfer-hook/src/lib.rs` file. This will also set the keypair path in `Anchor.toml` to the result of running `solana config get keypair`.
 
-Lastly set your developer keypair path in `Anchor.toml` if you don't want to use the default location.
+If you want to use a different keypair path, you may set it in `Anchor.toml`:
 
 ```toml
 [provider]
 cluster = "Localnet"
 wallet = "~/.config/solana/id.json" // This is the default path, you can change it if you have your keypair in a different location
-```
-
-If you don't know what your current keypair path is you can always run the solana cli to find out.
-
-```bash
-solana config get
 ```
 
 ### 4. Confirm the program builds
@@ -702,7 +696,7 @@ anchor build
 You can safely ignore the warnings of the build script, these will go away as we add in the necessary code. But at the end you should see a message like this:
 
 ```bash
- Finished release [optimized] target(s)
+Finished release [optimized] target(s)
 ```
 
 Feel free to run the provided tests to make sure the rest of the dev environment is setup correct. You'll have to install the node dependencies using `npm` or `yarn`. The tests should run, but they'll all fail until we have completed our program.
@@ -712,11 +706,11 @@ yarn install
 anchor test
 ```
 
-you should see that 4 tests are passed, this is because we don't have any code written yet.
+You should see that 4 tests pass. We will be filling these in later.
 
 ## 1. Write the transfer hook program
 
-In this section we'll dive into writing the onchain transfer hook program using anchor, all the code will go into the `programs/transfer-hook/src/lib.rs` file.
+In this section we'll dive into writing the on-chain transfer hook program using anchor, all the code will go into the `programs/transfer-hook/src/lib.rs` file.
 
 by Takeing a look inside that file, you'll notice we have three instructions `initialize_extra_account_meta_list`, `transfer_hook`, `fallback`. Additionally we have two instruction account struct `InitializeExtraAccountMetaList` and `TransferHook`.
 
@@ -770,10 +764,11 @@ pub struct TransferHook {}
 
 The cookie program needs some extra accounts to be able to mint the crumb tokens which are:
 
-1. `crumb_mint` - The mint account of the token to be minted by the transfer_hook instruction.
+1. `crumb_mint` - The "crumb" mint account of the token to be minted by the transfer_hook instruction.
 2. `crumb_mint_ata` - The associated token account of the crumb mint.
 3. `mint_authority` - For the crumb mint.
 4. `token_program` - this mint will be a regular SPL token mint.
+5. `associated_token_program` - needed to enforce the ata
 
 We are going to store these accounts in the `extra_account_meta_list` account, by invoking the instruction `initialize_extra_account_meta_list` and passing the required accounts to it.
 
@@ -785,14 +780,13 @@ The Instruction requires the following accounts:
 
 1. `extra_account_meta_list` - The PDA that will hold the extra account.
 2. `crumb_mint` - The mint account of the crumb token.
-3. `crumb_mint_ata` - The associated token account of the crumb token.
 4. `mint` - The mint account of the cookie NFT.
 5. `mint_authority` - The mint authority account of the crumb token.
 6. `payer` - The account that will pay for the creation of the ExtraAccountMetaList account.
 7. `token_program` - The token program account.
 8. `system_program` - The system program account.
 
-The code for the struct will goes as follows
+The code for the struct will goes as follows:
 
 ```rust
 #[derive(Accounts)]
@@ -820,17 +814,15 @@ pub struct InitializeExtraAccountMetaList<'info> {
 }
 ```
 
-Thanks to anchor it could make our life easier and infer a few of these accounts, therefore we'll have to pass the first 4 accounts (extra_account_meta_list, crumb_mint, crumb_mint_ata, mint) when invoking the instruction, and Anchor will infer the rest.
+Note that we are not specifying the `crumb_mint_ata` or the `associated_token_program`. This is because the `crumb_mint_ata` is variable and will be driven by the other accounts in the extra account meta, and `associated_token_program` will be hardcoded. Since we're just saving their address in the extra account meta, we don't actually need to pass them in here.
 
-Notice that we are asking anchor to initialize the `crumb_mint` account for us, by using the `#[account(init, payer = payer,mint::decimals = 0, mint::authority = mint_authority)]` attribute. At the same time we are asking anchor to drive the `mint_authority` account from the seed `b"mint-authority"`.
+Also notice that we are asking anchor to initialize the `crumb_mint` account for us, by using the `#[account(init, payer = payer,mint::decimals = 0, mint::authority = mint_authority)]` attribute. At the same time we are asking anchor to drive the `mint_authority` account from the seed `b"mint-authority"`.
 
 It's important to make the `mint_authority` a PDA of the transfer hook program itself, this way the program can sign for it when making the mint CPI.
 
-Note that we should be able to also drive the `crumb_mint_ata` using `Seed::new_external_pda_with_seeds` but at the time of writing this lesson, this method was causing some issues, so we'll derive it in the TS code and pass it as a regular address.
-
 **`initialize_extra_account_meta_list` Instruction**
 
-The instruction logic will be as follows:
+Let's write the `initialize_extra_account_meta_list` function, it will do the following: 
 
 1. List the accounts required for the transfer hook instruction inside a vector.
 2. Calculate the size and rent required to store the list of ExtraAccountMetas.
@@ -841,81 +833,78 @@ here is the code for it:
 
 ```rust
 pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
-    // 1. List the accounts required for the transfer hook instruction inside a vector.
+  // 1. List the accounts required for the transfer hook instruction inside a vector.
 
-    // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
-    // index 4 is the extra_account_meta_list account
-    let account_metas = vec![
-      // index 5, Token program
-      ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
-      // index 6, Associated Token program
-      ExtraAccountMeta::new_with_pubkey(&associated_token_id, false, false)?,
-      // index 7, crumb mint
-      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
-      // index 8, mint authority
-      ExtraAccountMeta::new_with_seeds(
-        &[
-          Seed::Literal {
-            bytes: "mint-authority".as_bytes().to_vec(),
-          },
-        ],
-        false, // is_signer
-        false // is_writable
-      )?,
-      // index 9, crumb mint ATA
-      ExtraAccountMeta::new_external_pda_with_seeds(
-        6, // associated token program index
-        &[
-          Seed::AccountKey { index: 8 }, // owner index
-          Seed::AccountKey { index: 5 }, // token program index
-          Seed::AccountKey { index: 7 }, // crumb mint index
-        ],
-        false, // is_signer
-        true // is_writable
-      )?
-    ];
-    // 2. Calculate the size and rent required to store the list of
+  // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
+  // index 4 is the extra_account_meta_list account
+  let account_metas = vec![
+    // index 5, Token program
+    ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
+    // index 6, Associated Token program
+    ExtraAccountMeta::new_with_pubkey(&associated_token_id, false, false)?,
+    // index 7, crumb mint
+    ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
+    // index 8, mint authority
+    ExtraAccountMeta::new_with_seeds(
+      &[
+        Seed::Literal {
+          bytes: "mint-authority".as_bytes().to_vec(),
+        },
+      ],
+      false, // is_signer
+      false // is_writable
+    )?,
+    // index 9, crumb mint ATA
+    ExtraAccountMeta::new_external_pda_with_seeds(
+      6, // associated token program index
+      &[
+        Seed::AccountKey { index: 8 }, // owner index
+        Seed::AccountKey { index: 5 }, // token program index
+        Seed::AccountKey { index: 7 }, // crumb mint index
+      ],
+      false, // is_signer
+      true // is_writable
+    )?
+  ];
+  // 2. Calculate the size and rent required to store the list of
 
-    // calculate account size
-    let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
-    // calculate minimum required lamports
-    let lamports = Rent::get()?.minimum_balance(account_size as usize);
+  // calculate account size
+  let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
+  // calculate minimum required lamports
+  let lamports = Rent::get()?.minimum_balance(account_size as usize);
 
-    // 3. Make a CPI to the System Program to create an account and set the
-    let mint = ctx.accounts.mint.key();
-    let signer_seeds: &[&[&[u8]]] = &[&[b"extra-account-metas", &mint.as_ref(), &[ctx.bumps.extra_account_meta_list]]];
+  // 3. Make a CPI to the System Program to create an account and set the
+  let mint = ctx.accounts.mint.key();
+  let signer_seeds: &[&[&[u8]]] = &[&[b"extra-account-metas", &mint.as_ref(), &[ctx.bumps.extra_account_meta_list]]];
 
-    // Create ExtraAccountMetaList account
-    create_account(
-      CpiContext::new(ctx.accounts.system_program.to_account_info(), CreateAccount {
-        from: ctx.accounts.payer.to_account_info(),
-        to: ctx.accounts.extra_account_meta_list.to_account_info(),
-      }).with_signer(signer_seeds),
-      lamports,
-      account_size,
-      ctx.program_id
-    )?;
+  // Create ExtraAccountMetaList account
+  create_account(
+    CpiContext::new(ctx.accounts.system_program.to_account_info(), CreateAccount {
+      from: ctx.accounts.payer.to_account_info(),
+      to: ctx.accounts.extra_account_meta_list.to_account_info(),
+    }).with_signer(signer_seeds),
+    lamports,
+    account_size,
+    ctx.program_id
+  )?;
 
-    // 4. Initialize the account data to store the list of ExtraAccountMetas
-    ExtraAccountMetaList::init::<ExecuteInstruction>(
-      &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
-      &account_metas
-    )?;
+  // 4. Initialize the account data to store the list of ExtraAccountMetas
+  ExtraAccountMetaList::init::<ExecuteInstruction>(
+    &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
+    &account_metas
+  )?;
 
-    Ok(())
-  }
+  Ok(())
+}
 ```
 
-<Callout type="info">
-
-In this example, we are not using the Transfer Hook interface to create the
-ExtraAccountMetas account.
-
-</Callout>
+Notice which accounts are writable, how that none of them are signers and how we use `new_with_seeds` and `new_external_pda_with_seeds` to achieve our variable accounts.
 
 ### 2. Transfer Hook instruction
 
-In this step, we'll implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the token program when a token transfer occurs. The transfer_hook instruction will mint a new crumb token for each transfer.
+In this step, we'll implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the Token Extensions Program when a token transfer occurs. 
+
+The transfer hook we are writing will mint one crumb token each time a transfer occurs.
 
 Again we'll have a struct `TransferHook` that will hold the accounts required for the instruction.
 
@@ -934,13 +923,8 @@ In this example the `TransferHook` struct will have 9 accounts:
 9. `mint_authority` - The mint authority account of the token to be minted by the transfer_hook instruction.
 10. `crumb_mint_ata` - The associated token account of the token to be minted by the transfer_hook instruction.
 
-<Callout type="info">
+> Very Important Note: The order of accounts in this struct matters. This is the order in which the Token Extensions Program provides these accounts when it CPIs to this Transfer Hook program.
 
-Note that the order of accounts in this struct matters. This is the order in
-which the Token Extensions Program provides these accounts when it CPIs to this
-Transfer Hook program.
-
-</Callout>
 
 ```rust
 // Order of accounts matters for this struct.
@@ -978,36 +962,40 @@ pub struct TransferHook<'info> {
 
 **`transfer_hook` Instruction**
 
-This instruction is fairly simple, it will only make one CPI to the token program to mint a new crumb token for each transfer, all what we need to do is to pass the write accounts to the CPI.
+This instruction is fairly simple, it will only make one CPI to the Token Program to mint a new crumb token for each transfer, all what we need to do is to pass the right accounts to the CPI.
+
+Note: The "crumb" token will be a regular Token Program account. 
 
 Since the mint_authority is a PDA of the transfer hook program itself, the program can sign for it. Therefore we'll use `new_with_signer` and pass mint_authority seeds as the signer seeds.
 
 ```rust
-  pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
-    let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
-    // mint a crumb token for each transaction
-    token::mint_to(
-      CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(), // token program
-        token::MintTo {
-          mint: ctx.accounts.crumb_mint.to_account_info(),
-          to: ctx.accounts.crumb_mint_ata.to_account_info(),
-          authority: ctx.accounts.mint_authority.to_account_info(),
-        },
-        signer_seeds
-      ),
-      1 // amount
-    ).unwrap();
+pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
+  let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
+  // mint a crumb token for each transaction
+  token::mint_to(
+    CpiContext::new_with_signer(
+      ctx.accounts.token_program.to_account_info(), // token program
+      token::MintTo {
+        mint: ctx.accounts.crumb_mint.to_account_info(),
+        to: ctx.accounts.crumb_mint_ata.to_account_info(),
+        authority: ctx.accounts.mint_authority.to_account_info(),
+      },
+      signer_seeds
+    ),
+    1 // amount
+  ).unwrap();
 
-    Ok(())
-  }
+  Ok(())
+}
 ```
 
-Notice that we do have the amount of the original transfer, in our case that will always be `1` because we are dealing with NFTs, but if you have a different token you will get the amount of how much did they transfer.
+Notice that we do have the amount of the original transfer, in our case that will always be `1` because we are dealing with NFTs.
 
 ### 3. Fallback instruction
 
 The last instruction we have to fill out is the `fallback`, this is necessary because Anchor generates instruction discriminators differently from the ones used in Transfer Hook interface instructions. The instruction discriminator for the `transfer_hook` instruction will not match the one for the Transfer Hook interface.
+
+Next versions of anchor should solve this for us, but for now we can implement this simpl workaround:
 
 ```rust
 // fallback instruction handler as workaround to anchor instruction discriminator check
@@ -1030,251 +1018,43 @@ pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>
 }
 ```
 
-Next versions of anchor should solve this for us, but for now we can implement this simpl workaround
+### 4. Build the program
 
-### 4. Validate the program
-
-to validate that we are doing fine before moving to the next part, let's bring all the code together and then build and deploy the program
-
-**`lib.rs` File**
-
-```rust
-// in programs/transfer-hook/src/lib.rs
-use anchor_lang::{ prelude::*, system_program::{ create_account, CreateAccount } };
-use anchor_spl::{ token, token_interface::{ Mint, TokenAccount, TokenInterface } };
-use spl_transfer_hook_interface::instruction::{ ExecuteInstruction, TransferHookInstruction };
-use spl_tlv_account_resolution::{ account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList };
-
-declare_id!("YOUR_PROGRAM_ID_HERE");
-
-#[program]
-pub mod transfer_hook {
-  use super::*;
-
-  pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
-    // 1. List the accounts required for the transfer hook instruction inside a vector.
-
-    // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
-    // index 4 is the extra_account_meta_list account
-    let account_metas = vec![
-      // index 5, Token program
-      ExtraAccountMeta::new_with_pubkey(&token::ID, false, false)?,
-      // index 6, Associated Token program
-      ExtraAccountMeta::new_with_pubkey(&associated_token_id, false, false)?,
-      // index 7, crumb mint
-      ExtraAccountMeta::new_with_pubkey(&ctx.accounts.crumb_mint.key(), false, true)?, // is_writable true
-      // index 8, mint authority
-      ExtraAccountMeta::new_with_seeds(
-        &[
-          Seed::Literal {
-            bytes: "mint-authority".as_bytes().to_vec(),
-          },
-        ],
-        false, // is_signer
-        false // is_writable
-      )?,
-      // index 9, crumb mint ATA
-      ExtraAccountMeta::new_external_pda_with_seeds(
-        6, // associated token program index
-        &[
-          Seed::AccountKey { index: 8 }, // owner index
-          Seed::AccountKey { index: 5 }, // token program index
-          Seed::AccountKey { index: 7 }, // crumb mint index
-        ],
-        false, // is_signer
-        true // is_writable
-      )?
-    ];
-    // 2. Calculate the size and rent required to store the list of
-
-    // calculate account size
-    let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
-    // calculate minimum required lamports
-    let lamports = Rent::get()?.minimum_balance(account_size as usize);
-
-    // 3. Make a CPI to the System Program to create an account and set the
-    let mint = ctx.accounts.mint.key();
-    let signer_seeds: &[&[&[u8]]] = &[&[b"extra-account-metas", &mint.as_ref(), &[ctx.bumps.extra_account_meta_list]]];
-
-    // Create ExtraAccountMetaList account
-    create_account(
-      CpiContext::new(ctx.accounts.system_program.to_account_info(), CreateAccount {
-        from: ctx.accounts.payer.to_account_info(),
-        to: ctx.accounts.extra_account_meta_list.to_account_info(),
-      }).with_signer(signer_seeds),
-      lamports,
-      account_size,
-      ctx.program_id
-    )?;
-
-    // 4. Initialize the account data to store the list of ExtraAccountMetas
-    ExtraAccountMetaList::init::<ExecuteInstruction>(
-      &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
-      &account_metas
-    )?;
-
-    Ok(())
-  }
-
-  pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
-    let signer_seeds: &[&[&[u8]]] = &[&[b"mint-authority", &[ctx.bumps.mint_authority]]];
-    // mint a crumb token for each transaction
-    token::mint_to(
-      CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(),
-        token::MintTo {
-          mint: ctx.accounts.crumb_mint.to_account_info(),
-          to: ctx.accounts.crumb_mint_ata.to_account_info(),
-          authority: ctx.accounts.mint_authority.to_account_info(),
-        },
-        signer_seeds
-      ),
-      1
-    ).unwrap();
-
-    Ok(())
-  }
-
-  // fallback instruction handler as workaround to anchor instruction discriminator check
-  pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>], data: &[u8]) -> Result<()> {
-    let instruction = TransferHookInstruction::unpack(data)?;
-
-    // match instruction discriminator to transfer hook interface execute instruction
-    // token2022 program CPIs this instruction on token transfer
-    match instruction {
-      TransferHookInstruction::Execute { amount } => {
-        let amount_bytes = amount.to_le_bytes();
-
-        // invoke custom transfer hook instruction on our program
-        __private::__global::transfer_hook(program_id, accounts, &amount_bytes)
-      }
-      _ => {
-        return Err(ProgramError::InvalidInstructionData.into());
-      }
-    }
-  }
-}
-
-#[derive(Accounts)]
-pub struct InitializeExtraAccountMetaList<'info> {
-  #[account(mut)]
-  payer: Signer<'info>,
-
-  /// CHECK: ExtraAccountMetaList Account, must use these seeds
-  #[account(
-        mut,
-        seeds = [b"extra-account-metas", mint.key().as_ref()],
-        bump
-    )]
-  pub extra_account_meta_list: AccountInfo<'info>,
-  pub mint: InterfaceAccount<'info, Mint>,
-  pub token_program: Interface<'info, TokenInterface>,
-  pub system_program: Program<'info, System>,
-
-  #[account(init, payer = payer, mint::decimals = 0, mint::authority = mint_authority)]
-  pub crumb_mint: InterfaceAccount<'info, Mint>,
-
-  /// CHECK: mint authority Account for crumb mint
-  #[account(seeds = [b"mint-authority"], bump)]
-  pub mint_authority: UncheckedAccount<'info>,
-}
-
-// Order of accounts matters for this struct.
-// The first 4 accounts are the accounts required for token transfer (source, mint, destination, owner)
-// Remaining accounts are the extra accounts required from the ExtraAccountMetaList account
-// These accounts are provided via CPI to this program from the Token Extensions Program
-#[derive(Accounts)]
-pub struct TransferHook<'info> {
-  #[account(token::mint = mint, token::authority = owner)]
-  pub source_token: InterfaceAccount<'info, TokenAccount>,
-  pub mint: InterfaceAccount<'info, Mint>,
-  #[account(token::mint = mint)]
-  pub destination_token: InterfaceAccount<'info, TokenAccount>,
-  /// CHECK: source token account owner
-  pub owner: UncheckedAccount<'info>,
-
-  /// CHECK: ExtraAccountMetaList Account,
-  #[account(seeds = [b"extra-account-metas", mint.key().as_ref()], bump)]
-  pub extra_account_meta_list: UncheckedAccount<'info>,
-
-  pub token_program: Interface<'info, TokenInterface>,
-
-  pub associated_token_program: Program<'info, AssociatedToken>,
-
-  pub crumb_mint: InterfaceAccount<'info, Mint>,
-
-  /// CHECK: mint authority Account,
-  #[account(seeds = [b"mint-authority"], bump)]
-  pub mint_authority: UncheckedAccount<'info>,
-
-  #[account(token::mint = crumb_mint)]
-  pub crumb_mint_ata: InterfaceAccount<'info, TokenAccount>,
-}
-```
-
-**Build and Deploy**
-
-anchor provides one command that will handle the build and the deploy for us.
+Let's make sure our program builds and that tests are runnable before we continue actually writing tests for it.
 
 ```bash
 anchor test
 ```
 
-this command will build, deploy the program. Additionally it will run the tests we have inside `tests/` directory, for now the tests are empty and we don't have to worry about them, all what we want is to validate that our program is building and deploying correctly, so the output should look like this:
+This command will build, deploy and run tests within the `tests/` directory. 
 
-```output
-Finished release [optimized] target(s) in 0.24s
-
-Found a 'test' script in the Anchor.toml. Running it as a test suite!
-
-Running test suite: "/Users/mohammed/code/unboxed/solana-token-22-course/token22-transfer-hook/Anchor.toml"
-
-yarn run v1.22.21
-warning package.json: No license field
-$ /Users/mohammed/code/unboxed/solana-token-22-course/token22-transfer-hook/node_modules/.bin/ts-mocha -p ./tsconfig.json -t 1000000 'tests/**/*.ts'
-(node:65231) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-
-
-  transfer-hook
-    ✔ Create NFT Account with Transfer Hook Extension
-    ✔ Create Token Accounts and Mint Tokens
-    ✔ Create ExtraAccountMetaList Account
-    ✔ Transfer Hook with Extra Account Meta
-
-
-  4 passing (2ms)
-
-✨  Done in 1.02s.
-```
-
-If you got this, congratulations, you have successfully written and deployed the transfer hook program!
-
-if you are seeing some errors try to go through the steps again and make sure you didn't miss anything.
+If you're seeing any errors try to go through the steps again and make sure you didn't miss anything.
 
 ## 2. Write the tests
 
-Now we'll write some TS script to test our code, all of our test will live inside `tests/anchor.ts`. Additionally we have some helper functions inside `helpers/helpers.ts` that we'll use in our tests.
+Now we'll write some TS scripts to test our code. All of our test will live inside `tests/anchor.ts`. Additionally we have some helper functions inside `helpers/helpers.ts` that we'll use for our tests.
 
 The outline of what will we do here is:
 
 1. Explore the helpers functions
 2. Prepare the environment
-3. Write the test for Create an NFT with Transfer Hook Extension and Metadata
-4. Write the test for Create Token Accounts and Mint The NFT
-5. Write the test for Initialize ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint
-6. Write the test for Transfers the NFT and the transfer hook mints a crumb token for each transfer
+3. Write the test for "Create an NFT with Transfer Hook Extension and Metadata"
+4. Write the test for "Create Token Accounts and Mint The NFT"
+5. Write the test for "Initialize ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint"
+6. Write the test for "Transfers the NFT and the transfer hook mints a crumb token for each transfer"
 
 ### Helpers
 
-inside `helpers/helpers.ts` you should see few functions, the most important two are:
+Inside `helpers/helpers.ts` you should see few functions, the most important two are:
 
-1. `airdropSolIfNeeded`: if you are low on sols, it will airdrop two sols to your wallet.
+1. `airdropSolIfNeeded`: it will check your SOL balance and will airdrop two SOL to your wallet if needed. However, be default, anchor will run everything with the local validator, which starts your wallet out with more than enough SOL.
 2. `getMetadataObject`: takes the token metadata as an input, uploads the offchain metadata to Arweave, and finally returns the metadata object, if you want to learn more about metadata you can visit the Metadata Extension Lesson.
 
-### prepare the environment:
+### Understand the testing environment
 
-Inside the describe function block you will see some anchor code to do the following
+When anchor projects are created, they come configured to create typescript tests with `mocha` and `chai`. When you look at `tests/anchor.ts` you'll see everything already setup with the tests we'll create.
+
+The following functionality is already provided to you:
 
 1. Get the program.
 2. Get the wallet.
@@ -1283,58 +1063,9 @@ Inside the describe function block you will see some anchor code to do the follo
 5. Airdrop some SOLs into the wallet if needed before running any of the tests.
 6. 4 empty tests that we'll talk about later
 
-```ts
-import * as anchor from '@coral-xyz/anchor';
-import { TransferHook } from '../target/types/transfer_hook';
-import { Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from '@solana/web3.js';
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  AuthorityType,
-  createAssociatedTokenAccountInstruction,
-  createInitializeMetadataPointerInstruction,
-  createInitializeMintInstruction,
-  createInitializeTransferHookInstruction,
-  createMintToInstruction,
-  createSetAuthorityInstruction,
-  createTransferCheckedWithTransferHookInstruction,
-  ExtensionType,
-  getAssociatedTokenAddressSync,
-  getMint,
-  getMintLen,
-  LENGTH_SIZE,
-  TOKEN_2022_PROGRAM_ID,
-  TYPE_SIZE,
-} from '@solana/spl-token';
-import { createInitializeInstruction, pack } from '@solana/spl-token-metadata';
-import { expect } from 'chai';
-import { airdropSolIfNeeded, getMetadataObject } from '../helpers/helpers';
+### Adding extra accounts
 
-describe('transfer-hook', () => {
-  // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
-
-  const program = anchor.workspace.TransferHook as anchor.Program<TransferHook>;
-
-  const wallet = provider.wallet as anchor.Wallet;
-
-  const connection = provider.connection;
-
-  before('Airdrop SOL', async () => {
-    await airdropSolIfNeeded(wallet.payer, provider.connection);
-  });
-
-  it('Creates an NFT with Transfer Hook Extension and Metadata', async () => {});
-
-  it('Creates Token Accounts and Mint The NFT', async () => {});
-
-  it('Initializes ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint', async () => {});
-
-  it('Transfers the NFT and the transfer hook mints a crumb token for each transfer', async () => {});
-});
-```
-
-To get us started we'll have to add few other stuff to our code:
+Before we can write any tests, we need to gather the rest of the accounts we'll need for testing. Specifically, we'll do the following in the main `describe` block right before `before('Airdrop SOL')...`:
 
 1. Generate new keypairs for the mint and the crumb mint
 2. Get the source token accounts
@@ -1383,9 +1114,9 @@ const crumbMintATA = getAssociatedTokenAddressSync(crumbMint.publicKey, crumbMin
 
 ### Create an NFT with Transfer Hook Extension and Metadata
 
-One more awesome things about extensions is that you can mix and match them as you like. so in this test we'll create a new NFT mint account with the transfer hook extension and the metadata extension.
+The last thing we need is the mint to attach the transfer hook functionality to. However, to show the awesome powers of the Token Extensions Program, we're going to combine this with the `metadata` and `metadata pointer` extension to make this a real NFT.
 
-The test will goes as follows:
+So to create an NFT with our transfer hook, we'll do the following:
 
 1. Get the metadata object: we'll use a the helper function `getMetadataObject` for that, notice that we are passing an `imagePath`, so for this you will have to grape an image and put it in the `helpers` folder, for this example let's call it `cool-cookie.png`.
 2. Get the minimum balance for the mint account, and calculate the size of the mint and the metadata
@@ -1397,8 +1128,10 @@ The test will goes as follows:
    - Initialize metadata which will set all the metadata for the NFT
 4. send the transaction and log the transaction signature
 
+Let's make this our first "test":
+
 ```ts
-it('Creates an NFT with Transfer Hook Extension and Metadata', async () => {
+it('Creates an Mint with Transfer Hook Extension and Metadata', async () => {
     // 1. get the metadata object
     const metadata = await getMetadataObject({
       connection,
@@ -1466,12 +1199,14 @@ it('Creates an NFT with Transfer Hook Extension and Metadata', async () => {
   });
 ```
 
+Note that this did not actually mint out NFT. We'll do that next.
+
 ### Create Token Accounts and Mint The NFT
 
-here we are testing two things:
+Now we have to mint our NFT. In this second test we'll do the following:
 
-1. Create the associated token accounts for the sender and the recipient
-2. Mint the NFT and set the mint authority to null so no one can mint any more tokens
+1. Create two associated token accounts, one for the `sender` and another for the `recipient` (which we'll use later)
+2. Mint the NFT to the `sender` and set the mint authority to null so no one can mint any more tokens
 
 ```ts
   it('Creates Token Accounts and Mint The NFT', async () => {
@@ -1517,9 +1252,11 @@ here we are testing two things:
   });
 ```
 
+Now we have all of the accounts we need to actually test our transfer hook.
+
 ### Initialize ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint
 
-In this test we'll:
+Before we can transfer the NFT, we still have to complete one last step, initializing the `ExtraAccountMetaList`. We'll do that in this next test:
 
 1. initialize the extra account meta list account, to do so we'll have to pass the needed account (mint, crumb mint, crumb mint ATA, extraAccountMetaList).
 2. Initialize the crumb mint ATA, so we can mint from crumb tokens to it in the next test.
@@ -1551,6 +1288,8 @@ it('Initializes ExtraAccountMetaList Account and Creates the ATA for the Crumb M
     );
 });
 ```
+
+Note, our crumbMint account is actually being initialized within our `initializeExtraAccountMetaList` function.
 
 ### Transfer the NFT and the transfer hook mints a crumb token for each transfer
 
@@ -1613,268 +1352,9 @@ The test will have three parts:
   });
 ```
 
-### Putting it all together
-
-after assembling all the tests, your `tests/anchor.ts` file should look like this:
-
-```ts
-// in tests/anchor.ts
-import * as anchor from '@coral-xyz/anchor';
-import { TransferHook } from '../target/types/transfer_hook';
-import { Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from '@solana/web3.js';
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  AuthorityType,
-  createAssociatedTokenAccountInstruction,
-  createInitializeMetadataPointerInstruction,
-  createInitializeMintInstruction,
-  createInitializeTransferHookInstruction,
-  createMintToInstruction,
-  createSetAuthorityInstruction,
-  createTransferCheckedWithTransferHookInstruction,
-  ExtensionType,
-  getAssociatedTokenAddressSync,
-  getMint,
-  getMintLen,
-  LENGTH_SIZE,
-  TOKEN_2022_PROGRAM_ID,
-  TYPE_SIZE,
-} from '@solana/spl-token';
-import { createInitializeInstruction, pack } from '@solana/spl-token-metadata';
-import { expect } from 'chai';
-import { airdropSolIfNeeded, getMetadataObject } from '../helpers/helpers';
-
-describe('transfer-hook', () => {
-  // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
-
-  const program = anchor.workspace.TransferHook as anchor.Program<TransferHook>;
-
-  const wallet = provider.wallet as anchor.Wallet;
-
-  const connection = provider.connection;
-
-  // Generate keypair to use as address for the transfer-hook enabled mint
-  const mint = new Keypair();
-
-  const crumbMint = new Keypair();
-
-  // Sender token account address
-  const sourceTokenAccount = getAssociatedTokenAddressSync(
-    mint.publicKey,
-    wallet.publicKey,
-    false,
-    TOKEN_2022_PROGRAM_ID,
-    ASSOCIATED_TOKEN_PROGRAM_ID,
-  );
-
-  // Recipient token account address
-  const recipient = Keypair.generate();
-  console.log('Recipient:', recipient.publicKey.toBase58());
-  const destinationTokenAccount = getAssociatedTokenAddressSync(
-    mint.publicKey,
-    recipient.publicKey,
-    false,
-    TOKEN_2022_PROGRAM_ID,
-    ASSOCIATED_TOKEN_PROGRAM_ID,
-  );
-
-  // ExtraAccountMetaList address
-  // Store extra accounts required by the custom transfer hook instruction
-  const [extraAccountMetaListPDA] = PublicKey.findProgramAddressSync(
-    [Buffer.from('extra-account-metas'), mint.publicKey.toBuffer()],
-    program.programId,
-  );
-
-  // PDA from the transfer hook program to be used as the mint authority for the crumb mint
-  const [crumbMintAuthority] = PublicKey.findProgramAddressSync([Buffer.from('mint-authority')], program.programId);
-
-  // Associated token account for the crumb mint
-  const crumbMintATA = getAssociatedTokenAddressSync(crumbMint.publicKey, crumbMintAuthority, true);
-
-  before('Airdrop SOL', async () => {
-    await airdropSolIfNeeded(wallet.payer, provider.connection);
-  });
-
-  it('Creates an NFT with Transfer Hook Extension and Metadata', async () => {
-    const metadata = await getMetadataObject({
-      connection,
-      imagePath: 'helpers/cool-cookie.png',
-      tokenName: 'Cool Cookie',
-      tokenSymbol: 'COOKIE',
-      tokenDescription: 'A cool cookie',
-      mintPublicKey: mint.publicKey,
-      additionalMetadata: [],
-      payer: wallet.payer,
-    });
-
-    // NFT Should have 0 decimals
-    const decimals = 0;
-
-    const extensions = [ExtensionType.TransferHook, ExtensionType.MetadataPointer];
-    const mintLen = getMintLen(extensions);
-    const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
-    const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
-
-    const transaction = new Transaction().add(
-      SystemProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        newAccountPubkey: mint.publicKey,
-        space: mintLen,
-        lamports: lamports,
-        programId: TOKEN_2022_PROGRAM_ID,
-      }),
-      createInitializeMetadataPointerInstruction(
-        mint.publicKey,
-        wallet.publicKey,
-        mint.publicKey,
-        TOKEN_2022_PROGRAM_ID,
-      ),
-      createInitializeTransferHookInstruction(
-        mint.publicKey,
-        wallet.publicKey,
-        program.programId, // Transfer Hook Program ID
-        TOKEN_2022_PROGRAM_ID,
-      ),
-      createInitializeMintInstruction(mint.publicKey, decimals, wallet.publicKey, null, TOKEN_2022_PROGRAM_ID),
-      createInitializeInstruction({
-        programId: TOKEN_2022_PROGRAM_ID,
-        mint: mint.publicKey,
-        metadata: mint.publicKey,
-        name: metadata.name,
-        symbol: metadata.symbol,
-        uri: metadata.uri,
-        mintAuthority: wallet.publicKey,
-        updateAuthority: wallet.publicKey,
-      }),
-    );
-
-    const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer, mint]);
-    console.log(
-      'Transaction Signature:',
-      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
-  });
-
-  it('Creates Token Accounts and Mint The NFT', async () => {
-    // 1 NFT
-    const amount = 1;
-
-    const transaction = new Transaction().add(
-      createAssociatedTokenAccountInstruction(
-        wallet.publicKey,
-        sourceTokenAccount,
-        wallet.publicKey,
-        mint.publicKey,
-        TOKEN_2022_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-      ),
-      createAssociatedTokenAccountInstruction(
-        wallet.publicKey,
-        destinationTokenAccount,
-        recipient.publicKey,
-        mint.publicKey,
-        TOKEN_2022_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-      ),
-      createMintToInstruction(mint.publicKey, sourceTokenAccount, wallet.publicKey, amount, [], TOKEN_2022_PROGRAM_ID),
-      createSetAuthorityInstruction(
-        mint.publicKey,
-        wallet.publicKey,
-        AuthorityType.MintTokens,
-        null,
-        [],
-        TOKEN_2022_PROGRAM_ID,
-      ),
-    );
-
-    const txSig = await sendAndConfirmTransaction(connection, transaction, [wallet.payer], { skipPreflight: true });
-
-    console.log(
-      'Transaction Signature:',
-      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
-  });
-
-  // Account to store extra accounts required by the transfer hook instruction
-  it('Initializes ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint', async () => {
-    const initializeExtraAccountMetaListInstruction = await program.methods
-      .initializeExtraAccountMetaList()
-      .accounts({
-        mint: mint.publicKey,
-        extraAccountMetaList: extraAccountMetaListPDA,
-        crumbMint: crumbMint.publicKey,
-      })
-      .instruction();
-
-    const transaction = new Transaction().add(
-      initializeExtraAccountMetaListInstruction,
-      createAssociatedTokenAccountInstruction(wallet.publicKey, crumbMintATA, crumbMintAuthority, crumbMint.publicKey),
-    );
-
-    const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer, crumbMint], {
-      skipPreflight: true,
-      commitment: 'confirmed',
-    });
-    console.log(
-      'Transaction Signature:',
-      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
-  });
-
-  it('Transfers the NFT and the transfer hook mints a crumb token for each transfer', async () => {
-    const amount = 1;
-    const bigIntAmount = BigInt(amount);
-
-    // Standard token transfer instruction
-    const transferInstruction = await createTransferCheckedWithTransferHookInstruction(
-      connection,
-      sourceTokenAccount,
-      mint.publicKey,
-      destinationTokenAccount,
-      wallet.publicKey,
-      bigIntAmount,
-      0, // Decimals
-      [],
-      'confirmed',
-      TOKEN_2022_PROGRAM_ID,
-    );
-
-    const transferBackInstruction = await createTransferCheckedWithTransferHookInstruction(
-      connection,
-      destinationTokenAccount,
-      mint.publicKey,
-      sourceTokenAccount,
-      recipient.publicKey,
-      bigIntAmount,
-      0, // Decimals
-      [],
-      'confirmed',
-      TOKEN_2022_PROGRAM_ID,
-    );
-
-    const transaction = new Transaction().add(transferInstruction, transferBackInstruction);
-
-    const txSig = await sendAndConfirmTransaction(connection, transaction, [wallet.payer, recipient], {
-      skipPreflight: true,
-    });
-    console.log(
-      'Transfer Signature:',
-      `https://explorer.solana.com/tx/${txSig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`,
-    );
-
-    const mintInfo = await getMint(connection, crumbMint.publicKey, 'processed');
-    console.log('Mint Info:', Number(mintInfo.supply));
-
-    expect(Number(mintInfo.supply)).to.equal(2);
-  });
-});
-```
-
 ### Run the tests
 
-You should be able to run
+Let's run everything
 
 ```bash
 anchor test
@@ -1886,4 +1366,4 @@ You are Done!
 
 # Challenge
 
-Create your own transfer hook...
+Change the transfer hook such that the "crumb" token is a Token Extensions Program with metadata.
