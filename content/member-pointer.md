@@ -113,15 +113,15 @@ npm install
 
 The `starter` code comes with:
 
- - `index.ts`: creates a connection object and calls `initializeKeypair`. Also calls the `createGroup` function which creates our group mint. This is where we will write our script.
+ - `index.ts`: creates a connection object and calls `initializeKeypair`. Also calls the `createTokenExtensionMintWithGroupPointer` function which creates our group mint. This is where we will write our script.
  - `create-group.ts` : contains the instructions for creating a group mint.
  - `assets`:  folder which contains the images for member mints.
  - `helper.ts`: helper functions for uploading metadata.
 
 ### 2. Create mints with member pointer and metadata
-We are now going to create the function `createMember` in a new file `src/create-member.ts`.
+We are now going to create the function `createTokenExtensionMintWithMemberPointer` in a new file `src/create-member.ts`.
 
-These new mints will be created with member pointer and metadata extension. These member mints will be part of the group which is created by the `createGroup` function. The metadata extension will be used to store the metadata about the members.
+These new mints will be created with member pointer and metadata extension. These member mints will be part of the group which is created by the `createTokenExtensionMintWithGroupPointer` function. The metadata extension will be used to store the metadata about the members.
 
 Since we are creating the mint with group and metadata pointer extensions, we need some additional instructions:
 - `getMintLen`: Gets the space needed for the mint account
@@ -134,7 +134,7 @@ Since we are creating the mint with group and metadata pointer extensions, we ne
 - `createInitializeInstruction`: Creates the instruction to initialize the metadata
  - `sendAndConfirmTransaction`: Sends the transaction to the blockchain
 
-We'll call all of these functions in turn. But before that let's define the inputs to our `createMember` function:
+We'll call all of these functions in turn. But before that let's define the inputs to our `createTokenExtensionMintWithMemberPointer` function:
  - `connection` : The connection object
  - `payer` : Payer for the transactions
  - `mintKeypair` : Keypair of the member mint
@@ -171,7 +171,7 @@ import {
 	pack,
 } from '@solana/spl-token-metadata'
 
-export async function createMember(
+export async function createTokenExtensionMintWithMemberPointer(
 	connection: Connection,
 	payer: Keypair,
 	mintKeypair: Keypair,
@@ -311,7 +311,7 @@ solana config get
 Don't worry about the `metadataFileName` for now. The JSON file will be created by the `helpers.ts` script. The `uploadOffChainMetadata` function from `helpers.ts` will upload the images and the metadata json using the Irys SDK. It returns the token URI for the metadata JSON which will be stored on the mint account.
 
 ### 4. Create member mints
-Now we will upload the member metadata and then call the `createMember` function in `index.ts` created in step 2.
+Now we will upload the member metadata and then call the `createTokenExtensionMintWithMemberPointer` function in `index.ts` created in step 2.
 
 First you'll need to import the new function. Then paste the following under the right comment section:
 ```ts
@@ -335,7 +335,7 @@ membersMetadata.forEach(async (memberMetadata) => {
 		).map(([trait_type, value]) => [trait_type, value]),
 	}
 
-	const signature = await createMember(
+	const signature = await createTokenExtensionMintWithMemberPointer(
 		connection,
 		payer,
 		memberMintKeypair,
