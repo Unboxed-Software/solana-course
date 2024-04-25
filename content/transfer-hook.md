@@ -16,15 +16,13 @@ objectives:
 
 # Overview
 
-The `transfer-hook` extension allows custom logic to be run on each transfer. More specifically, the `transfer-hook` extension requires a 'hook' or 'callback' in the form of a solana program following the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface). Then every time any token of that mint is transferred the Token Extensions Program calls this 'hook' as a CPI.
+The `transfer-hook` extension allows custom on-chain logic to be after each transfer within the same transaction. More specifically, the `transfer-hook` extension requires a 'hook' or 'callback' in the form of a solana program following the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface). Then every time any token of that mint is transferred the Token Extensions Program calls this 'hook' as a CPI.
 
-Additionally, the `transfer-hook` can also store `extra-account-metas`, which are any additional accounts needed for the hook to function. 
-
-TODO However
+Additionally, the `transfer-hook` extension also stores `extra-account-metas`, which are any additional accounts needed for the hook to function. 
 
 This extension opens up the door to unique use-cases. One use case it's great for is acting as a token guard, only allowing tokens to be transferred if specific requirements are met.
 
-In this lesson, we will explore how to implement transfer hooks on-chain and work with them off-chain.
+In this lesson, we'll explore how to implement transfer hooks on-chain and work with them off-chain.
 
 ## Implementing transfer hooks onchain
 
@@ -129,7 +127,7 @@ Now that we know the accounts we can store in `extra_account_meta_list` the let'
 
 Let's take a look at a simple example where we'll initialize a `extra_account_meta_list` with two additional arbitrary accounts, `some_account` and a `pda_account`. The `initialize_extra_account_meta_list` function will do the following:
 
-1. Prepare the accounts that we need to store in the `extra_account_meta_list` account as a vector (we will talk about that in depth in a sec).
+1. Prepare the accounts that we need to store in the `extra_account_meta_list` account as a vector (we'll talk about that in depth in a sec).
 2. Calculate the size and rent required to store the list of `ExtraAccountMetas`.
 3. Make a CPI to the System Program to create an account and set the Transfer Hook Program as the owner, and then initializing the account data to store the list of `ExtraAccountMetas`.
 
@@ -225,7 +223,7 @@ pub fn new_external_pda_with_seeds(
 )
 ```
 
-Both of these methods are similar; the only change is we need to pass the `program_id` for the PDAs that are not of our program in the `new_external_pda_with_seeds` method. Other that that we need to provide a list of seeds (which we will talk about soon) and two booleans for `is_signer` and `is_writable` to determine if the account should be a signer or writable.
+Both of these methods are similar; the only change is we need to pass the `program_id` for the PDAs that are not of our program in the `new_external_pda_with_seeds` method. Other that that we need to provide a list of seeds (which we'll talk about soon) and two booleans for `is_signer` and `is_writable` to determine if the account should be a signer or writable.
 
 Providing the seeds themselves takes a little explanation. Hard-coded literal seeds are easy enough, but what happens if you want a seed to be variable, say created with the public key of a passed in account? To make sense of this, let's break it down to make it easier to understand. First take a look at the seed enum implementation from [spl_tlv_account_resolution::seeds::Seed](https://github.com/solana-labs/solana-program-library/blob/master/libraries/tlv-account-resolution/src/seeds.rs):
 
@@ -293,7 +291,7 @@ As we can see from the code above, there are four main ways to provide seeds:
 
 1. A literal hard-coded argument, such as the string `"some-seed"`.
 2. An instruction-provided argument, to be resolved from the instruction data. This can be done by giving the start index and the length of the data we want to have as a seed.
-3. The public key of an account from the entire accounts list. This can be done by giving the index of the account (we will talk about this more soon).
+3. The public key of an account from the entire accounts list. This can be done by giving the index of the account (we'll talk about this more soon).
 4. An argument to be resolved from the inner data of some account. This can be done by giving the index of the account, the start index of the data, along with the length of the data we want to have as a seed.
 
 To use the 2 last methods of setting the seed, you need to get the account index. This represents the index of the account passed into the `Execute` function of the hook. This is standardized. 
@@ -425,15 +423,23 @@ pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>
 
 ## Using transfer hooks off-chain
 
+Now that we've looked at the on-chain portion, let's look at how we interact with it off-chain. 
+
+Let's assume we have a deployed solana program that follows the Transfer Hook Interface.
+
 In order to create a mint with a transfer hook and ensure successful transfers, follow these steps:
 
-1. Create the mint with the transfer hook extension and point to the transfer hook program you want to use.
-2. Initialize the `extraAccountList` account. This step must be done before any transfer, and it is the responsibility of the mint owner/creator. It needs to happen only once for each mint to add all the extra accounts that the transfer hook needs.
+1. Create the mint with the transfer hook extension and point to the on-chain transfer hook program you want to use.
+2. Initialize the `extraAccountList` account. This step must be done before any transfer, and it is the responsibility of the mint owner/creator. It only needs to happen once for any mint.
 3. Make sure to pass all the required accounts when invoking the transfer instruction from the Token Extensions Program.
 
 ### Create a Mint with the `Transfer-Hook` Extension:
 
-To create a mint with the transfer-hook extension, ensure that you allocate enough space for the mint to store the extra information about the transfer hook. You can do this by calling the `getMintLen` function from the `@solana/spl-token` library and pass to it an array of the extensions that you want to use. In our case, we only need the `TransferHook` extension. Additionally, make sure to call `createInitializeTransferHookInstruction` to initialize the transfer hook extension and point to our program before initializing the mint.
+To create a mint with the transfer-hook extension, we need three instructions:
+
+1. `createAccount` - Reserves space on the blockchain for the mint account
+2. `createInitializeTransferHookInstruction` - initializes the transfer hook extension, this takes the transfer hook's program address as a parameter.
+3. `createInitializeMintInstruction` - Initializes the mint.
 
 ```ts
 const extensions = [ExtensionType.TransferHook];
@@ -462,7 +468,9 @@ const transaction = new Transaction().add(
 
 ### Initialize `ExtraAccountMetaList` account:
 
-One of the cool features that Anchor framework provides is autogenerated IDLs, which are TypeScript interfaces that represent the instructions and accounts of the program. This makes it easy to interact with the program from the client side. You should get the IDLs if you build the program and you can find them in `target/idl` folder. And to make it even easier, if you are inside the anchor project and you are writing tests or client code you can access the methods directly from `anchor.workspace.program_name.method`
+The next step of getting the mint ready for any transactions is initializing the `ExtraAccountMetaList`. Generally, this is done by calling the `initializeExtraAccountMetaList` function on the program containing the transfer hook. Since this is part of the Transfer Hook Interface, this should be standardized. Additionally, if the transfer hook program was made with Anchor, it will most likely have autogenerated IDLs, which are TypeScript interfaces that represent the instructions and accounts of the program. This makes it easy to interact with the program from the client side. 
+
+If you made your own program in Anchor, you should get the IDLs in the `target/idl` folder. And to make it even easier, if you are inside the anchor project and you are writing tests or client code you can access the methods directly from `anchor.workspace.program_name.method`:
 
 ```ts
 import * as anchor from '@coral-xyz/anchor';
@@ -488,9 +496,11 @@ const transaction = new Transaction().add(
 );
 ```
 
+After calling `initializeExtraAccountMetaList`, you're all set to transfer tokens with the transfer hook enabled mint.
+
 ### Transfer tokens successfully:
 
-To transfer tokens successfully, you need to pass all the required accounts when invoking the transfer instruction from the Token Extensions Program. luckily for us the `@solana/spl-token` library has a method that will help us with that, it's called `createTransferCheckedWithTransferHookInstruction` and it will take care of adding the extra accounts to the transfer instruction for us.
+To actually transfer tokens with the `transfer hook` extension, you need to call `createTransferCheckedWithTransferHookInstruction`. This is a special helper function provided by `@solana/spl-token` that will gather and submit all of the needed extra accounts needed specified in the `ExtraAccountMetaList`.
 
 ```ts
 const transferInstruction = await createTransferCheckedWithTransferHookInstruction(
@@ -570,17 +580,34 @@ export async function createTransferCheckedWithTransferHookInstruction(
 }
 ```
 
-And that is it!
+## Theoretical Example - Artist Royalties
+
+Let's take what we know about the `transfer hook` extension and conceptually try to understand how we could implement artist royalties for NFTs. If you're not familiar, an artist royalty is a fee paid on any sale of an NFT. Historically, these were more suggestions than enforcements, since at anytime, a user could strike a private deal and exchange their NFT for payment on a platform or program that did not enforce these royalties. That being said, we can get a little closer with transfer hooks.
+
+**First Approach** - Transfer SOL right from the `owner` to the artist right in the hook. Although this may sound like a good avenue to try, it won't work, for two reasons. First, the hook would not know how much to pay the artist - this is because the transfer hook does not take any arguments other than the needed `source`, `mint`, `destination`, `owner`, `extraAccountMetaList` and all of the accounts within the list. Secondly, we would be paying from the `owner` to the artist, which cannot be done since `owner` is deescalated. It cannot sign and it cannot be written to - this means we don't have the authority to update `owner`'s balance. Although we can't use this approach, it's a good showcase to the limitations of the transfer hook.
+
+**Second Approach** - Create a data PDA owned by the `extraAccountMetaList` that tracks if the royalty has been paid. If it has, allow the transfer, if it has not, deny it. This approach is multi-step, and would require an additional function in the transfer hook program. 
+
+Say we have a new function called `payRoyalty` in our transfer hook program. This function would be required to:
+1. Create a data PDA owned by the `extraAccountMetaList`
+  a. This account would hold information about the trade
+2. Transfer the amount for the royalty from the `owner` to the artist.
+3. Update the data PDA with the sale information
+
+Then you'd transfer, and all the transfer hook should do is check the sales data on the PDA. It would allow or disallow the transfer from there.
+
+Remember this the above is just a theoretical discussion and is in no way all-encompassing. For example, how would you enforce prices of the NFTs? Or, what if the owner of the NFT wants to transfer it to a different wallet of theirs - should there be an approved list of "allowed" wallets? Or, should the artist be a signer involved in every sale/transfer? This system design makes for a great homework assignment!
+
 
 # Lab
 
-In this lab we will explore how transfer hooks works by creating a Cookie Crumb program. We will have a Cookie NFT that has a transfer hook which will mint a crumb token for each transfer, so we would be able to tell how many times this NFT has been transferred only by looking at the crumb supply.
+In this lab we'll explore how transfer hooks work by creating a Cookie Crumb program. We'll have a Cookie NFT that has a transfer hook which will mint a crumb token for each transfer - leaving a "crumb trail". We'll able to tell how many times this NFT has been transferred only by looking at the crumb supply.
 
 ## 0. Setup
 
 ### 1. Verify Solana/Anchor/Rust Versions
 
-We will be interacting with the `Token Extension` program in this lab and that requires you have solana cli version ≥ 1.18.1.
+We'll be interacting with the `Token Extensions` program in this lab and that requires you have solana cli version ≥ 1.18.1.
 
 To check your version run:
 
@@ -689,7 +716,7 @@ you should see that 4 tests are passed, this is because we don't have any code w
 
 ## 1. Write the transfer hook program
 
-In this section we will dive into writing the onchain transfer hook program using anchor, all the code will go into the `programs/transfer-hook/src/lib.rs` file.
+In this section we'll dive into writing the onchain transfer hook program using anchor, all the code will go into the `programs/transfer-hook/src/lib.rs` file.
 
 by Takeing a look inside that file, you'll notice we have three instructions `initialize_extra_account_meta_list`, `transfer_hook`, `fallback`. Additionally we have two instruction account struct `InitializeExtraAccountMetaList` and `TransferHook`.
 
@@ -793,13 +820,13 @@ pub struct InitializeExtraAccountMetaList<'info> {
 }
 ```
 
-Thanks to anchor it could make our life easier and infer a few of these accounts, therefore we will have to pass the first 4 accounts (extra_account_meta_list, crumb_mint, crumb_mint_ata, mint) when invoking the instruction, and Anchor will infer the rest.
+Thanks to anchor it could make our life easier and infer a few of these accounts, therefore we'll have to pass the first 4 accounts (extra_account_meta_list, crumb_mint, crumb_mint_ata, mint) when invoking the instruction, and Anchor will infer the rest.
 
 Notice that we are asking anchor to initialize the `crumb_mint` account for us, by using the `#[account(init, payer = payer,mint::decimals = 0, mint::authority = mint_authority)]` attribute. At the same time we are asking anchor to drive the `mint_authority` account from the seed `b"mint-authority"`.
 
 It's important to make the `mint_authority` a PDA of the transfer hook program itself, this way the program can sign for it when making the mint CPI.
 
-Note that we should be able to also drive the `crumb_mint_ata` using `Seed::new_external_pda_with_seeds` but at the time of writing this lesson, this method was causing some issues, so we will derive it in the TS code and pass it as a regular address.
+Note that we should be able to also drive the `crumb_mint_ata` using `Seed::new_external_pda_with_seeds` but at the time of writing this lesson, this method was causing some issues, so we'll derive it in the TS code and pass it as a regular address.
 
 **`initialize_extra_account_meta_list` Instruction**
 
@@ -888,9 +915,9 @@ ExtraAccountMetas account.
 
 ### 2. Transfer Hook instruction
 
-In this step, we will implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the token program when a token transfer occurs. The transfer_hook instruction will mint a new crumb token for each transfer.
+In this step, we'll implement the `transfer_hook` instruction for our Transfer Hook program. This instruction will be called by the token program when a token transfer occurs. The transfer_hook instruction will mint a new crumb token for each transfer.
 
-Again we will have a struct `TransferHook` that will hold the accounts required for the instruction.
+Again we'll have a struct `TransferHook` that will hold the accounts required for the instruction.
 
 **`TransferHook` Struct**
 
@@ -953,7 +980,7 @@ pub struct TransferHook<'info> {
 
 This instruction is fairly simple, it will only make one CPI to the token program to mint a new crumb token for each transfer, all what we need to do is to pass the write accounts to the CPI.
 
-Since the mint_authority is a PDA of the transfer hook program itself, the program can sign for it. Therefore we will use `new_with_signer` and pass mint_authority seeds as the signer seeds.
+Since the mint_authority is a PDA of the transfer hook program itself, the program can sign for it. Therefore we'll use `new_with_signer` and pass mint_authority seeds as the signer seeds.
 
 ```rust
   pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
@@ -1227,7 +1254,7 @@ if you are seeing some errors try to go through the steps again and make sure yo
 
 ## 2. Write the tests
 
-Now we will write some TS script to test our code, all of our test will live inside `tests/anchor.ts`. Additionally we have some helper functions inside `helpers/helpers.ts` that we will use in our tests.
+Now we'll write some TS script to test our code, all of our test will live inside `tests/anchor.ts`. Additionally we have some helper functions inside `helpers/helpers.ts` that we'll use in our tests.
 
 The outline of what will we do here is:
 
@@ -1254,7 +1281,7 @@ Inside the describe function block you will see some anchor code to do the follo
 3. Get the connection.
 4. Set up the environment
 5. Airdrop some SOLs into the wallet if needed before running any of the tests.
-6. 4 empty tests that we will talk about later
+6. 4 empty tests that we'll talk about later
 
 ```ts
 import * as anchor from '@coral-xyz/anchor';
@@ -1307,7 +1334,7 @@ describe('transfer-hook', () => {
 });
 ```
 
-To get us started we will have to add few other stuff to our code:
+To get us started we'll have to add few other stuff to our code:
 
 1. Generate new keypairs for the mint and the crumb mint
 2. Get the source token accounts
@@ -1356,11 +1383,11 @@ const crumbMintATA = getAssociatedTokenAddressSync(crumbMint.publicKey, crumbMin
 
 ### Create an NFT with Transfer Hook Extension and Metadata
 
-One more awesome things about extensions is that you can mix and match them as you like. so in this test we will create a new NFT mint account with the transfer hook extension and the metadata extension.
+One more awesome things about extensions is that you can mix and match them as you like. so in this test we'll create a new NFT mint account with the transfer hook extension and the metadata extension.
 
 The test will goes as follows:
 
-1. Get the metadata object: we will use a the helper function `getMetadataObject` for that, notice that we are passing an `imagePath`, so for this you will have to grape an image and put it in the `helpers` folder, for this example let's call it `cool-cookie.png`.
+1. Get the metadata object: we'll use a the helper function `getMetadataObject` for that, notice that we are passing an `imagePath`, so for this you will have to grape an image and put it in the `helpers` folder, for this example let's call it `cool-cookie.png`.
 2. Get the minimum balance for the mint account, and calculate the size of the mint and the metadata
 3. Create a transaction that will:
    - Allocate the mint account
@@ -1492,9 +1519,9 @@ here we are testing two things:
 
 ### Initialize ExtraAccountMetaList Account and Creates the ATA for the Crumb Mint
 
-In this test we will:
+In this test we'll:
 
-1. initialize the extra account meta list account, to do so we will have to pass the needed account (mint, crumb mint, crumb mint ATA, extraAccountMetaList).
+1. initialize the extra account meta list account, to do so we'll have to pass the needed account (mint, crumb mint, crumb mint ATA, extraAccountMetaList).
 2. Initialize the crumb mint ATA, so we can mint from crumb tokens to it in the next test.
 
 ```ts
