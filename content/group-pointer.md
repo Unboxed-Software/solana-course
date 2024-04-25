@@ -25,7 +25,7 @@ Creating a mint with a group pointer involves four instructions:
  - `createInitializeMintInstruction`
  - `createInitializeGroupInstruction`
 
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extensions Program mints, we need to calculate the size and cost of the mint. This can be accomplished by using `getMintLen` and `getMinimumBalanceForRentExemption`. In this case, we'll call `getMintLen` with only the `ExtensionType.GroupPointer,`.
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extensions Program mints, we need to calculate the size and cost of the mint. This can be accomplished by using `getMintLen` and `getMinimumBalanceForRentExemption`. In this case, we'll call `getMintLen` with only the `ExtensionType.GroupPointer`.
 
 To get the mint length and create account instruction, do the following:
 
