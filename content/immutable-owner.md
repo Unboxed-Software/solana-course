@@ -7,34 +7,42 @@ objectives:
 ---
 # Summary
 
-- The `**ImmutableOwner**` extension ensures that once a token account is created, its owner is set to be unchangeable, securing the ownership against any modifications.
+- The `**ImmutableOwner**` extension ensures that once a token account is created, its owner is unchangeable, securing the ownership against any modifications.
 - Token accounts with this extension can have only one permanent state regarding ownership: **Immutable**.
-- Using `createAssociatedTokenAccount` to create a token account adds an immutable owner by default.
-- Associated Token Accounts have the `immutable owner` extension enabled by default.
+- Associated Token Accounts (ATAs) have the `immutable owner` extension enabled by default.
+- The `immutable owner` extension is a token account extension; enabled on each token account, not the mint.
 
 # Overview
 
-Associated Token Account addresses are uniquely determined by the owner and the mint, streamlining the process of identifying the correct Token Account for a specific owner. Initially, the ability to change token ownership presented security concerns, as users could mistakenly send funds to an account no longer owned by the expected recipient. This can unknowingly lead to the loss of funds should the owner change.
+Associated Token Accounts (ATAs) are uniquely determined by the owner and the mint, streamlining the process of identifying the correct Token Account for a specific owner. Initially, any token account could change it's owner, even ATAs. This led to security concerns, as users could mistakenly send funds to an account no longer owned by the expected recipient. This can unknowingly lead to the loss of funds should the owner change.
 
-The `immutable owner` extension, which is automatically applied to Associated Token Accounts, prevents any changes in ownership. This extension can also be enabled for new Token Accounts created through the Token Extension program, guaranteeing that once ownership is set, it is permanent. This secures accounts against unauthorized access and transfer attempts.
+The `immutable owner` extension, which is automatically applied to ATAs, prevents any changes in ownership. This extension can also be enabled for new Token Accounts created through the Token Extensions Program, guaranteeing that once ownership is set it is permanent. This secures accounts against unauthorized access and transfer attempts.
 
-Within the Solana SPL toolkit, the `immutable owner` extension makes sure token accounts have a fixed owner. This enhances overall security by making ownership immutable. The guide includes instructions for setting up Associated Token Accounts and Token Accounts with this feature and testing scenarios to confirm the permanence of ownership, highlighting the extension's role in creating secure and immutable token accounts.
+It is important to note, that this extension is a Token extension, meaning it's on the token account, not the mint.
 
 ## Creating token account with immutable owner
+
+All Token Extensions Program ATAs have immutable owner enabled by default. If you want to create an ATA you may use `createAssociatedTokenAccount`.
+
+Outside of ATAs, which enable the immutable owner extension by default, you can enable it manually on any Token Extensions Program token account.
 
 Initializing a token account with immutable owner involves three instructions:
 
 - `SystemProgram.createAccount`
 - `createInitializeImmutableOwnerInstruction`
-- `createInitializeMintInstruction`
+- `createInitializeAccountInstruction`
 
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
+Note: We are assuming a mint has already been created.
+
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the token account. This instruction accomplishes three things:
 
 - Allocates `space`
 - Transfers `lamports` for rent
 - Assigns to it's owning program
 
 ```tsx
+const tokenAccountKeypair = Keypair.generate();
+const tokenAccount = tokenAccountKeypair.publicKey;
 const extensions = [ExtensionType.ImmutableOwner];
 
 const tokenAccountLen = getAccountLen(extensions);
@@ -90,7 +98,7 @@ When the transaction with these three instructions is sent, a new token account 
 
 # Lab
 
-In this lab we will be creating a token account with an immutable owner. We will then write tests to check if the extension is working as intended by attempting to transfer ownership of the token account.
+In this lab we'll be creating a token account with an immutable owner. We'll then write tests to check if the extension is working as intended by attempting to transfer ownership of the token account.
 
 ### 1. Clone
 
@@ -119,31 +127,30 @@ Alternatively, if you’d like to use testnet or devnet, import the `clusterApiU
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
 
-If you decide to use devnet, and have issues with airdropping sol. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some sol to your address. You can get your address from running `solana address` in your terminal.
+If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some SOL to your address. You can get your address from running `solana address` in your terminal.
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starter` branch, we will already have access to following helpers:
+When you clone the repo and change to the `starter` branch, we'll already have access to following helpers:
 
-- `token-helper.ts`: This helper will facilitate in the create of the token accounts needed to run out tests against the mint token. We will need to finish creating this ourselves.
-- `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 1 testnet SOL to it
+- `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 2 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
 
 Additionally we have some initial accounts:
   - `payer`: Used to pay for and be the authority for everything
   - `mintKeypair`: Our mint
   - `ourTokenAccountKeypair`: The token account owned by payer that we'll use for testing
-  - `otherOwner`: The token account we will try to transfer ownership of the two immutable accounts to
+  - `otherOwner`: The token account we'll try to transfer ownership of the two immutable accounts to
 
 
 ### 4. Create mint
 
-Lets create the mint we will be using for our token accounts.
+Let's create the mint we'll be using for our token accounts.
 
 Inside of `src/index.ts`, the required dependencies will already be imported, along with the aforementioned accounts. Add the following `createMint` function beneath the existing code:
 
 ```tsx
-// CREATE MINT WITH DEFAULT STATE
+// CREATE MINT
 const mint = await createMint(
   connection,
   payer,
@@ -158,9 +165,9 @@ const mint = await createMint(
 
 ### 5. Create Token Account with immutable owner
 
-When creating an associated token account with an immutable owner, we must create the account instruction, initialize the immutable owner for the token account and initialize the mint itself. 
+Remember all ATA's come with the `immutable owner` extension. However, we're going to create a token account using a keypair. This requires us to create the account, initialize the immutable owner extension, and initialize the account. 
 
-Inside of the `src` directory, you will see a file named `token-helper.ts`. Inside of the token helper, there is an asynchronous function named `createTokenAccountWithImmutableOwner`. This function is where we will be creating the associated token account with the immutable owner.  The function will take the following arguments:
+Inside of the `src` directory, create a new file named `token-helper.ts` and create a new function within it called `createTokenAccountWithImmutableOwner`. This function is where we'll be creating the associated token account with the immutable owner. The function will take the following arguments:
 
 - `connection` : The connection object
 - `mint` : Public key for the new mint
@@ -168,9 +175,35 @@ Inside of the `src` directory, you will see a file named `token-helper.ts`. Insi
 - `owner` : Owner of the associated token account
 - `tokenAccountKeypair` : The token account keypair associated with the token account
 
-The first step in creating the token account is reserving space on Solana with the **`SystemProgram.createAccount`** method. This requires specifying the payer's keypair, (the account that will fund the creation and provide SOL for rent exemption), the new token account's public key (`mintKeypair.publicKey`), the space required to store the mint information on the blockchain, the amount of SOL (lamports) necessary to exempt the account from rent and the ID of the token program that will manage this mint account (**`TOKEN_2022_PROGRAM_ID`**).
+```ts
+import { ExtensionType, TOKEN_2022_PROGRAM_ID, createInitializeAccountInstruction, createInitializeImmutableOwnerInstruction, getAccountLen } from "@solana/spl-token";
+import { Connection, Keypair, PublicKey, SystemProgram, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
+
+export async function createTokenAccountWithImmutableOwner(
+  connection: Connection,
+  mint: PublicKey,
+  payer: Keypair,
+  owner: Keypair,
+  tokenAccountKeypair: Keypair
+): Promise<string> {
+
+  // CREATE ACCOUNT INSTRUCTION
+
+  // ENABLE IMMUTABLE OWNER INSTRUCTION
+
+  // INITIALIZE ACCOUNT INSTRUCTION
+
+  // SEND TO BLOCKCHAIN
+  
+  return 'TODO Replace with signature';
+
+}
+```
+
+The first step in creating the token account is reserving space on Solana with the **`SystemProgram.createAccount`** method. This requires specifying the payer's keypair, (the account that will fund the creation and provide SOL for rent exemption), the new token account's public key (`tokenAccountKeypair.publicKey`), the space required to store the token information on the blockchain, the amount of SOL (lamports) necessary to exempt the account from rent and the ID of the token program that will manage this token account (**`TOKEN_2022_PROGRAM_ID`**).
 
 ```tsx
+// CREATE ACCOUNT INSTRUCTION
 const tokenAccount = tokenAccountKeypair.publicKey;
 
 const extensions = [ExtensionType.ImmutableOwner];
@@ -187,9 +220,10 @@ const createTokenAccountInstruction = SystemProgram.createAccount({
 });
 ```
 
-After the token account creation, the next step involves initializing it with an immutable owner. The `createInitializeImmutableOwnerInstruction` function is used to generate an instruction that enables the token account to determine the immutable owner. 
+After the token account creation, the next instruction initializes the `immutable owner` extension. The `createInitializeImmutableOwnerInstruction` function is used to generate this instruction. 
 
 ```tsx
+// ENABLE IMMUTABLE OWNER INSTRUCTION
 const initializeImmutableOwnerInstruction =
   createInitializeImmutableOwnerInstruction(
     tokenAccount,
@@ -200,6 +234,7 @@ const initializeImmutableOwnerInstruction =
 We then add the initialize account instruction by calling `createInitializeAccountInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new token account.
 
 ```tsx
+  // INITIALIZE ACCOUNT INSTRUCTION
 const initializeAccountInstruction = createInitializeAccountInstruction(
   tokenAccount,
   mint,
@@ -208,9 +243,10 @@ const initializeAccountInstruction = createInitializeAccountInstruction(
 );
 ```
 
-Now that the account and all of the instructions have been created, the token account can be created with an immutable owner.
+Now that the instructions have been created, the token account can be created with an immutable owner.
 
 ```tsx
+// SEND TO BLOCKCHAIN
 const transaction = new Transaction().add(
   createTokenAccountInstruction,
   initializeImmutableOwnerInstruction,
@@ -219,14 +255,16 @@ const transaction = new Transaction().add(
 
 transaction.feePayer = payer.publicKey;
 
-return await sendAndConfirmTransaction(
+const signature = await sendAndConfirmTransaction(
   connection,
   transaction,
   [payer, owner, tokenAccountKeypair],
 );
+
+return signature
 ```
 
-Now that we’ve added the functionality for `token-helper`, we can create two variables for the token accounts. When we use the `createTokenAccountWithImmutableOwner` function we created, it explicitly adds the instructions to add an immutable owner to the token account. However, the SPL Token library provides a helper function that will do it all for us named `createAssociatedTokenAccount`. This helper will create an associated token account which by default includes an immutable owner. For the sake of this guide we will be testing against both of these approaches.
+Now that we’ve added the functionality for `token-helper`, we can create our test token accounts. One of the two test token accounts will be created by calling `createTokenAccountWithImmutableOwner`. The other will be created with the baked in SPL helper function `createAssociatedTokenAccount`. This helper will create an associated token account which by default includes an immutable owner. For the sake of this guide we'll be testing against both of these approaches.
 
 Back in `index.ts` underneath the mint variable, create the following two token accounts:
 
@@ -253,11 +291,16 @@ const associatedTokenAccount = await createAssociatedTokenAccount(
 
 Thats it for the token accounts! Now we can move on and start testing that the extensions rules are applied correctly by running a few tests against it.
 
+If you'd like to test that everything is working, feel free to run the script.
+```bash
+npm run start
+```
+
 ### 6. Tests
 
 **Test trying to transfer owner**
 
-The first token account that is being created is the account is tied to `ourTokenAccountKeypair`. We will be attempting to transfer ownership of the account to  `otherOwner` which was generated earlier. This test is expected to fail as the new authority is not the owner of the account upon creation.
+The first token account that is being created is the account is tied to `ourTokenAccountKeypair`. We'll be attempting to transfer ownership of the account to  `otherOwner` which was generated earlier. This test is expected to fail as the new authority is not the owner of the account upon creation.
 
 Add the following code to your `src/index.ts` file:
 
