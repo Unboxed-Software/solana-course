@@ -160,7 +160,7 @@ The `starter` code comes with:
  - `helper.ts`: helper functions for uploading metadata.
 
 ### 2. Create a mint with group pointer and metadata
-We are now going to create the function `createGroup` in a new file `src/create-mint.ts`.
+We are now going to create the function `createTokenExtensionMintWithGroupPointer` in a new file `src/create-mint.ts`.
 
 This new mint will be created with group pointer and metadata extension. The group pointer address will be the mint itself. It means, we will store the group related information on the mint account itself. The metadata extension will be used to store the metadata about our collection.
 
@@ -175,7 +175,7 @@ Since we are creating the mint with group and metadata pointer extensions, we ne
  - `createInitializeInstruction`: Creates the instruction to initialize the metadata
  - `sendAndConfirmTransaction`: Sends the transaction to the blockchain
 
-We'll call all of these functions in turn. But before that let's define the inputs to our `createGroup` function:
+We'll call all of these functions in turn. But before that let's define the inputs to our `createTokenExtensionMintWithGroupPointer` function:
  - `connection` : The connection object
  - `payer` : Payer for the transactions
  - `mintKeypair` : Keypair of the group mint
@@ -211,7 +211,7 @@ import {
 	pack,
 } from '@solana/spl-token-metadata'
 
-export async function createGroup(
+export async function createTokenExtensionMintWithGroupPointer(
 	connection: Connection,
 	payer: Keypair,
 	mintKeypair: Keypair,
@@ -337,7 +337,7 @@ solana config get
 The `uploadOffChainMetadata` function from `helpers.ts` will upload the cover image and the metadata json using the Irys SDK. It returns the token URI for the metadata JSON which will be stored on the mint account.
 
 ### 4. Create the mint
-Now that we have uploaded the collection metadata, we can call the `createGroup` function in `index.ts` created in step 2.
+Now that we have uploaded the collection metadata, we can call the `createTokenExtensionMintWithGroupPointer` function in `index.ts` created in step 2.
 
 First you'll need to import our new function. Then paste the following under the right comment section:
 
@@ -346,7 +346,7 @@ First you'll need to import our new function. Then paste the following under the
 const decimals = 0
 const maxMembers = 3
 
-const signature = await createGroup(
+const signature = await createTokenExtensionMintWithGroupPointer(
 	connection,
 	payer,
 	collectionMintKeypair,
