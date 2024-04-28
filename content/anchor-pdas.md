@@ -575,7 +575,7 @@ describe("anchor-movie-review-program", () => {
 
 Next, let's create the first test for the `addMovieReview` instruction. Note that we don't explicitly add `.accounts`. This is because the `Wallet` from `AnchorProvider` is automatically included as a signer, Anchor can infer certain accounts like `SystemProgram`, and Anchor can also infer the `movieReview` PDA from the `title` instruction argument and the signer's public key.
 
-Note: don't forget to turn on seed inference with `seeds = true` in the `Anchor.toml`.
+Note: don't forget to turn on seed inference with `seeds = true` in the `Anchor.toml` file.
 
 Once the instruction runs, we then fetch the `movieReview` account and check that the data stored on the account match the expected values.
 
