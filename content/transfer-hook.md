@@ -601,13 +601,13 @@ Remember this the above is just a theoretical discussion and is in no way all-en
 
 # Lab
 
-In this lab we'll explore how transfer hooks work by creating a Cookie Crumb program. We'll have a Cookie NFT that has a transfer hook which will mint a crumb token for each transfer - leaving a "crumb trail". We'll able to tell how many times this NFT has been transferred only by looking at the crumb supply.
+In this lab we'll explore how transfer hooks work by creating a Cookie Crumb program. We'll have a Cookie NFT that has a transfer hook which will mint a Crumb SFT to the sender after each transfer - leaving a "crumb trail". We'll able to tell how many times this NFT has been transferred only by looking at the crumb supply.
 
 ## 0. Setup
 
 ### 1. Verify Solana/Anchor/Rust Versions
 
-We'll be interacting with the `Token Extensions` program in this lab and that requires you have solana cli version ≥ 1.18.1.
+We'll be interacting with the `Token Extensions Program` in this lab and that requires you have solana cli version ≥ 1.18.1.
 
 To check your version run:
 
@@ -675,14 +675,14 @@ Once in the starter branch, run
 anchor keys sync
 ```
 
-This syncs your program key with the one in the `Anchor.toml` and the declared program id in the `programs/transfer-hook/src/lib.rs` file. This will also set the keypair path in `Anchor.toml` to the result of running `solana config get keypair`.
+This syncs your program key with the one in the `Anchor.toml` and the declared program id in the `programs/transfer-hook/src/lib.rs` file. 
 
-If you want to use a different keypair path, you may set it in `Anchor.toml`:
+The last thing you have to do is set your keypair path in `Anchor.toml`:
 
 ```toml
 [provider]
 cluster = "Localnet"
-wallet = "~/.config/solana/id.json" // This is the default path, you can change it if you have your keypair in a different location
+wallet = "~/.config/solana/id.json"
 ```
 
 ### 4. Confirm the program builds
@@ -762,13 +762,13 @@ pub struct TransferHook {}
 
 ### 1. Initialize Extra Account Meta List instruction
 
-The cookie program needs some extra accounts to be able to mint the crumb tokens which are:
+The cookie program needs some extra accounts to be able to mint the crumbs, these are:
 
 1. `crumb_mint` - The "crumb" mint account of the token to be minted by the transfer_hook instruction.
-2. `crumb_mint_ata` - The associated token account of the crumb mint.
-3. `mint_authority` - For the crumb mint.
+2. `crumb_mint_ata` - The associated token account of the crumb mint of the person sending the cookie.
+3. `mint_authority` - For the crumb mint, this will be the an account owned by the transfer hook program
 4. `token_program` - this mint will be a regular SPL token mint.
-5. `associated_token_program` - needed to enforce the ata
+5. `associated_token_program` - needed to construct the ATA
 
 We are going to store these accounts in the `extra_account_meta_list` account, by invoking the instruction `initialize_extra_account_meta_list` and passing the required accounts to it.
 
@@ -797,7 +797,7 @@ pub struct InitializeExtraAccountMetaList<'info> {
   /// CHECK: ExtraAccountMetaList Account, must use these seeds
   #[account(
         mut,
-        seeds = [b"extra-account-metas", mint.key().as_ref()],
+        seeds = [b"extra-account-metas", mint.key().as_ref()], 
         bump
     )]
   pub extra_account_meta_list: AccountInfo<'info>,
@@ -805,7 +805,7 @@ pub struct InitializeExtraAccountMetaList<'info> {
   pub token_program: Interface<'info, TokenInterface>,
   pub system_program: Program<'info, System>,
 
-  #[account(init, payer = payer, mint::decimals = 0, mint::authority = mint_authority)]
+  #[account(mint::authority = mint_authority)]
   pub crumb_mint: InterfaceAccount<'info, Mint>,
 
   /// CHECK: mint authority Account for crumb mint
@@ -814,11 +814,9 @@ pub struct InitializeExtraAccountMetaList<'info> {
 }
 ```
 
-Note that we are not specifying the `crumb_mint_ata` or the `associated_token_program`. This is because the `crumb_mint_ata` is variable and will be driven by the other accounts in the extra account meta, and `associated_token_program` will be hardcoded. Since we're just saving their address in the extra account meta, we don't actually need to pass them in here.
+Note that we are not specifying the `crumb_mint_ata` or the `associated_token_program`. This is because the `crumb_mint_ata` is variable and will be driven by the other accounts in the `extra_account_meta_list`, and `associated_token_program` will be hardcoded.
 
-Also notice that we are asking anchor to initialize the `crumb_mint` account for us, by using the `#[account(init, payer = payer,mint::decimals = 0, mint::authority = mint_authority)]` attribute. At the same time we are asking anchor to drive the `mint_authority` account from the seed `b"mint-authority"`.
-
-It's important to make the `mint_authority` a PDA of the transfer hook program itself, this way the program can sign for it when making the mint CPI.
+Also notice we are asking anchor to drive the `mint_authority` account from the seed `b"mint-authority"`. The resulting PDA allows the program itself to sign for the mint.
 
 **`initialize_extra_account_meta_list` Instruction**
 
@@ -833,8 +831,6 @@ here is the code for it:
 
 ```rust
 pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
-  // 1. List the accounts required for the transfer hook instruction inside a vector.
-
   // index 0-3 are the accounts required for token transfer (source, mint, destination, owner)
   // index 4 is the extra_account_meta_list account
   let account_metas = vec![
@@ -858,7 +854,7 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
     ExtraAccountMeta::new_external_pda_with_seeds(
       6, // associated token program index
       &[
-        Seed::AccountKey { index: 8 }, // owner index
+        Seed::AccountKey { index: 3 }, // owner index
         Seed::AccountKey { index: 5 }, // token program index
         Seed::AccountKey { index: 7 }, // crumb mint index
       ],
@@ -866,14 +862,12 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
       true // is_writable
     )?
   ];
-  // 2. Calculate the size and rent required to store the list of
 
   // calculate account size
   let account_size = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
   // calculate minimum required lamports
   let lamports = Rent::get()?.minimum_balance(account_size as usize);
 
-  // 3. Make a CPI to the System Program to create an account and set the
   let mint = ctx.accounts.mint.key();
   let signer_seeds: &[&[&[u8]]] = &[&[b"extra-account-metas", &mint.as_ref(), &[ctx.bumps.extra_account_meta_list]]];
 
@@ -888,7 +882,7 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
     ctx.program_id
   )?;
 
-  // 4. Initialize the account data to store the list of ExtraAccountMetas
+  // Initialize the account data to store the list of ExtraAccountMetas
   ExtraAccountMetaList::init::<ExecuteInstruction>(
     &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
     &account_metas
@@ -898,7 +892,7 @@ pub fn initialize_extra_account_meta_list(ctx: Context<InitializeExtraAccountMet
 }
 ```
 
-Notice which accounts are writable, how that none of them are signers and how we use `new_with_seeds` and `new_external_pda_with_seeds` to achieve our variable accounts.
+Pay careful attention to the indexes for each account. Most notably, see that `index 9` is the index for the `crumb_mint_ata` account. It constructs the ATA using `ExtraAccountMeta::new_external_pda_with_seeds` and passing in the seeds from other accounts by their index. Specifically, the ATA belongs to the `owner`. So when a cookie is sent, the crumb will be minted to the sender.
 
 ### 2. Transfer Hook instruction
 
@@ -910,7 +904,7 @@ Again we'll have a struct `TransferHook` that will hold the accounts required fo
 
 **`TransferHook` Struct**
 
-In this example the `TransferHook` struct will have 9 accounts:
+In our program the `TransferHook` struct will have 10 accounts:
 
 1. `source_token` - The source token account from which the NFT is transferred.
 2. `mint` - The mint account of the Cookie NFT.
@@ -921,10 +915,9 @@ In this example the `TransferHook` struct will have 9 accounts:
 7. `associated_token_program` - The associated token program account.
 8. `crumb_mint` - The mint account of the token to be minted by the transfer_hook instruction.
 9. `mint_authority` - The mint authority account of the token to be minted by the transfer_hook instruction.
-10. `crumb_mint_ata` - The associated token account of the token to be minted by the transfer_hook instruction.
+10. `crumb_mint_ata` - The `owner`'s ATA of the crumb mint
 
 > Very Important Note: The order of accounts in this struct matters. This is the order in which the Token Extensions Program provides these accounts when it CPIs to this Transfer Hook program.
-
 
 ```rust
 // Order of accounts matters for this struct.
@@ -955,16 +948,17 @@ pub struct TransferHook<'info> {
   #[account(seeds = [b"mint-authority"], bump)]
   pub mint_authority: UncheckedAccount<'info>,
 
-  #[account(token::mint = crumb_mint)]
+  #[account(
+        token::mint = crumb_mint,
+        token::authority = owner,
+    )]
   pub crumb_mint_ata: InterfaceAccount<'info, TokenAccount>,
 }
 ```
 
 **`transfer_hook` Instruction**
 
-This instruction is fairly simple, it will only make one CPI to the Token Program to mint a new crumb token for each transfer, all what we need to do is to pass the right accounts to the CPI.
-
-Note: The "crumb" token will be a regular Token Program account. 
+This instruction is fairly simple, it will only make one CPI to the Token Program to mint a new crumb token for each transfer, all what we need to do is to pass the right accounts to the `mint_to` CPI.
 
 Since the mint_authority is a PDA of the transfer hook program itself, the program can sign for it. Therefore we'll use `new_with_signer` and pass mint_authority seeds as the signer seeds.
 
@@ -974,7 +968,7 @@ pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
   // mint a crumb token for each transaction
   token::mint_to(
     CpiContext::new_with_signer(
-      ctx.accounts.token_program.to_account_info(), // token program
+      ctx.accounts.token_program.to_account_info(),
       token::MintTo {
         mint: ctx.accounts.crumb_mint.to_account_info(),
         to: ctx.accounts.crumb_mint_ata.to_account_info(),
@@ -982,14 +976,24 @@ pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
       },
       signer_seeds
     ),
-    1 // amount
+    1
   ).unwrap();
 
   Ok(())
 }
 ```
 
-Notice that we do have the amount of the original transfer, in our case that will always be `1` because we are dealing with NFTs.
+You may have noticed that we are using `token::mint_to` instead of `token_2022::mint_to`, additionally in the `extra_account_meta_list` we're saving the Token Program, not the Token Extensions Program. This is because the crumb SFT has to be a Token Program mint and not a Token Extensions Program mint. The answer why is interesting. When first writing this, we wanted to make both the Cookie and Crumb tokens to be Token Extensions Program mints. However, when we did this, we would get a very interesting error: `No Reentrancy`. This happens because the transfer hook is called as a CPI from within the Token Extensions Program, and Solana does not allow [recursive CPIs into the same program](https://defisec.info/solana_top_vulnerabilities). 
+
+To illustrate:
+
+```text
+Token Extensions Program -CPI-> Transfer Hook Program -❌CPI❌-> Token Extensions Program
+
+Token Extensions Program -CPI-> Transfer Hook Program -✅CPI✅-> Token Program
+```
+
+So, that's why we're making the crumb SFT a Token Program mint.
 
 ### 3. Fallback instruction
 
