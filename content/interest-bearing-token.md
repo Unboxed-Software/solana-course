@@ -2,9 +2,8 @@
 title: Interest Bearing Token
 objectives:
  - Create mint account with interest bearing config
- - Attempt to update interest rate
- - Attempt to update interest rate with incorrect owner
- - Display interest rate information
+ - Explain the use cases of interest bearing tokens
+ - Experiment with the rules of the extension
 ---
 # Summary
 
@@ -17,7 +16,7 @@ objectives:
 
 Tokens with values that either increase or decrease over time have practical applications in the real world, with bonds being a prime example. Previously, the ability to reflect this dynamic in tokens was limited to the use of proxy contracts, necessitating frequent rebasing or updates.
 
-The introduction of the Token-2022 extension model revolutionizes the way the displayed amount of tokens can be adjusted. By leveraging the `InterestBearingMint` extension and the `amount_to_ui_amount` function, users can now apply an interest rate to their tokens and retrieve the updated total, including interest, at any given moment.
+The introduction of the Token-2022 extension model revolutionizes the way the displayed amount of tokens can be adjusted. By leveraging the `interest bearing token` extension and the `amount_to_ui_amount` function, users can now apply an interest rate to their tokens and retrieve the updated total, including interest, at any given moment.
 
 The calculation of interest is done continuously, factoring in the network's timestamp. However, discrepancies in the network's time could result in accrued interest being slightly less than anticipated, though this situation is uncommon.
 
@@ -76,75 +75,42 @@ When the transaction with these three instructions is sent, a new interest beari
 
 # Lab
 
-In this lab, we're establishing interest Bearing Tokens via the Token-2022 program on Solana. We'll initialize these tokens with a specific interest rate, update the rate with proper authorization, and observe how interest accumulates on tokens over time.
+In this lab, we're establishing Interest Bearing Tokens via the Token-2022 program on Solana. We'll initialize these tokens with a specific interest rate, update the rate with proper authorization, and observe how interest accumulates on tokens over time.
 
 ### 1. Setup Environment
 
-To get started with this lab, clone the lab and change the branch to `starting` and install the necessary dependencies:
+To get started with this lab, clone the lab and change the branch to `starter` and install the necessary dependencies:
 
 ```bash
 git clone git@github.com:Unboxed-Software/solana-lab-interest-bearing-token.git
 cd solana-lab-interest-bearing-token
-git checkout starting
+git checkout starter
 npm install
 ```
 
 ### 2. Run validator node
 
-For the sake of this guide, we will be running our own validator node. We do this because sometimes testnet or devnets on Solana can become congested and in turn less reliable.
+For the sake of this guide, we'll be running our own validator node.
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
 
-```tsx
-const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
-```
+`const connection = new Connection("http://127.0.0.1:8899", "confirmed");`
+Alternatively, if you’d like to use testnet or devnet, import the clusterApiUrl from `@solana/web3.js` and pass it to the connection as such:
 
-Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
-
-```tsx
-const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
-```
+`const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');`
+If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running Solana config get in your terminal. And then go to [faucet.solana.com](faucet.solana.com) and airdrop some SOL to your address. You can get your address from running Solana address in your terminal.
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starting` branch, we will already have access to  following helper functions. 
+When you clone the repo and change to the `starting` branch, we'll already have access to  following helper functions. 
 
-- `token-helpers.ts`: This helper will facilitate in the create of the token accounts needed to run out tests against the mint token
+- `token-helper.ts`: This helper will facilitate in the create of the token accounts needed to run out tests against the mint token
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 1 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
 
-### 4. Establish needed accounts
+### 4. Create Mint with interest bearing token
 
-Inside of `src/index.ts`, the starting code already has some values related to the creation of the interest bearing token. 
-
-Underneath the `rate` variable, add the following function call to `createTokenWithInterestRateExtension` to create the interest bearing token. We will be implementing this function in the next step. We will also need to create an associated token account which we will be using to mint the interest bearing tokens to and also run some tests to check if the accrued interest increases as expected. 
-
-```tsx
-// previous code
-const rate = 32_767;
-await createTokenWithInterestRateExtension(
-  connection,
-  payer,
-  mint,
-  mintLen,
-  rateAuthority,
-  rate,
-  mintKeypair
-)
-
-const payerTokenAccount = await createAssociatedTokenAccount(
-  connection,
-  payer,
-  mint,
-  payer.publicKey,
-  undefined,
-  TOKEN_2022_PROGRAM_ID
-);
-```
-
-### 5. Create Mint with interest bearing token
-
-This function is where we will be creating the token such that all new tokens will be created with an interest rate. The function will take the following arguments:
+This function is where we'll be creating the token such that all new tokens will be created with an interest rate. The function will take the following arguments:
 
 - `connection` : The connection object
 - `payer` : Payer for the transaction
@@ -184,12 +150,43 @@ await sendAndConfirmTransaction(connection, mintTransaction, [payer, mintKeypair
 ```
 
 Thats it for the token creation! Now we can move on and start adding tests.
+### 5. Establish required accounts
+
+Inside of `src/index.ts`, the starting code already has some values related to the creation of the interest bearing token. 
+
+Underneath the existing `rate` variable, add the following function call to `createTokenWithInterestRateExtension` to create the interest bearing token. We'll also need to create an associated token account which we'll be using to mint the interest bearing tokens to and also run some tests to check if the accrued interest increases as expected. 
+
+```tsx
+// previous code
+const rate = 32_767;
+
+// CREATE INTEREST BEARING TOKEN
+await createTokenWithInterestRateExtension(
+  connection,
+  payer,
+  mint,
+  mintLen,
+  rateAuthority,
+  rate,
+  mintKeypair
+)
+
+// CREATE ASSOCIATED TOKEN ACCOUNT
+const payerTokenAccount = await createAssociatedTokenAccount(
+  connection,
+  payer,
+  mint,
+  payer.publicKey,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+);
+```
 
 ## 6. Tests
 
 Before we start writing any tests, it would be helpful for us to have a function that takes in the `mint` and returns the current interest rate of that particular token. 
 
-Lets utilize the `getInterestBearingMintConfigState` helper provided by the SPL library to do just that. We will then create a function that is used in our tests to log out the current interest rate of the mint.
+Lets utilize the `getInterestBearingMintConfigState` helper provided by the SPL library to do just that. We'll then create a function that is used in our tests to log out the current interest rate of the mint.
 
 The return value of this function is an object with the following values:
 
@@ -199,9 +196,10 @@ The return value of this function is an object with the following values:
 - `lastUpdateTimestamp`: Timestamp of last update
 - `currentRate`: Current interest rate
 
-Underneath the main script, add the following types and function:
+Add the following types and function:
 
 ```tsx
+// CREATE getInterestBearingMint function
 interface GetInterestBearingMint {
   connection: Connection;
   mint: PublicKey;
@@ -231,92 +229,58 @@ async function getInterestBearingMint(inputs: GetInterestBearingMint) {
 
 The Solana SPL library provides a helper function for updating the interest rate of a token named `updateRateInterestBearingMint`. For this function to work correctly, the `rateAuthority` of that token must be the same one of which the token was created. If the `rateAuthority` is incorrect, updating the token will result in a failure. 
 
-Lets create a test to update the rate with the correct authority. Outside of the main script, add the following types and test function:
+Lets create a test to update the rate with the correct authority. Add the following function calls:
 
 ```tsx
-interface UpdateInterestRate {
-  connection: Connection;
-  payer: Keypair;
-  mint: PublicKey;
-}
-
-async function testTryingToUpdateTokenInterestRate(inputs: UpdateInterestRate) {
-  const { connection, payer, mint } = inputs;
-  const rate = 0;
-  const initialRate = await getInterestBearingMint({ connection, mint })
-  try {
-    await updateRateInterestBearingMint(
-      connection,
-      payer,
-      mint,
-      payer, // rateAuthority
-      rate,
-      undefined,
-      undefined,
-      TOKEN_2022_PROGRAM_ID,
-    );
-    const newRate = await getInterestBearingMint({ connection, mint })
-
-    console.log(`✅ - We expected this to pass because the rate has been updated. Old rate: ${initialRate}. New rate: ${newRate}`);
-  } catch (error) {
-    console.error("You should be able to update the interest.");
-  }
-}
-```
-
-Inside the main script, invoke the `testTryingToUpdateTokenInterestRate` test, passing the `connection`, `payer` and `mint` and then run `npm run start`. We should see the following error logged out in the terminal, meaning the extension is working as intended and the interest rate has been updated: `✅ - We expected this to pass because the rate has been updated. Old rate: 32767. New rate: 0`
-
-```tsx
-{
-  // Attempts to update interest on token
-  testTryingToUpdateTokenInterestRate({
+// ATTEMPT TO UPDATE INTEREST RATE
+const initialRate = await getInterestBearingMint({ connection, mint })
+try {
+  await updateRateInterestBearingMint(
     connection,
     payer,
-    mint
-  })
+    mint,
+    payer,
+    0, // updated rate
+    undefined,
+    undefined,
+    TOKEN_2022_PROGRAM_ID,
+  );
+  const newRate = await getInterestBearingMint({ connection, mint })
+
+  console.log(`✅ - We expected this to pass because the rate has been updated. Old rate: ${initialRate}. New rate: ${newRate}`);
+} catch (error) {
+  console.error("You should be able to update the interest.");
 }
 ```
+
+Run `npm run start`. We should see the following error logged out in the terminal, meaning the extension is working as intended and the interest rate has been updated: `✅ - We expected this to pass because the rate has been updated. Old rate: 32767. New rate: 0`
 
 **Updating interest rate with incorrect rate authority**
 
-In this next test, lets try and update the interest rate with the incorrect `rateAuthority`. Earlier we created a keypair named `otherAccount`. This will be what we use as the `wrongPayer` to attempt the change the interest rate.
+In this next test, let's try and update the interest rate with the incorrect `rateAuthority`. Earlier we created a keypair named `otherAccount`. This will be what we use as the `wrongPayer` to attempt the change the interest rate.
 
-Below the previous test we created add the following code for the `testTryingToUpdateTokenInterestRateWithWrongOwner` function:
-
-```tsx
-async function testTryingToUpdateTokenInterestRateWithWrongOwner(inputs: UpdateInterestRate) {
-  // in this test case, payer is "otherAccount", which isn't the original payer
-  const { connection, payer: wrongPayer, mint } = inputs;
-  const rate = 0;
-  try {
-    await updateRateInterestBearingMint(
-      connection,
-      wrongPayer,
-      mint,
-      wrongPayer,
-      rate,
-      undefined,
-      undefined,
-      TOKEN_2022_PROGRAM_ID,
-    );
-    console.log("You should be able to update the interest.");
-  } catch (error) {
-    console.error(`✅ - We expected this to fail because the owner is incorrect.`)}
-}
-```
-
-Inside the main script, add the call to `testTryingToUpdateTokenInterestRateWithWrongOwner` and run `npm run start`. This is expected to fail and log out `✅ - We expected this to fail because the owner is incorrect.`
+Below the previous test we created add the following code:
 
 ```tsx
-{
-  // Attempts to update interest on token
-  testTryingToUpdateTokenInterestRateWithWrongOwner({
+// ATTEMPT TO UPDATE INTEREST RATE WITH INCORRECT OWNER
+try {
+  await updateRateInterestBearingMint(
     connection,
-    payer: wrongPayer,
-    mint
-  })
+    wrongPayer,
+    mint,
+    wrongPayer, // incorrect authority
+    0, // updated rate
+    undefined,
+    undefined,
+    TOKEN_2022_PROGRAM_ID,
+  );
+  console.log("You should be able to update the interest.");
+} catch (error) {
+  console.error(`✅ - We expected this to fail because the owner is incorrect.`);
 }
 ```
+
+Now run `npm run start`. This is expected to fail and log out `✅ - We expected this to fail because the owner is incorrect.`
 
 **Mint tokens and read interest rate**
 
@@ -325,10 +289,10 @@ So we’ve tested updating the interest rate. How do we check that the accrued i
 Lets create a for loop that 5 times and mints 100 tokens per loop and logs out the new accrued interest:
 
 ```tsx
+// LOG ACCRUED INTEREST
 {
   // Logs out interest on token
   for (let i = 0; i < 5; i++) {
-    // retrieves current interest rate
     const rate = await getInterestBearingMint({ connection, mint });
     await mintTo(
       connection,
@@ -372,23 +336,24 @@ Amount with accrued interest at 32767: 500 tokens = 0.0000005000003634233328
 
 If for some reason you need to retrieve the mint config state, we can utilize the `getInterestBearingMintConfigState` function we created earlier to display information about the interest bearing mint state.
 
-```
+```ts
+// LOG INTEREST BEARING MINT CONFIG STATE
 const mintAccount = await getMint(
-    connection,
-    mint,
-    undefined,
-    TOKEN_2022_PROGRAM_ID,
-  );
+  connection,
+  mint,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+);
 
-  // Get Interest Config for Mint Account
-  const interestBearingMintConfig = await getInterestBearingMintConfigState(
-    mintAccount,
-  );
+// Get Interest Config for Mint Account
+const interestBearingMintConfig = await getInterestBearingMintConfigState(
+  mintAccount,
+);
 
-  console.log(
-    "\nMint Config:",
-    JSON.stringify(interestBearingMintConfig, null, 2),
-  );
+console.log(
+  "\nMint Config:",
+  JSON.stringify(interestBearingMintConfig, null, 2),
+);
 ```
 
 This should log out something that looks similar to this:
