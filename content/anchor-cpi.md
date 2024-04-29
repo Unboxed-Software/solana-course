@@ -392,10 +392,14 @@ Next, let’s update the `add_movie_review` instruction to do the following:
 
 Fortunately, we can use the `anchor_spl` crate to access helper functions and types like `mint_to` and `MintTo` for constructing our CPI to the Token Program. `mint_to` takes a `CpiContext` and integer as arguments, where the integer represents the number of tokens to mint. `MintTo` can be used for the list of accounts that the mint instruction needs.
 
+Update your `use` statements to include:
+
 ```rust
 use anchor_spl::token::{mint_to, MintTo, Mint, TokenAccount, Token};
 use anchor_spl::associated_token::AssociatedToken;
 ```
+
+Next, update the `add_movie_review` function to:
 
 ```rust
 pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description: String, rating: u8) -> Result<()> {
@@ -422,7 +426,7 @@ pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description
             },
             &[&[
                 "mint".as_bytes(),
-                &[*ctx.bumps.get("mint").unwrap()] // &[ctx.bumps.mint] for Anchor >=0.29
+                &[ctx.bumps.mint]
             ]]
         ),
         10*10^6
