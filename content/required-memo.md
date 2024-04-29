@@ -12,11 +12,12 @@ objectives:
 - The `required memo` extension allows developers to mandate that all incoming transfers to a token account include a memo, facilitating enhanced transaction tracking and user identification.
 - When a transfer is initiated without a memo, the transaction will fail.
 - The `required memo` extension can be disabled by calling `disableRequiredMemoTransfers`.
-- This demonstration includes the creation of a token account that necessitates memos for all incoming transfers, alongside tests to verify the extension's functionality in enforcing memo inclusion for transactions.
 
 # Overview
 
 For certain applications, such as exchanges or financial services, tracking the purpose or origin of a transaction is crucial. The `required memo` extension specifies that a memo is necessary for every incoming transfer to a token account. This requirement ensures that each transaction is accompanied by additional information, which can be used for compliance, auditing, or user-specific purposes. If the need for strict tracking diminishes, the requirement can be adjusted to make memos optional, offering flexibility in how transactions are handled and recorded.
+
+It is important to note that this is a token account extension, not a mint extension. Meaning individual token accounts need to enable this feature. And like all extensions, this will only work with Token Extensions Program tokens.
 
 ## Creating token with required memo
 
@@ -84,7 +85,33 @@ When the transaction with these three instructions is sent, a new token account 
   );
 ```
 
-## Disabling Required Memo
+## Transferring with required memo
+
+When transferring to a token account with the `required memo` instruction enabled, you need to send a memo first within the same transaction. We do this by creating a memo instruction to call the Memo program. Then, we add in our transfer instruction.
+
+```ts
+const message = "Hello, Solana"
+
+const transaction = new Transaction().add(
+  new TransactionInstruction({
+    keys: [{ pubkey: payer.publicKey, isSigner: true, isWritable: true }],
+    data: Buffer.from(message, "utf-8"), // Memo message. In this case it is "Hello, Solana"
+    programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"), // Memo program that validates keys and memo message
+  }),
+  createTransferInstruction(
+    ourTokenAccount,
+    otherTokenAccount, // Has required memo
+    payer.publicKey,
+    amountToTransfer,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  )
+);
+await sendAndConfirmTransaction(connection, transaction, [payer]);
+```
+
+## Disabling required memo
+
 The required memo extension can be disabled given you have the authority to modify the token account. To do this, simply call the `disableRequiredMemoTransfers` function and pass in the required arguments. 
 
 ```tsx
@@ -114,7 +141,7 @@ The required memo extension can be disabled given you have the authority to modi
 
 # Lab
 
-In this lab we'll be creating a token account with the required memo extension. We'll then write tests to check if the extension is working as intended by attempting to transfer funds with and without a memo. 
+In this lab we'll create a token account with the required memo extension. We'll then write tests to check if the extension is working as intended by attempting to transfer funds with and without a memo. 
 
 ### 1. Setup Environment
 
@@ -141,42 +168,82 @@ If you decide to use devnet, and have issues with airdropping SOL. Feel free to 
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starter` branch, we'll already have access to a token helper function along with 2 helper functions provided by the `@solana-developers/helpers` package.
+When you clone the repo and change to the `starter` branch, we'll already have access to some helper functions provided by the `@solana-developers/helpers` package and some starting variables.
 
-- `token-helper.ts`: This helper named `createTokenWithMemoExtension` will facilitate in the creation of the token accounts needed to run our tests against the required memo extension
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 1 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
 
 ### 4. Create the mint
 
-Inside of `src/index.ts`, the required dependencies will already be imported, along with some keypair and amount variables. Add the following `createMint` function beneath the existing code:
+First thing's first, since the `required memo` extension is a token extension, we don't need to do anything fancy with the mint. It just needs to be a Token Extensions Program mint. That being said, we can just create one using the the `createMint` function.
+
+Let's do this in `src/index.ts`:
 
 ```tsx
-	// CREATE MINT
-   const mint = await createMint(
-    connection,
-    payer,
-    payer.publicKey,
-    null,
-    mintDecimals,
-    undefined,
-    undefined,
-    TOKEN_2022_PROGRAM_ID,
-  );
+// CREATE MINT
+  const mint = await createMint(
+  connection,
+  payer,
+  payer.publicKey,
+  null,
+  mintDecimals,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+);
 ```
 
 ### 5. Create Token Account with required memo
 
-Inside of the `src` directory, you will see a file named `token-helper.ts`. Inside of the token helper, there is an asynchronous function named `createTokenWithMemoExtension`. This function is where we'll be creating the associated token account with the required memo.  The function will take the following arguments:
+Let's create a new file `src/token-helper.ts` and create a new function within it called `createTokenWithMemoExtension`. As the name implies, we'll use this to create our token accounts with the `required memo` extension enabled. The function will take the following arguments:
 
 - `connection` : The connection object
 - `mint` : Public key for the new mint
 - `payer` : Payer for the transaction
 - `tokenAccountKeypair` : The token account keypair associated with the token account
 
-The first step in creating the token account is reserving space on Solana with the `SystemProgram.createAccount` method. This requires specifying the payer's keypair, (the account that will fund the creation and provide SOL for rent exemption), the new token account's public key (`mintKeypair.publicKey`), the space required to store the mint information on the blockchain, the amount of SOL (lamports) necessary to exempt the account from rent and the ID of the token program that will manage this mint account (`TOKEN_2022_PROGRAM_ID`).
+```ts
+import {
+  TOKEN_2022_PROGRAM_ID,
+  getAccountLen,
+  ExtensionType,
+  createInitializeAccountInstruction,
+  createEnableRequiredMemoTransfersInstruction,
+} from "@solana/spl-token";
+import {
+  sendAndConfirmTransaction,
+  Connection,
+  Keypair,
+  Transaction,
+  PublicKey,
+  SystemProgram,
+} from "@solana/web3.js";
+
+export async function createTokenWithMemoExtension(
+  connection: Connection,
+  payer: Keypair,
+  tokenAccountKeypair: Keypair,
+  mint: PublicKey,
+): Promise<string> {
+
+  // CREATE ACCOUNT INSTRUCTION
+
+  // CREATE INITIALIZE ACCOUNT INSTRUCTION
+  
+  // CREATE ENABLE REQUIRED MEMO TRANSFERS INSTRUCTION
+
+  // SEND AND CONFIRM TRANSACTION
+  
+  return await "TODO FINISH FUNCTION";
+}
+```
+
+Let's start adding our code.
+
+The first step in creating the token account is reserving space on Solana with the `SystemProgram.createAccount` method:
 
 ```tsx
+// CREATE ACCOUNT INSTRUCTION
 const accountLen = getAccountLen([ExtensionType.MemoTransfer]);
 const lamports = await connection.getMinimumBalanceForRentExemption(accountLen);
 
@@ -187,35 +254,37 @@ const createAccountInstruction = SystemProgram.createAccount({
   lamports, 
   programId: TOKEN_2022_PROGRAM_ID,
 });
-
 ```
 
-We then add the initialize account instruction by calling `createInitializeAccountInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new token account.
+Now we need to initialize the token account. To create this instruction we call `createInitializeAccountInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new token account.
 
 ```tsx
+// CREATE INITIALIZE ACCOUNT INSTRUCTION
 const initializeAccountInstruction = createInitializeAccountInstruction(
-  tokenAccount,
+  tokenAccountKeypair.publicKey,
   mint,
-  owner.publicKey,
+  payer.publicKey,
   TOKEN_2022_PROGRAM_ID,
 );
 ```
 
-After the token account creation, the next step involves initializing it with the required memo extension. The `createEnableRequiredMemoTransfersInstruction` function is used to generate an instruction that enables the token account to require memos for all incoming transfers. This means that any transfer of tokens into the account must include a memo, which is a small piece of data attached to the transaction.
+The last instruction we need is the one that enables the required memo. We get this by calling the  `createEnableRequiredMemoTransfersInstruction` function. When the required memos are enabled, any transfer of tokens into the account must include a memo.
 
 ```tsx
+// CREATE ENABLE REQUIRED MEMO TRANSFERS INSTRUCTION
 const enableRequiredMemoTransfersInstruction =
-  createEnableRequiredMemoTransfersInstruction(
-    tokenAccountKeypair.publicKey,
-    payer.publicKey,
-    undefined,
-    TOKEN_2022_PROGRAM_ID,
-  );
+createEnableRequiredMemoTransfersInstruction(
+  tokenAccountKeypair.publicKey,
+  payer.publicKey,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+);
 ```
 
-Now that the account and all of the instructions have been created, the token account can be created with required memo on transfers.
+Lastly, let's add all of the instructions to a transaction, send it to the blockchain and return the signature 
 
 ```tsx
+// SEND AND CONFIRM TRANSACTION
 const transaction = new Transaction().add(
   createAccountInstruction,
   initializeAccountInstruction,
@@ -227,13 +296,13 @@ const transactionSignature = await sendAndConfirmTransaction(
   transaction,
   [payer, tokenAccountKeypair], // Signers
 );
+
+return transactionSignature
 ```
 
-Now that we’ve added the functionality for `token-helper`, we can create two variables for the token accounts. When we use the `createTokenWithMemoExtension` function we created, it explicitly adds the instructions to add required memos to the token account. This helper will create an associated token account which by default includes required memo when transferring. 
+Let's go back to `index.ts` and create two new token accounts: `ourTokenAccountKeypair` and `otherTokenAccountKeypair` using our newly created function. 
 
-Back in `index.ts` underneath the `mint` variable, create 2 token accounts. One for `ourTokenAccountKeypair` and one for `otherTokenAccountKeypair`. We then mint 1000 tokens to `ourTokenAccountKeypair`:
-
-```
+```typescript
 // CREATE TOKENS
 await createTokenWithMemoExtension(
   connection,
@@ -248,8 +317,13 @@ await createTokenWithMemoExtension(
   otherTokenAccountKeypair,
   mint
 );
+```
 
- await mintTo(
+Lastly, let's call `mintTo` to mint some initial tokens to `ourTokenAccountKeypair`:
+
+```ts
+// MINT TOKENS
+await mintTo(
   connection,
   payer,
   mint,
@@ -262,10 +336,11 @@ await createTokenWithMemoExtension(
 )
 ```
 
-Thats it for the token accounts! We have minted tokens to `ourTokenAccountKeypair` and can now move on and start testing that the extensions rules are applied correctly by running a few tests against it.
+Note: The `required memo` extension only requires a memo on transferring, not minting.
 
 ### 6. Tests
-Now that we have the ability to create a token account with a required for all of it's transfers, let's write some tests to see how it functions.
+
+Now that we've created some accounts with the `required memo` instruction. Let's write some tests to see how they function.
 
 We'll write 3 tests in total:
 
@@ -274,7 +349,8 @@ We'll write 3 tests in total:
 - Disabling Required Memo extension and transferring without a memo
 
 ### 6.1 Transfer without Memo
-This test will attempt to transfer tokens from `ourTokenAccount` to `otherTokenAccount`. This test is expected to fail as there is no memo attached to the transaction. Remember: When the `required memo` extension is enabled on a token account, a memo must associated with that transaction.
+
+This first test will attempt to transfer tokens from `ourTokenAccount` to `otherTokenAccount`. This test is expected to fail as there is no memo attached to the transaction.
 
 ```tsx
 // ATTEMPT TO TRANSFER WITHOUT MEMO
@@ -301,143 +377,113 @@ try {
 }
 ```
 
-Run `npm run start`. We should see the following error logged out in the terminal, meaning the extension is working as intended: `✅ - We expected this to fail because you need to send a memo with the transfer.`
+Run this test, you should see the following error logged out in the terminal, meaning the extension is working as intended: `✅ - We expected this to fail because you need to send a memo with the transfer.`
 
-### 6.2 Test transfer with memo
-This test will attempt to transfer tokens with a memo. This test is expected to pass. Pay extra attention to the following code block. It is the part of the transaction that adds the memo instruction to it:
-
-```tsx
-const message = "Hello, Solana"
-
-new TransactionInstruction({
-  keys: [{ pubkey: payer.publicKey, isSigner: true, isWritable: true }],
-  data: Buffer.from(message, "utf-8"), 
-  // Memo message. In this case it is "Hello, Solana"
-  programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"), 
-  // Memo program that validates keys and memo message
-}),
+```bash
+npm run start
 ```
 
-Below the previous test, add the following code block:
+### 6.2 Test transfer with memo
+
+This test will attempt to transfer tokens with a memo. This test is expected to pass. Pay extra attention to the first instruction - It is the part of the transaction that adds the memo instruction to it:
 
 ```tsx
 // ATTEMPT TO TRANSFER WITH MEMO
-try {
-  const message = "Hello, Solana"
+const message = "Hello, Solana"
 
-  const transaction = new Transaction().add(
-    new TransactionInstruction({
-      keys: [{ pubkey: payer.publicKey, isSigner: true, isWritable: true }],
-      data: Buffer.from(message, "utf-8"), // Memo message. In this case it is "Hello, Solana"
-      programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"), // Memo program that validates keys and memo message
-    }),
+const transaction = new Transaction().add(
+  new TransactionInstruction({
+    keys: [{ pubkey: payer.publicKey, isSigner: true, isWritable: true }],
+    data: Buffer.from(message, "utf-8"), // Memo message. In this case it is "Hello, Solana"
+    programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"), // Memo program that validates keys and memo message
+  }),
 
-    createTransferInstruction(
-      ourTokenAccount,
-      otherTokenAccount,
-      payer.publicKey,
-      amountToTransfer,
-      undefined,
-      TOKEN_2022_PROGRAM_ID
-    )
-  );
-  await sendAndConfirmTransaction(connection, transaction, [payer]);
-
-  const account = await getAccount(
-    connection,
+  createTransferInstruction(
+    ourTokenAccount,
     otherTokenAccount,
+    payer.publicKey,
+    amountToTransfer,
     undefined,
     TOKEN_2022_PROGRAM_ID
   )
+);
+await sendAndConfirmTransaction(connection, transaction, [payer]);
 
-  console.log(
-    `✅ - We have transferred ${account.amount} tokens to ${otherTokenAccount} with the memo: ${message}`
-  );
+const accountAfterMemoTransfer = await getAccount(
+  connection,
+  otherTokenAccount,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+)
 
-} catch (error) {
-  console.log(error)
-}
+console.log(
+  `✅ - We have transferred ${accountAfterMemoTransfer.amount} tokens to ${otherTokenAccount} with the memo: ${message}`
+);
 ```
-Run `npm run start`. We'll see that this test has passed and the transfer has succeeded.
+
+Run the test and see that it passes:
+```bash
+npm run start
+```
 
 ### 6.3 Test transfer with disabled memo
 
-Now we'll test that the extension can be disabled which will remove the requirement of adding a memo to the transaction. Then we'll transfer some tokens from `ourTokenAccount` to `otherTokenAccount`.
-
-We do this by using the `disableRequiredMemoTransfers` function provided by the `@solana/spl-token` library.
-
-```ts
- await disableRequiredMemoTransfers(
-    connection,
-    payer,
-    otherTokenAccount,
-    payer,
-    undefined,
-    undefined,
-    TOKEN_2022_PROGRAM_ID
-  );
-```
-
-Up to this point the first test failed due to no memo added to the transaction. The second test succeeded, transferring `otherTokenAccount` 300 tokens. 
-
-Add the following code to your `index.ts`:
+In our last test, we'll disable the `required memo` extension on the `otherTokenAccount` and send it some tokens without a memo. We expect this to pass.
 
 ```tsx
 // DISABLE MEMO EXTENSION AND TRANSFER
-try {
+await disableRequiredMemoTransfers(
+  connection,
+  payer,
+  otherTokenAccount,
+  payer,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+);
 
-  await disableRequiredMemoTransfers(
-    connection,
-    payer,
+// Transfer tokens to otherTokenAccount
+const transfer = new Transaction().add(
+  createTransferInstruction(
+    ourTokenAccount,
     otherTokenAccount,
-    payer,
-    undefined,
-    undefined,
-    TOKEN_2022_PROGRAM_ID
-  );
-
-  // Transfer tokens to otherTokenAccount
-  const transfer = new Transaction().add(
-    createTransferInstruction(
-      ourTokenAccount,
-      otherTokenAccount,
-      payer.publicKey,
-      amountToTransfer,
-      undefined,
-      TOKEN_2022_PROGRAM_ID
-    )
-  );
-
-  await sendAndConfirmTransaction(connection, transfer, [payer]);
-
-  const account = await getAccount(
-    connection,
-    otherTokenAccount,
+    payer.publicKey,
+    amountToTransfer,
     undefined,
     TOKEN_2022_PROGRAM_ID
   )
+);
 
-  // Re-enable memo transfers to show it exists 
-  await enableRequiredMemoTransfers(
-    connection,
-    payer,
-    otherTokenAccount,
-    payer,
-    undefined,
-    undefined,
-    TOKEN_2022_PROGRAM_ID
-  );
+await sendAndConfirmTransaction(connection, transfer, [payer]);
 
-  console.log(
-    `✅ - We have transferred ${account.amount} tokens to ${otherTokenAccount} without a memo.`
-  );
+const accountAfterDisable = await getAccount(
+  connection,
+  otherTokenAccount,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+)
 
-} catch (error) {
-  console.log(error)
-}
+// Re-enable memo transfers to show it exists 
+await enableRequiredMemoTransfers(
+  connection,
+  payer,
+  otherTokenAccount,
+  payer,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+);
+
+console.log(
+  `✅ - We have transferred ${accountAfterDisable.amount} tokens to ${otherTokenAccount} without a memo.`
+);
 ```
 
-Run `npm run start`. You will notice that `otherTokenAccount` now has 600 tokens, meaning it has successfully transferred without a memo after disabling the extension.
+Run the tests. You will notice that `otherTokenAccount` now has 600 tokens, meaning it has successfully transferred without a memo after disabling the extension.
+
+```bash
+npm run start
+```
 
 Congratulations! We’ve just tested the required memo extension!
 
