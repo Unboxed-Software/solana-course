@@ -16,13 +16,13 @@ objectives:
 
 # Overview
 
-Each Solana cluster (mainnet-beta, testnet, devnet, localnet) is effectively a single computer with globally syncronized state. The programs that run on Solana - the ones that create tokens, swap tokens, art marketplaces, escrows, market makers, DePIN apps, auctions, retail payments platforms, etc - are called **Solana apps**.
+Each Solana cluster (mainnet-beta, testnet, devnet, localnet) is effectively a single computer with globally synchronized state. The programs that run on Solana - the ones that create tokens, swap tokens, art marketplaces, escrows, market makers, DePIN apps, auctions, retail payments platforms, etc - are called **Solana apps**.
 
 The most popular way to build onchain apps is using **Rust** language and the **Anchor** framework. Frameworks for other languages, including **TypeScript**, **Python** and **Move** are coming soon. 
 
 These frameworks implement common security checks automatically, and handle common tasks like:
  - sending incoming instructions to the right instruction handlers
- - deserialising data from incoming transactions
+ - deserializing data from incoming transactions
  - checking the accounts provided with incoming instructions, for example to check that certain accounts are of a particular type, or are distinct from other accounts.
 
 Regardless of the language and framework you choose, Solana works the same. Let's refresh how programs work on Solana.
@@ -31,15 +31,14 @@ Regardless of the language and framework you choose, Solana works the same. Let'
 
 ## Programs are deployed at addresses
 
-Like like we can send tokens to users using their public key, we can find programs using the program's public key. When using Anchor, a keypair is created during `anchor init` and the private key saved in the `target/deploy` directory of your project.
+In the same way we can send tokens to users using their public key, we can find programs using the program's public key. When using Anchor, a keypair is created during `anchor init` and the private key saved in the `target/deploy` directory of your project.
 
 A program's public key is sometimes called a 'program ID'.
 
 ## Programs have instruction handlers
 
 For example, a Solana client making a transaction transferring some USDC with a memo saying 'thanks' would have two instructions:
-  - one instruction for the Token program's
-`transfer` instruction handler
+  - one instruction for the Token program's `transfer` instruction handler
   - the other instruction for the Memo program's `memo` instruction handler. 
 
 Both these instructions must complete successfully for the transaction to execute.
@@ -58,21 +57,21 @@ But more importantly, programs on Solana can create additional addresses as need
 
 ## Programs store data in Program Derived Addresses (PDAs), a key-value store
 
-These addresses are called **program derived addresses** and act as a **key / value store**.
+Data for Solana programmed are stored in **program derived addresses (PDAs)**. Solana's PDAs can be thought of as a **key / value store**:
 
  - The 'key' is the address of the PDA, which is determined by `seeds` chosen by you, the programmer. 
    - Want an account to store USD to AUD exchange rate? Your program can use the seeds `USD` and `AUD` to make a Program Derived Address
    - Want to store information about the relationship of two users? You can use **both those users wallet addreesses** as seeds to make a PDA to store that information.
    - Want an account to store Steve's review of Titanic? Your program can use Steve's **wallet address** and the string `titanic` (or maybe the IMDB ID if you prefer) to make a Program Derived Address.
    - Want some global infomation for your entire program? You can use a string like `config`. Your program's PDAs are unique, so these won't conflict with other users. 
- - The value is the data inside.
+ - The value is the data inside the account at the given address.
    - The data inside the PDA is determined by you, the programmer.
 
 Key value stores allow your on chain program, and client software, to consistently determine the address data can be found at, because the same seeds will always return the same address.
 
 ## Solana front end apps need to specify all the accounts they will use
 
-As you may already know, Solana is fast because it can process transactions that don't overlap at the same time. Ie, just like the real world, Alice sending to Bob doesn't stop Chris from sending something to Diana. Your front end apps needs to specify the addresses of all the accounts they will use. 
+As you may already know, Solana is fast because it can process transactions that don't overlap at the same time. I.e., just like the real world, Alice sending to Bob doesn't stop Chris from sending something to Diana. Your front end apps needs to specify the addresses of all the accounts they will use. 
 
 This includes the PDAs you make. Thankfully, you can calculate the address for PDAs in your front end code before you write data there!
 
@@ -84,7 +83,7 @@ const address = findProgramAddressSync(
 )
 ```
 
-## There are multiple ways to build on chain, but we recommend Anchor.
+## There are multiple ways to build onchain, but we recommend Anchor
 
 You currently have two options for on-chain program development:
 
