@@ -89,7 +89,15 @@
             "slug": "on-chain-program-development",
             "units": [
                 {
-                    "title": "Basic Solana Program Development",
+                    "title": "Introduction to Onchain Program Development",
+                    "lessons": [
+                        {
+                            "title": "Local Setup",
+                            "slug": "local-setup",
+                            "lab": "Configure Windows, Mac and Linux for localhost Solana development"
+                        }
+                    ]
+                },
                     "slug": "basic-solana-program-development",
                     "lessons": [
                         {
@@ -118,11 +126,6 @@
                     "title": "Intermediate Solana Program Development",
                     "slug": "intermediate-solana-program-development",
                     "lessons": [
-                        {
-                            "title": "Local Program Development",
-                            "slug": "local-setup",
-                            "lab": "Configure Windows, Mac and Linux for localhost Solana development"
-                        },
                         {
                             "title": "Program Derived Addresses",
                             "slug": "pda",
