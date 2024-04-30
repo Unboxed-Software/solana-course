@@ -57,7 +57,7 @@ But more importantly, programs on Solana can create additional addresses as need
 
 ## Programs store data in Program Derived Addresses (PDAs), a key-value store
 
-Data for Solana programmed are stored in **program derived addresses (PDAs)**. Solana's PDAs can be thought of as a **key / value store**:
+Data for Solana programs are stored in **program derived addresses (PDAs)**. Solana's PDAs can be thought of as a **key / value store**:
 
  - The 'key' is the address of the PDA, which is determined by `seeds` chosen by you, the programmer. 
    - Want an account to store USD to AUD exchange rate? Your program can use the seeds `USD` and `AUD` to make a Program Derived Address
