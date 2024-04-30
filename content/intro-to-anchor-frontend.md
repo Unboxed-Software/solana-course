@@ -187,7 +187,7 @@ The `AnchorProvider` constructor takes three parameters:
 - `wallet` - the `Wallet` object
 - `opts` - optional parameter that specifies the confirmation options, using a default setting if one is not provided
 
-Once you’ve create the `Provider` object, you then set it as the default provider using `setProvider`.
+Once you’ve created the `Provider` object, you then set it as the default provider using `setProvider`.
 
 ```tsx
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react"
@@ -209,7 +209,7 @@ Once you have the IDL and a provider, you can create an instance of `Program`. T
 
 The `Program` object creates a custom API you can use to interact with a Solana program. This API is the one stop shop for all things related to communicating with onchain programs. Among other things, you can send transactions, fetch deserialized accounts, decode instruction data, subscribe to account changes, and listen to events. You can also [learn more about the `Program` class](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
 
-To create the `Program` object, first import `Program` and `Idl` from `@coral-xyz/anchor`. `Idl` is a type you can used when working with Typescript.
+To create the `Program` object, first import `Program` and `Idl` from `@coral-xyz/anchor`. `Idl` is a type you can use when working with Typescript.
 
 Next, specify the `programId` of the program. We have to explicitly state the `programId` since there can be multiple programs with the same IDL structure (i.e. if the same program is deployed multiple times using different addresses). When creating the `Program` object, the default `Provider` is used if one is not explicitly specified.
 
@@ -329,7 +329,7 @@ Alternatively, you can also get the deserialized account data for a specific acc
 const account = await program.account.counter.fetch(ACCOUNT_ADDRESS)
 ```
 
-Similarly, you can fetch for multiple accounts using `fetchMultiple`.
+Similarly, you can fetch multiple accounts using `fetchMultiple`.
 
 ```tsx
 const accounts = await program.account.counter.fetchMultiple([ACCOUNT_ADDRESS_ONE, ACCOUNT_ADDRESS_TWO])
@@ -446,7 +446,7 @@ export const Increment: FC<Props> = ({ counter, setTransactionUrl }) => {
 Next, let’s use the Anchor `MethodsBuilder` to build a new instruction to invoke the `increment` instruction. Again, Anchor can infer the `user` account from the wallet so we only need to include the `counter` account.
 
 ```tsx
-const onClick = async () => {
+const incrementCount = async () => {
   const sig = await program.methods
     .increment()
     .accounts({
@@ -459,7 +459,7 @@ const onClick = async () => {
 }
 ```
 
-### 5. Display the correct count
+### 4. Display the correct count
 
 Now that we can initialize the counter program and increment the count, we need to get our UI to show the count stored in the counter account.
 

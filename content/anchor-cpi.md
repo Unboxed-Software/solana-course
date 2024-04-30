@@ -37,7 +37,7 @@ The `CpiContext` type specifies non-argument inputs for cross program invocation
 - `accounts` - the list of accounts required for the instruction being invoked
 - `remaining_accounts` - any remaining accounts
 - `program` - the program ID of the program being invoked
-- `signer_seeds` - if a PDA is signing, include the seeds required to derived the PDA
+- `signer_seeds` - if a PDA is signing, include the seeds required to derive the PDA
 
 ```rust
 pub struct CpiContext<'a, 'b, 'c, 'info, T>
@@ -163,7 +163,7 @@ When the program you're calling is *not* an Anchor program, there are two possib
         amount,
     )?;
     ```
-2. If there is no helper module for the program whose instruction(s) you need to invoke, you can fall back to using `invoke` and `invoke_signed`. In fact, the source code of the `mint_to` helper function referenced above shows an example us using `invoke_signed` when given a `CpiContext`. You can follow a similar pattern if you decide to use an accounts struct and `CpiContext` to organize and prepare your CPI.
+2. If there is no helper module for the program whose instruction(s) you need to invoke, you can fall back to using `invoke` and `invoke_signed`. In fact, the source code of the `mint_to` helper function referenced above shows an example using `invoke_signed` when given a `CpiContext`. You can follow a similar pattern if you decide to use an accounts struct and `CpiContext` to organize and prepare your CPI.
     ```rust
     pub fn mint_to<'a, 'b, 'c, 'info>(
         ctx: CpiContext<'a, 'b, 'c, 'info, MintTo<'info>>,
@@ -366,7 +366,7 @@ pub struct AddMovieReview<'info> {
     // ADDED ACCOUNTS BELOW
     pub token_program: Program<'info, Token>,
     #[account(
-        seeds = ["mint".as_bytes()]
+        seeds = ["mint".as_bytes()],
         bump,
         mut
     )]
@@ -391,6 +391,15 @@ Next, let’s update the `add_movie_review` instruction to do the following:
 - Make a CPI to the token program’s `mint_to` instruction using the mint authority PDA as a signer. Note that we'll mint 10 tokens to the user but need to adjust for the mint decimals by making it `10*10^6`.
 
 Fortunately, we can use the `anchor_spl` crate to access helper functions and types like `mint_to` and `MintTo` for constructing our CPI to the Token Program. `mint_to` takes a `CpiContext` and integer as arguments, where the integer represents the number of tokens to mint. `MintTo` can be used for the list of accounts that the mint instruction needs.
+
+Update your `use` statements to include:
+
+```rust
+use anchor_spl::token::{mint_to, MintTo, Mint, TokenAccount, Token};
+use anchor_spl::associated_token::AssociatedToken;
+```
+
+Next, update the `add_movie_review` function to:
 
 ```rust
 pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description: String, rating: u8) -> Result<()> {
@@ -417,7 +426,7 @@ pub fn add_movie_review(ctx: Context<AddMovieReview>, title: String, description
             },
             &[&[
                 "mint".as_bytes(),
-                &[*ctx.bumps.get("mint").unwrap()]
+                &[ctx.bumps.mint]
             ]]
         ),
         10*10^6
@@ -454,7 +463,7 @@ pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, descr
 
 Those are all of the changes we need to make to the program! Now, let’s update our tests.
 
-Start by making sure your imports nad `describe` function look like this:
+Start by making sure your imports and `describe` function look like this:
 
 ```typescript
 import * as anchor from "@coral-xyz/anchor"
@@ -489,6 +498,7 @@ describe("anchor-movie-review-program", () => {
 ...
 }
 ```
+You can run `npm install @solana/spl-token --save-dev` if you don't have it installed.
 
 With that done, add a test for the `initializeTokenMint` instruction:
 
@@ -519,10 +529,10 @@ it("Movie review is added`", async () => {
     .rpc()
   
   const account = await program.account.movieAccountState.fetch(movie_pda)
-  expect(movie.title === account.title)
-  expect(movie.rating === account.rating)
-  expect(movie.description === account.description)
-  expect(account.reviewer === provider.wallet.publicKey)
+  expect(account.title).to.equal(movie.title)
+  expect(account.rating).to.equal(movie.rating)
+  expect(account.description).to.equal(movie.description)
+  expect(account.reviewer.toBase58()).to.equal(provider.wallet.publicKey.toBase58())
 
   const userAta = await getAccount(provider.connection, tokenAccount)
   expect(Number(userAta.amount)).to.equal((10 * 10) ^ 6)
