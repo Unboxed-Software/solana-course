@@ -106,9 +106,9 @@
                     "slug": "basic-solana-program-development",
                     "lessons": [
                         {
-                            "title": "Hello World",
+                            "title": "Hello World in native",
                             "slug": "hello-world-program",
-                            "lab": "Create and deploy a 'hello world' onchain program"
+                            "lab": "Create and deploy a native 'hello world' onchain program"
                         },
                         {
                             "title": "Handle Instruction Data",
