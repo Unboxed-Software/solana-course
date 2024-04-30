@@ -290,8 +290,8 @@
             "slug": "solana-mobile-development",
             "units": [
                 {
-                    "title": "Exploring Solana Mobile Development",
-                    "slug": "solana-mobile-development-unit",
+                    "title": "Solana Mobile Development",
+                    "slug": "solana-mobile-development",
                     "lessons": [
                         {
                             "title": "Introduction to Solana Mobile",

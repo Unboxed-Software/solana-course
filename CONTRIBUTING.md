@@ -57,7 +57,12 @@ We want the minimal amount of code necessary to solve the problem.
  
  - Use full names. Call a `thing` a `thing`. Don't call it a `thg`. 
  - Avoid reptitive, copy paste code. This helps others change the code easily, as they can fix things in a single place.
- - Avoid magic numbers. Nobody should see a `+ 32` in your code and wonder where it came from.
+ - Avoid magic numbers. Nobody should see a `+ 32` in your code and wonder what the `32` means.
+ - Avoid asking students to clone a git repo. The idea is that students should be able to create projects from scratch when they have finished the course. 
+  - Referring to code students have made in previous chapters is fine. 
+  - `esrun` means you don't need to set up tsconfig files just to run TypeScript code. 
+  - Tools like `anchor init` or `create-solana-dapp` are fine. 
+  - If there's some boilerplate, Solana-specific code you always need [make a PR to the helpers repository](https://github.com/solana-developers/helpers).
 
 ### JS/TS
 
