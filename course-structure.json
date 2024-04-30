@@ -92,6 +92,11 @@
                     "title": "Introduction to Onchain Program Development",
                     "lessons": [
                         {
+                            "title": "Intro to onchain program development",
+                            "slug": "intro-to-onchain",
+                            "lab": null
+                        },
+                        {
                             "title": "Local Setup",
                             "slug": "local-setup",
                             "lab": "Configure Windows, Mac and Linux for localhost Solana development"
