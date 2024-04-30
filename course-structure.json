@@ -103,6 +103,33 @@
                         }
                     ]
                 },
+                {
+                    "title": "Anchor Program Development",
+                    "lessons": [
+                        {
+                            "title": "Getting started with Anchor",
+                            "slug": "intro-to-anchor",
+                            "lab": "Create a 'hello world' application"
+                        },
+                        {
+                            "title": "Using Anchor programs from JS/TS",
+                            "slug": "intro-to-anchor-frontend",
+                            "lab": "Create a React and Anchor frontend for the ping-counter app"
+                        },
+                        {
+                            "title": "Anchor PDAs and accounts",
+                            "slug": "anchor-pdas",
+                            "lab": "Use Anchor to create a Movie Review program"
+                        },
+                        {
+                            "title": "Anchor CPIs and errors",
+                            "slug": "anchor-cpi",
+                            "lab": "Mint token rewards for reviews"
+                        }
+                    ]
+                },
+                {
+                    "title": "Native Solana Program Development",
                     "slug": "basic-solana-program-development",
                     "lessons": [
                         {
@@ -145,32 +172,6 @@
                             "title": "Program Testing",
                             "slug": "program-testing",
                             "hidden": true
-                        }
-                    ]
-                },
-                {
-                    "title": "Anchor Program Development",
-                    "slug": "anchor-program-development",
-                    "lessons": [
-                        {
-                            "title": "Intro to Anchor development",
-                            "slug": "intro-to-anchor",
-                            "lab": "Create and deploy a ping-counter onchain app using Anchor"
-                        },
-                        {
-                            "title": "Intro to client-side Anchor development",
-                            "slug": "intro-to-anchor-frontend",
-                            "lab": "Create a React and Anchor frontend for the ping-counter app"
-                        },
-                        {
-                            "title": "Anchor PDAs and accounts",
-                            "slug": "anchor-pdas",
-                            "lab": "Use Anchor to create a Movie Review program"
-                        },
-                        {
-                            "title": "Anchor CPIs and errors",
-                            "slug": "anchor-cpi",
-                            "lab": "Mint token rewards for reviews"
                         }
                     ]
                 },
