@@ -7,7 +7,7 @@ objectives:
 
 # Summary
  - The existing Token Program on Solana provides interfaces for fungible and non-fungible tokens. However as new features have been needed, various forks of Token Program have been created to add features, posing adoption challenges across the ecosystem.
- - To introduce new token features without disrupting current users, wallets, and decentralized applications (dApps), and to ensure the safety of existing tokens, a new token program, Token Extensions Program (also called as Token-2022), has been developed.
+ - To introduce new token features without disrupting current users, wallets, and decentralized applications (dApps), and to ensure the safety of existing tokens, a new token program, Token Extensions Program (also called Token-2022), has been developed.
  - Token Extensions Program is a separate program with a separate address from the original Token Program. It supports the exact same functions plus additional ones through extensions.
 
 # Overview
