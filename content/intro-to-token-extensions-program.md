@@ -34,7 +34,7 @@ As of writing there are [16 extensions](https://spl.solana.com/token-2022/extens
 	This extension makes it mandatory to have a memo on on all transfers, just like traditional banking systems.
 
  - **Immutable ownership**
-	Original token accounts owners can transfer ownership to any other address, which is useful in many scenarios but can lead to security vulnerabilities. This is especially when dealing with Associated Token Accounts (ATAs). To avoid these issues, we can use this extension which makes it impossible to reassign ownership. 
+	A token account's owner can normally transfer ownership to any other address, which is useful in many scenarios but can lead to security vulnerabilities, especially when dealing with Associated Token Accounts (ATAs). To avoid these issues, we can use this extension which makes it impossible to reassign account ownership. 
 
 	Note: All Token Extension Program ATAs have the immutable ownership extension baked in.
 
@@ -55,31 +55,31 @@ As of writing there are [16 extensions](https://spl.solana.com/token-2022/extens
 	Note: To close a mint account, the supply has to be 0. So all tokens minted, must be burned.
 
  - **Interest-bearing tokens**
-	Tokens which have constantly fluctuating values, showing the updated values in clients requires proxies that require regular rebase or update operations. With this extension, we can change how the UI amount of tokens are represented by setting an interest rate on the token and fetching it's amount with interest at any time. Note, the interest on the token is purely atheistic and does not change the amount of tokens within an account.
+	Tokens which have constantly fluctuating values, showing the updated values in clients requires proxies that require regular rebase or update operations. With this extension, we can change how the UI amount of tokens are represented by setting an interest rate on the token and fetching it's amount with interest at any time. Note, the interest on the token is purely aesthetic and does not change the amount of tokens within an account.
 
  - **Non-transferable tokens**
 	This extension enables the creation of tokens that are "bound" to their owner, meaning they cannot be transferred to others.
 
  - **Permanent delegate**
-	This extension allows us to specify a permanent delegate for a mint. This authority has unlimited delegate privileges over any token account of that mint. This means that it can burn or transfer any amount of tokens from any account. Powerful and dangerous.
+	This extension allows us to specify a permanent delegate for a mint. This authority has unlimited delegate privileges over any token account of that mint. This means that it can burn or transfer any amount of tokens from any account. Permanent delegate can be used for example by membership programs to revoke access tokens, or by stablecoin issuers to revoke balances owned by sanctioned entities. This Extension is powerful and dangerous. 
 
  - **Transfer hook**
-	This extension allows token creators to have more control over how their tokens are transferred, by allowing a callback "hook" function on-chain. The creators must develop and deploy a program that implements the hook interface and then configure their token mint to use their program. Then, on any transfer of that mint, a the transfer hook will be called.
+	This extension allows token creators to have more control over how their tokens are transferred, by allowing a callback "hook" function on-chain. The creators must develop and deploy a program that implements the hook interface and then configure their token mint to use their program. Then, on any transfer of that mint, the transfer hook will be called.
 
  - **Metadata pointer**
-	A mint can have multiple different account claiming to describe the mint. This extension allows the token creator to designate an address that describes the canonical metadata. The pointer can be an external account, like a Metaplex metadata account, or if using the metadata extension, self pointing.
+	A mint can have multiple different accounts claiming to describe the mint. This extension allows the token creator to designate an address that describes the canonical metadata. The pointer can be an external account, like a Metaplex metadata account, or if using the metadata extension, self pointing.
 
  - **Metadata**
 	This extension allows a mint creator to include their token's metadata directly into the mint account. This is always used in conjunction with the metadata pointer extension.
 
 - **Group pointer**
-	Think of a group of tokens much like a "collection" of tokens. More specifically, in an NFT collection, the mint with the group pointer extension, would be the collection NFT. This extension contains a pointer to an account that conforms to the [Token-Group Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-group/interface).
+	Think of a group of tokens much like a "collection" of tokens. More specifically, in an NFT collection, the mint with the group pointer extension would be considered to be the collection NFT. This extension contains a pointer to an account that conforms to the [Token-Group Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-group/interface).
 
 - **Group**
 	This stores the [group information](https://github.com/solana-labs/solana-program-library/tree/master/token-group/interface) within the mint itself. It is always used in conjunction with the group pointer extension.
 
 - **Member pointer**
-	The antithesis of the group pointer is the member pointer. This pointer points to an account that holds the member data, like which group it's a part of. In a collection of NFTs, these would be the NFTs in the collection.
+	The inverse of the group pointer is the member pointer. This pointer points to an account that holds the member data, like which group it's a part of. In a collection of NFTs, these would be the NFTs in the collection.
 
 - **Member**
 	This stores the member information within the mint itself. It's always used in conjunction with the member pointer extension.
@@ -174,7 +174,7 @@ Signature: 3tX6FHvE24e8UHqSWbK5HRpBFxtCnDTRHASFZtipKkTzapgMGZEeNJ2zHAHSrSUs8L8wQ
 
 Save the resulting mint address, we'll use it in the next step. 
 
-Now let's mint one of these tokens to an associated token account (ATA) that uses the `immutable owner` extension. By default all ATAs enable the `immutable owner` extension. As for the CLI, all token accounts made with the `
+Now let's mint one of these tokens to an associated token account (ATA) that uses the `immutable owner` extension. By default all ATAs enable the `immutable owner` extension. And all token accounts made with the CLI will be ATAs, so `immutable owner` will be enabled.
 
 This extension requires following arguments:
  - `create-account`: The instruction that we want to execute.
@@ -216,14 +216,14 @@ Minting 1 tokens
 Signature: 54yREwGCH8YfYXqEf6gRKGou681F8NkToAJZvJqM5qZETJokRkdTb8s8HVkKPeVMQQcc8gCZkq4Kxx3YbLtY9Frk
 ```
 
-Feel free to use the `spl-token display` function to get some info about the mint and token account.
+Feel free to use the `spl-token display` command to get some info about the mint and token account.
 
 
 
-### 4. Creating a "soul-bound" NFT
+### 4. Creating a non-transferrable ("soul-bound") NFT
 
 
-Lastly, let's create an NFT which will be non-transferable, aka a soul-bound NFT. Think of it as a achievement token which is exclusively owned by one person or account. For creating this token, we will use three extensions: metadata pointer, metadata and non-transferable token.
+Lastly, let's create an NFT which will be non-transferable, sometimes called a 'soul-bound' NFT. Think of it as a achievement token which is exclusively owned by one person or account. For creating this token, we will use three extensions: metadata pointer, metadata and non-transferable token.
 
 With the metadata extension, we can include metadata directly in the mint account and the non-transferable extension makes the token exclusive to the account.
 
@@ -295,7 +295,7 @@ We can also remove the custom fields from the mint metadata. Run the following c
 spl-token update-metadata <TOKEN_MINT_ADDRESS> new-field --remove
 ```
 
-Lastly, lets make it a real soul-bound NFT. We do this by minting the NFT to our ATA and then removing the mint authority. This way the supply will only be one.
+Lastly, lets make it a real non-transferrable NFT. We do this by minting the NFT to our ATA and then removing the mint authority. This way the supply will only be one.
 
 ```bash
 spl-token create-account <TOKEN_MINT_ADDRESS>
@@ -303,7 +303,7 @@ spl-token mint <TOKEN_MINT_ADDRESS> 1
 spl-token authorize <TOKEN_MINT_ADDRESS> mint --disable
 ```
 
-Now we have successfully created a "soul-bound" NFT which is exclusively owned by our ATA.
+Now we have successfully created a non-transferrable NFT which is exclusively owned by our ATA.
 
 That's it! This is how we can use the Solana CLI with Token Extension Program to use the extensions. We will dive deeper into these extensions in separate lessons and see how we can use them programmatically.
 

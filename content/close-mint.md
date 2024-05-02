@@ -15,7 +15,7 @@ objectives:
 
 The original Token Program only allows owners to close token accounts, not mint accounts. So if you create a mint, you'll never be able to close the account. This has resulted in a lot of wasted space on the blockchain. To remedy this, the Token Extensions Program introduced the `close mint` extension. This simply allows a mint account to be closed and the lamports refunded. The only caveat, is the supply of said mint needs to be 0.
 
-This extension is a nice improvement for developers, who may have thousands of mint accounts that could be cleaned up and be refunded for. Additionally it's great for NFT holders who wish to burn their NFT. They will not be able to recuperate all of the costs, ie closing the mint, metadata and token accounts. Whereas before, if someone burned an NFT would only recuperate the metadata and token account's rents. Note, the burner would also have to be the `mintCloseAuthority`.
+This extension is a nice improvement for developers, who may have thousands of mint accounts that could be cleaned up and be refunded for. Additionally it's great for NFT holders who wish to burn their NFT. They will now be able to recuperate all of the costs, ie closing the mint, metadata and token accounts. Whereas before, if someone burned an NFT would only recuperate the metadata and token account's rents. Note, the burner would also have to be the `mintCloseAuthority`.
 
 The `close mint` extension, adds an additional field `mintCloseAuthority` to the mint account. This is the address of the authority to actually close the account.
 
@@ -32,7 +32,6 @@ The first instruction `SystemProgram.createAccount` allocates space on the block
 
 To get the mint length and create account instruction, do the following:
 ```ts
-// get mint length
 const extensions = [ExtensionType.MintCloseAuthority]
 const mintLength = getMintLen(extensions)
 
@@ -193,7 +192,7 @@ Alternatively, if you’d like to use testnet or devnet, import the `clusterApiU
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
 
-If you decide to use devnet, and have issues with airdropping sol. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some sol to your address. You can get your address from running `solana address` in your terminal.
+If you decide to use devnet, and have issues with airdropping SOL, feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some sol to your address. You can get your address from running `solana address` in your terminal.
 
 ## 3. Create a mint with close authority
 

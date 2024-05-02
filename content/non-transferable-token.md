@@ -8,14 +8,14 @@ objectives:
 
 # Summary
 
-- In the original Token Program, creating "soul-bound" or non-transferrable tokens is impossible
-- The Token Extension Program's `non-transferrable token` enables "soul-bound" tokens 
+- In the original Token Program, creating non-transferrable (sometimes called "soul-bound") tokens is impossible
+- The Token Extension Program's `non-transferrable token` enables non-transferrable tokens 
 
 # Overview
 
-In the Token Program, it's impossible to create a token that cannot be transferred away. While this may seem unimportant, there are several reasons one may want to issue a "soul-bound" or non-transferrable token.
+In the Token Program, it's impossible to create a token that cannot be transferred away. While this may seem unimportant, there are several reasons one may want to issue a non-transferrable (or "soul-bound") token.
 
-Take the following example: Say you are a Solana game dev, and your new game, "Bits and Bytes", wants to award achievements to the players. Achievements are not transferrable, and you want their hard work to be proudly displayed in their wallet. The solution is to send them a "soul-bound" NFT. However, in the Token Program, this is not possible. However, it is in the Token Extension Program! Enter, the `non-transferable` extension.
+Take the following example: Say you are a Solana game dev, and your new game, "Bits and Bytes", wants to award achievements to the players. Achievements are not transferrable, and you want their hard work to be proudly displayed in their wallet. The solution is to send them a non-transferable NFT. However, in the Token Program, this is not possible. However, it is in the Token Extension Program! Enter, the `non-transferable` extension.
 
 Token Extension Program has the `non-transferable` extension which can be used to create non-transferable mints. These mints can be burned, but they can't be transferred.
 
@@ -94,7 +94,7 @@ And that's it! You now have a mint account, that when minted, cannot be transfer
 
 # Lab
 
-In this lab, we will create a non-transferable token and then see what happens when we try to transfer it. (hint, it will fail the transfer)
+In this lab, we will create a non-transferable token and then see what happens when we try to transfer it (hint: it will fail the transfer).
 
 ### 1. Getting started
 
