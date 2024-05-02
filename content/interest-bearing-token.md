@@ -1,7 +1,7 @@
 ---
 title: Interest Bearing Token
 objectives:
- - Create mint account with interest bearing config
+ - Create mint account with the interest bearing extension
  - Explain the use cases of interest bearing tokens
  - Experiment with the rules of the extension
 ---
@@ -16,11 +16,11 @@ objectives:
 
 Tokens with values that either increase or decrease over time have practical applications in the real world, with bonds being a prime example. Previously, the ability to reflect this dynamic in tokens was limited to the use of proxy contracts, necessitating frequent rebasing or updates.
 
-The introduction of the Token-2022 extension model revolutionizes the way the displayed amount of tokens can be adjusted. By leveraging the `interest bearing token` extension and the `amount_to_ui_amount` function, users can now apply an interest rate to their tokens and retrieve the updated total, including interest, at any given moment.
+The `interest bearing token` extension helps with this. By leveraging the `interest bearing token` extension and the `amount_to_ui_amount` function, users can apply an interest rate to their tokens and retrieve the updated total, including interest, at any given moment.
 
 The calculation of interest is done continuously, factoring in the network's timestamp. However, discrepancies in the network's time could result in accrued interest being slightly less than anticipated, though this situation is uncommon.
 
-It's important to note that this mechanism does not generate new tokens and the displayed amount simply includes the accumulated interest, making the change purely aesthetic.
+It's important to note that this mechanism does not generate new tokens and the displayed amount simply includes the accumulated interest, making the change purely aesthetic. That being said, this is a value stored on within the mint account and programs can take advantage of this to create functionality beyond pure aesthetics. 
 
 ## Adding interest rate to token
 
@@ -37,6 +37,7 @@ The first instruction `SystemProgram.createAccount` allocates space on the blo
 - Assigns to it's owning program
 
 ```tsx
+
 SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
     newAccountPubkey: mint,
@@ -46,9 +47,7 @@ SystemProgram.createAccount({
   }),
 ```
 
-The second instruction `createInitializeInterestBearingMintInstruction` initializes the interest bearing token extension. The defining argument that dictates the interest rate will be a variable we create named `rate`. 
-
-The rate is determined by a conversion where 1% is equivalent to 100 basis points.
+The second instruction `createInitializeInterestBearingMintInstruction` initializes the interest bearing token extension. The defining argument that dictates the interest rate will be a variable we create named `rate`. The `rate` is defined in [basis points](https://www.investopedia.com/terms/b/basispoint.asp).
 
 ```tsx
   createInitializeInterestBearingMintInstruction(
@@ -72,6 +71,10 @@ The third instruction `createInitializeMintInstruction` initializes the mint.
 ```
 
 When the transaction with these three instructions is sent, a new interest bearing token is created with the specified rate configuration.
+
+## Fetching accumulated interest
+
+
 
 # Lab
 
@@ -104,6 +107,7 @@ If you decide to use devnet, and have issues with airdropping SOL. Feel free to 
 
 When you clone the repo and change to the `starting` branch, we'll already have access to  following helper functions. 
 
+TODO Take out token Helpers
 - `token-helper.ts`: This helper will facilitate in the create of the token accounts needed to run out tests against the mint token
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 1 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
@@ -122,7 +126,8 @@ This function is where we'll be creating the token such that all new tokens will
 
 When creating an interest bearing token, we must create the account instruction, add the interest instruction and initialize the mint itself. Inside of  `createTokenWithInterestRateExtension` in `src/token-helper.ts` there is a few variables already created that will be used to create the interest bearing token. Add the following code beneath the declared variables:
 
-```
+TODO fetch mint mintLen and mint lamports
+```ts
 const mintTransaction = new Transaction().add(
   SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
