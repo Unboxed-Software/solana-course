@@ -12,27 +12,27 @@ objectives:
 # Summary
 
 - This lesson delves into some functionality of the RPC calls that we used in the deserializing account data lesson
-- To save on compute time, you can fetch a large number of accounts without their data by filtering them to return just an array of public keys
+- To save on computing time, you can fetch a large number of accounts without their data by filtering them to return just an array of public keys
 - Once you have a filtered list of public keys, you can order them and fetch the account data they belong to
 
 # Lesson
 
 You may have noticed in the last lesson that while we could fetch and display a list of account data, we didn’t have any granular control over how many accounts to fetch or their order. In this lesson, we’ll learn about some configuration options for the `getProgramAccounts` function that will enable things like paging, ordering accounts, and filtering.
 
-## Use `dataSlice` to only fetch data you need
+## Use `dataSlice` to only fetch the data you need
 
-Imagine the Movie Review app we worked on in past lessons having four million movie reviews and that the average review is 500 bytes. That would make the total download for all review accounts over 2GB. Definitely not something you want to have your frontend download every time the page refreshes.
+Imagine the Movie Review app we worked on in past lessons having four million movie reviews and the average review is 500 bytes. That would make the total download for all review accounts over 2GB. Not something you want to have your frontend download every time the page refreshes.
 
-Fortunately, the `getProgramAccounts` function that you use to get all of the accounts takes a configuration object as argument. One of the configuration options is `dataSlice` which lets you provide two things:
+Fortunately, the `getProgramAccounts` function that you use to get all of the accounts takes a configuration object as an argument. One of the configuration options is `dataSlice` which lets you provide two things:
 
-- `offset` - the offset from the beginning of the data buffer to start the slice
+- `offset` - the offset from the beginning of the data buffer to start slicing
 - `length` - the number of bytes to return, starting from the provided offset
 
 When you include a `dataSlice` in the configuration object, the function will only return the subset of the data buffer that you specified.
 
 ### Paging Accounts
 
-One area this becomes helpful is with paging. If you want to have a list that displays all accounts but there are so many accounts that you don’t want to pull all the data at once, you can fetch all of the accounts but not fetch their data by using a `dataSlice` of `{ offset: 0, length: 0 }`. You can then map the result to a list of account keys whose data you can fetch only when needed.
+One area where this becomes helpful is with paging. If you want to have a list that displays all accounts but there are so many accounts that you don’t want to pull all the data at once, you can fetch all of the accounts but not fetch their data by using a `dataSlice` of `{ offset: 0, length: 0 }`. You can then map the result to a list of account keys whose data you can fetch only when needed.
 
 ```tsx
 const accountsWithoutData = await connection.getProgramAccounts(
@@ -57,7 +57,7 @@ const deserializedObjects = accountInfos.map((accountInfo) => {
 
 ### Ordering Accounts
 
-The `dataSlice` option is also helpful when you need to order a list of accounts while paging. You still don’t want to fetch all the data at once, but you do need all of the keys and a way to order them up front. In this case, you need to understand the layout of the account data and configure the data slice to only be the data you need to use for ordering.
+The `dataSlice` option is also helpful when you need to order a list of accounts while paging. You still don’t want to fetch all the data at once, but you do need all of the keys and a way to order them upfront. In this case, you need to understand the layout of the account data and configure the data slice to only be the data you need to use for ordering.
 
 For example, you might have an account that stores contact information like so:
 
@@ -68,7 +68,7 @@ For example, you might have an account that stores contact information like so:
 
 If you want to order all of the account keys alphabetically based on the user’s first name, you need to find out the offset where the name starts. The first field, `initialized`, takes the first byte, then `phoneNumber` takes another 8, so the `firstName` field starts at offset `1 + 8 = 9`. However, dynamic data fields in borsh use the first 4 bytes to record the length of the data, so we can skip an additional 4 bytes, making the offset 13.
 
-You then need to determine the length to make the data slice. Since the length is variable, we can’t know for sure before fetching the data. But you can choose a length that is large enough to cover most cases and short enough to not be too much of a burden to fetch. 15 bytes is plenty for most first names, but would result in a small enough download even with a million users.
+You then need to determine the length to make the data slice. Since the length is variable, we can’t know for sure before fetching the data. But you can choose a length that is large enough to cover most cases and short enough to not be too much of a burden to fetch. 15 bytes is plenty for most first names but would result in a small enough download even with a million users.
 
 Once you’ve fetched accounts with the given data slice, you can use the `sort` method to sort the array before mapping it to an array of public keys.
 
@@ -129,7 +129,7 @@ async function fetchMatchingContactAccounts(connection: web3.Connection, search:
 Two things to note in the example above:
 
 1. We’re setting the offset to 13 because we determined previously that the offset for `firstName` in the data layout is 9 and we want to additionally skip the first 4 bytes indicating the length of the string.
-2. We’re using a third party library `bs58` to perform base-58 encoding on the search term. You can install it using `npm install bs58`.
+2. We’re using a third-party library `bs58`` to perform base-58 encoding on the search term. You can install it using `npm install bs58`.
 
 # Lab
 

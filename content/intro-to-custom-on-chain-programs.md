@@ -28,7 +28,7 @@ export type TransactionInstructionCtorFields = {
 Per the definition above, the object passed to the `TransactionInstruction` constructor requires:
 
 - an array of keys of type `AccountMeta`
-- the public key for the program being called
+- the public key for the program that is being called
 - an optional `Buffer` containing data to pass to the program.
 
 We’ll be ignoring the `data` field for now and will revisit it in a future lesson.
@@ -37,7 +37,8 @@ The `programId` field is fairly self-explanatory: it’s the public key associat
 
 The `keys` array requires a bit more explanation. Each object in this array represents an account that will be read from or written to during a transaction's execution. This means you need to know the behavior of the program you are calling and ensure that you provide all of the necessary accounts in the array.
 
-Each object in the `keys` array must include the following:
+Each object in the `keys` array must include the following keys:
+
 - `pubkey` - the public key of the account
 - `isSigner` - a boolean representing whether or not the account is a signer on the transaction
 - `isWritable` - a boolean representing whether or not the account is written to during the transaction's execution
@@ -85,11 +86,11 @@ All transactions on the blockchain are publicly viewable on [Solana Explorer](ht
 
 We’re going to create a script to ping an onchain program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores its data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
-![Solana stores programs and data in seperate accounts](../assets/pdas-global-state.svg)
+![Solana stores programs and data in separate accounts](../assets/pdas-global-state.svg)
 
 ### 1. Basic scaffolding
 
-We'll start by using the same packages and `.env` file we made earlier in [intro to writing data](./intro-to-writing-data).
+We'll start by using the same packages and `.env` file we made earlier in [Intro to Writing Data](./intro-to-writing-data).
 
 Name the file `send-ping-transaction.ts`:
 
@@ -154,7 +155,7 @@ const instruction = new web3.TransactionInstruction({
 })
 ```
 
-Next, let’s add the instruction to the transaction we created. Then, call `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on Solana Explorer.
+Next, let’s add this instruction to the transaction we created. Then, call `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on Solana Explorer.
 
 ```typescript
 transaction.add(instruction)
@@ -182,7 +183,7 @@ It may take a moment or two but you should see a long string printed to the cons
 ✅ Transaction completed! Signature is 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
 ```
 
-Copy the transaction signature. Open a browser and go to [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (the query parameter at the end of the URL will ensure that you’ll explore transactions on Devnet instead of Mainnet). Paste the signature into the search bar at the top of Solana’s Devnet explorer and hit enter. You should see all the details about the transaction. If you scroll all the way to the bottom, then you will see `Program Logs`, which show how many times the program has been pinged including your ping.
+Copy the transaction signature. Open a browser and go to [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (the query parameter at the end of the URL will ensure that you’ll explore transactions on Devnet instead of Mainnet). Paste the signature into the search bar at the top of Solana Explorer (make sure you're connected to Devnet) and hit enter. You should see all the details about the transaction. If you scroll all the way to the bottom, then you will see `Program Logs`, which show how many times the program has been pinged including your ping.
 
 ![Screenshot of Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
 
@@ -192,7 +193,7 @@ Scroll around the explorer and look at what you're seeing:
   - The program address for the ping program
   - The data address for the ping program
 - The **Instruction** section will contain a single instruction with no data - the ping program is a pretty simple program, so it doesn't need any data.
-- The **Program Instruction Logs** shows the logs from the ping program.
+- The **Program Instruction Logs** show the logs from the ping program.
 
 [//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
 
@@ -204,9 +205,9 @@ console.log(`You can view your transaction on Solana Explorer at:\nhttps://explo
 
 And just like that you’re calling programs on the Solana network and writing data to chain!
 
-In the next few lessons you’ll learn how to
+In the next few lessons, you’ll learn how to
 
-1. Send transactions safely from the browser instead of from running a script
+1. Send transactions safely from the browser instead of running a script
 2. Add custom data to your instructions
 3. Deserialize data from the chain
 

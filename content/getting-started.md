@@ -13,15 +13,15 @@ Welcome to the best starting point for developers looking to learn web3 and bloc
 
 ## What is web 3?
 
-Typically, in older systems, people interact with each other through third party platforms:
+Typically, in older systems, people interact with each other through third-party platforms:
 
 - User accounts are stored on large platforms like Google, X (formerly known as Twitter), and Meta (Facebook, Instagram). These accounts can be removed at will by the companies, and items 'owned' by these accounts may be lost forever. 
 
-- Accounts that store and transfer value - like payment cards, bank accounts, and stock trading accounts - are handled by large platforms like credit card companies, money transfer organizations, and stock exchanges. In many cases these companies take a piece (around 1% - 3%) of every transaction that occurs on their platforms. They may often slow transaction settlement down, in order to benefit the organization. In some cases the item being transferred may not belong to the recipient at all, but are rather held on the recipient's behalf.
+- Accounts that store and transfer value - like payment cards, bank accounts, and stock trading accounts - are handled by large platforms like credit card companies, money transfer organizations, and stock exchanges. In many cases, these companies take a piece (around 1% - 3%) of every transaction that occurs on their platforms. They may often slow transaction settlement down, to benefit the organization. In some cases the item being transferred may not belong to the recipient at all but is rather held on the recipient's behalf.
 
 Web3 is an evolution of the internet that allows people to **transact directly with each other**:
 
-- Users own their own accounts, represented by their wallet.
+- Users own their accounts, represented by their wallet.
 
 - Transfers of value can occur directly between users.
 
@@ -29,7 +29,7 @@ Web3 is an evolution of the internet that allows people to **transact directly w
 
 Common uses of web3 include:
 
-- Selling good and services online with near-zero fees and instant settlement.
+- Selling goods and services online with near-zero fees and instant settlement.
 
 - Selling digital or physical items, ensuring that each item is genuine and that copies are distinguishable from original items. 
 
@@ -49,14 +49,14 @@ Compared to older platforms like Bitcoin and Ethereum, Solana is:
 
 Many of the common use cases on Solana are only possible on Solana, due to the high costs and slow translation times of older blockchains.
 
-## What will I learn on this course?
+## What will I learn in this course?
 
-In this course you'll:
+In this course, you'll:
 
  - Create web apps that allow people to log on using web3 wallets
  - Transfer tokens (like USDC, a token that represents US dollars) between people
- - Learn to integrate tools like Solana pay into your existing apps 
- - Build a film review application, that runs in real time on the Solana blockchain. You'll build both a web front end, and the backend (on-chain) program and database for the app.
+ - Learn to integrate tools like Solana Pay into your existing apps 
+ - Build a film review application, that runs in real-time on the Solana blockchain. You'll build both a web front end and the on-chain program and database for the app.
  - Mint large-scale NFT collections
 
 And much more. We're keeping this course updated so as new tech joins the Solana ecosystem you'll find a course right here.
@@ -69,13 +69,13 @@ You **don't** need previous blockchain experience, or Rust knowledge, to follow 
   Windows machines should have [Windows Terminal](https://aka.ms/terminal) and [WSL](https://learn.microsoft.com/en-us/windows/wsl/) installed.
 - Basic JavaScript / TypeScript programming experience. We'll also use some Rust but we'll explain the Rust as we go. 
 - Basic use of the command line 
-- Basic use of git (either via command line or your favorite GUI)
+- Basic use of git (either via the command line or your favorite GUI)
 
 ## How is this course structured?
 
 There are two tracks:
 
- - **Client side development** - building web and mobile apps that interact with popular onchain Solana programs. These lessons cover things like token transfers, minting, and creating clients for arbitrary programs. You will use basic TypeScript skills for this track. If you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with. 
+ - **Client-side development** - building web and mobile apps that interact with popular onchain Solana programs. These lessons cover things like token transfers, minting, and creating clients for arbitrary programs. You will use basic TypeScript skills for this track. If you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with. 
 
  - **Onchain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana on-chain, or use the blockchain to store arbitrary data, this track is for you. You will use Rust for this track.
 
@@ -99,7 +99,7 @@ The lessons here are very effective, but everyone comes from different backgroun
 
 1. **Be brutally honest with yourself** - this may sound a little vague, but being honest with yourself about how well you understand a certain topic is essential to mastering it. It's really easy to read a thing and think "yeah, yeah I get it," only to realize later that you actually didn't. Be honest with yourself while going through each lesson. Please don't hesitate to repeat sections if you need to or do outside research when the lesson phrasing doesn't quite work for you.
 
-2. **Do every lab and challenge** - this supports the first point. It's pretty tough to lie to yourself about how well you know something when you make yourself try to do it. Do every lab and every challenge to test where you're at and repeat them as needed. We provide solution code for everything, but be sure to use it as a helpful resource rather than a crutch.
+2. **Do every lab and challenge** - this supports the first point. It's pretty tough to lie to yourself about how well you know something when you make yourself try to do it. Do every lab and every challenge to test where you're at and repeat them as needed. We provide solution code for every lab, but be sure to use it as a helpful resource rather than a crutch.
 
 3. **Go above and beyond** - this sounds cliche, but don't just stop at what the lab and challenges ask you to do. Get creative! Take the projects and make them your own. Build past them. The more you practice the better you get.
 

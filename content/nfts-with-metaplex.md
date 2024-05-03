@@ -28,8 +28,8 @@ A Solana NFT is a non-divisible token with associated metadata. Further, the tok
 
 In other words, an NFT is a standard token from the Token Program but differs from what you might think of as "standard tokens" in that it:
 
-1. Has 0 decimals so that it cannot be divided into parts
-2. Comes from a token mint with supply of 1 so that only 1 of these tokens exists
+1. Has 0 decimals so it cannot be divided into parts
+2. Comes from a token mint with the supply of 1 so only 1 of these tokens exists
 3. Comes from a token mint whose authority is set to `null` (to ensure that the supply never changes)
 4. Has an associated account that stores metadata
 
@@ -86,7 +86,7 @@ const metaplex = Metaplex.make(connection)
 
 Before you can create an NFT, you need to prepare and upload any assets you plan to associate with the NFT. While this doesn't have to be an image, most NFTs have an image associated with them.
 
-Preparing and uploading an image involves converting the image to a buffer, converting it to the Metaplex format using the `toMetaplexFile` function,, and finally uploading it to the designated Storage Driver.
+Preparing and uploading an image involves converting the image to a buffer, converting it to the Metaplex format using the `toMetaplexFile` function, and finally uploading it to the designated Storage Driver.
 
 The Metaplex SDK supports the creation of a new Metaplex file from either files present on your local computer or those uploaded by a user through a browser. You can do the former by using `fs.readFileSync` to read the image file, then convert it into a Metaplex file using `toMetaplexFile`. Finally, use your `Metaplex` instance to call `storage().upload(file)` to upload the file. The function's return value will be the URI where the image was stored.
 
@@ -101,7 +101,7 @@ const imageUri = await metaplex.storage().upload(file);
 
 After uploading an image, it's time to upload the off-chain JSON metadata using the `nfts().uploadMetadata` function. This will return a URI where the JSON metadata is stored.
 
-Remember, the off-chain portion of the metadata includes things like the image URI as well as additional information like the name and description of the NFT. While you can technically include anything you'd like in this JSON object, in most cases you should follow the [NFT standard](https://docs.metaplex.com/programs/token-metadata/token-standard#the-non-fungible-standard) to ensure compatibility with wallets, programs, and applications.
+Remember, the off-chain portion of the metadata includes things like the image URI as well as additional information like the name and description of the NFT. While you can technically include anything you'd like in this JSON object, in most cases, you should follow the [NFT standard](https://docs.metaplex.com/programs/token-metadata/token-standard#the-non-fungible-standard) to ensure compatibility with wallets, programs, and applications.
 
 To create the metadata, use the `uploadMetadata` method provided by the SDK. This method accepts a metadata object and returns a URI that points to the uploaded metadata.
 
@@ -115,7 +115,7 @@ const { uri } = await metaplex.nfts().uploadMetadata({
 
 ### Create NFT
 
-After uploading the NFT's metadata, you can finally create the NFT on the network. The Metaplex SDK's `create` method allows you to create a new NFT with minimal configuration. This method will handle the creation of the mint account, token account, metadata account, and the master edition account for you. The data provided to this method will represent the onchain portion of the NFT metadata. You can explore the SDK to see all the other input that can be optionally provided to this method.
+After uploading the NFT's metadata, you can finally create the NFT on the network. The Metaplex SDK's `create` method allows you to create a new NFT with minimal configuration. This method will handle the creation of the mint account, token account, metadata account, and master edition account for you. The data provided to this method will represent the onchain portion of the NFT metadata. You can explore the SDK to see all the other input that can be optionally provided to this method.
 
 ```tsx
 const { nft } = await metaplex.nfts().create(
@@ -152,9 +152,9 @@ Note that any fields you don't include in the call to `update` will stay the sam
 
 ### Add NFT to Collection
 
-A [Certified Collection](https://docs.metaplex.com/programs/token-metadata/certified-collections#introduction) is a NFT that individual NFT's can belong to. Think of a large NFT collection like Solana Monkey Business. If you look at an individual NFT's [Metadata](https://explorer.solana.com/address/C18YQWbfwjpCMeCm2MPGTgfcxGeEDPvNaGpVjwYv33q1/metadata) you will see a `collection` field with a `key` that point's to the `Certified Collection` [NFT](https://explorer.solana.com/address/SMBH3wF6baUj6JWtzYvqcKuj2XCKWDqQxzspY12xPND/). Simply put, NFTs that are part of a collection are associated with another NFT that represents the collection itself.
+A [Certified Collection](https://docs.metaplex.com/programs/token-metadata/certified-collections#introduction) is an NFT that individual NFTs can belong to. Think of a large NFT collection like Solana Monkey Business. If you look at an individual NFT's [Metadata](https://explorer.solana.com/address/C18YQWbfwjpCMeCm2MPGTgfcxGeEDPvNaGpVjwYv33q1/metadata) you will see a `collection` field with a `key` that points to the `Certified Collection` [NFT](https://explorer.solana.com/address/SMBH3wF6baUj6JWtzYvqcKuj2XCKWDqQxzspY12xPND/). Simply put, NFTs that are part of a collection are associated with another NFT that represents the collection itself.
 
-In order to add an NFT to a collection, first the Collection NFT has to be created. The process is the same as before, except you'll include one additional field on our NFT Metadata: `isCollection`. This field tells the token program that this NFT is a Collection NFT.
+To add an NFT to a collection, first, the Collection NFT has to be created. The process is the same as before, except you'll include one additional field on our NFT Metadata: `isCollection`. This field tells the token program that this NFT is a Collection NFT.
 
 ```tsx
 const { collectionNft } = await metaplex.nfts().create(
@@ -203,18 +203,18 @@ await metaplex.nfts().verifyCollection({
 
 ### Candy Machine 
 
-When creating and distributing a bulk supply of NFT's, Metaplex makes it easy with their [Candy Machine](https://docs.metaplex.com/programs/candy-machine/overview) program and [Sugar CLI](https://docs.metaplex.com/developer-tools/sugar/).
+When creating and distributing a bulk supply of NFTs, Metaplex makes it easy with its [Candy Machine](https://docs.metaplex.com/programs/candy-machine/overview)](https://docs.metaplex.com/programs/candy-machine/overview) program and [Sugar CLI](https://docs.metaplex.com/developer-tools/sugar/).
 
 Candy Machine is effectively a minting and distribution program to help launch NFT collections. Sugar is a command line interface that helps you create a candy machine, prepare assets, and create NFTs at scale. The steps covered above for creating an NFT would be incredibly tedious to execute for thousands of NFTs in one go. Candy Machine and Sugar solve this and help ensure a fair launch by offering a number of safeguards.
 
-We won't cover these tools in-depth, but definitely check out [how Candy Machine and Sugar work together from the Metaplex docs](https://docs.metaplex.com/developer-tools/sugar/overview/introduction).
+We won't cover these tools in-depth but check out [how Candy Machine and Sugar work together from the Metaplex docs](https://docs.metaplex.com/developer-tools/sugar/overview/introduction).
 
 To explore the full range of tools offered by Metaplex, you can view the [Metaplex repository](https://github.com/metaplex-foundation/metaplex) on GitHub. 
 
 
 # Lab
 
-In this lab, we'll go through the steps to create an NFT using the Metaplex SDK, update the NFT's metadata after the fact, then associate the NFT with a collection. By the end, you will have a basic understanding of how to use the Metaplex SDK interact with NFTs on Solana.
+In this lab, we'll go through the steps to create an NFT using the Metaplex SDK, update the NFT's metadata after the fact, and then associate the NFT with a collection. By the end, you will have a basic understanding of how to use the Metaplex SDK to interact with NFTs on Solana.
 
 ### 1. Starter
 
@@ -313,7 +313,7 @@ async function main() {
 
 ### 3. `uploadMetadata` helper function
 
-Next, lets create a helper function to handle the process of uploading an image and metadata, and returning the metadata URI. This function will take in the Metaplex instance and NFT data as input, and return the metadata URI as output.
+Next, let's create a helper function to handle the process of uploading an image and metadata, and returning the metadata URI. This function will take in the Metaplex instance and NFT data as input, and return the metadata URI as output.
 
 ```tsx
 // helper function to upload image and metadata
@@ -404,11 +404,11 @@ Token Mint: https://explorer.solana.com/address/QdK4oCUZ1zMroCd4vqndnTH7aPAsr8Ap
 Finished successfully
 ```
 
-Feel free to inspect the generated URIs for the image and metadata, as well as view the NFT on the Solana explorer by visiting the URL provided in the output.
+Feel free to inspect the generated URIs for the image and metadata, as well as view the NFT on the Solana Explorer by visiting the URL provided in the output.
 
 ### 7. `updateNftUri` helper function
 
-Next, let's create a helper function to handle updating an existing NFT's URI. This function will take in the Metaplex instance, metadata URI, and mint address of the NFT. It uses the `findByMint` method of the SDK to fetch the existing NFT data using the mint address, and then uses the `update` method to update the metadata with the new URI. Finally, it will log the token mint URL and transaction signature for reference.
+Next, let's create a helper function to handle updating an existing NFT's URI. This function will take in the Metaplex instance, metadata URI, and mint address of the NFT. It uses the `findByMint` method of the SDK to fetch the existing NFT data using the mint address and then uses the `update` method to update the metadata with the new URI. Finally, it will log the token mint URL and transaction signature for reference.
 
 ```tsx
 // helper function update NFT
@@ -566,7 +566,7 @@ async function createNft(
 }
 ```
 
-Now, run `npm start` and voila! If you follow the new nft link and look at the Metadata tab you will see a `collection` field with your collection's mint address listed.
+Now, run `npm start` and voila! If you follow the new NFT link and look at the Metadata tab you will see a `collection` field with your collection's mint address listed.
 
 Congratulations! You've successfully learned how to use the Metaplex SDK to create, update, and verify NFTs as part of a collection. That's everything you need to build out your own collection for just about any use case. You could build a TicketMaster competitor, revamp Costco's Membership Program, or even digitize your school's Student ID system. The possibilities are endless!
 
@@ -576,7 +576,7 @@ If you want to take a look at the final solution code you can find it on the sol
 
 To deepen your understanding of the Metaplex tools, dive into the Metaplex documentation and familiarize yourself with the various programs and tools offered by Metaplex. For instance, you can delve into learning about the Candy Machine program to understand its functionality.
 
-Once you have an understanding of how the the Candy Machine program works, put your knowledge to the test by using the Sugar CLI to create a Candy Machine for your own collection. This hands-on experience will not only reinforce your understanding of the tools, but also boost your confidence in your ability to use them effectively in the future.
+Once you have an understanding of how the Candy Machine program works, put your knowledge to the test by using the Sugar CLI to create a Candy Machine for your own collection. This hands-on experience will not only reinforce your understanding of the tools but also boost your confidence in your ability to use them effectively in the future.
 
 Have some fun with this! This will be your first independently created NFT collection! With this, you'll complete Module 2. Hope you're feeling the process! Feel free to [share some quick feedback](https://airtable.com/shrOsyopqYlzvmXSC?prefill_Module=Module%202) so that we can continue to improve the course!
 
