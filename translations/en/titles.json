@@ -15,7 +15,7 @@
   "token-swap": "Swap tokens with the Token Swap Program",
   "nfts-with-metaplex": "Create Solana NFTs With Metaplex",
   "on-chain-program-development": "Onchain program development",
-  "basic-solana-program-development": "Basic Solana Program Development",
+  "basic-solana-program-development": "Native Solana Program Development",
   "hello-world-program": "Hello World",
   "deserialize-instruction-data": "Handle Instruction Data",
   "program-state-management": "State Management",
@@ -61,5 +61,7 @@
   "intro-to-custom-on-chain-programs": "Using custom onchain programs",
   "token22-in-the-client": "Intro to Token Extensions Program in the Client",
   "token22-on-chain": "Intro to Token Extensions Program On-Chain",
-  "token22-metadata": "Metadata and Metadata Pointer Extension"
+  "token22-metadata": "Metadata and Metadata Pointer Extension",
+  "introduction-to-onchain-program-development": "Introduction to Onchain Program Development",
+  "intro-to-onchain": "Introduction to Onchain Program Development"
 }
