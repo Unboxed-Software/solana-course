@@ -10,17 +10,17 @@ objectives:
 
 # Summary
 
-- Transactions are made up of an array of instructions, a single transaction can have any number of instructions in it, each targeting its own program. When a transaction is submitted, the Solana runtime will process its instructions in order and atomically, meaning that if any of the instructions fail for any reason, the entire transaction will fail to be processed.
-- Every *instruction* is made up of 3 components: the intended program's ID, an array of all account’s involved, and a byte buffer of instruction data.
-- Every *transaction* contains: an array of all accounts it intends to read or write, one or more instructions, a recent blockhash, and one or more signatures.
-- In order to pass instruction data from a client, it must be serialized into a byte buffer. To facilitate this process of serialization, we will be using [Borsh](https://borsh.io/).
+- Transactions are made up of an array of instructions, a single transaction can have any number of instructions in it, each targeting different programs. When a transaction is submitted, the Solana runtime will process its instructions in order and atomically, meaning that if any of the instructions fail for any reason, the entire transaction will fail to be processed.
+- Every *instruction* is made up of 3 components: the intended program's ID, an array of all accounts involved, and a byte buffer of instruction data.
+- Every _transaction_ contains an array of all accounts it intends to read or write, one or more instructions, a recent blockhash, and one or more signatures.
+- To pass instruction data from a client, it must be serialized into a byte buffer. To facilitate this process of serialization, we will be using [Borsh](https://borsh.io/).
 - Transactions can fail to be processed by the blockchain for any number of reasons, we’ll discuss some of the most common ones here.
 
 # Lesson
 
 ## Transactions
 
-Transactions are how we send information to the blockchain in order to be processed. So far, we’ve learned how to create very basic transactions with limited functionality. But transactions, and the programs they are sent to, can be designed to be far more flexible and handle far more complexity than we’ve dealt with up to now.
+Transactions are how we send information to the blockchain to be processed. So far, we’ve learned how to create very basic transactions with limited functionality. But transactions, and the programs they are sent to, can be designed to be far more flexible and handle far more complexity than we’ve dealt with up to now.
 
 ### Transaction Contents
 
@@ -49,7 +49,7 @@ The byte buffer lets you pass external data to a program.
 
 You can include multiple instructions in a single transaction. The Solana runtime will process these instructions in order and atomically. In other words, if every instruction succeeds then the transaction as a whole will be successful, but if a single instruction fails then the entire transaction will fail immediately with no side-effects.
 
-The account array is not just an array of the accounts’ public keys. Each object in the array includes the account’s public key, whether or not it is a signer on the transaction, and whether or not it is writable. Including whether or not an account is writable during the execution of an instruction allows the runtime to facilitate parallel processing of smart contracts. Because you must define which accounts are read-only and which you will write to, the runtime can determine which transactions are non-overlapping or read-only and allow them to execute concurrently. To learn more about the Solana’s runtime, check out this [blog post](https://solana.com/news/sealevel-\--parallel-processing-thousands-of-smart-contracts).
+The account array is not just an array of the accounts’ public keys. Each object in the array includes the account’s public key, whether or not it is a signer on the transaction, and whether or not it is writable. Including whether or not an account is writable during the execution of an instruction allows the runtime to facilitate parallel processing of smart contracts. Because you must define which accounts are read-only and which you will write to, the runtime can determine which transactions are non-overlapping or read-only and allow them to execute concurrently. To learn more about Solana’s runtime, check out this [blog post](https://solana.com/news/sealevel-\--parallel-processing-thousands-of-smart-contracts).
 
 ### Instruction Data
 
@@ -67,7 +67,7 @@ This program would have been structured such that each of these is encapsulated 
 
 Each program, however, only has one entry point. You would instruct the program on which of these functions to run through the instruction data.
 
-You would also include in the instruction data any information the function needs in order to execute properly, e.g. an inventory item’s ID, a player to transfer inventory to, etc.
+You would also include in the instruction data any information the function needs to execute properly, e.g. an inventory item’s ID, a player to transfer inventory to, etc.
 
 Exactly *how* this data would be structured would depend on how the program was written, but it’s common to have the first field in instruction data be a number that the program can map to a function, after which additional fields act as function arguments.
 
@@ -77,13 +77,13 @@ In addition to knowing what information to include in an instruction data buffer
 
 > Borsh stands for Binary Object Representation Serializer for Hashing. It is meant to be used in security-critical projects as it prioritizes consistency, safety, speed; and comes with a strict specification.
 
-Borsh maintains a [JS library](https://github.com/near/borsh-js) that handles serializing common types into a buffer. There are also other packages built on top of borsh that try to make this process even easier. We’ll be using the `@coral-xyz/borsh` library which can be installed using `npm`.
+Borsh maintains a [JS library](https://github.com/near/borsh-js) that handles serializing common types into a buffer. There are also other packages built on top of Borsh that try to make this process even easier. We’ll be using the `@coral-xyz/borsh` library which can be installed using `npm`.
 
 Building off of the previous game inventory example, let’s look at a hypothetical scenario where we are instructing the program to equip a player with a given item. Assume the program is designed to accept a buffer that represents a struct with the following properties:
 
-1. `variant` as an unsigned, 8-bit integer that instructs the program which instruction, or function, to execute.
-2. `playerId` as an unsigned, 16-bit integer that represents the player ID of the player who is to be equipped with the given item.
-3. `itemId` as an unsigned, 256-bit integer that represents the item ID of the item that will be equipped to the given player.
+1. `variant` is an unsigned, 8-bit integer that instructs the program which instruction, or function, to execute.
+2. `playerId` is an unsigned, 16-bit integer that represents the player ID of the player who is to be equipped with the given item.
+3. `itemId` is an unsigned, 256-bit integer that represents the item ID of the item that will be equipped for the given player.
 
 All of this will be passed as a byte buffer that will be read in order, so ensuring proper buffer layout order is crucial. You would create the buffer layout schema or template for the above as follows:
 
@@ -177,7 +177,7 @@ Let’s practice this together by building a Movie Review app that lets users su
 
 Here's a quick diagram of the program we'll build:
 
-![Solana stores data items in PDAs, which can be found by their seeds](../assets/movie-review-program.svg)
+![Solana stores data items in PDAs, which can be found using their seeds](../assets/movie-review-program.svg)
 
 The public key of the Solana program we’ll use for this application is `CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN`.
 
@@ -187,11 +187,11 @@ Before we get started, go ahead and download the [starter code](https://github.c
 
 The project is a fairly simple Next.js application. It includes the `WalletContextProvider` we created in the Wallets lesson, a `Card` component for displaying a movie review, a `MovieList` component that displays reviews in a list, a `Form` component for submitting a new review, and a `Movie.ts` file that contains a class definition for a `Movie` object.
 
-Note that for now, the movies displayed on the page when you run `npm run dev` are mocks. In this lesson, we’ll focus on adding a new review but we won’t actually be able to see that review displayed. Next lesson, we’ll focus on deserializing custom data from onchain accounts.
+Note that for now, the movies displayed on the page when you run `npm run dev` are mocks. In this lesson, we’ll focus on adding a new review but we won’t be able to see that review displayed. Next lesson, we’ll focus on deserializing custom data from onchain accounts.
 
 ### 2. Create the buffer layout
 
-Remember that to properly interact with a Solana program, you need to know how it expects data to be structured. Our Movie Review program is expecting instruction data to contain:
+Remember that to properly interact with a Solana program, you need to know how it expects data to be structured. Our Movie Review program expects instruction data to contain:
 
 1. `variant` as an unsigned, 8-bit integer representing which instruction should be executed (in other words which function on the program should be called).
 2. `title` as a string representing the title of the movie that you are reviewing.
@@ -252,7 +252,7 @@ export class Movie {
 
 The method shown above first creates a large enough buffer for our object, then encodes `{ ...this, variant: 0 }` into the buffer. Because the `Movie` class definition contains 3 of the 4 properties required by the buffer layout and uses the same naming, we can use it directly with the spread operator and just add the `variant` property. Finally, the method returns a new buffer that leaves off the unused portion of the original.
 
-### 4. Send transaction when user submits form
+### 4. Send a transaction when the user submits the form
 
 Now that we have the building blocks for the instruction data, we can create and send the transaction when a user submits the form. Open `Form.tsx` and locate the `handleTransactionSubmit` function. This gets called by `handleSubmit` each time a user submits the Movie Review form.
 
@@ -323,7 +323,7 @@ const handleTransactionSubmit = async (movie: Movie) => {
 }
 ```
 
-The next step is to get all of the accounts that the transaction will read or write. In past lessons, the account where data will be stored has been given to you. This time, the account’s address is more dynamic, so it needs to be computed. We’ll cover this in depth in the next lesson, but for now you can use the following, where `pda` is the address to the account where data will be stored:
+The next step is to get all of the accounts that the transaction will read or write. In past lessons, the account where data will be stored has been given to you. This time, the account’s address is more dynamic, so it needs to be computed. We’ll cover this in-depth in the next lesson, but for now, you can use the following, where `pda` is the address to the account where data will be stored:
 
 ```tsx
 const [pda] = await web3.PublicKey.findProgramAddress(
@@ -401,9 +401,9 @@ Now it’s your turn to build something independently. Create an application tha
    3. `message` as a string representing the message the student is sharing about their Solana journey.
 3. Create a method in `StudentIntro.ts` that will use the buffer layout to serialize a `StudentIntro` object.
 4. In the `Form` component, implement the `handleTransactionSubmit` function so that it serializes a `StudentIntro`, builds the appropriate transaction and transaction instructions, and submits the transaction to the user's wallet.
-5. You should now be able to submit introductions and have the information stored on chain! Be sure to log the transaction ID and look at it in Solana Explorer to verify that it worked.
+5. You should now be able to submit introductions and have the information stored onchain! Be sure to log the transaction ID and look at it in Solana Explorer to verify that it worked.
 
-If you get really stumped, you can [check out the solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
+If you get stumped, you can [check out the solution code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 
 Feel free to get creative with these challenges and take them even further. The instructions aren't here to hold you back!
 

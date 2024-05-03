@@ -5,12 +5,12 @@ objectives:
 - Explain transaction fees
 - Use `@solana/web3.js` to send SOL
 - Use `@solana/web3.js` to sign transactions
-- Use Solana explorer to view transactions
+- Use Solana Explorer to view transactions
 ---
 
 # Summary
 
-All modifications to onchain data happen through **transactions**. Transactions are mostly a set of instructions that invoke Solana programs. Transactions are atomic, meaning they either succeed - if all the instructions have executed properly - or fail, as if the transaction hasn't been run at all. 
+All modifications to onchain data happen through **transactions**. Transactions are mostly a set of instructions that invoke Solana programs. Transactions are atomic, meaning they either succeed - if all the instructions have been executed properly - or fail as if the transaction hasn't been run at all. 
 
 # Lesson
 
@@ -31,7 +31,7 @@ Atomic means either the transaction happens - meaning all the individual steps s
 
 ## Transactions contain instructions
 
-The steps within transaction on Solana are called **instructions**. 
+The steps within a transaction on Solana are called **instructions**. 
 
 Each instruction contains:
 
@@ -59,8 +59,8 @@ transaction.add(sendSolInstruction)
 
 The `SystemProgram.transfer()` function requires:
 
-- a public key corresponding to the sender account
-- a public key corresponding to the recipient account
+- a public key corresponding to the sender's account
+- a public key corresponding to the recipient's account
 - the amount of SOL to send in lamports.
 
 `SystemProgram.transfer()` returns the instruction for sending SOL from the sender to the recipient. 
@@ -79,11 +79,11 @@ const signature = sendAndConfirmTransaction(
 )
 ```
 
-The `sendAndConfirmTransaction()` functions takes as parameters
+The `sendAndConfirmTransaction()` function takes the following parameters:
 
 - a cluster connection
 - a transaction
-- an array of keypairs that will act as signers on the transaction - in this example, we only have the one signer: the sender.
+- an array of keypairs that will act as signers on the transaction - in this example, we only have one signer: the sender.
 
 ## Transactions have fees
 
@@ -129,7 +129,7 @@ We’re going to create a script to send SOL to other students.
 
 ### 1. Basic scaffolding
 
-We'll start by using the same packages and `.env` file we made earlier in [intro to cryptography](./intro-to-cryptography).
+We'll start by using the same packages and `.env` file we made earlier in [Intro to Cryptography](./intro-to-cryptography).
 
 Create a file called `transfer.ts`:
 

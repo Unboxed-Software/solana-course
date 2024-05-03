@@ -4,7 +4,7 @@ objectives:
 - Explain wallets
 - Install Phantom extension
 - Set Phantom wallet to [Devnet](https://api.devnet.solana.com/)
-- Use wallet-adapter to have users sign transactions
+- Use Wallet Adapter to have users sign transactions
 ---
 
 # Summary
@@ -19,9 +19,9 @@ objectives:
 
 ## Wallets
 
-In the previous two lessons we discussed keypairs. Keypairs are used to locate accounts and sign transactions. While the public key of a keypair is perfectly safe to share, the secret key should always be kept in a secure location. If a user’s secret key is exposed, then a malicious actor could drain their account of all assets and execute transactions with the authority of that user.
+In the previous two lessons, we discussed keypairs. Keypairs are used to locate accounts and sign transactions. While the public key of a keypair is perfectly safe to share, the secret key should always be kept in a secure location. If a user’s secret key is exposed, then a malicious actor could drain their account of all assets and execute transactions with the authority of that user.
 
-A “wallet” refers to anything that stores a secret key in order to keep it secure. These secure storage options can generally be described as either “hardware” or “software” wallets. Hardware wallets are storage devices that are separate from your computer. Software wallets are application you can install on your existing device(s).
+A “wallet” refers to anything that stores a secret key to keep it secure. These secure storage options can generally be described as either “hardware” or “software” wallets. Hardware wallets are storage devices that are separate from your computer. Software wallets are applications you can install on your existing device(s).
 
 Software wallets often come in the form of a browser extension. This makes it possible for websites to interact easily with the wallet. Such interactions are usually limited to:
 
@@ -39,21 +39,21 @@ Unless you’re creating a wallet application yourself, your code should never n
 
 One of the most widely used software wallets in the Solana ecosystem is [Phantom](https://phantom.app). Phantom supports a few of the most popular browsers and has a mobile app for connecting on the go. You’ll likely want your decentralized applications to support multiple wallets, but this course will focus on Phantom.
 
-## Solana’s Wallet-Adapter
+## Solana’s WalletAdapter
 
-Solana’s Wallet-Adapter is a suite of libraries you can use to simplify the process of supporting wallet browser extensions.
+Solana’s Wallet Adapter is a suite of modular packages you can use to simplify the process of supporting wallet browser extensions.
 
-Solana’s Wallet-Adapter comprises multiple modular packages. The core functionality is found in `@solana/wallet-adapter-base` and `@solana/wallet-adapter-react`.
+The core functionality is found in `@solana/wallet-adapter-base` and `@solana/wallet-adapter-react`.
 
-There are also packages that provide components for common UI frameworks. In this lesson and throughout this course, we’ll be using components from `@solana/wallet-adapter-react-ui`.
+Additional packages provide components for common UI frameworks. In this lesson and throughout this course, we’ll be using components from `@solana/wallet-adapter-react-ui`.
 
-Finally, there are packages that are adapters for specific wallets, including Phantom. You can use `@solana/wallet-adapter-wallets` to include all of the supported wallets, or you can choose a specific wallet package like `@solana/wallet-adapter-phantom`.
+Finally, some packages are adapters for specific wallet apps. These are now no longer necessary in most cases - see below.
 
 ### Install Wallet-Adapter Libraries
 
-When adding wallet support to an existing react app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`. If you plan to use the provided react components, you'll also need to add `@solana/wallet-adapter-react-ui`.
+When adding wallet support to an existing React app, you start by installing the appropriate packages. You’ll need `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`. If you plan to use the provided react components, you'll also need to add `@solana/wallet-adapter-react-ui`.
 
-All wallets that support [wallet standard](https://github.com/wallet-standard/wallet-standard) are supported out of the box, and nearly all current Solana wallets support wallet standard. However if you wish to add support for any wallets that don't support the standard, add a package for them.
+All wallets that support the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) are supported out of the box, and all the popular Solana wallets support the Wallet Standard. However, if you wish to add support for any wallets that don't support the standard, add a package for them.
 
 ```
 npm install @solana/wallet-adapter-base \
@@ -95,13 +95,12 @@ export const Home: NextPage = (props) => {
 };
 ```
 
-Note that `ConnectionProvider` requires an `endpoint` property and that `WalletProvider` requires a `wallets` property. We’re continuing to use the endpoint for the Devnet cluster, and since all major Solana adapters support wallet standard, we don't need any wallet-specific adapters.
-
-At this point you can connect with `wallet.connect()`, which will instruct the wallet to prompt the user for permission to view their public key and request approval for transactions.
+Note that `ConnectionProvider` requires an `endpoint` property and that `WalletProvider` requires a `wallets` property. We’re continuing to use the endpoint for the Devnet cluster, and since all major Solana wallet applications support the Wallet Standard, we don't need any wallet-specific adapters.
+At this point, you can connect with `wallet.connect()`, which will instruct the wallet to prompt the user for permission to view their public key and request approval for transactions.
 
 ![Screenshot of wallet connection prompt](../assets/wallet-connect-prompt.png)
 
-While you could do this in a `useEffect` hook, you’ll usually want to provide more sophisticated functionality. For example, you may want users to be able to choose from a list of supported wallets, or disconnect after they’ve already connected.
+While you could do this in a `useEffect` hook, you’ll usually want to provide more sophisticated functionality. For example, you may want users to be able to choose from a list of supported wallet applications or disconnect after they’ve already connected.
 
 ### `@solana/wallet-adapter-react-ui`
 
@@ -234,7 +233,7 @@ When this function is called, the connected wallet will display the transaction 
 
 # Lab
 
-Let’s take the Ping program from last lesson and build a frontend that lets users approve a transaction that pings the program. As a reminder, the program’s public key is `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and the public key for the data account is `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+Let’s take the Ping program from the last lesson and build a frontend that lets users approve a transaction that pings the program. As a reminder, the program’s public key is `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa` and the public key for the data account is `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
 ![Screenshot of Solana Ping App](../assets/solana-ping-app.png)
 
@@ -268,7 +267,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export default WalletContextProvider;
 ```
 
-To properly connect to the user’s wallet, we’ll need a `ConnectionProvider`, `WalletProvider` and `WalletModalProvider`. Start by importing these components from `@solana/wallet-adapter-react` and `@solana/wallet-adapter-react-ui`. Then add them to the `WalletContextProvider` component. Note that `ConnectionProvider` requires an `endpoint` parameter and `WalletProvider` requires an array of `wallets`. For now, just use an empty string and an empty array, respectively.
+To properly connect to the user’s wallet, we’ll need a `ConnectionProvider`, `WalletProvider`, and `WalletModalProvider`. Start by importing these components from `@solana/wallet-adapter-react` and `@solana/wallet-adapter-react-ui`. Then add them to the `WalletContextProvider` component. Note that `ConnectionProvider` requires an `endpoint` parameter and `WalletProvider` requires an array of `wallets`. For now, just use an empty string and an empty array, respectively.
 
 ```tsx
 import { FC, ReactNode } from "react";
@@ -296,7 +295,7 @@ The last things we need are an actual endpoint for `ConnectionProvider` and the 
 
 For the endpoint, we’ll use the same `clusterApiUrl` function from the `@solana/web3.js` library that we’ve used before so you’ll need to import it. For the array of wallets you’ll also need to import the `@solana/wallet-adapter-wallets` library.
 
-After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the url for Devnet. Then create a constant `wallets` and set it to an empty array - since all wallets support Wallet Standard, we no longer need any custom wallet adapter. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
+After importing these libraries, create a constant `endpoint` that uses the `clusterApiUrl` function to get the URL for Devnet. Then create a constant named `wallets` and set it to an empty array - since all wallets support Wallet Standard, we no longer need any custom wallet adapter. Finally, replace the empty string and empty array in `ConnectionProvider` and `WalletProvider`, respectively.
 
 To complete this component, add `require('@solana/wallet-adapter-react-ui/styles.css');` below your imports to ensure proper styling and behavior of the Wallet Adapter library components.
 
@@ -330,7 +329,7 @@ export default WalletContextProvider;
 
 ### 4. Add wallet multi-button
 
-Next let’s set up the Connect button. The current button is just a placeholder because rather than using a standard button or creating a custom component, we’ll be using Wallet-Adapter’s “multi-button.” This button interfaces with the providers we set up in `WalletContextProvider` and let’s users choose a wallet, connect to a wallet, and disconnect from a wallet. If you ever need more custom functionality, you can create a custom component to handle this.
+Next, let’s set up the Connect button. The current button is just a placeholder because rather than using a standard button or creating a custom component, we’ll be using Wallet-Adapter’s “multi-button.” This button interfaces with the providers we set up in `WalletContextProvider` and let’s users choose a wallet, connect to a wallet, and disconnect from a wallet. If you ever need more custom functionality, you can create a custom component to handle this.
 
 Before we add the “multi-button,” we need to wrap the app in the `WalletContextProvider`. Do this by importing it in `index.tsx` and adding it after the closing `</Head>` tag:
 
@@ -443,7 +442,7 @@ Next, construct two instances of `PublicKey`, one for the program ID `ChT1B39WKL
 
 Next, construct a `Transaction`, then a new `TransactionInstruction` that includes the data account as a writable key.
 
-Next, add the instruction to the transaction.
+Next, add this instruction to the transaction.
 
 Finally, call `sendTransaction`.
 
@@ -475,7 +474,7 @@ const onClick = () => {
 };
 ```
 
-And that’s it! If you refresh the page, connect your wallet, and click the ping button, Phantom should present you with a popup for confirming the transaction.
+And that’s it! If you refresh the page, connect your wallet, and click the ping button, Phantom should present you with a popup to confirm the transaction.
 
 ### 6. Add some polish around the edges
 

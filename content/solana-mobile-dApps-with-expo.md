@@ -608,7 +608,7 @@ npx expo start --dev-client --android
 
 ## 4. Configure your Expo app to take and upload photos
 
-Everything we've done to this point is effectively boilerplate we needed in order to start adding the functionality we intend our Mint-A-Day app to have. Mint-A-day is a daily snapshot app. It lets users take a snapshot of their life daily in the form of minting an NFT.
+Everything we've done to this point is effectively boilerplate we needed to start adding the functionality we intend our Mint-A-Day app to have. Mint-A-day is a daily snapshot app. It lets users take a snapshot of their life daily in the form of minting an NFT.
 
 The app will need access to the device's camera and a place to remotely store the captured images. Fortunately, Expo SDK can provide access to the camera and (NFT.Storage)[https://nft.storage] can store your NFT files for free.
 

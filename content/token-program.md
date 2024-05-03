@@ -12,26 +12,26 @@ objectives:
 
 - **SPL-Tokens** represent all non-native tokens on the Solana network. Both fungible and non-fungible tokens (NFTs) on Solana are SPL-Tokens
 - The **Token Program** contains instructions for creating and interacting with SPL-Tokens
-- **Token Mints** are accounts which hold data about a specific Token, but do not hold Tokens
-- **Token Accounts** are used to hold Tokens of a specific Token Mint
+- **Token Mints** are accounts that hold data about a specific token but do not hold tokens
+- **Token Accounts** are used to hold tokens of a specific Token Mint
 - Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed, however, Token Mints currently cannot be closed
 
 # Lesson
 
 The Token Program is one of many programs made available by the Solana Program Library (SPL). It contains instructions for creating and interacting with SPL-Tokens. These tokens represent all non-native (i.e. not SOL) tokens on the Solana network.
 
-This lesson will focus on the basics of creating and managing a new SPL-Token using the Token Program:
+This lesson will focus on the basics of creating and managing a new SPL Token using the Token Program:
 1. Creating a new Token Mint
 2. Creating Token Accounts
 3. Minting
 4. Transferring tokens from one holder to another
 5. Burning tokens
 
-We'll be approaching this from the client-side of the development process using the `@solana/spl-token` Javascript library.
+We'll be approaching this from the client side of the development process using the `@solana/spl-token` Javascript library.
 
 ## Token Mint
 
-To create a new SPL-Token you first have to create a Token Mint. A Token Mint is the account that holds data about a specific token.
+To create a new SPL-Token you first have to create a Token Mint. A Token Mint is an account that holds data about a specific token.
 
 As an example, let's look at [USD Coin (USDC) on the Solana Explorer](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v). USDC's Token Mint address is `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`. With the explorer, we can see the particular details about USDC's Token Mint such as the current supply of tokens, the addresses of the mint and freeze authorities, and the decimal precision of the token:
 
@@ -53,7 +53,7 @@ const tokenMint = await createMint(
 
 - `connection` - the JSON-RPC connection to the cluster
 - `payer` - the public key of the payer for the transaction
-- `mintAuthority` - the account which is authorized to do the actual minting of tokens from the token mint.
+- `mintAuthority` - the account that is authorized to do the actual minting of tokens from the token mint.
 - `freezeAuthority` - an account authorized to freeze the tokens in a token account. If freezing is not a desired attribute, the parameter can be set to null
 - `decimals` - specifies the desired decimal precision of the token
 
@@ -186,12 +186,12 @@ async function buildCreateTokenAccountTransaction(
 An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. 
 
 Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
-- If not for associated token account, a user may own many token accounts belonging to the same mint leading to confusion as to where to send tokens to.
+- If not for associated token account, a user may own many token accounts belonging to the same mint leading to confusion as to where to send tokens.
 - Associated token account allows a user to send tokens to another user if the recipient doesn't yet have the token account for that token mint.  
 
-![ATAs are PDAs](../assets/atas-are-pdas.svg)
+![ATAs are PDAs]
 
-Similar to above, you can create an associated token account using the `spl-token` library's `createAssociatedTokenAccount` function.
+Similar to the above, you can create an associated token account using the `spl-token` library's `createAssociatedTokenAccount` function.
 
 ```tsx
 const associatedTokenAccount = await createAssociatedTokenAccount(
@@ -313,12 +313,12 @@ const transactionSignature = await transfer(
 
 The `transfer` function returns a `TransactionSignature` that can be viewed on the Solana Explorer. The `transfer` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `source` the token account sending tokens
-- `destination` the token account receiving tokens
-- `owner` the account of the owner of the `source` token account
-- `amount` the amount of tokens to transfer
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `source` - the token account sending tokens
+- `destination` - the token account receiving tokens
+- `owner` - the account of the owner of the `source` token account
+- `amount` - the number of tokens to transfer
 
 
 Under the hood, the `transfer` function simply creates a transaction with the instructions obtained from the `createTransferInstruction` function:
@@ -348,7 +348,7 @@ async function buildTransferTransaction(
 
 ## Burn Tokens
 
-Burning tokens is the process of decreasing the token supply of a given token mint. Burning tokens removes them from the given token account and from broader circulation.
+Burning tokens is the process of decreasing the token supply of a given token mint. Burning tokens removes the tokens from the given token account and from broader circulation.
 
 To burn tokens using the `spl-token` library, you use the `burn` function.
 
@@ -365,12 +365,12 @@ const transactionSignature = await burn(
 
 The `burn` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `burn` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `account` the token account to burn tokens from
-- `mint` the token mint associated with the token account
-- `owner` the account of the owner of the token account
-- `amount` the amount of tokens to burn
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `account` - the token account to burn tokens from
+- `mint` - the token mint associated with the token account
+- `owner` - the account of the owner of the token account
+- `amount` - the amount of tokens to burn
 
 Under the hood, the `burn` function creates a transaction with instructions obtained from the `createBurnInstruction` function:
 
@@ -416,12 +416,12 @@ const transactionSignature = await approve(
 
 The `approve` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `approve` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `account` the token account to delegate tokens from
-- `delegate` the account the owner is authorizing to transfer or burn tokens
-- `owner` the account of the owner of the token account
-- `amount` the maximum number of tokens the delegate may transfer or burn
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `account` - the token account to delegate tokens from
+- `delegate` - the account the owner is authorizing to transfer or burn tokens
+- `owner` - the account of the owner of the token account
+- `amount` - the maximum number of tokens the delegate may transfer or burn
 
 Under the hood, the `approve` function creates a transaction with instructions obtained from the `createApproveInstruction` function:
 
@@ -465,10 +465,10 @@ const transactionSignature = await revoke(
 
 The `revoke` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `revoke` function requires the following arguments:
 
-- `connection` the JSON-RPC connection to the cluster
-- `payer` the account of the payer for the transaction
-- `account` the token account to revoke the delegate authority from
-- `owner` the account of the owner of the token account
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `account` - the token account to revoke the delegate authority from
+- `owner` - the account of the owner of the token account
 
 Under the hood, the `revoke` function creates a transaction with instructions obtained from the `createRevokeInstruction` function:
 
@@ -562,15 +562,14 @@ async function main() {
 }
 ```
 
-### 3. Create Token Account
+### 3. Create an Associated Token Account
 
-Now that we've created the mint, lets create a new Token Account, specifying the `user` as the `owner`.
+Now that we've created the mint, let's create a new Token Account, specifying the `user` as the `owner`.
 
 The `createAccount` function creates a new Token Account with the option to specify the address of the Token Account. Recall that if no address is provided, `createAccount` will default to using the associated token account derived using the `mint` and `owner`.
 
 Alternatively, the function `createAssociatedTokenAccount` will also create an associated token account with the same address derived from the `mint` and `owner` public keys.
-
-For our demo we’ll use the`getOrCreateAssociatedTokenAccount` function to create our token account. This function gets the address of a Token Account if it already exists. If it doesn't, it will create a new Associated Token Account at the appropriate address.
+For our demo, we’ll use the`getOrCreateAssociatedTokenAccount` function to create our token account. This function gets the address of a Token Account if it already exists. If it doesn't, it will create a new Associated Token Account at the appropriate address.
 
 ```tsx
 async function createTokenAccount(
@@ -594,7 +593,7 @@ async function createTokenAccount(
 }
 ```
 
-Add a call the `createTokenAccount` in `main`, passing in the mint we created in the previous step and setting the `user` as the `payer` and `owner`.
+Add a call to `createTokenAccount` in `main`, passing in the mint we created in the previous step and setting the `user` as the `payer` and `owner`.
 
 ```tsx
 async function main() {
@@ -622,7 +621,7 @@ async function main() {
 
 ### 4. Mint Tokens
 
-Now that we have a token mint and a token account, lets mint tokens to the token account. Note that only the `mintAuthority` can mint new tokens to a token account. Recall that we set the `user` as the `mintAuthority` for the `mint` we created.
+Now that we have a token mint and a token account, let's mint tokens to the token account. Note that only the `mintAuthority` can mint new tokens to a token account. Recall that we set the `user` as the `mintAuthority` for the `mint` we created.
 
 Create a function `mintTokens` that uses the `spl-token` function `mintTo` to mint tokens:
 
@@ -717,7 +716,7 @@ async function approveDelegate(
 }
 ```
 
-In `main`, lets generate a new `Keypair` to represent the delegate account. Then, lets call our new `approveDelegate` function and authorize the delegate to tranfer up to 50 tokens from the `user` token account. Remember to adjust the `amount` for the decimal precision of the `mint`.
+In `main`, let's generate a new `Keypair` to represent the delegate account. Then, let's call our new `approveDelegate` function and authorize the delegate to transfer up to 50 tokens from the `user` token account. Remember to adjust the `amount` for the decimal precision of the `mint`.
 
 ```tsx
 async function main() {
@@ -765,7 +764,7 @@ async function main() {
 
 ### 6. Transfer Tokens
 
-Next, lets transfer some of the tokens we just minted using the `spl-token` library's `transfer` function.
+Next, let's transfer some of the tokens we just minted using the `spl-token` library's `transfer` function.
 
 ```tsx
 async function transferTokens(
@@ -793,9 +792,9 @@ async function transferTokens(
 
 Before we can call this new function, we need to know the account into which we'll transfer the tokens.
 
-In `main`, lets generate a new `Keypair` to be the receiver (but remember that this is just to simulate having someone to send tokens to - in a real application you'd need to know the wallet address of the person receiving the tokens).
+In `main`, let's generate a new `Keypair` to be the receiver (but remember that this is just to simulate having someone to send tokens to - in a real application you'd need to know the wallet address of the person receiving the tokens).
 
-Then, create a token account for the receiver. Finally, lets call our new `transferTokens` function to transfer tokens from the `user` token account to the `receiver` token account. We'll use the `delegate` we approved in the previous step to perform the transfer on our behalf.
+Then, create a token account for the receiver. Finally, let's call our new `transferTokens` function to transfer tokens from the `user` token account to the `receiver` token account. We'll use the `delegate` we approved in the previous step to perform the transfer on our behalf.
 
 ```tsx
 async function main() {
@@ -881,7 +880,7 @@ async function revokeDelegate(
 }
 ```
 
-Revoke will set delegate for the token account to null and reset the delegated amount to 0. All we will need for this function is the token account and user. Lets call our new `revokeDelegate` function to revoke the delegate from the `user` token account.
+Revoke will set delegate for the token account to null and reset the delegated amount to 0. All we will need for this function is the token account and user. Let's call our new `revokeDelegate` function to revoke the delegate from the `user` token account.
 
 ```tsx
 async function main() {
