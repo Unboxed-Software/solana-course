@@ -90,6 +90,7 @@
             "units": [
                 {
                     "title": "Introduction to Onchain Program Development",
+                    "slug": "introduction-to-onchain-program-development",
                     "lessons": [
                         {
                             "title": "Intro to onchain program development",
@@ -105,6 +106,7 @@
                 },
                 {
                     "title": "Anchor Program Development",
+                    "slug": "anchor-program-development",
                     "lessons": [
                         {
                             "title": "Getting started with Anchor",
