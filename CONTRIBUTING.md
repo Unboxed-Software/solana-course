@@ -12,11 +12,11 @@ If you'd like to add content, please start by [creating an issue](https://github
 
 Once a plan has been discussed and agreed to, you can start working on content. 
 
-When you're done, create a PR to the `main` branch.
+When you're done, create a PR for the `main`` branch.
 
 Create new modules in the same format as the existing modules - see [Getting Started](./content/getting-started.md).
 
-This structure leans into a pedagogical technique call **IWY loops**. IWY stands for "I do, We do, You do." Each step along the way increases the audiences exposure to the topic _and_ reduces the amount of handholding you're given.
+This structure leans into a pedagogical technique called **IWY loops****. IWY stands for "I do, We do, You do." Each step along the way increases the audience's exposure to the topic _and_ reduces the amount of handholding you're given.
 
 ### Editing Existing Content
 
@@ -27,7 +27,7 @@ If you want to fix a typo or otherwise improve on existing content, follow a sim
 
 ### Guidelines
 
-The guidelines below are consistent with Solana Foundation Style, in order to ensure consistency with other content on solana.com. There's also a few additional items aimed at technical documents. 
+The guidelines below are consistent with Solana Foundation Style, to ensure consistency with other content on solana.com. There are also a few additional items aimed at technical documents. 
 
 Use language consistent with [TERMINOLOGY](https://github.com/solana-foundation/developer-content/blob/main/docs/terminology.md) and (if you have access to this) the Solana Foundation Style Guide. 
 
@@ -42,25 +42,23 @@ In particular:
 - Use the terms 'blockchain' or 'web3' rather than 'crypto'.
 - Be careful about the term 'token account'. A ['token account' is any account formatted to hold tokens](https://solana.stackexchange.com/questions/7507/what-is-the-difference-between-a-token-account-and-an-associated-token-account), and being specific (rather than, for example, swapping between 'associated token account' and 'token account') makes this clearer. 
   - Use the specific term 'associated token account' rather than just 'token account' if you're referring to an account at an associated token address.  
-  - Use 'token mint account' to refer to the address a token is minted at. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
-- Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
+  - Use 'token mint account' to refer to the address where a token is minted. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
+Use apostrophes of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
 - Don't use 'here' links. They make the course hard to scan and ['here' links are bad for SEO](https://www.smashingmagazine.com/2012/06/links-should-never-say-click-here/).
-- JS/TS clients send `transactions` made from `instructions`. On chain programs have `instruction handlers` that process `instructions`. Do not refer to [instruction handlers](https://solana.com/docs/terminology#instruction-handler) as instructions! The reason is simple: an instruction cannot process an instruction. The `multiple` template in Anchor 0.29 also calls the actual functions `handler`.
+- JS/TS clients send `transactions` made from `instructions`. Onchain programs have `instruction handlers` that process `instructions`. Do not refer to [instruction handlers](https://solana.com/docs/terminology#instruction-handler) as instructions! The reason is simple: an instruction cannot process an instruction. The `multiple` template in Anchor 0.29 also calls the actual functions `handler`.
 
 Code examples should be formatted as follows:
 
 ### Code
 
-You're writing code to be be read, understood, and changed by others.
+You're writing code to be read, understood, and changed by others.
 
 We want the minimal amount of code necessary to solve the problem.
  
- - Use full names. Call a `thing` a `thing`. Don't call it a `thg`. 
- - Avoid reptitive, copy paste code. This helps others change the code easily, as they can fix things in a single place.
+ - Use full names. Call a `thing` a `thing`. Don't call it a `thg`. Avoid repetitive, copy-paste code. This helps others change the code easily, as they can fix things in a single place.
  - Avoid magic numbers. Nobody should see a `+ 32` in your code and wonder what the `32` means.
- - Avoid asking students to clone a git repo. The idea is that students should be able to create projects from scratch when they have finished the course. 
-  - Referring to code students have made in previous chapters is fine. 
-  - `esrun` means you don't need to set up tsconfig files just to run TypeScript code. 
+ - Avoid asking students to clone a git repo. The idea is that students should be able to create projects from scratch when they have finished the course. Referring to the code students have made in previous chapters is fine. 
+  - `esrun` means you don't need to set up `tsconfig.json` files just to run TypeScript code. 
   - Tools like `anchor init` or `create-solana-dapp` are fine. 
   - If there's some boilerplate, Solana-specific code you always need [make a PR to the helpers repository](https://github.com/solana-developers/helpers).
 
@@ -68,13 +66,13 @@ We want the minimal amount of code necessary to solve the problem.
 
 We're trying to focus on Solana, not teaching JS/TS development and setup. This means reducing the JS/TS concepts needed to understand our demo code.
 
- - `ts` files are run with `esrun`, which supports top level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or [IIFEs](https://developer.mozilla.org/en-US/docs/Glossary/IIFE). `await` just works. If you see these wrappers, delete them.
+ - `ts` files are run with `esrun`, which supports top-level `await`, doesn't require a `tsconfig.json`, etc. There is no need for `async function main()` wrappers or [IIFEs](https://developer.mozilla.org/en-US/docs/Glossary/IIFE). `await` just works. If you see these wrappers, delete them.
 
  - Likewise, use async/await and use try / catch all the time, rather than sometimes using `.then()` and `.catch()`
 
  - Throw errors with `throw new Error('message')`. Don't throw strings (JS allows almost any type to be thrown). TS code can assume anything thrown is of the `Error` type. 
 
- - Don't make custom helper functions. Instead use the `@solana-developers/helpers` package. If you need a functoon that doesn't exist, make a PR to `@solana-developers/helpers`, and add the helper, tests, and docs.
+ - Don't make custom helper functions. Instead, use the `@solana-developers/helpers` package. If you need a function that doesn't exist, make a PR to `@solana-developers/helpers`, and add the helper, tests, and docs.
 
  - Use two spaces per prettier defaults, StandardJS, node style guide, idiomatic JS, AirBnB style guide, MDN, Google Style guide, codepen, jsfiddle, etc.
 
@@ -105,10 +103,10 @@ Note that while `prettier` can format Markdown, [prettier doesn't support langua
 We are using [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 for this repository.
 
-General flow for making a contribution:
+The general flow for contributing is:
 
 1. Fork the repo on GitHub
-2. Clone the project to your own machine
+2. Clone the project to your machine
 3. Make a new branch and add your contributions
 4. Push your work back up to your fork on GitHub
 5. Submit a Pull Request so that we can review your changes
@@ -121,7 +119,7 @@ Content is controlled by the config file `course-structure.json`. All content is
 
 Use the terms at https://docs.solana.com/terminology
 
-A **Track** is a provable skill. Right now the tracks are simply 'front end Solana development' and 'onchain Solana development'.
+A **Track** is a provable skill. Right now the tracks are simply 'dApp development' and 'Onchain program development'.
 
 A **Unit** is a group of lessons. 
 
