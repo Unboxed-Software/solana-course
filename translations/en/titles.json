@@ -10,7 +10,7 @@
   "serialize-instruction-data": "Serialize program data",
   "deserialize-custom-data": "Deserialize program data",
   "paging-ordering-filtering-data": "Page, Order, and Filter program data",
-  "client-interaction-with-solana": "Client Interaction with Common Solana Programs",
+  "client-interaction-with-solana": "Using Common Solana Programs",
   "token-program": "Create tokens with the Token Program",
   "token-swap": "Swap tokens with the Token Swap Program",
   "nfts-with-metaplex": "Create Solana NFTs With Metaplex",
@@ -63,5 +63,8 @@
   "token22-on-chain": "Intro to Token Extensions Program On-Chain",
   "token22-metadata": "Metadata and Metadata Pointer Extension",
   "introduction-to-onchain-program-development": "Introduction to Onchain Program Development",
-  "intro-to-onchain": "Introduction to Onchain Program Development"
+  "intro-to-onchain": "Introduction to Onchain Program Development",
+  "intro-to-token-extension-program": "Introduction to Token Extension Program",
+  "token-extensions-program": "Token Extensions Program",
+  "solana-mobile-development": "Solana Mobile Development"
 }

@@ -67,7 +67,7 @@
                     ]
                 },
                 {
-                    "title": "Client Interaction with Common Solana Programs",
+                    "title": "Using Common Solana Programs",
                     "slug": "client-interaction-with-solana",
                     "lessons": [
                         {
@@ -329,21 +329,21 @@
             "units": [
                 {
                     "title": "Intro to Token Extensions Program",
-                    "slug": "intro-to-token-extension-program-unit",
+                    "slug": "intro-to-token-extensions-program",
                     "lessons": [
                         {
                             "title": "Intro to Token Extensions Program in the Client",
-                            "slug": "token22-in-the-client",
+                            "slug": "token-extensions-in-the-client",
                             "lab": "Integrate Token Program and Token Extensions Program in the client"
                         },
                         {
                             "title": "Intro to Token Extensions Program On-Chain",
-                            "slug": "token22-on-chain",
+                            "slug": "token-extensions-on-chain",
                             "lab": "Integrate Token Program and Token Extensions Program on-chain"
                         },
                         {
                             "title": "Metadata and Metadata Pointer Extension",
-                            "slug": "token22-metadata",
+                            "slug": "token-extensions-metadata",
                             "lab": "Make an NFT using the Token Extensions Program"
                         }
                     ]
