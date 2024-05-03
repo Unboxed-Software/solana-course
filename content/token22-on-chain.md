@@ -1167,7 +1167,7 @@ The account structure will be very similar to the `stake` instruction, but there
 * `token_program`
 * `system_program`
 
-The main difference between the required accounts in `stake` and `unstake` is that we need the `staking_token_mint` and `user_stake_token_account` for this instruction in order to mint the user their staking rewards. We won't cover each account individually because the struct is the exact same as the previous instruction, just with the addition of these two new accounts.
+The main difference between the required accounts in `stake` and `unstake` is that we need the `staking_token_mint` and `user_stake_token_account` for this instruction to mint the user their staking rewards. We won't cover each account individually because the struct is the exact same as the previous instruction, just with the addition of these two new accounts.
 
 First, the `staking_token_mint` account is the mint of the staking reward token. The mint authority must be the `pool_authority` PDA so that the program has the ability to mint tokens to users. The given `staking_token_mint` account also must match the given `token_program`. We'll add a custom constraint verifying that this account matches the pubkey stored in the `staking_token_mint` field of the `pool_state` account, if not we will return the custom `InvalidStakingTokenMint` error.
 

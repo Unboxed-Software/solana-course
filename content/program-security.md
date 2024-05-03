@@ -21,7 +21,7 @@ objectives:
 
 In the last two lessons we worked through building a Movie Review program together. The end result is pretty cool! It's exciting to get something working in a new development environment.
 
-Proper program development, however, doesn't end at "get it working." It's important to think through the possible failure points in your code in order to mitigate them. Failure points are where undesirable behavior in your code could potentially occur. Whether the undesirable behavior happens due to users interacting with your program in unexpected ways or bad actors intentionally trying to exploit your program, anticipating failure points is essential to secure program development.
+Proper program development, however, doesn't end at "get it working." It's important to think through the possible failure points in your code to mitigate them. Failure points are where undesirable behavior in your code could potentially occur. Whether the undesirable behavior happens due to users interacting with your program in unexpected ways or bad actors intentionally trying to exploit your program, anticipating failure points is essential to secure program development.
 
 Remember, **you have no control over the transactions that will be sent to your program once it’s deployed**. You can only control how your program handles them. While this lesson is far from a comprehensive overview of program security, we'll cover some of the basic pitfalls to look out for.
 

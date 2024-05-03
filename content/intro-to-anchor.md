@@ -16,11 +16,11 @@ objectives:
 
 ## What is Anchor?
 
-Anchor is a development framework that makes writing Solana programs easier, faster, and more secure. It's the "go to" framework for Solana development for very good reason. It makes it easier to organize and reason about your code, implements common security checks automatically, and abstracts away a significant amount of boilerplate associated with writing a Solana program.
+Anchor is a development framework that makes writing Solana programs easier, faster, and more secure. It's the "go to" framework for Solana development for a very good reason. It makes it easier to organize and reason about your code, implements common security checks automatically, and abstracts away a significant amount of boilerplate associated with writing a Solana program.
 
 ## Anchor program structure
 
-Anchor uses macros and traits to generate boilerplate Rust code for you. These provide a clear structure to your program so you can more easily reason about your code. The main high level macros and attributes are:
+Anchor uses macros and traits to generate boilerplate Rust code for you. These provide a clear structure to your program so you can more easily reason about your code. The main high-level macros and attributes are:
 
 - `declare_id` - a macro for declaring the program’s onchain address
 - `#[program]` - an attribute macro used to denote the module containing the program’s instruction logic

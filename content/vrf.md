@@ -66,7 +66,7 @@ Now that we know what a VRF is and how it fits into the Switchboard Oracle netwo
 
 There are a lot of steps here, but don’t worry, we'll be going through each step of the process in detail. 
 
-First there are a couple of accounts that we will have to create ourselves in order to request randomness, specifically the `authority` and `vrf` accounts. The `authority` account is a PDA derived from our program that is requesting the randomness. So the PDA we create will have our own seeds for our own needs. For now, we'll simply set them at `VRFAUTH`.
+First there are a couple of accounts that we will have to create ourselves to request randomness, specifically the `authority` and `vrf` accounts. The `authority` account is a PDA derived from our program that is requesting the randomness. So the PDA we create will have our own seeds for our own needs. For now, we'll simply set them at `VRFAUTH`.
 
 ```tsx
 // derive PDA
