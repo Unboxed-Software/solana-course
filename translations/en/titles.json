@@ -59,12 +59,12 @@
   "solana-mobile-development-unit": "Solana Mobile Development",
   "generalized-state-compression": "Generalized State Compression",
   "intro-to-custom-on-chain-programs": "Using custom onchain programs",
-  "token22-in-the-client": "Intro to Token Extensions Program in the Client",
-  "token22-on-chain": "Intro to Token Extensions Program On-Chain",
-  "token22-metadata": "Metadata and Metadata Pointer Extension",
+  "token-extensions-in-the-client": "Intro to Token Extensions Program in the Client",
+  "token-extensions-on-chain": "Intro to Token Extensions Program On-Chain",
+  "token-extensions-metadata": "Metadata and Metadata Pointer Extension",
   "introduction-to-onchain-program-development": "Introduction to Onchain Program Development",
   "intro-to-onchain": "Introduction to Onchain Program Development",
-  "intro-to-token-extension-program": "Introduction to Token Extension Program",
+  "intro-to-token-extensions-program": "Introduction to Token Extensions Program",
   "token-extensions-program": "Token Extensions Program",
   "solana-mobile-development": "Solana Mobile Development"
 }
