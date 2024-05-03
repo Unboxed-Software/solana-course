@@ -10,7 +10,7 @@
   "serialize-instruction-data": "Serialize program data",
   "deserialize-custom-data": "Deserialize program data",
   "paging-ordering-filtering-data": "Page, Order, and Filter program data",
-  "client-interaction-with-solana": "Client Interaction with Common Solana Programs",
+  "client-interaction-with-solana": "Using Common Solana Programs",
   "token-program": "Create tokens with the Token Program",
   "token-swap": "Swap tokens with the Token Swap Program",
   "nfts-with-metaplex": "Create Solana NFTs With Metaplex",
