@@ -35,11 +35,13 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ### Download the Solana CLI tools
 
-Next [download the Solana CLI tools](https://docs.solana.com/cli/install-solana-cli-tools). We will explicitly pick the `stable` release (currently v1.17.x), for our installation.
+Next [download the Solana CLI tools](https://docs.solana.com/cli/install-solana-cli-tools).
 
 ```
-sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+sh -c "$(curl -sSfL https://release.solana.com/beta/install)"
 ```
+
+Afterwards, `solana -V` should show `solana-cli 1.18.x` (any number for `x` is fine).
 
 ### Download Anchor
 
@@ -50,6 +52,8 @@ cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
 avm install latest
 avm use latest
 ```
+
+Afterwards, `anchor -V` should show `anchor-cli 0.30.0`.
 
 ### Check your Anchor installation
 
@@ -63,32 +67,13 @@ anchor test
 
 **The `anchor test` command should complete with no errors or warnings**. However you may encounter issues, and we'll fix them below:
 
-#### `unknown feature proc_macro_span_shrink` error
+#### `package `solana-program v1.18.12` cannot be built because it requires rustc 1.75.0 or newer` error
 
-Ensure you've installed Solana CLI stable (1.17). Run `solana -V` - you should see `solana-cli 1.17.25`. If not, run these commands:
-
-```bash
-mv ~/.local/share/solana ~/.local/share/solana-old
-sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-```
-
-Then re-run `anchor test`
-
-#### `Package solana-program v1.18.0 cannot be built because it requires rustc 1.72.0 or newer"` error
-
-Run `cargo add solana-program@"=1.17"`. Then re-run `anchor test`.
-
-#### `package ahash v0.8.8 cannot be built` error
-
-Run `cargo add ahash@"=0.8.4"`. Then re-run `anchor test`.
+Run `cargo add solana-program@"=1.18.x"`, where `x` matches your version of `solana-cli`. Then re-run `anchor test`.
 
 #### `Error: Unable to read keypair file`
 
 Add a keypair to `.config/solana/id.json`. You can either copy a keypair from an `.env` file (just the array of numbers) into a file or use the command `solana-keygen new --no-bip39-passphrase` to create a new keypair file. Then re-run `anchor test`.
-
-#### `warning: virtual workspace defaulting to resolver = "1"`	
-
-In Cargo.toml, under `[workspaces]`, add `resolver = "2"`. Then re-run `anchor test`.
 
 #### `unused variable: 'ctx'` warning
 
