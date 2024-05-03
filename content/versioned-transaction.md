@@ -9,7 +9,7 @@ objectives:
 
 # Summary
 
--   **Versioned Transactions** refers to a way to support both legacy versions and newer versions of transaction formats. The original transaction format is "legacy" and new transaction versions start at version 0. Versioned transactions were implemented in order to support the use of Address Lookup Tables (also called lookup tables or LUTs).
+-   **Versioned Transactions** refers to a way to support both legacy versions and newer versions of transaction formats. The original transaction format is "legacy" and new transaction versions start at version 0. Versioned transactions were implemented to support the use of Address Lookup Tables (also called lookup tables or LUTs).
 -   **Address Lookup Tables** are accounts used to store addresses of other accounts, which can then be referenced in versioned transactions using a 1 byte index instead of the full 32 bytes per address. This enables the creation of more complex transactions than what was possible prior to the introduction of LUTs.
 
 # Lesson
@@ -31,7 +31,7 @@ Versioned transactions don't require any modifications to existing Solana progra
 
 One of the items taking up the most space Solana transactions is the inclusion of full account addresses. At 32 bytes each, 39 accounts will render a transaction too large. That's not even accounting for instruction data. In practice, most transactions will be too large with around 20 accounts.
 
-Solana released versioned transactions in order to support multiple transaction formats. Alongside the release of versioned transactions, Solana released version 0 of transactions to support Address Lookup Tables. Lookup tables are separate accounts that store account addresses and then allow them to be referenced in a transaction using a 1 byte index. This significantly decreases the size of a transaction since each included account now only needs to use 1 byte instead of 32 bytes.
+Solana released versioned transactions to support multiple transaction formats. Alongside the release of versioned transactions, Solana released version 0 of transactions to support Address Lookup Tables. Lookup tables are separate accounts that store account addresses and then allow them to be referenced in a transaction using a 1 byte index. This significantly decreases the size of a transaction since each included account now only needs to use 1 byte instead of 32 bytes.
 
 Even if you don't need to use lookup tables, you'll need to know how to support versioned transactions in your client-side code. Fortunately, everything you need to work with versioned transactions and lookup tables is included in the `@solana/web3.js` library.
 

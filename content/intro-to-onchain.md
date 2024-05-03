@@ -67,7 +67,7 @@ Data for Solana programs are stored in **program derived addresses (PDAs)**. Sol
  - The value is the data inside the account at the given address.
    - The data inside the PDA is determined by you, the programmer.
 
-Key value stores allow your on chain program, and client software, to consistently determine the address data can be found at, because the same seeds will always return the same address.
+Key value stores allow your onchain program, and client software, to consistently determine the address data can be found at, because the same seeds will always return the same address.
 
 ## Solana front end apps need to specify all the accounts they will use
 

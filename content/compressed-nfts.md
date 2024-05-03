@@ -35,10 +35,10 @@ To both store hashes and enable verification, we use a special binary tree struc
 5. Each branch is then hashed together
 6. Continually climb the tree and hash adjacent branches together
 7. Once at the top of the tree, a final ”root hash” is produced
-8. Store the root hash on chain as a verifiable proof of the data within each leaf
+8. Store the root hash onchain as a verifiable proof of the data within each leaf
 9. Anyone wanting to verify that the data they have matches the “source of truth” can go through the same process and compare the final hash without having to store all the data on-chain
 
-One problem not addressed in the above is how to make data available if it can’t be fetched from an account. Since this hashing process occurs on chain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from origin. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
+One problem not addressed in the above is how to make data available if it can’t be fetched from an account. Since this hashing process occurs onchain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from origin. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
 
 This process is *very complex*. We’ll cover some of the key concepts below but don’t worry if you don’t understand it right away. We’ll talk more theory in the state compression lesson and focus primarily on application to NFTs in this lesson. You’ll be able to work with cNFTs by the end of this lesson even if you don’t fully understand every piece of the state compression puzzle.
 
@@ -60,7 +60,7 @@ The **max depth** is the maximum number of hops to get from any leaf to the root
 
 The **max buffer size** is effectively the maximum number of concurrent changes that you can make to a tree within a single slot with the root hash still being valid.
 
-The **canopy depth** is the number of proof nodes that are stored on chain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit without caching proof nodes on-chain.
+The **canopy depth** is the number of proof nodes that are stored onchain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit without caching proof nodes on-chain.
 
 Each of these three values, max depth, max buffer size, and canopy depth, comes with a tradeoff. Increasing the value of any of these values increases the size of the account used to store the tree, thus increasing the cost to create the tree. 
 
@@ -355,7 +355,7 @@ const mintWithoutCollectionIx = createMintV1Instruction(
 
 ## Interact with cNFTs
 
-It’s important to note that cNFTs *are not* SPL tokens. That means your code needs to follow different conventions in order to handle cNFT functionality like fetching, querying, transferring, etc.
+It’s important to note that cNFTs *are not* SPL tokens. That means your code needs to follow different conventions to handle cNFT functionality like fetching, querying, transferring, etc.
 
 ### Fetch cNFT data
 
@@ -1016,7 +1016,7 @@ Remember, the Read API also includes ways to get multiple assets, query by owner
 
 ### 6. Transfer a cNFT
 
-The last thing we’re going to add to our script is a cNFT transfer. Just as with a standard SPL token transfer, security is paramount. Unlike with a standard SPL token transfer, however, in order to build a secure transfer with state compression of any kind, the program performing the transfer needs the entire asset data.
+The last thing we’re going to add to our script is a cNFT transfer. Just as with a standard SPL token transfer, security is paramount. Unlike with a standard SPL token transfer, however, to build a secure transfer with state compression of any kind, the program performing the transfer needs the entire asset data.
 
 The program, Bubblegum in this case, needs to be provided with the entire data that was hashed and stored on the corresponding leaf *and* needs to be given the “proof path” for the leaf in question. That makes cNFT transfers a bit trickier than SPL token transfers.
 

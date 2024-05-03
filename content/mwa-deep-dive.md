@@ -299,7 +299,7 @@ While the MWA is slightly different than the web wallet standard, once you under
 
 # Lab
 
-Now let's do some hands-on practice by building a mobile wallet. The goal here is to see what happens on both sides of the MWA process in order to demystify the app-wallet relationship.
+Now let's do some hands-on practice by building a mobile wallet. The goal here is to see what happens on both sides of the MWA process to demystify the app-wallet relationship.
 
 ### 0. Set up development environment if needed
 
