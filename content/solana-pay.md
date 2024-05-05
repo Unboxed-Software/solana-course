@@ -288,7 +288,7 @@ Now that you've got a conceptual grasp on Solana Pay, let's put it into practice
 
 ### 1. Starter
 
-To get started, download the starter code on the `starter` branch of this [repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/starter). The starter code is a Next.js app that displays a Solana Pay QR code. Notice that the menu bar lets you switch between different QR codes. The default option is a simple SOL transfer for illustrative purposes. Throughout  We'll be adding functionality to the location options in the menu bar.
+To get started, download the starter code on the `starter` branch of this [repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/starter). The starter code is a Next.js app that displays a Solana Pay QR code. Notice that the menu bar lets you switch between different QR codes. The default option is a simple SOL transfer for illustrative purposes. Throughout this lab, we'll be adding functionality to the location options in the menu bar.
 
 ![Screenshot of scavenger hunt app](../assets/scavenger-hunt-screenshot.png)
 
