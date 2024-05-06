@@ -39,7 +39,7 @@ As an example, let's look at [USD Coin (USDC) on the Solana Explorer](https://ex
 
 To create a new Token Mint, you need to send the right transaction instructions to the Token Program. To do this, we'll use the `createMint` function from `@solana/spl-token`.
 
-```tsx
+```typescript
 const tokenMint = await createMint(
   connection,
   payer,
@@ -65,7 +65,7 @@ Under the hood, the `createMint` function is simply creating a transaction that 
 
 This would look as follows:
 
-```tsx
+```typescript
 import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
@@ -120,7 +120,7 @@ A Token Account holds tokens of a specific "mint" and has a specified "owner" of
 
 You can use the `spl-token` library's `createAccount` function to create the new Token Account:
 
-```tsx
+```typescript
 const tokenAccount = await createAccount(
   connection,
   payer,
@@ -146,7 +146,7 @@ Like with creating a Token Mint, if we needed to build the transaction for `crea
 3. Use `getMinimumBalanceForRentExemption` to calculate the lamports needed for rent exemption
 4. Create a new transaction using `SystemProgram.createAccount` and `createInitializeAccountInstruction`. Note that this `createAccount` is from `@solana/web3.js` and used to create a generic new account. The `createInitializeAccountInstruction` uses this new account to initialize the new token account
 
-```tsx
+```typescript
 import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
@@ -193,7 +193,7 @@ Most of the time you create a Token Account, you'll want it to be an Associated 
 
 Similar to the above, you can create an associated token account using the `spl-token` library's `createAssociatedTokenAccount` function.
 
-```tsx
+```typescript
 const associatedTokenAccount = await createAssociatedTokenAccount(
   connection,
 	payer,
@@ -216,7 +216,7 @@ Under the hood, `createAssociatedTokenAccount` is doing two things:
 1. Using `getAssociatedTokenAddress` to derive the associated token account address from the `mint` and `owner`
 2. Building a transaction using instructions from `createAssociatedTokenAccountInstruction`
 
-```tsx
+```typescript
 import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
@@ -245,7 +245,7 @@ Minting tokens is the process of issuing new tokens into circulation. When you m
 
 To mint tokens using the `spl-token` library, you can use the `mintTo` function.
 
-```tsx
+```typescript
 const transactionSignature = await mintTo(
   connection,
   payer,
@@ -269,7 +269,7 @@ It's not uncommon to update the mint authority on a token mint to null after the
 
 Under the hood, the `mintTo` function simply creates a transaction with the instructions obtained from the `createMintToInstruction` function.
 
-```tsx
+```typescript
 import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
@@ -300,7 +300,7 @@ You can use `getOrCreateAssociatedTokenAccount` when obtaining the receiver's as
 
 Once you know the receiver's token account address, you transfer tokens using the `spl-token` library's `transfer` function.
 
-```tsx
+```typescript
 const transactionSignature = await transfer(
   connection,
   payer,
@@ -323,7 +323,7 @@ The `transfer` function returns a `TransactionSignature` that can be viewed on t
 
 Under the hood, the `transfer` function simply creates a transaction with the instructions obtained from the `createTransferInstruction` function:
 
-```tsx
+```typescript
 import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
@@ -352,7 +352,7 @@ Burning tokens is the process of decreasing the token supply of a given token mi
 
 To burn tokens using the `spl-token` library, you use the `burn` function.
 
-```tsx
+```typescript
 const transactionSignature = await burn(
   connection,
   payer,
@@ -374,7 +374,7 @@ The `burn` function returns a `TransactionSignature` that can be viewed on Solan
 
 Under the hood, the `burn` function creates a transaction with instructions obtained from the `createBurnInstruction` function:
 
-```tsx
+```typescript
 import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
@@ -403,7 +403,7 @@ Approving a delegate is the process of authorizing another account to transfer o
 
 To approve a delegate using the `spl-token` library, you use the `approve` function.
 
-```tsx
+```typescript
 const transactionSignature = await approve(
   connection,
   payer,
@@ -425,7 +425,7 @@ The `approve` function returns a `TransactionSignature` that can be viewed on So
 
 Under the hood, the `approve` function creates a transaction with instructions obtained from the `createApproveInstruction` function:
 
-```tsx
+```typescript
 import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
@@ -454,7 +454,7 @@ A previously approved delegate for a token account can be later revoked. Once a 
 
 To revoke a delegate using the `spl-token` library, you use the `revoke` function.
 
-```tsx
+```typescript
 const transactionSignature = await revoke(
   connection,
   payer,
@@ -472,7 +472,7 @@ The `revoke` function returns a `TransactionSignature` that can be viewed on Sol
 
 Under the hood, the `revoke` function creates a transaction with instructions obtained from the `createRevokeInstruction` function:
 
-```tsx
+```typescript
 import * as web3 from '@solana/web3'
 import * as token from '@solana/spl-token'
 
@@ -507,7 +507,7 @@ You'll then need to add a dependency on `@solana/spl-token`. From the command li
 
 We'll be using the `@solana/spl-token` library, so let's start by importing it at the top of the file.
 
-```tsx
+```typescript
 import * as token from '@solana/spl-token'
 ```
 
@@ -516,7 +516,7 @@ Next, declare a new function `createNewMint` with parameters `connection`, `paye
 In the body of the function
 Import `createMint` from `@solana/spl-token` and then create a function to call `createMint`:
 
-```tsx
+```typescript
 async function createNewMint(
   connection: web3.Connection,
   payer: web3.Keypair,
@@ -545,7 +545,7 @@ With that function completed, call it from the body of `main`, setting `user` as
 
 After creating the new mint, let's fetch the account data using the `getMint` function and store it in a variable called `mintInfo`. We'll use this data later to adjust input `amount` for the decimal precision of the mint.
 
-```tsx
+```typescript
 async function main() {
   const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
   const user = await initializeKeypair(connection)
@@ -571,7 +571,7 @@ The `createAccount` function creates a new Token Account with the option to spec
 Alternatively, the function `createAssociatedTokenAccount` will also create an associated token account with the same address derived from the `mint` and `owner` public keys.
 For our demo, we’ll use the`getOrCreateAssociatedTokenAccount` function to create our token account. This function gets the address of a Token Account if it already exists. If it doesn't, it will create a new Associated Token Account at the appropriate address.
 
-```tsx
+```typescript
 async function createTokenAccount(
   connection: web3.Connection,
   payer: web3.Keypair,
@@ -595,7 +595,7 @@ async function createTokenAccount(
 
 Add a call to `createTokenAccount` in `main`, passing in the mint we created in the previous step and setting the `user` as the `payer` and `owner`.
 
-```tsx
+```typescript
 async function main() {
   const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
   const user = await initializeKeypair(connection)
@@ -625,7 +625,7 @@ Now that we have a token mint and a token account, let's mint tokens to the toke
 
 Create a function `mintTokens` that uses the `spl-token` function `mintTo` to mint tokens:
 
-```tsx
+```typescript
 async function mintTokens(
   connection: web3.Connection,
   payer: web3.Keypair,
@@ -653,7 +653,7 @@ Lets call the function in `main` using the `mint` and `tokenAccount` created pre
 
 Note that we have to adjust the input `amount` for the decimal precision of the mint. Tokens from our `mint` have a decimal precision of 2. If we only specify 100 as the input `amount`, then only 1 token will be minted to our token account.
 
-```tsx
+```typescript
 async function main() {
   const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
   const user = await initializeKeypair(connection)
@@ -692,7 +692,7 @@ Now that we have a token mint and a token account, lets authorize a delegate to 
 
 Create a function `approveDelegate` that uses the `spl-token` function `approve` to mint tokens:
 
-```tsx
+```typescript
 async function approveDelegate(
   connection: web3.Connection,
   payer: web3.Keypair,
@@ -718,7 +718,7 @@ async function approveDelegate(
 
 In `main`, let's generate a new `Keypair` to represent the delegate account. Then, let's call our new `approveDelegate` function and authorize the delegate to transfer up to 50 tokens from the `user` token account. Remember to adjust the `amount` for the decimal precision of the `mint`.
 
-```tsx
+```typescript
 async function main() {
   const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
   const user = await initializeKeypair(connection)
@@ -766,7 +766,7 @@ async function main() {
 
 Next, let's transfer some of the tokens we just minted using the `spl-token` library's `transfer` function.
 
-```tsx
+```typescript
 async function transferTokens(
   connection: web3.Connection,
   payer: web3.Keypair,
@@ -796,7 +796,7 @@ In `main`, let's generate a new `Keypair` to be the receiver (but remember that 
 
 Then, create a token account for the receiver. Finally, let's call our new `transferTokens` function to transfer tokens from the `user` token account to the `receiver` token account. We'll use the `delegate` we approved in the previous step to perform the transfer on our behalf.
 
-```tsx
+```typescript
 async function main() {
   const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
   const user = await initializeKeypair(connection)
@@ -860,7 +860,7 @@ async function main() {
 
 Now that we've finished transferring tokens, lets revoke the `delegate` using the `spl-token` library's `revoke` function.
 
-```tsx
+```typescript
 async function revokeDelegate(
   connection: web3.Connection,
   payer: web3.Keypair,
@@ -882,7 +882,7 @@ async function revokeDelegate(
 
 Revoke will set delegate for the token account to null and reset the delegated amount to 0. All we will need for this function is the token account and user. Let's call our new `revokeDelegate` function to revoke the delegate from the `user` token account.
 
-```tsx
+```typescript
 async function main() {
   const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
   const user = await initializeKeypair(connection)
@@ -955,7 +955,7 @@ Finally, let's remove some tokens from circulation by burning them.
 
 Create a `burnTokens` function that uses the `spl-token` library's `burn` function to remove half of your tokens from circulation.
 
-```tsx
+```typescript
 async function burnTokens(
   connection: web3.Connection,
   payer: web3.Keypair,
@@ -981,7 +981,7 @@ async function burnTokens(
 
 Now call this new function in `main` to burn 25 of the user's tokens. Remember to adjust the `amount` for the decimal precision of the `mint`.
 
-```tsx
+```typescript
 async function main() {
   const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
   const user = await initializeKeypair(connection)
@@ -1075,7 +1075,7 @@ Note that you will not be able to directly use the helper functions we went over
 
   When creating a new mint, the newly generated `Keypair` will also have to sign the transaction. When additional signers are required in addition to the connected wallet, use the following format:
 
-  ```tsx
+  ```typescript
   sendTransaction(transaction, connection, {
     signers: [Keypair],
   })
