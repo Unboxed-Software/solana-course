@@ -12,7 +12,7 @@ If you'd like to add content, please start by [creating an issue](https://github
 
 Once a plan has been discussed and agreed to, you can start working on content. 
 
-When you're done, create a PR for the `main`` branch.
+When you're done, create a PR for the `main` branch.
 
 Create new modules in the same format as the existing modules - see [Getting Started](./content/getting-started.md).
 
