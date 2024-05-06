@@ -29,13 +29,13 @@ Versioned transactions don't require any modifications to existing Solana progra
 
 ## Versioned Transactions
 
-One of the items taking up the most space Solana transactions is the inclusion of full account addresses. At 32 bytes each, 39 accounts will render a transaction too large. That's not even accounting for instruction data. In practice, most transactions will be too large with around 20 accounts.
+One of the items taking up the most space in Solana transactions is the inclusion of full account addresses. At 32 bytes each, 39 accounts will render a transaction too large. That's not even accounting for instruction data. In practice, most transactions will be too large with around 20 accounts.
 
 Solana released versioned transactions to support multiple transaction formats. Alongside the release of versioned transactions, Solana released version 0 of transactions to support Address Lookup Tables. Lookup tables are separate accounts that store account addresses and then allow them to be referenced in a transaction using a 1 byte index. This significantly decreases the size of a transaction since each included account now only needs to use 1 byte instead of 32 bytes.
 
 Even if you don't need to use lookup tables, you'll need to know how to support versioned transactions in your client-side code. Fortunately, everything you need to work with versioned transactions and lookup tables is included in the `@solana/web3.js` library.
 
-### Create versioned transaction
+### Create versioned transactions
 
 To create a versioned transaction, you simply create a `TransactionMessage` with the following parameters:
 
@@ -68,7 +68,7 @@ const message = new web3.TransactionMessage({
 }).compileToV0Message();
 ```
 
-Finally, you pass the compiled message into `VersionedTransaction` constructor to create a new versioned transaction. Your code can then sign and send the transaction to the network, similar to a legacy transaction.
+Finally, you pass the compiled message into the `VersionedTransaction` constructor to create a new versioned transaction. Your code can then sign and send the transaction to the network, similar to a legacy transaction.
 
 ```typescript
 // Create the versioned transaction using the message
@@ -167,7 +167,7 @@ Note that when extending a lookup table, the number of addresses that can be add
 
 ### Send Transaction
 
-After creating the instructions, you can add them to a transaction and sent to the network.
+After creating the instructions, you can add them to a transaction and sent it to the network.
 
 ```typescript
 // Get the latest blockhash
@@ -190,7 +190,7 @@ transaction.sign([payer]);
 const transactionSignature = await connection.sendTransaction(transaction);
 ```
 
-Note that when you first create or extend a lookup table or when, it needs to "warm up" for one slot before the LUT or new addresses can be used in transactions. In other words, you can only use a lookup tables and access addresses that were added prior to the current slot.
+Note that when you first create or extend a lookup table, it needs to "warm up" for one slot before the LUT or new addresses can be used in transactions. In other words, you can only use lookup tables and access addresses that were added prior to the current slot.
 
 ```typescript
 SendTransactionError: failed to send transaction: invalid transaction: Transaction address table lookup uses an invalid index
@@ -200,7 +200,7 @@ If you encounter the error above or are unable to access addresses in a lookup t
 
 ### Deactivate a lookup table
 
-When an lookup table is no longer needed, you can deactivate and close it to reclaim its rent balance. Address lookup tables can be deactivated at any time, but they can continue to be used by transactions until a specified "deactivation" slot is no longer "recent". This "cool-down" period ensures that in-flight transactions can't be censored by LUTs being closed and recreated in the same slot. The deactivation period is approximately 513 slots.
+When a lookup table is no longer needed, you can deactivate and close it to reclaim its rent balance. Address lookup tables can be deactivated at any time, but they can continue to be used by transactions until a specified "deactivation" slot is no longer "recent". This "cool-down" period ensures that in-flight transactions can't be censored by LUTs being closed and recreated in the same slot. The deactivation period is approximately 513 slots.
 
 To deactivate an LUT, use the `deactivateLookupTable` method and pass in the following parameters:
 
@@ -587,7 +587,7 @@ async function main() {
 
 Notice that you create the transfer instructions with the full recipient address even though we created a lookup table. That's because by including the lookup table in the versioned transaction, you tell the `web3.js` framework to replace any recipient addresses that match addresses in the lookup table with pointers to the lookup table instead. By the time the transaction is sent to the network, addresses that exist in the lookup table will be referenced by a single byte rather than the full 32 bytes.
 
-Use `npm start` in the command line to execute the `main` function. You should see output similar to the following:
+Use `npm start` in the command line to execute the `main` function. You should see an output similar to the following:
 
 ```bash
 Current balance is 1.38866636
@@ -609,7 +609,7 @@ Keep in mind that the solution we've come up with so far only supports transfers
 
 All we need to do is go into `initializeLookupTable` and do two things:
 
-1. Modify the existing call to `extendLookupTable` to only add the first 30 addressess (any more than that and the transaction will be too large)
+1. Modify the existing call to `extendLookupTable` to only add the first 30 addresses (any more than that and the transaction will be too large)
 2. Add a loop that will keep extending a lookup table 30 addresses at a time until all addresses have been added
 
 ```typescript

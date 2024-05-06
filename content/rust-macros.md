@@ -8,7 +8,7 @@ objectives:
 
 # Summary
 
--   **Procedural macros** are a special kind of Rust macro that allow the programmer to generate code at compile time based on custom input.
+-   **Procedural macros** are a special kind of Rust macros that allow the programmer to generate code at compile time based on custom input.
 -   In the Anchor framework, procedural macros are used to generate code that reduces the amount of boilerplate required when writing Solana programs.
 -   An **Abstract Syntax Tree (AST)** is a representation of the syntax and structure of the input code that is passed to a procedural macro. When creating a macro, you use elements of the AST like tokens and items to generate the appropriate code.
 -   A **Token** is the smallest unit of source code that can be parsed by the compiler in Rust.
@@ -60,7 +60,7 @@ You can [read more about Rust items](https://doc.rust-lang.org/reference/items.h
 
 ### Token Streams
 
-The `TokenStream` type is a data type that represents a sequence of tokens. This type is defined in the `proc_macro` crate and is surfaced as a way for you write macros based on other code in the codebase.
+The `TokenStream` type is a data type that represents a sequence of tokens. This type is defined in the `proc_macro` crate and is surfaced as a way for you to write macros based on other code in the codebase.
 
 When defining a procedural macro, the macro input is passed to the macro as a `TokenStream`, which can then be parsed and transformed as needed. The resulting `TokenStream` can then be expanded into the final code output by the macro.
 
@@ -81,7 +81,7 @@ The macro can use the AST to analyze the input code and make changes to it, such
 
 ### The `syn` crate
 
-The `syn` crate is available to help parse a token stream into an AST that macro code can traverse and manipulate. When a procedural macro is invoked in a Rust program, the macro function is called with the a token stream as the input. Parsing this input is the first step to virtually any macro.
+The `syn` crate is available to help parse a token stream into an AST that macro code can traverse and manipulate. When a procedural macro is invoked in a Rust program, the macro function is called with a token stream as the input. Parsing this input is the first step to virtually any macro.
 
 Take as an example a proc macro that you invoke using `my_macro!`as follows:
 
@@ -214,7 +214,7 @@ For example, an attribute macro could process the arguments passed to the attrib
 
 ### Derive macros
 
-Derive macros are invoked using the `#[derive]` attribute on a struct, enum, or union are typically used to automatically implement traits for the input types.
+Derive macros are invoked using the `#[derive]` attribute on a struct, enum, or union. They are typically used to automatically implement traits for the input types.
 
 ```rust
 #[derive(MyMacro)]
@@ -459,7 +459,7 @@ pub fn derive_anchor_deserialize(item: TokenStream) -> TokenStream {
 
 ### Attribute macro `#[program]`
 
-The `#[program]` attribute macro is an example of an attribute macro used in the Anchor to define the module containing instruction handlers for a Solana program.
+The `#[program]` attribute macro is an example of an attribute macro used in Anchor to define the module containing instruction handlers for a Solana program.
 
 ```rust
 #[program]

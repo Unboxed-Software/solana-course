@@ -16,13 +16,13 @@ objectives:
 
 The Solana community is continually improving and expanding the network's functionality. But that doesn't always mean developing brand new technology. Sometimes it means leveraging the network's existing features in new and interesting ways.
 
-Solana Pay is a great example of this. Rather than add new functionality to the network, Solana Pay uses the network's existing signing features in a unique way to enable merchants and applications to request transactions and build gating mechanisms for specific transaction types.
+Solana Pay is a great example of this. Rather than adding new functionality to the network, Solana Pay uses the network's existing signing features in a unique way to enable merchants and applications to request transactions and build gating mechanisms for specific transaction types.
 
 Throughout this lesson, you'll learn how to use Solana Pay to create transfer and transaction requests, encode these requests as a QR code, partially sign transactions, and gate transactions based on conditions you choose. Rather than leaving it at that, we hope you'll see this as an example of leveraging existing features in new and interesting ways, using it as a launching pad for your own unique client-side network interactions.
 
 ## Solana Pay
 
-The [Solana Pay specification](https://docs.solanapay.com/spec) is a set standards that allow users to request payments and initiate transactions using URLs in a uniform way across various Solana apps and wallets.
+The [Solana Pay specification](https://docs.solanapay.com/spec) is a set of standards that allow users to request payments and initiate transactions using URLs in a uniform way across various Solana apps and wallets.
 
 Request URLs are prefixed with `solana:` so that platforms can direct the link to the appropriate application. For example, on mobile a URL that starts with `solana:` will be directed to wallet applications that support the Solana Pay specification. From there, the wallet can use the remainder of the URL to appropriately handle the request.
 
@@ -288,7 +288,7 @@ Now that you've got a conceptual grasp on Solana Pay, let's put it into practice
 
 ### 1. Starter
 
-To get started, download the starter code on the `starter` branch of this [repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/starter). The starter code is a Next.js app that displays a Solana Pay QR code. Notice that the menu bar lets you switch between different QR codes. The default option is a simple SOL transfer for illustrative purposes. Throughout  We'll be adding functionality to the location options in the menu bar.
+To get started, download the starter code on the `starter` branch of this [repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/starter). The starter code is a Next.js app that displays a Solana Pay QR code. Notice that the menu bar lets you switch between different QR codes. The default option is a simple SOL transfer for illustrative purposes. Throughout this lab, we'll be adding functionality to the location options in the menu bar.
 
 ![Screenshot of scavenger hunt app](../assets/scavenger-hunt-screenshot.png)
 
