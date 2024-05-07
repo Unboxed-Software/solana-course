@@ -75,11 +75,22 @@ When the transaction with these three instructions is sent, a new interest beari
 ## Fetching accumulated interest
 To retrieve the accumulated interest on a token at any given point, first use the `getAccount` function to fetch token information, including the amount and any associated data, passing in the connection, payer's token account, and the relevant program ID, such as TOKEN_2022_PROGRAM_ID. 
 
-Next, utilize the `amountToUiAmount` function with the obtained token information, along with additional parameters such as connection, payer, and mint, to convert the token amount to its corresponding UI amount, which inherently includes any accumulated interest. 
+Next, utilize the `amountToUiAmount` function with the obtained token information, along with additional parameters such as connection, payer, and mint, to convert the token amount to its corresponding UI amount, which inherently includes any accumulated interest.
 
 ```tsx
 const tokenInfo = await getAccount(connection, payerTokenAccount, undefined, TOKEN_2022_PROGRAM_ID);
 
+/**
+ * Amount as a string using mint-prescribed decimals
+ *
+ * @param connection     Connection to use
+ * @param payer          Payer of the transaction fees
+ * @param mint           Mint for the account
+ * @param amount         Amount of tokens to be converted to Ui Amount
+ * @param programId      SPL Token program account
+ *
+ * @return Ui Amount generated
+ */
 const uiAmount = await amountToUiAmount(
   connection,
   payer,
@@ -87,9 +98,59 @@ const uiAmount = await amountToUiAmount(
   tokenInfo.amount,
   TOKEN_2022_PROGRAM_ID,
 );
+
+console.log("UI Amount: ", uiAmount);
 ```
 
+The return value of `uiAmount` is a string representation of the UI amount and will look similar to this: `0.0000005000001557528245`.
 
+## Update rate authority
+Solana provides a helper function, `setAuthority`, to set a new authority on an interest bearing token.
+
+Use the `setAuthority` function to assign a new authority to the account. You'll need to provide the `connection`, the account paying for transaction fees (payer), the token account to update (mint), the current authority's public key, the type of authority to update (in this case, 7 represents the `InterestRate` authority type), and the new authority's public key.
+
+After setting the new authority, use the `updateRateInterestBearingMint` function to update the interest rate for the account. Pass in the necessary parameters: `connection`, `payer`, `mint`, new authority's public key, the updated interest rate, and the program ID.
+
+```tsx
+/**
+ * Assign a new authority to the account
+ *
+ * @param connection       Connection to use
+ * @param payer            Payer of the transaction fees
+ * @param account          Address of the account
+ * @param currentAuthority Current authority of the specified type
+ * @param authorityType    Type of authority to set
+ * @param newAuthority     New authority of the account
+ * @param multiSigners     Signing accounts if `currentAuthority` is a multisig
+ * @param confirmOptions   Options for confirming the transaction
+ * @param programId        SPL Token program account
+ *
+ * @return Signature of the confirmed transaction
+ */
+
+await setAuthority(
+  connection,
+  payer,
+  mint,
+  rateAuthority,
+  7, // Rate type (InterestRate)
+  wrongPayer.publicKey, // new rate authority,
+  [],
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+);
+
+await updateRateInterestBearingMint(
+  connection,
+  payer,
+  mint,
+  wrongPayer, // new rate authority
+  10, // updated rate
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+);
+```
 # Lab
 
 In this lab, we're establishing Interest Bearing Tokens via the Token-2022 program on Solana. We'll initialize these tokens with a specific interest rate, update the rate with proper authorization, and observe how interest accumulates on tokens over time.
@@ -419,6 +480,47 @@ Mint Config: {
   "currentRate": 0
 }
 ```
+
+## Update rate authority and interest rate
+Before we conclude this lab, lets set a new rate authority on the interest bearing token and attempt to update the interest rate. We do this by using the `setAuthority` function and passing in the original authority, specifying the rate type (in this case it is 7 for `InterestRate`) and passing the new authority's public key.
+
+Once we set the new authority, we can attempt to update the interest rate.
+
+```tsx
+// UPDATE RATE AUTHORITY AND ATTEMPT TO UPDATE INTEREST RATE WITH NEW AUTHORITY
+try {
+  await setAuthority(
+    connection,
+    payer,
+    mint,
+    rateAuthority,
+    7, // Rate type (InterestRate)
+    wrongPayer.publicKey, // new rate authority,
+    [],
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  );
+
+  await updateRateInterestBearingMint(
+    connection,
+    payer,
+    mint,
+    wrongPayer, // new authority
+    10, // updated rate
+    undefined,
+    undefined,
+    TOKEN_2022_PROGRAM_ID,
+  );
+
+  const newRate = await getInterestBearingMint({ connection, mint })
+
+  console.log(`✅ - We expected this to pass because the rate can be updated with the new authority. New rate: ${newRate}`);
+} catch (error) {
+  console.error(`You should be able to update the interest with new rate authority.`);
+}
+```
+
+This is expected to work and the new interest rate should be 10.
 
 Thats it! We’ve just created an interest bearing token, updated the interest rate and logged the updated state of the token!
 
