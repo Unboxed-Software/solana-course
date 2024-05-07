@@ -73,7 +73,21 @@ The third instruction `createInitializeMintInstruction` initializes the mint.
 When the transaction with these three instructions is sent, a new interest bearing token is created with the specified rate configuration.
 
 ## Fetching accumulated interest
+To retrieve the accumulated interest on a token at any given point, first use the `getAccount` function to fetch token information, including the amount and any associated data, passing in the connection, payer's token account, and the relevant program ID, such as TOKEN_2022_PROGRAM_ID. 
 
+Next, utilize the `amountToUiAmount` function with the obtained token information, along with additional parameters such as connection, payer, and mint, to convert the token amount to its corresponding UI amount, which inherently includes any accumulated interest. 
+
+```tsx
+const tokenInfo = await getAccount(connection, payerTokenAccount, undefined, TOKEN_2022_PROGRAM_ID);
+
+const uiAmount = await amountToUiAmount(
+  connection,
+  payer,
+  mint,
+  tokenInfo.amount,
+  TOKEN_2022_PROGRAM_ID,
+);
+```
 
 
 # Lab
@@ -105,29 +119,61 @@ If you decide to use devnet, and have issues with airdropping SOL. Feel free to 
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starting` branch, we'll already have access to  following helper functions. 
+When you clone the repo and change to the `starter` branch, we'll already have access to the following helper functions. 
 
-TODO Take out token Helpers
-- `token-helper.ts`: This helper will facilitate in the create of the token accounts needed to run out tests against the mint token
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 1 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
 
 ### 4. Create Mint with interest bearing token
 
-This function is where we'll be creating the token such that all new tokens will be created with an interest rate. The function will take the following arguments:
+This function is where we'll be creating the token such that all new tokens will be created with an interest rate. Create a new file inside of `src` named `token-helper.ts`.
+
+```tsx
+import {
+  TOKEN_2022_PROGRAM_ID,
+  createInitializeInterestBearingMintInstruction,
+  createInitializeMintInstruction,
+} from "@solana/spl-token";
+import {
+  sendAndConfirmTransaction,
+  Connection,
+  Keypair,
+  Transaction,
+  PublicKey,
+  SystemProgram,
+} from "@solana/web3.js";
+
+export async function createTokenWithInterestRateExtension(
+  connection: Connection,
+  payer: Keypair,
+  mint: PublicKey,
+  mintLen: number,
+  rateAuthority: Keypair,
+  rate: number,
+  mintKeypair: Keypair
+) {
+  const mintAuthority = payer
+  const decimals = 9;
+  // 
+}
+```
+
+This function will take the following arguments:
 
 - `connection` : The connection object
 - `payer` : Payer for the transaction
 - `mint`: Public key for the new mint
-- `mintLen`: Space required for mint. Calculated using `getMintLen(extensions)`
 - `rateAuthority`: Keypair of the account that can modify the token, in this case it is `payer`
 - `rate`: Chosen interest rate for the token. In our case, this will be `32_767`, or 32767, the max rate for the interest bearing token extension
 - `mintKeypair` : Keypair for the new mint
 
-When creating an interest bearing token, we must create the account instruction, add the interest instruction and initialize the mint itself. Inside of  `createTokenWithInterestRateExtension` in `src/token-helper.ts` there is a few variables already created that will be used to create the interest bearing token. Add the following code beneath the declared variables:
+When creating an interest bearing token, we must create the account instruction, add the interest instruction and initialize the mint itself. Inside of `createTokenWithInterestRateExtension` in `src/token-helper.ts` there is a few variables already created that will be used to create the interest bearing token. Add the following code beneath the declared variables:
 
-TODO fetch mint mintLen and mint lamports
 ```ts
+const extensions = [ExtensionType.InterestBearingConfig];
+const mintLen = getMintLen(extensions);
+const mintLamports = await connection.getMinimumBalanceForRentExemption(mintLen);
+
 const mintTransaction = new Transaction().add(
   SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
@@ -170,7 +216,6 @@ await createTokenWithInterestRateExtension(
   connection,
   payer,
   mint,
-  mintLen,
   rateAuthority,
   rate,
   mintKeypair
@@ -336,6 +381,8 @@ Amount with accrued interest at 32767: 300 tokens = 0.0000003000001246022661
 Amount with accrued interest at 32767: 400 tokens = 0.00000040000020767045426
 Amount with accrued interest at 32767: 500 tokens = 0.0000005000003634233328
 ```
+
+As you can see, the interest rate increases as more tokens are minted!
 
 **Log mint config**
 
