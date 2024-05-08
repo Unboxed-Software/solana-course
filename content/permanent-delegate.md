@@ -9,12 +9,15 @@ objectives:
 # Summary
 - The permanent delegate essentially holds global ownership over all Token Accounts associated with the mint
 - The assigned permanent delegate has unrestricted permissions to transfer and burn tokens from token accounts associated with that particular mint
-TODO - Finish this
+- This delegate role is established to provide a way for mint authorities to designate a trusted entity with comprehensive control, which can simplify token management and operational processes.
+- With this level of access, the permanent delegate can carry out high-level administrative functions, such as reassigning tokens, managing token supplies, and directly implementing specific policies or rules on the token accounts.
 
 # Overview
 The `permanent delegate` extension allows a way for developers to create an authorized entity capable of transferring or burning any number of tokens according to predefined permissions. With the `permanent delegate` extension, developers can strengthen the security and even governance of their tokenized systems across various use cases. This extension enables precise control over token operations, enhancing transparency and accountability within decentralized networks.
 
-TODO - Finish this
+Imagine you are developing a dApp on Solana, and you need a mechanism to ensure secure and compliant token operations. The `permanent delegate` extension allows you to designate a trusted entity that can perform critical administrative functions, such as reassigning tokens, managing token supplies, and implementing specific policies or rules directly on the token accounts.
+
+Furthermore, the extension provides the flexibility needed to respond swiftly to security incidents or operational anomalies, as the permanent delegate can take immediate corrective actions without reverting control back to the original mint authority.
 
 ### Associated functions
 When implementing the `permanent delegate` extension, there are 3 functions to take note of:
