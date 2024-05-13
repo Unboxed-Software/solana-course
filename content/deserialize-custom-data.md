@@ -18,11 +18,12 @@ objectives:
 # Lesson
 
 In the last lesson, we serialized program data that was subsequently stored onchain by a Solana program. In this lesson, we’ll cover in greater detail how programs store data on the chain, how to retrieve data, and how to deserialize the data they store.
+
 ## Programs
 
 As the saying goes, everything in Solana is an account. Even programs. Programs are accounts that store code and are marked as executable. This code can be executed by the Solana runtime when instructed to do so. A program address is a public keys on the Ed25519 Elliptic Curve. Like all public keys, they have corresponding secret keys.
 
-Programs store data seperately from their code. Programs store data in PDAs, which stands for **Program Derived Address**. PDAs are a unique concept to Solana, but the pattern is familiar: 
+Programs store data separately from their code. Programs store data in PDAs, which stands for **Program Derived Address**. PDAs are a unique concept to Solana, but the pattern is familiar: 
 
  - You can think of PDAs as a key value store, where the address is the key, and the data inside the account is the value.
  - You can also consider PDAs as records in a database, with the address being the primary key used to look up the values inside.
@@ -216,7 +217,7 @@ The method first checks whether or not the buffer exists and returns `null` if i
 
 Now that we have a way to deserialize account data, we need to actually fetch the accounts. Open `MovieList.tsx` and import `@solana/web3.js`. Then, create a new `Connection` inside the `MovieList` component. Finally, replace the line `setMovies(Movie.mocks)` inside `useEffect` with a call to `connection.getProgramAccounts`. Take the resulting array and convert it into an array of movies and call `setMovies`.
 
-```typescript
+```tsx
 import { Card } from './Card'
 import { FC, useEffect, useState } from 'react'
 import { Movie } from '../models/Movie'
