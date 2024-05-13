@@ -48,21 +48,6 @@
                             "title": "Interact with wallets",
                             "slug": "interact-with-wallets",
                             "lab": "Make a React frontend to the Ping program"
-                        },
-                        {
-                            "title": "Serialize program data",
-                            "slug": "serialize-instruction-data",
-                            "lab": "Build a React frontend to submit movie reviews"
-                        },
-                        {
-                            "title": "Deserialize program data",
-                            "slug": "deserialize-custom-data",
-                            "lab": "Build a React frontend to show movie reviews"
-                        },
-                        {
-                            "title": "Page, Order, and Filter program data",
-                            "slug": "paging-ordering-filtering-data",
-                            "lab": "Adding paging, ordering and searching to the movie reviews frontend"
                         }
                     ]
                 },
@@ -134,6 +119,21 @@
                     "title": "Native Solana Program Development",
                     "slug": "basic-solana-program-development",
                     "lessons": [
+                        {
+                            "title": "Serialize program data",
+                            "slug": "serialize-instruction-data",
+                            "lab": "Build a React frontend to submit movie reviews"
+                        },
+                        {
+                            "title": "Deserialize program data",
+                            "slug": "deserialize-custom-data",
+                            "lab": "Build a React frontend to show movie reviews"
+                        },
+                        {
+                            "title": "Page, Order, and Filter program data",
+                            "slug": "paging-ordering-filtering-data",
+                            "lab": "Adding paging, ordering and searching to the movie reviews frontend"
+                        },
                         {
                             "title": "Hello World in native",
                             "slug": "hello-world-program",
