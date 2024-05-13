@@ -2,23 +2,23 @@
 title: Create Tokens With The Token Program
 objectives:
 - Create token mints
-- Create token accounts
+- Create token metadata
+- Create associated token accounts
 - Mint tokens
 - Transfer tokens
-- Burn tokens
 ---
 
 # Summary
 
-- **SPL-Tokens** represent all non-native tokens on the Solana network. Both fungible and non-fungible tokens (NFTs) on Solana are SPL-Tokens
-- The **Token Program** contains instructions for creating and interacting with SPL-Tokens
-- **Token Mints** are accounts that hold data about a specific token but do not hold tokens
-- **Token Accounts** are used to hold tokens of a specific Token Mint
-- Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed, however, Token Mints currently cannot be closed
+- You may recall SOL is the 'native token' of Solana. All other tokens, fungible and non-fungible tokens (NFTs), are called **SPL Tokens**
+- The **Token Program** contains instructions for creating and interacting with SPL Tokens
+- **Token Mints** are accounts that define a specific token. This includes information about the token itself (like how many decimals it has), and the account allowed to mint more tokens (called the **mint authority**), and where to find more information about the token like a description, image, etc. The mint authority can use the token mint to make more tokens! 
+- **Token Accounts** hold tokens of a specific Token Mint. For most users, their balances of each token mint are stored in **Associated Token Accounts** - accounts with addresses made from their wallet address and the token's mint.
+- Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed, however, Token Mints currently cannot be closed.
 
 # Lesson
 
-The Token Program is one of many programs made available by the Solana Program Library (SPL). It contains instructions for creating and interacting with SPL-Tokens. These tokens represent all non-native (i.e. not SOL) tokens on the Solana network.
+The Token Program is one of many programs made available by the Solana Program Library (SPL). It contains instructions for creating and interacting with SPL Tokens. These tokens represent all non-native (i.e. not SOL) tokens on the Solana network.
 
 This lesson will focus on the basics of creating and managing a new SPL Token using the Token Program:
 1. Creating a new Token Mint
@@ -31,7 +31,7 @@ We'll be approaching this from the client side of the development process using 
 
 ## Token Mint
 
-To create a new SPL-Token you first have to create a Token Mint. A Token Mint is an account that holds data about a specific token.
+To create a new SPL Token you first have to create a Token Mint. A Token Mint is an account that holds data about a specific token.
 
 As an example, let's look at [USD Coin (USDC) on the Solana Explorer](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v). USDC's Token Mint address is `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`. With the explorer, we can see the particular details about USDC's Token Mint such as the current supply of tokens, the addresses of the mint and freeze authorities, and the decimal precision of the token:
 
@@ -181,17 +181,22 @@ async function buildCreateTokenAccountTransaction(
 }
 ```
 
-### Associated Token Account
+### Associated Token Accounts
 
-An Associated Token Account is a Token Account where the address of the Token Account is derived using an owner's public key and a token mint. Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token mint. 
+An Associated Token Account stores tokens in an address made from:
 
-Most of the time you create a Token Account, you'll want it to be an Associated Token Account.
-- If not for associated token account, a user may own many token accounts belonging to the same mint leading to confusion as to where to send tokens.
-- Associated token account allows a user to send tokens to another user if the recipient doesn't yet have the token account for that token mint.  
+ - The owner's public key
+ - The token mint
 
-![ATAs are PDAs]
+For example, Bob's USDC is stored in a Associated Token Account made from Bob's public key, and the USDC mint address. 
 
-Similar to the above, you can create an associated token account using the `spl-token` library's `createAssociatedTokenAccount` function.
+Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token. 
+
+There are other ways to create token accounts (particularly for onchain programs), but nearly all the time you want to store tokens for a user, you'll want it to be an Associated Token Account. Even if the user doesn't already have an ATA for that token, you can simply find the address and make the account for them.  
+
+![ATAs are PDAs](../assets/atas-are-pda.svg)
+
+You can create an associated token account using the `spl-token` library's `createAssociatedTokenAccount` function.
 
 ```typescript
 const associatedTokenAccount = await createAssociatedTokenAccount(
@@ -294,9 +299,9 @@ async function buildMintToTransaction(
 
 ## Transfer Tokens
 
-SPL-Token transfers require both the sender and receiver to have token accounts for the mint of the tokens being transferred. The tokens are transferred from the sender’s token account to the receiver’s token account.
+SPL Token transfers require both the sender and receiver to have token accounts for the mint of the tokens being transferred. The tokens are transferred from the sender’s token account to the receiver’s token account.
 
-You can use `getOrCreateAssociatedTokenAccount` when obtaining the receiver's associated token account to ensure their token account exists before the transfer. Just remember that if the account doesn't exist already, this function will create it and the payer on the transaction will be debited the lamports required for the account creation.
+You can use `getOrCreateAssociatedTokenAccount` when obtaining the receiver's associated token account to ensure their token account exists before the transfer. If the account doesn't exist already, this function will create it and the payer on the transaction will be debited the lamports required for the account creation.
 
 Once you know the receiver's token account address, you transfer tokens using the `spl-token` library's `transfer` function.
 
@@ -346,720 +351,356 @@ async function buildTransferTransaction(
 }
 ```
 
-## Burn Tokens
-
-Burning tokens is the process of decreasing the token supply of a given token mint. Burning tokens removes the tokens from the given token account and from broader circulation.
-
-To burn tokens using the `spl-token` library, you use the `burn` function.
-
-```typescript
-const transactionSignature = await burn(
-  connection,
-  payer,
-  account,
-  mint,
-  owner,
-  amount
-)
-```
-
-The `burn` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `burn` function requires the following arguments:
-
-- `connection` - the JSON-RPC connection to the cluster
-- `payer` - the account of the payer for the transaction
-- `account` - the token account to burn tokens from
-- `mint` - the token mint associated with the token account
-- `owner` - the account of the owner of the token account
-- `amount` - the amount of tokens to burn
-
-Under the hood, the `burn` function creates a transaction with instructions obtained from the `createBurnInstruction` function:
-
-```typescript
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
-
-async function buildBurnTransaction(
-  account: web3.PublicKey,
-  mint: web3.PublicKey,
-  owner: web3.PublicKey,
-  amount: number
-): Promise<web3.Transaction> {
-  const transaction = new web3.Transaction().add(
-    token.createBurnInstruction(
-      account,
-      mint,
-      owner,
-      amount
-    )
-  )
-
-  return transaction
-}
-```
-
-## Approve Delegate
-
-Approving a delegate is the process of authorizing another account to transfer or burn tokens from a token account. When using a delegate, the authority over the token account remains with the original owner. The maximum amount of tokens a delegate may transfer or burn is specified at the time the owner of the token account approves the delegate. Note that there can only be one delegate account associated with a token account at any given time.
-
-To approve a delegate using the `spl-token` library, you use the `approve` function.
-
-```typescript
-const transactionSignature = await approve(
-  connection,
-  payer,
-  account,
-  delegate,
-  owner,
-  amount
-  )
-```
-
-The `approve` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `approve` function requires the following arguments:
-
-- `connection` - the JSON-RPC connection to the cluster
-- `payer` - the account of the payer for the transaction
-- `account` - the token account to delegate tokens from
-- `delegate` - the account the owner is authorizing to transfer or burn tokens
-- `owner` - the account of the owner of the token account
-- `amount` - the maximum number of tokens the delegate may transfer or burn
-
-Under the hood, the `approve` function creates a transaction with instructions obtained from the `createApproveInstruction` function:
-
-```typescript
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
-
-async function buildApproveTransaction(
-  account: web3.PublicKey,
-  delegate: web3.PublicKey,
-  owner: web3.PublicKey,
-  amount: number
-): Promise<web3.Transaction> {
-  const transaction = new web3.Transaction().add(
-    token.createApproveInstruction(
-      account,
-      delegate,
-      owner,
-      amount
-    )
-  )
-
-  return transaction
-}
-```
-
-## Revoke Delegate
-
-A previously approved delegate for a token account can be later revoked. Once a delegate is revoked, the delegate can no longer transfer tokens from the owner's token account. Any remaining amount left untransferred from the previously approved amount can no longer be transferred by the delegate.
-
-To revoke a delegate using the `spl-token` library, you use the `revoke` function.
-
-```typescript
-const transactionSignature = await revoke(
-  connection,
-  payer,
-  account,
-  owner,
-  )
-```
-
-The `revoke` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `revoke` function requires the following arguments:
-
-- `connection` - the JSON-RPC connection to the cluster
-- `payer` - the account of the payer for the transaction
-- `account` - the token account to revoke the delegate authority from
-- `owner` - the account of the owner of the token account
-
-Under the hood, the `revoke` function creates a transaction with instructions obtained from the `createRevokeInstruction` function:
-
-```typescript
-import * as web3 from '@solana/web3'
-import * as token from '@solana/spl-token'
-
-async function buildRevokeTransaction(
-  account: web3.PublicKey,
-  owner: web3.PublicKey,
-): Promise<web3.Transaction> {
-  const transaction = new web3.Transaction().add(
-    token.createRevokeInstruction(
-      account,
-      owner,
-    )
-  )
-
-  return transaction
-}
-```
-
 # Lab
 
-We’re going to create a script that interacts with instructions on the Token Program. We will create a Token Mint, create Token Accounts, mint tokens, approve a delegate, transfer tokens, and burn tokens.
+We’re going to use the Token Token Program to create a Token Mint, create an Associated Token Account, mint tokens, approve a delegate, transfer tokens, and burn tokens.
 
-### 1. Basic scaffolding
+Assuming you already have a `.env` file with a `SECRET_KEY` setup per [Cryptography fundamentals](./intro-to-cryptography).
 
-Let’s start with some basic scaffolding. You’re welcome to set up your project however feels most appropriate for you, but we’ll be using a simple Typescript project with a dependency on the `@solana/web3.js` and `@solana/spl-token` packages.
-
-You can use `npx create-solana-client [INSERT_NAME_HERE] --initialize-keypair` in the command line to clone the template we'll be starting from. Or you can [manually clone the template](https://github.com/Unboxed-Software/solana-npx-client-template/tree/with-keypair-env). Note if you use the git repository directly as your starting point that we'll be starting from the `with-keypair-env` branch.
-
-You'll then need to add a dependency on `@solana/spl-token`. From the command line inside the newly created directory, use the command `npm install @solana/spl-token`.
-
-### 2. Create Token Mint
-
-We'll be using the `@solana/spl-token` library, so let's start by importing it at the top of the file.
-
-```typescript
-import * as token from '@solana/spl-token'
+```bash
+npm i @solana/web3.js @solana/spl-token @solana-developers/helpers esrun
 ```
 
-Next, declare a new function `createNewMint` with parameters `connection`, `payer`, `mintAuthority`, `freezeAuthority`, and `decimals`.
+### 1. Create the Token Mint
 
-In the body of the function
-Import `createMint` from `@solana/spl-token` and then create a function to call `createMint`:
+Create an empty file called `create-token-mint.ts`. After loading our keypairs, we'll call `createMint()`, setting our `user` as the `payer`, `mintAuthority`, and `freezeAuthority`.
+
+Think of the token mint as the factory that makes tokens. Our `user`, as the `mintAuthority` is the person that runs the factory. 
 
 ```typescript
-async function createNewMint(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  mintAuthority: web3.PublicKey,
-  freezeAuthority: web3.PublicKey,
-  decimals: number
-): Promise<web3.PublicKey> {
+import { createMint } from "@solana/spl-token";
+import "dotenv/config";
+import {
+  getKeypairFromEnvironment,
+  getExplorerLink,
+} from "@solana-developers/helpers";
+import { Connection, clusterApiUrl } from "@solana/web3.js";
 
-  const tokenMint = await token.createMint(
-    connection,
-    payer,
-    mintAuthority,
-    freezeAuthority,
-    decimals
+const connection = new Connection(clusterApiUrl("devnet"));
+
+const user = getKeypairFromEnvironment("SECRET_KEY");
+
+console.log(
+  `🔑 Loaded our keypair securely, using an env file! Our public key is: ${user.publicKey.toBase58()}`
+);
+
+// This is a shortcut that runs:
+// SystemProgram.createAccount
+// token.createInitializeMintInstruction
+// See https://www.soldev.app/course/token-program
+const tokenMint = await createMint(connection, user, user.publicKey, null, 2);
+
+const link = getExplorerLink("address", tokenMint.toString(), "devnet");
+
+console.log(`✅ Finished! Created token mint: ${link}`);
+```
+
+Run the script using `npx esrun create-token-mint.ts`. You should see 
+
+```bash
+✅ Finished! Created token mint: https://explorer.solana.com/address/HYeUCAqdsQBkqQNHRoBPov42QySDhwM7zAqiorToosbz?cluster=devnet
+```
+
+Open up Solana Explorer and look at your new token!
+
+Remember the address of the mint! We'll use this later.
+
+### 2. Make some token metadata
+
+You'll notice our token account does not have a pretty symbol and shows up as 'Unknown Token' in Explorer. That's because our token has no metadata! Let's add some.
+
+We'll use the Metaplex `mpl-token-metadata` Program, version 2. This is the most popular version of `mpl-token-metadata` and saves significant complexity compared to the newer version 3.
+
+```bash
+npm i @metaplex-foundation/mpl-token-metadata@2
+```
+
+Create a new file called `create-token-metadata.ts`
+
+```typescript
+// This uses "@metaplex-foundation/mpl-token-metadata@2" to create tokens
+import "dotenv/config";
+import {
+  getKeypairFromEnvironment,
+  getExplorerLink,
+} from "@solana-developers/helpers";
+import {
+  Connection,
+  clusterApiUrl,
+  PublicKey,
+  Transaction,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
+import { createCreateMetadataAccountV3Instruction } from "@metaplex-foundation/mpl-token-metadata";
+
+const user = getKeypairFromEnvironment("SECRET_KEY");
+
+const connection = new Connection(clusterApiUrl("devnet"));
+
+console.log(
+  `🔑 We've loaded our keypair securely, using an env file! Our public key is: ${user.publicKey.toBase58()}`
+);
+
+const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+);
+
+// Subtitute in your token mint account
+const tokenMintAccount = new PublicKey("YOUR_TOKEN_MINT_ADDRESS_HERE");
+
+const metadataData = {
+  name: "Solana Training Token",
+  symbol: "TRAINING",
+  // Arweave / IPFS / Pinata etc link using metaplex standard for off-chain data
+  uri: "https://arweave.net/1234",
+  sellerFeeBasisPoints: 0,
+  creators: null,
+  collection: null,
+  uses: null,
+};
+
+const metadataPDAAndBump = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("metadata"),
+    TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+    tokenMintAccount.toBuffer(),
+  ],
+  TOKEN_METADATA_PROGRAM_ID
+);
+
+const metadataPDA = metadataPDAAndBump[0];
+
+const transaction = new Transaction();
+
+const createMetadataAccountInstruction =
+  createCreateMetadataAccountV3Instruction(
+    {
+      metadata: metadataPDA,
+      mint: tokenMintAccount,
+      mintAuthority: user.publicKey,
+      payer: user.publicKey,
+      updateAuthority: user.publicKey,
+    },
+    {
+      createMetadataAccountArgsV3: {
+        collectionDetails: null,
+        data: metadataData,
+        isMutable: true,
+      },
+    }
   );
 
-  console.log(
-    `Token Mint: https://explorer.solana.com/address/${tokenMint}?cluster=devnet`
-  );
+transaction.add(createMetadataAccountInstruction);
 
-  return tokenMint;
-}
+const transactionSignature = await sendAndConfirmTransaction(
+  connection,
+  transaction,
+  [user]
+);
+
+const transactionLink = getExplorerLink(
+  "transaction",
+  transactionSignature,
+  "devnet"
+);
+
+console.log(`✅ Transaction confirmed, explorer link is: ${transactionLink}!`);
+
+const tokenMintLink = getExplorerLink(
+  "address",
+  tokenMintAccount.toString(),
+  "devnet"
+);
+
+console.log(`✅ Look at the token mint again: ${tokenMintLink}!`);
 ```
 
-With that function completed, call it from the body of `main`, setting `user` as the `payer`, `mintAuthority`, and `freezeAuthority`.
+You'll now see Solana Explorer is updated, showing the token's name and symbol on the mint!
 
-After creating the new mint, let's fetch the account data using the `getMint` function and store it in a variable called `mintInfo`. We'll use this data later to adjust input `amount` for the decimal precision of the mint.
+Note that Solana Explorer will display a warning like:
+
+> Warning! Token names and logos are not unique. This token may have spoofed its name and logo to look like another token. Verify the token's mint address to ensure it is correct.
+
+This warning is accurate - indeed anyone can make any token have any symbol or name they like. However for your reference, if you are making an original token that becomes very well known, Solana Explorer uses a whitelist based on the [Unified Token List API](https://github.com/solflare-wallet/utl-api).
+
+### 3. Create an Associated Token Account to store the tokens
+
+Now that we've created the mint, let's create a new Associated Token Account so that someone can store our tokens. This Associated Token Account could be for our wallet (if we, as the token mint authority, want to mint tokens to our own address) or anyone else we know with a devnet wallet! 
+
+Create an empty file called `create-token-account.ts`. Then use `getOrCreateAssociatedTokenAccount()` to get an associated token account based on a wallet and our mint address, making the account if it needs to.
+
+Remember to substitute in your token mint address below!
 
 ```typescript
-async function main() {
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-  const user = await initializeKeypair(connection)
+import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import "dotenv/config";
+import {
+  getExplorerLink,
+  getKeypairFromEnvironment,
+} from "@solana-developers/helpers";
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+const connection = new Connection(clusterApiUrl("devnet"));
 
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  )
+const user = getKeypairFromEnvironment("SECRET_KEY");
 
-  const mintInfo = await token.getMint(connection, mint);
-}
+console.log(
+  `🔑 Loaded our keypair securely, using an env file! Our public key is: ${user.publicKey.toBase58()}`
+);
+
+// Subtitute in your token mint account from create-token-mint.ts
+const tokenMintAccount = new PublicKey(
+  "YOUR_TOKEN_MINT"
+);
+
+// Here we are making an associated token account for our own address, but we can 
+// make an ATA on any other wallet in devnet!
+// const recipient = new PublicKey("SOMEONE_ELSES_DEVNET_ADDRESS");
+const recipient = user.publicKey;
+
+const tokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  user,
+  tokenMintAccount,
+  recipient
+);
+
+console.log(`Token Account: ${tokenAccount.address.toBase58()}`);
+
+const link = getExplorerLink(
+  "address",
+  tokenAccount.address.toBase58(),
+  "devnet"
+);
+
+console.log(`✅ Created token Account: ${link}`);
+
 ```
 
-### 3. Create an Associated Token Account
+Run the script using `npx esrun create-token-mint.ts`. You should see: 
 
-Now that we've created the mint, let's create a new Token Account, specifying the `user` as the `owner`.
-
-The `createAccount` function creates a new Token Account with the option to specify the address of the Token Account. Recall that if no address is provided, `createAccount` will default to using the associated token account derived using the `mint` and `owner`.
-
-Alternatively, the function `createAssociatedTokenAccount` will also create an associated token account with the same address derived from the `mint` and `owner` public keys.
-For our demo, we’ll use the`getOrCreateAssociatedTokenAccount` function to create our token account. This function gets the address of a Token Account if it already exists. If it doesn't, it will create a new Associated Token Account at the appropriate address.
-
-```typescript
-async function createTokenAccount(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  mint: web3.PublicKey,
-  owner: web3.PublicKey
-) {
-  const tokenAccount = await token.getOrCreateAssociatedTokenAccount(
-    connection,
-    payer,
-    mint,
-    owner
-  )
-
-  console.log(
-    `Token Account: https://explorer.solana.com/address/${tokenAccount.address}?cluster=devnet`
-  )
-
-  return tokenAccount
-}
+```bash
+✅ Success! Created token account: https://explorer.solana.com/address/CTjoLdEeK8rk4YWYW9ZqACyjHexbYKH3hEoagHxLVEFs?cluster=devnet
 ```
 
-Add a call to `createTokenAccount` in `main`, passing in the mint we created in the previous step and setting the `user` as the `payer` and `owner`.
-
-```typescript
-async function main() {
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-  const user = await initializeKeypair(connection)
-
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  )
-
-  const mintInfo = await token.getMint(connection, mint);
-
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  )
-}
-```
+Open the token account in Solana Explorer. Look at the owner - it's the account you made the ATA for! The balance will be zero, as we haven't sent any tokens there yet. Let's mint some tokens there and fix that!
 
 ### 4. Mint Tokens
 
-Now that we have a token mint and a token account, let's mint tokens to the token account. Note that only the `mintAuthority` can mint new tokens to a token account. Recall that we set the `user` as the `mintAuthority` for the `mint` we created.
+Now that we have a token mint and a token account, let's mint tokens to the token account. Recall that we set the `user` as the `mintAuthority` for the `mint` we created.
 
 Create a function `mintTokens` that uses the `spl-token` function `mintTo` to mint tokens:
 
 ```typescript
-async function mintTokens(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  mint: web3.PublicKey,
-  destination: web3.PublicKey,
-  authority: web3.Keypair,
-  amount: number
-) {
-  const transactionSignature = await token.mintTo(
-    connection,
-    payer,
-    mint,
-    destination,
-    authority,
-    amount
-  )
+import { mintTo } from "@solana/spl-token";
+import "dotenv/config";
+import {
+  getExplorerLink,
+  getKeypairFromEnvironment,
+} from "@solana-developers/helpers";
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+const connection = new Connection(clusterApiUrl("devnet"));
 
-  console.log(
-    `Mint Token Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  )
-}
+// Our token has two decimal places
+const MINOR_UNITS_PER_MAJOR_UNITS = Math.pow(10, 2);
+
+const user = getKeypairFromEnvironment("SECRET_KEY");
+
+// Subtitute in your token mint account from create-token-mint.ts
+const tokenMintAccount = new PublicKey(
+  "YOUR_TOKEN_MINT_ACCOUNT"
+);
+
+// Substitute in your own, or a friend's token account address, based on the previous step.
+const recipientAssociatedTokenAccount = new PublicKey(
+  "RECIPIENT_TOKEN_ACCOUNT"
+);
+
+const transactionSignature = await mintTo(
+  connection,
+  user,
+  tokenMintAccount,
+  recipientAssociatedTokenAccount,
+  user,
+  10 * MINOR_UNITS_PER_MAJOR_UNITS
+);
+
+const link = getExplorerLink("transaction", transactionSignature, "devnet");
+
+console.log(`✅ Success! Mint Token Transaction: ${link}`);
 ```
 
-Lets call the function in `main` using the `mint` and `tokenAccount` created previously.
+Run the script using `npx esrun mint-tokens.ts`. You should see: 
 
-Note that we have to adjust the input `amount` for the decimal precision of the mint. Tokens from our `mint` have a decimal precision of 2. If we only specify 100 as the input `amount`, then only 1 token will be minted to our token account.
+```bash
+✅ Success! Mint Token Transaction: https://explorer.solana.com/tx/36U9ELyJ2VAZSkeJKj64vUh9cEzVKWznESyqFCJ92sj1KgKwrFH5iwQsYmjRQDUN2uVhcbW8AVDsNaiNuPZ7n9m4?cluster=devnet
+```
+
+Open Explorer, and see the transaction and the new tokens in the recipient's account!
+
+### 5. Transfer Tokens
+
+Next, let's transfer some of the tokens we just minted using the `spl-token` library's `transfer` function. You can [add a second account on devnet](./intro-to-cryptography) if you like, or find a friend who has a devnmet account and send them your token!
+
+As you saw in Explorer, the tokens currently reside in an Associated Token Account attached to our wallet. We don't have to remember the address for our associated token account - we can just look it up using `getOrCreateAssociatedTokenAccount()` and proving our address and the mint of the token we want to send. Likewise, we can find (or make) an ATA for our recipient to hold this token too.
 
 ```typescript
-async function main() {
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-  const user = await initializeKeypair(connection)
+import "dotenv/config";
+import {
+  getExplorerLink,
+  getKeypairFromEnvironment,
+} from "@solana-developers/helpers";
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import { getOrCreateAssociatedTokenAccount, transfer } from "@solana/spl-token";
+const connection = new Connection(clusterApiUrl("devnet"));
 
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  )
+const sender = getKeypairFromEnvironment("SECRET_KEY");
 
-  const mintInfo = await token.getMint(connection, mint);
+console.log(
+  `🔑 Loaded our keypair securely, using an env file! Our public key is: ${sender.publicKey.toBase58()}`
+);
 
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  )
+// Add the recipient public key here.
+const recipient = new PublicKey("YOUR_RECIPIENT_HERE");
 
-  await mintTokens(
-    connection,
-    user,
-    mint,
-    tokenAccount.address,
-    user,
-    100 * 10 ** mintInfo.decimals
-  )
-}
+// Subtitute in your token mint account
+const tokenMintAccount = new PublicKey("YOUR_TOKEN_MINT_ADDRESS_HERE");
+
+// Our token has two decimal places
+const MINOR_UNITS_PER_MAJOR_UNITS = Math.pow(10, 2);
+
+console.log(`💸 Attempting to send 1 token to ${recipient.toBase58()}...`);
+
+// Get or create the source and destination token accounts to store this token
+const sourceTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  sender,
+  tokenMintAccount,
+  sender.publicKey
+);
+
+const destinationTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  sender,
+  tokenMintAccount,
+  recipient
+);
+
+// Transfer the tokens
+const signature = await transfer(
+  connection,
+  sender,
+  sourceTokenAccount.address,
+  destinationTokenAccount.address,
+  sender,
+  1 * MINOR_UNITS_PER_MAJOR_UNITS
+);
+
+const explorerLink = getExplorerLink("transaction", signature, "devnet");
+
+console.log(`✅ Transaction confirmed, explorer link is: ${explorerLink}!`);
 ```
 
-### 5. Approve Delegate
-
-Now that we have a token mint and a token account, lets authorize a delegate to transfer tokens on our behalf.
-
-Create a function `approveDelegate` that uses the `spl-token` function `approve` to mint tokens:
-
-```typescript
-async function approveDelegate(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  account: web3.PublicKey,
-  delegate: web3.PublicKey,
-  owner: web3.Signer | web3.PublicKey,
-  amount: number
-) {
-  const transactionSignature = await token.approve(
-    connection,
-    payer,
-    account,
-    delegate,
-    owner,
-    amount
-  )
-
-  console.log(
-    `Approve Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  )
-}
-```
-
-In `main`, let's generate a new `Keypair` to represent the delegate account. Then, let's call our new `approveDelegate` function and authorize the delegate to transfer up to 50 tokens from the `user` token account. Remember to adjust the `amount` for the decimal precision of the `mint`.
-
-```typescript
-async function main() {
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-  const user = await initializeKeypair(connection)
-
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  )
-
-  const mintInfo = await token.getMint(connection, mint);
-
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  )
-
-  await mintTokens(
-    connection,
-    user,
-    mint,
-    tokenAccount.address,
-    user,
-    100 * 10 ** mintInfo.decimals
-  )
-
-  const delegate = web3.Keypair.generate();
-
-  await approveDelegate(
-    connection,
-    user,
-    tokenAccount.address,
-    delegate.publicKey,
-    user.publicKey,
-    50 * 10 ** mintInfo.decimals
-  )
-}
-```
-
-### 6. Transfer Tokens
-
-Next, let's transfer some of the tokens we just minted using the `spl-token` library's `transfer` function.
-
-```typescript
-async function transferTokens(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  source: web3.PublicKey,
-  destination: web3.PublicKey,
-  owner: web3.Keypair,
-  amount: number
-) {
-  const transactionSignature = await token.transfer(
-    connection,
-    payer,
-    source,
-    destination,
-    owner,
-    amount
-  )
-
-  console.log(
-    `Transfer Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  )
-}
-```
-
-Before we can call this new function, we need to know the account into which we'll transfer the tokens.
-
-In `main`, let's generate a new `Keypair` to be the receiver (but remember that this is just to simulate having someone to send tokens to - in a real application you'd need to know the wallet address of the person receiving the tokens).
-
-Then, create a token account for the receiver. Finally, let's call our new `transferTokens` function to transfer tokens from the `user` token account to the `receiver` token account. We'll use the `delegate` we approved in the previous step to perform the transfer on our behalf.
-
-```typescript
-async function main() {
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-  const user = await initializeKeypair(connection)
-
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  )
-
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  )
-
-  const mintInfo = await token.getMint(connection, mint);
-
-  await mintTokens(
-    connection,
-    user,
-    mint,
-    tokenAccount.address,
-    user,
-    100 * 10 ** mintInfo.decimals
-  )
-
-  const receiver = web3.Keypair.generate().publicKey
-  const receiverTokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    receiver
-  )
-
-  const delegate = web3.Keypair.generate();
-  await approveDelegate(
-    connection,
-    user,
-    tokenAccount.address,
-    delegate.publicKey,
-    user.publicKey,
-    50 * 10 ** mintInfo.decimals
-  )
-
-  await transferTokens(
-    connection,
-    user,
-    tokenAccount.address,
-    receiverTokenAccount.address,
-    delegate,
-    50 * 10 ** mintInfo.decimals
-  )
-}
-```
-
-### 7. Revoke Delegate
-
-Now that we've finished transferring tokens, lets revoke the `delegate` using the `spl-token` library's `revoke` function.
-
-```typescript
-async function revokeDelegate(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  account: web3.PublicKey,
-  owner: web3.Signer | web3.PublicKey,
-) {
-  const transactionSignature = await token.revoke(
-    connection,
-    payer,
-    account,
-    owner,
-  )
-
-  console.log(
-    `Revote Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  )
-}
-```
-
-Revoke will set delegate for the token account to null and reset the delegated amount to 0. All we will need for this function is the token account and user. Let's call our new `revokeDelegate` function to revoke the delegate from the `user` token account.
-
-```typescript
-async function main() {
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-  const user = await initializeKeypair(connection)
-
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  )
-
-  const mintInfo = await token.getMint(connection, mint);
-
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  )
-
-  await mintTokens(
-    connection,
-    user,
-    mint,
-    tokenAccount.address,
-    user,
-    100 * 10 ** mintInfo.decimals
-  )
-
-  const receiver = web3.Keypair.generate().publicKey
-  const receiverTokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    receiver
-  )
-
-  const delegate = web3.Keypair.generate();
-  await approveDelegate(
-    connection,
-    user,
-    tokenAccount.address,
-    delegate.publicKey,
-    user.publicKey,
-    50 * 10 ** mintInfo.decimals
-  )
-
-  await transferTokens(
-    connection,
-    user,
-    tokenAccount.address,
-    receiverTokenAccount.address,
-    delegate,
-    50 * 10 ** mintInfo.decimals
-  )
-
-  await revokeDelegate(
-    connection,
-    user,
-    tokenAccount.address,
-    user.publicKey,
-  )
-}
-```
-
-### 8. Burn Tokens
-
-Finally, let's remove some tokens from circulation by burning them.
-
-Create a `burnTokens` function that uses the `spl-token` library's `burn` function to remove half of your tokens from circulation.
-
-```typescript
-async function burnTokens(
-  connection: web3.Connection,
-  payer: web3.Keypair,
-  account: web3.PublicKey,
-  mint: web3.PublicKey,
-  owner: web3.Keypair,
-  amount: number
-) {
-  const transactionSignature = await token.burn(
-    connection,
-    payer,
-    account,
-    mint,
-    owner,
-    amount
-  )
-
-  console.log(
-    `Burn Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
-  )
-}
-```
-
-Now call this new function in `main` to burn 25 of the user's tokens. Remember to adjust the `amount` for the decimal precision of the `mint`.
-
-```typescript
-async function main() {
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-  const user = await initializeKeypair(connection)
-
-  const mint = await createNewMint(
-    connection,
-    user,
-    user.publicKey,
-    user.publicKey,
-    2
-  )
-
-  const mintInfo = await token.getMint(connection, mint);
-
-  const tokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    user.publicKey
-  )
-
-  await mintTokens(
-    connection,
-    user,
-    mint,
-    tokenAccount.address,
-    user,
-    100 * 10 ** mintInfo.decimals
-  )
-
-  const receiver = web3.Keypair.generate().publicKey
-  const receiverTokenAccount = await createTokenAccount(
-    connection,
-    user,
-    mint,
-    receiver
-  )
-
-  const delegate = web3.Keypair.generate();
-  await approveDelegate(
-    connection,
-    user,
-    tokenAccount.address,
-    delegate.publicKey,
-    user.publicKey,
-    50 * 10 ** mintInfo.decimals
-  )
-
-  await transferTokens(
-    connection,
-    user,
-    tokenAccount.address,
-    receiverTokenAccount.address,
-    delegate,
-    50 * 10 ** mintInfo.decimals
-  )
-
-  await revokeDelegate(
-    connection,
-    user,
-    tokenAccount.address,
-    user.publicKey,
-  )
-
-  await burnTokens(
-    connection, 
-    user, 
-    tokenAccount.address, 
-    mint, user, 
-    25 * 10 ** mintInfo.decimals
-  )
-}
-```
-### 9. Test it all out
-
-With that, run `npm start`. You should see a series of Solana Explorer links logged to the console. Click on them and see what happened each step of the way! You created a new token mint, created a token account, minted 100 tokens, approved a delegate, transferred 50 using a delegate, revoked the delegate, and burned 25 more. You're well on your way to being a token expert.
-
-If you need a bit more time with this project to feel comfortable, have a look at the complete [solution code](https://github.com/Unboxed-Software/solana-token-client)
+Open the Explorer link. You see your balance go down, and the recipient's balance go up!
 
 # Challenge
 
