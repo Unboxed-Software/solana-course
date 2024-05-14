@@ -2,7 +2,7 @@
 title: Oracles and Oracle Networks
 objectives:
 - Explain why onchain programs cannot readily access real-world data on their own
-- Explain how oracles solve the problem to accessing real-world data on-chain
+- Explain how oracles solve the problem of accessing real-world data on-chain
 - Explain how incentivized oracle networks make data more trustworthy
 - Effectively weigh the tradeoffs between using various types of oracles
 - Use oracles from an onchain program to access real-world data
@@ -17,7 +17,7 @@ objectives:
 
 # Lesson
 
-Oracles are services that provide external data to a blockchain network. Blockchains by nature are siloed environments that have no knowledge of the outside world. This constraint inherently puts a limit on the use cases for decentralized applications (dApps). Oracles provide a solution to this limitation by creating a decentralized way to get real-world data on-chain.
+Oracles are services that provide external data to a blockchain network. Blockchains by nature are siloed environments that do not know the outside world. This constraint inherently puts a limit on the use cases for decentralized applications (dApps). Oracles provide a solution to this limitation by creating a decentralized way to get real-world data on-chain.
 
 Oracles can provide just about any type of data on-chain. Examples include:
 
@@ -43,31 +43,31 @@ Broadly speaking, there are three implementation types:
 
 1. Single, centralized oracle publishes data on-chain.
     1. Pro: It’s simple; there's one source of truth.
-    2. Con: There's nothing stopping the oracle provider from providing inaccurate data. 
+    2. Con: nothing is stopping the oracle provider from providing inaccurate data. 
 2. Network of oracles publish data and a consensus mechanism is used to determine the final result.
-    1. Pro: Consensus makes it less likely that bad data is pushed to chain. 
+    1. Pro: Consensus makes it less likely that bad data is pushed onchain. 
     2. Con: There is no way to disincentivize bad actors from publishing bad data and trying to sway the consensus.
 3. Oracle network with some kind of proof of stake mechanism. I.e. require oracles to stake tokens to participate in the consensus mechanism. On every response, if an oracle deviates by some threshold from the accepted range of results, their stake is taken by the protocol and they can no longer report.
     1. Pro: Ensures no single oracle can influence the final result too drastically, while also incentivizing honest and accurate actions. 
     2. Con: Building decentralized networks is challenging, incentives need to be set up properly and be sufficient to get participation, etc.
 
-Depending on the use case of an oracle, any of the above solutions could be the right approach. For example, you might be perfectly willing to participate in a blockchain-based game that utilizes centralized oracles to publish gameplay information to chain.
+Depending on the use case of an oracle, any of the above solutions could be the right approach. For example, you might be perfectly willing to participate in a blockchain-based game that utilizes centralized oracles to publish gameplay information onchain.
 
 On the other hand, you may be less willing to trust a centralized oracle providing price information for trading applications.
 
-You may end up creating many standalone oracles for your own applications simply as a way to get access to off-chain information that you need. However, those oracles are unlikely to be used by the broader community where decentralization is a core tenet. You should also be hesitant to use centralized, third party oracles yourself.
+You may end up creating many standalone oracles for your own applications simply as a way to get access to off-chain information that you need. However, those oracles are unlikely to be used by the broader community where decentralization is a core tenet. You should also be hesitant to use centralized, third-party oracles yourself.
 
 In a perfect world, all important and/or valuable data would be provided onchain through a highly efficient oracle network through a trustworthy proof of stake consensus mechanism. By introducing a staking mechanism, it’s in the oracle providers' best interest to ensure their data is accurate to keep their staked funds.
 
 Even when an oracle network claims to have such a consensus mechanism, be sure to know the risks involved with using the network. If the total value involved of the downstream applications is greater than the oracle's allocated stake, oracles still may have sufficient incentive to collude.
 
-It is your job to know how the Oracle Network is configured and make a judgement call on if they can be trusted. Generally, Oracles should only be used for non mission-critical functions and worst-case scenarios should be accounted for.
+It is your job to know how the oracle network is configured and judge if it can be trusted. Generally, Oracles should only be used for non-mission-critical functions and worst-case scenarios should be accounted for.
 
 ## Oracles on Solana
 
 [Pyth](https://pyth.network) and [Switchboard](https://switchboard.xyz) are the two main oracle providers on Solana today. They’re each unique and follow slightly different design choices.
 
-**Pyth** is primarily focused on financial data published from top tier financial institutions. Pyth’s data providers publish the market data updates. These updates are then aggregated and published to chain by the Pyth program. The data sourced from Pyth is not completely decentralized as only approved data providers can publish data. The selling point of Pyth is that its data is vetted directly by the platform and sourced from financial institutions, ensuring higher quality.
+**Pyth** is primarily focused on financial data published from top-tier financial institutions. Pyth’s data providers publish the market data updates. These updates are then aggregated and published onchain by the Pyth program. The data sourced from Pyth is not completely decentralized as only approved data providers can publish data. The selling point of Pyth is that its data is vetted directly by the platform and sourced from financial institutions, ensuring higher quality.
 
 **Switchboard** is a completely decentralized oracle network and has data of all kinds available. Check out all of the feeds [on their website](https://app.switchboard.xyz/solana/devnet/explore) Additionally, anyone can run a Switchboard oracle and anyone can consume their data. This means you'll have to be diligent about researching feeds. We'll talk more about what to look for later in the lesson.
 
@@ -79,13 +79,13 @@ By introducing TEEs on top of stake weighted oracles, Switchboard is able to ver
 
 Switchboard oracles store data on Solana using data feeds. These data feeds, also called aggregators, are each a collection of jobs that get aggregated to produce a single result. These aggregators are represented onchain as a regular Solana account managed by the Switchboard program. When an oracle updates, it writes the data directly to these accounts. Let's go over a few terms to understand how Switchboard works:
 
-- **[Aggregator (Data Feed)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contains the data feed configuration, dictating how data feed updates get requested, updated, and resolved onchain from it’s assigned source. The Aggregator is the account owned by the Switchboard Solana program and is where the data is published on-chain.
+- **[Aggregator (Data Feed)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contains the data feed configuration, dictating how data feed updates get requested, updated, and resolved onchain from its assigned source. The Aggregator is the account owned by the Switchboard Solana program and is where the data is published on-chain.
 - **[Job](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/job.rs)** - Each data source should correspond to a job account. The job account is a collection of Switchboard tasks used to instruct the oracles on how to fetch and transform data. In other words, it stores the blueprints for how data is fetched off-chain for a particular data source.
-- **Oracle** - A separate program that sits between the internet and the blockchain and facilitates the flow of information. An oracle reads in a feed’s job definitions, calculates the result, and submits its response on-chain.
+- **Oracle** - A separate program that sits between the internet and the blockchain and facilitates the flow of information. An oracle reads a feed’s job definitions, calculates the result, and submits its response on-chain.
 - **Oracle Queue** - A group of oracles that get assigned to update requests in a round-robin fashion. The oracles in the queue must be actively heartbeating onchain to provide updates. Data and configurations for this queue are stored onchain in an [account owned by the Switchboard program](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/accounts/OracleQueueAccountData.ts#L8).
 - **Oracle Consensus** - Determines how oracles come to agreement on the accepted onchain result. Switchboard oracles use the median oracle response as the accepted result. A feed authority can control how many oracles are requested and how many must respond to influence its security.
 
-Switchboard oracles are incentivized to update data feeds because they are rewarded for doing so accurately. Each data feed has a `LeaseContract` account. The lease contract is a pre-funded escrow account to reward oracles for fulfilling update requests. Only the predefined `leaseAuthority` can withdraw funds from the contract, but anyone can contribute to it. When a new round of updates is requested for a data feed, the user who requested the update is rewarded from the escrow. This is to incentivize users and crank turners (anyone who runs software to systematically send update requests to Oracles) to keep feeds updating based on a feed’s configurations. Once an update request has been successfully fulfilled and submitted onchain by the oracles in the queue, the oracles are transferred a reward from the escrow as well. These payments ensure active participants.
+Switchboard oracles are incentivized to update data feeds because they are rewarded for doing so accurately. Each data feed has a `LeaseContract` account. The lease contract is a pre-funded escrow account to reward oracles for fulfilling update requests. Only the predefined `leaseAuthority` can withdraw funds from the contract, but anyone can contribute to it. When a new round of updates is requested for a data feed, the user who requested the update is rewarded from the escrow. This is to incentivize users and crank turners (anyone who runs software to systematically send update requests to Oracles) to keep feeds updating based on a feed’s configurations. Once an update request has been successfully fulfilled and submitted onchain by the oracles in the queue, the oracles are transferred rewards from the escrow as well. These payments ensure active participation.
 
 Additionally, oracles have to stake tokens before they can service update requests and submit responses on-chain. If an oracle submits a result onchain that falls outside the queue’s configured parameters, their stake will be slashed (if the queue has `slashingEnabled`). This helps ensure that oracles are responding in good faith with accurate information.
 
@@ -95,13 +95,13 @@ Now that you understand the terminology and economics, let’s take a look at ho
     1. Some relevant Oracle Queue configurations:
         1. `oracle_timeout` - Interval when stale oracles will be removed if they fail to heartbeat.
         2. `reward` - Rewards to provide oracles and round openers on this queue.
-        3. `min_stake` - The minimum amount of stake oracles must provide to remain on the queue.
+        3. `min_stake` - The minimum amount of stake that oracles must provide to remain on the queue.
         4. `size` - The current number of oracles on a queue.
         5. `max_size` - The maximum number of oracles a queue can support.
 2. Aggregator/data feed setup - The aggregator/feed account gets created. A feed belongs to a single oracle queue. The feed’s configuration dictates how update requests are invoked and routed through the network.
 3. Job account setup - In addition to the feed, a job account for each data source must be set up. This defines how oracles can fulfill the feed’s update requests. This includes defining where the oracles should fetch the data the feed is requesting.
 4. Request assignment - Once an update has been requested with the feed account, the oracle queue assigns the request to different oracles/nodes in the queue to fulfill. The oracles will fetch the data from the data source defined in each of the feed’s job accounts. Each job account has a weight associated with it. The oracle will calculate the weighted median of the results from across all the jobs. 
-5. After `minOracleResults` responses are received, the onchain program calculates the result using the median of the oracle responses. Oracles who responded within the queue’s configured parameters are rewarded, while the oracles who respond outside this threshold are slashed (if the queue has `slashingEnabled`).
+5. After `minOracleResults` responses are received, the onchain program calculates the result using the median of the oracle responses. Oracles who respond within the queue’s configured parameters are rewarded, while the oracles who respond outside this threshold are slashed (if the queue has `slashingEnabled`).
 6. The updated result is stored in the data feed account so it can be read/consumed on-chain.
 
 ### How to use Switchboard Oracles
@@ -265,7 +265,7 @@ Always audit the configurations of a feed before deciding to incorporate it into
 
 The BTC_USD feed has Min Update Delay = 6 seconds. This means that the price of BTC is only updated at a minimum of every 6 seconds on this feed. This is probably fine for most use cases, but if you wanted to use this feed for something latency sensitive, it’s probably not a good choice.
 
-It’s also worthwhile to audit a feed's sources in the Jobs section of the oracle explorer. Since the value that is persisted onchain is the weighted median result the oracles pull from each source, the sources directly influence what is stored in the feed. Check for shady links and potentially run the API's yourself for a time to gain confidence in them.
+It’s also worthwhile to audit a feed's sources in the Jobs section of the oracle explorer. Since the value that is persisted onchain is the weighted median result the oracles pull from each source, the sources directly influence what is stored in the feed. Check for shady links and potentially run the APIs yourself for a time to gain confidence in them.
 
 Once you have found a feed that fits your needs, you still need to make sure you're using the feed appropriately. For example, you should still implement necessary security checks on the account passed into your instruction. Any account can be passed into your program's instructions, so you should verify it’s the account you expect it to be.
 
@@ -351,7 +351,7 @@ pub struct AggregatorRound {
 }
 ```
 
-There are some other relevant fields that may be of interest to you in the Aggregator account like `num_success`, `medians_data`, `std_deviation`, etc. `num_success` is the number of successful responses received from oracles in this round of updates. `medians_data` is an array of all of the successful responses received from oracles this round. This is the dataset that is used to derive the median and final result. `std_deviation` is the standard deviation of the accepted results in this round. You might want to check for a low standard deviation, meaning that all of the oracle responses were similar. The switchboard program is in charge of updating the relevant fields on this struct every time it receives an update from an oracle.
+There are some other relevant fields that may be of interest to you in the Aggregator account like `num_success`, `medians_data`, `std_deviation`, etc. `num_success` is the number of successful responses received from oracles in this round of updates. `medians_data` is an array of all of the successful responses received from oracles this round. This is the dataset that is used to derive the median and the final result. `std_deviation` is the standard deviation of the accepted results in this round. You might want to check for a low standard deviation, meaning that all of the oracle responses were similar. The switchboard program is in charge of updating the relevant fields on this struct every time it receives an update from an oracle.
 
 
 The `AggregatorAccountData` also has a `check_confidence_interval()` method that you can use as another verification on the data stored in the feed. The method allows you to pass in a `max_confidence_interval`. If the standard deviation of the results received from the oracle is greater than the given `max_confidence_interval`, it returns an error.
