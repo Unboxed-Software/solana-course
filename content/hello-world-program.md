@@ -169,7 +169,7 @@ fn process_instruction(
 
 Recall that Solana program accounts only store the logic to process instructions. This means program accounts are "read-only" and “stateless”. The “state” (the set of data) that a program requires to process an instruction is stored in data accounts (separate from the program account).
 
-In order to process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
+To process an instruction, the data accounts that an instruction requires must be explicitly passed into the program through the `accounts` argument. Any additional inputs must be passed in through the `instruction_data` argument.
 
 Following program execution, the program must return a value of type `ProgramResult`. This type is a `Result` where the embedded value of a success case is `()` and the embedded value of a failure case is `ProgramError`. `()` is an empty value and `ProgramError` is an error type defined in the `solana_program` crate.
 

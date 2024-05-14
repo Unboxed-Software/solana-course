@@ -205,7 +205,7 @@ let second_item = v1_iter.next();
 
 ### Solana accounts iterator
 
-Recall that the `AccountInfo` for all accounts required by an instruction are passing through a single `accounts` argument. In order to parse through the accounts and use them within our instruction, we will need to create an iterator with a mutable reference to the `accounts`.
+Recall that the `AccountInfo` for all accounts required by an instruction are passing through a single `accounts` argument. To parse through the accounts and use them within our instruction, we will need to create an iterator with a mutable reference to the `accounts`.
 
 At that point, instead of using the iterator directly, we pass it to the `next_account_info` function from the `account_info` module provided by the `solana_program` crate.
 
@@ -334,7 +334,7 @@ let rent_lamports = rent.minimum_balance(account_len);
 
 ### 7. Create new account
 
-Once we’ve calculated the rent and verified the PDA, we are ready to create our new account. In order to create a new account, we must call the `create_account` instruction from the system program. We do this with a Cross Program Invocation (CPI) using the `invoke_signed` function. We use `invoke_signed` because we are creating the account using a PDA and need the Movie Review program to “sign” the instruction.
+Once we’ve calculated the rent and verified the PDA, we are ready to create our new account. To create a new account, we must call the `create_account` instruction from the system program. We do this with a Cross Program Invocation (CPI) using the `invoke_signed` function. We use `invoke_signed` because we are creating the account using a PDA and need the Movie Review program to “sign” the instruction.
 
 ```rust
 // Create the account

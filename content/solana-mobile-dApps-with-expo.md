@@ -95,7 +95,7 @@ You then need to install the output APK to your device or emulator. If you're us
 adb install your-apk-file.apk
 ```
 
-The installed APK is a scaffold app from Expo that facilitates a number of things, including running your app. In order to load your application inside of it, you need to start the development server:
+The installed APK is a scaffold app from Expo that facilitates a number of things, including running your app. To load your application inside of it, you need to start the development server:
 
 ```bash
 npx expo start --dev-client --android

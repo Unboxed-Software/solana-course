@@ -706,7 +706,7 @@ Open the Explorer link. You see your balance go down, and the recipient's balanc
 
 Now it’s your turn to build something independently. Create an application that allows a user to create a new mint, create a token account, and mint tokens.
 
-Note that you will not be able to directly use the helper functions we went over in the lab. In order to interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
+Note that you will not be able to directly use the helper functions we went over in the lab. To interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
 
 ![Screenshot of Token Program Challenge Frontend](../assets/token-program-frontend.png)
 

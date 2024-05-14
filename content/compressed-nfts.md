@@ -361,7 +361,7 @@ It’s important to note that cNFTs *are not* SPL tokens. That means your code n
 
 The simplest way to fetch data from an existing cNFT is to use the [Digital Asset Standard Read API](https://docs.solana.com/developing/guides/compressed-nfts#reading-compressed-nfts-metadata) (Read API). Note that this is separate from the standard JSON RPC. To use the Read API, you’ll need to use a supporting RPC Provider. Metaplex maintains a (likely non-exhaustive) [list of RPC providers](https://developers.metaplex.com/bubblegum/rpcs) that support the Read API. In this lesson we’ll be using [Helius](https://docs.helius.dev/compression-and-das-api/digital-asset-standard-das-api) as they have free support for Devnet.
 
-In order to use the Read API to fetch a specific cNFT, you need to have the cNFT’s asset ID. However, after minting cNFTs, you’ll have at most two pieces of information:
+To use the Read API to fetch a specific cNFT, you need to have the cNFT’s asset ID. However, after minting cNFTs, you’ll have at most two pieces of information:
 
 1. The transaction signature
 2. The leaf index (possibly)

@@ -387,7 +387,7 @@ To drive this all home, here's an example of a scheme from a production podcasti
     - Name
     - Audio URL
 
-In order to properly index each account address, the accounts use the following seeds:
+To properly index each account address, the accounts use the following seeds:
 
 ```rust
 // Channel Account

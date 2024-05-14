@@ -29,7 +29,7 @@ Remember, **you have no control over the transactions that will be sent to your 
 
 [Neodyme](https://workshop.neodyme.io/) gave a presentation at Breakpoint 2021 entitled "Think Like An Attacker: Bringing Smart Contracts to Their Break(ing) Point." If there's one thing you take away from this lesson, it's that you should think like an attacker.
 
-In this lesson, of course, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program will have different security risks associated with it. While understanding common pitfalls is *essential* to engineering good programs, it is *insufficient* for deploying secure ones. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
+In this lesson, of course, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program will have different security risks associated with it. While understanding common pitfalls is *essential* to engineering good programs, it is *insufficient* for deploying secure ones. To have the broadest security coverage possible, you have to approach your code with the right mindset.
 
 As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do.
 
