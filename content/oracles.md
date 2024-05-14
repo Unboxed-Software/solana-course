@@ -165,7 +165,7 @@ The `min_update_delay_seconds` field is directly related to a feed’s update ca
 
 It can help to look at the jobs tab of a feed in Switchboard's explorer. For example, you can look at the [BTC_USD feed in the explorer](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee). Each job listed defines the source the oracles will fetch data from and the weighting of each source. You can view the actual API endpoints that provide the data for this specific feed. When determining what data feed to use in your program, things like this are very important to consider.
 
-Below is a screenshot of two of the jobs related to the BTC_USD feed. It shows two sources of data: [MEXC](https://www.mexc.com/) and [Coinbase](https://www.coinbase.com/).
+Below is a two of the jobs related to the BTC_USD feed. It shows two sources of data: [MEXC](https://www.mexc.com/) and [Coinbase](https://www.coinbase.com/).
 
 ![Oracle Jobs](../assets/oracle-jobs.png)
 

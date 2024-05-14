@@ -490,9 +490,9 @@ At this point, everything should work! You can test the frontend by running `npm
 
 Feel free to click the links to inspect the program logs from each transaction!
 
-![Screenshot of Initialize Program Log](../assets/anchor-frontend-initialize.png)
+![Initialize Program Log](../assets/anchor-frontend-initialize.png)
 
-![Screenshot of Increment Program Log](../assets/anchor-frontend-increment.png)
+![Increment Program Log](../assets/anchor-frontend-increment.png)
 
 Congratulations, you now know how to set up a frontend to invoke a Solana program using an Anchor IDL.
 

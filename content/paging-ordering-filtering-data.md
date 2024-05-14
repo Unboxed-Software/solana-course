@@ -135,7 +135,7 @@ Two things to note in the example above:
 
 Remember that Movie Review app we worked on in the last two lessons? We’re going to spice it up a little by paging the review list, ordering the reviews so they aren’t so random, and adding some basic search functionality. No worries if you’re just jumping into this lesson without having looked at the previous ones - as long as you have the prerequisite knowledge, you should be able to follow the lab without having worked in this specific project yet.
 
-![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
+![movie review frontend](../assets/movie-reviews-frontend.png)
 
 ### **1. Download the starter code**
 
@@ -427,7 +427,7 @@ That was a lot to digest, but you made it through. If you need to spend some mor
 
 Now it’s your turn to try and do this on your own. Using the Student Intros app from last lesson, add paging, ordering alphabetically by name, and searching by name.
 
-![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
+![Student Intros frontend](../assets/student-intros-frontend.png)
 
 1. You can build this from scratch or you can download the [starter code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-deserialize-account-data)
 2. Add paging to the project by prefetching accounts without data, then only fetching the account data for each account when it’s needed.

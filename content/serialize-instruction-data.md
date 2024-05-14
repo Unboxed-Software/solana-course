@@ -393,7 +393,7 @@ If you need a bit more time with this project to feel comfortable, have a look a
 
 Now it’s your turn to build something independently. Create an application that lets students of this course introduce themselves! The Solana program that supports this is at `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
 
-![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
+![Student Intros frontend](../assets/student-intros-frontend.png)
 
 1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/starter).
 2. Create the instruction buffer layout in `StudentIntro.ts`. The program expects instruction data to contain:

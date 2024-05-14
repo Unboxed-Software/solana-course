@@ -290,7 +290,7 @@ Now that you've got a conceptual grasp on Solana Pay, let's put it into practice
 
 To get started, download the starter code on the `starter` branch of this [repository](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/starter). The starter code is a Next.js app that displays a Solana Pay QR code. Notice that the menu bar lets you switch between different QR codes. The default option is a simple SOL transfer for illustrative purposes. Throughout this lab, we'll be adding functionality to the location options in the menu bar.
 
-![Screenshot of scavenger hunt app](../assets/scavenger-hunt-screenshot.png)
+![scavenger hunt app](../assets/scavenger-hunt-screenshot.png)
 
 To do this, we'll be creating a new endpoint for a transaction request that builds a transaction for invoking an Anchor program on Devnet. This program has been made specifically for this "scavenger hunt" app and has two instructions: `initialize` and `check_in`. The `initialize` instruction is used to set up the user's state, while the `check_in` instruction is used to record a check-in at a location in the scavenger hunt. We won't be making any changes to the program in this lab, but feel free to check out the [source code](https://github.com/Unboxed-Software/anchor-scavenger-hunt) if you'd like to familiarize yourself with the program.
 

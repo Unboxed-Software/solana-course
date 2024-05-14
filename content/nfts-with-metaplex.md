@@ -37,7 +37,7 @@ While the first three points are features that can be achieved with the SPL Toke
 
 Typically, an NFT’s metadata has both an onchain and off-chain component. See the diagram below:
 
-![Screenshot of Metadata](../assets/solana-nft-metaplex-metadata.png)
+![Metadata](../assets/solana-nft-metaplex-metadata.png)
 
  - The **onchain metadata** is stored in an account associated with the token mint. The onchain metadata contains a URI field that points to an off-chain `.json` file.
  - The **off-chain metadata** in the JSON file stores the link to the media (images, videos, 3D files) of the NFT, any traits the NFT may have, and additional metadata (see [this example JSON file](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6n4x0GanLnSbeoT1EVvNuw)). Permanent data storage systems such as Arweave are often used to store the off-chain component of NFT metadata.

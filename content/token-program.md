@@ -35,7 +35,7 @@ To create a new SPL Token you first have to create a Token Mint. A Token Mint is
 
 As an example, let's look at [USD Coin (USDC) on the Solana Explorer](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v). USDC's Token Mint address is `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`. With the explorer, we can see the particular details about USDC's Token Mint such as the current supply of tokens, the addresses of the mint and freeze authorities, and the decimal precision of the token:
 
-![Screenshot of USDC Token Mint](../assets/token-program-usdc-mint.png)
+![USDC Token Mint](../assets/token-program-usdc-mint.png)
 
 To create a new Token Mint, you need to send the right transaction instructions to the Token Program. To do this, we'll use the `createMint` function from `@solana/spl-token`.
 
@@ -708,7 +708,7 @@ Now it’s your turn to build something independently. Create an application tha
 
 Note that you will not be able to directly use the helper functions we went over in the lab. To interact with the Token Program using the Phantom wallet adapter, you will have to build each transaction manually and submit the transaction to Phantom for approval.
 
-![Screenshot of Token Program Challenge Frontend](../assets/token-program-frontend.png)
+![Token Program Challenge Frontend](../assets/token-program-frontend.png)
 
 1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter).
 2. Create a new Token Mint in the `CreateMint` component.

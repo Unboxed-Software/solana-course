@@ -112,7 +112,7 @@ You can also use the Solana CLI command `solana airdrop 1` to get free test SOL 
 
 ## Solana Explorer
 
-![Screenshot of Solana Explorer set to Devnet](../assets/solana-explorer-devnet.png)
+![Solana Explorer set to Devnet](../assets/solana-explorer-devnet.png)
 
 All transactions on the blockchain are publicly viewable on the [Solana Explorer](http://explorer.solana.com). For example, you could take the signature returned by `sendAndConfirmTransaction()` in the example above, search for that signature in the Solana Explorer, then see:
 
@@ -121,7 +121,7 @@ All transactions on the blockchain are publicly viewable on the [Solana Explorer
 - the transaction fee
 - and more!
 
-![Screenshot of Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
+![Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
 
 # Lab
 

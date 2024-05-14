@@ -129,7 +129,7 @@ Let’s practice this together by continuing to work on the Movie Review app fro
 
 As a refresher, this project uses a Solana program deployed on Devnet which lets users review movies. Last lesson, we added functionality to the frontend skeleton letting users submit movie reviews but the list of reviews is still showing mock data. Let’s fix that by fetching the program’s storage accounts and deserializing the data stored there.
 
-![Screenshot of movie review frontend](../assets/movie-reviews-frontend.png)
+![movie review frontend](../assets/movie-reviews-frontend.png)
 
 ### 1. Download the starter code
 
@@ -260,7 +260,7 @@ If you need more time with this project to feel comfortable with these concepts,
 
 Now it’s your turn to build something independently. Last lesson, you worked on the Student Intros app to serialize instruction data and send a new intro to the network. Now, it's time to fetch and deserialize the program's account data. Remember, the Solana program that supports this is at `HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf`.
 
-![Screenshot of Student Intros frontend](../assets/student-intros-frontend.png)
+![Student Intros frontend](../assets/student-intros-frontend.png)
 
 1. You can build this from scratch or you can [download the starter code](https://github.com/Unboxed-Software/solana-student-intros-frontend/tree/solution-serialize-instruction-data).
 2. Create the account buffer layout in `StudentIntro.ts`. The account data contains:
