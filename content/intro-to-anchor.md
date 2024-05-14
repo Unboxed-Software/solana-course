@@ -16,7 +16,7 @@ objectives:
 
 ## What is Anchor?
 
-Anchor is a development framework that makes writing Solana programs easier, faster, and more secure. It's the "go to" framework for Solana development for a very good reason. It makes it easier to organize and reason about your code, implements common security checks automatically, and abstracts away a significant amount of boilerplate associated with writing a Solana program.
+Anchor makes writing Solana programs easier, faster, and more secure, making it the "go-to" framework for Solana development. It makes it easier to organize and reason about your code, implements common security checks automatically, and removes a significant amount of boilerplate code that is otherwise associated with writing a Solana program.
 
 ## Anchor program structure
 
@@ -91,7 +91,7 @@ The `Accounts` trait defines a data structure of validated accounts. Structs ado
 
 You typically apply the `Accounts` trait through the `derive` macro (e.g. `#[derive(Accounts)]`). This implements an `Accounts` deserializer on the given struct and removes the need to deserialize each account manually.
 
-Implementations of the `Accounts` trait are responsible for performing all requisite constraint checks to ensure the accounts meet conditions required for the program to run securely. Constraints are provided for each field using the `#account(..)` attribute (more on that shortly).
+Implementations of the `Accounts` trait are responsible for performing all requisite constraint checks to ensure the accounts meet the conditions required for the program to run securely. Constraints are provided for each field using the `#account(..)` attribute (more on that shortly).
 
 For example, `instruction_one` requires a `Context` argument of type `InstructionAccounts`. The `#[derive(Accounts)]` macro is used to implement the `InstructionAccounts` struct which includes three accounts: `account_name`, `user`, and `system_program`.
 
@@ -212,7 +212,7 @@ Notice that the `#[account(..)]` attribute contains three comma-separated value
 
 - `init` - creates the account via a CPI to the system program and initializes it (sets its account discriminator)
 - `payer` - specifies the payer for the account initialization to be the `user` account defined in the struct
-- `space`- specifies that the space allocated for the account should be `8 + 8` bytes. The first 8 bytes is for a discriminator that Anchor automatically adds to identify the account type. The next 8 bytes allocates space for the data stored on the account as defined in the `AccountStruct` type.
+- `space`- specifies that the space allocated for the account should be `8 + 8` bytes. The first 8 bytes are for a discriminator that Anchor automatically adds to identify the account type. The next 8 bytes allocate space for the data stored on the account as defined in the `AccountStruct` type.
 
 For `user` we use the `#[account(..)]` attribute to specify that the given account is mutable. The `user` account must be marked as mutable because lamports will be deducted from the account to pay for the initialization of `account_name`.
 
@@ -237,7 +237,7 @@ The `#[account]` attribute is applied to structs representing the data structure
 
 You can read more about the [details of each trait](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html). However, mostly what you need to know is that the `#[account]` attribute enables serialization and deserialization, and implements the discriminator and owner traits for an account.
 
-The discriminator is an 8 byte unique identifier for an account type derived from the first 8 bytes of the SHA256 hash of the account type's name. When implementing account serialization traits, the first 8 bytes are reserved for the account discriminator.
+The discriminator is an 8-byte unique identifier for an account type derived from the first 8 bytes of the SHA256 hash of the account type's name. The first 8 bytes are reserved for the account discriminator when implementing account serialization traits (which is almost always in an Anchor program). 
 
 As a result, any calls to `AccountDeserialize`’s `try_deserialize` will check this discriminator. If it doesn’t match, an invalid account was given, and the account deserialization will exit with an error.
 
@@ -317,8 +317,8 @@ Before we begin, install Anchor by [following the steps from the Anchor docs](ht
 
 For this lab we'll create a simple counter program with two instructions:
 
-- The first instruction will initialize a counter account
-- The second instruction will increment the count stored on a counter account
+- The first instruction will initialize an account to store our counter
+- The second instruction will increment the count stored in the counter
 
 ### 1. Setup
 
@@ -583,7 +583,7 @@ Congratulations, you just built a Solana program using the Anchor framework! Fee
 
 # Challenge
 
-Now it’s your turn to build something independently. Because we're starting with very simple programs, yours will look almost identical to what we just created. It's useful to try and get to the point where you can write it from scratch without referencing prior code, so try not to copy and paste here.
+Now it’s your turn to build something independently. Because we're starting with simple programs, yours will look almost identical to what we just created. It's useful to try and get to the point where you can write it from scratch without referencing prior code, so try not to copy and paste here.
 
 1. Write a new program that initializes a `counter` account
 2. Implement both an `increment` and `decrement` instruction
