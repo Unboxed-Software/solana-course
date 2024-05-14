@@ -40,22 +40,6 @@
                             "lab": "Make transactions and use Explorer"
                         },
                         {
-                            "title": "Create transactions for custom onchain programs",
-                            "slug": "intro-to-custom-on-chain-programs",
-                            "lab": "Make transactions for a custom onchain program"
-                        },
-                        {
-                            "title": "Interact with wallets",
-                            "slug": "interact-with-wallets",
-                            "lab": "Make a React frontend to the Ping program"
-                        }
-                    ]
-                },
-                {
-                    "title": "Using Common Solana Programs",
-                    "slug": "client-interaction-with-solana",
-                    "lessons": [
-                        {
                             "title": "Create tokens with the Token Program",
                             "slug": "token-program",
                             "lab": "Mint, transfer and burn tokens"
@@ -64,6 +48,16 @@
                             "title": "Create Solana NFTs With Metaplex",
                             "slug": "nfts-with-metaplex",
                             "lab": "Mint NFTs, update their metadata, and associate with a collection"
+                        },
+                        {
+                            "title": "Create transactions for custom onchain programs",
+                            "slug": "intro-to-custom-on-chain-programs",
+                            "lab": "Make transactions for a custom onchain program"
+                        },
+                        {
+                            "title": "Interact with wallets",
+                            "slug": "interact-with-wallets",
+                            "lab": "Make a React frontend to the Ping program"
                         }
                     ]
                 }
