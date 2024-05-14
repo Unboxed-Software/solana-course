@@ -1353,13 +1353,13 @@ Note the function where we get our `payerTokenWallet`. VRF actually requires the
 
 And there you have it! You should be able to run and pass all of the tests using `anchor test`.
 
-If something is not working, go back and find where you went wrong. Alternatively feel free to try out the [solution code on the `vrf` branch](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf). Remember to update your program keys and wallet path like we did in the [the Setup step](#1-program-setup).
+If something is not working, go back and find where you went wrong. Alternatively feel free to try out the [solution code on the `vrf` branch](https://github.com/Unboxed-Software/michael-burry-escrow/tree/vrf). Remember to update your program keys and wallet path like we did in the [the Setup step](#1-program-setup).
 
 # Challenge
 
 Now it's time to work on something independently. Let's add some [Monopoly rules](https://en.wikipedia.org/wiki/Monopoly_(game)#Rules) to our program. Add some logic to the program to track how many times a user rolls. If they roll 3 times without rolling doubles, they should be able to withdraw their funds, just like getting out of jail in Monopoly.
 
-If you get stuck, we have the solution in the [`vrf-challenge-solution` branch](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf-challenge-solution).
+If you get stuck, we have the solution in the [`vrf-challenge-solution` branch](https://github.com/Unboxed-Software/michael-burry-escrow/tree/vrf-challenge-solution).
 
 
 ## Completed the lab?

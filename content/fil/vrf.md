@@ -1352,10 +1352,10 @@ Tandaan ang function kung saan namin nakukuha ang aming `payerTokenWallet`. Ang 
 
 At nariyan ka na! Dapat mong patakbuhin at ipasa ang lahat ng mga pagsubok gamit ang `anchor test`.
 
-Kung may hindi gumagana, bumalik at hanapin kung saan ka nagkamali. Bilang kahalili, huwag mag-atubiling subukan ang [code ng solusyon sa `vrf` branch](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf). Tandaang i-update ang iyong mga program key at wallet path tulad ng ginawa namin sa [the Setup step](#1-program-setup).
+Kung may hindi gumagana, bumalik at hanapin kung saan ka nagkamali. Bilang kahalili, huwag mag-atubiling subukan ang [code ng solusyon sa `vrf` branch](https://github.com/Unboxed-Software/michael-burry-escrow/tree/vrf). Tandaang i-update ang iyong mga program key at wallet path tulad ng ginawa namin sa [the Setup step](#1-program-setup).
 
 # Challenge
 
 Ngayon ay oras na upang gumawa ng isang bagay nang nakapag-iisa. Magdagdag tayo ng ilang [Monopoly rules](https://en.wikipedia.org/wiki/Monopoly_(game)#Rules) sa aming programa. Magdagdag ng ilang lohika sa programa upang masubaybayan kung gaano karaming beses gumulong ang isang user. Kung gumulong sila ng 3 beses nang walang rolling doubles, dapat ma-withdraw nila ang kanilang mga pondo, tulad ng paglabas sa kulungan sa Monopoly.
 
-Kung natigil ka, mayroon kaming solusyon sa [`vrf-challenge-solution` branch](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf-challenge-solution).
+Kung natigil ka, mayroon kaming solusyon sa [`vrf-challenge-solution` branch](https://github.com/Unboxed-Software/michael-burry-escrow/tree/vrf-challenge-solution).
