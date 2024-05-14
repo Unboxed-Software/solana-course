@@ -12,7 +12,7 @@ objectives:
 
 - You may recall SOL is the 'native token' of Solana. All other tokens, fungible and non-fungible tokens (NFTs), are called **SPL Tokens**
 - The **Token Program** contains instructions for creating and interacting with SPL Tokens
-- **Token Mints** are accounts that define a specific token. This includes information about the token itself (like how many decimals it has), and the account allowed to mint more tokens (called the **mint authority**), and where to find more information about the token like a description, image, etc. The mint authority can use the token mint to make more tokens! 
+- **Token Mints** are accounts that define a specific token. This includes information about the token itself (like how many decimals it has), the account allowed to mint more tokens (called the **mint authority**), and where to find more information about the token like a description, image, etc. The mint authority can use the token mint to make more tokens! 
 - **Token Accounts** hold tokens of a specific Token Mint. For most users, their balances of each token mint are stored in **Associated Token Accounts** - accounts with addresses made from their wallet address and the token's mint.
 - Creating Token Mints and Token Accounts requires allocating **rent** in SOL. The rent for a Token Account can be refunded when the account is closed, however, Token Mints currently cannot be closed.
 
@@ -188,7 +188,7 @@ An Associated Token Account stores tokens in an address made from:
  - The owner's public key
  - The token mint
 
-For example, Bob's USDC is stored in a Associated Token Account made from Bob's public key, and the USDC mint address. 
+For example, Bob's USDC is stored in an Associated Token Account made from Bob's public key, and the USDC mint address. 
 
 Associated Token Accounts provide a deterministic way to find the Token Account owned by a specific `publicKey` for a specific token. 
 
@@ -525,7 +525,7 @@ This warning is accurate - indeed anyone can make any token have any symbol or n
 
 ### 3. Create an Associated Token Account to store the tokens
 
-Now that we've created the mint, let's create a new Associated Token Account so that someone can store our tokens. This Associated Token Account could be for our wallet (if we, as the token mint authority, want to mint tokens to our own address) or anyone else we know with a devnet wallet! 
+Now that we've created the mint, let's create a new Associated Token Account so that someone can store our tokens. This Associated Token Account could be for our wallet (if we, as the token mint authority, want to mint tokens to our address) or anyone else we know with a devnet wallet! 
 
 Create an empty file called `create-token-account.ts`. Then use `getOrCreateAssociatedTokenAccount()` to get an associated token account based on a wallet and our mint address, making the account if it needs to.
 
@@ -639,9 +639,9 @@ Open Explorer, and see the transaction and the new tokens in the recipient's acc
 
 ### 5. Transfer Tokens
 
-Next, let's transfer some of the tokens we just minted using the `spl-token` library's `transfer` function. You can [add a second account on devnet](./intro-to-cryptography) if you like, or find a friend who has a devnmet account and send them your token!
+Next, let's transfer some of the tokens we just minted using the `spl-token` library's `transfer` function. You can [add a second account on devnet](./intro-to-cryptography) if you like, or find a friend who has a devnet account and send them your token!
 
-As you saw in Explorer, the tokens currently reside in an Associated Token Account attached to our wallet. We don't have to remember the address for our associated token account - we can just look it up using `getOrCreateAssociatedTokenAccount()` and proving our address and the mint of the token we want to send. Likewise, we can find (or make) an ATA for our recipient to hold this token too.
+As you saw in Explorer, the tokens currently reside in an Associated Token Account attached to our wallet. We don't have to remember the address for our associated token account - we can just look it up using `getOrCreateAssociatedTokenAccount()` and providing our address and the mint of the token we want to send. Likewise, we can find (or make) an ATA for our recipient to hold this token too.
 
 ```typescript
 import "dotenv/config";
