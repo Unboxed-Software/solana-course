@@ -25,7 +25,7 @@ Think of paying for something online:
  - The balance of your account is debited
  - The bank transfers the funds to the merchant
 
-Both of these things need to happen for the transaction to be successful. If either of them fail, it is better that none of these things happen, rather than pay the merchant and not debit your account, or debit the account but not pay the merchant. 
+Both of these things need to happen for the transaction to be successful. If either of them fails, none of them should happen, rather than pay the merchant and not debit your account, or debit the account but not pay the merchant. 
 
 Atomic means either the transaction happens - meaning all the individual steps succeed - or the entire transaction fails.
 
