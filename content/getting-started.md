@@ -56,7 +56,7 @@ In this course, you'll:
  - Create web apps that allow people to log on using web3 wallets
  - Transfer tokens (like USDC, a token that represents US dollars) between people
  - Learn to integrate tools like Solana Pay into your existing apps 
- - Build a film review application, that runs in real-time on the Solana blockchain. You'll build both a web front end and the on-chain program and database for the app.
+ - Build a film review application, that runs in real-time on the Solana blockchain. You'll build both a web front-end and the on-chain program and database for the app.
  - Mint large-scale NFT collections
 
 And much more. We're keeping this course updated so as new tech joins the Solana ecosystem you'll find a course right here.
