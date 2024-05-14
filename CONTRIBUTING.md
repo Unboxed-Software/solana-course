@@ -80,8 +80,6 @@ We're trying to focus on Solana, not teaching JS/TS development and setup. This 
 
 ### Rust & Anchor
 
- - Use the [multiple files template](https://www.anchor-lang.com/docs/release-notes#multiple-files-template) to organize Anchor projects. 
-
  - Avoid magic numbers. People reading your code should be able to understand where values come from. Use [InitSpace](https://docs.rs/anchor-lang/latest/anchor_lang/derive.InitSpace.html) to calculate space needed for accounts, and add a constant `DISCRIMINATOR_SIZE` to `constants.rs`.
 
   - Bad: `8 + 32 + 32 + 8 + 8`
@@ -89,6 +87,8 @@ We're trying to focus on Solana, not teaching JS/TS development and setup. This 
   - Good: `space = DISCRIMINATOR_SIZE + SomeAccount::INIT_SPACE,` 
 
  - Use four spaces per `rustfmt`.
+
+ - Use the [multiple files template](https://www.anchor-lang.com/docs/release-notes#multiple-files-template) to organize very large Anchor projects. 
 
 ##  Diagrams:
 
