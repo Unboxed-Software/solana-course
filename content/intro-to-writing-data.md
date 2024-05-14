@@ -106,7 +106,7 @@ await airdropIfRequired(
 );
 ```
 
-This will deposit 1 SOL into your account which you can use for testing. This won’t work on Mainnet where it would actually have value. But it's incredibly convenient for testing locally and on Devnet.
+This will deposit 1 SOL into your account which you can use for testing. This won’t work on Mainnet where it would have value. But it's incredibly convenient for testing locally and on Devnet.
 
 You can also use the Solana CLI command `solana airdrop 1` to get free test SOL in your account when testing, whether locally or on devnet.
 
