@@ -98,35 +98,61 @@ In this lab, we will create a non-transferable token and then see what happens w
 
 ### 1. Getting started
 
-To get started, clone the lab and change branches to `starter`.
+To get started, create an empty directory named `non-transferable-token` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
 
+Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
-git clone https://github.com/Unboxed-Software/solana-lab-non-transferable-token.git
-cd solana-lab-non-transferable-token
-git checkout starter
-npm install
+npm i @solana-developers/helpers @solana/spl-token @solana/web3.js esrun dotenv typescript
 ```
 
-The starter code comes with following file:
+Create a directory named `src`. In this directory, create a file named `index.ts`. This is where we will run checks against the rules of this extension. Paste the following code in `index.ts`:
+```ts
+import { Connection, Keypair } from '@solana/web3.js'
+import { initializeKeypair } from '@solana-developers/helpers'
+import dotenv from 'dotenv'
+import { createAccount, mintTo, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
+// import { createNonTransferableMint } from './create-mint';
+dotenv.config();
 
-- `index.ts`
+/**
+ * Create a connection and initialize a keypair if one doesn't already exists.
+ * If a keypair exists, airdrop a sol if needed.
+ */
+const connection = new Connection("http://127.0.0.1:8899", "confirmed")
+const payer = await initializeKeypair(connection)
 
-`index.ts` has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
+console.log(`public key: ${payer.publicKey.toBase58()}`)
 
-Go ahead and install and run the script to make sure everything is working properly.
+const mintKeypair = Keypair.generate()
+const mint = mintKeypair.publicKey
+console.log(
+	'\nmint public key: ' + mintKeypair.publicKey.toBase58() + '\n\n'
+)
+
+// CREATE MINT
+
+// CREATE SOURCE ACCOUNT AND MINT TOKEN
+
+// CREATE DESTINATION ACCOUNT FOR TRANSFER
+
+// TRY TRANSFER
+```
+
+This file has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
+
+Go ahead and run the script. You should see the `mint` public key logged to your terminal. 
 
 ```bash
-npm install
-npm run start
+npx esrun src/index.ts
 ```
 
 If you run into an error in `initializeKeypair` with airdropping, follow the next step.
 
 ### 2. Setting up dev environment (optional)
 
-If you are having issues with airdropping devnet sol. You can either:
+If you are having issues with airdropping devnet SOL. You can either:
 
-1. Add the `keypairPath` parameter to `initializeKeypair` and get some devnet sol from [Solana's faucet.](https://faucet.solana.com/)
+1. Add the `keypairPath` parameter to `initializeKeypair` and get some devnet SOL from [Solana's faucet.](https://faucet.solana.com/)
 2. Run a local validator by doing the following:
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
@@ -235,7 +261,7 @@ await createNonTransferableMint(
 The script should run with no errors
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 The non-transferable mint has been set up correctly and will be created when we run `npm start`. Let’s move on to the next step and create a source account and mint a token to it.
@@ -286,7 +312,7 @@ console.log(`Account ${ata.toBase58()} now has ${tokenBalance.value.uiAmount} to
 Run the script and confirm a token has been minted to an account:
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 5. Attempt to transfer a non-transferable token
@@ -348,7 +374,7 @@ try {
 Now let's run everything and see what happens:
 
 ```
-npm run start
+esrun src/index.ts
 ```
 
 You should get an error message at the very end that says `Transfer is disabled for this mint`. This is indicating that the token we are attempting to transfer is in fact non-transferable!
@@ -364,7 +390,7 @@ This transfer is failing because the mint is non-transferable. Check out the pro
 ] 
 ```
 
-That's it! We have successfully created a non-transferable mint. If you are stuck at any point, you can find the working code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-non-transferable-token.git).
+That's it! We have successfully created a non-transferable mint. If you are stuck at any point, you can find the working code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-non-transferable-token/tree/solution).
 
 # Challenge
 
