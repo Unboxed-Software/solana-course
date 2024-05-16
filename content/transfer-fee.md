@@ -366,19 +366,66 @@ await setAuthority(
 In this lab, we are going to create a transfer fee configured mint. We'll use a fee vault to hold the transfer fees, and we'll collect the fees using both the direct and the harvesting methods.
 
 ### 1. Getting started
-To get started, clone [this repository's](https://github.com/Unboxed-Software/solana-lab-transfer-fee.git) `starter` branch.
+To get started, create an empty directory named `transfer-fee` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
 
+Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
-git clone https://github.com/Unboxed-Software/solana-lab-transfer-fee.git
-cd solana-lab-transfer-fee
-git checkout starter
-npm install
+npm i @solana-developers/helpers @solana/spl-token @solana/web3.js esrun dotenv typescript
 ```
 
-The starter code comes with following file:
- - `index.ts`
+Create a directory named `src`. In this directory, create a file named `index.ts`. This is where we will run checks against the rules of this extension. Paste the following code in `index.ts`:
+```ts
+import { Connection, Keypair } from '@solana/web3.js'
+import { initializeKeypair } from '@solana-developers/helpers'
+import { transferCheckedWithFee} from "@solana/spl-token"
+
+/**
+ * Create a connection and initialize a keypair if one doesn't already exists.
+ * If a keypair exists, airdrop a SOL token if needed.
+ */
+const connection = new Connection("http://127.0.0.1:8899")
+const payer = await initializeKeypair(connection)
+
+console.log(`public key: ${payer.publicKey.toBase58()}`)
+
+const mintKeypair = Keypair.generate()
+const mint = mintKeypair.publicKey
+console.log(
+	'\nmint public key: ' + mintKeypair.publicKey.toBase58() + '\n\n'
+)
+
+// CREATE MINT WITH TRANSFER FEE
+
+// CREATE FEE VAULT ACCOUNT
+
+// CREATE A SOURCE ACCOUNT AND MINT TOKEN
+
+// CREATE DESTINATION ACCOUNT
+
+// TRANSFER TOKENS
+
+// FETCH ACCOUNTS WITH WITHHELD TOKENS
+
+// WITHDRAW WITHHELD TOKENS
+
+// VERIFY UPDATED FEE VAULT BALANCE
+
+// HARVEST WITHHELD TOKENS TO MINT
+
+// WITHDRAW HARVESTED TOKENS
+
+// VERIFY UPDATED FEE VAULT BALANCE
+```
 
 `index.ts` has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This `main` function is where we'll be writing our script.
+
+Go ahead and run the script. You should see the `mint` public key logged to your terminal. 
+
+```bash
+esrun src/index.ts
+```
+
+If you run into an error in `initializeKeypair` with airdropping, follow the next step.
 
 ### 2. Run validator node
 
@@ -415,7 +462,6 @@ We'll also want the our new `createMintWithTransferFee` function to have followi
 
 ```ts
 import {
-	Cluster,
 	sendAndConfirmTransaction,
 	Connection,
 	Keypair,
@@ -506,7 +552,7 @@ await createMintWithTransferFee(
 Run the script to make sure it's working so far.
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 4. Create a fee vault account
@@ -537,7 +583,7 @@ console.log("Current fee vault balance: " + initialBalance + "\n\n");
 
 Let's run the script again, we should have a zero balance.
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 5. Create two token accounts and mint to one
@@ -595,7 +641,7 @@ await mintTo(
 
 If you'd like, run the script to check that everything is working:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 6. Transfer one token
@@ -667,7 +713,7 @@ console.log(`Withheld Transfer Fees: ${withheldAmountAfterTransfer?.withheldAmou
 Go ahead and run the script:
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 You should get the following:
@@ -752,7 +798,7 @@ console.log(`Fee vault balance after withdraw: ${feeVaultAfterWithdraw.amount}\n
 
 Go ahead and run the script:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 You should get the following:
@@ -948,12 +994,12 @@ console.log(`Fee Vault balance after second withdraw: ${feeVaultAfterSecondWithd
 
 Now, let's run it.
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 You should see the balances after every step of the way.
 
-That's it! We have successfully created a mint with a transfer fee. If you get stuck at any point, you can find the working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-transfer-fee.git).
+That's it! We have successfully created a mint with a transfer fee. If you get stuck at any point, you can find the working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-transfer-fee/tree/solution).
 
 ### Challenge
 NCreate a transfer fee enabled mint and transfer some tokens with different decimals, fee transfer points and max fees.

@@ -143,7 +143,7 @@ This file has a main function that creates a connection to the specified cluster
 Go ahead and run the script. You should see the `mint` public key logged to your terminal. 
 
 ```bash
-npx esrun src/index.ts
+esrun src/index.ts
 ```
 
 If you run into an error in `initializeKeypair` with airdropping, follow the next step.
