@@ -221,7 +221,7 @@ console.log(
 
 `index.ts` creates a connection to the specified cluster and calls `initializeKeypair`. This is where we'll end up calling the rest of our script once we've written it.
 
-Go ahead and run the script. You should see the `mint` public key logged to your terminal. 
+Go ahead and run the script. You should see the `payer` and `mint` public key logged to your terminal. 
 
 ```bash
 esrun src/index.ts
