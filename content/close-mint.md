@@ -162,19 +162,72 @@ In this lab, we'll create a mint with the `close mint` extension. We will then m
 
 ## 1. Getting Started
 
-To get started, clone [this repository's](https://github.com/Unboxed-Software/solana-lab-close-mint-account.git) `starter` branch.
+To get started, create an empty directory named `close-mint` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
 
+Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
-git clone https://github.com/Unboxed-Software/solana-lab-close-mint-account.git
-cd solana-lab-close-mint-account
-git checkout starter
-npm install
+npm i @solana-developers/helpers @solana/spl-token @solana/web3.js esrun dotenv typescript
 ```
 
-The starter code comes with following file:
- - `index.ts`
+Create a directory named `src`. In this directory, create a file named `index.ts`. This is where we will run checks against the rules of this extension. Paste the following code in `index.ts`:
+
+```ts
+import {
+	Connection,
+	Keypair,
+	LAMPORTS_PER_SOL,
+} from '@solana/web3.js'
+import { initializeKeypair } from '@solana-developers/helpers'
+// import { createClosableMint } from './create-mint' // - uncomment this in a later step
+import {
+	TOKEN_2022_PROGRAM_ID,
+	burn,
+	closeAccount,
+	createAccount,
+	getAccount,
+	getMint,
+	mintTo,
+} from '@solana/spl-token'
+import dotenv from 'dotenv'
+dotenv.config()
+
+/**
+ * Create a connection and initialize a keypair if one doesn't already exists.
+ * If a keypair exists, airdrop a SOL if needed.
+ */
+const connection = new Connection("http://127.0.0.1:8899")
+const payer = await initializeKeypair(connection)
+
+console.log(`public key: ${payer.publicKey.toBase58()}`)
+
+const mintKeypair = Keypair.generate()
+const mint = mintKeypair.publicKey
+console.log(
+	'\nmint public key: ' + mintKeypair.publicKey.toBase58() + '\n\n'
+)
+
+// CREATE A MINT WITH CLOSE AUTHORITY
+
+// MINT TOKEN
+
+// VERIFY SUPPLY
+
+// TRY CLOSING WITH NON ZERO SUPPLY
+
+// BURN SUPPLY
+
+// CLOSE MINT
+```
 
 `index.ts` creates a connection to the specified cluster and calls `initializeKeypair`. This is where we'll end up calling the rest of our script once we've written it.
+
+Go ahead and run the script. You should see the `mint` public key logged to your terminal. 
+
+```bash
+esrun src/index.ts
+```
+
+If you run into an error in `initializeKeypair` with airdropping, follow the next step.
 
 ### 2. Run validator node
 
@@ -192,7 +245,7 @@ Alternatively, if you’d like to use testnet or devnet, import the `clusterApiU
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
 
-If you decide to use devnet, and have issues with airdropping SOL, feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some sol to your address. You can get your address from running `solana address` in your terminal.
+If you decide to use devnet, and have issues with airdropping SOL, feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some SOL to your address. You can get your address from running `solana address` in your terminal.
 
 ## 3. Create a mint with close authority
 
@@ -294,7 +347,7 @@ This will create a transaction with close mint instruction.
 Feel free to run this and check that everything is working:
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ## 4. Closing the mint
@@ -358,7 +411,7 @@ console.log("Initial supply: ", mintInfo.supply)
 Let's run the script and check the initial supply:
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 You should see the following in your terminal:
@@ -399,7 +452,7 @@ try {
 
 Give this a run:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 We'll see that the program throws an error along with the program logs. You should see the following:
@@ -488,12 +541,12 @@ console.log("Account closed? ", accountInfoAfterClose === null)
 Run the script one last time.
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 You should see the whole process of creating a closable mint, minting a token, trying to close, burning the token, and finally closing the account.
 
-That's it! We have successfully created a mint with close authority. If you get stuck at any point, you can find working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-close-mint-account.git).
+That's it! We have successfully created a mint with close authority. If you get stuck at any point, you can find working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-close-mint-account/tree/solution).
 
 # Challenge
 For the challenge, try and create your own mint and mint to several token accounts, then create a script to burn all of those token accounts, then close the mint.
