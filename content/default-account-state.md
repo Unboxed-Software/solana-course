@@ -179,15 +179,53 @@ In this lab we will be creating a mint which all new token accounts are frozen u
 
 ### 1. Setup Environment
 
-To get started, clone the `starter` branch of the lab and install the necessary dependencies:
+To get started, create an empty directory named `default-account-state` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
 
+Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
-git clone git@github.com:Unboxed-Software/solana-lab-default-account-state.git
-cd solana-lab-default-account-state
-git checkout starter
-npm install
+npm i @solana-developers/helpers @solana/spl-token @solana/web3.js esrun dotenv typescript
 ```
 
+Create a directory named `src`. In this directory, create a file named `index.ts`. This is where we will run checks against the rules of this extension. Paste the following code in `index.ts`:
+
+```ts
+import { AccountState, TOKEN_2022_PROGRAM_ID, getAccount, mintTo, thawAccount, transfer, createAccount } from "@solana/spl-token";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+// import { createTokenExtensionMintWithDefaultState } from "./mint-helper"; // This will be uncommented later
+import { initializeKeypair, makeKeypairs } from '@solana-developers/helpers';
+
+const connection = new Connection("http://127.0.0.1:8899", "confirmed");
+const payer = await initializeKeypair(connection);
+
+const [mintKeypair, ourTokenAccountKeypair, otherTokenAccountKeypair] = makeKeypairs(3)
+const mint = mintKeypair.publicKey;
+const decimals = 2;
+const defaultState = AccountState.Frozen;
+
+const ourTokenAccount = ourTokenAccountKeypair.publicKey;
+
+// To satisfy the transferring tests
+const otherTokenAccount = otherTokenAccountKeypair.publicKey;
+
+const amountToMint = 1000;
+const amountToTransfer = 50;
+
+// CREATE MINT WITH DEFAULT STATE
+
+// CREATE TEST TOKEN ACCOUNTS
+
+// TEST: MINT WITHOUT THAWING
+
+// TEST: MINT WITH THAWING
+
+// TEST: TRANSFER WITHOUT THAWING
+
+// TEST: TRANSFER WITH THAWING
+```
+
+`index.ts` creates a connection to the specified validator node and calls `initializeKeypair`. It also has a few variables we will be using in the rest of this lab. The `index.ts` is where we'll end up calling the rest of our script once we've written it.
+
+If you run into an error in `initializeKeypair` with airdropping, follow the next step.
 ### 2. Run validator node
 
 For the sake of this guide, we'll be running our own validator node.
@@ -452,7 +490,7 @@ try {
 
 Test this by running the script:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 We should see the following error logged out in the terminal, meaning the extension is working as intended. `✅ - We expected this to fail because the account is still frozen.`
@@ -498,7 +536,7 @@ console.log(
 
 Go ahead and run the script, the transaction should succeed.
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 7.3 Transferring without thawing the recipient's account
@@ -535,7 +573,7 @@ try {
 
 Run the test and see the results:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 7.4 Transferring with thawing the recipient's account
@@ -586,7 +624,7 @@ console.log(
 
 Run all of the tests one last time and see the results:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 Remember the key takeaways: 

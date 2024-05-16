@@ -138,7 +138,7 @@ console.log(
 // TRY TRANSFER
 ```
 
-This file has a main function that creates a connection to the specified cluster and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
+This file has a main function that creates a connection to the specified validator node and calls `initializeKeypair`. This main function is where we'll end up calling the rest of our script once we've written it.
 
 Go ahead and run the script. You should see the `mint` public key logged to your terminal. 
 
