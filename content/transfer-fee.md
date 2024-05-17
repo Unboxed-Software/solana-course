@@ -857,7 +857,7 @@ await withdrawWithheldTokensFromAccounts(
 
 ### 7.2 Harvest and then withdraw
 
-Let's look at the second option to retrieving the withheld fees: "harvesting". The difference here is that instead of withdrawing the fees directly, we "harvest" them back to the mint itself using `harvestWithheldTokensToMint`. This is a permissionless function, meaning anyone can call it. This is useful if you use something like [clockwork](https://www.clockwork.xyz/) to "crank" these harvesting functions. 
+Let's look at the second option to retrieving the withheld fees: "harvesting". The difference here is that instead of withdrawing the fees directly, we "harvest" them back to the mint itself using `harvestWithheldTokensToMint`. This is a permissionless function, meaning anyone can call it. This is useful if you use something like [clockwork](https://www.clockwork.xyz/) to automate these harvesting functions. 
 
 After the fees are harvested to the mint account, we can call `withdrawWithheldTokensFromMint` to transfer these tokens into our fee vault. This function is permissioned and we need the `withdrawWithheldAuthority` to sign for it.
 
@@ -1002,4 +1002,4 @@ You should see the balances after every step of the way.
 That's it! We have successfully created a mint with a transfer fee. If you get stuck at any point, you can find the working code in the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-transfer-fee/tree/solution).
 
 ### Challenge
-NCreate a transfer fee enabled mint and transfer some tokens with different decimals, fee transfer points and max fees.
+Create a transfer fee enabled mint and transfer some tokens with different decimals, fee transfer points and max fees.

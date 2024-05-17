@@ -318,7 +318,7 @@
             "units": [
                 {
                     "title": "Intro To Token Extensions Program",
-                    "slug": "intro-to-token-extensions-program-unit",
+                    "slug": "intro-to-token-extensions-program",
                     "lessons": [
                         {
                             "title": "Intro to Token Extensions Program",
@@ -339,7 +339,7 @@
                 },
                 {
                     "title": "Mint Extensions",
-                    "slug": "mint-extensions-unit",
+                    "slug": "mint-extensions",
                     "lessons": [
                         {
                             "title": "Metadata and Metadata Pointer Extension",
@@ -365,7 +365,7 @@
                 },
                 {
                     "title": "Token Extensions",
-                    "slug": "token-extensions-unit",
+                    "slug": "token-extensions",
                     "lessons": [
                         {
                             "title": "Default State Extension",
