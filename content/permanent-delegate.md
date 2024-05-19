@@ -31,14 +31,76 @@ In this lab, we'll explore the functionality of the `permanent delegate` extensi
 
 ### 1. Setup Environment
 
-To get started, clone the `starter` branch of the lab and install the necessary dependencies:
+To get started, create an empty directory named `permanent-delegate` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
 
+Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
-git clone git@github.com:Unboxed-Software/solana-lab-permanent-delegate.git
-cd solana-lab-permanent-delegate
-git checkout starter
-npm install
+npm i @solana-developers/helpers @solana/spl-token @solana/web3.js esrun
 ```
+
+Create a directory named `src`. In this directory, create a file named `index.ts`. This is where we will run checks against the rules of this extension. Paste the following code in `index.ts`:
+```ts
+import {
+  sendAndConfirmTransaction,
+  Connection,
+  Keypair,
+  SystemProgram,
+  Transaction,
+  PublicKey,
+} from '@solana/web3.js';
+
+import {
+  ExtensionType,
+  createInitializeMintInstruction,
+  createInitializePermanentDelegateInstruction,
+  mintTo,
+  createAccount,
+  getMintLen,
+  TOKEN_2022_PROGRAM_ID,
+  transferChecked,
+} from '@solana/spl-token';
+import { initializeKeypair } from '@solana-developers/helpers';
+
+const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
+const payer = await initializeKeypair(connection);
+
+const mintAuthority = payer;
+const mintKeypair = Keypair.generate();
+const mint = mintKeypair.publicKey;
+const permanentDelegate = payer;
+
+const extensions = [ExtensionType.PermanentDelegate];
+const mintLen = getMintLen(extensions);
+
+const decimals = 9;
+const amountToMint = 100;
+const amountToTransfer = 10;
+const amountToBurn = 5;
+
+// CREATE MINT ACCOUNT WITH PERMANENT DELEGATE
+
+// CREATE DELEGATE AND DESTINATION TOKEN ACCOUNTS
+
+// MINT TOKENS TO ACCOUNTS
+
+// ATTEMPT TO TRANSFER WITH CORRECT DELEGATE
+
+// ATTEMPT TO TRANSFER WITHOUT CORRECT DELEGATE
+
+// ATTEMPT TO TRANSFER FROM ONE ACCOUNT TO ANOTHER WITH CORRECT DELEGATE
+
+// ATTEMPT TO BURN WITH CORRECT DELEGATE
+
+// ATTEMPT TO BURN WITHOUT CORRECT DELEGATE
+
+// GRANT PERMISSION TO AN ACCOUNT TO TRANSFER TOKENS FROM A DIFFERENT TOKEN ACCOUNT
+
+// TRY TO TRANSFER TOKENS AGAIN WITH CAROL AS THE DELEGATE, OVERDRAWING HER ALLOTTED CONTROL
+```
+
+`index.ts` creates a connection to the specified validator node and calls `initializeKeypair`. It also has a few variables we will be using in the rest of this lab. The `index.ts` is where we'll end up calling the rest of our script once we've written it.
+
+If you run into an error in `initializeKeypair` with airdropping, follow the next step.
 
 ### 2. Run validator node
 
@@ -56,11 +118,11 @@ Alternatively, if you’d like to use testnet or devnet, import the `clusterApiU
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
 
-If you decide to use devnet, and have issues with airdropping sol. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some sol to your address. You can get your address from running `solana address` in your terminal.
+If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some SOL to your address. You can get your address from running `solana address` in your terminal.
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starter` branch, we will already have access to following helpers:
+When we pasted the `index.ts` code from earlier, we added the following helpers:
 
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops some SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
@@ -328,7 +390,7 @@ await printBalances(
 )
 ```
 
-Start your local validator and run `npm run start`. You should see the following in your terminal, indicating that our token accounts have had tokens minted to them:
+Start your local validator and run `esrun src/index.ts`. You should see the following in your terminal, indicating that our token accounts have had tokens minted to them:
 
 ```bash
 Initial Balances: 
@@ -410,7 +472,7 @@ To do this, let's wrap a `transferChecked` function in a `try catch` and print o
 
 Test this by running the script:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 We should see the following error logged out in the terminal, meaning the extension is working as intended. `✅ Since Alice is the permanent delegate, she has control over all token accounts of this mint`
@@ -454,7 +516,7 @@ Similar to the previous test we can create this test by calling `transferChecked
 
 Go ahead and run the script, the transaction should fail.
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 8.3 Transfer from one account to another with correct delegate
@@ -499,7 +561,7 @@ To test this, let's wrap a `transferChecked` function in a `try catch` and print
 In our first test we wrote, `bob` had 10 of his tokens transferred to `carol`. Up until this point `bob` has 90 tokens remaining.
 Run the test and see the results. You will notice that `bob` now has 80 tokens:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 8.4 Burn with correct delegate
@@ -539,7 +601,7 @@ We'll do this by calling `burnChecked` and then print out the balances:
 
 Run the tests again:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 Bob had 5 tokens burned and now only has 75 tokens. Poor Bob!
 
@@ -626,7 +688,7 @@ Add the following test:
 ```
 
 Run the tests again. You will notice that `bob` now only has 65 tokens as `carol` has just transferred 10 of his tokens to herself:
-`npm run start`
+`esrun src/index.ts`
 
 ### 8.7. Attempt to transfer again 
 In the previous test we approved `carol` to be able to transfer 10 tokens to herself. This means that she has reached the maximum amount of tokens to send from another account. Let's write a test and attempt to transfer another 10 tokens to herself. This is expected to fail.
