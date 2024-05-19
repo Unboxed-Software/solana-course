@@ -145,13 +145,58 @@ In this lab we'll create a token account with the required memo extension. We'll
 
 ### 1. Setup Environment
 
-Clone the lab and change branches to `starter` and install the necessary dependencies:
+To get started, create an empty directory named `required-memo` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
 
+Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
-git clone git@github.com:Unboxed-Software/solana-lab-required-memo.git
-cd solana-lab-required-memo
-git checkout starter
-npm install
+npm i @solana-developers/helpers @solana/spl-token @solana/web3.js esrun dotenv typescript
+```
+
+Create a directory named `src`. In this directory, create a file named `index.ts`. This is where we will run checks against the rules of this extension. Paste the following code in `index.ts`:
+```ts
+import {
+  TOKEN_2022_PROGRAM_ID,
+  getAccount,
+  mintTo,
+  createTransferInstruction,
+  createMint,
+  disableRequiredMemoTransfers,
+  enableRequiredMemoTransfers
+} from "@solana/spl-token";
+import {
+  sendAndConfirmTransaction,
+  Connection,
+  Transaction,
+  PublicKey,
+  TransactionInstruction,
+} from "@solana/web3.js";
+// import { createTokenWithMemoExtension } from "./token-helper"; // We'll uncomment this later
+import { initializeKeypair, makeKeypairs } from '@solana-developers/helpers';
+
+require("dotenv").config();
+
+const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
+const payer = await initializeKeypair(connection);
+const mintDecimals = 9;
+
+const [ourTokenAccountKeypair, otherTokenAccountKeypair] = makeKeypairs(2)
+const ourTokenAccount = ourTokenAccountKeypair.publicKey;
+const otherTokenAccount = otherTokenAccountKeypair.publicKey;
+
+const amountToMint = 1000;
+const amountToTransfer = 300;
+
+// CREATE MINT
+
+// CREATE TOKENS
+
+// MINT TOKENS
+
+// ATTEMPT TO TRANSFER WITHOUT MEMO
+
+// ATTEMPT TO TRANSFER WITH MEMO
+
+// DISABLE MEMO EXTENSION AND TRANSFER
 ```
 
 ### 2. Run validator node
@@ -168,7 +213,7 @@ If you decide to use devnet, and have issues with airdropping SOL. Feel free to 
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starter` branch, we'll already have access to some helper functions provided by the `@solana-developers/helpers` package and some starting variables.
+When we pasted the `index.ts` code from earlier, we added the following helpers provided by the `@solana-developers/helpers` package and some starting variables.
 
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 1 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
@@ -380,7 +425,7 @@ try {
 Run this test, you should see the following error logged out in the terminal, meaning the extension is working as intended: `✅ - We expected this to fail because you need to send a memo with the transfer.`
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 6.2 Test transfer with memo
@@ -423,7 +468,7 @@ console.log(
 
 Run the test and see that it passes:
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 6.3 Test transfer with disabled memo
@@ -482,7 +527,7 @@ console.log(
 Run the tests. You will notice that `otherTokenAccount` now has 600 tokens, meaning it has successfully transferred without a memo after disabling the extension.
 
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 Congratulations! We’ve just tested the required memo extension!
