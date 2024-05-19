@@ -100,15 +100,38 @@ When the transaction with these three instructions is sent, a new token account 
 
 In this lab we'll be creating a token account with an immutable owner. We'll then write tests to check if the extension is working as intended by attempting to transfer ownership of the token account.
 
-### 1. Clone
+### 1. Setup Environment
 
-Clone the lab and change branches to `starter`
+To get started, create an empty directory named `immutable-owner` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
 
+Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
-git clone git@github.com:Unboxed-Software/solana-lab-immutable-owner.git
-cd solana-lab-immutable-owner
-git checkout starter
-npm install
+npm i @solana-developers/helpers @solana/spl-token @solana/web3.js esrun dotenv typescript
+```
+
+Create a directory named `src`. In this directory, create a file named `index.ts`. This is where we will run checks against the rules of this extension. Paste the following code in `index.ts`:
+
+```ts
+import { AuthorityType, TOKEN_2022_PROGRAM_ID, createMint, setAuthority } from "@solana/spl-token";
+import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { initializeKeypair, makeKeypairs } from "@solana-developers/helpers";
+// import { createTokenAccountWithImmutableOwner } from "./token-helper"; // We will uncomment later
+
+const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
+const payer = await initializeKeypair(connection);
+
+const [otherOwner, mintKeypair, ourTokenAccountKeypair] = makeKeypairs(3)
+const ourTokenAccount = ourTokenAccountKeypair.publicKey;
+
+// CREATE MINT
+
+// CREATE TEST TOKEN ACCOUNTS: Create explicitly with immutable owner instructions
+
+// CREATE TEST TOKEN ACCOUNTS: Create associated token account with default immutable owner
+
+// TEST TRANSFER ATTEMPT ON IMMUTABLE ACCOUNT
+
+// TEST TRANSFER ATTEMPT ON ASSOCIATED IMMUTABLE ACCOUNT
 ```
 
 ### 2. Run validator node
@@ -131,7 +154,7 @@ If you decide to use devnet, and have issues with airdropping SOL. Feel free to 
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starter` branch, we'll already have access to following helpers:
+When we pasted the `index.ts` code from earlier, we added the following helpers:
 
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 2 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
@@ -141,7 +164,6 @@ Additionally we have some initial accounts:
   - `mintKeypair`: Our mint
   - `ourTokenAccountKeypair`: The token account owned by payer that we'll use for testing
   - `otherOwner`: The token account we'll try to transfer ownership of the two immutable accounts to
-
 
 ### 4. Create mint
 
@@ -293,7 +315,7 @@ Thats it for the token accounts! Now we can move on and start testing that the e
 
 If you'd like to test that everything is working, feel free to run the script.
 ```bash
-npm run start
+esrun src/index.ts
 ```
 
 ### 6. Tests
@@ -328,7 +350,7 @@ try {
 }
 ```
 
-We can now invoke the `setAuthority` function by running `npm run start`. We should see the following error logged out in the terminal, meaning the extension is working as we need it to: `✅ - We expected this to fail because the account is immutable, and cannot change owner.`
+We can now invoke the `setAuthority` function by running `esrun src/index.ts`. We should see the following error logged out in the terminal, meaning the extension is working as we need it to: `✅ - We expected this to fail because the account is immutable, and cannot change owner.`
 
 **Test trying to transfer owner with associated token account**
 
@@ -360,10 +382,11 @@ try {
 }
 ```
 
-Now we can run `npm run start`. This test should log a failure message similar to the one from the previous test. This means that both of our token accounts are in fact immutable and working as intended.
+Now we can run `esrun src/index.ts`. This test should log a failure message similar to the one from the previous test. This means that both of our token accounts are in fact immutable and working as intended.
 
 
-Congratulations! We’ve just created token accounts and tested the immutable owner extension!
+
+Congratulations! We’ve just created token accounts and tested the immutable owner extension! If you are stuck at any point, you can find the working code on the `solution` branch of [this repository](https://github.com/Unboxed-Software/solana-lab-immutable-owner/tree/solution).
 
 # Challenge
 
