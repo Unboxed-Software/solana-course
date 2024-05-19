@@ -157,14 +157,62 @@ In this lab, we're establishing Interest Bearing Tokens via the Token-2022 progr
 
 ### 1. Setup Environment
 
-To get started with this lab, clone the lab and change the branch to `starter` and install the necessary dependencies:
+To get started, create an empty directory named `interest-bearing-token` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
 
+Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
-git clone git@github.com:Unboxed-Software/solana-lab-interest-bearing-token.git
-cd solana-lab-interest-bearing-token
-git checkout starter
-npm install
+npm i @solana-developers/helpers @solana/spl-token @solana/web3.js esrun dotenv typescript
 ```
+
+Create a directory named `src`. In this directory, create a file named `index.ts`. This is where we will run checks against the rules of this extension. Paste the following code in `index.ts`:
+```ts
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+} from '@solana/web3.js';
+
+import {
+  ExtensionType,
+  getMintLen,
+  TOKEN_2022_PROGRAM_ID,
+  getMint,
+  getInterestBearingMintConfigState,
+  updateRateInterestBearingMint,
+  amountToUiAmount,
+  mintTo,
+  createAssociatedTokenAccount,
+  getAccount,
+} from '@solana/spl-token';
+
+import { initializeKeypair, makeKeypairs } from '@solana-developers/helpers';
+// import { createTokenWithInterestRateExtension } from './token-helper';
+
+const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
+const payer = await initializeKeypair(connection);
+const [wrongPayer, mintKeypair] = makeKeypairs(2)
+const mint = mintKeypair.publicKey;
+const rateAuthority = payer;
+
+const rate = 32_767;
+
+// CREATE INTEREST BEARING TOKEN
+
+// CREATE ASSOCIATED TOKEN ACCOUNT
+
+// CREATE getInterestBearingMint function
+
+// ATTEMPT TO UPDATE INTEREST RATE
+
+// ATTEMPT TO UPDATE INTEREST RATE WITH INCORRECT OWNER
+
+// LOG ACCRUED INTEREST
+
+// LOG INTEREST BEARING MINT CONFIG STATE
+
+// UPDATE RATE AUTHORITY AND ATTEMPT TO UPDATE INTEREST RATE WITH NEW AUTHORITY
+```
+`index.ts` creates a connection to the specified validator node and calls `initializeKeypair`. It also has a few variables we will be using in the rest of this lab. The `index.ts` is where we'll end up calling the rest of our script once we've written it.
 
 ### 2. Run validator node
 
@@ -180,10 +228,16 @@ If you decide to use devnet, and have issues with airdropping SOL. Feel free to 
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starter` branch, we'll already have access to the following helper functions. 
+When we pasted the `index.ts` code from earlier, we added the following helpers:
 
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 1 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
+
+Additionally we have some initial accounts:
+  - `payer`: Used to pay for and be the authority for everything
+  - `mintKeypair`: Our mint that will have the `interest bearing token` extension
+  - `wrongPayer`: The account we will use to attempt to update interest 
+  - `otherTokenAccountKeypair`: Another token used for testing
 
 ### 4. Create Mint with interest bearing token
 
@@ -364,7 +418,7 @@ try {
 }
 ```
 
-Run `npm run start`. We should see the following error logged out in the terminal, meaning the extension is working as intended and the interest rate has been updated: `✅ - We expected this to pass because the rate has been updated. Old rate: 32767. New rate: 0`
+Run `esrun src/index.ts`. We should see the following error logged out in the terminal, meaning the extension is working as intended and the interest rate has been updated: `✅ - We expected this to pass because the rate has been updated. Old rate: 32767. New rate: 0`
 
 **Updating interest rate with incorrect rate authority**
 
@@ -391,7 +445,7 @@ try {
 }
 ```
 
-Now run `npm run start`. This is expected to fail and log out `✅ - We expected this to fail because the owner is incorrect.`
+Now run `esrun src/index.ts`. This is expected to fail and log out `✅ - We expected this to fail because the owner is incorrect.`
 
 **Mint tokens and read interest rate**
 
