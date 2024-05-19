@@ -246,7 +246,7 @@ If you decide to use devnet, and have issues with airdropping sol. Feel free to 
 
 ### 3. Helpers
 
-When you clone the repo and change to the `starter` branch, we will already have access to following helpers:
+When we pasted the `index.ts` code from earlier, we added the following helpers:
 
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops some SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
