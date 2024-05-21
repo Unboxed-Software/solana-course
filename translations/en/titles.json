@@ -58,5 +58,15 @@
   "solana-mobile-dApps-with-expo": "Building Solana Mobile dApps with Expo",
   "solana-mobile-development-unit": "Solana Mobile Development",
   "generalized-state-compression": "Generalized State Compression",
-  "intro-to-custom-on-chain-programs": "Using custom onchain programs"
+  "intro-to-custom-on-chain-programs": "Using custom onchain programs",
+  "mint-extensions": "Mint Extensions",
+  "token22-metadata": "Metadata and Metadata Pointer Extension",
+  "non-transferable-token": "Non-Transferrable Token Extension",
+  "transfer-fee": "Transfer Fee Extension",
+  "close-mint": "Close Mint Extension",
+  "token-extensions": "Token Extensions",
+  "default-account-state": "Default State Extension",
+  "intro-to-token-extensions-program": "Intro To Token Extensions Program",
+  "token22-in-the-client": "Intro to Token Extensions Program in the Client",
+  "token22-on-chain": "Intro to Token Extensions Program On-Chain"
 }
