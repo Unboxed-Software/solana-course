@@ -2,7 +2,7 @@
 
 ## About
 
-This course is the best place for web developers starting their Web3 development journey. Solana is the ideal network for Web3 because of its high speed, low transaction costs, energy efficiency, and large developer community.
+This course is the best place for web developers who are beginning their Web3 development journey. Solana is the ideal network for Web3 because of its high speed, low transaction costs, and large developer community.
 
 The course is currently hosted at https://soldev.app/course. 
 
@@ -16,4 +16,3 @@ If you'd like to help, look at [how you can contribute](./CONTRIBUTING.md).
 ## Providing feedback and suggestions
 
 If you have feedback on content or suggestions for additional content, [create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) explaining your feedback/suggestions.
-

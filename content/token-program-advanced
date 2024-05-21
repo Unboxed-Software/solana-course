@@ -1,0 +1,393 @@
+## Burn Tokens
+
+Burning tokens is the process of decreasing the token supply of a given token mint. Burning tokens removes the tokens from the given token account and from broader circulation.
+
+To burn tokens using the `spl-token` library, you use the `burn` function.
+
+```typescript
+const transactionSignature = await burn(
+  connection,
+  payer,
+  account,
+  mint,
+  owner,
+  amount,
+);
+```
+
+The `burn` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `burn` function requires the following arguments:
+
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `account` - the token account to burn tokens from
+- `mint` - the token mint associated with the token account
+- `owner` - the account of the owner of the token account
+- `amount` - the amount of tokens to burn
+
+Under the hood, the `burn` function creates a transaction with instructions obtained from the `createBurnInstruction` function:
+
+```typescript
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
+
+async function buildBurnTransaction(
+  account: web3.PublicKey,
+  mint: web3.PublicKey,
+  owner: web3.PublicKey,
+  amount: number,
+): Promise<web3.Transaction> {
+  const transaction = new web3.Transaction().add(
+    token.createBurnInstruction(account, mint, owner, amount),
+  );
+
+  return transaction;
+}
+```
+
+## Approve Delegate
+
+Approving a delegate is the process of authorizing another account to transfer or burn tokens from a token account. When using a delegate, the authority over the token account remains with the original owner. The maximum amount of tokens a delegate may transfer or burn is specified at the time the owner of the token account approves the delegate. Note that there can only be one delegate account associated with a token account at any given time.
+
+To approve a delegate using the `spl-token` library, you use the `approve` function.
+
+```typescript
+const transactionSignature = await approve(
+  connection,
+  payer,
+  account,
+  delegate,
+  owner,
+  amount,
+);
+```
+
+The `approve` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `approve` function requires the following arguments:
+
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `account` - the token account to delegate tokens from
+- `delegate` - the account the owner is authorizing to transfer or burn tokens
+- `owner` - the account of the owner of the token account
+- `amount` - the maximum number of tokens the delegate may transfer or burn
+
+Under the hood, the `approve` function creates a transaction with instructions obtained from the `createApproveInstruction` function:
+
+```typescript
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
+
+async function buildApproveTransaction(
+  account: web3.PublicKey,
+  delegate: web3.PublicKey,
+  owner: web3.PublicKey,
+  amount: number,
+): Promise<web3.Transaction> {
+  const transaction = new web3.Transaction().add(
+    token.createApproveInstruction(account, delegate, owner, amount),
+  );
+
+  return transaction;
+}
+```
+
+## Revoke Delegate
+
+A previously approved delegate for a token account can be later revoked. Once a delegate is revoked, the delegate can no longer transfer tokens from the owner's token account. Any remaining amount left untransferred from the previously approved amount can no longer be transferred by the delegate.
+
+To revoke a delegate using the `spl-token` library, you use the `revoke` function.
+
+```typescript
+const transactionSignature = await revoke(connection, payer, account, owner);
+```
+
+The `revoke` function returns a `TransactionSignature` that can be viewed on Solana Explorer. The `revoke` function requires the following arguments:
+
+- `connection` - the JSON-RPC connection to the cluster
+- `payer` - the account of the payer for the transaction
+- `account` - the token account to revoke the delegate authority from
+- `owner` - the account of the owner of the token account
+
+Under the hood, the `revoke` function creates a transaction with instructions obtained from the `createRevokeInstruction` function:
+
+```typescript
+import * as web3 from "@solana/web3";
+import * as token from "@solana/spl-token";
+
+async function buildRevokeTransaction(
+  account: web3.PublicKey,
+  owner: web3.PublicKey,
+): Promise<web3.Transaction> {
+  const transaction = new web3.Transaction().add(
+    token.createRevokeInstruction(account, owner),
+  );
+
+  return transaction;
+}
+```
+
+### 6. Approve Delegate
+
+Now that we have a token mint and a token account, let's authorize a delegate to transfer tokens on our behalf.
+
+Create a function `approveDelegate` that uses the `spl-token` function `approve` to mint tokens:
+
+```typescript
+async function approveDelegate(
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  account: web3.PublicKey,
+  delegate: web3.PublicKey,
+  owner: web3.Signer | web3.PublicKey,
+  amount: number,
+) {
+  const transactionSignature = await token.approve(
+    connection,
+    payer,
+    account,
+    delegate,
+    owner,
+    amount,
+  );
+
+  console.log(
+    `Approve Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
+  );
+}
+```
+
+In `main`, let's generate a new `Keypair` to represent the delegate account. Then, let's call our new `approveDelegate` function and authorize the delegate to transfer up to 50 tokens from the `user` token account. Remember to adjust the `amount` for the decimal precision of the `mint`.
+
+```typescript
+async function main() {
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+  const user = await initializeKeypair(connection);
+
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2,
+  );
+
+  const mintInfo = await token.getMint(connection, mint);
+
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey,
+  );
+
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals,
+  );
+
+  const delegate = web3.Keypair.generate();
+
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals,
+  );
+}
+```
+
+### 7. Revoke Delegate
+
+Now that we've finished transferring tokens, lets revoke the `delegate` using the `spl-token` library's `revoke` function.
+
+```typescript
+async function revokeDelegate(
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  account: web3.PublicKey,
+  owner: web3.Signer | web3.PublicKey,
+) {
+  const transactionSignature = await token.revoke(
+    connection,
+    payer,
+    account,
+    owner,
+  );
+
+  console.log(
+    `Revote Delegate Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
+  );
+}
+```
+
+Revoke will set delegate for the token account to null and reset the delegated amount to 0. All we will need for this function is the token account and user. Let's call our new `revokeDelegate` function to revoke the delegate from the `user` token account.
+
+```typescript
+async function main() {
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+  const user = await initializeKeypair(connection);
+
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2,
+  );
+
+  const mintInfo = await token.getMint(connection, mint);
+
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey,
+  );
+
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals,
+  );
+
+  const receiver = web3.Keypair.generate().publicKey;
+  const receiverTokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    receiver,
+  );
+
+  const delegate = web3.Keypair.generate();
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals,
+  );
+
+  await transferTokens(
+    connection,
+    user,
+    tokenAccount.address,
+    receiverTokenAccount.address,
+    delegate,
+    50 * 10 ** mintInfo.decimals,
+  );
+
+  await revokeDelegate(connection, user, tokenAccount.address, user.publicKey);
+}
+```
+
+### 8. Burn Tokens
+
+Finally, let's remove some tokens from circulation by burning them.
+
+Create a `burnTokens` function that uses the `spl-token` library's `burn` function to remove half of your tokens from circulation.
+
+```typescript
+async function burnTokens(
+  connection: web3.Connection,
+  payer: web3.Keypair,
+  account: web3.PublicKey,
+  mint: web3.PublicKey,
+  owner: web3.Keypair,
+  amount: number,
+) {
+  const transactionSignature = await token.burn(
+    connection,
+    payer,
+    account,
+    mint,
+    owner,
+    amount,
+  );
+
+  console.log(
+    `Burn Transaction: https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`,
+  );
+}
+```
+
+Now call this new function in `main` to burn 25 of the user's tokens. Remember to adjust the `amount` for the decimal precision of the `mint`.
+
+```typescript
+async function main() {
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+  const user = await initializeKeypair(connection);
+
+  const mint = await createNewMint(
+    connection,
+    user,
+    user.publicKey,
+    user.publicKey,
+    2,
+  );
+
+  const mintInfo = await token.getMint(connection, mint);
+
+  const tokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    user.publicKey,
+  );
+
+  await mintTokens(
+    connection,
+    user,
+    mint,
+    tokenAccount.address,
+    user,
+    100 * 10 ** mintInfo.decimals,
+  );
+
+  const receiver = web3.Keypair.generate().publicKey;
+  const receiverTokenAccount = await createTokenAccount(
+    connection,
+    user,
+    mint,
+    receiver,
+  );
+
+  const delegate = web3.Keypair.generate();
+  await approveDelegate(
+    connection,
+    user,
+    tokenAccount.address,
+    delegate.publicKey,
+    user.publicKey,
+    50 * 10 ** mintInfo.decimals,
+  );
+
+  await transferTokens(
+    connection,
+    user,
+    tokenAccount.address,
+    receiverTokenAccount.address,
+    delegate,
+    50 * 10 ** mintInfo.decimals,
+  );
+
+  await revokeDelegate(connection, user, tokenAccount.address, user.publicKey);
+
+  await burnTokens(
+    connection,
+    user,
+    tokenAccount.address,
+    mint,
+    user,
+    25 * 10 ** mintInfo.decimals,
+  );
+}
+```

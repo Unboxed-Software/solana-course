@@ -140,6 +140,8 @@ pub struct ConceptZeroCopy<'info> {
 }
 ```
 
+**Note**: In older versions of anchor `< 0.28.0` you may have to use: `zero_copy(unsafe))` ( [Thanks @0xk2_](https://github.com/Unboxed-Software/solana-course/issues/347) for this find )
+
 To understand what's happening here, take a look at the [rust Anchor documentation](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html)
 
 > Other than being more efficient, the most salient benefit [`zero_copy`] provides is the ability to define account types larger than the max stack or heap size. When using borsh, the account has to be copied and deserialized into a new data structure and thus is constrained by stack and heap limits imposed by the BPF VM. With zero copy deserialization, all bytes from the account’s backing `RefCell<&mut [u8]>` are simply re-interpreted as a reference to the data structure. No allocations or copies necessary. Hence the ability to get around stack and heap limitations.
@@ -270,7 +272,7 @@ pub struct GameState {
 
 In this simple game state, a character has `health`, `mana`, and an event log. If at some point you are making game improvements and want to add an `experience` field, you'd hit a snag. The `experience` field should be a number like a `u64`, which is simple enough to add. You can [reallocate the account](./anchor-pdas.md#realloc) and add space.
 
-However, in order to keep dynamic length fields, like `event_log`, at the end of the struct, you would need to do some memory manipulation on all reallocated accounts to move the location of `event_log`. This can be complicated and makes querying accounts far more difficult. You'll end up in a state where non-migrated accounts have `event_log` in one location and migrated accounts in another. The old `GameState` without `experience` and the new `GameState` with `experience` in it are no longer compatible. Old accounts won't serialize when used where new accounts are expected. Queries will be far more difficult. You'll likely need to create a migration system and ongoing logic to maintain backward compatibility. Ultimately, it begins to seem like a bad idea.
+However, to keep dynamic length fields, like `event_log`, at the end of the struct, you would need to do some memory manipulation on all reallocated accounts to move the location of `event_log`. This can be complicated and makes querying accounts far more difficult. You'll end up in a state where non-migrated accounts have `event_log` in one location and migrated accounts in another. The old `GameState` without `experience` and the new `GameState` with `experience` in it are no longer compatible. Old accounts won't serialize when used where new accounts are expected. Queries will be far more difficult. You'll likely need to create a migration system and ongoing logic to maintain backward compatibility. Ultimately, it begins to seem like a bad idea.
 
 Fortunately, if you think ahead, you can add a `for_future_use` field that reserves some bytes where you expect to need them most.
 
@@ -385,7 +387,7 @@ To drive this all home, here's an example of a scheme from a production podcasti
     - Name
     - Audio URL
 
-In order to properly index each account address, the accounts use the following seeds:
+To properly index each account address, the accounts use the following seeds:
 
 ```rust
 // Channel Account
@@ -571,9 +573,11 @@ We'll walk through the tradeoffs of various design decisions as we go to give yo
 
 We'll build this from scratch. Start by creating a new Anchor project:
 
-```powershell
+```bash
 anchor init rpg
 ```
+
+Note: This lab was created with Anchor version `0.28.0` in mind. If there are problems compiling, please refer to the [solution code](https://github.com/Unboxed-Software/anchor-rpg/tree/challenge-solution) for the environment setup.
 
 Next, replace the program ID in `programs/rpg/lib.rs` and `Anchor.toml` with the program ID shown when you run `anchor keys list`.
 

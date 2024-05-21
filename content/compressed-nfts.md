@@ -9,7 +9,7 @@ objectives:
 
 # Summary
 
-- **Compressed NFTs (cNFTs)** use **State Compression** to hash NFT data and store the hash onchain in an account using a **concurrent merkle tree** structure
+- **Compressed NFTs (cNFTs)** use **State Compression** to hash NFT data and store the hash onchain in an account using a **concurrent Merkle tree** structure
 - The cNFT data hash can’t be used to infer the cNFT data, but it can be used to **verify** if the cNFT data you’re seeing is correct
 - Supporting RPC providers **index** cNFT data off-chain when the cNFT is minted so that you can use the **Read API** to access the data
 - The **Metaplex Bubblegum program** is an abstraction on top of the **State Compression** program that enables you to more simply create, mint, and manage cNFT collections
@@ -26,7 +26,7 @@ However, cNFTs can be tricky to work with. Eventually, the tooling required to w
 
 Most of the costs associated with traditional NFTs come down to account storage space. Compressed NFTs use a concept called State Compression to store data in the blockchain’s cheaper **ledger state**, using more expensive account space only to store a “fingerprint”, or **hash**, of the data. This hash allows you to cryptographically verify that data has not been tampered with.
 
-To both store hashes and enable verification, we use a special binary tree structure known as a **concurrent merkle tree**. This tree structure lets us hash data together in a deterministic way to compute a single, final hash that gets stored on-chain. This final hash is significantly smaller in size than all the original data combined, hence the “compression.” The steps to this process are:
+To both store hashes and enable verification, we use a special binary tree structure known as a **concurrent Merkle tree**. This tree structure lets us hash data together in a deterministic way to compute a single, final hash that gets stored on-chain. This final hash is significantly smaller in size than all the original data combined, hence the “compression.” The steps to this process are:
 
 1. Take any piece of data
 2. Create a hash of this data
@@ -35,32 +35,32 @@ To both store hashes and enable verification, we use a special binary tree struc
 5. Each branch is then hashed together
 6. Continually climb the tree and hash adjacent branches together
 7. Once at the top of the tree, a final ”root hash” is produced
-8. Store the root hash on chain as a verifiable proof of the data within each leaf
+8. Store the root hash onchain as a verifiable proof of the data within each leaf
 9. Anyone wanting to verify that the data they have matches the “source of truth” can go through the same process and compare the final hash without having to store all the data on-chain
 
-One problem not addressed in the above is how to make data available if it can’t be fetched from an account. Since this hashing process occurs on chain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from origin. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
+One problem not addressed in the above is how to make data available if it can’t be fetched from an account. Since this hashing process occurs onchain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from origin. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
 
 This process is *very complex*. We’ll cover some of the key concepts below but don’t worry if you don’t understand it right away. We’ll talk more theory in the state compression lesson and focus primarily on application to NFTs in this lesson. You’ll be able to work with cNFTs by the end of this lesson even if you don’t fully understand every piece of the state compression puzzle.
 
-### Concurrent Merkle Trees
+### Concurrent Merkle trees
 
-A **merkle tree** is a binary tree structure represented by a single hash. Every leaf node in the structure is a hash of its inner data while every branch is a hash of its child leaf hashes. In turn, branches are also hashed together until eventually one final root hash remains.
+A **Merkle tree** is a binary tree structure represented by a single hash. Every leaf node in the structure is a hash of its inner data while every branch is a hash of its child leaf hashes. In turn, branches are also hashed together until eventually one final root hash remains.
 
 Any modification to leaf data changes the root hash. This causes an issue when multiple transactions in the same slot are attempting to modify leaf data. Since these transactions must execute in series, all but the first will fail since the root hash and proof passed in will have been invalidated by the first transaction to be executed.
 
-A **concurrent merkle tree** is a merkle tree that stores a secure changelog of the most recent changes along with their root hash and the proof to derive it. When multiple transactions in the same slot try to modify leaf data, the changelog can be used as a source of truth to allow for concurrent changes to be made to the tree.
+A **concurrent Merkle tree** is a Merkle tree that stores a secure changelog of the most recent changes along with their root hash and the proof to derive it. When multiple transactions in the same slot try to modify leaf data, the changelog can be used as a source of truth to allow for concurrent changes to be made to the tree.
 
-When working with a concurrent merkle tree, there are three variables that determine the size of the tree, the cost to create the tree, and the number of concurrent changes that can be made to the tree:
+When working with a concurrent Merkle tree, there are three variables that determine the size of the tree, the cost to create the tree, and the number of concurrent changes that can be made to the tree:
 
 1. Max depth
 2. Max buffer size
 3. Canopy depth
 
-The **max depth** is the maximum number of hops to get from any leaf to the root of the tree. Since merkle trees are binary trees, every leaf is connected only to one other leaf. Max depth can then logically be used to calculate the number of nodes for the tree with `2 ^ maxDepth`.
+The **max depth** is the maximum number of hops to get from any leaf to the root of the tree. Since Merkle trees are binary trees, every leaf is connected only to one other leaf. Max depth can then logically be used to calculate the number of nodes for the tree with `2 ^ maxDepth`.
 
 The **max buffer size** is effectively the maximum number of concurrent changes that you can make to a tree within a single slot with the root hash still being valid.
 
-The **canopy depth** is the number of proof nodes that are stored on chain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit without caching proof nodes on-chain.
+The **canopy depth** is the number of proof nodes that are stored onchain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit without caching proof nodes on-chain.
 
 Each of these three values, max depth, max buffer size, and canopy depth, comes with a tradeoff. Increasing the value of any of these values increases the size of the account used to store the tree, thus increasing the cost to create the tree. 
 
@@ -70,7 +70,7 @@ Choosing a max buffer size is effectively a question of throughput: how many con
 
 ### SPL State Compression and Noop Programs
 
-The SPL State Compression Program exists to make the above process repeatable and composable throughout the Solana ecosystem. It provides instructions for initializing merkle trees, managing tree leafs (i.e. add, update, remove data), and verifying leaf data.
+The SPL State Compression Program exists to make the above process repeatable and composable throughout the Solana ecosystem. It provides instructions for initializing Merkle trees, managing tree leafs (i.e. add, update, remove data), and verifying leaf data.
 
 The State Compression Program also leverages a separate “no op” program whose primary purpose is to make leaf data easier to index by logging it to the ledger state.
 
@@ -78,7 +78,7 @@ The State Compression Program also leverages a separate “no op” program whos
 
 The Solana ledger is a list of entries containing signed transactions. In theory, this can be traced back to the genesis block. This effectively means any data that has ever been put into a transaction exists in the ledger.
 
-When you want to store compressed data, you pass it to the State Compression program where it gets hashed and emitted as an “event” to the Noop program. The hash is then stored in the corresponding concurrent merkle tree. Since the data passed through a transaction and even exists on the Noop program logs, it will forever exist on the ledger state. 
+When you want to store compressed data, you pass it to the State Compression program where it gets hashed and emitted as an “event” to the Noop program. The hash is then stored in the corresponding concurrent Merkle tree. Since the data passed through a transaction and even exists on the Noop program logs, it will forever exist on the ledger state. 
 
 ### Index data for easy lookup
 
@@ -149,9 +149,9 @@ const collectionNft = await metaplex.nfts().create({
 })
 ```
 
-### Create Merkle Tree Account
+### Create Merkle tree Account
 
-Now we start to deviate from the process you would use when creating traditional NFTs. The onchain storage mechanism you use for state compression is an account representing a concurrent merkle tree. This merkle tree account belongs to the SPL State Compression program. Before you can do anything related to cNFTs, you need to create an empty merkle tree account with the appropriate size.
+Now we start to deviate from the process you would use when creating traditional NFTs. The onchain storage mechanism you use for state compression is an account representing a concurrent Merkle tree. This Merkle tree account belongs to the SPL State Compression program. Before you can do anything related to cNFTs, you need to create an empty Merkle tree account with the appropriate size.
 
 The variables impacting the size of the account are:
 
@@ -218,7 +218,7 @@ Note that this is simply a helper function for calculating the size required by 
 
 ### Use Bubblegum to Initialize Your Tree
 
-With the empty tree account created, you then use the Bubblegum program to initialize the tree. In addition to the merkle tree account, Bubblegum creates a tree config account to add cNFT-specific tracking and functionality.
+With the empty tree account created, you then use the Bubblegum program to initialize the tree. In addition to the Merkle tree account, Bubblegum creates a tree config account to add cNFT-specific tracking and functionality.
 
 Version 0.7 of the `@metaplex-foundation/mpl-bubblegum` TS SDK provides the helper function `createCreateTreeInstruction` for calling the `create_tree` instruction on the Bubblegum program. As part of the call, you’ll need to derive the `treeAuthority` PDA expected by the program. This PDA uses the tree’s address as a seed.
 
@@ -261,28 +261,28 @@ const createTreeIx = createCreateTreeInstruction(
 The list below shows the required input for this helper function:
 
 - `accounts` - An object representing the accounts required by the instruction. This includes:
-    - `treeAuthority` - Bubblegum expects this to be a PDA derived using the merkle tree address as a seed
-    - `merkleTree` - The merkle tree account
+    - `treeAuthority` - Bubblegum expects this to be a PDA derived using the Merkle tree address as a seed
+    - `merkleTree` - The Merkle tree account
     - `payer` - The address paying for transaction fees, rent, etc.
     - `treeCreator` - The address to list as the tree creator
     - `logWrapper` - The program to use to expose the data to indexers through logs; this should be the address of the SPL Noop program unless you have some other custom implementation
-    - `compressionProgram` - The compression program to use for initializing the merkle tree; this should be the address of the SPL State Compression program unless you have some other custom implementation
+    - `compressionProgram` - The compression program to use for initializing the Merkle tree; this should be the address of the SPL State Compression program unless you have some other custom implementation
 - `args` - An object representing additional arguments required by the instruction. This includes:
-    - `maxBufferSize` - The max buffer size of the merkle tree
-    - `maxDepth` - The max depth of the merkle tree
+    - `maxBufferSize` - The max buffer size of the Merkle tree
+    - `maxDepth` - The max depth of the Merkle tree
     - `public` - When set to `true`, anyone will be able to mint cNFTs from the tree; when set to `false`, only the tree creator or tree delegate will be able to min cNFTs from the tree
 
 When submitted, this will invoke the `create_tree` instruction on the Bubblegum program. This instruction does three things:
 
 1. Creates the tree config PDA account
 2. Initializes the tree config account with appropriate initial values
-3. Issues a CPI to the State Compression program to initialize the empty merkle tree account
+3. Issues a CPI to the State Compression program to initialize the empty Merkle tree account
 
 Feel free to take a look at the program code [here](https://github.com/metaplex-foundation/mpl-bubblegum/blob/main/programs/bubblegum/program/src/lib.rs#L887).
 
 ### Mint cNFTs
 
-With the merkle tree account and its corresponding Bubblegum tree config account initialized, it’s possible to mint cNFTs to the tree. The Bubblegum instruction to use will be either `mint_v1` or `mint_to_collection_v1`, depending on whether or not you want to the minted cNFT to be part of a collection.
+With the Merkle tree account and its corresponding Bubblegum tree config account initialized, it’s possible to mint cNFTs to the tree. The Bubblegum instruction to use will be either `mint_v1` or `mint_to_collection_v1`, depending on whether or not you want to the minted cNFT to be part of a collection.
 
 Version 0.7 of the `@metaplex-foundation/mpl-bubblegum` TS SDK provides helper functions `createMintV1Instruction` and `createMintToCollectionV1Instruction` to make it easier for you to create the instructions.
 
@@ -318,7 +318,7 @@ const mintWithCollectionIx = createMintToCollectionV1Instruction(
 Notice that there are two arguments for the helper function: `accounts` and `args`. The `args` parameter is simply the NFT metadata, while `accounts` is an object listing the accounts required by the instruction. There are admittedly a lot of them:
 
 - `payer` - the account that will pay for the transaction fees, rent, etc.
-- `merkleTree` - the merkle tree account
+- `merkleTree` - the Merkle tree account
 - `treeAuthority` - the tree authority; should be the same PDA you derived previously
 - `treeDelegate` - the tree delegate; this is usually the same as the tree creator
 - `leafOwner` - the desired owner of the compressed NFT being minted
@@ -355,13 +355,13 @@ const mintWithoutCollectionIx = createMintV1Instruction(
 
 ## Interact with cNFTs
 
-It’s important to note that cNFTs *are not* SPL tokens. That means your code needs to follow different conventions in order to handle cNFT functionality like fetching, querying, transferring, etc.
+It’s important to note that cNFTs *are not* SPL tokens. That means your code needs to follow different conventions to handle cNFT functionality like fetching, querying, transferring, etc.
 
 ### Fetch cNFT data
 
 The simplest way to fetch data from an existing cNFT is to use the [Digital Asset Standard Read API](https://docs.solana.com/developing/guides/compressed-nfts#reading-compressed-nfts-metadata) (Read API). Note that this is separate from the standard JSON RPC. To use the Read API, you’ll need to use a supporting RPC Provider. Metaplex maintains a (likely non-exhaustive) [list of RPC providers](https://developers.metaplex.com/bubblegum/rpcs) that support the Read API. In this lesson we’ll be using [Helius](https://docs.helius.dev/compression-and-das-api/digital-asset-standard-das-api) as they have free support for Devnet.
 
-In order to use the Read API to fetch a specific cNFT, you need to have the cNFT’s asset ID. However, after minting cNFTs, you’ll have at most two pieces of information:
+To use the Read API to fetch a specific cNFT, you need to have the cNFT’s asset ID. However, after minting cNFTs, you’ll have at most two pieces of information:
 
 1. The transaction signature
 2. The leaf index (possibly)
@@ -373,10 +373,10 @@ This is a reasonable assumption for most mints given that the minting will be co
 Once you have the leaf index, you can derive the cNFT’s corresponding asset ID. When using Bubblegum, the asset ID is a PDA derived using the Bubblegum program ID and the following seeds:
 
 1. The static string `asset` represented in utf8 encoding
-2. The merkle tree address
+2. The Merkle tree address
 3. The leaf index
 
-The indexer essentially observes transaction logs from the Noop program as they happen and stores the cNFT metadata that was hashed and stored in the merkle tree. This enables them to surface that data when requested. This asset id is what the indexer uses to identify the particular asset.
+The indexer essentially observes transaction logs from the Noop program as they happen and stores the cNFT metadata that was hashed and stored in the Merkle tree. This enables them to surface that data when requested. This asset id is what the indexer uses to identify the particular asset.
 
 For simplicity, you can just use the `getLeafAssetId` helper function from the Bubblegum SDK. With the asset ID, fetching the cNFT is fairly straightforward. Simply use the `getAsset` method provided by the supporting RPC provider:
 
@@ -420,9 +420,9 @@ We won’t go over most of these directly, but be sure to look through the [Heli
 
 Just as with a standard SPL token transfer, security is paramount. An SPL token transfer, however, makes verifying transfer authority very easy. It’s built into the SPL Token program and standard signing. A compressed token’s ownership is more difficult to verify. The actual verification will happen program-side, but your client-side code needs to provide additional information to make it possible.
 
-While there is a Bubblegum `createTransferInstruction` helper function, there is more assembly required than usual. Specifically, the Bubblegum program needs to verify that the entirety of the cNFT’s data is what the client asserts before a transfer can occur. The entirety of the cNFT data has been hashed and stored as a single leaf on the merkle tree, and the merkle tree is simply a hash of all the tree’s leafs and branches. Because of this, you can’t simply tell the program what account to look at and have it compare that account’s `authority` or `owner` field to the transaction signer.
+While there is a Bubblegum `createTransferInstruction` helper function, there is more assembly required than usual. Specifically, the Bubblegum program needs to verify that the entirety of the cNFT’s data is what the client asserts before a transfer can occur. The entirety of the cNFT data has been hashed and stored as a single leaf on the Merkle tree, and the Merkle tree is simply a hash of all the tree’s leafs and branches. Because of this, you can’t simply tell the program what account to look at and have it compare that account’s `authority` or `owner` field to the transaction signer.
 
-Instead, you need to provide the entirety of the cNFT data and any of the merkle tree’s proof information that isn’t stored in the canopy. That way, the program can independently prove that the provided cNFT data, and therefore the cNFT owner, is accurate. Only then can the program safely determine if the transaction signer should, in fact, be allowed to transfer the cNFT.
+Instead, you need to provide the entirety of the cNFT data and any of the Merkle tree’s proof information that isn’t stored in the canopy. That way, the program can independently prove that the provided cNFT data, and therefore the cNFT owner, is accurate. Only then can the program safely determine if the transaction signer should, in fact, be allowed to transfer the cNFT.
 
 In broad terms, this involves a five step process:
 
@@ -464,7 +464,7 @@ const assetProofResponse = await fetch(process.env.RPC_URL, {
 const assetProof = (await assetProofResponse.json()).result
 ```
 
-The third step is to fetch the merkle tree account. The simplest way to do this is using the `ConcurrentMerkleTreeAccount` type from `@solana/spl-account-compression`:
+The third step is to fetch the Merkle tree account. The simplest way to do this is using the `ConcurrentMerkleTreeAccount` type from `@solana/spl-account-compression`:
 
 ```tsx
 const treePublicKey = new PublicKey(assetData.compression.tree)
@@ -494,8 +494,8 @@ const proofPath: AccountMeta[] = assetProof.proof
 Finally, you can assemble the transfer instruction. The instruction helper function, `createTransferInstruction`, requires the following arguments:
 
 - `accounts` - a list of instruction accounts, as expected; they are as follows:
-    - `merkleTree` - the merkle tree account
-    - `treeAuthority` - the merkle tree authority
+    - `merkleTree` - the Merkle tree account
+    - `treeAuthority` - the Merkle tree authority
     - `leafOwner` - the owner of the leaf (cNFT) in question
     - `leafDelegate` - the delegate of the leaf (cNFT) in question; if no delegate has been added then this should be the same as `leafOwner`
     - `newLeafOwner` - the address of the new owner post-transfer
@@ -503,11 +503,11 @@ Finally, you can assemble the transfer instruction. The instruction helper funct
     - `compressionProgram` - the compression program to use; this should be the address of the SPL State Compression program unless you have some other custom implementation
     - `anchorRemainingAccounts` - this is where you add the proof path
 - `args` - additional arguments required by the instruction; they are:
-    - `root` - the root merkle tree node from the asset proof; this is provided by the indexer as a string and must be converted to bytes first
+    - `root` - the root Merkle tree node from the asset proof; this is provided by the indexer as a string and must be converted to bytes first
     - `dataHash` - the hash of the asset data retrieved from the indexer; this is provided by the indexer as a string and must be converted to bytes first
     - `creatorHash` - the hash of the cNFT creator as retrieved from the indexer; this is provided by the indexer as a string and must be converted to bytes first
     - `nonce` - used to ensure that no two leafs have the same hash; this value should be the same as `index`
-    - `index` - the index where the cNFT’s leaf is located on the merkle tree
+    - `index` - the index where the cNFT’s leaf is located on the Merkle tree
 
 An example of this is shown below. Note that the first 3 lines of code grab additional information nested in the objects shown previously so they are ready to go when assembling the instruction itself.
 
@@ -549,7 +549,7 @@ Keep in mind that compression is fairly new. Available tooling will evolve rapid
 
 # Lab
 
-Let’s jump in and practice creating and working with cNFTs. Together, we’ll build as simple a script as possible that will let us mint a cNFT collection from a merkle tree.
+Let’s jump in and practice creating and working with cNFTs. Together, we’ll build as simple a script as possible that will let us mint a cNFT collection from a Merkle tree.
 
 ### 1. Get the starter code
 
@@ -576,16 +576,16 @@ Finally, there’s some boilerplate in `index.ts` that calls creates a new Devne
 
 We will be writing all of our code in the `index.ts`.
 
-### 2. Create the merkle tree account
+### 2. Create the Merkle tree account
 
-We’ll start by creating the merkle tree account. Let’s encapsulate this in a function that will eventually create *and* initialize the account. We’ll put it below our `main` function in `index.ts`. Let’s call it `createAndInitializeTree`. For this function to work, it will need the following parameters:
+We’ll start by creating the Merkle tree account. Let’s encapsulate this in a function that will eventually create *and* initialize the account. We’ll put it below our `main` function in `index.ts`. Let’s call it `createAndInitializeTree`. For this function to work, it will need the following parameters:
 
 - `connection` - a `Connection` to use for interacting with the network.
 - `payer` - a `Keypair` that will pay for transactions.
 - `maxDepthSizePair` - a `ValidDepthSizePair`. This type comes from `@solana/spl-account-compression`. It’s a simple object with properties `maxDepth` and `maxBufferSize` that enforces a valid combination of the two values.
 - `canopyDepth` - a number for the canopy depth
     
-    In the body of the function, we’ll generate a new address for the tree, then create the instruction for allocating a new merkle tree account by calling `createAllocTreeIx` from `@solana/spl-account-compression`.
+    In the body of the function, we’ll generate a new address for the tree, then create the instruction for allocating a new Merkle tree account by calling `createAllocTreeIx` from `@solana/spl-account-compression`.
     
 
 ```tsx
@@ -607,15 +607,15 @@ async function createAndInitializeTree(
 }
 ```
 
-### 3. Use Bubblegum to initialize the merkle tree and create the tree config account
+### 3. Use Bubblegum to initialize the Merkle tree and create the tree config account
 
-With the instruction for creating the tree ready to go, we can create an instruction for invoking `create_tree` on the Bubblegum program. This will initialize the merkle tree account *and* create a new tree config account on the Bubblegum program.
+With the instruction for creating the tree ready to go, we can create an instruction for invoking `create_tree` on the Bubblegum program. This will initialize the Merkle tree account *and* create a new tree config account on the Bubblegum program.
 
 This instruction needs us to provide the following:
 
 - `accounts` - an object of required accounts; this includes:
-    - `treeAuthority` - this should be a PDA derived with the merkle tree address and the Bubblegum program
-    - `merkleTree` - the address of the merkle tree
+    - `treeAuthority` - this should be a PDA derived with the Merkle tree address and the Bubblegum program
+    - `merkleTree` - the address of the Merkle tree
     - `payer` - the transaction fee payer
     - `treeCreator` - the address of the tree creator; we’ll make this the same as `payer`
     - `logWrapper` - make this the `SPL_NOOP_PROGRAM_ID`
@@ -685,7 +685,7 @@ async function createAndInitializeTree(
 
     return treeKeypair.publicKey
   } catch (err: any) {
-    console.error("\nFailed to create merkle tree:", err)
+    console.error("\nFailed to create Merkle tree:", err)
     throw err
   }
 }
@@ -727,13 +727,13 @@ First, let’s declare a function called `mintCompressedNftToCollection`. It wil
 
 - `connection` - a `Connection` to use for interacting with the network.
 - `payer` - a `Keypair` that will pay for transactions.
-- `treeAddress` - the merkle tree’s address
+- `treeAddress` - the Merkle tree’s address
 - `collectionDetails` - the details of the collection as type `CollectionDetails` from `utils.ts`
 - `amount` - the number of cNFTs to mint
 
 The body of this function will do the following:
 
-1. Derive the tree authority just like before. Again, this is a PDA derived from the merkle tree address and the Bubblegum program.
+1. Derive the tree authority just like before. Again, this is a PDA derived from the Merkle tree address and the Bubblegum program.
 2. Derive the `bubblegumSigner`. This is a PDA derived from the string `"collection_cpi"` and the Bubblegum program and is essential for minting to a collection.
 3. Create the cNFT metadata by calling `createNftMetadata` from our `utils.ts` file.
 4. Create the mint instruction by calling `createMintToCollectionV1Instruction` from the Bubblegum SDK.
@@ -743,7 +743,7 @@ The body of this function will do the following:
 The `createMintToCollectionV1Instruction` takes two arguments: `accounts` and `args`. The latter is simply the NFT metadata. As with all complex instructions, the primary hurdle is knowing which accounts to provide. So let’s go through them real quick:
 
 - `payer` - the account that will pay for the transaction fees, rent, etc.
-- `merkleTree` - the merkle tree account
+- `merkleTree` - the Merkle tree account
 - `treeAuthority` - the tree authority; should be the same PDA you derived previously
 - `treeDelegate` - the tree delegate; this is usually the same as the tree creator
 - `leafOwner` - the desired owner of the compressed NFT being minted
@@ -875,7 +875,7 @@ Again, to run, in your terminal type: `npm run start`
 
 ### 5. Read existing cNFT data
 
-Now that we’ve written code to mint cNFTs, let’s see if we can actually fetch their data. This is tricky because the onchain data is just the merkle tree account, the data from which can be used to verify existing information as accurate but is useless in conveying what the information is.
+Now that we’ve written code to mint cNFTs, let’s see if we can actually fetch their data. This is tricky because the onchain data is just the Merkle tree account, the data from which can be used to verify existing information as accurate but is useless in conveying what the information is.
 
 Let’s start by declaring a function `logNftDetails` that takes as parameters `treeAddress` and `nftsMinted`.
 
@@ -915,7 +915,7 @@ async function logNftDetails(treeAddress: PublicKey, nftsMinted: number) {
 }
 ```
 
-Helius essentially observes transaction logs as they happen and stores the NFT metadata that was hashed and stored in the merkle tree. This enables them to surface that data when requested. 
+Helius essentially observes transaction logs as they happen and stores the NFT metadata that was hashed and stored in the Merkle tree. This enables them to surface that data when requested. 
 
 If we add a call to this function at the end of `main` and re-run your script, the data we get back in the console is very comprehensive. It includes all of the data you’d expect in both the onchain and off-chain portion of a traditional NFT. You can find the cNFT’s attributes, files, ownership and creator information, and more.
 
@@ -1016,7 +1016,7 @@ Remember, the Read API also includes ways to get multiple assets, query by owner
 
 ### 6. Transfer a cNFT
 
-The last thing we’re going to add to our script is a cNFT transfer. Just as with a standard SPL token transfer, security is paramount. Unlike with a standard SPL token transfer, however, in order to build a secure transfer with state compression of any kind, the program performing the transfer needs the entire asset data.
+The last thing we’re going to add to our script is a cNFT transfer. Just as with a standard SPL token transfer, security is paramount. Unlike with a standard SPL token transfer, however, to build a secure transfer with state compression of any kind, the program performing the transfer needs the entire asset data.
 
 The program, Bubblegum in this case, needs to be provided with the entire data that was hashed and stored on the corresponding leaf *and* needs to be given the “proof path” for the leaf in question. That makes cNFT transfers a bit trickier than SPL token transfers.
 
@@ -1079,7 +1079,7 @@ async function transferNft(
 }
 ```
 
-Next, let’s fetch the merkle tree account from the chain, get the canopy depth, and assemble the proof path. We do this by mapping the asset proof we got from Helius to a list of `AccountMeta` objects, then removing any proof nodes at the end that are already cached onchain in the canopy.
+Next, let’s fetch the Merkle tree account from the chain, get the canopy depth, and assemble the proof path. We do this by mapping the asset proof we got from Helius to a list of `AccountMeta` objects, then removing any proof nodes at the end that are already cached onchain in the canopy.
 
 ```tsx
 async function transferNft(

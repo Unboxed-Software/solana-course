@@ -238,9 +238,9 @@ Notice that `realloc` is set to `8 + 4 + instruction_data.len()`. This breaks do
 - `4` is for the 4 bytes of space that BORSH uses to store the length of the string
 - `instruction_data.len()` is the length of the string itself
 
-If the change in account data length is additive, lamports will be transferred from the `realloc::payer` to the account in order to maintain rent exemption. Likewise, if the change is subtractive, lamports will be transferred from the account back to the `realloc::payer`.
+If the change in account data length is additive, lamports will be transferred from the `realloc::payer` to the account to maintain rent exemption. Likewise, if the change is subtractive, lamports will be transferred from the account back to the `realloc::payer`.
 
-The `realloc::zero` constraint is required in order to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where you expect the memory of an account to shrink and expand multiple times. That way you zero out space that would otherwise show as stale data.
+The `realloc::zero` constraint is required to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where you expect the memory of an account to shrink and expand multiple times. That way you zero out space that would otherwise show as stale data.
 
 ## Close
 
@@ -361,7 +361,7 @@ Within the instruction logic, we’ll populate the data of the new `movie_review
 
 ```rust
 #[program]
-pub mod movie_review{
+pub mod anchor_movie_review_program{
     use super::*;
 
     pub fn add_movie_review(
@@ -528,7 +528,7 @@ pub struct DeleteMovieReview<'info> {
 }
 ```
 
-Here we use the `close` constraint to specify we are closing the `movie_review` account and that the rent should be refunded to the `initializer` account. We also include the `seeds` and `bump` constraints for the the `movie_review` account for validation. Anchor then handles the additional logic required to securely close the account.
+Here we use the `close` constraint to specify we are closing the `movie_review` account and that the rent should be refunded to the `initializer` account. We also include the `seeds` and `bump` constraints for the `movie_review` account for validation. Anchor then handles the additional logic required to securely close the account.
 
 ### 6. Testing
 
@@ -543,7 +543,7 @@ Here we:
 ```typescript
 import * as anchor from "@coral-xyz/anchor"
 import { Program } from "@coral-xyz/anchor"
-import { assert, expect } from "chai"
+import { expect } from "chai"
 import { AnchorMovieReviewProgram } from "../target/types/anchor_movie_review_program"
 
 describe("anchor-movie-review-program", () => {
@@ -575,6 +575,8 @@ describe("anchor-movie-review-program", () => {
 
 Next, let's create the first test for the `addMovieReview` instruction. Note that we don't explicitly add `.accounts`. This is because the `Wallet` from `AnchorProvider` is automatically included as a signer, Anchor can infer certain accounts like `SystemProgram`, and Anchor can also infer the `movieReview` PDA from the `title` instruction argument and the signer's public key.
 
+Note: don't forget to turn on seed inference with `seeds = true` in the `Anchor.toml` file.
+
 Once the instruction runs, we then fetch the `movieReview` account and check that the data stored on the account match the expected values.
 
 ```typescript
@@ -585,10 +587,10 @@ it("Movie review is added`", async () => {
     .rpc()
 
   const account = await program.account.movieAccountState.fetch(moviePda)
-  expect(movie.title === account.title)
-  expect(movie.rating === account.rating)
-  expect(movie.description === account.description)
-  expect(account.reviewer === provider.wallet.publicKey)
+  expect(account.title).to.equal(movie.title)
+  expect(account.rating).to.equal(movie.rating)
+  expect(account.description).to.equal(movie.description)
+  expect(account.reviewer.toBase58()).to.equal(provider.wallet.publicKey.toBase58())
 })
 ```
 
@@ -604,10 +606,10 @@ it("Movie review is updated`", async () => {
     .rpc()
 
   const account = await program.account.movieAccountState.fetch(moviePda)
-  expect(movie.title === account.title)
-  expect(newRating === account.rating)
-  expect(newDescription === account.description)
-  expect(account.reviewer === provider.wallet.publicKey)
+  expect(account.title).to.equal(movie.title)
+  expect(account.rating).to.equal(newRating)
+  expect(account.description).to.equal(newDescription)
+  expect(account.reviewer.toBase58()).to.equal(provider.wallet.publicKey.toBase58())
 })
 ```
 

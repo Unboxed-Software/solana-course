@@ -18,9 +18,9 @@ objectives:
 
 ## Symmetric and Asymmetric Cryptography
 
-'Cryptography' is literally the study of hiding information. There's two main types of cryptography you'll encounter day to day:
+'Cryptography' is literally the study of hiding information. There are two main types of cryptography you'll encounter day to day:
 
-**Symmetric Cryptography** is where the same key is used to encrypt and decrypt. It's hundreds of years old, and has been used by everyone from the ancient Egyptians to Queen Elizabeth I.
+**Symmetric Cryptography** is where the same key is used to encrypt and decrypt. It's hundreds of years old and has been used by everyone from the ancient Egyptians to Queen Elizabeth I.
 
 There's a variety of symmetric cryptography algorithms, but the most common you'll see today are AES and Chacha20.
 
@@ -186,7 +186,7 @@ Run `npx esrun generate-keypair.ts`. You should see the following result:
 ✅ Finished! We've loaded our secret key securely, using an env file!
 ```
 
-We've now learnt about keypairs, and how to store secret keys securely on Solana. In the next chapter, we'll use them! 
+We've now learned about keypairs, and how to store secret keys securely on Solana. In the next chapter, we'll use them! 
 
 
 ## Completed the lab?

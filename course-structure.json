@@ -40,6 +40,16 @@
                             "lab": "Make transactions and use Explorer"
                         },
                         {
+                            "title": "Create tokens with the Token Program",
+                            "slug": "token-program",
+                            "lab": "Mint, transfer and burn tokens"
+                        },
+                        {
+                            "title": "Create Solana NFTs With Metaplex",
+                            "slug": "nfts-with-metaplex",
+                            "lab": "Mint NFTs, update their metadata, and associate with a collection"
+                        },
+                        {
                             "title": "Create transactions for custom onchain programs",
                             "slug": "intro-to-custom-on-chain-programs",
                             "lab": "Make transactions for a custom onchain program"
@@ -48,7 +58,61 @@
                             "title": "Interact with wallets",
                             "slug": "interact-with-wallets",
                             "lab": "Make a React frontend to the Ping program"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Onchain program development",
+            "slug": "on-chain-program-development",
+            "units": [
+                {
+                    "title": "Introduction to Onchain Program Development",
+                    "slug": "introduction-to-onchain-program-development",
+                    "lessons": [
+                        {
+                            "title": "Intro to onchain program development",
+                            "slug": "intro-to-onchain",
+                            "lab": null
                         },
+                        {
+                            "title": "Local Setup",
+                            "slug": "local-setup",
+                            "lab": "Configure Windows, Mac and Linux for localhost Solana development"
+                        }
+                    ]
+                },
+                {
+                    "title": "Anchor Program Development",
+                    "slug": "anchor-program-development",
+                    "lessons": [
+                        {
+                            "title": "Getting started with Anchor",
+                            "slug": "intro-to-anchor",
+                            "lab": "Create a 'hello world' application"
+                        },
+                        {
+                            "title": "Using Anchor programs from JS/TS",
+                            "slug": "intro-to-anchor-frontend",
+                            "lab": "Create a React and Anchor frontend for the ping-counter app"
+                        },
+                        {
+                            "title": "Anchor PDAs and accounts",
+                            "slug": "anchor-pdas",
+                            "lab": "Use Anchor to create a Movie Review program"
+                        },
+                        {
+                            "title": "Anchor CPIs and errors",
+                            "slug": "anchor-cpi",
+                            "lab": "Mint token rewards for reviews"
+                        }
+                    ]
+                },
+                {
+                    "title": "Native Solana Program Development",
+                    "slug": "basic-solana-program-development",
+                    "lessons": [
                         {
                             "title": "Serialize program data",
                             "slug": "serialize-instruction-data",
@@ -63,39 +127,11 @@
                             "title": "Page, Order, and Filter program data",
                             "slug": "paging-ordering-filtering-data",
                             "lab": "Adding paging, ordering and searching to the movie reviews frontend"
-                        }
-                    ]
-                },
-                {
-                    "title": "Client Interaction with Common Solana Programs",
-                    "slug": "client-interaction-with-solana",
-                    "lessons": [
-                        {
-                            "title": "Create tokens with the Token Program",
-                            "slug": "token-program",
-                            "lab": "Mint, transfer and burn tokens"
                         },
                         {
-                            "title": "Create Solana NFTs With Metaplex",
-                            "slug": "nfts-with-metaplex",
-                            "lab": "Mint NFTs, update their metadata, and associate with a collection"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "title": "Onchain program development",
-            "slug": "on-chain-program-development",
-            "units": [
-                {
-                    "title": "Basic Solana Program Development",
-                    "slug": "basic-solana-program-development",
-                    "lessons": [
-                        {
-                            "title": "Hello World",
+                            "title": "Hello World in native",
                             "slug": "hello-world-program",
-                            "lab": "Create and deploy a 'hello world' onchain program"
+                            "lab": "Create and deploy a native 'hello world' onchain program"
                         },
                         {
                             "title": "Handle Instruction Data",
@@ -119,11 +155,6 @@
                     "slug": "intermediate-solana-program-development",
                     "lessons": [
                         {
-                            "title": "Local Program Development",
-                            "slug": "local-setup",
-                            "lab": "Configure Windows, Mac and Linux for localhost Solana development"
-                        },
-                        {
                             "title": "Program Derived Addresses",
                             "slug": "pda",
                             "lab": "Use PDAs to store comments for the movie reviews program"
@@ -137,32 +168,6 @@
                             "title": "Program Testing",
                             "slug": "program-testing",
                             "hidden": true
-                        }
-                    ]
-                },
-                {
-                    "title": "Anchor Program Development",
-                    "slug": "anchor-program-development",
-                    "lessons": [
-                        {
-                            "title": "Intro to Anchor development",
-                            "slug": "intro-to-anchor",
-                            "lab": "Create and deploy a ping-counter onchain app using Anchor"
-                        },
-                        {
-                            "title": "Intro to client-side Anchor development",
-                            "slug": "intro-to-anchor-frontend",
-                            "lab": "Create a React and Anchor frontend for the ping-counter app"
-                        },
-                        {
-                            "title": "Anchor PDAs and accounts",
-                            "slug": "anchor-pdas",
-                            "lab": "Use Anchor to create a Movie Review program"
-                        },
-                        {
-                            "title": "Anchor CPIs and errors",
-                            "slug": "anchor-cpi",
-                            "lab": "Mint token rewards for reviews"
                         }
                     ]
                 },
@@ -291,7 +296,7 @@
             "units": [
                 {
                     "title": "Solana Mobile Development",
-                    "slug": "solana-mobile-development-unit",
+                    "slug": "solana-mobile-development",
                     "lessons": [
                         {
                             "title": "Introduction to Solana Mobile",
@@ -317,7 +322,8 @@
             "slug": "token-extensions-program",
             "units": [
                 {
-                    "title": "Intro To Token Extensions Program",
+
+                    "title": "Intro to Token Extensions Program",
                     "slug": "intro-to-token-extensions-program",
                     "lessons": [
                         {
@@ -327,12 +333,12 @@
                         },
                         {
                             "title": "Intro to Token Extensions Program in the Client",
-                            "slug": "token22-in-the-client",
+                            "slug": "token-extensions-in-the-client",
                             "lab": "Integrate Token Program and Token Extensions Program in the client"
                         },
                         {
                             "title": "Intro to Token Extensions Program On-Chain",
-                            "slug": "token22-on-chain",
+                            "slug": "token-extensions-on-chain",
                             "lab": "Integrate Token Program and Token Extensions Program on-chain"
                         }
                     ]
@@ -343,7 +349,7 @@
                     "lessons": [
                         {
                             "title": "Metadata and Metadata Pointer Extension",
-                            "slug": "token22-metadata",
+                            "slug": "token-extensions-metadata",
                             "lab": "Make an NFT using the Token Extensions Program"
                         },
                         {
