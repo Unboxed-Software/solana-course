@@ -507,8 +507,8 @@ Patakbuhin ang `anchor build` upang buuin ang program.
 Ang mga anchor test ay karaniwang mga Typescript integration test na gumagamit ng mocha test framework. Matututunan namin ang higit pa tungkol sa pagsubok sa ibang pagkakataon, ngunit sa ngayon ay mag-navigate sa `anchor-counter.ts` at palitan ang default na test code ng mga sumusunod:
 
 ```typescript
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { expect } from "chai"
 import { AnchorCounter } from "../target/types/anchor_counter"
 

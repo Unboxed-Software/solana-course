@@ -40,7 +40,7 @@
                             "lab": "Make transactions and use Explorer"
                         },
                         {
-                            "title": "Create transactions for custom on-chain programs",
+                            "title": "Create transactions for custom onchain programs",
                             "slug": "intro-to-custom-on-chain-programs",
                             "lab": "Make transactions for a custom onchain program"
                         },
@@ -85,7 +85,7 @@
             ]
         },
         {
-            "title": "On-chain program development",
+            "title": "Onchain program development",
             "slug": "on-chain-program-development",
             "units": [
                 {
@@ -95,17 +95,17 @@
                         {
                             "title": "Hello World",
                             "slug": "hello-world-program",
-                            "lab": "Create and deploy a 'hello world' on-chain program"
+                            "lab": "Create and deploy a 'hello world' onchain program"
                         },
                         {
                             "title": "Handle Instruction Data",
                             "slug": "deserialize-instruction-data",
-                            "lab": "Make an on-chain program that recieves movie reviews and deserialises them"
+                            "lab": "Make an onchain program that recieves movie reviews and deserialises them"
                         },
                         {
                             "title": "State Management",
                             "slug": "program-state-management",
-                            "lab": "Make an on-chain program that stores movie reviews"
+                            "lab": "Make an onchain program that stores movie reviews"
                         },
                         {
                             "title": "Basic Security and Validation",
@@ -147,7 +147,7 @@
                         {
                             "title": "Intro to Anchor development",
                             "slug": "intro-to-anchor",
-                            "lab": "Create and deploy a ping-counter on-chain app using Anchor"
+                            "lab": "Create and deploy a ping-counter onchain app using Anchor"
                         },
                         {
                             "title": "Intro to client-side Anchor development",
@@ -259,7 +259,7 @@
                         {
                             "title": "Program architecture",
                             "slug": "program-architecture",
-                            "lab": "Create an optimized on-chain RPG game"
+                            "lab": "Create an optimized onchain RPG game"
                         },
                         {
                             "title": "Oracles and oracle networks",

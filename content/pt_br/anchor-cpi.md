@@ -456,8 +456,8 @@ Essas são todas as alterações que precisamos fazer no programa! Agora, vamos 
 Comece certificando-se de que suas importações e a função `describe` tenham a seguinte aparência:
 
 ```typescript
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { expect } from "chai"
 import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token"
 import { AnchorMovieReviewProgram } from "../target/types/anchor_movie_review_program"

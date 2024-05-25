@@ -214,8 +214,8 @@ Kasama sa test file ang setup para gumawa ng account sa pamamagitan ng paggamit 
 Dahil walang mga pagsusuri sa pag-verify na ang data ng account ay hindi pa nasisimulan, ang pagtuturo ng `insecure_initialization` ay matagumpay na makukumpleto sa parehong pagkakataon, sa kabila ng pangalawang invocation na nagbibigay ng *ibang* awtoridad na account.
 
 ```tsx
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { expect } from "chai"
 import { Initialization } from "../target/types/initialization"
 

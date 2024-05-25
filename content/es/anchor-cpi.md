@@ -460,8 +460,8 @@ pub fn update_movie_review(ctx: Context<UpdateMovieReview>, title: String, descr
 Comience asegurándose de que su `describe` función NAD de importaciones se vea así:
 
 ```typescript
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { expect } from "chai"
 import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token"
 import { AnchorMovieReviewProgram } from "../target/types/anchor_movie_review_program"

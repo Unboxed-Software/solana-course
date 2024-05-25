@@ -290,8 +290,8 @@ Let's go ahead and derive the token mint and mint authority addresses using the 
 ```rust
 // Mint tokens here
 msg!("deriving mint authority");
-let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
-let (mint_auth_pda, _mint_auth_bump) =
+let (mint_pda, _mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
+let (mint_auth_pda, mint_auth_bump) =
     Pubkey::find_program_address(&[b"token_auth"], program_id);
 ```
 
@@ -350,7 +350,7 @@ invoke_signed(
     // Account_infos
     &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
     // Seeds
-    &[&[b"token_mint", &[mint_bump]]],
+    &[&[b"token_auth", &[mint_auth_bump]]],
 )?;
 
 Ok(())
@@ -384,8 +384,8 @@ Next, move to the bottom of the `add_comment` function just before the `Ok(())`.
 ```rust
 // Mint tokens here
 msg!("deriving mint authority");
-let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
-let (mint_auth_pda, _mint_auth_bump) =
+let (mint_pda, _mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
+let (mint_auth_pda, mint_auth_bump) =
     Pubkey::find_program_address(&[b"token_auth"], program_id);
 ```
 
@@ -430,7 +430,7 @@ invoke_signed(
     // Account_infos
     &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
     // Seeds
-    &[&[b"token_mint", &[mint_bump]]],
+    &[&[b"token_auth", &[mint_auth_bump]]],
 )?;
 
 Ok(())

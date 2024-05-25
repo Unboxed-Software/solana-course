@@ -9,7 +9,7 @@ objectives:
 
 # Summary
 
-- **Compressed NFTs (cNFTs)** use **State Compression** to hash NFT data and store the hash on-chain in an account using a **concurrent merkle tree** structure
+- **Compressed NFTs (cNFTs)** use **State Compression** to hash NFT data and store the hash onchain in an account using a **concurrent merkle tree** structure
 - The cNFT data hash can’t be used to infer the cNFT data, but it can be used to **verify** if the cNFT data you’re seeing is correct
 - Supporting RPC providers **index** cNFT data off-chain when the cNFT is minted so that you can use the **Read API** to access the data
 - The **Metaplex Bubblegum program** is an abstraction on top of the **State Compression** program that enables you to more simply create, mint, and manage cNFT collections
@@ -38,7 +38,7 @@ To both store hashes and enable verification, we use a special binary tree struc
 8. Store the root hash on chain as a verifiable proof of the data within each leaf
 9. Anyone wanting to verify that the data they have matches the “source of truth” can go through the same process and compare the final hash without having to store all the data on-chain
 
-One problem not addressed in the above is how to make data available if it can’t be fetched from an account. Since this hashing process occurs on chain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from origin. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the on-chain root hash.
+One problem not addressed in the above is how to make data available if it can’t be fetched from an account. Since this hashing process occurs on chain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from origin. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
 
 This process is *very complex*. We’ll cover some of the key concepts below but don’t worry if you don’t understand it right away. We’ll talk more theory in the state compression lesson and focus primarily on application to NFTs in this lesson. You’ll be able to work with cNFTs by the end of this lesson even if you don’t fully understand every piece of the state compression puzzle.
 
@@ -82,7 +82,7 @@ When you want to store compressed data, you pass it to the State Compression pro
 
 ### Index data for easy lookup
 
-Under normal conditions, you would typically access on-chain data by fetching the appropriate account. When using state compression, however, it’s not so straightforward. 
+Under normal conditions, you would typically access onchain data by fetching the appropriate account. When using state compression, however, it’s not so straightforward. 
 
 As mentioned above, the data now exists in the ledger state rather than in an account. The easiest place to find the full data is in the logs of the Noop instruction, but while this data will in a sense exist in the ledger state forever, it will likely be inaccessible through validators after a certain period of time.
 
@@ -151,7 +151,7 @@ const collectionNft = await metaplex.nfts().create({
 
 ### Create Merkle Tree Account
 
-Now we start to deviate from the process you would use when creating traditional NFTs. The on-chain storage mechanism you use for state compression is an account representing a concurrent merkle tree. This merkle tree account belongs to the SPL State Compression program. Before you can do anything related to cNFTs, you need to create an empty merkle tree account with the appropriate size.
+Now we start to deviate from the process you would use when creating traditional NFTs. The onchain storage mechanism you use for state compression is an account representing a concurrent merkle tree. This merkle tree account belongs to the SPL State Compression program. Before you can do anything related to cNFTs, you need to create an empty merkle tree account with the appropriate size.
 
 The variables impacting the size of the account are:
 
@@ -194,7 +194,7 @@ Note that the number of cNFTs that can be stored on the tree depends entirely on
 
 Next, choose the canopy depth. Increasing the canopy depth increases the composability of your cNFTs. Any time your or another developer’s code attempts to verify a cNFT down the road, the code will have to pass in as many proof nodes as there are “layers” in your tree. So for a max depth of 20, you’ll need to pass in 20 proof nodes. Not only is this tedious, but since each proof node is 32 bytes it’s possible to max out transaction sizes very quickly.
 
-For example, if your tree has a very low canopy depth, an NFT marketplace may only be able to support simple NFTs transfers rather than support an on-chain bidding system for your cNFTs. The canopy effectively caches proof nodes on-chain so you don’t have to pass all of them into the transaction, allowing for more complex transactions.
+For example, if your tree has a very low canopy depth, an NFT marketplace may only be able to support simple NFTs transfers rather than support an onchain bidding system for your cNFTs. The canopy effectively caches proof nodes onchain so you don’t have to pass all of them into the transaction, allowing for more complex transactions.
 
 Increasing any of these three values increases the size of the account, thereby increasing the cost associated with creating it. Weigh the benefits accordingly when choosing the values.
 
@@ -875,7 +875,7 @@ Again, to run, in your terminal type: `npm run start`
 
 ### 5. Read existing cNFT data
 
-Now that we’ve written code to mint cNFTs, let’s see if we can actually fetch their data. This is tricky because the on-chain data is just the merkle tree account, the data from which can be used to verify existing information as accurate but is useless in conveying what the information is.
+Now that we’ve written code to mint cNFTs, let’s see if we can actually fetch their data. This is tricky because the onchain data is just the merkle tree account, the data from which can be used to verify existing information as accurate but is useless in conveying what the information is.
 
 Let’s start by declaring a function `logNftDetails` that takes as parameters `treeAddress` and `nftsMinted`.
 
@@ -917,7 +917,7 @@ async function logNftDetails(treeAddress: PublicKey, nftsMinted: number) {
 
 Helius essentially observes transaction logs as they happen and stores the NFT metadata that was hashed and stored in the merkle tree. This enables them to surface that data when requested. 
 
-If we add a call to this function at the end of `main` and re-run your script, the data we get back in the console is very comprehensive. It includes all of the data you’d expect in both the on-chain and off-chain portion of a traditional NFT. You can find the cNFT’s attributes, files, ownership and creator information, and more.
+If we add a call to this function at the end of `main` and re-run your script, the data we get back in the console is very comprehensive. It includes all of the data you’d expect in both the onchain and off-chain portion of a traditional NFT. You can find the cNFT’s attributes, files, ownership and creator information, and more.
 
 ```json
 {
@@ -1079,7 +1079,7 @@ async function transferNft(
 }
 ```
 
-Next, let’s fetch the merkle tree account from the chain, get the canopy depth, and assemble the proof path. We do this by mapping the asset proof we got from Helius to a list of `AccountMeta` objects, then removing any proof nodes at the end that are already cached on-chain in the canopy.
+Next, let’s fetch the merkle tree account from the chain, get the canopy depth, and assemble the proof path. We do this by mapping the asset proof we got from Helius to a list of `AccountMeta` objects, then removing any proof nodes at the end that are already cached onchain in the canopy.
 
 ```tsx
 async function transferNft(
@@ -1279,7 +1279,7 @@ It’s your turn to take these concepts for a spin on your own! We’re not goin
 
 1. Create your own production cNFT collection
 2. Build a UI for this lesson’s lab that will let you mint a cNFT and display it
-3. See if you can replicate some of the lab script’s functionality in an on-chain program, i.e. write a program that can mint cNFTs
+3. See if you can replicate some of the lab script’s functionality in an onchain program, i.e. write a program that can mint cNFTs
 
 
 ## Completed the lab?

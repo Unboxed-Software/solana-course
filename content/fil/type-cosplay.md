@@ -258,8 +258,8 @@ Ngayon sa iyong `programs` folder magkakaroon ka ng dalawang program. Patakbuhin
 Susunod, i-update ang setup ng test file para isama ang bagong program at dalawang bagong keypair para sa mga account na sisimulan namin para sa bagong program.
 
 ```tsx
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { TypeCosplay } from "../target/types/type_cosplay"
 import { TypeChecked } from "../target/types/type_checked"
 import { expect } from "chai"

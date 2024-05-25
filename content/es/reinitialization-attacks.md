@@ -221,8 +221,8 @@ Dado que no hay comprobaciones de que los datos de la cuenta no hayan sido ya in
 
 
 ```tsx
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { expect } from "chai"
 import { Initialization } from "../target/types/initialization"
 

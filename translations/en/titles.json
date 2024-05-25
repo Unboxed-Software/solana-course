@@ -14,7 +14,7 @@
   "token-program": "Create tokens with the Token Program",
   "token-swap": "Swap tokens with the Token Swap Program",
   "nfts-with-metaplex": "Create Solana NFTs With Metaplex",
-  "on-chain-program-development": "On-chain program development",
+  "on-chain-program-development": "Onchain program development",
   "basic-solana-program-development": "Basic Solana Program Development",
   "hello-world-program": "Hello World",
   "deserialize-instruction-data": "Handle Instruction Data",
@@ -58,5 +58,5 @@
   "solana-mobile-dApps-with-expo": "Building Solana Mobile dApps with Expo",
   "solana-mobile-development-unit": "Solana Mobile Development",
   "generalized-state-compression": "Generalized State Compression",
-  "intro-to-custom-on-chain-programs": "Using custom on-chain programs"
+  "intro-to-custom-on-chain-programs": "Using custom onchain programs"
 }

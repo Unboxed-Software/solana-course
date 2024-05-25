@@ -214,8 +214,8 @@ O arquivo de teste inclui a configuração para criar uma conta invocando o prog
 Como não há verificações para confirmar se os dados da conta já foram inicializados, a instrução `insecure_initialization` será concluída com êxito nas duas vezes, apesar de a segunda invocação fornecer uma conta de autoridade *diferente*.
 
 ```tsx
-import * as anchor from "@project-serum/anchor"
-import { Program } from "@project-serum/anchor"
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
 import { expect } from "chai"
 import { Initialization } from "../target/types/initialization"
 
