@@ -524,7 +524,7 @@ Lastly, this lab will all be done on devnet. This is because we are using Irys t
 
 In this section we will decide on our NFT metadata and upload our files to NFT.Storage using the helper functions provided in the starting code.
 
-In order to upload our off-chain metadata, we need to first prepare an image that will represent our NFT. We've provided `cat.png`, but feel free to replace it with your own. Most image types are supported by most wallets. (Again devenet Irys allows up to 100KiB per file)
+To upload our off-chain metadata, we need to first prepare an image that will represent our NFT. We've provided `cat.png`, but feel free to replace it with your own. Most image types are supported by most wallets. (Again devenet Irys allows up to 100KiB per file)
 
 Next, let's decide on what metadata our NFT will have. The fields we are deciding on are `name`, `description`, `symbol`, `externalUrl`, and some `attributes` (additional metadata). We'll provide some cat adjacent metadata, but feel free to make up your own.
 

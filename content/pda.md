@@ -47,7 +47,7 @@ let (pda, bump_seed) = Pubkey::find_program_address(&[user.key.as_ref(), user_in
 
 “Seeds” are optional inputs used in the `find_program_address` function to derive a PDA. For example, seeds can be any combination of public keys, inputs provided by a user, or hardcoded values. A PDA can also be derived using only the program ID and no additional seeds. Using seeds to find our PDAs, however, allows us to create an arbitrary number of accounts that our program can own.
 
-While you, the developer, determine the seeds to pass into the `find_program_address` function, the function itself provides an additional seed called a "bump seed." The cryptographic function for deriving a PDA results in a key that lies *on* the Ed25519 curve about 50% of the time. In order to ensure that the result *is not* on the Ed25519 curve and therefore does not have a secret key, the `find_program_address` function adds a numeric seed called a bump seed.
+While you, the developer, determine the seeds to pass into the `find_program_address` function, the function itself provides an additional seed called a "bump seed." The cryptographic function for deriving a PDA results in a key that lies *on* the Ed25519 curve about 50% of the time. To ensure that the result *is not* on the Ed25519 curve and therefore does not have a secret key, the `find_program_address` function adds a numeric seed called a bump seed.
 
 The function starts by using the value `255` as the bump seed, then checks to see if the output is a valid PDA. If the result is not a valid PDA, the function decreases the bump seed by 1 and tries again (`255`, `254`, `253`, et cetera). Once a valid PDA is found, the function returns both the PDA and the bump that was used to derive the PDA.
 
@@ -246,7 +246,7 @@ The comment account will be linked to a review in the same way. However, it will
 
 This ensures that every one of our accounts can be deterministically retrieved using data that is already known ahead of time.
 
-In order to implement these changes, we'll need to do the following:
+To implement these changes, we'll need to do the following:
 
 - Define structs to represent the comment counter and comment accounts
 - Update the existing `MovieAccountState` to contain a discriminator (more on this later)

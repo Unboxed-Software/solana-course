@@ -35,7 +35,7 @@ Variable assignment in Rust happens with the `let` keyword.
 let age = 33;
 ```
 
-Variables in Rust by default are immutable, meaning a variable's value cannot be changed once it has been set. In order to create a variable that we'd like to change at some point in the future, we use the `mut` keyword. Defining a variable with this keyword means that the value stored in it can change.
+Variables in Rust by default are immutable, meaning a variable's value cannot be changed once it has been set. To create a variable that we'd like to change at some point in the future, we use the `mut` keyword. Defining a variable with this keyword means that the value stored in it can change.
 
 ```rust
 // compiler will throw error
@@ -443,7 +443,7 @@ pub fn add_movie_review(
 }
 ```
 
-With that done, we can call `add_movie_review` from `process_instruction` (the function we set as our entry point). In order to pass all the required arguments to the function, we'll first need to call the `unpack` we created on `MovieInstruction`, then use a `match` statement to ensure that the instruction we've received is the `AddMovieReview` variant.
+With that done, we can call `add_movie_review` from `process_instruction` (the function we set as our entry point). To pass all the required arguments to the function, we'll first need to call the `unpack` we created on `MovieInstruction`, then use a `match` statement to ensure that the instruction we've received is the `AddMovieReview` variant.
 
 ```rust
 pub fn process_instruction(

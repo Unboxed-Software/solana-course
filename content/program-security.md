@@ -21,7 +21,7 @@ objectives:
 
 In the last two lessons we worked through building a Movie Review program together. The end result is pretty cool! It's exciting to get something working in a new development environment.
 
-Proper program development, however, doesn't end at "get it working." It's important to think through the possible failure points in your code in order to mitigate them. Failure points are where undesirable behavior in your code could potentially occur. Whether the undesirable behavior happens due to users interacting with your program in unexpected ways or bad actors intentionally trying to exploit your program, anticipating failure points is essential to secure program development.
+Proper program development, however, doesn't end at "get it working." It's important to think through the possible failure points in your code to mitigate them. Failure points are where undesirable behavior in your code could potentially occur. Whether the undesirable behavior happens due to users interacting with your program in unexpected ways or bad actors intentionally trying to exploit your program, anticipating failure points is essential to secure program development.
 
 Remember, **you have no control over the transactions that will be sent to your program once it’s deployed**. You can only control how your program handles them. While this lesson is far from a comprehensive overview of program security, we'll cover some of the basic pitfalls to look out for.
 
@@ -29,7 +29,7 @@ Remember, **you have no control over the transactions that will be sent to your 
 
 [Neodyme](https://workshop.neodyme.io/) gave a presentation at Breakpoint 2021 entitled "Think Like An Attacker: Bringing Smart Contracts to Their Break(ing) Point." If there's one thing you take away from this lesson, it's that you should think like an attacker.
 
-In this lesson, of course, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program will have different security risks associated with it. While understanding common pitfalls is *essential* to engineering good programs, it is *insufficient* for deploying secure ones. In order to have the broadest security coverage possible, you have to approach your code with the right mindset.
+In this lesson, of course, we cannot cover everything that could possibly go wrong with your programs. Ultimately, every program will have different security risks associated with it. While understanding common pitfalls is *essential* to engineering good programs, it is *insufficient* for deploying secure ones. To have the broadest security coverage possible, you have to approach your code with the right mindset.
 
 As Neodyme mentioned in their presentation, the right mindset requires moving from the question "Is this broken?" to "How do I break this?" This is the first and most essential step in understanding what your code *actually does* as opposed to what you wrote it to do.
 

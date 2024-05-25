@@ -300,7 +300,7 @@ pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
 
 Now, implement the `InitializeMint` context type and list the accounts and constraints the instruction requires. Here we initialize a new `Mint` account using a PDA with the string "mint" as a seed. Note that we can use the same PDA for both the address of the `Mint` account and the mint authority. Using a PDA as the mint authority enables our program to sign for the minting of the tokens.
 
-In order to initialize the `Mint` account, we'll need to include the `token_program`, `rent`, and `system_program` in the list of accounts.
+To initialize the `Mint` account, we'll need to include the `token_program`, `rent`, and `system_program` in the list of accounts.
 
 ```rust
 #[derive(Accounts)]

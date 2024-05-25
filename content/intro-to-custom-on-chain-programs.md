@@ -11,51 +11,42 @@ Solana has multiple onchain programs you can use. Instructions that use these pr
 # Lesson
 ### Instructions
 
-In previous chapters, we used the `SystemProgram.transfer()` function to create an instruction to send SOL.
+In previous chapters, we used:
 
-When working with non-native programs, however, you’ll need to be more specific about creating instructions that are structured to match the corresponding program.
+ - The `SystemProgram.transfer()` function from `@solana/web3.js` to make an instruction for the System program to transfer SOL. 
+ - The `mintTo()` and `transfer()` functions from  `@solana/spl-token`, to make instructions to the Token program to mint and transfer tokens
+ - The `createCreateMetadataAccountV3Instruction()` function from `@metaplex-foundation/mpl-token-metadata@2` to make instructions to Metaplex to create token Metadata.
 
-With `@solana/web3.js`, you can create non-native instructions with the `TransactionInstruction` constructor. This constructor takes a single argument of the data type `TransactionInstructionCtorFields`.
+When working with other programs, however, you’ll need to create instructions manually. With `@solana/web3.js`, you can create instructions with the `TransactionInstruction` constructor: 
 
 ```typescript
-export type TransactionInstructionCtorFields = {
-  keys: Array<AccountMeta>;
+const instruction = new TransactionInstruction({
   programId: PublicKey;
-  data?: Buffer;
-};
-```
-
-Per the definition above, the object passed to the `TransactionInstruction` constructor requires:
-
-- an array of keys of type `AccountMeta`
-- the public key for the program being called
-- an optional `Buffer` containing data to pass to the program.
-
-We’ll be ignoring the `data` field for now and will revisit it in a future lesson.
-
-The `programId` field is fairly self-explanatory: it’s the public key associated with the program. You’ll need to know this in advance of calling the program in the same way that you’d need to know the public key of someone to whom you want to send SOL.
-
-The `keys` array requires a bit more explanation. Each object in this array represents an account that will be read from or written to during a transaction's execution. This means you need to know the behavior of the program you are calling and ensure that you provide all of the necessary accounts in the array.
-
-Each object in the `keys` array must include the following:
-- `pubkey` - the public key of the account
-- `isSigner` - a boolean representing whether or not the account is a signer on the transaction
-- `isWritable` - a boolean representing whether or not the account is written to during the transaction's execution
-
-Putting this all together, we might end up with something like the following:
-
-```typescript
-const instruction = new web3.TransactionInstruction({
-  keys: [
+  keys: [ 
     {
-      pubkey: programDataAccount,
-      isSigner: false,
-      isWritable: true,
+      pubkey: Pubkey,
+      isSigner: boolean,
+      isWritable: boolean,
     },
   ],
-  programId,
+  data?: Buffer;
 });
+```
 
+`TransactionInstruction()` takes 3 fields: 
+
+- The `programId` field is fairly self-explanatory: it’s the public key (also called the 'address' or 'program ID') of the program. 
+
+- `keys` is an array of accounts and how they will be used during the transaction. You need to know the behavior of the program you are calling and ensure that you provide all of the necessary accounts in the array.
+  - `pubkey` - the public key of the account
+  - `isSigner` - a boolean representing whether or not the account is a signer on the transaction
+  - `isWritable` - a boolean representing whether or not the account is written to during the transaction's execution
+
+- an optional `Buffer` containing data to pass to the program. We’ll be ignoring the `data` field for now, but will revisit it in a future lesson.
+
+After making our instruction, we add it to a transaction, send it to our RPC to be processed and confirmed, and look at the transaction signature.
+
+```typescript
 const transaction = new web3.Transaction().add(instruction)
 
 const signature = await web3.sendAndConfirmTransaction(
@@ -69,7 +60,7 @@ console.log(`✅ Success! Transaction signature is: ${signature}`);
 
 ### Solana Explorer
 
-![Screenshot of Solana Explorer set to Devnet](../assets/solana-explorer-devnet.png)
+![Solana Explorer set to Devnet](../assets/solana-explorer-devnet.png)
 
 All transactions on the blockchain are publicly viewable on [Solana Explorer](http://explorer.solana.com). For example, you could take the signature returned by `sendAndConfirmTransaction()` in the example above, search for that signature in Solana Explorer, then see:
 
@@ -78,18 +69,19 @@ All transactions on the blockchain are publicly viewable on [Solana Explorer](ht
 - the transaction fee
 - and more!
 
-![Screenshot of Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
+![Solana Explorer with details about a transaction](../assets/solana-explorer-transaction-overview.png)
 
 # Lab
+
 ### Writing transactions for the ping counter program
 
 We’re going to create a script to ping an onchain program that increments a counter each time it has been pinged. This program exists on the Solana Devnet at address `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. The program stores its data in a specific account at the address `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
-![Solana stores programs and data in seperate accounts](../assets/pdas-global-state.svg)
+![Solana stores programs and data in separate accounts](../assets/pdas-global-state.svg)
 
 ### 1. Basic scaffolding
 
-We'll start by using the same packages and `.env` file we made earlier in [intro to writing data](./intro-to-writing-data).
+We'll start by using the same packages and `.env` file we made earlier in [Intro to Writing Data](./intro-to-writing-data).
 
 Name the file `send-ping-transaction.ts`:
 
@@ -154,7 +146,7 @@ const instruction = new web3.TransactionInstruction({
 })
 ```
 
-Next, let’s add the instruction to the transaction we created. Then, call `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on Solana Explorer.
+Next, let’s add this instruction to the transaction we created. Then, call `sendAndConfirmTransaction()` by passing in the connection, transaction, and payer. Finally, let’s log the result of that function call so we can look it up on Solana Explorer.
 
 ```typescript
 transaction.add(instruction)
@@ -182,9 +174,9 @@ It may take a moment or two but you should see a long string printed to the cons
 ✅ Transaction completed! Signature is 55S47uwMJprFMLhRSewkoUuzUs5V6BpNfRx21MpngRUQG3AswCzCSxvQmS3WEPWDJM7bhHm3bYBrqRshj672cUSG
 ```
 
-Copy the transaction signature. Open a browser and go to [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (the query parameter at the end of the URL will ensure that you’ll explore transactions on Devnet instead of Mainnet). Paste the signature into the search bar at the top of Solana’s Devnet explorer and hit enter. You should see all the details about the transaction. If you scroll all the way to the bottom, then you will see `Program Logs`, which show how many times the program has been pinged including your ping.
+Copy the transaction signature. Open a browser and go to [https://explorer.solana.com/?cluster=devnet](https://explorer.solana.com/?cluster=devnet) (the query parameter at the end of the URL will ensure that you’ll explore transactions on Devnet instead of Mainnet). Paste the signature into the search bar at the top of Solana Explorer (make sure you're connected to Devnet) and hit enter. You should see all the details about the transaction. If you scroll all the way to the bottom, then you will see `Program Logs`, which show how many times the program has been pinged including your ping.
 
-![Screenshot of Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
+![Solana Explorer with logs from calling the Ping program](../assets/solana-explorer-ping-result.png)
 
 Scroll around the explorer and look at what you're seeing:
 - The **Account Input(s)** will include:
@@ -192,7 +184,7 @@ Scroll around the explorer and look at what you're seeing:
   - The program address for the ping program
   - The data address for the ping program
 - The **Instruction** section will contain a single instruction with no data - the ping program is a pretty simple program, so it doesn't need any data.
-- The **Program Instruction Logs** shows the logs from the ping program.
+- The **Program Instruction Logs** show the logs from the ping program.
 
 [//]: # "TODO: these would make a good question-and-answer interactive once we have this content hosted on solana.com, and can support adding more interactive content easily."
 
@@ -202,11 +194,11 @@ If you want to make it easier to look at Solana Explorer for transactions in the
 console.log(`You can view your transaction on Solana Explorer at:\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`)
 ```
 
-And just like that you’re calling programs on the Solana network and writing data to chain!
+And just like that you’re calling programs on the Solana network and writing data onchain!
 
-In the next few lessons you’ll learn how to
+In the next few lessons, you’ll learn how to
 
-1. Send transactions safely from the browser instead of from running a script
+1. Send transactions safely from the browser instead of running a script
 2. Add custom data to your instructions
 3. Deserialize data from the chain
 

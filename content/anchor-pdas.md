@@ -238,9 +238,9 @@ Notice that `realloc` is set to `8 + 4 + instruction_data.len()`. This breaks do
 - `4` is for the 4 bytes of space that BORSH uses to store the length of the string
 - `instruction_data.len()` is the length of the string itself
 
-If the change in account data length is additive, lamports will be transferred from the `realloc::payer` to the account in order to maintain rent exemption. Likewise, if the change is subtractive, lamports will be transferred from the account back to the `realloc::payer`.
+If the change in account data length is additive, lamports will be transferred from the `realloc::payer` to the account to maintain rent exemption. Likewise, if the change is subtractive, lamports will be transferred from the account back to the `realloc::payer`.
 
-The `realloc::zero` constraint is required in order to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where you expect the memory of an account to shrink and expand multiple times. That way you zero out space that would otherwise show as stale data.
+The `realloc::zero` constraint is required to determine whether the new memory should be zero initialized after reallocation. This constraint should be set to true in cases where you expect the memory of an account to shrink and expand multiple times. That way you zero out space that would otherwise show as stale data.
 
 ## Close
 

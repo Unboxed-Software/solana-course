@@ -1351,13 +1351,13 @@ Notez la fonction où nous obtenons notre `payerTokenWallet`. VRF nécessite en 
 
 Et voilà ! Vous devriez être capable d'exécuter et de réussir tous les tests en utilisant `anchor test`.
 
-Si quelque chose ne fonctionne pas, retournez en arrière et trouvez où vous avez fait une erreur. Vous pouvez également essayer le [code de solution sur la branche `vrf`](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf). N'oubliez pas de mettre à jour vos clés de programme et le chemin du portefeuille comme nous l'avons fait dans [l'étape de configuration](#1-program-setup).
+Si quelque chose ne fonctionne pas, retournez en arrière et trouvez où vous avez fait une erreur. Vous pouvez également essayer le [code de solution sur la branche `vrf`](https://github.com/Unboxed-Software/michael-burry-escrow/tree/vrf). N'oubliez pas de mettre à jour vos clés de programme et le chemin du portefeuille comme nous l'avons fait dans [l'étape de configuration](#1-program-setup).
 
 # Défi
 
 Maintenant, c'est le moment de travailler de manière indépendante. Ajoutons quelques [règles du Monopoly](https://en.wikipedia.org/wiki/Monopoly_(game)#Rules) à notre programme. Ajoutez une logique au programme pour suivre combien de fois un utilisateur lance les dés. S'ils lancent 3 fois sans obtenir de doubles, ils devraient pouvoir retirer leurs fonds, tout comme sortir de prison dans Monopoly.
 
-Si vous êtes bloqué, nous avons la solution dans la branche [`vrf-challenge-solution`](https://github.com/Unboxed-Software/micheal-burry-escrow/tree/vrf-challenge-solution).
+Si vous êtes bloqué, nous avons la solution dans la branche [`vrf-challenge-solution`](https://github.com/Unboxed-Software/michael-burry-escrow/tree/vrf-challenge-solution).
 
 
 ## Vous avez fini le laboratoire ?

@@ -9,8 +9,8 @@ objectives:
 ## Summary
 
 - **SOL** is the name of Solana’s native token. Each SOL is made from 1 billion **Lamports**. 
-- **Accounts** store tokens, NFTs, programs, and data. For now we’ll focus on accounts that store SOL. 
-- **Addresses** point to accounts on the Solana network. Anyone can read the data in a given address. Most addresses are also **public keys**.
+- **Accounts** store tokens, NFTs, programs, and data. For now, we’ll focus on accounts that store SOL. 
+- **Addresses** point to accounts on the Solana network. Anyone can read the data at a given address. Most addresses are also **public keys**.
 
 # Lesson
 
@@ -28,7 +28,7 @@ All data stored on Solana is stored in accounts. Accounts can store:
 
 SOL is Solana's native token - SOL is used to pay transaction fees, pay rent for accounts, and more. SOL is sometimes shown with the `◎` symbol. Each SOL is made from 1 billion **Lamports**. 
 
-In the same way that finance apps typically do math in cents (for USD), pence (for GBP), Solana apps typically transfer, spend, store and handle SOL as Lamports, only converting to full SOL to display to users. 
+In the same way that finance apps typically do math in cents (for USD) and pence (for GBP), Solana apps typically transfer, spend, store, and handle SOL as Lamports, only converting to full SOL to display to users. 
 
 ### Addresses
 
@@ -46,9 +46,7 @@ npm install typescript @solana/web3.js esrun
 
 ### Connect to the Network
 
-Every interaction with the Solana network using `@solana/web3.js` is going to happen through a `Connection` object. The `Connection` object establishes a connection with a specific Solana network, called a 'cluster'. 
-
-For now we'll use the `Devnet` cluster rather than `Mainnet`. `Devnet` is designed for developer use and testing, and `DevNet` tokens don't have real value.
+Every interaction with the Solana network using `@solana/web3.js` is going to happen through a `Connection` object. The `Connection` object establishes a connection with a specific Solana network, called a 'cluster'. For now, we'll use the `Devnet` cluster rather than `Mainnet`. `Devnet` is designed for developer use and testing, and `DevNet` tokens don't have real value.
 
 ```typescript
 import { Connection, clusterApiUrl } from "@solana/web3.js";
@@ -78,7 +76,7 @@ console.log(`The balance of the account at ${address} is ${balance} lamports`);
 console.log(`✅ Finished!`)
 ```
 
-The balance returned is in *lamports*, as discusssed earlier. Web3.js provides the constant `LAMPORTS_PER_SOL` for showing Lamports as SOL:
+The balance returned is in *lamports, as discussed earlier. Web3.js provides the constant `LAMPORTS_PER_SOL` for showing Lamports as SOL:
 
 ```typescript
 import { Connection, PublicKey, clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -109,7 +107,7 @@ Let’s practice what we’ve learned, and check the balance at a particular add
 
 Remember the public key from the previous chapter. 
 
-Make a new file called `check-balance.ts`, substituting your public key in for `<your public key>`.
+Make a new file called `check-balance.ts`, substituting your public key for `<your public key>`.
 
 The script loads the public key, connects to DevNet, and checks the balance:
 
@@ -130,7 +128,7 @@ console.log(
 
 ```
 
-Save this to a file, and `npx esrun check-balance.ts`. You should something like:
+Save this to a file, and `npx esrun check-balance.ts`. You should see something like:
 
 ```
 💰 Finished! The balance for the wallet at address 31ZdXAvhRQyzLC2L97PC6Lnf2yWgHhQUKKYoUo9MLQF5 is 0!

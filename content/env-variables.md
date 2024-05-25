@@ -51,7 +51,7 @@ anchor test -- --features "feature-one", "feature-two"
 
 ### Make code conditional using the `cfg` attribute
 
-With a feature defined, you can then use the `cfg` attribute within your code to conditionally compile code based on the whether or not a given feature is enabled. This allows you to include or exclude certain code from your program.
+With a feature defined, you can then use the `cfg` attribute within your code to conditionally compile code based on whether or not a given feature is enabled. This allows you to include or exclude certain code from your program.
 
 The syntax for using the `cfg` attribute is like any other attribute macro: `#[cfg(feature=[FEATURE_HERE])]`. For example, the following code compiles the function `function_for_testing` when the `testing` feature is enabled and the `function_when_not_testing` otherwise:
 
@@ -69,7 +69,7 @@ fn function_when_not_testing() {
 
 This allows you to enable or disable certain functionality in your Anchor program at compile time by enabling or disabling the feature.
 
-It's not a stretch to imagine wanting to use this to create distinct "environments" for different program deployments. For example, not all tokens have deployments across both Mainnet and Devnet. So you might hard-code one token address for Mainnet deployments but hard-code a different address for Devnet and Localnet deployments. That way you can quickly switch between between different environments without requiring any changes to the code itself.
+It's not a stretch to imagine wanting to use this to create distinct "environments" for different program deployments. For example, not all tokens have deployments across both Mainnet and Devnet. So you might hard-code one token address for Mainnet deployments but hard-code a different address for Devnet and Localnet deployments. That way you can quickly switch between different environments without requiring any changes to the code itself.
 
 The code below shows an example of an Anchor program that uses the `cfg` attribute to include different token addresses for local testing compared to other deployments:
 
@@ -159,7 +159,7 @@ For example, if your NFT staking program has to pivot and use a different reward
 
 First, you need to structure your program to store the values you anticipate changing in an account rather than hard-coding them into the program code.
 
-Next, you need to ensure that this account can only be updated by some known program authority, or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction. This sounds fairly straightforward in theory, but there is one main issues: how does the program know who is an authorized admin?
+Next, you need to ensure that this account can only be updated by some known program authority, or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction. This sounds fairly straightforward in theory, but there is one main issue: how does the program know who is an authorized admin?
 
 Well, there are a few solutions, each with their own benefits and drawbacks:
 
@@ -303,7 +303,7 @@ Download the starter code from the `starter` branch of [this repository](http
 
 Let's quickly walk through how the program works.
 
-The `lib.rs` file includes a constant for the USDC address and a single `payment` instruction. The `payment` instruction simply called the `payment_handler` function in the `instructions/payment.rs` file where the instruction logic is contained.
+The `lib.rs` file includes a constant for the USDC address and a single `payment` instruction. The `payment` instruction simply calls the `payment_handler` function in the `instructions/payment.rs` file where the instruction logic is contained.
 
 The `instructions/payment.rs` file contains both the `payment_handler` function as well as the `Payment` account validation struct representing the accounts required by the `payment` instruction. The `payment_handler` function calculates a 1% fee from the payment amount, transfers the fee to a designated token account, and transfers the remaining amount to the payment recipient.
 
@@ -699,7 +699,7 @@ Next, update the test file with three more tests testing that:
 1. The program config account is initialized correctly
 2. The payment instruction is functioning as intended
 3. The config account can be updated successfully by the admin
-4. The config account cannot be updated by another other than the admin
+4. The config account cannot be updated by someone other than the admin
 
 The first test initializes the program config account and verifies that the correct fee is set and that the correct admin is stored on the program config account.
 
