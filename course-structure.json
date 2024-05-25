@@ -289,7 +289,7 @@
                         {
                             "title": "Durable Nonces",
                             "slug": "durable-nonces",
-                            "lab": "Create a durable nonce program"
+                            "lab": "Use durable nonces to create durable transactions"
                         }
                     ]
                 }

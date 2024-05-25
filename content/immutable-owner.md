@@ -7,7 +7,7 @@ objectives:
 ---
 # Summary
 
-- The `**ImmutableOwner**` extension ensures that once a token account is created, its owner is unchangeable, securing the ownership against any modifications.
+- The `immutable owner` extension ensures that once a token account is created, its owner is unchangeable, securing the ownership against any modifications.
 - Token accounts with this extension can have only one permanent state regarding ownership: **Immutable**.
 - Associated Token Accounts (ATAs) have the `immutable owner` extension enabled by default.
 - The `immutable owner` extension is a token account extension; enabled on each token account, not the mint.
