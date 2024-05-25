@@ -19,12 +19,176 @@ Imagine a Solana based AirBnb, where NFTs are used as the keys to the unlock the
 
 This all being said - the `permanent delegate` is a very exciting extension that adds a world of possibilities to Solana tokens.
 
-### Associated functions
+## Initializing a permanent delegate to mint
 
-When implementing the `permanent delegate` extension, there are 3 functions to take note of:
-- `transferChecked`: Enables the permanent delegate to securely transfer tokens between accounts.
-- `burnChecked`: Allows the permanent delegate to burn tokens.
-- `approveChecked`: Approves a delegate to transfer up to a maximum number of tokens from an account.
+Initializing a permanent delegate token involves three instructions:
+
+- `SystemProgram.createAccount`
+- `createInitializePermanentDelegateInstruction`
+- `createInitializeMintInstruction`
+
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. This instruction accomplishes three things:
+
+- Allocates space
+- Transfers lamports for rent
+- Assigns to its owning program
+
+```tsx
+SystemProgram.createAccount({
+  fromPubkey: payer.publicKey,
+  newAccountPubkey: mint,
+  space: mintLen,
+  lamports: mintLamports,
+  programId: TOKEN_2022_PROGRAM_ID,
+}),
+```
+
+The second instruction `createInitializePermanentDelegateInstruction` initializes the permanent delegate extension. The defining argument that dictates the permanent delegate will be a variable we create named `permanentDelegate`.
+
+```tsx
+createInitializePermanentDelegateInstruction(
+  mint,
+  permanentDelegate.publicKey,
+  TOKEN_2022_PROGRAM_ID,
+),
+```
+The third instruction `createInitializeMintInstruction` initializes the mint.
+
+```tsx
+createInitializeMintInstruction(
+  mint,
+  decimals,
+  mintAuthority.publicKey,
+  null,
+  TOKEN_2022_PROGRAM_ID
+)
+```
+
+When the transaction with these three instructions is sent, a new permanent delegate token is created with the specified configuration.
+
+
+## Transferring tokens as delegate
+The `transferChecked` function enables the permanent delegate to securely transfer tokens between accounts. This function makes sure that the token transfer adheres to the mint's configured rules and requires the delegate to sign the transaction.
+
+```ts
+/**
+ * Approve a delegate to transfer up to a maximum number of tokens from an account, asserting the token mint and decimals
+ *
+ * @param connection     Connection to use
+ * @param payer          Payer of the transaction fees
+ * @param mint           Address of the mint
+ * @param account        Address of the account
+ * @param delegate       Account authorized to perform a transfer tokens from the source account
+ * @param owner          Owner of the source account
+ * @param amount         Maximum number of tokens the delegate may transfer
+ * @param decimals       Number of decimals in approve amount
+ * @param multiSigners   Signing accounts if `owner` is a multisig
+ * @param confirmOptions Options for confirming the transaction
+ * @param programId      SPL Token program account
+ *
+ * @return Signature of the confirmed transaction
+ */
+await transferChecked(
+  connection,
+  payer,
+  bobAccount,
+  mint,
+  carolAccount,
+  permanentDelegate,
+  amountToTransfer,
+  decimals,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+);
+```
+
+## Burning tokens as delegate
+The `burnChecked` function allows the permanent delegate to burn tokens from any token account of the mint. This function makes sure that the burn operation complies with the mint's rules and requires the delegate to sign the transaction.
+
+```ts
+/**
+ * Burn tokens from an account, asserting the token mint and decimals
+ *
+ * @param connection     Connection to use
+ * @param payer          Payer of the transaction fees
+ * @param account        Account to burn tokens from
+ * @param mint           Mint for the account
+ * @param owner          Account owner
+ * @param amount         Amount to burn
+ * @param decimals       Number of decimals in amount to burn
+ * @param multiSigners   Signing accounts if `owner` is a multisig
+ * @param confirmOptions Options for confirming the transaction
+ * @param programId      SPL Token program account
+ *
+ * @return Signature of the confirmed transaction
+ */
+await burnChecked(
+  connection,
+  payer,
+  bobAccount,
+  mint,
+  permanentDelegate,
+  amountToBurn,
+  decimals,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+);
+```
+
+## Assign permissions to new delegate 
+The `approveChecked` function approves a delegate to transfer or burn up to a maximum number of tokens from an account. This allows the designated delegate to perform token transfers on behalf of the account owner up to the specified limit.
+```ts
+/**
+ * Approve a delegate to transfer up to a maximum number of tokens from an account, asserting the token mint and
+ * decimals
+ *
+ * @param connection     Connection to use
+ * @param payer          Payer of the transaction fees
+ * @param mint           Address of the mint
+ * @param account        Address of the account
+ * @param delegate       Account authorized to perform a transfer tokens from the source account
+ * @param owner          Owner of the source account
+ * @param amount         Maximum number of tokens the delegate may transfer
+ * @param decimals       Number of decimals in approve amount
+ * @param multiSigners   Signing accounts if `owner` is a multisig
+ * @param confirmOptions Options for confirming the transaction
+ * @param programId      SPL Token program account
+ *
+ * @return Signature of the confirmed transaction
+ */
+
+// Approve new delegate to perform actions
+await approveChecked(
+  connection,
+  payer,
+  mint,
+  bobAccount,
+  delegate.publicKey,
+  bob,
+  amountToApprove,
+  decimals,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+);
+
+// Newly assigned delegate can now transfer from an account
+await transferChecked(
+    connection,
+    payer,
+    bobAccount,
+    mint,
+    carolAccount,
+    carol,
+    amountToTransfer,
+    decimals,
+    undefined,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  )
+```
 
 # Lab
 
@@ -137,10 +301,10 @@ When creating a mint token with default state, we must create the account instru
 
 Create an asynchronous function named `createTokenExtensionMintWithPermanentDelegate` in `src/mint-helper.ts`. This function will create the mint such that all new mints will be created with a permanent delegate. The function will take the following arguments:
 
-- `connection` : The connection object
-- `payer` : Payer for the transaction
-- `mintKeypair` : Keypair for the new mint
-- `decimals` : Mint decimals
+- `connection` : The connection object
+- `payer` : Payer for the transaction
+- `mintKeypair` : Keypair for the new mint
+- `decimals` : Mint decimals
 - `permanentDelegate`: Assigned delegate keypair
 
 The first step in creating a mint is reserving space on Solana with the `SystemProgram.createAccount` method. This requires specifying the payer's keypair, (the account that will fund the creation and provide SOL for rent exemption), the new mint account's public key (`mintKeypair.publicKey`), the space required to store the mint information on the blockchain, the amount of SOL (lamports) necessary to exempt the account from rent and the ID of the token program that will manage this mint account (`TOKEN_2022_PROGRAM_ID`).
