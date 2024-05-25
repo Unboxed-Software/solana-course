@@ -1,25 +1,26 @@
 ---
 title: Permanent Delegate
 objectives:
-- Create a mint account for a token using the permanent delegate extension
+- Create a mint with a permanent delegate
 - Explain the use cases of permanent delegate
 - Experiment with the rules of the extension
 ---
 
 # Summary
-- The permanent delegate essentially holds global ownership over all Token Accounts associated with the mint
-- The assigned permanent delegate has unrestricted permissions to transfer and burn tokens from token accounts associated with that particular mint
+- The permanent delegate holds global ownership over all token accounts associated with the mint
+- The permanent delegate has unrestricted permissions to transfer and burn tokens from any token account of that mint
 - This delegate role is established to provide a way for mint authorities to designate a trusted entity with comprehensive control, which can simplify token management and operational processes.
 - With this level of access, the permanent delegate can carry out high-level administrative functions, such as reassigning tokens, managing token supplies, and directly implementing specific policies or rules on the token accounts.
 
 # Overview
-The `permanent delegate` extension allows a way for developers to create an authorized entity capable of transferring or burning any number of tokens according to predefined permissions. With the `permanent delegate` extension, developers can strengthen the security and even governance of their tokenized systems across various use cases. This extension enables precise control over token operations, enhancing transparency and accountability within decentralized networks.
+The `permanent delegate` extension allows a `permanent delegate` for all tokens of the mint. This means one address is capable of transferring or burning any token of that mint, from any token account. This makes the extension very powerful but can also be very risky. It gives a single address complete control over the token supply. This can be good for things like automatic payments, recovering drained wallets, and refunds. However, it's a double edged sword, the `permanent delegate` could be stolen or abused. In the words of Uncle Ben, "with great power, comes great responsibility."
 
-Imagine you are developing a dApp on Solana, and you need a mechanism to ensure secure and compliant token operations. The `permanent delegate` extension allows you to designate a trusted entity that can perform critical administrative functions, such as reassigning tokens, managing token supplies, and implementing specific policies or rules directly on the token accounts.
+Imagine a Solana based AirBnb, where NFTs are used as the keys to the unlock the door. When you check in, the NFT key will be transferred to you and you'll be able to enjoy your stay. At the end of your stay, the owner will just transfer it from you to them - since they are the `permanent delegate`. What happens if your wallet gets drained, or you lose access to it? No worries, the owner can transfer it from any account back to you! But on the other end, say the owner doesn't want you staying there anymore, they can revoke it at anytime, and you'd be locked out. Double-edged sword.
 
-Furthermore, the extension provides the flexibility needed to respond swiftly to security incidents or operational anomalies, as the permanent delegate can take immediate corrective actions without reverting control back to the original mint authority.
+This all being said - the `permanent delegate` is a very exciting extension that adds a world of possibilities to Solana tokens.
 
 ### Associated functions
+
 When implementing the `permanent delegate` extension, there are 3 functions to take note of:
 - `transferChecked`: Enables the permanent delegate to securely transfer tokens between accounts.
 - `burnChecked`: Allows the permanent delegate to burn tokens.
@@ -530,31 +531,29 @@ To test this, let's wrap a `transferChecked` function in a `try catch` and print
 ```tsx
 // ATTEMPT TO TRANSFER FROM ONE ACCOUNT TO ANOTHER WITH CORRECT DELEGATE
 {
-  {
-    // Have Alice transfer tokens from Bob to Carol
-    try {
-      await transferChecked(
-        connection,
-        payer,
-        bobAccount, // transfer from
-        mint,
-        carolAccount, // transfer to
-        alice,
-        amountToTransfer,
-        decimals,
-        undefined,
-        undefined,
-        TOKEN_2022_PROGRAM_ID
-      )
-      console.log("✅ Since Alice is the permanent delegate, she has control and can transfer Bob's tokens to Carol")
-      await printBalances(
-        connection,
-        tokenAccounts,
-        names
-      )
-    } catch (error) {
-      console.log("Alice should be able to transfer Bob's tokens to Alice")
-    }
+  // Have Alice transfer tokens from Bob to Carol
+  try {
+    await transferChecked(
+      connection,
+      payer,
+      bobAccount, // transfer from
+      mint,
+      carolAccount, // transfer to
+      alice,
+      amountToTransfer,
+      decimals,
+      undefined,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
+    )
+    console.log("✅ Since Alice is the permanent delegate, she has control and can transfer Bob's tokens to Carol")
+    await printBalances(
+      connection,
+      tokenAccounts,
+      names
+    )
+  } catch (error) {
+    console.log("Alice should be able to transfer Bob's tokens to Alice")
   }
 }
 ```
