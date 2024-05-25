@@ -65,7 +65,7 @@ You can use the Solana blockchain from either the browser or node.js with the `@
 npm i @solana/web3.js
 ```
 
-We’ll cover a lot of the [web3.js](https://docs.solana.com/developing/clients/javascript-reference) gradually throughout this course, but you can also check out the [official web3.js documentation](https://docs.solana.com/developing/clients/javascript-reference).
+We’ll cover a lot of [web3.js](https://docs.solana.com/developing/clients/javascript-reference) gradually throughout this course, but you can also check out the [official web3.js documentation](https://docs.solana.com/developing/clients/javascript-reference).
 
 To send tokens, send NFTS, or read and write data Solana, you'll need your own keypair. To make a new keypair, use the `Keypair.generate()` function from  `@solana/web3.js`: 
 
@@ -90,6 +90,10 @@ Additionally, since the secret key gives authority over the address, we don't st
 ## Loading an existing keypair
 
 If you already have a keypair you’d like to use, you can load a `Keypair` from an existing secret key stored in the filesystem or an `.env` file. In node.js, the  `@solana-developers/helpers` npm package includes some extra functions:
+
+```bash
+npm i @solana-developers/helpers
+```
 
  - To use an `.env` file use `getKeypairFromEnvironment()`
  - To use a Solana CLI file use `getKeypairFromFile()`

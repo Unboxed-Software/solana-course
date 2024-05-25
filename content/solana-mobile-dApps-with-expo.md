@@ -446,13 +446,13 @@ import {Connection, Transaction} from '@solana/web3.js';
 import {useMemo} from 'react';
 import { Account } from './AuthProvider';
   
-  export const mobileWalletAdapterIdentity = (
-    mwaIdentitySigner: IdentitySigner,
-  ): MetaplexPlugin => ({
-    install(metaplex: Metaplex) {
-      metaplex.identity().setDriver(mwaIdentitySigner);
-    },
-  });
+export const mobileWalletAdapterIdentity = (
+  mwaIdentitySigner: IdentitySigner,
+): MetaplexPlugin => ({
+  install(metaplex: Metaplex) {
+    metaplex.identity().setDriver(mwaIdentitySigner);
+  },
+});
 
 export const useMetaplex = (
   connection: Connection,

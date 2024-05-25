@@ -98,7 +98,7 @@ The first signer included in the array of signers on a transaction is responsibl
 If you get this error, it’s because your keypair is brand new and doesn’t have any SOL to cover the transaction fees. Let’s fix this by adding the following lines just after we've set up the connection:
 
 ```typescript
-await requestAndConfirmAirdropIfRequired(
+await airdropIfRequired(
   connection,
   keypair.publicKey,
   1 * LAMPORTS_PER_SOL,
@@ -167,7 +167,7 @@ console.log(
 Run the script to ensure it connects, loads your keypair, and loads:
 
 
-```
+```bash
 npx esrun transfer.ts (destination wallet address)
 ```
 
@@ -205,7 +205,7 @@ console.log(`Transaction signature is ${signature}!`);
 
 Send SOL to other students in the class.
 
-```
+```bash
 npx esrun transfer.ts (destination wallet address)
 ```
 

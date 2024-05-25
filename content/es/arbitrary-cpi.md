@@ -143,7 +143,7 @@ Tenga en cuenta que, al igual que el ejemplo anterior, Anchor ha creado algunos 
 
 Además, y dependiendo del programa al que esté realizando el CPI, es posible que pueda usar el [tipo de `Program` cuenta] de Anchor (https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct.Program.html) para validar el programa aprobado en la estructura de validación de su cuenta. Entre las cajas [ `anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) y [ `anchor_spl`](https://docs.rs/anchor_spl/latest/), se proporcionan los siguientes  `Program`  tipos de cajas:
 
--   [ `System`](https://docs.rs/anchor-lang/latest/anchor_lang/struct.System.html)
+-   [ `System`](https://docs.rs/anchor-lang/latest/anchor_lang/system_program/struct.System.html)
 -   [ `AssociatedToken`](https://docs.rs/anchor-spl/latest/anchor_spl/associated_token/struct.AssociatedToken.html)
 -   [ `Token`](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.Token.html)
 

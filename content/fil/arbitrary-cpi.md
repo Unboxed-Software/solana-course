@@ -143,7 +143,7 @@ Tandaan na, tulad ng halimbawa sa itaas, gumawa si Anchor ng ilang [wrappers par
 
 Bukod pa rito at depende sa program kung saan ka gumagawa ng CPI, maaari mong gamitin ang [`Program` account type] ng Anchor(https://docs.rs/anchor-lang/latest/anchor_lang/accounts/program/struct .Program.html) upang i-validate ang naipasa na program sa iyong account validation struct. Sa pagitan ng [`anchor_lang`](https://docs.rs/anchor-lang/latest/anchor_lang) at [`anchor_spl`](https://docs.rs/anchor_spl/latest/) crates, ang sumusunod na `Programa ` mga uri ay ibinigay sa labas ng kahon:
 
-- [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/struct.System.html)
+- [`System`](https://docs.rs/anchor-lang/latest/anchor_lang/system_program/struct.System.html)
 - [`AssociatedToken`](https://docs.rs/anchor-spl/latest/anchor_spl/associated_token/struct.AssociatedToken.html)
 - [`Token`](https://docs.rs/anchor-spl/latest/anchor_spl/token/struct.Token.html)
 

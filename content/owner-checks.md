@@ -27,7 +27,7 @@ Owner checks are used to verify that an account passed into an instruction is ow
 
 As a refresher, the `AccountInfo` struct contains the following fields. An owner check refers to checking that the `owner` field in the `AccountInfo` matches an expected program ID.
 
-```jsx
+```rust
 /// Account information
 #[derive(Clone)]
 pub struct AccountInfo<'a> {

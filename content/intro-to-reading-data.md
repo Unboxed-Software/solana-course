@@ -113,7 +113,7 @@ Make a new file called `check-balance.ts`, substituting your public key in for `
 
 The script loads the public key, connects to DevNet, and checks the balance:
 
-```
+```tsx
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 const publicKey = new PublicKey("<your public key>");
@@ -156,7 +156,7 @@ Re-run the script. You should see your balance updated:
 
 You can modify the script to check balances on any wallet.
 
-```
+```tsx
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 const suppliedPublicKey = process.argv[2];
@@ -180,7 +180,7 @@ console.log(
 
 Swap wallet addresses with your classmates in the chat and check their balances.
 
-```
+```bash
 % npx esrun check-balance.ts (some wallet address)
 ✅ Finished! The balance for the wallet at address 31ZdXAvhRQyzLC2L97PC6Lnf2yWgHhQUKKYoUo9MLQF5 is 3!
 ```

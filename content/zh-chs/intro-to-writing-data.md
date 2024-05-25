@@ -98,7 +98,7 @@ const signature = sendAndConfirmTransaction(
 如果您收到此错误，那是因为您的密钥对是全新的，并且没有任何 SOL 来支付交易费。让我们在设置连接后添加以下几行来解决此问题：
 
 ```typescript
-await requestAndConfirmAirdropIfRequired(
+await airdropIfRequired(
   connection,
   keypair.publicKey,
   1 * LAMPORTS_PER_SOL,
