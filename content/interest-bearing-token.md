@@ -37,7 +37,6 @@ The first instruction `SystemProgram.createAccount` allocates space on the blo
 - Assigns to it's owning program
 
 ```tsx
-
 SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
     newAccountPubkey: mint,
