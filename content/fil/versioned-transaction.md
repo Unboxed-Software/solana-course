@@ -12,7 +12,7 @@ objectives:
 - **Mga Bersyon na Transaksyon** ay tumutukoy sa isang paraan upang suportahan ang parehong mga legacy na bersyon at mas bagong bersyon ng mga format ng transaksyon. Ang orihinal na format ng transaksyon ay "legacy" at ang mga bagong bersyon ng transaksyon ay nagsisimula sa bersyon 0. Ipinatupad ang mga bersyong transaksyon upang suportahan ang paggamit ng Address Lookup Tables (tinatawag ding lookup table o LUTs).
 - **Mga Talaan ng Paghahanap ng Address** ay mga account na ginagamit upang mag-imbak ng mga address ng iba pang mga account, na maaaring i-reference sa mga may bersyong transaksyon gamit ang isang 1 byte na index sa halip na ang buong 32 byte bawat address. Ito ay nagbibigay-daan sa paglikha ng mas kumplikadong mga transaksyon kaysa sa kung ano ang posible bago ang pagpapakilala ng mga LUT.
 
-# Overview
+# Lesson
 
 Sa disenyo, ang mga transaksyon sa Solana ay limitado sa 1232 bytes. Mabibigo ang mga transaksyong lalampas sa laki na ito. Bagama't pinapagana nito ang isang bilang ng mga pag-optimize ng network, maaari din nitong limitahan ang mga uri ng mga pagpapatakbong atomic na maaaring gawin sa network.
 

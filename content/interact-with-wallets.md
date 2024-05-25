@@ -15,7 +15,7 @@ objectives:
 - Software wallets are often **browser extensions** that facilitate connecting to websites
 - Solana’s **Wallet-Adapter library** simplifies the support of wallet browser extensions, allowing you to build websites that can request a user’s wallet address and propose transactions for them to sign
 
-# Overview
+# Lesson
 
 ## Wallets
 

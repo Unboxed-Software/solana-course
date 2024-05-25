@@ -45,7 +45,7 @@ In particular:
   - Use 'token mint account' to refer to the address a token is minted at. E.g., the [USDC mainnet token mint account](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v).
 - Use apostrophe of possession, [including for inanimate objects](https://english.stackexchange.com/questions/1031/is-using-the-possessive-s-correct-in-the-cars-antenna). Eg 'the account's balance' is correct.
 - Don't use 'here' links. They make the course hard to scan and ['here' links are bad for SEO](https://www.smashingmagazine.com/2012/06/links-should-never-say-click-here/).
-- JS/TS clients send `transactions` made from `instructions`. On chain programs have `instruction handlers` that process `instructions`. Do not refer to instruction handlers as instructions! The reason is simple: an instruction cannot process an instruction. The `multiple` template in Anchor 0.29 also calls the actual functions `handler`.
+- JS/TS clients send `transactions` made from `instructions`. On chain programs have `instruction handlers` that process `instructions`. Do not refer to [instruction handlers](https://solana.com/docs/terminology#instruction-handler) as instructions! The reason is simple: an instruction cannot process an instruction. The `multiple` template in Anchor 0.29 also calls the actual functions `handler`.
 
 Code examples should be formatted as follows:
 
@@ -57,7 +57,12 @@ We want the minimal amount of code necessary to solve the problem.
  
  - Use full names. Call a `thing` a `thing`. Don't call it a `thg`. 
  - Avoid reptitive, copy paste code. This helps others change the code easily, as they can fix things in a single place.
- - Avoid magic numbers. Nobody should see a `+ 32` in your code and wonder where it came from.
+ - Avoid magic numbers. Nobody should see a `+ 32` in your code and wonder what the `32` means.
+ - Avoid asking students to clone a git repo. The idea is that students should be able to create projects from scratch when they have finished the course. 
+  - Referring to code students have made in previous chapters is fine. 
+  - `esrun` means you don't need to set up tsconfig files just to run TypeScript code. 
+  - Tools like `anchor init` or `create-solana-dapp` are fine. 
+  - If there's some boilerplate, Solana-specific code you always need [make a PR to the helpers repository](https://github.com/solana-developers/helpers).
 
 ### JS/TS
 
@@ -124,7 +129,7 @@ Each **Lesson** is a block of added understanding, starting from scratch and bui
 
 Lessons should follow the format:
 
- - **Overview** section is a conceptual overview. The equivalent would be when a teacher in a classroom says "don't do this yet, just watch.". The overview is intentionally not meant to be something readers code along with.
+ - **Lesson** section is the main body of the lesson, explaining the new concepts. The equivalent would be when a teacher in a classroom says "don't do this yet, just watch.". This section is intentionally not meant to be something readers code along with.
 
  - **Lab** section is when students code along and should follow a step-by-step process.
 

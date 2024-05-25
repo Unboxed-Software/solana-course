@@ -12,7 +12,7 @@ objectives:
 - Magsagawa ng mga pagsusuri ng programa sa mga katutubong programa sa pamamagitan lamang ng paghahambing ng pampublikong susi ng naipasa na programa sa programang iyong inaasahan.
 - Kung ang isang programa ay nakasulat sa Anchor, maaaring mayroon itong pampublikong CPI module. Ginagawa nitong simple at secure ang pag-invoke sa program mula sa isa pang Anchor program. Awtomatikong sinusuri ng Anchor CPI module na ang address ng program na ipinasa ay tumutugma sa address ng program na nakaimbak sa module.
 
-# Overview
+# Lesson
 
 Ang cross program invocation (CPI) ay kapag ang isang programa ay humihiling ng pagtuturo sa isa pang programa. Ang "arbitraryong CPI" ay kapag ang isang programa ay nakabalangkas na mag-isyu ng isang CPI sa anumang programa na ipinasa sa pagtuturo sa halip na umasa na magsagawa ng isang CPI sa isang partikular na programa. Dahil ang mga tumatawag sa pagtuturo ng iyong programa ay maaaring magpasa ng anumang program na gusto nila sa listahan ng mga account ng pagtuturo, ang hindi pag-verify sa address ng isang naipasa na programa ay nagreresulta sa iyong programa na gumaganap ng mga CPI sa mga arbitrary na programa.
 

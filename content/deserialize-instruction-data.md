@@ -17,7 +17,7 @@ objectives:
 - You can use the `borsh` crate and the `derive` attribute to provide Borsh deserialization and serialization functionality to Rust structs
 - Rust `match` expressions help create conditional code paths based on the provided instruction
 
-# Overview
+# Lesson
 
 One of the most basic elements of a Solana program is the logic for handling instruction data. Most programs support multiple related functions and use differences in instruction data to determine which code path to execute. For example, two different data formats in the instruction data passed to the program may represent instructions for creating a new piece of data vs deleting the same piece of data.
 

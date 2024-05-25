@@ -15,7 +15,7 @@ objectives:
 - Ang mga programang Solana ay may iisang **entry point** upang iproseso ang mga tagubilin
 - Pinoproseso ng isang program ang isang pagtuturo gamit ang **program_id**, listahan ng **accounts**, at **instruction_data** na kasama sa pagtuturo
 
-# Overview
+# Lesson
 
 Ang kakayahan ni Solana na magpatakbo ng arbitrary executable code ay bahagi ng kung bakit ito napakalakas. Ang mga programang Solana, na katulad ng "mga matalinong kontrata" sa iba pang mga kapaligiran ng blockchain, ay literal na backbone ng Solana ecosystem. At ang koleksyon ng mga programa ay lumalaki araw-araw habang ang mga developer at tagalikha ay nangangarap at naglalagay ng mga bagong programa.
 

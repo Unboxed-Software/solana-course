@@ -15,7 +15,7 @@ objectives:
 - Kapag na-install mo na ang Rust at Solana CLI, magagawa mong buuin at i-deploy ang iyong mga programa nang lokal gamit ang mga command na `cargo build-bpf` at `solana program deploy`
 - Maaari mong tingnan ang mga log ng programa gamit ang command na `solana logs`
 
-# Overview
+# Lesson
 
 Sa ngayon sa kursong ito, ginamit namin ang Solana Playground upang bumuo at mag-deploy ng mga programang Solana. At habang ito ay isang mahusay na tool, para sa ilang mga kumplikadong proyekto ay maaaring mas gusto mong magkaroon ng isang lokal na kapaligiran sa pag-unlad na naka-set up. Maaaring ito ay upang magamit ang mga crates na hindi sinusuportahan ng Solana Playground, upang samantalahin ang mga custom na script o tooling na iyong ginawa, o dahil lang sa personal na kagustuhan.
 

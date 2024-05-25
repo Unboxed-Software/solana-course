@@ -12,7 +12,7 @@ objectives:
 - **Mga Account** ay nag-iimbak ng mga token, NFT, program, at data. Sa ngayon, tututuon tayo sa mga account na nag-iimbak ng SOL.
 - **Mga Address** ay tumuturo sa mga account sa network ng Solana. Maaaring basahin ng sinuman ang data sa isang ibinigay na address. Karamihan sa mga address ay **mga pampublikong key** din
 
-# Overview
+# Lesson
 
 ## Accounts
 

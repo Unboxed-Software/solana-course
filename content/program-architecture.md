@@ -14,7 +14,7 @@ objectives:
 - The size and the order of fields in an account matter; put variable length fields at the end
 - Solana can process in parallel, but you can still run into bottlenecks; be mindful of "shared" accounts that all users interacting with the program have to write to
 
-# Overview
+# Lesson
 
 Program Architecture is what separates the hobbyist from the professional. Crafting performant programs has more to do with system **design** than it does with the code. And you, as the designer, need to think about: 
 
@@ -139,6 +139,8 @@ pub struct ConceptZeroCopy<'info> {
     pub some_really_big_data: AccountLoader<'info, SomeReallyBigDataStruct>,
 }
 ```
+
+**Note**: In older versions of anchor `< 0.28.0` you may have to use: `zero_copy(unsafe))` ( [Thanks @0xk2_](https://github.com/Unboxed-Software/solana-course/issues/347) for this find )
 
 To understand what's happening here, take a look at the [rust Anchor documentation](https://docs.rs/anchor-lang/latest/anchor_lang/attr.account.html)
 
@@ -571,9 +573,11 @@ We'll walk through the tradeoffs of various design decisions as we go to give yo
 
 We'll build this from scratch. Start by creating a new Anchor project:
 
-```powershell
+```bash
 anchor init rpg
 ```
+
+Note: This lab was created with Anchor version `0.28.0` in mind. If there are problems compiling, please refer to the [solution code](https://github.com/Unboxed-Software/anchor-rpg/tree/challenge-solution) for the environment setup.
 
 Next, replace the program ID in `programs/rpg/lib.rs` and `Anchor.toml` with the program ID shown when you run `anchor keys list`.
 

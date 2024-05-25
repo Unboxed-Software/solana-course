@@ -14,7 +14,7 @@ objectives:
 - Ginagawa ng mga CPI ang mga programa sa Solana ecosystem na ganap na interoperable dahil ang lahat ng pampublikong tagubilin ng isang programa ay maaaring gamitin ng isa pang programa sa pamamagitan ng isang CPI
 - Dahil wala kaming kontrol sa mga account at data na isinumite sa isang programa, mahalagang i-verify ang lahat ng mga parameter na ipinasa sa isang CPI upang matiyak ang seguridad ng programa
 
-# Overview
+# Lesson
 
 ## What is a CPI?
 

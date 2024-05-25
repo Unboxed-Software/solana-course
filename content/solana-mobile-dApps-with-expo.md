@@ -12,7 +12,7 @@ objectives:
 - In addition to simplifying the build/deploy process, Expo provides packages that give you access to mobile devices' peripherals and capabilities
 - A lot of Solana ecosystem libraries don't support React native out of the box, but you can typically use them with the right [polyfills](https://developer.mozilla.org/en-US/docs/Glossary/Polyfill)
 
-# Overview
+# Lesson
 
 So far in exploring Solana Mobile, we've used vanilla React Native to build very simple mobile dApps. Just like many web developers opt to use frameworks built on top of React, like Next.js, many React Native developers opt to use frameworks and tooling that simplify the React Native development, testing, and deployment process. The most common of these is [React Native Expo](https://docs.expo.dev/tutorial/introduction/).
 

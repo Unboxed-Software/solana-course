@@ -17,7 +17,7 @@ objectives:
   ```
 - Upang gawing simple ito, gamitin ang hadlang na `init` ng Anchor upang lumikha ng isang account sa pamamagitan ng CPI sa program ng system at itakda ang discriminator nito
 
-# Overview
+# Lesson
 
 Ang pagsisimula ay tumutukoy sa pagtatakda ng data ng isang bagong account sa unang pagkakataon. Kapag nagpasimula ng isang bagong account, dapat kang magpatupad ng isang paraan upang suriin kung ang account ay nasimulan na. Kung walang naaangkop na pagsusuri, maaaring muling simulan ang isang umiiral na account at ma-overwrite ang umiiral nang data.
 
