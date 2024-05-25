@@ -75,5 +75,12 @@
   "introduction-to-onchain-program-development": "Introduction to Onchain Program Development",
   "intro-to-onchain": "Introduction to Onchain Program Development",
   "token-extensions-program": "Token Extensions Program",
-  "solana-mobile-development": "Solana Mobile Development"
+  "solana-mobile-development": "Solana Mobile Development",
+  "durable-nonces": "Durable Nonces",
+  "interest-bearing-token": "Interest Bearing Token Extension",
+  "permanent-delegate": "Permanent Delegate Extension",
+  "transfer-hook": "Transfer Hook Extension",
+  "immutable-owner": "Immutable Owner Extension",
+  "required-memo": "Required Memo Extension",
+  "cpi-guard": "CPI Guard Extension"
 }
