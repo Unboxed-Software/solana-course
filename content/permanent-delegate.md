@@ -13,9 +13,9 @@ objectives:
 - With this level of access, the permanent delegate can carry out high-level administrative functions, such as reassigning tokens, managing token supplies, and directly implementing specific policies or rules on the token accounts.
 
 # Overview
-The `permanent delegate` extension allows a `permanent delegate` for all tokens of the mint. This means one address is capable of transferring or burning any token of that mint, from any token account. This makes the extension very powerful but can also be very risky. It gives a single address complete control over the token supply. This can be good for things like automatic payments, recovering drained wallets, and refunds. However, it's a double edged sword, the `permanent delegate` could be stolen or abused. In the words of Uncle Ben, "with great power, comes great responsibility."
+The `permanent delegate` extension allows a `permanent delegate` for all tokens of the mint. This means one address is capable of transferring or burning any token of that mint, from any token account. This makes the extension very powerful but can also be very risky. It gives a single address complete control over the token supply. This can be good for things like automatic payments, recovering drained wallets, and refunds. However, it's a double-edged sword, the `permanent delegate` could be stolen or abused. In the words of Uncle Ben, "With great power, comes great responsibility."
 
-Imagine a Solana based AirBnb, where NFTs are used as the keys to the unlock the door. When you check in, the NFT key will be transferred to you and you'll be able to enjoy your stay. At the end of your stay, the owner will just transfer it from you to them - since they are the `permanent delegate`. What happens if your wallet gets drained, or you lose access to it? No worries, the owner can transfer it from any account back to you! But on the other end, say the owner doesn't want you staying there anymore, they can revoke it at anytime, and you'd be locked out. Double-edged sword.
+Imagine a Solana based AirBnb, where NFTs are used as the keys to unlock the door. When you check-in, the NFT key will be transferred to you and you'll be able to enjoy your stay. At the end of your stay, the owner will just transfer it from you to them - since they are the `permanent delegate`. What happens if your wallet gets drained, or you lose access to it? No worries, the owner can transfer it from any account back to you! But on the other end, say the owner doesn't want you staying there anymore, they can revoke it at any time, and you'd be locked out. Double-edged sword.
 
 This all being said - the `permanent delegate` is a very exciting extension that adds a world of possibilities to Solana tokens.
 
@@ -81,7 +81,7 @@ The `transferChecked` function enables the permanent delegate to securely transf
  * @param delegate       Account authorized to perform a transfer tokens from the source account
  * @param owner          Owner of the source account
  * @param amount         Maximum number of tokens the delegate may transfer
- * @param decimals       Number of decimals in approve amount
+ * @param decimals       Number of decimals in approved amount
  * @param multiSigners   Signing accounts if `owner` is a multisig
  * @param confirmOptions Options for confirming the transaction
  * @param programId      SPL Token program account
@@ -137,7 +137,7 @@ await burnChecked(
 );
 ```
 
-## Assign permissions to new delegate 
+## Assign permissions to a new delegate 
 The `approveChecked` function approves a delegate to transfer or burn up to a maximum number of tokens from an account. This allows the designated delegate to perform token transfers on behalf of the account owner up to the specified limit.
 ```ts
 /**
@@ -151,7 +151,7 @@ The `approveChecked` function approves a delegate to transfer or burn up to a ma
  * @param delegate       Account authorized to perform a transfer tokens from the source account
  * @param owner          Owner of the source account
  * @param amount         Maximum number of tokens the delegate may transfer
- * @param decimals       Number of decimals in approve amount
+ * @param decimals       Number of decimals in approved amount
  * @param multiSigners   Signing accounts if `owner` is a multisig
  * @param confirmOptions Options for confirming the transaction
  * @param programId      SPL Token program account
@@ -283,7 +283,7 @@ Alternatively, if you’d like to use testnet or devnet, import the `clusterApiU
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
 
-If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some SOL to your address. You can get your address from running `solana address` in your terminal.
+If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this by running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some SOL to your address. You can get your address by running `solana address` in your terminal.
 
 ### 3. Helpers
 
@@ -301,10 +301,10 @@ When creating a mint token with default state, we must create the account instru
 
 Create an asynchronous function named `createTokenExtensionMintWithPermanentDelegate` in `src/mint-helper.ts`. This function will create the mint such that all new mints will be created with a permanent delegate. The function will take the following arguments:
 
-- `connection` : The connection object
-- `payer` : Payer for the transaction
-- `mintKeypair` : Keypair for the new mint
-- `decimals` : Mint decimals
+- `connection`: The connection object
+- `payer`: Payer for the transaction
+- `mintKeypair`: Keypair for the new mint
+- `decimals`: Mint decimals
 - `permanentDelegate`: Assigned delegate keypair
 
 The first step in creating a mint is reserving space on Solana with the `SystemProgram.createAccount` method. This requires specifying the payer's keypair, (the account that will fund the creation and provide SOL for rent exemption), the new mint account's public key (`mintKeypair.publicKey`), the space required to store the mint information on the blockchain, the amount of SOL (lamports) necessary to exempt the account from rent and the ID of the token program that will manage this mint account (`TOKEN_2022_PROGRAM_ID`).
@@ -334,7 +334,7 @@ const initializePermanentDelegateInstruction =
   );
 ```
 
-Next, lets add the mint instruction by calling `createInitializeMintInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new mint.
+Next, let's add the mint instruction by calling `createInitializeMintInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new mint.
 
 ```tsx
  const initializeMintInstruction = createInitializeMintInstruction(
@@ -467,11 +467,11 @@ async function printBalances(
 
 ### 7. Test Setup
 
-Now that we have the ability to create a mint with a permanent delegate for all of it's new mint accounts, let's write some tests to see how it functions.
+Now that we have the ability to create a mint with a permanent delegate for all of its new mint accounts, let's write some tests to see how it functions.
 
 ### 7.1 Create Mint with Permanent Delegate
 
-Let's first create a mint with `payer` as the permanent delegate. To do this we call the `createTokenExtensionMintWithPermanentDelegate` function we just created in out `index.ts` file:
+Let's first create a mint with `payer` as the permanent delegate. To do this we call the `createTokenExtensionMintWithPermanentDelegate` function we just created in our `index.ts` file:
 
 ```ts
 // CREATE MINT ACCOUNT WITH PERMANENT DELEGATE
@@ -524,9 +524,9 @@ const carolAccount = await createAccount(
 ```
 
 ### 7.3 Mint tokens to accounts
-In the previous step we created the 3 accounts we need to test the `permanent delegate` extension. Next we need to mint tokens to those accounts before we write the tests.
+In the previous step, we created the 3 accounts we need to test the `permanent delegate` extension. Next, we need to mint tokens to those accounts before we write the tests.
 
-Add the `tokenAccounts` and `names` variable and then create a for loop that iterates over each account and mints 100 tokens to each account. Call the `printBalances` function so we can display the token balance of each account:
+Add the `tokenAccounts` and `names` variables and then create a for loop that iterates over each account and mints 100 tokens to each account. Call the `printBalances` function so we can display the token balance of each account:
 
 ```tsx
 // MINT TOKENS TO ACCOUNTS
@@ -644,10 +644,10 @@ We should see the following error logged out in the terminal, meaning the extens
 
 ### 8.2 Transfer tokens with incorrect delegate
 
-In this test, `bob` is going to try to transfer tokens from `alice` to himself. Given that `bob` is not the permanent delegate, he attempt won't be successful.
+In this test, `bob` is going to try to transfer tokens from `alice` to himself. Given that `bob` is not the permanent delegate, the attempt won't be successful.
 
 
-Similar to the previous test we can create this test by calling `transferChecked` and then print the balances:
+Similar to the previous test we can create this test by calling `transferChecked` and then printing the balances:
 
 ```tsx
 // ATTEMPT TO TRANSFER WITHOUT CORRECT DELEGATE
@@ -684,7 +684,7 @@ Go ahead and run the script, the transaction should fail.
 esrun src/index.ts
 ```
 
-### 8.3 Transfer from one account to another with correct delegate
+### 8.3 Transfer from one account to another with the correct delegate
 
 Lets use the power of the permanent delegate extension to have `alice` transfer some tokens from `bob` to `carol`. 
 
@@ -731,7 +731,7 @@ esrun src/index.ts
 
 Now let's try and burn some of the tokens from `bob`. This test is expected to pass.
 
-We'll do this by calling `burnChecked` and then print out the balances:
+We'll do this by calling `burnChecked` and then printing out the balances:
 
 ```tsx
 // ATTEMPT TO BURN WITH CORRECT DELEGATE
@@ -804,7 +804,7 @@ Run `npm start`. You will see the following message, indicating that the extensi
 `✅ We expect this to fail since Bob is not the permanent delegate and has no control over the tokens`
 
 ### 8.6. Assign delegate permissions to Carol and transfer
-With the `permanent delegate` extension, the initial delegate can grant a token account permissions to hold a certain level of control over the mint tokens. In this case, `alice` will allow `carol` to transfer some of the tokens from `bob` account to herself.
+With the `permanent delegate` extension, the initial delegate can grant a token account permission to hold a certain level of control over the mint tokens. In this case, `alice` will allow `carol` to transfer some of the tokens from `bob` account to herself.
 
 For this to work we will need to set some boundaries for `carol`. Using the `approveChecked` function provided by the SPL Library, we can set the maximum number of tokens that can be transferred or burned by `carol`. This ensures that she can only transfer a specified amount, protecting the overall balance from excessive or unauthorized transfers.
 
@@ -854,7 +854,7 @@ Run the tests again. You will notice that `bob` now only has 65 tokens as `carol
 `esrun src/index.ts`
 
 ### 8.7. Attempt to transfer again 
-In the previous test we approved `carol` to be able to transfer 10 tokens to herself. This means that she has reached the maximum amount of tokens to send from another account. Let's write a test and attempt to transfer another 10 tokens to herself. This is expected to fail.
+In the previous test, we approved `carol` to be able to transfer 10 tokens to herself. This means that she has reached the maximum amount of tokens to send from another account. Let's write a test and attempt to transfer another 10 tokens to herself. This is expected to fail.
 
 ```tsx
 // TRY TO TRANSFER TOKENS AGAIN WITH CAROL AS THE DELEGATE, OVERDRAWING HER ALLOTTED CONTROL
@@ -867,7 +867,7 @@ In the previous test we approved `carol` to be able to transfer 10 tokens to her
       bobAccount,
       mint,
       carolAccount,
-      carol, // Owner - whoever has authority to transfer tokens on behalf of the destination account
+      carol, // Owner - whoever has the authority to transfer tokens on behalf of the destination account
       amountToTransfer,
       decimals,
       undefined,
