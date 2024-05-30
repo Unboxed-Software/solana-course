@@ -1,7 +1,7 @@
 ---
 title: Interest Bearing Token
 objectives:
- - Create mint account with the interest bearing extension
+ - Create a mint account with the interest bearing extension
  - Explain the use cases of interest bearing tokens
  - Experiment with the rules of the extension
 ---
@@ -24,7 +24,7 @@ It's important to note that this mechanism does not generate new tokens and the 
 
 ## Adding interest rate to token
 
-Initializing a interest bearing token involves three instructions:
+Initializing an interest bearing token involves three instructions:
 
 - `SystemProgram.createAccount`
 - `createInitializeTransferFeeConfigInstruction`
@@ -108,7 +108,7 @@ Solana provides a helper function, `setAuthority`, to set a new authority on an 
 
 Use the `setAuthority` function to assign a new authority to the account. You'll need to provide the `connection`, the account paying for transaction fees (payer), the token account to update (mint), the current authority's public key, the type of authority to update (in this case, 7 represents the `InterestRate` authority type), and the new authority's public key.
 
-After setting the new authority, use the `updateRateInterestBearingMint` function to update the interest rate for the account. Pass in the necessary parameters: `connection`, `payer`, `mint`, new authority's public key, the updated interest rate, and the program ID.
+After setting the new authority, use the `updateRateInterestBearingMint` function to update the interest rate for the account. Pass in the necessary parameters: `connection`, `payer`, `mint`, the new authority's public key, the updated interest rate, and the program ID.
 
 ```tsx
 /**
@@ -223,7 +223,7 @@ In a separate terminal, run the following command: `solana-test-validator`. This
 Alternatively, if you’d like to use testnet or devnet, import the clusterApiUrl from `@solana/web3.js` and pass it to the connection as such:
 
 `const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');`
-If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running Solana config get in your terminal. And then go to [faucet.solana.com](faucet.solana.com) and airdrop some SOL to your address. You can get your address from running Solana address in your terminal.
+If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this by running `solana config get` in your terminal. And then go to [faucet.solana.com](faucet.solana.com) and airdrop some SOL to your address. You can get your address by running Solana address in your terminal.
 
 ### 3. Helpers
 
@@ -232,7 +232,7 @@ When we pasted the `index.ts` code from earlier, we added the following helpers:
 - `initializeKeypair`: This function creates the keypair for the `payer` and also airdrops 1 testnet SOL to it
 - `makeKeypairs`: This function creates keypairs without airdropping any SOL
 
-Additionally we have some initial accounts:
+Additionally, we have some initial accounts:
   - `payer`: Used to pay for and be the authority for everything
   - `mintKeypair`: Our mint that will have the `interest bearing token` extension
   - `wrongPayer`: The account we will use to attempt to update interest 
@@ -274,14 +274,14 @@ export async function createTokenWithInterestRateExtension(
 
 This function will take the following arguments:
 
-- `connection` : The connection object
-- `payer` : Payer for the transaction
+- `connection`: The connection object
+- `payer`: Payer for the transaction
 - `mint`: Public key for the new mint
-- `rateAuthority`: Keypair of the account that can modify the token, in this case it is `payer`
+- `rateAuthority`: Keypair of the account that can modify the token, in this case, it is `payer`
 - `rate`: Chosen interest rate for the token. In our case, this will be `32_767`, or 32767, the max rate for the interest bearing token extension
-- `mintKeypair` : Keypair for the new mint
+- `mintKeypair`: Keypair for the new mint
 
-When creating an interest bearing token, we must create the account instruction, add the interest instruction and initialize the mint itself. Inside of `createTokenWithInterestRateExtension` in `src/token-helper.ts` there is a few variables already created that will be used to create the interest bearing token. Add the following code beneath the declared variables:
+When creating an interest bearing token, we must create the account instruction, add the interest instruction and initialize the mint itself. Inside of `createTokenWithInterestRateExtension` in `src/token-helper.ts` there are a few variables already created that will be used to create the interest bearing token. Add the following code beneath the declared variables:
 
 ```ts
 const extensions = [ExtensionType.InterestBearingConfig];
@@ -314,7 +314,7 @@ const mintTransaction = new Transaction().add(
 await sendAndConfirmTransaction(connection, mintTransaction, [payer, mintKeypair], undefined);
 ```
 
-Thats it for the token creation! Now we can move on and start adding tests.
+That's it for the token creation! Now we can move on and start adding tests.
 ### 5. Establish required accounts
 
 Inside of `src/index.ts`, the starting code already has some values related to the creation of the interest bearing token. 
@@ -350,7 +350,7 @@ const payerTokenAccount = await createAssociatedTokenAccount(
 
 Before we start writing any tests, it would be helpful for us to have a function that takes in the `mint` and returns the current interest rate of that particular token. 
 
-Lets utilize the `getInterestBearingMintConfigState` helper provided by the SPL library to do just that. We'll then create a function that is used in our tests to log out the current interest rate of the mint.
+Let's utilize the `getInterestBearingMintConfigState` helper provided by the SPL library to do just that. We'll then create a function that is used in our tests to log out the current interest rate of the mint.
 
 The return value of this function is an object with the following values:
 
@@ -393,7 +393,7 @@ async function getInterestBearingMint(inputs: GetInterestBearingMint) {
 
 The Solana SPL library provides a helper function for updating the interest rate of a token named `updateRateInterestBearingMint`. For this function to work correctly, the `rateAuthority` of that token must be the same one of which the token was created. If the `rateAuthority` is incorrect, updating the token will result in a failure. 
 
-Lets create a test to update the rate with the correct authority. Add the following function calls:
+Let's create a test to update the rate with the correct authority. Add the following function calls:
 
 ```tsx
 // ATTEMPT TO UPDATE INTEREST RATE
@@ -450,7 +450,7 @@ Now run `esrun src/index.ts`. This is expected to fail and log out `✅ - We exp
 
 So we’ve tested updating the interest rate. How do we check that the accrued interest increases when an account mints more tokens? We can use the `amountToUiAmount` and `getAccount` helpers from the SPL library to help us achieve this.
 
-Lets create a for loop that 5 times and mints 100 tokens per loop and logs out the new accrued interest:
+Let's create a for loop that 5 times and mints 100 tokens per loop and logs out the new accrued interest:
 
 ```tsx
 // LOG ACCRUED INTEREST
@@ -535,7 +535,7 @@ Mint Config: {
 ```
 
 ## Update rate authority and interest rate
-Before we conclude this lab, lets set a new rate authority on the interest bearing token and attempt to update the interest rate. We do this by using the `setAuthority` function and passing in the original authority, specifying the rate type (in this case it is 7 for `InterestRate`) and passing the new authority's public key.
+Before we conclude this lab, let's set a new rate authority on the interest bearing token and attempt to update the interest rate. We do this by using the `setAuthority` function and passing in the original authority, specifying the rate type (in this case it is 7 for `InterestRate`) and passing the new authority's public key.
 
 Once we set the new authority, we can attempt to update the interest rate.
 
