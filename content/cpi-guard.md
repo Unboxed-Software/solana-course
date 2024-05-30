@@ -27,7 +27,7 @@ Users may choose to enable or disable the CPI guard extension on their token acc
 
 The CPI guard is a token account extension, meaning each individual Token Extensions Program token account has to enable it.
 
-## How the CPI guard Works
+## How the CPI Guard Works
 
 The CPI guard can be enabled and disabled on a token account that was created with enough space for the extension. The `Token Extensions Program` runs a few checks in the logic related to the above actions to determine if it should allow an instruction to continue or not related to CPI Guards. Generally, what it does is the following:
 
@@ -43,7 +43,7 @@ pub struct CpiGuard {
     pub lock_cpi: PodBool,
 }
 ```
-The CPI guard has a two additional helper functions that the `Token Extensions Program` is able to use to help determine when the CPI guard is enabled and when the instruction is being executed as part of a CPI. The first, `cpi_guard_enabled()`, simply returns the current value of the `CpiGuard.lock_cpi` field if the extension exists on the account, otherwise it returns false. The rest of the program can use this function to determine if the guard is enabled or not.
+The CPI guard has two additional helper functions that the `Token Extensions Program` is able to use to help determine when the CPI guard is enabled and when the instruction is being executed as part of a CPI. The first, `cpi_guard_enabled()`, simply returns the current value of the `CpiGuard.lock_cpi` field if the extension exists on the account, otherwise, it returns false. The rest of the program can use this function to determine if the guard is enabled or not.
 
 ```rust
 /// Determine if CPI guard is enabled for this account
@@ -55,7 +55,7 @@ pub fn cpi_guard_enabled(account_state: &StateWithExtensionsMut<Account>) -> boo
 }
 ```
 
-The second helper function is called `in_cpi()` and determines whether or not the current instruction is within a CPI. The function is able to determine if it's currently in a CPI by calling [`get_stack_height()` from the `solana_program` rust crate](https://docs.rs/solana-program/latest/solana_program/instruction/fn.get_stack_height.html). This function returns the current stack height of instructions. Instructions created at the initial transaction level will have a height of [`TRANSACTION_LEVEL_STACK_HEIGHT`](https://docs.rs/solana-program/latest/solana_program/instruction/constant.TRANSACTION_LEVEL_STACK_HEIGHT.html) or 1. The first inner invoked transaction, or CPI, will have a height of `TRANSACTION_LEVEL_STACK_HEIGHT` + 1 and so on. With this information, we know that if `get_stack_height()` returns a value greater than `TRANSACTION_LEVEL_STACK_HEIGHT`, we're currently in a CPI! This is exactly what the `in_cpi()` function checks. If `get_stack_height() > TRANSACTION_LEVEL_STACK_HEIGHT`, it returns `True`. Otherwise it returns `False`.
+The second helper function is called `in_cpi()` and determines whether or not the current instruction is within a CPI. The function is able to determine if it's currently in a CPI by calling [`get_stack_height()` from the `solana_program` rust crate](https://docs.rs/solana-program/latest/solana_program/instruction/fn.get_stack_height.html). This function returns the current stack height of instructions. Instructions created at the initial transaction level will have a height of [`TRANSACTION_LEVEL_STACK_HEIGHT`](https://docs.rs/solana-program/latest/solana_program/instruction/constant.TRANSACTION_LEVEL_STACK_HEIGHT.html) or 1. The first inner invoked transaction, or CPI, will have a height of `TRANSACTION_LEVEL_STACK_HEIGHT` + 1 and so on. With this information, we know that if `get_stack_height()` returns a value greater than `TRANSACTION_LEVEL_STACK_HEIGHT`, we're currently in a CPI! This is exactly what the `in_cpi()` function checks. If `get_stack_height() > TRANSACTION_LEVEL_STACK_HEIGHT`, it returns `True`. Otherwise, it returns `False`.
 
 ```rust
 /// Determine if we are in CPI
@@ -270,20 +270,20 @@ Each of these instructions makes a CPI to the `Token Extensions Program` and att
 
 ### 1. Verify Solana/Anchor/Rust Versions
 
-We'll be interacting with the `Token Extensions Program` in this lab and that requires you have solana cli version ≥ 1.18.0. 
+We'll be interacting with the `Token Extensions Program` in this lab and that requires you to have Solana CLI version ≥ 1.18.0. 
 
 To check your version run:
 ```bash
 solana --version
 ```
 
-If the version printed out after running `solana --version` is less than `1.18.0` then you can update the cli version manually. Note, at the time of writing this, you cannot simply run the `solana-install update` command. This command will not update the CLI to the correct version for us, so we have to explicitly download version `1.18.0`. You can do so with the following command:
+If the version printed out after running `solana --version` is less than `1.18.0` then you can update the CLI version manually. Note, at the time of writing this, you cannot simply run the `solana-install update` command. This command will not update the CLI to the correct version for us, so we have to explicitly download version `1.18.0`. You can do so with the following command:
 
 ```bash
 solana-install init 1.18.0
 ```
 
-If you run into this error at any point attempting to build the program, that likely means you do not have the correct version of the solana CLI installed.
+If you run into this error at any point attempting to build the program, that likely means you do not have the correct version of the Solana CLI installed.
 
 ```bash
 anchor build
@@ -293,7 +293,7 @@ cargo update -p solana-program@1.18.0 --precise ver
 where `ver` is the latest version of `solana-program` supporting rustc 1.68.0-dev
 ```
 
-You will also want the latest version of the anchor CLI installed. You can follow along the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
+You will also want the latest version of the anchor CLI installed. You can follow the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
 
 or simply run
 ```bash
@@ -309,7 +309,7 @@ Now, we can check our rust version.
 rustc --version
 ```
 
-At the time of writing, version `1.26.0` was used for the rust compiler. If you would like to update, you can do so via `rustup`
+At the time of writing, version `1.26.0` was used for the Rust compiler. If you would like to update, you can do so via `rustup`
 https://doc.rust-lang.org/book/ch01-01-installation.html
 
 ```bash
@@ -344,7 +344,7 @@ cluster = "Localnet"
 wallet = "/YOUR/PATH/HERE/id.json"
 ```
 
-If you don't know what your current keypair path is you can always run the solana cli to find out.
+If you don't know what your current keypair path is you can always run the Solana CLI to find out.
 
 ```bash
 solana config get
@@ -360,7 +360,7 @@ anchor build
 
 You can safely ignore the warnings of the build script, these will go away as we add in the necessary code.
 
-Feel free to run the provided tests to make sure the rest of the dev environment is setup correct. You'll have to install the node dependancies using `npm` or `yarn`. The tests should run, but they do not do anything currently.
+Feel free to run the provided tests to make sure the rest of the dev environment is setup correctly. You'll have to install the node dependencies using `npm` or `yarn`. The tests should run, but they do not do anything currently.
 
 ```bash
 yarn install
@@ -582,13 +582,13 @@ Now, we essentially do the same thing for the `"Approve Delegate Example"` test,
         .rpc();
 })
 ```
-This transaction will succeed and the `delegate` account will now have authority to transfer the given amount of tokens from the `userTokenAccount`.
+This transaction will succeed and the `delegate` account will now have the authority to transfer the given amount of tokens from the `userTokenAccount`.
 
 Feel free to save your work and run `anchor test`. All of the tests will run, but these two are the only ones that are doing anything yet. They should both pass at this point.
 
 ### 6. Close Account
 
-The close account instruction invokes the `close_account` instruction on the `Token Extensions Program`. This closes the given token account. However you have the ability to define which account the returned rent lamports should be transferred to. The CPI guard ensures that this account is always the account owner.
+The close account instruction invokes the `close_account` instruction on the `Token Extensions Program`. This closes the given token account. However, you have the ability to define which account the returned rent lamports should be transferred to. The CPI guard ensures that this account is always the account owner.
 
 ```rust
 pub fn malicious_close_account(ctx: Context<MaliciousCloseAccount>) -> Result<()> {
@@ -740,7 +740,7 @@ pub struct SetAuthorityAccount<'info> {
         token::authority = authority
     )]
     pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
-    /// CHECK: delegat to approve
+    /// CHECK: delegate to approve
     #[account(mut)]
     pub new_authority: AccountInfo<'info>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
@@ -891,7 +891,7 @@ impl <'info> BurnAccounts <'info> {
     }
 }
 ```
-To test this, open up the `tests/burn-example.ts` file. The starter code is the same as previous, except we swapped `maliciousAccount` to `delegate`.
+To test this, open up the `tests/burn-example.ts` file. The starter code is the same as the previous, except we swapped `maliciousAccount` to `delegate`.
 
 Then, we can create our mint and CPI-guarded token account.
 
@@ -1038,7 +1038,7 @@ pub struct SetOwnerAccounts<'info> {
         token::authority = authority
     )]
     pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
-    /// CHECK: delegat to approve
+    /// CHECK: delegate to approve
     #[account(mut)]
     pub new_owner: AccountInfo<'info>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
@@ -1140,7 +1140,7 @@ it("Set Authority without CPI on Non-CPI Guarded Account", async () => {
 })
 ```
 
-This test, should succeed.
+This test should succeed.
 
 Now, let's test this out using a CPI. To do that, we just have to send a transaction to the `set_owner` instruction of our program.
 
