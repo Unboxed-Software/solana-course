@@ -1,7 +1,7 @@
 ---
 title: Required Memo
 objectives:
- - Create token account with required memo on transfer
+ - Create a token account with required memo on transfer
  - Transfer with memo
  - Transfer without memo
  - Disable required memo 
@@ -17,7 +17,7 @@ objectives:
 
 For certain applications, such as exchanges or financial services, tracking the purpose or origin of a transaction is crucial. The `required memo` extension specifies that a memo is necessary for every incoming transfer to a token account. This requirement ensures that each transaction is accompanied by additional information, which can be used for compliance, auditing, or user-specific purposes. If the need for strict tracking diminishes, the requirement can be adjusted to make memos optional, offering flexibility in how transactions are handled and recorded.
 
-It is important to note that this is a token account extension, not a mint extension. Meaning individual token accounts need to enable this feature. And like all extensions, this will only work with Token Extensions Program tokens.
+It is important to note that this is a token account extension, not a mint extension. This means individual token accounts need to enable this feature. And like all extensions, this will only work with Token Extensions Program tokens.
 
 ## Creating token with required memo
 
@@ -141,7 +141,7 @@ The required memo extension can be disabled given you have the authority to modi
 
 # Lab
 
-In this lab we'll create a token account with the required memo extension. We'll then write tests to check if the extension is working as intended by attempting to transfer funds with and without a memo. 
+In this lab, we'll create a token account with the required memo extension. We'll then write tests to check if the extension is working as intended by attempting to transfer funds with and without a memo. 
 
 ### 1. Setup Environment
 
@@ -209,7 +209,7 @@ In a separate terminal, run the following command: `solana-test-validator`. This
 Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
 
 `const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');`
-If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](faucet.solana.com) and airdrop some SOL to your address. You can get your address from running `solana address` in your terminal.
+If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this by running `solana config get` in your terminal. And then go to [faucet.solana.com](faucet.solana.com) and airdrop some SOL to your address. You can get your address by running `solana address` in your terminal.
 
 ### 3. Helpers
 
@@ -220,7 +220,7 @@ When we pasted the `index.ts` code from earlier, we added the following helpers 
 
 ### 4. Create the mint
 
-First thing's first, since the `required memo` extension is a token extension, we don't need to do anything fancy with the mint. It just needs to be a Token Extensions Program mint. That being said, we can just create one using the the `createMint` function.
+First things first, since the `required memo` extension is a token extension, we don't need to do anything fancy with the mint. It just needs to be a Token Extensions Program mint. That being said, we can just create one using the `createMint` function.
 
 Let's do this in `src/index.ts`:
 
@@ -242,10 +242,10 @@ Let's do this in `src/index.ts`:
 
 Let's create a new file `src/token-helper.ts` and create a new function within it called `createTokenWithMemoExtension`. As the name implies, we'll use this to create our token accounts with the `required memo` extension enabled. The function will take the following arguments:
 
-- `connection` : The connection object
-- `mint` : Public key for the new mint
-- `payer` : Payer for the transaction
-- `tokenAccountKeypair` : The token account keypair associated with the token account
+- `connection`: The connection object
+- `mint`: Public key for the new mint
+- `payer`: Payer for the transaction
+- `tokenAccountKeypair`: The token account keypair associated with the token account
 
 ```ts
 import {
@@ -275,7 +275,7 @@ export async function createTokenWithMemoExtension(
 
   // CREATE INITIALIZE ACCOUNT INSTRUCTION
   
-  // CREATE ENABLE REQUIRED MEMO TRANSFERS INSTRUCTION
+  // CREATE ENABLE REQUIRED MEMO TRANSFER INSTRUCTION
 
   // SEND AND CONFIRM TRANSACTION
   
@@ -301,7 +301,7 @@ const createAccountInstruction = SystemProgram.createAccount({
 });
 ```
 
-Now we need to initialize the token account. To create this instruction we call `createInitializeAccountInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new token account.
+Now we need to initialize the token account. To create this instruction we call `createInitializeAccountInstruction` and pass in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new token account.
 
 ```tsx
 // CREATE INITIALIZE ACCOUNT INSTRUCTION
