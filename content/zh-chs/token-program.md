@@ -31,7 +31,7 @@ Token Program是Solana Program Library（SPL）提供的众多程序之一。它
 要创建新的SPL-Token，首先必须创建一个Token Mint。Token Mint是存储特定代币数据的账户。
 
 例如，让我们看一下Solana Explorer上的[USD Coin (USDC) on the Solana Explorer](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v)。USDC的Token Mint 地址是`EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`。通过浏览器，我们可以查看USDC的Token Mint的特定详细信息，如代币的当前供应量、铸造和冻结权限的地址，以及代币的小数精度：
-![Screenshot of USDC Token Mint](../assets/token-program-usdc-mint.png)
+![Screenshot of USDC Token Mint](../../assets/token-program-usdc-mint.png)
 
 要创建新的Token Mint，您需要向Token Program发送正确的交易指令。为此，我们将使用`@solana/spl-token`的`createMint`函数。
 
@@ -180,7 +180,7 @@ async function buildCreateTokenAccountTransaction(
 - 如果没有关联Token账户，用户可能拥有属于同一铸造厂的许多Token账户，导致不知道将代币发送到哪里。
 - 关联Token账户允许用户向另一个用户发送代币，即使接收者尚未拥有该代币铸造厂的Token账户。
 
-![ATAs are PDAs](../assets/atas-are-pdas.svg)
+![ATAs are PDAs](../../assets/atas-are-pdas.svg)
 
 与上述类似，您可以使用`spl-token`库的`createAssociatedTokenAccount`函数创建关联Token账户。
 
@@ -1044,7 +1044,7 @@ async function main() {
 
 请注意，您将无法直接使用我们在实验室中介绍的辅助函数。为了使用 Phantom 钱包适配器与 Token 程序进行交互，您将需要手动构建每个交易，并将交易提交给 Phantom 进行批准。
 
-![Token Program Challenge Frontend 的截图](../assets/token-program-frontend.png)
+![Token Program Challenge Frontend 的截图](../../assets/token-program-frontend.png)
 
 1. 您可以从头开始构建这个项目，或者您可以[下载起始代码](https://github.com/Unboxed-Software/solana-token-frontend/tree/starter)。
 2. 在 `CreateMint` 组件中创建一个新的代币铸造。
