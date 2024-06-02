@@ -70,7 +70,7 @@ pub struct T { … } |
 
 小心处理小数类型。由于溢出，您可能会遇到意外行为。例如，通过迭代增加的u8类型将达到255，然后返回到0，而不是256。有关更真实的背景信息，请查看**[Y2K bug](https://www.nationalgeographic.org/encyclopedia/Y2K-bug/#:~:text=As%20the%20year%202000%20approached%2C%20computer%20programmers%20realized%20that%20computers,would%20be%20damaged%20or%20flawed.)。**
 
-如果您想了解有关锚点大小的更多信息，请参阅[Sec3关于此的博客帖子](https://www.sec3.dev/blog/all-about-anchor-account-size)。
+如果您想了解有关anchor大小的更多信息，请参阅[Sec3关于此的博客帖子](https://www.sec3.dev/blog/all-about-anchor-account-size)。
 
 ### 盒
 

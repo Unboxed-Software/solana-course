@@ -1,7 +1,7 @@
 ---
-title: 锚点PDA和账户
+title: anchorPDA和账户
 objectives:
-- 使用`seeds`和`bump`约束来处理锚点中的PDA账户
+- 使用`seeds`和`bump`约束来处理anchor中的PDA账户
 - 启用和使用`init_if_needed`约束
 - 使用`realloc`约束对现有账户重新分配空间
 - 使用`close`约束关闭现有账户
@@ -22,7 +22,7 @@ objectives:
 
 除了使用约束进行账户验证外，一些约束还可以处理一些重复的任务，否则在我们的指令逻辑内将需要大量样板代码。本课程将介绍`seeds`、`bump`、`realloc`和`close`约束，帮助您初始化和验证PDAs，重新分配账户以及关闭账户。
 
-## 使用锚点处理PDAs
+## 使用anchor处理PDAs
 
 回想一下，[PDAs](https://github.com/Unboxed-Software/solana-course/blob/main/content/pda)是使用一组可选种子、一个增量种子以及一个程序ID派生而来的。Anchor提供了一种便捷的方式使用`seeds`和`bump`约束来验证PDA。
 
