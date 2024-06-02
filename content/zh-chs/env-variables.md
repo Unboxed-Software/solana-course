@@ -15,7 +15,7 @@ objectives:
 - 同样地，您可以使用 `cfg!` **宏**根据启用的特性条件编译不同的代码路径。
 - 或者，您可以通过创建仅可被程序的升级权限访问的账户和指令来实现类似于在部署后可以修改的环境变量。
 
-# 教训
+# 课程
 
 工程师在各种软件开发中面临的一个困难是编写可测试代码以及在本地开发、测试、生产等不同环境中创建不同环境的能力。
 
@@ -357,6 +357,102 @@ declare_id!("BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei");
 
 #[cfg(feature = "local-testing")]
 #[constant]
+pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("...");
+
+#[cfg(not(feature = "local-testing"))]
+#[constant]
+pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+
+#[program]
+pub mod config {
+    use super::*;
+
+    pub fn payment(ctx: Context<Payment>, amount: u64) -> Result<()> {
+        instructions::payment_handler(ctx, amount)
+    }
+}
+```
+接下来，在位于 `/programs` 目录下的 `Cargo.toml` 文件中添加 `local-testing` 功能。
+
+```
+[features]
+...
+local-testing = []
+```
+
+接下来，更新`config.ts`测试文件，使用生成的密钥对创建一个Mint。首先删除`mint`常量。
+
+```typescript
+const mint = new anchor.web3.PublicKey(
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+);
+```
+接下来，更新测试以使用密钥对创建一个货币，这将使我们能够在每次运行测试时重复使用相同的货币地址。请记得用上一步生成的文件名替换原有的文件名。
+
+
+```typescript
+let mint: anchor.web3.PublicKey
+
+before(async () => {
+  let data = fs.readFileSync(
+    "env9Y3szLdqMLU9rXpEGPqkjdvVn8YNHtxYNvCKXmHe.json"
+  )
+
+  let keypair = anchor.web3.Keypair.fromSecretKey(
+    new Uint8Array(JSON.parse(data))
+  )
+
+  const mint = await spl.createMint(
+    connection,
+    wallet.payer,
+    wallet.publicKey,
+    null,
+    0,
+    keypair
+  )
+...
+```
+
+最后，使用启用了`本地测试`功能的测试运行。
+```
+anchor test -- --features "local-testing"
+```
+
+您应该看到以下输出：
+```
+config
+  ✔ Payment completes successfully (406ms)
+
+
+1 passing (3s)
+```
+
+就像这样，您已经使用功能来在不同环境中运行两条不同的代码路径。
+
+
+
+### 4. Program Config
+
+特性非常适合在编译时设置不同的值，但如果您想要能够动态更新程序使用的费率百分比怎么办？通过创建一个程序配置账户，我们可以实现这一点，从而使我们能够在不升级程序的情况下更新费率。
+
+首先，让我们先更新 `lib.rs` 文件：
+
+1. 包括一个 `SEED_PROGRAM_CONFIG` 常量，用于生成程序配置账户的 PDA。
+2. 包括一个 `ADMIN` 常量，在初始化程序配置账户时将用作约束条件。运行 `solana address` 命令以获取您的地址，并将其用作常量的值。
+3. 包括一个我们将很快实现的 `state` 模块。
+4. 包括 `initialize_program_config` 和 `update_program_config` 指令，并调用它们的“处理程序”，这两者我们将在另一个步骤中实现。
+
+```rust
+use anchor_lang::prelude::*;
+use solana_program::{pubkey, pubkey::Pubkey};
+mod instructions;
+mod state;
+use instructions::*;
+
+declare_id!("BC3RMBvVa88zSDzPXnBXxpnNYCrKsxnhR3HwwHhuKKei");
+
+#[cfg(feature = "local-testing")]
+#[constant]
 pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("envgiPXWwmpkHFKdy4QLv2cypgAWmVTVEm71YbNpYRu");
 
 #[cfg(not(feature = "local-testing"))]
@@ -371,6 +467,7 @@ pub const ADMIN: Pubkey = pubkey!("...");
 #[program]
 pub mod config {
     use super::*;
+
     pub fn initialize_program_config(ctx: Context<InitializeProgramConfig>) -> Result<()> {
         instructions::initialize_program_config_handler(ctx)
     }
