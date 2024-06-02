@@ -6,6 +6,9 @@ objectives:
 - 使用 Metaplex SDK 创建和更新 NFT
 - 解释 Token Metadata 程序、Candy Machine 程序和 Sugar CLI 作为在 Solana 上创建和分发 NFT 的工具的基本功能
 ---
+
+**译者**: [ben46](https://github.com/ben46)
+
 # 摘要
 
 - **非同质化代币 (NFTs)** 在 Solana 上以 SPL 代币的形式表示，带有关联的元数据账户，0 位小数，以及最大供应量为 1
