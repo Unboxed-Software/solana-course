@@ -506,38 +506,39 @@ pub use payment::*;
 
 最后，让我们更新支付指令，检查指令中的 `fee_destination` 帐户是否与程序配置帐户中存储的 `fee_destination` 匹配。然后，根据程序配置帐户中存储的 `fee_basis_point` 更新指令的费用计算。
 
-```rust
-使用 crate::state::ProgramConfig;
-使用 crate::SEED_PROGRAM_CONFIG;
-使用 crate::USDC_MINT_PUBKEY;
-使用 anchor_lang::prelude::*;
-使用 anchor_spl::token::{self, Token, TokenAccount};
 
-#[派生(Accounts)]
-pub 结构 Payment<'info> {
-    #[帐户(
-        种子 = [SEED_PROGRAM_CONFIG],
-        隆起,
-        有一个 = fee_destination
+```rust
+use crate::state::ProgramConfig;
+use crate::SEED_PROGRAM_CONFIG;
+use crate::USDC_MINT_PUBKEY;
+use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Token, TokenAccount};
+
+#[derive(Accounts)]
+pub struct Payment<'info> {
+    #[account(
+        seeds = [SEED_PROGRAM_CONFIG],
+        bump,
+        has_one = fee_destination
     )]
     pub program_config: Account<'info, ProgramConfig>,
-    #[帐户(
+    #[account(
         mut,
         token::mint = USDC_MINT_PUBKEY
     )]
     pub fee_destination: Account<'info, TokenAccount>,
-    #[帐户(
+    #[account(
         mut,
         token::mint = USDC_MINT_PUBKEY
     )]
     pub sender_token_account: Account<'info, TokenAccount>,
-    #[帐户(
+    #[account(
         mut,
         token::mint = USDC_MINT_PUBKEY
     )]
     pub receiver_token_account: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
-    #[帐户(mut)]
+    #[account(mut)]
     pub sender: Signer<'info>,
 }
 
@@ -580,6 +581,7 @@ pub fn payment_handler(ctx: Context<Payment>, amount: u64) -> Result<()> {
     Ok(())
 }
 ```
+
 
 ### 10. 测试
 
