@@ -1002,7 +1002,129 @@ export default MWAApp;
 ```ts
 export type AuthorizeDappResponse = AuthorizeDappCompleteResponse | UserDeclinedResponse;
 
+export type AuthorizeDappCompleteResponse = Readonly<{
+  publicKey: Uint8Array;
+  accountLabel?: string;
+  walletUriBase?: string;
+  authorizationScope?: Uint8Array;
+}>;
 
+export type UserDeclinedResponse = Readonly<{
+  failReason: MWARequestFailReason.UserDeclined;
+}>;
+```
+我们的逻辑将决定在解决请求时使用哪一个。
+
+现在我们有了所有这些背景知识，我们可以将所有内容放在一个名为`screens/AuthorizeDappRequestScreen.tsx`的新文件中：
+
+```tsx
+import 'fast-text-encoding';
+import React from "react";
+import { useWallet } from "../components/WalletProvider";
+import { AuthorizeDappCompleteResponse, AuthorizeDappRequest, MWARequestFailReason, resolve } from "../lib/mobile-wallet-adapter-walletlib/src";
+import AppInfo from "../components/AppInfo";
+import ButtonGroup from "../components/ButtonGroup";
+import { Text, View } from "react-native";
+
+export interface AuthorizeDappRequestScreenProps {
+  request: AuthorizeDappRequest;
+}
+
+function AuthorizeDappRequestScreen(props: AuthorizeDappRequestScreenProps){
+  const { request } = props;
+  const { wallet } = useWallet();
+
+  if ( ! wallet ) {
+    throw new Error('No wallet found')
+  }
+
+
+  const authorize = () => {
+    resolve(request, {
+      publicKey: wallet?.publicKey.toBytes(),
+      authorizationScope: new TextEncoder().encode("app"),
+    } as AuthorizeDappCompleteResponse);
+  }
+
+  const reject = () => { 
+    resolve(request, {
+      failReason: MWARequestFailReason.UserDeclined,
+    });
+  }
+
+
+  return (
+    <View >
+      <AppInfo
+        title="Authorize Dapp"
+        appName={request.appIdentity?.identityName}
+        cluster={request.cluster}
+        scope={"app"}
+      />
+
+      <ButtonGroup
+        positiveButtonText="Authorize"
+        negativeButtonText="Decline"
+        positiveOnClick={authorize}
+        negativeOnClick={reject}
+      />
+    </View>
+  );
+};
+
+export default AuthorizeDappRequestScreen;
+```
+
+现在让我们更新我们的`MWAApp.tsx`文件，通过在`renderRequest`的switch语句中添加内容来处理这种情况：
+```tsx
+    switch (currentRequest?.__type) {
+      case MWARequestType.AuthorizeDappRequest:
+        return <AuthorizeDappRequestScreen request={currentRequest as AuthorizeDappRequest} />;
+      case MWARequestType.SignAndSendTransactionsRequest:
+      case MWARequestType.SignMessagesRequest:
+      case MWARequestType.SignTransactionsRequest:
+      default:
+        return <Text>TODO Show screen for {currentRequest?.__type}</Text>;
+    }
+```
+
+随时可以重新建立和运行钱包。当您第一次与另一个 Solana 应用程序互动时，我们的新授权屏幕将会出现。
+### 8. 实现签署并发送弹出窗口。
+让我们通过添加签名和发送交易屏幕来完成我们的钱包应用程序。在这里，我们需要从`request`中获取交易，使用来自我们的`WalletProvider`的秘钥对其进行签名，然后将其发送到一个RPC。
+
+UI界面将与我们的授权页面非常相似。我们将使用`AppInfo`提供有关应用程序的一些信息，以及使用`ButtonGroup`提供一些按钮。这一次，我们将为我们的`resolve`函数完成`SignAndSendTransactionsRequest`和`SignAndSendTransactionsResponse`。
+```ts
+export function resolve(request: SignAndSendTransactionsRequest, response: SignAndSendTransactionsResponse): void;
+```
+
+More specifically, we'll have to adhere to what `SignAndSendTransactionsResponse` is unioned with:
+```ts
+export type SignAndSendTransactionsCompleteResponse = Readonly<{ signedTransactions: Uint8Array[] }>;
+export type SignAndSendTransactionsResponse =
+    SignAndSendTransactionsCompleteResponse
+    | UserDeclinedResponse
+    | TooManyPayloadsResponse
+    | AuthorizationNotValidResponse
+    | InvalidSignaturesResponse;
+```
+我们只会涵盖`SignAndSendTransactionsCompleteResponse`、`InvalidSignaturesResponse`和`UserDeclinedResponse`。
+
+特别要注意的是，我们必须遵守`InvalidSignaturesResponse`：
+```ts
+export type InvalidSignaturesResponse = Readonly<{
+  failReason: MWARequestFailReason.InvalidSignatures;
+  valid: boolean[];
+}>;
+```
+`InvalidSignaturesResponse`的独特之处在于它需要一个布尔数组，其中每个布尔值对应一个失败的交易。因此，我们将需要跟踪这些信息。
+
+至于签名和发送操作，我们需要做一些工作。由于我们通过套接字发送交易，交易数据被序列化为字节，我们需要在签名之前对交易进行反序列化。
+
+我们可以通过两个函数来实现：
+- `signTransactionPayloads`：返回签名的交易以及与之对应的1对1的`valid`布尔数组。我们将检查这个数组来查看哪些签名失败。
+- `sendSignedTransactions`：接收签名的交易并将其发送到RPC。同样，它保留一个`valid`布尔数组来了解哪些交易失败了。
+
+让我们把这些内容整合到一个名为`screens/SignAndSendTransactionScreen.tsx`的新文件中：
 ```tsx
 import {
   Connection,
@@ -1065,8 +1187,6 @@ export function signTransactionPayloads(
 ): [boolean[], Uint8Array[]] {
   const valid = payloads.map(_ => true);
 
-
-```tsx
   const signedPayloads = payloads.map((payload, index) => {
     try {
       const transaction: VersionedTransaction =
@@ -1080,7 +1200,7 @@ export function signTransactionPayloads(
       ]);
       return transaction.serialize();
     } catch (e) {
-      console.log('签名错误: ' + e);
+      console.log('sign error: ' + e);
       valid[index] = false;
       return new Uint8Array([]);
     }
@@ -1101,7 +1221,7 @@ function SignAndSendTransactionScreen(
   const [loading, setLoading] = useState(false);
 
   if (!wallet) {
-    throw new Error('钱包为空或未定义');
+    throw new Error('Wallet is null or undefined');
   }
 
   const signAndSendTransaction = async (
@@ -1163,30 +1283,30 @@ function SignAndSendTransactionScreen(
   return (
     <View>
       <AppInfo
-        title="签名并发送交易"
+        title="Sign and Send Transaction"
         appName={request.appIdentity?.identityName}
         cluster={request.cluster}
         scope={'app'}
       />
-      <Text>有效负载</Text>
+      <Text>Payloads</Text>
       <Text>
-        此请求有 {request.payloads.length}{' '}
-        {request.payloads.length > 1 ? '个有效负载' : '个有效负载'} 需要签名。
+        This request has {request.payloads.length}{' '}
+        {request.payloads.length > 1 ? 'payloads' : 'payload'} to sign.
       </Text>
       <ButtonGroup
-        positiveButtonText="签名并发送"
-        negativeButtonText="拒绝"
+        positiveButtonText="Sign and Send"
+        negativeButtonText="Reject"
         positiveOnClick={signAndSend}
         negativeOnClick={reject}
       />
-      {loading && <Text>加载中...</Text>}
+      {loading && <Text>Loading...</Text>}
     </View>
   );
 }
 
 export default SignAndSendTransactionScreen;
 ```
-
+ 
 最后，让我们编辑 `MWAApp.tsx` 并在切换语句中添加我们的新屏幕：
 ```tsx
     switch (currentRequest?.__type) {
