@@ -267,32 +267,43 @@ async function main() {
 
 接下来，让我们创建一个辅助函数，以处理上传图像和元数据并返回元数据URI的过程。此函数将接受MetaPlex实例和NFT数据作为输入，并返回元数据URI作为输出。
 
-```tsx
-// helper function to upload image and metadata
-async function uploadMetadata(
-  metaplex: Metaplex,
-  nftData: NftData,
-): Promise<string> {
-  // file to buffer
-  const buffer = fs.readFileSync("src/" + nftData.imageFile);
+```rust
+pub fn initialize_token_mint(_ctx: Context<InitializeMint>) -> Result<()> {
+    msg!("Token mint initialized");
+    Ok(())
+}
+```
 
-  // buffer to metaplex file
-  const file = toMetaplexFile(buffer, nftData.imageFile);
+现在，实现`InitializeMint`上下文类型，并列出指令所需的账户和约束条件。在这里，我们使用字符串"mint"作为种子，通过PDA初始化一个新的`Mint`账户。请注意，我们可以同时使用同一个PDA作为`Mint`账户和铸币授权的地址。将PDA作为铸币授权方使得我们的程序能够签署代币的铸造。为了初始化`Mint`账户，我们需要在账户列表中包括`token_program`、`rent`和`system_program`。
+```rust
+#[derive(Accounts)]
+pub struct InitializeMint<'info> {
+    #[account(
+        init,
+        seeds = ["mint".as_bytes()],
+        bump,
+        payer = user,
+        mint::decimals = 6,
+        mint::authority = mint,
+    )]
+    pub mint: Account<'info, Mint>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+    pub rent: Sysvar<'info, Rent>,
+    pub system_program: Program<'info, System>
+}
+```
 
-  // upload image and get image uri
-  const imageUri = await metaplex.storage().upload(file);
-  console.log("image uri:", imageUri);
+在您尚未看到的情况下可能存在一些约束。通过添加`mint::decimals`和`mint::authority`以及`init`，可以确保将账户初始化为具有适当小数位和铸币权限的新代币铸造体。
+### 4. Anchor Error
 
-  // upload metadata and get metadata uri (off chain metadata)
-  const { uri } = await metaplex.nfts().uploadMetadata({
-    name: nftData.name,
-    symbol: nftData.symbol,
-    description: nftData.description,
-    image: imageUri,
-  });
-
-  console.log("metadata uri:", uri);
-  return uri;
+接下来，让我们创建一个锚定错误，用于验证传递给`add_movie_review`或`update_movie_review`指令的`rating`。
+```rust
+#[error_code]
+enum MovieReviewError {
+    #[msg("Rating must be between 1 and 5")]
+    InvalidRating
 }
 ```
 
