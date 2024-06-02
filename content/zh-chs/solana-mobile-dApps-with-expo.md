@@ -5,6 +5,7 @@ objectives:
 - 使用移动设备特定的外围设备和功能
 - 将生态系统库集成到您的移动 dApps 中
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

@@ -6,6 +6,7 @@ objectives:
 - 使您的程序具备未来可扩展性
 - 处理并发问题
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

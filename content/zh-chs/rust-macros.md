@@ -5,6 +5,8 @@ objectives:
 - 解释和使用 Rust 抽象语法树（AST）
 - 描述过程宏在 Anchor 框架中的使用
 ---
+**译者**: [ben46](https://github.com/ben46)
+
 # 摘要
 
 -   **过程宏** 是 Rust 中一种特殊的宏，允许程序员根据自定义输入在编译时生成代码。

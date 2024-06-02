@@ -5,6 +5,7 @@ objectives:
 - 转账该货币的代币
 - 收取转账费用
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
  - 代币扩展程序的`转账费用`扩展允许在每次转账时扣留费用。这些费用被留在接收者的账户上，只能从`withdrawWithheldAuthority`权限下赎回

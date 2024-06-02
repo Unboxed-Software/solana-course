@@ -6,6 +6,7 @@ objectives:
 - 使用`realloc`约束对现有账户重新分配空间
 - 使用`close`约束关闭现有账户
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

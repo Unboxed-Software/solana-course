@@ -9,6 +9,7 @@ objectives:
 - 根据不同类型的指令执行不同的程序逻辑
 - 解释Solana上智能合约的结构
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

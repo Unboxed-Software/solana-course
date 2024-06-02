@@ -6,6 +6,8 @@ objectives:
 - 使用 Anchor 的 `Account<'info, T>` 封装和账户类型来自动化所有者检查
 - 使用 Anchor 的 `#[account(owner = <expr>)]` 约束来明确定义应拥有账户的外部程序
 ---
+**译者**: [ben46](https://github.com/ben46)
+
 
 # 概要
 

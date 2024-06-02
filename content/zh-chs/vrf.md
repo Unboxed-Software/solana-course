@@ -5,6 +5,7 @@ objectives:
 - 解释可验证随机性如何工作
 - 使用Switchboard的VRF Oracle队列从链上程序生成和消耗随机性
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

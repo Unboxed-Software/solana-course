@@ -5,6 +5,7 @@ objectives:
 - 使用长格式 Rust 实现数据验证检查
 - 使用 Anchor 约束实现数据验证检查
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 概要
 

@@ -6,6 +6,7 @@ objectives:
 - 使用Anchor的`Signer`类型实现签名者检查
 - 使用Anchor的`#[account(signer)]`约束实现签名者检查
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

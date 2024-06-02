@@ -8,6 +8,7 @@ objectives:
 - 使用 Anchor 获取账户
 - 设置前端以调用 Anchor 和 IDL 的指令
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

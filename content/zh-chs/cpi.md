@@ -6,6 +6,7 @@ objectives:
 - 解释程序如何为PDA提供签名
 - 避免与CPI关联的常见陷阱和故障排除
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

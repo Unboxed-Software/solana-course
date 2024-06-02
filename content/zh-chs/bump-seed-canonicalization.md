@@ -5,6 +5,7 @@ objectives:
 - 利用Anchor的`seeds`和`bump`约束初始化一个PDA，以自动使用规范化提升
 - 使用Anchor的`seeds`和`bump`约束，确保在从PDA派生未来指令时总是使用规范化提升
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

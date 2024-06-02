@@ -6,6 +6,8 @@ objectives:
 - 使用 Anchor 的 `init` 约束来初始化账户
 - 使用 Anchor 的 `Account` 类型进行账户验证
 ---
+**译者**: [ben46](https://github.com/ben46)
+
 # 摘要
 
 - 使用鉴别器来区分不同的账户类型

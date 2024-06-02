@@ -4,6 +4,7 @@ objectives:
  - 了解Token扩展程序
  - 了解扩展
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 概述
 - Solana上现有的Token程序提供了可互换和不可互换Token的接口。然而，随着新功能的需求，对Token程序的各种分叉已经被创建用于添加功能，这给生态系统带来了采用的挑战。

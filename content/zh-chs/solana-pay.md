@@ -5,6 +5,7 @@ objectives:
 - 使用 `@solana/pay` 库来帮助创建 Solana Pay 交易请求
 - 部分签署交易并基于某些条件实现交易过滤
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

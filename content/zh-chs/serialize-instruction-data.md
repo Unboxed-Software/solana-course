@@ -7,6 +7,7 @@ objectives:
 - 解释 Borsh
 - 使用 Borsh 为本地程序序列化程序数据
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

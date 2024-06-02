@@ -5,6 +5,8 @@ objectives:
 - 使用原生 Rust 安全地关闭程序账户
 - 使用 Anchor 的 `close` 约束安全地关闭程序账户
 ---
+**译者**: [ben46](https://github.com/ben46)
+
 # 摘要
 
 - **不当关闭账户** 会为重新初始化/复活攻击创造机会

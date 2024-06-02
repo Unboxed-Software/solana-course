@@ -5,6 +5,7 @@ objectives:
 - 描述Anchor程序的基本结构
 - 解释如何使用Anchor实现基本账户验证和安全检查
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

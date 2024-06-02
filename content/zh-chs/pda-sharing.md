@@ -5,6 +5,8 @@ objectives:
 - 推导具有离散权限域的 PDA
 - 使用 Anchor 的 `seeds` 和 `bump` 约束来验证 PDA 账户
 ---
+**译者**: [ben46](https://github.com/ben46)
+
 # 概要
 
 - 为多个权限域使用相同的 PDA 会使您的程序面临用户访问不属于他们的数据和资金的可能性

@@ -3,6 +3,7 @@ title: 如何处理程序安全模块
 objectives:
 - 了解如何处理程序安全模块
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 本单元的目标是让您了解独特于Solana开发的各种常见安全漏洞。我们已经大量模拟了这个单元，参考了由伟大的Armani Ferrante创建的公共GitHub存储库Sealevel Attacks。
 

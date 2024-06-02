@@ -6,6 +6,7 @@ objectives:
 - 使用Bubblegum TS SDK转移压缩NFT
 - 使用Read API读取压缩NFT数据
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

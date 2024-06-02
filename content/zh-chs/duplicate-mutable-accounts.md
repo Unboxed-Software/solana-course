@@ -5,6 +5,7 @@ objectives:
 - 使用长格式 Rust 实现检查重复可变账户
 - 使用 Anchor 约束实现检查重复可变账户
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 简介
 

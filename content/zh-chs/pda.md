@@ -6,6 +6,7 @@ objectives:
 - 描述PDAs如何派生
 - 使用PDA推导来定位和检索数据
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

@@ -7,6 +7,7 @@ objectives:
 - 解释React和React Native之间的高级别区别
 - 使用React Native创建一个简单的Android Solana dApp
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

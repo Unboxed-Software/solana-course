@@ -4,6 +4,7 @@ objectives:
 - 学习如何有效地在客户应用程序中集成多个 Solana Token 程序
 - 熟练运用 SOLANA 编程语言（SPL）TypeScript 库进行全面的 Token 操作
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

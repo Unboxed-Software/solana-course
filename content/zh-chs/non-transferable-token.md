@@ -5,6 +5,7 @@ objectives:
   - 铸造不可转让代币
   - 尝试转移不可转让代币
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 

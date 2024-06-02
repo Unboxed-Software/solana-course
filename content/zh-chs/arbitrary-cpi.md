@@ -5,6 +5,7 @@ objectives:
 - 展示Anchor的CPI模块如何在从一个Anchor程序到另一个程序进行CPI时防止这种情况发生
 - 安全地从一个Anchor程序向任意非-anchor程序进行CPI
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 总结 
 

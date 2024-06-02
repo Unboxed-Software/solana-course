@@ -5,6 +5,7 @@ objectives:
 - 解释 Merkle 树和并发 Merkle 树之间的区别
 - 在基本 Solana 程序中实现通用状态压缩
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 摘要
 - 在 Solana 上，状态压缩最常用于压缩 NFTs，但也可以用于任意数据

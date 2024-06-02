@@ -4,6 +4,7 @@ objectives:
  - 创建一个可关闭的Mint
  - 描述关闭Mint所需的所有先决条件
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 概要
  - 最初的代币程序仅允许关闭代币账户，但不允许关闭Mint账户。

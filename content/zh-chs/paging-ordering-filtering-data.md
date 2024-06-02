@@ -8,6 +8,7 @@ objectives:
 - 仅获取数据匹配特定条件的账户
 - 使用`getMultipleAccounts`获取账户的子集
 ---
+**译者**: [ben46](https://github.com/ben46)
 
 # 概要
 
