@@ -57,33 +57,14 @@ mod program_module_name {
 }
 ```
 
-### Instruction `Context`
+### The `context` argument
 
-The `Context` type exposes instruction metadata and accounts to your instruction logic.
+The `context` argument allows you to access instruction metadata and accounts to your instruction handler:
 
-```rust
-pub struct Context<'a, 'b, 'c, 'info, T> {
-    /// Currently executing program id.
-    pub program_id: &'a Pubkey,
-    /// Deserialized accounts.
-    pub accounts: &'b mut T,
-    /// Remaining accounts given but not deserialized or validated.
-    /// Be very careful when using this directly.
-    pub remaining_accounts: &'c [AccountInfo<'info>],
-    /// Bump seeds found during constraint validation. This is provided as a
-    /// convenience so that handlers don't have to recalculate bump seeds or
-    /// pass them in as arguments.
-    pub bumps: BTreeMap<String, u8>,
-}
-```
-
-`Context` is a generic type where `T` defines the list of accounts an instruction requires. When you use `Context`, you specify the concrete type of `T` as a struct that adopts the `Accounts` trait (e.g. `Context<AddMovieReviewAccounts>`). Through this context argument the instruction can then access:
-
-- The accounts passed into the instruction (`ctx.accounts`)
 - The program ID (`ctx.program_id`) of the executing program
+- The accounts passed into the instruction (`ctx.accounts`)
 - The remaining accounts (`ctx.remaining_accounts`). The `remaining_accounts` is a vector that contains all accounts that were passed into the instruction but are not declared in the `Accounts` struct.
 - The bumps for any PDA accounts in the `Accounts` struct (`ctx.bumps`)
-
 
 ## Define instruction accounts
 
