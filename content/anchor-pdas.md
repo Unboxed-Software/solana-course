@@ -404,7 +404,7 @@ Remember, you'll need the following macros:
 
 The `movie_review` account is a PDA that needs to be initialized, so we'll add the `seeds` and `bump` constraints as well as the `init` constraint with its required `payer` and `space` constraints.
 
-For the PDA seeds, we'll use the movie title and the reviewer's public key. The payer for the initialization should be the reviewer, and the space allocated on the account should be enough for the account discriminator, the reviewer's public key, and the movie review's rating, title, and description. Since we already implemented the Space trait, we just need to add the length of the "title" and #desciption" strings.
+For the PDA seeds, we'll use the movie title and the reviewer's public key. The payer for the initialization should be the reviewer, and the space allocated on the account should be enough for the account discriminator, the reviewer's public key, and the movie review's rating, title, and description. Since we already implemented the Space trait, we just need to add the length of the "title" and "desciption" strings.
 
 ```rust
 #[derive(Accounts)]
