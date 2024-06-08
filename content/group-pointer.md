@@ -146,11 +146,11 @@ In this lab we'll create a Cool Cats NFT collection using the `group`, `group po
 The Cool Cats NFT collection will have a group NFT with three member NFTs within it.
 
 ### 1. Getting started
-To get started, clone [this](https://github.com/Unboxed-Software/solana-lab-group-extension) repository's `starter` branch.
+To get started, clone [this](https://github.com/Unboxed-Software/solana-lab-group-member) repository's `starter` branch.
 
 ```bash
-git clone https://github.com/Unboxed-Software/solana-lab-group-member-pointer.git
-cd solana-lab-group-member-pointer
+git clone https://github.com/Unboxed-Software/solana-lab-group-member.git
+cd solana-lab-group-member
 git checkout starter
 npm install
 ```
@@ -688,7 +688,7 @@ Lastly, let's run the script and see our full collection of NFTs!
 npx esrun src/index.ts
 ```
 
-That's it! If you're having troubles feel free to check out the `solution` branch in the repository.
+That's it! If you're having troubles feel free to check out the `solution` [branch in the repository](https://github.com/Unboxed-Software/solana-lab-group-member/tree/solution).
 
 # Challenge
 Go create a NFT collection of your own using the the `group`, `group pointer`, `member` and `member pointer` extensions.
