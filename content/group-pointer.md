@@ -141,14 +141,16 @@ const signature = tokenGroupUpdateGroupMaxSize(
 
 
 # Lab
-For this lab, we will be creating a Cool Cats NFT collection. We will create a mint with the group pointer and metadata pointer extensions. The group information will be stored on the mint itself.
+In this lab we'll create a Cool Cats NFT collection using the `group`, `group pointer`, `member` and `member pointer` extensions. 
+
+The Cool Cats NFT collection will have a group NFT with three member NFTs within it.
 
 ### 1. Getting started
 To get started, clone [this](https://github.com/Unboxed-Software/solana-lab-group-extension) repository's `starter` branch.
 
 ```bash
-git clone https://github.com/Unboxed-Software/solana-lab-group-extension.git
-cd solana-lab-group-extension
+git clone https://github.com/Unboxed-Software/solana-lab-group-member-pointer.git
+cd solana-lab-group-member-pointer
 git checkout starter
 npm install
 ```
@@ -159,29 +161,116 @@ The `starter` code comes with:
  - `assets`:  folder which contains the cover image for our NFT collection.
  - `helper.ts`: helper functions for uploading metadata.
 
-### 2. Create a mint with group pointer and metadata
-We are now going to create the function `createTokenExtensionMintWithGroupPointer` in a new file `src/create-mint.ts`.
+### 2. Run validator node
 
-This new mint will be created with group pointer and metadata extension. The group pointer address will be the mint itself. It means, we will store the group related information on the mint account itself. The metadata extension will be used to store the metadata about our collection.
+For the sake of this guide, we'll be running our own validator node.
 
-Since we are creating the mint with group and metadata pointer extensions, we need some additional instructions:
-- `getMintLen`: Gets the space needed for the mint account
-- `SystemProgram.getMinimumBalanceForRentExemption`: Tells us the cost of the rent for the mint account
- - `SystemProgram.createAccount`: Creates the instruction to allocates space on Solana for the mint account
- - `createInitializeGroupPointerInstruction`: Create the instruction to initialize the group pointer
- - `createInitializeMetadataPointerInstruction`: Create the instruction to initialize the metadata pointer
- - `createInitializeMintInstruction`: Creates the instruction to initialize the mint
- - `createInitializeGroupInstruction`: Creates the instruction to initialize the group
- - `createInitializeInstruction`: Creates the instruction to initialize the metadata
- - `sendAndConfirmTransaction`: Sends the transaction to the blockchain
+In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
 
-We'll call all of these functions in turn. But before that let's define the inputs to our `createTokenExtensionMintWithGroupPointer` function:
- - `connection` : The connection object
- - `payer` : Payer for the transactions
- - `mintKeypair` : Keypair of the group mint
- - `decimals` : Mint decimals
- - `maxMembers` : Maximum number of groups members allowed
- - `metadata` : Metadata for the group mint
+`const connection = new Connection("http://127.0.0.1:8899", "confirmed");`
+Alternatively, if you’d like to use testnet or devnet, import the clusterApiUrl from `@solana/web3.js` and pass it to the connection as such:
+
+`const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');`
+If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this by running `solana config get` in your terminal. And then go to [faucet.solana.com](faucet.solana.com) and airdrop some SOL to your address. You can get your address by running Solana address in your terminal.
+
+With the validator setup correctly, you may run `index.ts` and confirm everything is working.
+
+```bash
+npx esrun src/index.ts
+```
+
+### 3. Setup group metadata
+Before we create our group NFT, we need to prepare the group metadata and upload it. We are using devnet Irys (Arweave) to upload the image and metadata. This functionality is provided for you in the `helpers.ts`.
+
+For ease of this lesson, we've provided assets for the NFTs in the `assets` directory. 
+
+If you'd like to use your own files and metadata feel free!
+
+To get our group metadata ready we have to do the following:
+1. We need to format our metadata for upload using the `LabNFTMetadata` interface from `helper.ts`
+2. Call the `uploadOffChainMetadata` from `helpers.ts`
+3. Format everything including the resulting uri from the previous step into the  
+
+We need to format our metadata for upload (`LabNFTMetadata`), upload the image and metadata (`uploadOffChainMetadata`), and finally format everything into the `TokenMetadata` interface from the `@solana/spl-token-metadata` library.
+
+Note: We are using devnet Irys, which is free to upload to under 100kb.
+
+```ts
+// CREATE GROUP METADATA
+
+const groupMetadata: LabNFTMetadata = {
+	mint: groupMintKeypair,
+	imagePath: "assets/collection.png",
+	tokenName: "cool-cats-collection",
+	tokenDescription: "Collection of Cool Cat NFTs",
+	tokenSymbol: "MEOW",
+	tokenExternalUrl: "https://solana.com/",
+	tokenAdditionalMetadata: {},
+	tokenUri: "",
+}
+
+// UPLOAD OFF-CHAIN METADATA
+groupMetadata.tokenUri = await uploadOffChainMetadata(
+	payer,
+	groupMetadata
+)
+
+// FORMAT GROUP TOKEN METADATA
+const collectionTokenMetadata: TokenMetadata = {
+	name: groupMetadata.tokenName,
+	mint: groupMintKeypair.publicKey,
+	symbol: groupMetadata.tokenSymbol,
+	uri: groupMetadata.tokenUri,
+	updateAuthority: payer.publicKey,
+	additionalMetadata: Object.entries(
+		groupMetadata.tokenAdditionalMetadata || []
+	).map(([trait_type, value]) => [trait_type, value]),
+}
+```
+
+Feel free to run the script and make sure everything uploads.
+
+```bash
+npx esrun src/index.ts
+```
+
+### 3. Create a mint with group and group pointer
+Let's create the group NFT by creating a mint with the `metadata`, `metadata pointer`, `group` and `group pointer` extensions.
+
+This NFT is the visual representation of our collection.
+
+Let's first define the inputs to our new function `createTokenGroup`:
+
+- `connection`: Connection to the blockchain
+- `payer`: The keypair paying for the transaction
+- `mintKeypair`: The mint keypair
+- `decimals`: The mint decimals ( 0 for NFTs )
+- `maxMembers`: The maximum number of members allowed in the group
+- `metadata`: The metadata for the group mint
+
+```ts
+export async function createTokenGroup(
+	connection: Connection,
+	payer: Keypair,
+	mintKeypair: Keypair,
+	decimals: number,
+	maxMembers: number,
+	metadata: TokenMetadata
+): Promise<TransactionSignature>
+```
+
+To make our NFT, we will be storing the metadata directly on the mint account using the `metadata` and `metadata pointer` extensions. And we'll save some info about the group with the `group` and `group pointer` extensions.
+
+To create our group NFT, we need the following instructions:
+
+- `SystemProgram.createAccount`: Allocates space on Solana for the mint account. We can get the `mintLength` and `mintLamports` using `getMintLen` and `getMinimumBalanceForRentExemption` respectively.
+- `createInitializeGroupPointerInstruction`: Initializes the group pointer
+- `createInitializeMetadataPointerInstruction`: Initializes the metadata pointer
+- `createInitializeMintInstruction`: Initializes the mint
+- `createInitializeGroupInstruction`: Initializes the group
+- `createInitializeInstruction`: Initializes the metadata
+
+Finally, we need to add all of these instructions to a transaction and send it to the Solana network, and return the signature. We can do this by calling `sendAndConfirmTransaction`.
 
 ```ts
 import {
@@ -191,7 +280,7 @@ import {
 	SystemProgram,
 	Transaction,
 	TransactionSignature,
-} from '@solana/web3.js'
+} from "@solana/web3.js"
 
 import {
 	ExtensionType,
@@ -204,14 +293,14 @@ import {
 	LENGTH_SIZE,
 	createInitializeMetadataPointerInstruction,
 	TOKEN_GROUP_SIZE,
-} from '@solana/spl-token'
+} from "@solana/spl-token"
 import {
 	TokenMetadata,
 	createInitializeInstruction,
 	pack,
-} from '@solana/spl-token-metadata'
+} from "@solana/spl-token-metadata"
 
-export async function createTokenExtensionMintWithGroupPointer(
+export async function createTokenGroup(
 	connection: Connection,
 	payer: Keypair,
 	mintKeypair: Keypair,
@@ -219,19 +308,18 @@ export async function createTokenExtensionMintWithGroupPointer(
 	maxMembers: number,
 	metadata: TokenMetadata
 ): Promise<TransactionSignature> {
-	const extensions: any[] = [
+
+	const extensions: ExtensionType[] = [
 		ExtensionType.GroupPointer,
 		ExtensionType.MetadataPointer,
 	]
 
-	const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length
+	const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length + 500
 	const mintLength = getMintLen(extensions)
 	const totalLen = mintLength + metadataLen + TOKEN_GROUP_SIZE
 
 	const mintLamports =
 		await connection.getMinimumBalanceForRentExemption(totalLen)
-
-	console.log('Creating a transaction with group instruction... ')
 
 	const mintTransaction = new Transaction().add(
 		SystemProgram.createAccount({
@@ -280,82 +368,327 @@ export async function createTokenExtensionMintWithGroupPointer(
 		})
 	)
 
-	console.log('Sending create mint transaction...')
-	let signature = await sendAndConfirmTransaction(
+	const signature = await sendAndConfirmTransaction(
 		connection,
 		mintTransaction,
-		[payer, mintKeypair],
-		{commitment: 'finalized'}
+		[payer, mintKeypair]
 	)
 
 	return signature
-} 
-```
-### 3. Define collection metadata
-Now, we will define our collection metadata. The metadata object will contain typical information about the NFT such as token name, symbol, etc.
-
-Paste the following metadata definition in `index.ts` under the right comment section:
-
-```ts
-// DEFINE GROUP METADATA
-const collectionMintKeypair = Keypair.generate()
-
-const collectionMetadata = {
-	imagePath: 'src/assets/collection.jpeg',
-	tokenName: 'cool-cats-collection',
-	tokenDescription: 'Collection of Cool Cat NFTs',
-	tokenSymbol: 'MEOWs',
-	tokenExternalUrl: 'https://solana.com/',
-	tokenAdditionalMetadata: undefined,
-	tokenUri: '',
-	metadataFileName: 'collection.json',
-}
-
-collectionMetadata.tokenUri = await uploadOffChainMetadata(
-	collectionMetadata,
-	payer
-)
-
-const collectionTokenMetadata: TokenMetadata = {
-	name: collectionMetadata.tokenName,
-	mint: collectionMintKeypair.publicKey,
-	symbol: collectionMetadata.tokenSymbol,
-	uri: collectionMetadata.tokenUri,
-	updateAuthority: payer.publicKey,
-	additionalMetadata: Object.entries(
-		collectionMetadata.tokenAdditionalMetadata || []
-	).map(([trait_type, value]) => [trait_type, value]),
 }
 ```
 
-Replace the `'path-to-solana-keypair'` with the keypair path of the solana wallet installed on your machine. You can check the path of the keypair by running the command:
-
-```bash
-solana config get
-```
-
-The `uploadOffChainMetadata` function from `helpers.ts` will upload the cover image and the metadata json using the Irys SDK. It returns the token URI for the metadata JSON which will be stored on the mint account.
-
-### 4. Create the mint
-Now that we have uploaded the collection metadata, we can call the `createTokenExtensionMintWithGroupPointer` function in `index.ts` created in step 2.
-
-First you'll need to import our new function. Then paste the following under the right comment section:
+Now that we have our function, let's call it in our `index.ts` file.
 
 ```ts
-// CREATE GROUP MINT
-const decimals = 0
-const maxMembers = 3
-
-const signature = await createTokenExtensionMintWithGroupPointer(
+// CREATE GROUP
+const signature = await createTokenGroup(
 	connection,
 	payer,
-	collectionMintKeypair,
+	groupMintKeypair,
 	decimals,
 	maxMembers,
 	collectionTokenMetadata
 )
 
-console.log(`Created collection mint with metadata. Signature: ${signature}`)
+console.log(`Created collection mint with metadata:\n${getExplorerLink("tx", signature, 'localnet')}\n`)
 ```
 
-That's it! We have successfully created a mint with group pointer extension with the group information stored on the mint account itself. We will use this mint in the Member Pointer extension to create members of our NFT collection.
+Before we run the script, lets fetch the newly created group NFT and print it's contents. Let's do this in `index.ts`:
+
+```ts
+// FETCH THE GROUP
+const groupMint = await getMint(connection, groupMintKeypair.publicKey, "confirmed", TOKEN_2022_PROGRAM_ID);
+const fetchedGroupMetadata = await getTokenMetadata(connection, groupMintKeypair.publicKey);
+const metadataPointerState = getMetadataPointerState(groupMint);
+const groupData = getGroupPointerState(groupMint);
+
+console.log("\n---------- GROUP DATA -------------\n");
+console.log("Group Mint: ", groupMint.address.toBase58());
+console.log("Metadata Pointer Account: ", metadataPointerState?.metadataAddress?.toBase58());
+console.log("Group Pointer Account: ", groupData?.groupAddress?.toBase58());
+console.log("\n--- METADATA ---\n");
+console.log("Name: ", fetchedGroupMetadata?.name);
+console.log("Symbol: ", fetchedGroupMetadata?.symbol);
+console.log("Uri: ", fetchedGroupMetadata?.uri);
+console.log("\n------------------------------------\n");
+```
+
+Now we can run the script and see the group NFT we created.
+
+```bash
+npx esrun src/index.ts
+```
+
+### 4. Setup member NFT Metadata
+
+Now that we've created our group NFT, we can create the member NFTs. But before we actually create them, we need to prepare their metadata.
+
+The flow is the exact same to what we did with the group NFT.
+
+1. We need to format our metadata for upload using the `LabNFTMetadata` interface from `helper.ts`
+2. Call the `uploadOffChainMetadata` from `helpers.ts`
+3. Format everything including the resulting uri from the previous step into the `TokenMetadata` interface from the `@solana/spl-token-metadata` library.
+
+However, since we have three members, we're going to loop through each step for each member.
+
+First, let's define the metadata for each member:
+```ts
+// DEFINE MEMBER METADATA
+const membersMetadata: LabNFTMetadata[] = [
+	{
+		mint: cat0Mint,
+		imagePath: "assets/cat_0.png",
+		tokenName: "Cat 1",
+		tokenDescription: "Adorable cat",
+		tokenSymbol: "MEOW",
+		tokenExternalUrl: "https://solana.com/",
+		tokenAdditionalMetadata: {},
+		tokenUri: "",
+	},
+	{
+		mint: cat1Mint,
+		imagePath: "assets/cat_1.png",
+		tokenName: "Cat 2",
+		tokenDescription: "Sassy cat",
+		tokenSymbol: "MEOW",
+		tokenExternalUrl: "https://solana.com/",
+		tokenAdditionalMetadata: {},
+		tokenUri: "",
+	},
+	{
+		mint: cat2Mint,
+		imagePath: "assets/cat_2.png",
+		tokenName: "Cat 3",
+		tokenDescription: "Silly cat",
+		tokenSymbol: "MEOW",
+		tokenExternalUrl: "https://solana.com/",
+		tokenAdditionalMetadata: {},
+		tokenUri: "",
+	},
+];
+```
+
+Now let's loop through each member and upload their metadata.
+
+```ts
+// UPLOAD MEMBER METADATA
+for (const member of membersMetadata) {
+	member.tokenUri = await uploadOffChainMetadata(
+		payer,
+		member
+	)
+}
+```
+
+Finally, let's format the metadata for each member into the `TokenMetadata` interface:
+
+Note: We'll want to carry over the keypair since we'll need it to create the member NFTs.
+
+```ts
+// FORMAT TOKEN METADATA
+const memberTokenMetadata: {mintKeypair: Keypair, metadata: TokenMetadata}[] = membersMetadata.map(member => ({
+    mintKeypair: member.mint,
+    metadata: {
+        name: member.tokenName,
+        mint: member.mint.publicKey,
+        symbol: member.tokenSymbol,
+        uri: member.tokenUri,
+        updateAuthority: payer.publicKey,
+        additionalMetadata: Object.entries(member.tokenAdditionalMetadata || []).map(([trait_type, value]) => [trait_type, value]),
+    } as TokenMetadata
+}))
+```
+
+### 5. Create member NFTs
+Just like the group NFT we need to create the member NFTs. Let's do this in a new file called `create-member.ts`. It is going to look very similar to the `create-group.ts` file, except we are going to use the `member` and `member pointer` extensions instead of the `group` and `group pointer` extensions.
+
+First, let's define the inputs to our new function `createTokenMember`:
+
+- `connection`: Connection to the blockchain
+- `payer`: The keypair paying for the transaction
+- `mintKeypair`: The mint keypair
+- `decimals`: The mint decimals ( 0 for NFTs )
+- `metadata`: The metadata for the group mint
+- `groupAddress`: The address of the group account - in this case it's the group mint itself
+
+```ts
+export async function createTokenMember(
+	connection: Connection,
+	payer: Keypair,
+	mintKeypair: Keypair,
+	decimals: number,
+	metadata: TokenMetadata,
+	groupAddress: PublicKey
+): Promise<TransactionSignature>
+```
+
+Just like the group NFT, we need the following instructions:
+- `SystemProgram.createAccount`: Allocates space on Solana for the mint account. We can get the `mintLength` and `mintLamports` using `getMintLen` and `getMinimumBalanceForRentExemption` respectively.
+- `createInitializeGroupMemberPointerInstruction`: Initializes the member pointer
+- `createInitializeMetadataPointerInstruction`: Initializes the metadata pointer
+- `createInitializeMintInstruction`: Initializes the mint
+- `createInitializeMemberInstruction`: Initializes the member
+- `createInitializeInstruction`: Initializes the metadata
+
+Finally, we need to add all of these instructions to a transaction and send it to the Solana network, and return the signature. We can do this by calling `sendAndConfirmTransaction`.
+
+```ts
+import {
+	sendAndConfirmTransaction,
+	Connection,
+	Keypair,
+	SystemProgram,
+	Transaction,
+	TransactionSignature,
+	PublicKey,
+} from "@solana/web3.js"
+
+import {
+	ExtensionType,
+	createInitializeMintInstruction,
+	getMintLen,
+	TOKEN_2022_PROGRAM_ID,
+	TYPE_SIZE,
+	LENGTH_SIZE,
+	createInitializeMetadataPointerInstruction,
+	TOKEN_GROUP_SIZE,
+	createInitializeGroupMemberPointerInstruction,
+	createInitializeMemberInstruction,
+} from "@solana/spl-token"
+import {
+	TokenMetadata,
+	createInitializeInstruction,
+	pack,
+} from "@solana/spl-token-metadata"
+
+export async function createTokenMember(
+	connection: Connection,
+	payer: Keypair,
+	mintKeypair: Keypair,
+	decimals: number,
+	metadata: TokenMetadata,
+	groupAddress: PublicKey
+): Promise<TransactionSignature> {
+
+	const extensions: ExtensionType[] = [
+		ExtensionType.GroupMemberPointer,
+		ExtensionType.MetadataPointer,
+	]
+
+	const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length
+	const mintLength = getMintLen(extensions)
+	const totalLen = mintLength + metadataLen + TOKEN_GROUP_SIZE
+
+	const mintLamports =
+		await connection.getMinimumBalanceForRentExemption(totalLen)
+
+	const mintTransaction = new Transaction().add(
+		SystemProgram.createAccount({
+			fromPubkey: payer.publicKey,
+			newAccountPubkey: mintKeypair.publicKey,
+			space: mintLength,
+			lamports: mintLamports,
+			programId: TOKEN_2022_PROGRAM_ID,
+		}),
+		createInitializeGroupMemberPointerInstruction(
+			mintKeypair.publicKey,
+			payer.publicKey,
+			mintKeypair.publicKey,
+			TOKEN_2022_PROGRAM_ID
+		),
+		createInitializeMetadataPointerInstruction(
+			mintKeypair.publicKey,
+			payer.publicKey,
+			mintKeypair.publicKey,
+			TOKEN_2022_PROGRAM_ID
+		),
+		createInitializeMintInstruction(
+			mintKeypair.publicKey,
+			decimals,
+			payer.publicKey,
+			payer.publicKey,
+			TOKEN_2022_PROGRAM_ID
+		),
+		createInitializeMemberInstruction({
+			group: groupAddress,
+			groupUpdateAuthority: payer.publicKey,
+			member: mintKeypair.publicKey,
+			memberMint: mintKeypair.publicKey,
+			memberMintAuthority: payer.publicKey,
+			programId: TOKEN_2022_PROGRAM_ID,
+		}),
+		createInitializeInstruction({
+			metadata: mintKeypair.publicKey,
+			mint: mintKeypair.publicKey,
+			mintAuthority: payer.publicKey,
+			name: metadata.name,
+			programId: TOKEN_2022_PROGRAM_ID,
+			symbol: metadata.symbol,
+			updateAuthority: payer.publicKey,
+			uri: metadata.uri,
+		})
+	)
+
+	const signature = await sendAndConfirmTransaction(
+		connection,
+		mintTransaction,
+		[payer, mintKeypair]
+	)
+
+	return signature
+}
+```
+
+Let's add our new function to `index.ts` and call it for each member:
+```ts
+// CREATE MEMBER MINTS
+for (const memberMetadata of memberTokenMetadata) {
+
+	const signature = await createTokenMember(
+		connection,
+		payer,
+		memberMetadata.mintKeypair,
+		decimals,
+		memberMetadata.metadata,
+		groupMintKeypair.publicKey
+	)
+
+	console.log(`Created ${memberMetadata.metadata.name} NFT:\n${getExplorerLink("tx", signature, 'localnet')}\n`)
+
+}
+```
+
+Let's fetch our newly created member NFTs and display their contents.
+
+```ts
+for (const member of membersMetadata) {
+	const memberMint = await getMint(connection, member.mint.publicKey, "confirmed", TOKEN_2022_PROGRAM_ID);
+	const memberMetadata = await getTokenMetadata(connection, member.mint.publicKey);
+	const metadataPointerState = getMetadataPointerState(memberMint);
+	const memberPointerData = getGroupMemberPointerState(memberMint);
+	const memberData = getTokenGroupMemberState(memberMint);
+
+	console.log("\n---------- MEMBER DATA -------------\n");
+	console.log("Member Mint: ", memberMint.address.toBase58());
+	console.log("Metadata Pointer Account: ", metadataPointerState?.metadataAddress?.toBase58());
+	console.log("Group Account: ", memberData?.group?.toBase58());
+	console.log("Member Pointer Account: ", memberPointerData?.memberAddress?.toBase58());
+	console.log("Member Number: ", memberData?.memberNumber);
+	console.log("\n--- METADATA ---\n");
+	console.log("Name: ", memberMetadata?.name);
+	console.log("Symbol: ", memberMetadata?.symbol);
+	console.log("Uri: ", memberMetadata?.uri);
+	console.log("\n------------------------------------\n");	
+}
+```
+
+Lastly, let's run the script and see our full collection of NFTs!
+```bash
+npx esrun src/index.ts
+```
+
+That's it! If you're having troubles feel free to check out the `solution` branch in the repository.
+
+# Challenge
+Go create a NFT collection of your own using the the `group`, `group pointer`, `member` and `member pointer` extensions.
