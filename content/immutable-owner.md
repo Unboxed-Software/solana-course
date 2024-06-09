@@ -315,7 +315,7 @@ That's it for the token accounts! Now we can move on and start testing that the 
 
 If you'd like to test that everything is working, feel free to run the script.
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 6. Tests
@@ -350,7 +350,7 @@ try {
 }
 ```
 
-We can now invoke the `setAuthority` function by running `esrun src/index.ts`. We should see the following error logged out in the terminal, meaning the extension is working as we need it to: `✅ - We expected this to fail because the account is immutable, and cannot change owner.`
+We can now invoke the `setAuthority` function by running `npx esrun src/index.ts`. We should see the following error logged out in the terminal, meaning the extension is working as we need it to: `✅ - We expected this to fail because the account is immutable, and cannot change owner.`
 
 **Test trying to transfer owner with associated token account**
 
@@ -382,7 +382,7 @@ try {
 }
 ```
 
-Now we can run `esrun src/index.ts`. This test should log a failure message similar to the one from the previous test. This means that both of our token accounts are in fact immutable and working as intended.
+Now we can run `npx esrun src/index.ts`. This test should log a failure message similar to the one from the previous test. This means that both of our token accounts are in fact immutable and working as intended.
 
 
 

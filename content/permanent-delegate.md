@@ -555,7 +555,7 @@ await printBalances(
 )
 ```
 
-Start your local validator and run `esrun src/index.ts`. You should see the following in your terminal, indicating that our token accounts have had tokens minted to them:
+Start your local validator and run `npx esrun src/index.ts`. You should see the following in your terminal, indicating that our token accounts have had tokens minted to them:
 
 ```bash
 Initial Balances: 
@@ -637,7 +637,7 @@ To do this, let's wrap a `transferChecked` function in a `try catch` and print o
 
 Test this by running the script:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 We should see the following error logged out in the terminal, meaning the extension is working as intended. `✅ Since Alice is the permanent delegate, she has control over all token accounts of this mint`
@@ -681,7 +681,7 @@ Similar to the previous test we can create this test by calling `transferChecked
 
 Go ahead and run the script, the transaction should fail.
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 8.3 Transfer from one account to another with the correct delegate
@@ -724,7 +724,7 @@ To test this, let's wrap a `transferChecked` function in a `try catch` and print
 In our first test we wrote, `bob` had 10 of his tokens transferred to `carol`. Up until this point `bob` has 90 tokens remaining.
 Run the test and see the results. You will notice that `bob` now has 80 tokens:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 8.4 Burn with correct delegate
@@ -764,7 +764,7 @@ We'll do this by calling `burnChecked` and then printing out the balances:
 
 Run the tests again:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 Bob had 5 tokens burned and now only has 75 tokens. Poor Bob!
 
@@ -851,7 +851,7 @@ Add the following test:
 ```
 
 Run the tests again. You will notice that `bob` now only has 65 tokens as `carol` has just transferred 10 of his tokens to herself:
-`esrun src/index.ts`
+`npx esrun src/index.ts`
 
 ### 8.7. Attempt to transfer again 
 In the previous test, we approved `carol` to be able to transfer 10 tokens to herself. This means that she has reached the maximum amount of tokens to send from another account. Let's write a test and attempt to transfer another 10 tokens to herself. This is expected to fail.

@@ -490,7 +490,7 @@ try {
 
 Test this by running the script:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 We should see the following error logged out in the terminal, meaning the extension is working as intended. `✅ - We expected this to fail because the account is still frozen.`
@@ -536,7 +536,7 @@ console.log(
 
 Go ahead and run the script, the transaction should succeed.
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 7.3 Transferring without thawing the recipient's account
@@ -573,7 +573,7 @@ try {
 
 Run the test and see the results:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 7.4 Transferring with thawing the recipient's account
@@ -624,7 +624,7 @@ console.log(
 
 Run all of the tests one last time and see the results:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 Remember the key takeaways: 

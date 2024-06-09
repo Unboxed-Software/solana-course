@@ -425,7 +425,7 @@ try {
 Run this test, you should see the following error logged out in the terminal, meaning the extension is working as intended: `✅ - We expected this to fail because you need to send a memo with the transfer.`
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 6.2 Test transfer with memo
@@ -468,7 +468,7 @@ console.log(
 
 Run the test and see that it passes:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 6.3 Test transfer with disabled memo
@@ -527,7 +527,7 @@ console.log(
 Run the tests. You will notice that `otherTokenAccount` now has 600 tokens, meaning it has successfully transferred without a memo after disabling the extension.
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 Congratulations! We’ve just tested the required memo extension!

@@ -417,7 +417,7 @@ try {
 }
 ```
 
-Run `esrun src/index.ts`. We should see the following error logged out in the terminal, meaning the extension is working as intended and the interest rate has been updated: `✅ - We expected this to pass because the rate has been updated. Old rate: 32767. New rate: 0`
+Run `npx esrun src/index.ts`. We should see the following error logged out in the terminal, meaning the extension is working as intended and the interest rate has been updated: `✅ - We expected this to pass because the rate has been updated. Old rate: 32767. New rate: 0`
 
 **Updating interest rate with incorrect rate authority**
 
@@ -444,7 +444,7 @@ try {
 }
 ```
 
-Now run `esrun src/index.ts`. This is expected to fail and log out `✅ - We expected this to fail because the owner is incorrect.`
+Now run `npx esrun src/index.ts`. This is expected to fail and log out `✅ - We expected this to fail because the owner is incorrect.`
 
 **Mint tokens and read interest rate**
 
