@@ -1,47 +1,82 @@
 ---
-title: Group Pointer
+title: Group, Group Pointer, Member, Member Pointer
 objectives:
- - Create a group mint pointing to itself
+ - Create an NFT collection using the group, group pointer, member, and member pointer extensions.
+ - Update the authority and max size of a group.
 ---
 
 # Summary
 
- - **Group Pointer** allows us to designate a group account that describes the mint.
- - Unlike metadata, it describes the configurations for the group.
- - The pointer can point to a dedicated group account or the mint itself.
+ - `group pointer` extension allows us to designate a group account that describes a token group. 
+ - `group` extension allows us to save group data within a mint.
+ - `member pointer` extension allows us to designate an individual member account within a group.
+ - `member` extension allows us to save member data within a mint.
 
 # Overview
-In the Token Program, we used metadata to describe any token, be it a collection or a individual token. In the Token22 program, the group pointer extension allows us to designate a group account that describes the mint. But, this is not like our usual metadata description. The group account describes the configurations for grouping tokens together.
+SPL tokens are valuable alone but can be combined for extra functionality. We can do this in the Token Extensions Program by combining the `group`, `group pointer`, `member`, and `member pointer` extensions. The most common use case for these extensions is to create a collection of NFTs. 
 
-The Token22 mint possessing a group pointer is known as a group mint, just like a collection NFT. These group mints have configurations which allow them to be used as a point of reference for a related set of tokens. This extension is really useful when it comes to managing tokens which are closely related to each other. This extension allows us to set mint authority, update authority and max size of the group. Max size is the maximum number of members said group can have. These configurations give us more control over the token.
+To create a collection of NFTs we need two parts: the "collection" NFT and all of the NFTs within the collection. We can do this entirely using token extensions. The "collection" NFT can be a single mint combining the `metadata`, `metadata pointer`, `group`, and `group pointer` extensions. And then each individual NFT within the collection can be an array of  mints combining the `metadata`, `metadata pointer`, `member`, and `member pointer` extensions.
 
-The group pointer extension can point to a separate token account or it can point to the mint itself. If the pointer is pointing to the mint itself, a client must check that the mint and the group both point to each other.
+Although NFT collections are a common use-case, groups and members can be applied to any token type.
 
-## Creating a mint with group pointer
+A quick note on `group pointer` vs `group`. The `group pointer` extension saves the address of any on-chain account that follows to the [Token-Group Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-group/interface). While the `group` extension saves the Token-Group Interface data directly within the mint account. Generally, these are used together where the `group pointer` points to the mint itself. The same is true for `member pointer` vs `member`, but with the member data.
 
-Creating a mint with a group pointer involves four instructions:
+NOTE: A group can have many members, but a member can only belong to one group.
+
+## Group and Group Pointer
+
+The `group` and `group pointer` extensions define a token group. The onchain data is as follows:
+
+- `update_authority`: The authority that can sign to update the group.
+- `mint`: The mint of the group token.
+- `size`: The current number of group members.
+- `max_size`: The maximum number of group members.
+
+```rust
+type OptionalNonZeroPubkey = Pubkey; // if all zeroes, interpreted as `None`
+type PodU32 = [u8; 4];
+type Pubkey = [u8; 32];
+
+/// Type discriminant: [214, 15, 63, 132, 49, 119, 209, 40]
+/// First 8 bytes of `hash("spl_token_group_interface:group")`
+pub struct TokenGroup {
+    /// The authority that can sign to update the group
+    pub update_authority: OptionalNonZeroPubkey,
+    /// The associated mint, used to counter spoofing to be sure that group
+    /// belongs to a particular mint
+    pub mint: Pubkey,
+    /// The current number of group members
+    pub size: PodU32,
+    /// The maximum number of group members
+    pub max_size: PodU32,
+}
+```
+
+### Creating a mint with group and group pointer
+
+Creating a mint with the `group` and `group pointer` involves four instructions:
  - `SystemProgram.createAccount`
  - `createInitializeGroupPointerInstruction`
  - `createInitializeMintInstruction`
  - `createInitializeGroupInstruction`
 
-The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extensions Program mints, we need to calculate the size and cost of the mint. This can be accomplished by using `getMintLen` and `getMinimumBalanceForRentExemption`. In this case, we'll call `getMintLen` with only the `ExtensionType.GroupPointer`.
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However like all Token Extensions Program mints, we need to calculate the size and cost of the mint. This can be accomplished by using `getMintLen` and `getMinimumBalanceForRentExemption`. In this case, we'll call `getMintLen` with only the `ExtensionType.GroupPointer`. Then we add `TOKEN_GROUP_SIZE` to the mint length to account for the group data.
 
 To get the mint length and create account instruction, do the following:
 
 ```ts
 // get mint length
 const extensions = [ExtensionType.GroupPointer]
-const mintLength = getMintLen(extensions)
+const mintLength = getMintLen(extensions) + TOKEN_GROUP_SIZE;
 
 const mintLamports = await connection.getMinimumBalanceForRentExemption(mintLength)
 
 const createAccountInstruction = SystemProgram.createAccount({
-	fromPubkey: payer.publicKey,
-	newAccountPubkey: mintKeypair.publicKey,
-	space: mintLength,
-	lamports: mintLamports,
-	programId: TOKEN_2022_PROGRAM_ID,
+    fromPubkey: payer.publicKey,
+    newAccountPubkey: mintKeypair.publicKey,
+    space: mintLength,
+    lamports: mintLamports,
+    programId: TOKEN_2022_PROGRAM_ID,
 })
 ```
 
@@ -49,10 +84,10 @@ The second instruction `createInitializeGroupPointerInstruction` initializes the
 
 ```ts
 const initializeGroupPointerInstruction = createInitializeGroupPointerInstruction(
-	mintKeypair.publicKey,
-	payer.publicKey,
-	mintKeypair.publicKey,
-	TOKEN_2022_PROGRAM_ID
+    mintKeypair.publicKey,
+    payer.publicKey,
+    mintKeypair.publicKey,
+    TOKEN_2022_PROGRAM_ID
 )
 ```
 
@@ -60,11 +95,11 @@ The third instruction `createInitializeMintInstruction` initializes the mint.
 
 ```ts
 const initializeMintInstruction = createInitializeMintInstruction(
-	mintKeypair.publicKey,
-	decimals,
-	payer.publicKey,
-	payer.publicKey,
-	TOKEN_2022_PROGRAM_ID
+    mintKeypair.publicKey,
+    decimals,
+    payer.publicKey,
+    payer.publicKey,
+    TOKEN_2022_PROGRAM_ID
 )
 ```
 
@@ -72,34 +107,31 @@ The fourth instruction `createInitializeGroupInstruction` actually initializes t
 
 ```ts
 const initializeGroupInstruction = createInitializeGroupInstruction({
-	group: mintKeypair.publicKey,
-	maxSize: maxMembers,
-	mint: mintKeypair.publicKey,
-	mintAuthority: payer.publicKey,
-	programId: TOKEN_2022_PROGRAM_ID,
-	updateAuthority: payer.publicKey,
-})		
+    group: mintKeypair.publicKey,
+    maxSize: maxMembers,
+    mint: mintKeypair.publicKey,
+    mintAuthority: payer.publicKey,
+    programId: TOKEN_2022_PROGRAM_ID,
+    updateAuthority: payer.publicKey,
+})      
 ```
-
-Please remember that the `createInitializeGroupInstruction` assumes that the mint has already been initialized.
 
 Finally, we add the instructions to the transaction and submit it to the Solana network.
 ```ts
 const mintTransaction = new Transaction().add(
-	createAccountInstruction,
-	initializeGroupPointerInstruction,
-	initializeMintInstruction,
-	initializeGroupInstruction
+    createAccountInstruction,
+    initializeGroupPointerInstruction,
+    initializeMintInstruction,
+    initializeGroupInstruction
 )
 
 const signature = await sendAndConfirmTransaction(
-	connection,
-	mintTransaction,
-	[payer, mintKeypair],
-	{commitment: 'finalized'}
+    connection,
+    mintTransaction,
+ [payer, mintKeypair],
+ {commitment: 'finalized'}
 )
 ```
-When the transaction is sent, a new mint with a group pointer pointing to the specified group address will be created.
 
 ## Update group authority
 
@@ -109,14 +141,14 @@ To update the authority of a group, we just need the `tokenGroupUpdateGroupAutho
 import {tokenGroupUpdateGroupAuthority} from "@solana/spl-token"
 
 const signature = await tokenGroupUpdateGroupAuthority(
-	connection, //connection - Connection to use
-	payer, // payer - Payer for the transaction fees
-	mint.publicKey, // mint - Group mint
-	oldAuthority, // account - Public key of the old update authority
-	newAuthority, // account - Public key of the new update authority
-	undefined, // multiSigners - Signing accounts if `authority` is a multisig
-	{commitment: 'finalized'}, // confirmOptions - Options for confirming thr transaction
-	TOKEN_2022_PROGRAM_ID // programId - SPL Token program account
+    connection, //connection - Connection to use
+    payer, // payer - Payer for the transaction fees
+    mint.publicKey, // mint - Group mint
+    oldAuthority, // account - Public key of the old update authority
+    newAuthority, // account - Public key of the new update authority
+    undefined, // multiSigners - Signing accounts if `authority` is a multisig
+ {commitment: 'finalized'}, // confirmOptions - Options for confirming thr transaction
+    TOKEN_2022_PROGRAM_ID // programId - SPL Token program account
 )
 ```
 
@@ -128,20 +160,208 @@ To update the max size of a group we just need the `tokenGroupUpdateGroupMaxSize
 import {tokenGroupUpdateGroupMaxSize} from "@solana/spl-token"
 
 const signature = tokenGroupUpdateGroupMaxSize(
-	connection, //connection - Connection to use
-	payer, // payer - Payer for the transaction fees
-	mint.publicKey, // mint - Group mint
-	updpateAuthority, // account - Update authority of the group
-	4, // maxSize - new max size of the group
-	undefined, // multiSigners — Signing accounts if `authority` is a multisig
-	{commitment: "finalized"}, // confirmOptions - Options for confirming thr transaction
-	TOKEN_2022_PROGRAM_ID // programId - SPL Token program account
+    connection, //connection - Connection to use
+    payer, // payer - Payer for the transaction fees
+    mint.publicKey, // mint - Group mint
+    updpateAuthority, // account - Update authority of the group
+    4, // maxSize - new max size of the group
+    undefined, // multiSigners — Signing accounts if `authority` is a multisig
+ {commitment: "finalized"}, // confirmOptions - Options for confirming thr transaction
+    TOKEN_2022_PROGRAM_ID // programId - SPL Token program account
 )
 ```
 
+## Member and Member Pointer
+
+The `member` and `member pointer` extensions define a token member. The onchain data is as follows:
+
+- `mint`: The mint of the member token.
+- `group`: The address of the group account.
+- `member_number`: The member number (index within the group).
+
+```rust
+/// Type discriminant: [254, 50, 168, 134, 88, 126, 100, 186]
+/// First 8 bytes of `hash("spl_token_group_interface:member")`
+pub struct TokenGroupMember {
+    /// The associated mint, used to counter spoofing to be sure that member
+    /// belongs to a particular mint
+    pub mint: Pubkey,
+    /// The pubkey of the `TokenGroup`
+    pub group: Pubkey,
+    /// The member number
+    pub member_number: PodU32,
+}
+```
+
+### Creating a mint with member pointer
+Creating a mint with the `member pointer` and `member` extensions involves four instructions:
+
+- `SystemProgram.createAccount`
+- `createInitializeGroupMemberPointerInstruction`
+- `createInitializeMintInstruction`
+- `createInitializeMemberInstruction`
+
+The first instruction `SystemProgram.createAccount` allocates space on the blockchain for the mint account. However, like all Token Extensions Program mints, we need to calculate the size and cost of the mint. This can be accomplished by using `getMintLen` and `getMinimumBalanceForRentExemption`. In this case, we'll call `getMintLen` with the `ExtensionType.GroupMemberPointer`. Then we have to add `TOKEN_GROUP_MEMBER_SIZE` to the mint length to account for the member data.
+
+To get the mint length and create account instruction, do the following:
+```ts
+// get mint length
+const extensions = [ExtensionType.GroupMemberPointer];
+const mintLength = getMintLen(extensions) + TOKEN_GROUP_MEMBER_SIZE;
+
+const mintLamports = await connection.getMinimumBalanceForRentExemption(mintLength);
+
+const createAccountInstruction = SystemProgram.createAccount({
+    fromPubkey: payer.publicKey,
+    newAccountPubkey: mintKeypair.publicKey,
+    space: mintLength,
+    lamports: mintLamports,
+    programId: TOKEN_2022_PROGRAM_ID,
+});
+```
+The second instruction `createInitializeGroupMemberPointerInstruction` initializes the group member pointer. It takes the mint, optional authority that can set the group address, address that holds the group, and the owning program as its arguments.
+
+```ts
+const initializeGroupMemberPointerInstruction = createInitializeGroupMemberPointerInstruction(
+    mintKeypair.publicKey,
+    payer.publicKey,
+    mintKeypair.publicKey,
+    TOKEN_2022_PROGRAM_ID
+);
+```
+The third instruction `createInitializeMintInstruction` initializes the mint.
+
+```ts
+const initializeMintInstruction = createInitializeMintInstruction(
+    mintKeypair.publicKey,
+    decimals,
+    payer.publicKey,
+    payer.publicKey,
+    TOKEN_2022_PROGRAM_ID
+);
+```
+The fourth instruction `createInitializeMemberInstruction` actually initializes the member and stores the configuration on the member account. This function takes the group address as an argument and associates the member with that group.
+
+```ts
+const initializeMemberInstruction = createInitializeMemberInstruction({
+    group: groupAddress,
+    groupUpdateAuthority: payer.publicKey,
+    member: mintKeypair.publicKey,
+    memberMint: mintKeypair.publicKey,
+    memberMintAuthority: payer.publicKey,
+    programId: TOKEN_2022_PROGRAM_ID,
+});
+```
+
+Finally, we add the instructions to the transaction and submit it to the Solana network.
+
+```ts
+const mintTransaction = new Transaction().add(
+    createAccountInstruction,
+    initializeGroupMemberPointerInstruction,
+    initializeMintInstruction,
+    initializeMemberInstruction
+);
+
+const signature = await sendAndConfirmTransaction(
+    connection,
+    mintTransaction,
+ [payer, mintKeypair],
+ { commitment: 'finalized' }
+);
+```
+
+## Fetch group and member data
+
+### Get group pointer state
+To retrieve the state of the `group pointer` for a mint, we need to fetch the account using `getMint` and then parse this data using the `getGroupPointerState` function. This returns us the `GroupPointer` struct.
+
+```ts
+/** GroupPointer as stored by the program */
+export interface GroupPointer {
+    /** Optional authority that can set the group address */
+    authority: PublicKey | null;
+    /** Optional account address that holds the group */
+    groupAddress: PublicKey | null;
+}
+```
+
+To get the `GroupPointer` data, call the following:
+
+```ts
+const groupMint = await getMint(connection, mint, "confirmed", TOKEN_2022_PROGRAM_ID);
+
+const groupPointerData: GroupPointer = getGroupPointerState(groupMint);
+```
+
+### Get group state
+To retrieve the group state for a mint, we need to fetch the account using `getMint` and then parse this data using the `getTokenGroupState` function. This returns the `TokenGroup` struct.
+
+```ts
+export interface TokenGroup {
+    /** The authority that can sign to update the group */
+    updateAuthority?: PublicKey;
+    /** The associated mint, used to counter spoofing to be sure that group belongs to a particular mint */
+    mint: PublicKey;
+    /** The current number of group members */
+    size: number;
+    /** The maximum number of group members */
+    maxSize: number;
+}
+```
+
+To get the `TokenGroup` data, call the following:
+
+```ts
+const groupMint = await getMint(connection, mint, "confirmed", TOKEN_2022_PROGRAM_ID);
+
+const groupData: TokenGroup = getTokenGroupState(groupMint);
+```
+
+### Get group member pointer state
+To retrieve the `member pointer` state for a mint, we fetch the mint with `getMint` and then parse with `getGroupMemberPointerState`. This returns us the `GroupMemberPointer` struct.
+
+```ts
+/** GroupMemberPointer as stored by the program */
+export interface GroupMemberPointer {
+    /** Optional authority that can set the member address */
+    authority: PublicKey | null;
+    /** Optional account address that holds the member */
+    memberAddress: PublicKey | null;
+}
+```
+
+To get the `GroupMemberPointer` data, call the following:
+
+```ts
+const memberMint = await getMint(connection, mint, "confirmed", TOKEN_2022_PROGRAM_ID);
+
+const memberPointerData = getGroupMemberPointerState(memberMint);
+```
+
+### Get group member state
+To retrieve a mint's `member` state, we fetch the mint with `getMint` and then parse with `getTokenGroupMemberState`. This returns the `TokenGroupMember` struct.
+
+```ts
+export interface TokenGroupMember {
+    /** The associated mint, used to counter spoofing to be sure that member belongs to a particular mint */
+    mint: PublicKey;
+    /** The pubkey of the `TokenGroup` */
+    group: PublicKey;
+    /** The member number */
+    memberNumber: number;
+}
+```
+
+To get the `TokenGroupMember` data, call the following:
+
+```ts
+const memberMint = await getMint(connection, mint, "confirmed", TOKEN_2022_PROGRAM_ID);
+const memberData = getTokenGroupMemberState(memberMint);
+```
 
 # Lab
-In this lab we'll create a Cool Cats NFT collection using the `group`, `group pointer`, `member` and `member pointer` extensions. 
+In this lab we'll create a Cool Cats NFT collection using the `group`, `group pointer`, `member` and `member pointer` extensions in conjunction with the `metadata` and `metadata pointer` extensions. 
 
 The Cool Cats NFT collection will have a group NFT with three member NFTs within it.
 
@@ -158,7 +378,7 @@ npm install
 The `starter` code comes with:
 
  - `index.ts`: creates a connection object and calls `initializeKeypair`. This is where we will write our script.
- - `assets`:  folder which contains the cover image for our NFT collection.
+ - `assets`:  folder which contains the image for our NFT collection.
  - `helper.ts`: helper functions for uploading metadata.
 
 ### 2. Run validator node
@@ -180,7 +400,7 @@ npx esrun src/index.ts
 ```
 
 ### 3. Setup group metadata
-Before we create our group NFT, we need to prepare the group metadata and upload it. We are using devnet Irys (Arweave) to upload the image and metadata. This functionality is provided for you in the `helpers.ts`.
+Before creating our group NFT, we must prepare and upload the group metadata. We are using devnet Irys (Arweave) to upload the image and metadata. This functionality is provided for you in the `helpers.ts`.
 
 For ease of this lesson, we've provided assets for the NFTs in the `assets` directory. 
 
@@ -199,32 +419,32 @@ Note: We are using devnet Irys, which is free to upload to under 100kb.
 // CREATE GROUP METADATA
 
 const groupMetadata: LabNFTMetadata = {
-	mint: groupMintKeypair,
-	imagePath: "assets/collection.png",
-	tokenName: "cool-cats-collection",
-	tokenDescription: "Collection of Cool Cat NFTs",
-	tokenSymbol: "MEOW",
-	tokenExternalUrl: "https://solana.com/",
-	tokenAdditionalMetadata: {},
-	tokenUri: "",
+    mint: groupMintKeypair,
+    imagePath: "assets/collection.png",
+    tokenName: "cool-cats-collection",
+    tokenDescription: "Collection of Cool Cat NFTs",
+    tokenSymbol: "MEOW",
+    tokenExternalUrl: "https://solana.com/",
+    tokenAdditionalMetadata: {},
+    tokenUri: "",
 }
 
 // UPLOAD OFF-CHAIN METADATA
 groupMetadata.tokenUri = await uploadOffChainMetadata(
-	payer,
-	groupMetadata
+    payer,
+    groupMetadata
 )
 
 // FORMAT GROUP TOKEN METADATA
 const collectionTokenMetadata: TokenMetadata = {
-	name: groupMetadata.tokenName,
-	mint: groupMintKeypair.publicKey,
-	symbol: groupMetadata.tokenSymbol,
-	uri: groupMetadata.tokenUri,
-	updateAuthority: payer.publicKey,
-	additionalMetadata: Object.entries(
-		groupMetadata.tokenAdditionalMetadata || []
-	).map(([trait_type, value]) => [trait_type, value]),
+    name: groupMetadata.tokenName,
+    mint: groupMintKeypair.publicKey,
+    symbol: groupMetadata.tokenSymbol,
+    uri: groupMetadata.tokenUri,
+    updateAuthority: payer.publicKey,
+    additionalMetadata: Object.entries(
+        groupMetadata.tokenAdditionalMetadata || []
+ ).map(([trait_type, value]) => [trait_type, value]),
 }
 ```
 
@@ -250,16 +470,16 @@ Let's first define the inputs to our new function `createTokenGroup`:
 
 ```ts
 export async function createTokenGroup(
-	connection: Connection,
-	payer: Keypair,
-	mintKeypair: Keypair,
-	decimals: number,
-	maxMembers: number,
-	metadata: TokenMetadata
+    connection: Connection,
+    payer: Keypair,
+    mintKeypair: Keypair,
+    decimals: number,
+    maxMembers: number,
+    metadata: TokenMetadata
 ): Promise<TransactionSignature>
 ```
 
-To make our NFT, we will be storing the metadata directly on the mint account using the `metadata` and `metadata pointer` extensions. And we'll save some info about the group with the `group` and `group pointer` extensions.
+To make our NFT, we will store the metadata directly on the mint account using the `metadata` and `metadata pointer` extensions. We'll also save some info about the group with the `group` and `group pointer` extensions.
 
 To create our group NFT, we need the following instructions:
 
@@ -274,107 +494,107 @@ Finally, we need to add all of these instructions to a transaction and send it t
 
 ```ts
 import {
-	sendAndConfirmTransaction,
-	Connection,
-	Keypair,
-	SystemProgram,
-	Transaction,
-	TransactionSignature,
+    sendAndConfirmTransaction,
+    Connection,
+    Keypair,
+    SystemProgram,
+    Transaction,
+    TransactionSignature,
 } from "@solana/web3.js"
 
 import {
-	ExtensionType,
-	createInitializeMintInstruction,
-	getMintLen,
-	TOKEN_2022_PROGRAM_ID,
-	createInitializeGroupInstruction,
-	createInitializeGroupPointerInstruction,
-	TYPE_SIZE,
-	LENGTH_SIZE,
-	createInitializeMetadataPointerInstruction,
-	TOKEN_GROUP_SIZE,
+    ExtensionType,
+    createInitializeMintInstruction,
+    getMintLen,
+    TOKEN_2022_PROGRAM_ID,
+    createInitializeGroupInstruction,
+    createInitializeGroupPointerInstruction,
+    TYPE_SIZE,
+    LENGTH_SIZE,
+    createInitializeMetadataPointerInstruction,
+    TOKEN_GROUP_SIZE,
 } from "@solana/spl-token"
 import {
-	TokenMetadata,
-	createInitializeInstruction,
-	pack,
+    TokenMetadata,
+    createInitializeInstruction,
+    pack,
 } from "@solana/spl-token-metadata"
 
 export async function createTokenGroup(
-	connection: Connection,
-	payer: Keypair,
-	mintKeypair: Keypair,
-	decimals: number,
-	maxMembers: number,
-	metadata: TokenMetadata
+    connection: Connection,
+    payer: Keypair,
+    mintKeypair: Keypair,
+    decimals: number,
+    maxMembers: number,
+    metadata: TokenMetadata
 ): Promise<TransactionSignature> {
 
-	const extensions: ExtensionType[] = [
-		ExtensionType.GroupPointer,
-		ExtensionType.MetadataPointer,
-	]
+    const extensions: ExtensionType[] = [
+        ExtensionType.GroupPointer,
+        ExtensionType.MetadataPointer,
+ ]
 
-	const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length + 500
-	const mintLength = getMintLen(extensions)
-	const totalLen = mintLength + metadataLen + TOKEN_GROUP_SIZE
+    const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length + 500
+    const mintLength = getMintLen(extensions)
+    const totalLen = mintLength + metadataLen + TOKEN_GROUP_SIZE
 
-	const mintLamports =
-		await connection.getMinimumBalanceForRentExemption(totalLen)
+    const mintLamports =
+        await connection.getMinimumBalanceForRentExemption(totalLen)
 
-	const mintTransaction = new Transaction().add(
-		SystemProgram.createAccount({
-			fromPubkey: payer.publicKey,
-			newAccountPubkey: mintKeypair.publicKey,
-			space: mintLength,
-			lamports: mintLamports,
-			programId: TOKEN_2022_PROGRAM_ID,
-		}),
-		createInitializeGroupPointerInstruction(
-			mintKeypair.publicKey,
-			payer.publicKey,
-			mintKeypair.publicKey,
-			TOKEN_2022_PROGRAM_ID
-		),
-		createInitializeMetadataPointerInstruction(
-			mintKeypair.publicKey,
-			payer.publicKey,
-			mintKeypair.publicKey,
-			TOKEN_2022_PROGRAM_ID
-		),
-		createInitializeMintInstruction(
-			mintKeypair.publicKey,
-			decimals,
-			payer.publicKey,
-			payer.publicKey,
-			TOKEN_2022_PROGRAM_ID
-		),
-		createInitializeGroupInstruction({
-			group: mintKeypair.publicKey,
-			maxSize: maxMembers,
-			mint: mintKeypair.publicKey,
-			mintAuthority: payer.publicKey,
-			programId: TOKEN_2022_PROGRAM_ID,
-			updateAuthority: payer.publicKey,
-		}),
-		createInitializeInstruction({
-			metadata: mintKeypair.publicKey,
-			mint: mintKeypair.publicKey,
-			mintAuthority: payer.publicKey,
-			name: metadata.name,
-			programId: TOKEN_2022_PROGRAM_ID,
-			symbol: metadata.symbol,
-			updateAuthority: payer.publicKey,
-			uri: metadata.uri,
-		})
-	)
+    const mintTransaction = new Transaction().add(
+        SystemProgram.createAccount({
+            fromPubkey: payer.publicKey,
+            newAccountPubkey: mintKeypair.publicKey,
+            space: mintLength,
+            lamports: mintLamports,
+            programId: TOKEN_2022_PROGRAM_ID,
+ }),
+        createInitializeGroupPointerInstruction(
+            mintKeypair.publicKey,
+            payer.publicKey,
+            mintKeypair.publicKey,
+            TOKEN_2022_PROGRAM_ID
+ ),
+        createInitializeMetadataPointerInstruction(
+            mintKeypair.publicKey,
+            payer.publicKey,
+            mintKeypair.publicKey,
+            TOKEN_2022_PROGRAM_ID
+ ),
+        createInitializeMintInstruction(
+            mintKeypair.publicKey,
+            decimals,
+            payer.publicKey,
+            payer.publicKey,
+            TOKEN_2022_PROGRAM_ID
+ ),
+        createInitializeGroupInstruction({
+            group: mintKeypair.publicKey,
+            maxSize: maxMembers,
+            mint: mintKeypair.publicKey,
+            mintAuthority: payer.publicKey,
+            programId: TOKEN_2022_PROGRAM_ID,
+            updateAuthority: payer.publicKey,
+ }),
+        createInitializeInstruction({
+            metadata: mintKeypair.publicKey,
+            mint: mintKeypair.publicKey,
+            mintAuthority: payer.publicKey,
+            name: metadata.name,
+            programId: TOKEN_2022_PROGRAM_ID,
+            symbol: metadata.symbol,
+            updateAuthority: payer.publicKey,
+            uri: metadata.uri,
+ })
+ )
 
-	const signature = await sendAndConfirmTransaction(
-		connection,
-		mintTransaction,
-		[payer, mintKeypair]
-	)
+    const signature = await sendAndConfirmTransaction(
+        connection,
+        mintTransaction,
+ [payer, mintKeypair]
+ )
 
-	return signature
+    return signature
 }
 ```
 
@@ -383,12 +603,12 @@ Now that we have our function, let's call it in our `index.ts` file.
 ```ts
 // CREATE GROUP
 const signature = await createTokenGroup(
-	connection,
-	payer,
-	groupMintKeypair,
-	decimals,
-	maxMembers,
-	collectionTokenMetadata
+    connection,
+    payer,
+    groupMintKeypair,
+    decimals,
+    maxMembers,
+    collectionTokenMetadata
 )
 
 console.log(`Created collection mint with metadata:\n${getExplorerLink("tx", signature, 'localnet')}\n`)
@@ -430,42 +650,42 @@ The flow is the exact same to what we did with the group NFT.
 2. Call the `uploadOffChainMetadata` from `helpers.ts`
 3. Format everything including the resulting uri from the previous step into the `TokenMetadata` interface from the `@solana/spl-token-metadata` library.
 
-However, since we have three members, we're going to loop through each step for each member.
+However, since we have three members, we'll loop through each step for each member.
 
 First, let's define the metadata for each member:
 ```ts
 // DEFINE MEMBER METADATA
 const membersMetadata: LabNFTMetadata[] = [
-	{
-		mint: cat0Mint,
-		imagePath: "assets/cat_0.png",
-		tokenName: "Cat 1",
-		tokenDescription: "Adorable cat",
-		tokenSymbol: "MEOW",
-		tokenExternalUrl: "https://solana.com/",
-		tokenAdditionalMetadata: {},
-		tokenUri: "",
-	},
-	{
-		mint: cat1Mint,
-		imagePath: "assets/cat_1.png",
-		tokenName: "Cat 2",
-		tokenDescription: "Sassy cat",
-		tokenSymbol: "MEOW",
-		tokenExternalUrl: "https://solana.com/",
-		tokenAdditionalMetadata: {},
-		tokenUri: "",
-	},
-	{
-		mint: cat2Mint,
-		imagePath: "assets/cat_2.png",
-		tokenName: "Cat 3",
-		tokenDescription: "Silly cat",
-		tokenSymbol: "MEOW",
-		tokenExternalUrl: "https://solana.com/",
-		tokenAdditionalMetadata: {},
-		tokenUri: "",
-	},
+ {
+        mint: cat0Mint,
+        imagePath: "assets/cat_0.png",
+        tokenName: "Cat 1",
+        tokenDescription: "Adorable cat",
+        tokenSymbol: "MEOW",
+        tokenExternalUrl: "https://solana.com/",
+        tokenAdditionalMetadata: {},
+        tokenUri: "",
+ },
+ {
+        mint: cat1Mint,
+        imagePath: "assets/cat_1.png",
+        tokenName: "Cat 2",
+        tokenDescription: "Sassy cat",
+        tokenSymbol: "MEOW",
+        tokenExternalUrl: "https://solana.com/",
+        tokenAdditionalMetadata: {},
+        tokenUri: "",
+ },
+ {
+        mint: cat2Mint,
+        imagePath: "assets/cat_2.png",
+        tokenName: "Cat 3",
+        tokenDescription: "Silly cat",
+        tokenSymbol: "MEOW",
+        tokenExternalUrl: "https://solana.com/",
+        tokenAdditionalMetadata: {},
+        tokenUri: "",
+ },
 ];
 ```
 
@@ -474,10 +694,10 @@ Now let's loop through each member and upload their metadata.
 ```ts
 // UPLOAD MEMBER METADATA
 for (const member of membersMetadata) {
-	member.tokenUri = await uploadOffChainMetadata(
-		payer,
-		member
-	)
+    member.tokenUri = await uploadOffChainMetadata(
+        payer,
+        member
+ )
 }
 ```
 
@@ -496,12 +716,12 @@ const memberTokenMetadata: {mintKeypair: Keypair, metadata: TokenMetadata}[] = m
         uri: member.tokenUri,
         updateAuthority: payer.publicKey,
         additionalMetadata: Object.entries(member.tokenAdditionalMetadata || []).map(([trait_type, value]) => [trait_type, value]),
-    } as TokenMetadata
+ } as TokenMetadata
 }))
 ```
 
 ### 5. Create member NFTs
-Just like the group NFT we need to create the member NFTs. Let's do this in a new file called `create-member.ts`. It is going to look very similar to the `create-group.ts` file, except we are going to use the `member` and `member pointer` extensions instead of the `group` and `group pointer` extensions.
+Just like the group NFT, we need to create the member NFTs. Let's do this in a new file called `create-member.ts`. It will look very similar to the `create-group.ts` file, except we'll use the `member` and `member pointer` extensions instead of the `group` and `group pointer` extensions.
 
 First, let's define the inputs to our new function `createTokenMember`:
 
@@ -514,12 +734,12 @@ First, let's define the inputs to our new function `createTokenMember`:
 
 ```ts
 export async function createTokenMember(
-	connection: Connection,
-	payer: Keypair,
-	mintKeypair: Keypair,
-	decimals: number,
-	metadata: TokenMetadata,
-	groupAddress: PublicKey
+    connection: Connection,
+    payer: Keypair,
+    mintKeypair: Keypair,
+    decimals: number,
+    metadata: TokenMetadata,
+    groupAddress: PublicKey
 ): Promise<TransactionSignature>
 ```
 
@@ -531,112 +751,112 @@ Just like the group NFT, we need the following instructions:
 - `createInitializeMemberInstruction`: Initializes the member
 - `createInitializeInstruction`: Initializes the metadata
 
-Finally, we need to add all of these instructions to a transaction and send it to the Solana network, and return the signature. We can do this by calling `sendAndConfirmTransaction`.
+Finally, we need to add these instructions to a transaction, send it to the Solana network, and return the signature. We can do this by calling `sendAndConfirmTransaction`.
 
 ```ts
 import {
-	sendAndConfirmTransaction,
-	Connection,
-	Keypair,
-	SystemProgram,
-	Transaction,
-	TransactionSignature,
-	PublicKey,
+    sendAndConfirmTransaction,
+    Connection,
+    Keypair,
+    SystemProgram,
+    Transaction,
+    TransactionSignature,
+    PublicKey,
 } from "@solana/web3.js"
 
 import {
-	ExtensionType,
-	createInitializeMintInstruction,
-	getMintLen,
-	TOKEN_2022_PROGRAM_ID,
-	TYPE_SIZE,
-	LENGTH_SIZE,
-	createInitializeMetadataPointerInstruction,
-	TOKEN_GROUP_SIZE,
-	createInitializeGroupMemberPointerInstruction,
-	createInitializeMemberInstruction,
+    ExtensionType,
+    createInitializeMintInstruction,
+    getMintLen,
+    TOKEN_2022_PROGRAM_ID,
+    TYPE_SIZE,
+    LENGTH_SIZE,
+    createInitializeMetadataPointerInstruction,
+    TOKEN_GROUP_MEMBER_SIZE,
+    createInitializeGroupMemberPointerInstruction,
+    createInitializeMemberInstruction,
 } from "@solana/spl-token"
 import {
-	TokenMetadata,
-	createInitializeInstruction,
-	pack,
+    TokenMetadata,
+    createInitializeInstruction,
+    pack,
 } from "@solana/spl-token-metadata"
 
 export async function createTokenMember(
-	connection: Connection,
-	payer: Keypair,
-	mintKeypair: Keypair,
-	decimals: number,
-	metadata: TokenMetadata,
-	groupAddress: PublicKey
+    connection: Connection,
+    payer: Keypair,
+    mintKeypair: Keypair,
+    decimals: number,
+    metadata: TokenMetadata,
+    groupAddress: PublicKey
 ): Promise<TransactionSignature> {
 
-	const extensions: ExtensionType[] = [
-		ExtensionType.GroupMemberPointer,
-		ExtensionType.MetadataPointer,
-	]
+    const extensions: ExtensionType[] = [
+        ExtensionType.GroupMemberPointer,
+        ExtensionType.MetadataPointer,
+ ]
 
-	const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length
-	const mintLength = getMintLen(extensions)
-	const totalLen = mintLength + metadataLen + TOKEN_GROUP_SIZE
+    const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length
+    const mintLength = getMintLen(extensions)
+    const totalLen = mintLength + metadataLen + TOKEN_GROUP_MEMBER_SIZE
 
-	const mintLamports =
-		await connection.getMinimumBalanceForRentExemption(totalLen)
+    const mintLamports =
+        await connection.getMinimumBalanceForRentExemption(totalLen)
 
-	const mintTransaction = new Transaction().add(
-		SystemProgram.createAccount({
-			fromPubkey: payer.publicKey,
-			newAccountPubkey: mintKeypair.publicKey,
-			space: mintLength,
-			lamports: mintLamports,
-			programId: TOKEN_2022_PROGRAM_ID,
-		}),
-		createInitializeGroupMemberPointerInstruction(
-			mintKeypair.publicKey,
-			payer.publicKey,
-			mintKeypair.publicKey,
-			TOKEN_2022_PROGRAM_ID
-		),
-		createInitializeMetadataPointerInstruction(
-			mintKeypair.publicKey,
-			payer.publicKey,
-			mintKeypair.publicKey,
-			TOKEN_2022_PROGRAM_ID
-		),
-		createInitializeMintInstruction(
-			mintKeypair.publicKey,
-			decimals,
-			payer.publicKey,
-			payer.publicKey,
-			TOKEN_2022_PROGRAM_ID
-		),
-		createInitializeMemberInstruction({
-			group: groupAddress,
-			groupUpdateAuthority: payer.publicKey,
-			member: mintKeypair.publicKey,
-			memberMint: mintKeypair.publicKey,
-			memberMintAuthority: payer.publicKey,
-			programId: TOKEN_2022_PROGRAM_ID,
-		}),
-		createInitializeInstruction({
-			metadata: mintKeypair.publicKey,
-			mint: mintKeypair.publicKey,
-			mintAuthority: payer.publicKey,
-			name: metadata.name,
-			programId: TOKEN_2022_PROGRAM_ID,
-			symbol: metadata.symbol,
-			updateAuthority: payer.publicKey,
-			uri: metadata.uri,
-		})
-	)
+    const mintTransaction = new Transaction().add(
+        SystemProgram.createAccount({
+            fromPubkey: payer.publicKey,
+            newAccountPubkey: mintKeypair.publicKey,
+            space: mintLength,
+            lamports: mintLamports,
+            programId: TOKEN_2022_PROGRAM_ID,
+ }),
+        createInitializeGroupMemberPointerInstruction(
+            mintKeypair.publicKey,
+            payer.publicKey,
+            mintKeypair.publicKey,
+            TOKEN_2022_PROGRAM_ID
+ ),
+        createInitializeMetadataPointerInstruction(
+            mintKeypair.publicKey,
+            payer.publicKey,
+            mintKeypair.publicKey,
+            TOKEN_2022_PROGRAM_ID
+ ),
+        createInitializeMintInstruction(
+            mintKeypair.publicKey,
+            decimals,
+            payer.publicKey,
+            payer.publicKey,
+            TOKEN_2022_PROGRAM_ID
+ ),
+        createInitializeMemberInstruction({
+            group: groupAddress,
+            groupUpdateAuthority: payer.publicKey,
+            member: mintKeypair.publicKey,
+            memberMint: mintKeypair.publicKey,
+            memberMintAuthority: payer.publicKey,
+            programId: TOKEN_2022_PROGRAM_ID,
+ }),
+        createInitializeInstruction({
+            metadata: mintKeypair.publicKey,
+            mint: mintKeypair.publicKey,
+            mintAuthority: payer.publicKey,
+            name: metadata.name,
+            programId: TOKEN_2022_PROGRAM_ID,
+            symbol: metadata.symbol,
+            updateAuthority: payer.publicKey,
+            uri: metadata.uri,
+ })
+ )
 
-	const signature = await sendAndConfirmTransaction(
-		connection,
-		mintTransaction,
-		[payer, mintKeypair]
-	)
+    const signature = await sendAndConfirmTransaction(
+        connection,
+        mintTransaction,
+ [payer, mintKeypair]
+ )
 
-	return signature
+    return signature
 }
 ```
 
@@ -645,16 +865,16 @@ Let's add our new function to `index.ts` and call it for each member:
 // CREATE MEMBER MINTS
 for (const memberMetadata of memberTokenMetadata) {
 
-	const signature = await createTokenMember(
-		connection,
-		payer,
-		memberMetadata.mintKeypair,
-		decimals,
-		memberMetadata.metadata,
-		groupMintKeypair.publicKey
-	)
+    const signature = await createTokenMember(
+        connection,
+        payer,
+        memberMetadata.mintKeypair,
+        decimals,
+        memberMetadata.metadata,
+        groupMintKeypair.publicKey
+ )
 
-	console.log(`Created ${memberMetadata.metadata.name} NFT:\n${getExplorerLink("tx", signature, 'localnet')}\n`)
+    console.log(`Created ${memberMetadata.metadata.name} NFT:\n${getExplorerLink("tx", signature, 'localnet')}\n`)
 
 }
 ```
@@ -663,23 +883,23 @@ Let's fetch our newly created member NFTs and display their contents.
 
 ```ts
 for (const member of membersMetadata) {
-	const memberMint = await getMint(connection, member.mint.publicKey, "confirmed", TOKEN_2022_PROGRAM_ID);
-	const memberMetadata = await getTokenMetadata(connection, member.mint.publicKey);
-	const metadataPointerState = getMetadataPointerState(memberMint);
-	const memberPointerData = getGroupMemberPointerState(memberMint);
-	const memberData = getTokenGroupMemberState(memberMint);
+    const memberMint = await getMint(connection, member.mint.publicKey, "confirmed", TOKEN_2022_PROGRAM_ID);
+    const memberMetadata = await getTokenMetadata(connection, member.mint.publicKey);
+    const metadataPointerState = getMetadataPointerState(memberMint);
+    const memberPointerData = getGroupMemberPointerState(memberMint);
+    const memberData = getTokenGroupMemberState(memberMint);
 
-	console.log("\n---------- MEMBER DATA -------------\n");
-	console.log("Member Mint: ", memberMint.address.toBase58());
-	console.log("Metadata Pointer Account: ", metadataPointerState?.metadataAddress?.toBase58());
-	console.log("Group Account: ", memberData?.group?.toBase58());
-	console.log("Member Pointer Account: ", memberPointerData?.memberAddress?.toBase58());
-	console.log("Member Number: ", memberData?.memberNumber);
-	console.log("\n--- METADATA ---\n");
-	console.log("Name: ", memberMetadata?.name);
-	console.log("Symbol: ", memberMetadata?.symbol);
-	console.log("Uri: ", memberMetadata?.uri);
-	console.log("\n------------------------------------\n");	
+    console.log("\n---------- MEMBER DATA -------------\n");
+    console.log("Member Mint: ", memberMint.address.toBase58());
+    console.log("Metadata Pointer Account: ", metadataPointerState?.metadataAddress?.toBase58());
+    console.log("Group Account: ", memberData?.group?.toBase58());
+    console.log("Member Pointer Account: ", memberPointerData?.memberAddress?.toBase58());
+    console.log("Member Number: ", memberData?.memberNumber);
+    console.log("\n--- METADATA ---\n");
+    console.log("Name: ", memberMetadata?.name);
+    console.log("Symbol: ", memberMetadata?.symbol);
+    console.log("Uri: ", memberMetadata?.uri);
+    console.log("\n------------------------------------\n");    
 }
 ```
 
