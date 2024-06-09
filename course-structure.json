@@ -358,6 +358,11 @@
                             "lab": "Make an NFT using the Token Extensions Program"
                         },
                         {
+                            "title": "Group, Group Pointer, Member, and Member Pointer Extensions",
+                            "slug": "group-member",
+                            "lab": "Create an NFT collection with group, member and metadata extensions"
+                        },
+                        {
                             "title": "Non-Transferrable Token Extension",
                             "slug": "non-transferable-token",
                             "lab": "Create a soul-bound NFT"
@@ -387,7 +392,6 @@
                             "slug": "transfer-hook",
                             "lab": "Create a mint with a transfer hook"
                         }
-
                     ]
                 },
                 {

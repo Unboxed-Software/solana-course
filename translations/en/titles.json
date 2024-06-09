@@ -82,5 +82,6 @@
   "transfer-hook": "Transfer Hook Extension",
   "immutable-owner": "Immutable Owner Extension",
   "required-memo": "Required Memo Extension",
-  "cpi-guard": "CPI Guard Extension"
+  "cpi-guard": "CPI Guard Extension",
+  "group-member": "Group, Group Pointer, Member, and Member Pointer Extensions"
 }
