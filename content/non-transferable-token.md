@@ -143,7 +143,7 @@ This file has a main function that creates a connection to the specified validat
 Go ahead and run the script. You should see the `mint` public key logged to your terminal. 
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 If you run into an error in `initializeKeypair` with airdropping, follow the next step.
@@ -261,7 +261,7 @@ await createNonTransferableMint(
 The script should run with no errors
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 The non-transferable mint has been set up correctly and will be created when we run `npm start`. Let’s move on to the next step and create a source account and mint a token to it.
@@ -312,7 +312,7 @@ console.log(`Account ${ata.toBase58()} now has ${tokenBalance.value.uiAmount} to
 Run the script and confirm a token has been minted to an account:
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 5. Attempt to transfer a non-transferable token
@@ -374,7 +374,7 @@ try {
 Now let's run everything and see what happens:
 
 ```
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 You should get an error message at the very end that says `Transfer is disabled for this mint`. This is indicating that the token we are attempting to transfer is in fact non-transferable!
