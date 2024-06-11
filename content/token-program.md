@@ -353,7 +353,7 @@ async function buildTransferTransaction(
 
 # Lab
 
-We’re going to use the Token Token Program to create a Token Mint, create an Associated Token Account, mint tokens, approve a delegate, transfer tokens, and burn tokens.
+We’re going to use the Token Program to create a Token Mint, create an Associated Token Account, mint tokens, approve a delegate, transfer tokens, and burn tokens.
 
 Assuming you already have a `.env` file with a `SECRET_KEY` setup per [Cryptography fundamentals](./intro-to-cryptography).
 
