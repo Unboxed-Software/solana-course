@@ -123,7 +123,7 @@
                             "lab": "Use the CLI to interact with the Token Extensions Program"
                         },
                         {
-                            "title": "How to use the Token Extensions Program from a client",
+                            "title": "Using the Token Extensions Program from a client",
                             "slug": "token-extensions-in-the-client",
                             "lab": "Integrate Token Program and Token Extensions Program in the client"
                         },
