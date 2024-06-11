@@ -160,7 +160,7 @@ To use `init_if_needed`, you must first enable the feature in `Cargo.toml`.
 
 ```rust
 [dependencies]
-anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
+anchor-lang = { version = "0.30.0", features = ["init-if-needed"] }
 ```
 
 Once you’ve enabled the feature, you can include the constraint in the `#[account(…)]` attribute macro. The example below demonstrates using the `init_if_needed` constraint to initialize a new associated token account if one does not already exist.
@@ -340,12 +340,21 @@ pub mod anchor_movie_review_program {
 
 #[account]
 pub struct MovieAccountState {
-    pub reviewer: Pubkey,    // 32
-    pub rating: u8,          // 1
-    pub title: String,       // 4 + len()
-    pub description: String, // 4 + len()
+    pub reviewer: Pubkey,
+    pub rating: u8,
+    pub title: String,
+    pub description: String,
+}
+
+impl Space for MovieAccountState {
+    const INIT_SPACE: usize = ANCHOR_DISCRIMINATOR + PUBKEY_SIZE + U8_SIZE + STRING_LENGTH_PREFIX + STRING_LENGTH_PREFIX;
 }
 ```
+
+In here, we implement the Space Trait to override the INIT_SPACE constant. 
+This constant will then be used to easily refer the space needed to store our state on the blockchain.
+We will be using 8 bytes for ANCHOR_DISCRIMINATOR, 32 bytes for PUBKEY_SIZE, 1 byte for U8_SIZE and 4 bytes for STRING_LENGTH_PREFIX.
+In this case we will be using the string prefix (4 bytes) twice, to allocate the 4 bytes that BORSH uses to store the length of a string (we need it for "title" and "description").
 
 ### 3. Add Movie Review
 
@@ -395,7 +404,7 @@ Remember, you'll need the following macros:
 
 The `movie_review` account is a PDA that needs to be initialized, so we'll add the `seeds` and `bump` constraints as well as the `init` constraint with its required `payer` and `space` constraints.
 
-For the PDA seeds, we'll use the movie title and the reviewer's public key. The payer for the initialization should be the reviewer, and the space allocated on the account should be enough for the account discriminator, the reviewer's public key, and the movie review's rating, title, and description.
+For the PDA seeds, we'll use the movie title and the reviewer's public key. The payer for the initialization should be the reviewer, and the space allocated on the account should be enough for the account discriminator, the reviewer's public key, and the movie review's rating, title, and description. Since we already implemented the Space trait, we just need to add the length of the "title" and "desciption" strings.
 
 ```rust
 #[derive(Accounts)]
@@ -406,7 +415,7 @@ pub struct AddMovieReview<'info> {
         seeds = [title.as_bytes(), initializer.key().as_ref()],
         bump,
         payer = initializer,
-        space = 8 + 32 + 1 + 4 + title.len() + 4 + description.len()
+        space = MovieAccountState::INIT_SPACE + title.len() + description.len(),
     )]
     pub movie_review: Account<'info, MovieAccountState>,
     #[account(mut)]
@@ -471,7 +480,7 @@ pub struct UpdateMovieReview<'info> {
         mut,
         seeds = [title.as_bytes(), initializer.key().as_ref()],
         bump,
-        realloc = 8 + 32 + 1 + 4 + title.len() + 4 + description.len(),
+        realloc = MovieAccountState::INIT_SPACE + title.len() + description.len(),
         realloc::payer = initializer,
         realloc::zero = true,
     )]
@@ -587,10 +596,10 @@ it("Movie review is added`", async () => {
     .rpc()
 
   const account = await program.account.movieAccountState.fetch(moviePda)
-  expect(account.title).to.equal(movie.title)
-  expect(account.rating).to.equal(movie.rating)
-  expect(account.description).to.equal(movie.description)
-  expect(account.reviewer.toBase58()).to.equal(provider.wallet.publicKey.toBase58())
+  expect(movie.title === account.title)
+  expect(movie.rating === account.rating)
+  expect(movie.description === account.description)
+  expect(account.reviewer === provider.wallet.publicKey)
 })
 ```
 
@@ -606,10 +615,10 @@ it("Movie review is updated`", async () => {
     .rpc()
 
   const account = await program.account.movieAccountState.fetch(moviePda)
-  expect(account.title).to.equal(movie.title)
-  expect(account.rating).to.equal(newRating)
-  expect(account.description).to.equal(newDescription)
-  expect(account.reviewer.toBase58()).to.equal(provider.wallet.publicKey.toBase58())
+  expect(movie.title === account.title)
+  expect(newRating === account.rating)
+  expect(newDescription === account.description)
+  expect(account.reviewer === provider.wallet.publicKey)
 })
 ```
 
