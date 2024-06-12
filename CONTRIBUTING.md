@@ -88,11 +88,15 @@ We're trying to focus on Solana, not teaching JS/TS development and setup. This 
 
  - Use four spaces per `rustfmt`.
 
+ - Use `UncheckedAccount` rather than `AccountInfo`. `UncheckedAccount` is a much better name, and makes it explicit that the account is not being checked by Anchor. 
+
+ - Don't manually ask people to edit `declare_id!()` and `Anchor.toml`. Instead, ask them to run `anchor keys sync`. 
+
  - Use the [multiple files template](https://www.anchor-lang.com/docs/release-notes#multiple-files-template) to organize very large Anchor projects. 
 
 ##  Diagrams:
 
-- If you draw Solana elliptic curves, these are [Edwards curves](https://en.wikipedia.org/wiki/Edwards_curve)
+- If you draw Solana elliptic curves, these are [Edwards curves](https://en.wikipedia.org/wiki/Edwards_curve). This is [what the curve Ed25519 uses looks like](https://www.wolframalpha.com/input?i=x%5E2+%2B+y%5E2+%3D+1+-+%28121665%2F121666%29*x%5E2*y%5E2). Ed25519 is symmetrical, and looks like a slightly deflated beach ball. Do not draw a snake!  
 - Use [Whimsical](https://whimsical.com/) for diagrams
 - Use SVG where possible (they'll look better on different screens). You can get an SVG export from Whimsical by appending `/svg` to the end of a Whimsical URL.
  
