@@ -15,7 +15,7 @@ objectives:
 
 # Overview
 
-Durable Nonces are a way to bypass the expiration date of regular transactions. To understand That better, we'll start by looking at the concepts behind regular transactions.
+Durable Nonces are a way to bypass the expiration date of regular transactions. To understand that better, we'll start by looking at the concepts behind regular transactions.
 
 In Solana, transactions are made of three main parts:
 
@@ -75,6 +75,14 @@ The nonce account is an account that holds a couple of values:
 Again, every durable transaction must start with the `nonce advance instruction` and the `authority` must be a signer.
 
 Lastly, there is a special rule - if a durable transaction fails because of any instruction other than the `nonce advance instruction`, the nonce will still advance, while the rest of the transaction is rolled back. This behavior is unique only to durable nonces.
+
+## Considerations
+
+Durable transactions should be treated with care, and are why you should always trust the transactions you sign. 
+
+Say you blindly signed a malicious durable transaction. This transaction signs away 500 SOL to the attacker, and changes the nonce authority to said attacker. Let's say you don't have this much yet, but in the future, you would. This is insidious, as the attacker would wait to cash this check as soon as your balance goes above 500 SOL. And you'll have no recollection of what you clicked on. It can lay dormant for days, weeks, or years. 
+
+This is not meant to provoke hysteria, just as a PSA of what's possible. This is why you should only put into hot wallets what you're willing to lose and don't sign with your cold wallet.
 
 ## Durable nonce operations
 
@@ -196,7 +204,6 @@ We can fetch the nonce account to get the nonce value by fetching the account an
 ```ts
 const nonceAccount = await connection.getAccountInfo(nonceKeypair.publicKey);
 
-// { authorizedPubkey: PublicKey; nonce: DurableNonce; feeCalculator: FeeCalculator; }
 const nonce = NonceAccount.fromAccountData(nonceAccount.data); 
 ```
 
@@ -267,14 +274,6 @@ Presigned, never expiring, durable transactions are like signed paychecks. They 
 ### If the transaction fails due to the nonce advanced instruction
 
 If a transaction fails because of the advance instruction, the entire transaction is reverted, meaning the nonce does not advance.
-
-## Considerations
-
-Durable transactions should be treated with care, and are why you should always trust the transactions you sign. 
-
-Say you blindly signed a malicious durable transaction. This transaction signs away 500 SOL to the attacker, and changes the nonce authority to said attacker. Let's say you don't have this much yet, but in the future, you would. This is insidious, as the attacker would wait to cash this check as soon as your balance goes above 500 SOL. And you'll have no recollection of what you clicked on. It can lay dormant for days, weeks, or years. 
-
-This is not meant to provoke hysteria, just as a PSA of what's possible. This is why you should only put into hot wallets what you're willing to lose and don't sign with your cold wallet.
 
 # Lab
 
