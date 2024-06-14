@@ -41,7 +41,7 @@ objectives:
 
 
 
-The `transfer-hook` extension allows custom on-chain logic to be after each transfer within the same transaction. More specifically, the `transfer-hook` extension requires a 'hook' or 'callback' in the form of a Solana program following the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface). Then every time any token of that mint is transferred the Token Extensions Program calls this 'hook' as a CPI.
+The `transfer-hook` extension allows custom onchain logic to be after each transfer within the same transaction. More specifically, the `transfer-hook` extension requires a 'hook' or 'callback' in the form of a Solana program following the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface). Then every time any token of that mint is transferred the Token Extensions Program calls this 'hook' as a CPI.
 
 
 
@@ -53,7 +53,7 @@ This extension opens up the door to unique use cases. One use case it's great fo
 
 
 
-In this lesson, we'll explore how to implement transfer hooks on-chain and work with them off-chain.
+In this lesson, we'll explore how to implement transfer hooks onchain and work with them off-chain.
 
 
 
@@ -61,7 +61,7 @@ In this lesson, we'll explore how to implement transfer hooks on-chain and work 
 
 
 
-The first part of creating a mint with a `transfer hook` is to find or create an on-chain program that follows the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface).
+The first part of creating a mint with a `transfer hook` is to find or create an onchain program that follows the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface).
 
 
 
@@ -797,7 +797,7 @@ Note: The transfer hook gets called *after* the transfer happens, so at the poin
 
 
 
-One last caveat to the on-chain portion of transfer hooks: When dealing with Anchor, we need to specify a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions Program.
+One last caveat to the onchain portion of transfer hooks: When dealing with Anchor, we need to specify a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions Program.
 
 
 
@@ -855,7 +855,7 @@ pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>
 
 
 
-Now that we've looked at the on-chain portion, let's look at how we interact with it off-chain. 
+Now that we've looked at the onchain portion, let's look at how we interact with it off-chain. 
 
 
 
@@ -867,7 +867,7 @@ In order to create a mint with a transfer hook and ensure successful transfers, 
 
 
 
-1. Create the mint with the transfer hook extension and point to the on-chain transfer hook program you want to use.
+1. Create the mint with the transfer hook extension and point to the onchain transfer hook program you want to use.
 
 2. Initialize the `extraAccountList` account. This step must be done before any transfer, and it is the responsibility of the mint owner/creator. It only needs to happen once for each mint.
 
@@ -1429,7 +1429,7 @@ You should see that 4 tests pass. We will be filling these in later.
 
 
 
-In this section we'll dive into writing the on-chain transfer hook program using anchor, all the code will go into the `programs/transfer-hook/src/lib.rs` file.
+In this section we'll dive into writing the onchain transfer hook program using anchor, all the code will go into the `programs/transfer-hook/src/lib.rs` file.
 
 
 

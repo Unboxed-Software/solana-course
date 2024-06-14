@@ -2,7 +2,7 @@
 title: Oracles et Réseaux d'Oracles
 objectives:
 - Expliquer pourquoi les programmes onchain ne peuvent pas facilement accéder aux données du monde réel par eux-mêmes
-- Expliquer comment les oracles résolvent le problème de l'accès aux données du monde réel on-chain
+- Expliquer comment les oracles résolvent le problème de l'accès aux données du monde réel onchain
 - Expliquer comment les réseaux d'oracles incitatifs rendent les données plus fiables
 - Évaluer efficacement les compromis entre l'utilisation de différents types d'oracles
 - Utiliser des oracles à partir d'un programme onchain pour accéder à des données du monde réel
@@ -17,9 +17,9 @@ objectives:
 
 # Aperçu général
 
-Les oracles sont des services qui fournissent des données externes à un réseau blockchain. Les blockchains, par nature, sont des environnements cloisonnés qui n'ont aucune connaissance du monde extérieur. Cette contrainte limite intrinsèquement les cas d'utilisation des applications décentralisées (dApps). Les oracles fournissent une solution à cette limitation en créant une manière décentralisée d'obtenir des données du monde réel on-chain.
+Les oracles sont des services qui fournissent des données externes à un réseau blockchain. Les blockchains, par nature, sont des environnements cloisonnés qui n'ont aucune connaissance du monde extérieur. Cette contrainte limite intrinsèquement les cas d'utilisation des applications décentralisées (dApps). Les oracles fournissent une solution à cette limitation en créant une manière décentralisée d'obtenir des données du monde réel onchain.
 
-Les oracles peuvent fournir pratiquement n'importe quel type de données on-chain, par exemple :
+Les oracles peuvent fournir pratiquement n'importe quel type de données onchain, par exemple :
 
 - Résultats d'événements sportifs.
 - Données météorologiques.
@@ -41,7 +41,7 @@ Le principal obstacle que les oracles doivent surmonter est celui de la confianc
 
 En gros, il existe trois types d'implémentations :
 
-1. Un seul oracle centralisé publie des données on-chain.
+1. Un seul oracle centralisé publie des données onchain.
     1. Avantage : C'est simple ; il y a une seule source de vérité.
     2. Inconvénient : Rien n'empêche le fournisseur de l'oracle de fournir des données incorrectes.
 2. Un réseau d'oracles publie des données et un mécanisme de consensus est utilisé pour déterminer le résultat final.
@@ -79,19 +79,19 @@ En introduisant des TEE sur des oracles pondérés par la mise, Switchboard est 
 
 Les oracles Switchboard stockent des données sur Solana à l'aide de flux de données. Ces flux de données, également appelés agrégateurs, sont chacun une collection de tâches qui sont agrégées pour produire un résultat unique. Ces agrégateurs sont représentés sur la chaîne comme un compte Solana régulier géré par le programme Switchboard. Lorsqu'un oracle est mis à jour, il écrit les données directement dans ces comptes. Examinons quelques termes pour comprendre comment fonctionne Switchboard :
 
-- **[Agrégateur (Flux de données)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contient la configuration du flux de données, dictant comment les mises à jour du flux de données sont demandées, mises à jour et résolues on-chain depuis sa source assignée. L'agrégateur est le compte détenu par le programme Switchboard Solana et c'est là que les données sont publiées on-chain.
+- **[Agrégateur (Flux de données)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contient la configuration du flux de données, dictant comment les mises à jour du flux de données sont demandées, mises à jour et résolues onchain depuis sa source assignée. L'agrégateur est le compte détenu par le programme Switchboard Solana et c'est là que les données sont publiées onchain.
 - **[Job (Tâche)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/job.rs)** - Chaque source de données doit correspondre à un compte de tâche. Le compte de tâche est une collection de tâches Switchboard utilisées pour indiquer aux oracles comment obtenir et transformer les données. En d'autres termes, il stocke les plans pour obtenir des données hors chaîne pour une source de données particulière.
-- **Oracle** - Un programme distinct qui se situe entre Internet et la blockchain et facilite le flux d'informations. Un oracle lit les définitions de tâches d'un flux, calcule le résultat et soumet sa réponse on-chain.
-- **File d'attente Oracle** - Un groupe d'oracles qui se voient attribuer des demandes de mise à jour de manière circulaire. Les oracles dans la file d'attente doivent envoyer des battements de cœur onchain de manière active pour fournir des mises à jour. Les données et les configurations de cette file d'attente sont stockées on-chain dans un [compte détenu par le programme Switchboard](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/accounts/OracleQueueAccountData.ts#L8).
+- **Oracle** - Un programme distinct qui se situe entre Internet et la blockchain et facilite le flux d'informations. Un oracle lit les définitions de tâches d'un flux, calcule le résultat et soumet sa réponse onchain.
+- **File d'attente Oracle** - Un groupe d'oracles qui se voient attribuer des demandes de mise à jour de manière circulaire. Les oracles dans la file d'attente doivent envoyer des battements de cœur onchain de manière active pour fournir des mises à jour. Les données et les configurations de cette file d'attente sont stockées onchain dans un [compte détenu par le programme Switchboard](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/accounts/OracleQueueAccountData.ts#L8).
 - **Consensus Oracle** - Détermine comment les oracles parviennent à un accord sur le résultat onchain accepté. Les oracles Switchboard utilisent la réponse médiane de l'oracle comme résultat accepté. Une autorité de flux peut contrôler le nombre d'oracles demandés et combien doivent répondre pour influencer sa sécurité.
 
-Les oracles Switchboard sont incités à mettre à jour les flux de données car ils sont récompensés pour le faire de manière précise. Chaque flux de données a un compte de « LeaseContract ». Le contrat de location est un compte d'entiercement pré-financé pour récompenser les oracles de la mise à jour des demandes. Seule l'autorité de location prédéfinie peut retirer des fonds du contrat, mais n'importe qui peut y contribuer. Lorsqu'une nouvelle série de mises à jour est demandée pour un flux de données, l'utilisateur qui a demandé la mise à jour est récompensé à partir de l'entiercement. Cela vise à inciter les utilisateurs et les personnes qui exécutent des logiciels pour envoyer systématiquement des demandes de mise à jour aux oracles à maintenir les mises à jour en fonction de la configuration du flux. Une fois qu'une demande de mise à jour a été réalisée avec succès et soumise on-chain par les oracles dans la file d'attente, les oracles reçoivent une récompense de l'entiercement. Ces paiements assurent la participation active.
+Les oracles Switchboard sont incités à mettre à jour les flux de données car ils sont récompensés pour le faire de manière précise. Chaque flux de données a un compte de « LeaseContract ». Le contrat de location est un compte d'entiercement pré-financé pour récompenser les oracles de la mise à jour des demandes. Seule l'autorité de location prédéfinie peut retirer des fonds du contrat, mais n'importe qui peut y contribuer. Lorsqu'une nouvelle série de mises à jour est demandée pour un flux de données, l'utilisateur qui a demandé la mise à jour est récompensé à partir de l'entiercement. Cela vise à inciter les utilisateurs et les personnes qui exécutent des logiciels pour envoyer systématiquement des demandes de mise à jour aux oracles à maintenir les mises à jour en fonction de la configuration du flux. Une fois qu'une demande de mise à jour a été réalisée avec succès et soumise onchain par les oracles dans la file d'attente, les oracles reçoivent une récompense de l'entiercement. Ces paiements assurent la participation active.
 
-De plus, les oracles doivent miser des jetons avant de pouvoir servir des demandes de mise à jour et soumettre des réponses on-chain. Si un oracle soumet un résultat onchain qui se situe en dehors des paramètres configurés de la file d'attente, sa mise sera réduite (si la file d'attente a `slashingEnabled`). Cela aide à garantir que les oracles répondent de bonne foi avec des informations précises.
+De plus, les oracles doivent miser des jetons avant de pouvoir servir des demandes de mise à jour et soumettre des réponses onchain. Si un oracle soumet un résultat onchain qui se situe en dehors des paramètres configurés de la file d'attente, sa mise sera réduite (si la file d'attente a `slashingEnabled`). Cela aide à garantir que les oracles répondent de bonne foi avec des informations précises.
 
-Maintenant que vous comprenez la terminologie et l'économie, regardons comment les données sont publiées on-chain :
+Maintenant que vous comprenez la terminologie et l'économie, regardons comment les données sont publiées onchain :
 
-1. Configuration de la file d'attente Oracle - Lorsqu'une mise à jour est demandée à partir d'une file d'attente, les prochains `N` oracles sont assignés à la demande de mise à jour et cyclés à l'arrière de la file d'attente. Chaque file d'attente Oracle dans le réseau Switchboard est indépendante et maintient sa propre configuration. Ce choix de conception permet aux utilisateurs d'ajuster le comportement de la file d'attente Oracle en fonction de leur cas d'utilisation spécifique. Une file d'attente Oracle est stockée on-chain en tant que compte et contient des métadonnées sur la file d'attente. Une file d'attente est créée en invoquant l'[instruction oracleQueueInit](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/instructions/oracleQueueInit.ts#L13) sur le programme Solana Switchboard.
+1. Configuration de la file d'attente Oracle - Lorsqu'une mise à jour est demandée à partir d'une file d'attente, les prochains `N` oracles sont assignés à la demande de mise à jour et cyclés à l'arrière de la file d'attente. Chaque file d'attente Oracle dans le réseau Switchboard est indépendante et maintient sa propre configuration. Ce choix de conception permet aux utilisateurs d'ajuster le comportement de la file d'attente Oracle en fonction de leur cas d'utilisation spécifique. Une file d'attente Oracle est stockée onchain en tant que compte et contient des métadonnées sur la file d'attente. Une file d'attente est créée en invoquant l'[instruction oracleQueueInit](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/instructions/oracleQueueInit.ts#L13) sur le programme Solana Switchboard.
     1. Quelques configurations de file d'attente Oracle pertinentes :
         1. `oracle_timeout` - Intervalle où les oracles obsolètes seront supprimés s'ils n'envoient pas leur battement de cœur.
         2. `reward` - Récompenses à fournir aux oracles et aux ouvreurs de cycle sur cette file d'attente.
@@ -101,23 +101,23 @@ Maintenant que vous comprenez la terminologie et l'économie, regardons comment 
 2. Configuration de l'agrégateur/flux de données - Le compte de l'agrégateur/flux est créé. Un flux appartient à une seule file d'attente Oracle. La configuration du flux dicte comment les demandes de mise à jour du flux sont invoquées et acheminées à travers le réseau.
 3. Configuration du compte de tâche - En plus du flux, un compte de tâche pour chaque source de données doit être configuré. Cela définit comment les oracles peuvent satisfaire les demandes de mise à jour du flux. Cela inclut la définition de l'endroit où les oracles doivent extraire les données demandées par le flux.
 4. Attribution de la demande - Une fois qu'une mise à jour a été demandée avec le compte du flux, la file d'attente Oracle attribue la demande à différents oracles/nœuds dans la file d'attente pour la satisfaire. Les oracles extraient les données de la source de données définie dans chacun des comptes de tâches du flux. Chaque compte de tâche a un poids qui lui est associé. L'oracle calculera la médiane pondérée des résultats de toutes les tâches.
-5. Après réception des réponses de `minOracleResults`, le programme on-chain calcule le résultat en utilisant la médiane des réponses de l'oracle. Les oracles qui ont répondu dans les paramètres configurés de la file d'attente sont récompensés, tandis que les oracles qui répondent en dehors de ce seuil sont réduits (si la file d'attente a `slashingEnabled`).
-6. Le résultat mis à jour est stocké dans le compte du flux de données pour qu'il puisse être lu/consommé on-chain.
+5. Après réception des réponses de `minOracleResults`, le programme onchain calcule le résultat en utilisant la médiane des réponses de l'oracle. Les oracles qui ont répondu dans les paramètres configurés de la file d'attente sont récompensés, tandis que les oracles qui répondent en dehors de ce seuil sont réduits (si la file d'attente a `slashingEnabled`).
+6. Le résultat mis à jour est stocké dans le compte du flux de données pour qu'il puisse être lu/consommé onchain.
 
 ### Comment utiliser les oracles Switchboard
 
 Pour utiliser les oracles Switchboard et incorporer des données hors chaîne dans un programme Solana, vous devez d'abord trouver un flux qui fournit les données dont vous avez besoin. Les flux Switchboard sont publics et il y en a des [déjà disponibles que vous pouvez choisir](https://app.switchboard.xyz/solana/devnet/explore). Lorsque vous recherchez un flux, vous devez décider de la précision/fiabilité que vous souhaitez pour le flux, d'où vous souhaitez obtenir les données, ainsi que de la cadence de mise à jour du flux. Lors de la consommation d'un flux disponible publiquement, vous n'avez aucun contrôle sur ces éléments, alors choisissez avec soin !
 
-Par exemple, il existe un flux sponsorisé par Switchboard pour [BTC_USD](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee). Ce flux est disponible sur Solana devnet/mainnet avec la clé publique `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee`. Il fournit le prix actuel du Bitcoin en USD on-chain.
+Par exemple, il existe un flux sponsorisé par Switchboard pour [BTC_USD](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee). Ce flux est disponible sur Solana devnet/mainnet avec la clé publique `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee`. Il fournit le prix actuel du Bitcoin en USD onchain.
 
-Les données effectives on-chain pour un compte de flux Switchboard ressemblent un peu à ceci :
+Les données effectives onchain pour un compte de flux Switchboard ressemblent un peu à ceci :
 
 ```rust
 // du programme solana switchboard
 // https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60
 
 pub struct AggregatorAccountData {
-    /// Nom de l'agrégateur à stocker on-chain.
+    /// Nom de l'agrégateur à stocker onchain.
     pub name: [u8; 32],
     ...
 		...

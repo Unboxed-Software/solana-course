@@ -1,5 +1,5 @@
 ---
-title: Supporting Token Extensions Program in on-chain programs
+title: Supporting Token Extensions Program in onchain programs
 objectives:
 - Accept both token programs' accounts, and mints in your program
 - Explain the differences between the Token Program and Token Extension programs
@@ -16,7 +16,7 @@ objectives:
 
 The `Token Extensions Program` is a program on Solana mainnet that provides additional functionality to Solana tokens and mints. The `Token Extensions Program` is a superset of the `Token Program`. Essentially it is a byte for byte recreation with additional functionality tagged on at the end. However they are sill separate programs. With two types of Token Programs, we must anticipate being sent the program type in instructions.
 
-In this lesson, you'll learn how to design your program to accept `Token Program` and `Token Extensions Program` accounts using Anchor. You will also learn how to interact with `Token Extensions Program` accounts, identifying which token program an account belongs to, and some differences between `Token Program` and the `Token Extensions Program` on-chain.
+In this lesson, you'll learn how to design your program to accept `Token Program` and `Token Extensions Program` accounts using Anchor. You will also learn how to interact with `Token Extensions Program` accounts, identifying which token program an account belongs to, and some differences between `Token Program` and the `Token Extensions Program` onchain.
 
 ## Difference between legacy Token Program and Token Extensions Program
 
@@ -208,7 +208,7 @@ pub token_account: Account<'info, token_interface::TokenAccount>
 
 # Lab
 
-Now let's get some hands-on experience with the `Token Extensions Program` on-chain by implementing a generalized token staking program that will accept both `Token Program` and `Token Extensions Program` accounts. As far as staking programs go, this will be a simple implementation with the following design:
+Now let's get some hands-on experience with the `Token Extensions Program` onchain by implementing a generalized token staking program that will accept both `Token Program` and `Token Extensions Program` accounts. As far as staking programs go, this will be a simple implementation with the following design:
 
 * We'll create a stake pool account to hold all the staked tokens. There will only be one staking pool for a given token. The program will own the account. 
 * Every stake pool will have a state account that will hold information regarding the amount of tokens staked in the pool, etc.

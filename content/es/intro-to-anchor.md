@@ -277,7 +277,7 @@ Cuando combinas todos estos tipos de anclas, terminas con un programa completo. 
 // Use this import to gain access to common anchor features
 use anchor_lang::prelude::*;
 
-// Program on-chain address
+// Program onchain address
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 // Instruction logic

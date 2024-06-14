@@ -639,7 +639,7 @@ Kung kailangan mo ng mas maraming oras sa proyektong ito para maging komportable
 
 Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa. Gamit ang mga konseptong ipinakilala sa araling ito, subukang muling likhain ang Student Intro program na ginamit namin bago gamitin ang Anchor framework.
 
-Ang Student Intro program ay isang Solana Program na nagbibigay-daan sa mga mag-aaral na magpakilala. Kinukuha ng program ang pangalan ng isang user at isang maikling mensahe bilang data ng pagtuturo at lumilikha ng isang account upang iimbak ang data na on-chain.
+Ang Student Intro program ay isang Solana Program na nagbibigay-daan sa mga mag-aaral na magpakilala. Kinukuha ng program ang pangalan ng isang user at isang maikling mensahe bilang data ng pagtuturo at lumilikha ng isang account upang iimbak ang data na onchain.
 
 Gamit ang iyong natutunan sa araling ito, buuin ang programang ito. Ang programa ay dapat magsama ng mga tagubilin sa:
 

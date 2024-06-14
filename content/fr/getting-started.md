@@ -75,8 +75,8 @@ Vous n'avez **pas** besoin d'avoir une expérience préalable en blockchain pour
 ## Comment ce cours est structuré ?
 
 Il existe trois parcours :
- - **Développement d'application décentralisée (dApp)** - création d'applications Web et mobiles qui interagissent avec des programmes Solana on-chain populaires. Cela inclut des aspects tels que les transferts et la création de jetons, ainsi que la création de clients pour des programmes quelconques. Si vous souhaitez ajouter des paiements blockchain, des NFTs, la traçabilité blockchain, etc. à vos applications, c'est le meilleur parcours pour commencer.
- - **Développement de programmes on-chain** - création d'applications personnalisées qui s'exécutent sur la blockchain. Si vous souhaitez créer une nouvelle application financière ou comptable, utiliser des données provenant de l'extérieur de Solana on-chain, ou utiliser la blockchain pour stocker des données quelconques, ce parcours est fait pour vous.
+ - **Développement d'application décentralisée (dApp)** - création d'applications Web et mobiles qui interagissent avec des programmes Solana onchain populaires. Cela inclut des aspects tels que les transferts et la création de jetons, ainsi que la création de clients pour des programmes quelconques. Si vous souhaitez ajouter des paiements blockchain, des NFTs, la traçabilité blockchain, etc. à vos applications, c'est le meilleur parcours pour commencer.
+ - **Développement de programmes onchain** - création d'applications personnalisées qui s'exécutent sur la blockchain. Si vous souhaitez créer une nouvelle application financière ou comptable, utiliser des données provenant de l'extérieur de Solana onchain, ou utiliser la blockchain pour stocker des données quelconques, ce parcours est fait pour vous.
  - **Infrastructure réseau** - couvre l'exécution de Solana lui-même, en tant que RPC ou validateur.
 
 Les modules abordent un sujet spécifique. Ceux-ci sont décomposés en leçons individuelles.
