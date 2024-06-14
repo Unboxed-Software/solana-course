@@ -341,10 +341,10 @@ Then set your developer keypair path in `Anchor.toml`.
 ```toml
 [provider]
 cluster = "Localnet"
-wallet = "/YOUR/PATH/HERE/id.json"
+wallet = ""~/.config/solana/id.json"
 ```
 
-If you don't know what your current keypair path is you can always run the Solana CLI to find out.
+"~/.config/solana/id.json" is the most common keypair path, but if you're unsure, just run:
 
 ```bash
 solana config get
@@ -424,7 +424,7 @@ export async function createTokenAccountWithCPIGuard(
     TOKEN_2022_PROGRAM_ID
   );
 
-  const initializeCpiGuard = createEnableCpiGuardInstruction(
+  const enableCpiGuardInstruction = createEnableCpiGuardInstruction(
     tokenAccount,
     owner.publicKey,
     [],
@@ -434,7 +434,7 @@ export async function createTokenAccountWithCPIGuard(
   const transaction = new Transaction().add(
     createTokenAccountInstruction,
     initializeAccountInstruction,
-    initializeCpiGuard
+    enableCpiGuardInstruction
   );
 
   transaction.feePayer = payer.publicKey;
@@ -478,7 +478,7 @@ pub struct ApproveAccount<'info> {
         token::authority = authority
     )]
     pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
-    /// CHECK: delegat to approve
+    /// CHECK: delegate to approve
     #[account(mut)]
     pub delegate: AccountInfo<'info>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
@@ -510,49 +510,48 @@ To test our instruction, we first need to create our token mint and a token acco
 
 ```typescript
 it("[CPI Guard] Approve Delegate Example", async () => {
-    
-    await createMint(
-        provider.connection,
-        payer,
-        provider.wallet.publicKey,
-        undefined,
-        6,
-        testTokenMint,
-        undefined,
-        TOKEN_2022_PROGRAM_ID
-    )
-    await createTokenAccountWithCPIGuard(
-        provider.connection,
-        payer,
-        payer,
-        userTokenAccount,
-        testTokenMint.publicKey
-    )
+  await safeAirdrop(payer.publicKey, provider.connection)
+  await safeAirdrop(provider.wallet.publicKey, provider.connection)
+  delay(10000)
 
-    // More code to come
+  testTokenMint = await createMint(
+    provider.connection,
+    payer,
+    provider.wallet.publicKey,
+    undefined,
+    6,
+    undefined,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  )
+  await createTokenAccountWithExtensions(
+    provider.connection,
+    testTokenMint,
+    payer,
+    payer,
+    userTokenAccount
+  )
 })
 ```
 
-Now let's send a transaction to our program so that it will attempt to invoke the Approve delegate instruction on the `Token Extensions Program`.
+Now let's send a transaction to our program that will attempt to invoke the 'Approve delegate' instruction on the `Token Extensions Program`.
 
 ```typescript
 // inside "[CPI Guard] Approve Delegate Example" test block
 try {
-    const tx = await program.methods.prohibitedApproveAccount(new anchor.BN(1000))
-        .accounts({
-            authority: payer.publicKey,
-            tokenAccount: userTokenAccount.publicKey,
-            delegate: maliciousAccount.publicKey,
-            tokenProgram: TOKEN_2022_PROGRAM_ID,
-        })
-        .signers([payer])
-        .rpc();
-
-    console.log("Your transaction signature", tx);
-} catch (e) {
+    await program.methods.prohibitedApproveAccount(new anchor.BN(1000))
+      .accounts({
+        authority: payer.publicKey,
+        tokenAccount: userTokenAccount.publicKey,
+        delegate: maliciousAccount.publicKey,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+      })
+      .signers([payer])
+      .rpc();
+  } catch (e) {
     assert(e.message == "failed to send transaction: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x2d")
     console.log("CPI Guard is enabled, and a program attempted to approve a delegate");
-}
+  }
 ```
 
 Notice we wrap this in a try/catch block. This is because this instruction should fail if the CPI Guard works correctly. We catch the error and assert that the error message is what we expect. 
