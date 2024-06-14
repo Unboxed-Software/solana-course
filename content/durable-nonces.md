@@ -395,7 +395,7 @@ it('Creates a durable transaction and submits it', async () => {
   const durableTx = new Transaction();
   durableTx.feePayer = payer.publicKey;
 
-  // 1.3 Ste the recentBlockhash to be the nonce value.
+  // 1.3 Set the recentBlockhash to be the nonce value.
   durableTx.recentBlockhash = nonceAccount.nonce;
 
   // 1.4 Add the `nonceAdvance` instruction as the first instruction in the transaction.
