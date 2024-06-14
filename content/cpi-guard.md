@@ -504,12 +504,12 @@ The instruction then invokes the `Approve` instruction on the `Token Extensions 
 
 Let's open the `/tests/approve-delegate-example.ts` file to begin testing this instruction. Take a look at the starting code. We have a payer, some test keypairs and an `airdropIfRequired` function that will run before the tests. 
 
-Once you feel comfortable with the starting code, we can move on to the `"[CPI Guard] Approve Delegate Example"` test. You'll notice that some test names have "[CPI Guard]" in the title. Those with this in the title are tests with a CPI Guard enabled and those without it use token accounts with the CPI Guard disabled. They invoke the same exact instruction in our target program, the only difference is whether or not they have the CPI Guard enabled or not. This is done to illustrate what the CPI Guard protects against versus an account without one.
+Once you feel comfortable with the starting code, we can move on to the 'Approve Delegate' tests. We will make tests that invoke the same exact instruction in our target program, with and without CPI guard.
 
 To test our instruction, we first need to create our token mint and a token account with extensions.
 
 ```typescript
-it("[CPI Guard] Approve Delegate Example", async () => {
+it("stops 'Approve Delegate' when CPI guard is enabled", async () => {
   await safeAirdrop(payer.publicKey, provider.connection)
   await safeAirdrop(provider.wallet.publicKey, provider.connection)
   delay(10000)
@@ -559,7 +559,7 @@ Notice we wrap this in a try/catch block. This is because this instruction shoul
 Now, we essentially do the same thing for the `"Approve Delegate Example"` test, except we want to pass in a token account without a CPI Guard. To do this, we can simply disable the CPI Guard on the `userTokenAccount` and resend the transaction.
 
 ```typescript
- it("Approve Delegate Example", async () => {
+ it("allows 'Approve Delegate' when CPI guard is disabled", async () => {
     await disableCpiGuard(
         provider.connection,
         payer,
