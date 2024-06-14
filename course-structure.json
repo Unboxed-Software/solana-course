@@ -327,7 +327,6 @@
             "slug": "token-extensions-program",
             "units": [
                 {
-
                     "title": "Intro to Token Extensions Program",
                     "slug": "intro-to-token-extensions-program",
                     "lessons": [
@@ -417,7 +416,7 @@
                         {
                             "title": "CPI Guard Extension",
                             "slug": "cpi-guard",
-                            "lab": "Create a token that requires a CPI guard"
+                            "lab": "Create a token that requires a CPI Guard"
                         }
                     ]
                 }
