@@ -206,11 +206,6 @@ In a separate terminal, run the following command: `solana-test-validator`. This
 
 `const connection = new Connection("http://127.0.0.1:8899", "confirmed");`
 
-Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
-
-`const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');`
-If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this by running `solana config get` in your terminal. And then go to [faucet.solana.com](faucet.solana.com) and airdrop some SOL to your address. You can get your address by running `solana address` in your terminal.
-
 ### 3. Helpers
 
 When we pasted the `index.ts` code from earlier, we added the following helpers provided by the `@solana-developers/helpers` package and some starting variables.
