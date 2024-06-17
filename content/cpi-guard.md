@@ -657,8 +657,6 @@ it("[CPI Guard] Close Account Example", async () => {
         userTokenAccount,
         testTokenMint.publicKey
     )
-
-    // More code to come
 })
 ```
 
