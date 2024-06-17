@@ -153,7 +153,7 @@ Let's create the mint we'll be using for our token accounts.
 Inside of `src/index.ts`, the required dependencies will already be imported, along with the aforementioned accounts. Add the following `createMint` function beneath the existing code:
 
 ```typescript
-// CREATE MINT
+// Create mint
 const mint = await createMint(
   connection,
   payer,
@@ -189,14 +189,6 @@ export async function createTokenAccountWithImmutableOwner(
   owner: Keypair,
   tokenAccountKeypair: Keypair
 ): Promise<string> {
-
-  // CREATE ACCOUNT INSTRUCTION
-
-  // ENABLE IMMUTABLE OWNER INSTRUCTION
-
-  // INITIALIZE ACCOUNT INSTRUCTION
-
-  // SEND TO BLOCKCHAIN
   
   return 'TODO Replace with signature';
 
@@ -206,7 +198,7 @@ export async function createTokenAccountWithImmutableOwner(
 The first step in creating the token account is reserving space on Solana with the **`SystemProgram.createAccount`** method. This requires specifying the payer's keypair, (the account that will fund the creation and provide SOL for rent exemption), the new token account's public key (`tokenAccountKeypair.publicKey`), the space required to store the token information on the blockchain, the amount of SOL (lamports) necessary to exempt the account from rent and the ID of the token program that will manage this token account (**`TOKEN_2022_PROGRAM_ID`**).
 
 ```typescript
-// CREATE ACCOUNT INSTRUCTION
+// Create account instruction
 const tokenAccount = tokenAccountKeypair.publicKey;
 
 const extensions = [ExtensionType.ImmutableOwner];
@@ -226,7 +218,7 @@ const createTokenAccountInstruction = SystemProgram.createAccount({
 After the token account creation, the next instruction initializes the `immutable owner` extension. The `createInitializeImmutableOwnerInstruction` function is used to generate this instruction. 
 
 ```typescript
-// ENABLE IMMUTABLE OWNER INSTRUCTION
+// Enable immutable owner instruction
 const initializeImmutableOwnerInstruction =
   createInitializeImmutableOwnerInstruction(
     tokenAccount,
@@ -237,7 +229,7 @@ const initializeImmutableOwnerInstruction =
 We then add the initialize account instruction by calling `createInitializeAccountInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new token account.
 
 ```typescript
-  // INITIALIZE ACCOUNT INSTRUCTION
+  // Initialize account instruction
 const initializeAccountInstruction = createInitializeAccountInstruction(
   tokenAccount,
   mint,
@@ -249,7 +241,7 @@ const initializeAccountInstruction = createInitializeAccountInstruction(
 Now that the instructions have been created, the token account can be created with an immutable owner.
 
 ```typescript
-// SEND TO BLOCKCHAIN
+// Send to blockchain
 const transaction = new Transaction().add(
   createTokenAccountInstruction,
   initializeImmutableOwnerInstruction,
@@ -271,8 +263,8 @@ Now that we’ve added the functionality for `token-helper`, we can create our t
 
 Back in `index.ts` underneath the mint variable, create the following two token accounts:
 
-```
-// CREATE TEST TOKEN ACCOUNTS: Create explicitly with immutable owner instructions
+```tsx
+// Create test token accounts: Create explicitly with immutable owner instructions
 const createOurTokenAccountSignature = await createTokenAccountWithImmutableOwner(
   connection,
   mint,
@@ -281,7 +273,7 @@ const createOurTokenAccountSignature = await createTokenAccountWithImmutableOwne
   ourTokenAccountKeypair
 );
 
-// CREATE TEST TOKEN ACCOUNTS: Create an associated token account with default immutable owner
+// Create test token accounts: Create an associated token account with default immutable owner
 const associatedTokenAccount = await createAssociatedTokenAccount(
   connection,
   payer,
@@ -308,7 +300,7 @@ The first token account that is being created is the account is tied to `ourToke
 Add the following code to your `src/index.ts` file:
 
 ```typescript
-// TEST TRANSFER ATTEMPT ON IMMUTABLE ACCOUNT
+// Test transfer attempt on immutable account
 try {
   await setAuthority(
     connection,
@@ -340,7 +332,7 @@ This test will attempt to transfer ownership to the Associated Token Account. Th
 Below the previous test, add the following try/catch:
 
 ```typescript
-// TEST TRANSFER ATTEMPT ON ASSOCIATED IMMUTABLE ACCOUNT
+// Test transfer attempt on associated immutable account
 try {
   await setAuthority(
     connection,
