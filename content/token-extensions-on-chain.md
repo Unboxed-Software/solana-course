@@ -303,7 +303,7 @@ Lastly set your developer keypair path in `Anchor.toml`.
 ```toml
 [provider]
 cluster = "Localnet"
-wallet = "/YOUR/PATH/HERE/id.json"
+wallet = "~/.config/solana/id.json"
 ```
 
 If you don't know what your current keypair path is you can always run the Solana cli to find out.
