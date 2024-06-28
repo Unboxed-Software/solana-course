@@ -97,7 +97,7 @@ const createTokenAccountInstruction = SystemProgram.createAccount({
 });
 
 // create 'enable CPI Guard' instruction
-const initializeCpiGuard =
+const enableCpiGuardInstruction =
   createEnableCpiGuardInstruction(tokenAccount, owner.publicKey, [], TOKEN_2022_PROGRAM_ID)
 
 const initializeAccountInstruction = createInitializeAccountInstruction(
@@ -111,7 +111,7 @@ const initializeAccountInstruction = createInitializeAccountInstruction(
 const transaction = new Transaction().add(
   createTokenAccountInstruction,
   initializeAccountInstruction,
-  initializeCpiGuard,
+  enableCpiGuardInstruction,
 );
 
 transaction.feePayer = payer.publicKey;
@@ -344,7 +344,7 @@ cluster = "Localnet"
 wallet = "~/.config/solana/id.json"
 ```
 
-If you don't know what your current keypair path is you can always run the Solana CLI to find out.
+"~/.config/solana/id.json" is the most common keypair path, but if you're unsure, just run:
 
 ```bash
 solana config get
@@ -424,7 +424,7 @@ export async function createTokenAccountWithCPIGuard(
     TOKEN_2022_PROGRAM_ID
   );
 
-  const initializeCpiGuard = createEnableCpiGuardInstruction(
+  const enableCpiGuardInstruction = createEnableCpiGuardInstruction(
     tokenAccount,
     owner.publicKey,
     [],
@@ -434,7 +434,7 @@ export async function createTokenAccountWithCPIGuard(
   const transaction = new Transaction().add(
     createTokenAccountInstruction,
     initializeAccountInstruction,
-    initializeCpiGuard
+    enableCpiGuardInstruction
   );
 
   transaction.feePayer = payer.publicKey;
@@ -478,7 +478,7 @@ pub struct ApproveAccount<'info> {
         token::authority = authority
     )]
     pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
-    /// CHECK: delegat to approve
+    /// CHECK: delegate to approve
     #[account(mut)]
     pub delegate: AccountInfo<'info>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
@@ -504,12 +504,12 @@ The instruction then invokes the `Approve` instruction on the `Token Extensions 
 
 Let's open the `/tests/approve-delegate-example.ts` file to begin testing this instruction. Take a look at the starting code. We have a payer, some test keypairs and an `airdropIfRequired` function that will run before the tests. 
 
-Once you feel comfortable with the starting code, we can move on to the `"[CPI Guard] Approve Delegate Example"` test. You'll notice that some test names have "[CPI Guard]" in the title. Those with this in the title are tests with a CPI Guard enabled and those without it use token accounts with the CPI Guard disabled. They invoke the same exact instruction in our target program, the only difference is whether or not they have the CPI Guard enabled or not. This is done to illustrate what the CPI Guard protects against versus an account without one.
+Once you feel comfortable with the starting code, we can move on to the 'Approve Delegate' tests. We will make tests that invoke the same exact instruction in our target program, with and without CPI guard.
 
 To test our instruction, we first need to create our token mint and a token account with extensions.
 
 ```typescript
-it("[CPI Guard] Approve Delegate Example", async () => {
+it("stops 'Approve Delegate' when CPI guard is enabled", async () => {
 
   await createMint(
     provider.connection,
@@ -532,10 +532,10 @@ it("[CPI Guard] Approve Delegate Example", async () => {
 })
 ```
 
-Now let's send a transaction to our program so that it will attempt to invoke the Approve delegate instruction on the `Token Extensions Program`.
+Now let's send a transaction to our program that will attempt to invoke the 'Approve delegate' instruction on the `Token Extensions Program`.
 
 ```typescript
-// inside "[CPI Guard] Approve Delegate Example" test block
+// inside "allows 'Approve Delegate' when CPI guard is disabled" test block
 try {
   const tx = await program.methods.prohibitedApproveAccount(new anchor.BN(1000))
     .accounts({
@@ -556,10 +556,10 @@ try {
 
 Notice we wrap this in a try/catch block. This is because this instruction should fail if the CPI Guard works correctly. We catch the error and assert that the error message is what we expect. 
 
-Now, we essentially do the same thing for the `"Approve Delegate Example"` test, except we want to pass in a token account without a CPI Guard. To do this, we can simply disable the CPI Guard on the `userTokenAccount` and resend the transaction.
+Now, we essentially do the same thing for the `"allows 'Approve Delegate' when CPI guard is disabled"` test, except we want to pass in a token account without a CPI Guard. To do this, we can simply disable the CPI Guard on the `userTokenAccount` and resend the transaction.
 
 ```typescript
-it("Approve Delegate Example", async () => {
+it("allows 'Approve Delegate' when CPI guard is disabled", async () => {
   await disableCpiGuard(
     provider.connection,
     payer,
@@ -639,7 +639,7 @@ To test this, we'll open up the `/tests/close-account-example.ts` file. The star
 First, let's create our mint and CPI guarded token account:
 
 ```typescript
-it("[CPI Guard] Close Account Example", async () => {
+it("stops 'Close Account' when CPI guard in enabled", async () => {
   await createMint(
     provider.connection,
     payer,
@@ -663,7 +663,7 @@ it("[CPI Guard] Close Account Example", async () => {
 Now let's send a transaction to our `malicious_close_account` instruction. Since we have the CPI Guard enabled on this token account, the transaction should fail. Our test verifies it fails for the expected reason.
 
 ```typescript
-// inside "[CPI Guard] Close Account Example" test block
+// inside "stops 'Close Account' when CPI guard in enabled" test block
 try {
   const tx = await program.methods.maliciousCloseAccount()
     .accounts({
@@ -763,7 +763,8 @@ Open the `/tests/set-authority-example.ts` file. The starter code is the same as
 Let's create our mint and CPI-guarded token account. Then, we can send a transaction to our `prohibited_set_authority` instruction.
 
 ```typescript
-it("[CPI Guard] Set Authority Example", async () => {
+it("sets authority when CPI guard in enabled", async () => {
+
   await createMint(
     provider.connection,
     payer,
@@ -893,7 +894,7 @@ To test this, open up the `tests/burn-example.ts` file. The starter code is the 
 Then, we can create our mint and CPI-guarded token account.
 
 ```typescript
-it("[CPI Guard] Burn without Delegate Signature Example", async () => {
+it("stops 'Burn' without a delegate signature", async () => {
   await createMint(
     provider.connection,
     payer,
@@ -918,7 +919,7 @@ it("[CPI Guard] Burn without Delegate Signature Example", async () => {
 Now, let's mint some tokens to our test account.
 
 ```typescript
-// inside "[CPI Guard] Burn without Delegate Signature Example" test block
+// inside "stops 'Burn' without a delegate signature" test block
 const mintToTx = await mintTo(
   provider.connection,
   payer,
@@ -935,7 +936,7 @@ const mintToTx = await mintTo(
 Now let's approve a delegate over our token account. This token account has a CPI Guard enabled currently, but we are still able to approve a delegate. This is because we are doing so by invoking the `Token Extensions Program` directly and not via a CPI like our earlier example.
 
 ```typescript
-// inside "[CPI Guard] Burn without Delegate Signature Example" test block
+// inside "stops 'Burn' without a delegate signature" test block
 const approveTx = await approve(
   provider.connection,
   payer,
@@ -952,7 +953,7 @@ const approveTx = await approve(
 Now that we have a delegate over our token account, we can send a transaction to our program to attempt to burn some tokens. We'll be passing in the `payer` account as the authority. This account is the owner over the `userTokenAccount`, but since we have approved the `delegate` account as the delegate, the CPI Guard will prevent this transaction from going through.
 
 ```typescript
-// inside "[CPI Guard] Burn without Delegate Signature Example" test block
+// inside "stops 'Burn' without a delegate signature" test block
 try {
   const tx = await program.methods.unauthorizedBurn(new anchor.BN(500))
     .accounts({
@@ -1054,10 +1055,10 @@ Open up the `/tests/set-owner-example.ts` file. There are four tests we'll write
 
 Notice we've taken out `delegate` and added `firstNonCPIGuardAccount`, `secondNonCPIGuardAccount`, and `newOwner`.
 
-Starting with the first `"[CPI Guard] Set Authority without CPI on CPI Guarded Account"` test, we'll create the mint and CPI-guarded token account.
+Starting with the first `"stops 'Set Authority' without CPI on a CPI-guarded account"` test, we'll create the mint and CPI-guarded token account.
 
 ```typescript
-it("[CPI Guard] Set Authority without CPI on CPI Guarded Account", async () => {
+it("stops 'Set Authority' without CPI on a CPI-guarded account", async () => {
   await createMint(
     provider.connection,
     payer,
@@ -1082,7 +1083,7 @@ it("[CPI Guard] Set Authority without CPI on CPI Guarded Account", async () => {
 Then, we'll try to send a transaction to the `set_authority` instruction of the `Token Extensions Program` with the `setAuthority` function from the `@solana/spl-token` library.
 
 ```typescript
-// inside the "[CPI Guard] Set Authority without CPI on CPI Guarded Account" test block
+// inside the "stops 'Set Authority' without CPI on a CPI-guarded account" test block
 try {
   await setAuthority(
     provider.connection,
