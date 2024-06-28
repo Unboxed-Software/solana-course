@@ -12,7 +12,7 @@ objectives:
 - Les **jetons non fongibles (NFT)** sont représentés sur Solana en tant que jetons SPL avec un compte de métadonnées associé, 0 décimales et une offre maximale de 1.
 - **Metaplex** propose une collection d'outils qui simplifient la création et la distribution de NFT sur la blockchain Solana.
 - Le programme **Token Metadata** normalise le processus d'ajout de métadonnées aux jetons SPL.
-- Le **SDK Metaplex** est un outil qui offre des API conviviales pour aider les développeurs à utiliser les outils on-chain fournis par Metaplex.
+- Le **SDK Metaplex** est un outil qui offre des API conviviales pour aider les développeurs à utiliser les outils onchain fournis par Metaplex.
 - Le programme **Candy Machine** est un outil de distribution de NFT utilisé pour créer et émettre des NFT à partir d'une collection.
 - **Sugar CLI** est un outil qui simplifie le processus de téléchargement de fichiers multimédias/métadonnées et la création d'une Candy Machine pour une collection.
 
@@ -35,18 +35,18 @@ En d'autres termes, un NFT est un jeton standard du programme Token, mais il dif
 
 Bien que les trois premiers points soient des fonctionnalités qui peuvent être obtenues avec le programme Token SPL, les métadonnées associées nécessitent une fonctionnalité supplémentaire.
 
-Généralement, les métadonnées d'un NFT ont à la fois une composante on-chain et une composante off-chain. Voir le schéma ci-dessous :
+Généralement, les métadonnées d'un NFT ont à la fois une composante onchain et une composante off-chain. Voir le schéma ci-dessous :
 
 ![Capture d'écran des métadonnées](../assets/solana-nft-metaplex-metadata.png)
 
- - Les **métadonnées on-chain** sont stockées dans un compte associé à l'émission de jetons. Les métadonnées on-chain contiennent un champ URI qui pointe vers un fichier `.json` hors chaîne.
+ - Les **métadonnées onchain** sont stockées dans un compte associé à l'émission de jetons. Les métadonnées onchain contiennent un champ URI qui pointe vers un fichier `.json` hors chaîne.
  - Les **métadonnées hors chaîne** dans le fichier JSON stockent le lien vers les médias (images, vidéos, fichiers 3D) du NFT, toutes les caractéristiques que le NFT peut avoir, et des métadonnées supplémentaires (voir [cet exemple de fichier JSON](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6n4x0GanLnSbeoT1EVvNuw)). Des systèmes de stockage de données permanents tels qu'Arweave sont souvent utilisés pour stocker la composante hors chaîne des métadonnées NFT.
 
 ## **Metaplex**
 
 [Metaplex](https://www.metaplex.com/) est une organisation qui propose une suite d'outils, comme le [SDK Metaplex](https://docs.metaplex.com/sdks/js/), qui simplifient la création et la distribution de NFT sur la blockchain Solana. Ces outils couvrent un large éventail de cas d'utilisation et vous permettent de gérer facilement l'ensemble du processus de création et d'émission d'une collection de NFT.
 
-Plus précisément, le SDK Metaplex est conçu pour aider les développeurs à utiliser les outils on-chain proposés par Metaplex. Il offre une API conviviale axée sur des cas d'utilisation populaires et permet une intégration facile avec des plugins tiers. Pour en savoir plus sur les capacités du SDK Metaplex, vous pouvez consulter le [README](https://github.com/metaplex-foundation/js#readme).
+Plus précisément, le SDK Metaplex est conçu pour aider les développeurs à utiliser les outils onchain proposés par Metaplex. Il offre une API conviviale axée sur des cas d'utilisation populaires et permet une intégration facile avec des plugins tiers. Pour en savoir plus sur les capacités du SDK Metaplex, vous pouvez consulter le [README](https://github.com/metaplex-foundation/js#readme).
 
 L'un des programmes essentiels proposés par Metaplex est le programme Token Metadata. Le programme Token Metadata normalise le processus d'ajout de métadonnées aux jetons SPL. Lors de la création d'un NFT avec Metaplex, le programme Token Metadata crée un compte de métadonnées en utilisant une adresse dérivée du programme (PDA) avec l'émission de jetons comme seed. Cela permet de localiser de manière déterministe le compte de métadonnées de n'importe quel NFT en utilisant l'adresse de l'émission de jetons. Pour en savoir plus sur le programme Token Metadata, vous pouvez consulter la [documentation Metaplex](https://docs.metaplex.com/programs/token-metadata/).
 
@@ -115,7 +115,7 @@ const { uri } = await metaplex.nfts().uploadMetadata({
 
 ### Création d'un NFT
 
-Après avoir téléchargé les métadonnées du NFT, vous pouvez enfin créer le NFT sur le réseau. La méthode `create` du SDK Metaplex vous permet de créer un nouveau NFT avec une configuration minimale. Cette méthode gérera la création du compte d'émission, du compte de jetons, du compte de métadonnées et du compte d'édition maître pour vous. Les données fournies à cette méthode représenteront la partie on-chain des métadonnées NFT. Vous pouvez explorer le SDK pour voir toutes les autres entrées qui peuvent éventuellement être fournies à cette méthode.
+Après avoir téléchargé les métadonnées du NFT, vous pouvez enfin créer le NFT sur le réseau. La méthode `create` du SDK Metaplex vous permet de créer un nouveau NFT avec une configuration minimale. Cette méthode gérera la création du compte d'émission, du compte de jetons, du compte de métadonnées et du compte d'édition maître pour vous. Les données fournies à cette méthode représenteront la partie onchain des métadonnées NFT. Vous pouvez explorer le SDK pour voir toutes les autres entrées qui peuvent éventuellement être fournies à cette méthode.
 
 ```tsx
 const { nft } = await metaplex.nfts().create(
@@ -132,7 +132,7 @@ Cette méthode renvoie un objet contenant des informations sur le NFT nouvelleme
 
 ### Mise à jour d'un NFT
 
-Si vous avez laissé `isMutable` à true, vous pouvez avoir une raison de mettre à jour les métadonnées de votre NFT. La méthode `update` du SDK vous permet de mettre à jour à la fois les parties on-chain et hors chaîne des métadonnées du NFT. Pour mettre à jour les métadonnées hors chaîne, vous devrez répéter les étapes de téléchargement d'une nouvelle image et de l'URI des métadonnées comme indiqué dans les étapes précédentes, puis fournir le nouvel URI des métadonnées à cette méthode. Cela changera l'URI vers lequel pointent les métadonnées on-chain, mettant à jour efficacement les métadonnées hors chaîne également.
+Si vous avez laissé `isMutable` à true, vous pouvez avoir une raison de mettre à jour les métadonnées de votre NFT. La méthode `update` du SDK vous permet de mettre à jour à la fois les parties onchain et hors chaîne des métadonnées du NFT. Pour mettre à jour les métadonnées hors chaîne, vous devrez répéter les étapes de téléchargement d'une nouvelle image et de l'URI des métadonnées comme indiqué dans les étapes précédentes, puis fournir le nouvel URI des métadonnées à cette méthode. Cela changera l'URI vers lequel pointent les métadonnées onchain, mettant à jour efficacement les métadonnées hors chaîne également.
 
 ```tsx
 const nft = await metaplex.nfts().findByMint({ mintAddress });

@@ -1,7 +1,7 @@
 ---
-title: Intro to on-chain development
+title: Intro to onchain development
 objectives:
-- Understand how Solana on-chain programs work
+- Understand how Solana onchain programs work
 - Describe the structure and operation of onchain programs
 - Build a basic program
 ---
@@ -85,10 +85,10 @@ const address = findProgramAddressSync(
 
 ## There are multiple ways to build onchain, but we recommend Anchor
 
-You currently have two options for on-chain program development:
+You currently have two options for onchain program development:
 
- - We recommend new on-chain programmers [start with Anchor](./intro-to-anchor). Anchor's defaults make it easy to create safe programs. 
- - This course also covers [native on-chain program development](./hello-world-program).
+ - We recommend new onchain programmers [start with Anchor](./intro-to-anchor). Anchor's defaults make it easy to create safe programs. 
+ - This course also covers [native onchain program development](./hello-world-program).
 
 Whichever way you pick, Solana Foundation maintains [examples in both languages](https://github.com/solana-developers/program-examples), and [Solana Stack Exchange](https://solana.stackexchange.com/) is there to help.
 

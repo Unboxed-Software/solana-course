@@ -36,7 +36,7 @@ In particular:
 - Use sentence case for headlines (”Solana Foundation announces new initiative” instead of “Solana Foundation Announces New Initiative”).
 - Use 'secret key' rather than 'private key' to be consistent with web3.js. __Note__: this will change in a future version of web3.js. 
 - Use 'wallet app' for software. 'wallet' for the address that holds value.
-- Use 'onchain' (not on-chain, definitely not smart contract) when referring to onchain apps. This comes from the Solana Foundation style guide, and is intended to be similar to 'online'. 
+- Use 'onchain' (not onchain, definitely not smart contract) when referring to onchain apps. This comes from the Solana Foundation style guide, and is intended to be similar to 'online'. 
 - Use 'SOL' rather than 'Sol' to refer to Solana's native token. Definitely don't call it Solana!
 - PDAs are not public keys. It is not possible to have a public key without a secret key. A public key is derived from a secret key, and it is not possible to generate a public key without first generating a secret key.
 - Use the terms 'blockchain' or 'web3' rather than 'crypto'.

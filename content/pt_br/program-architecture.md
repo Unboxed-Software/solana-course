@@ -1,7 +1,7 @@
 ---
 title: Arquitetura de Programa
 objectives:
-- Usar Box e Zero-Copy para trabalhar com grandes dados on-chain
+- Usar Box e Zero-Copy para trabalhar com grandes dados onchain
 - Tomar decisões melhores de design de PDA
 - Tornar seus programas à prova de futuro
 - Lidar com problemas de concorrência
@@ -34,11 +34,11 @@ Em linguagens de alto nível, você está na terra da abundância de dados! Agor
 
 1. Como pagamos por byte, geralmente queremos manter nossa pegada o menor possível. Vamos mergulhar mais em otimização em outra seção, mas vamos introduzir o conceito de tamanhos de dados aqui.
 
-2. Ao operar em dados maiores, enfrentamos restrições de [Stack](https://docs.solana.com/developing/on-chain-programs/faq#stack) e [Heap](https://docs.solana.com/developing/on-chain-programs/faq#heap-size) - para contornar isso, vamos olhar para o uso de Box e Zero-Copy.
+2. Ao operar em dados maiores, enfrentamos restrições de [Stack](https://docs.solana.com/developing/onchain-programs/faq#stack) e [Heap](https://docs.solana.com/developing/onchain-programs/faq#heap-size) - para contornar isso, vamos olhar para o uso de Box e Zero-Copy.
 
 ### Tamanhos
 
-Na Solana, o pagador da taxa de uma transação paga por cada byte armazenado on-chain. Chamamos isso de [aluguel](https://docs.solana.com/developing/intro/rent). Observação à parte: aluguel é um termo um pouco impróprio, pois nunca é realmente retirado permanentemente. Uma vez que você deposita o aluguel na conta, esses dados podem permanecer lá para sempre ou você pode ser reembolsado do aluguel se fechar a conta. O aluguel costumava ser uma coisa real, mas agora há uma isenção mínima obrigatória de aluguel. Você pode ler sobre isso na [documentação da Solana](https://docs.solana.com/developing/intro/rent).
+Na Solana, o pagador da taxa de uma transação paga por cada byte armazenado onchain. Chamamos isso de [aluguel](https://docs.solana.com/developing/intro/rent). Observação à parte: aluguel é um termo um pouco impróprio, pois nunca é realmente retirado permanentemente. Uma vez que você deposita o aluguel na conta, esses dados podem permanecer lá para sempre ou você pode ser reembolsado do aluguel se fechar a conta. O aluguel costumava ser uma coisa real, mas agora há uma isenção mínima obrigatória de aluguel. Você pode ler sobre isso na [documentação da Solana](https://docs.solana.com/developing/intro/rent).
 
 Deixando de lado a etimologia do aluguel, colocar dados na blockchain pode ser caro. É por isso que os atributos de NFT e arquivos associados, como a imagem, são armazenados fora da blockchain. Em última análise, é desejável encontrar um equilíbrio que deixe seu programa altamente funcional sem se tornar tão caro a ponto de seus usuários não quererem pagar para abrir a conta de dados.
 

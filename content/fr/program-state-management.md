@@ -394,7 +394,7 @@ Si vous avez besoin de plus de temps avec ce projet pour vous sentir à l'aise a
 
 Maintenant, c'est à vous de construire quelque chose de manière indépendante. Équipé des concepts introduits dans cette leçon, vous savez maintenant tout ce dont vous aurez besoin pour recréer l'intégralité du programme Student Intro du Module 1.
 
-Le programme Student Intro est un programme Solana qui permet aux étudiants de se présenter. Le programme prend le nom de l'utilisateur et un court message en tant que `instruction_data` et crée un compte pour stocker les données on-chain.
+Le programme Student Intro est un programme Solana qui permet aux étudiants de se présenter. Le programme prend le nom de l'utilisateur et un court message en tant que `instruction_data` et crée un compte pour stocker les données onchain.
 
 En utilisant ce que vous avez appris dans cette leçon, développez ce programme. En plus de prendre un nom et un court message en tant que données d'instruction, le programme devrait :
 

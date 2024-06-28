@@ -473,7 +473,7 @@ If you need to spend some more time with this lab before moving on, please do! Y
 
 # Challenge
 
-For this lesson's challenge, try replicating the Student Intro program from Module 1. Recall that we created a frontend application that lets students introduce themselves! The program takes a user's name and a short message as the `instruction_data` and creates an account to store the data on-chain.
+For this lesson's challenge, try replicating the Student Intro program from Module 1. Recall that we created a frontend application that lets students introduce themselves! The program takes a user's name and a short message as the `instruction_data` and creates an account to store the data onchain.
 
 Using what you've learned in this lesson, build the Student Intro program to the point where you can print the `name` and `message` provided by the user to the program logs when the program is invoked.
 

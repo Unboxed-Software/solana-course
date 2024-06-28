@@ -39,7 +39,7 @@ Ang halaga ng `recipient` ay kinakailangan at dapat ay isang base58-encoded publ
 
 - `amount` - isang non-negative integer o decimal value na nagsasaad ng halaga ng mga token na ililipat
 - `spl-token` - isang base58-encoded public key ng isang SPL Token mint account kung ang paglilipat ay isang SPL token at hindi SOL
-- `reference` - opsyonal na reference value bilang base58-encoded 32 byte arrays. Ito ay maaaring gamitin ng isang kliyente para sa pagtukoy sa transaksyon na on-chain dahil ang kliyente ay hindi magkakaroon ng lagda ng isang transaksyon.
+- `reference` - opsyonal na reference value bilang base58-encoded 32 byte arrays. Ito ay maaaring gamitin ng isang kliyente para sa pagtukoy sa transaksyon na onchain dahil ang kliyente ay hindi magkakaroon ng lagda ng isang transaksyon.
 - `label` - isang URL-encoded UTF-8 string na naglalarawan sa pinagmulan ng kahilingan sa paglipat
 - `mensahe` - isang URL-encoded UTF-8 string na naglalarawan sa katangian ng kahilingan sa paglipat
 - `memo` - isang URL-encoded UTF-8 string na dapat isama sa SPL memo instruction sa transaksyon sa pagbabayad
@@ -238,7 +238,7 @@ for (let i = 0; i < nfts.length; i++) {
 
 ### Partial Signing
 
-Kung gusto mo ng ilang partikular na transaksyon sa likod ng ilang uri ng gating mechanism, ang functionality na iyon ay kailangang ipatupad din on-chain. Ang pagbabalik ng error mula sa iyong endpoint ng Solana Pay ay nagpapahirap para sa mga end user na gawin ang transaksyon, ngunit maaari pa rin nilang gawin ito nang manu-mano.
+Kung gusto mo ng ilang partikular na transaksyon sa likod ng ilang uri ng gating mechanism, ang functionality na iyon ay kailangang ipatupad din onchain. Ang pagbabalik ng error mula sa iyong endpoint ng Solana Pay ay nagpapahirap para sa mga end user na gawin ang transaksyon, ngunit maaari pa rin nilang gawin ito nang manu-mano.
 
 Ang ibig sabihin nito ay ang (mga) tagubiling tinatawag ay dapat mangailangan ng ilang uri ng lagda ng "admin" na ang iyong aplikasyon lamang ang makakapagbigay. Sa paggawa nito, gayunpaman, nagawa mo ito upang ang aming mga nakaraang halimbawa ay hindi gumana. Ang transaksyon ay binuo at ipinadala sa humihiling na wallet para sa pirma ng end user, ngunit ang isinumiteng transaksyon ay mabibigo nang walang pirma ng admin.
 
@@ -632,7 +632,7 @@ Sa puntong ito dapat gumagana ang iyong app! Sige at subukan ito gamit ang iyong
 
 Pagkatapos i-scan ang QR code, dapat kang makakita ng mensaheng nagsasaad na ikaw ay nasa lokasyon 1. Mula doon, i-scan ang QR code sa pahina ng `Lokasyon 2. Maaaring kailanganin mong maghintay ng ilang segundo para ma-finalize ang nakaraang transaksyon bago magpatuloy.
 
-Binabati kita, matagumpay mong natapos ang demo ng scavenger hunt gamit ang Solana Pay! Depende sa iyong background, maaaring hindi ito intuitive o prangka. Kung iyon ang kaso, huwag mag-atubiling dumaan muli sa demo o gumawa ng isang bagay sa iyong sarili. Ang Solana Pay ay nagbubukas ng maraming pinto para sa pagtulay sa agwat sa pagitan ng totoong buhay at on-chain na pakikipag-ugnayan.
+Binabati kita, matagumpay mong natapos ang demo ng scavenger hunt gamit ang Solana Pay! Depende sa iyong background, maaaring hindi ito intuitive o prangka. Kung iyon ang kaso, huwag mag-atubiling dumaan muli sa demo o gumawa ng isang bagay sa iyong sarili. Ang Solana Pay ay nagbubukas ng maraming pinto para sa pagtulay sa agwat sa pagitan ng totoong buhay at onchain na pakikipag-ugnayan.
 
 Kung gusto mong tingnan ang panghuling code ng solusyon, mahahanap mo ito sa sangay ng solusyon ng [parehong repositoryo](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/solution ).
 

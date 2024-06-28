@@ -1,15 +1,15 @@
 ---
 title: Funções de Aleatoriedade Verificáveis
 objectives:
-- Explicar as limitações da geração de números aleatórios on-chain
+- Explicar as limitações da geração de números aleatórios onchain
 - Explicar como funciona a Aleatoriedade Verificável
-- Usar a fila de oráculos VRF do Switchboard para gerar e consumir aleatoriedade de um programa on-chain
+- Usar a fila de oráculos VRF do Switchboard para gerar e consumir aleatoriedade de um programa onchain
 ---
 
 # Resumo
 
-- Tentativas de gerar aleatoriedade em seu programa são provavelmente previsíveis pelos usuários, já que não existe verdadeira aleatoriedade on-chain.
-- Funções de Aleatoriedade Verificáveis (Verifiable Random Functions, ou VRFs) oferecem aos desenvolvedores a oportunidade de incorporar números aleatórios seguros em seus programas on-chain.
+- Tentativas de gerar aleatoriedade em seu programa são provavelmente previsíveis pelos usuários, já que não existe verdadeira aleatoriedade onchain.
+- Funções de Aleatoriedade Verificáveis (Verifiable Random Functions, ou VRFs) oferecem aos desenvolvedores a oportunidade de incorporar números aleatórios seguros em seus programas onchain.
 - Uma VRF é uma função pseudoaleatória de chave pública que fornece provas de que seus resultados foram calculados corretamente.
 - O Switchboard oferece uma VRF amigável para desenvolvedores no ecossistema Solana.
 
@@ -27,7 +27,7 @@ Computadores podem adquirir números *verdadeiramente aleatórios* ao tomar algu
 
 Números *pseudoaleatórios*, por outro lado, são gerados por algoritmos que usam um processo determinístico para produzir sequências de números que parecem ser aleatórios. Geradores de números pseudoaleatórios (PRNGs) começam com um valor inicial chamado semente e depois usam fórmulas matemáticas para gerar números subsequentes na sequência. Dada a mesma semente, um PRNG sempre produzirá a mesma sequência de números. É importante semear com algo próximo à verdadeira entropia: uma entrada "aleatória" fornecida pelo administrador, o último log do sistema, alguma combinação do tempo do relógio do seu sistema e outros fatores, etc. Fato curioso: vídeo games antigos foram quebrados porque os speedrunners descobriram como sua aleatoriedade era calculada. Um jogo em particular usou o número de passos dados no jogo como semente.
 
-Infelizmente, nenhum tipo de aleatoriedade é nativamente disponível em programas Solana, porque esses programas têm que ser determinísticos. Todos os validadores precisam chegar à mesma conclusão. Não há como todos eles tirarem o mesmo número aleatório, e se usassem uma semente, seria propenso a ataques. Veja as [FAQs da Solana](https://docs.solana.com/developing/on-chain-programs/developing-rust#depending-on-rand) para mais informações. Então, teremos que procurar fora da blockchain por aleatoriedade com VRFs.
+Infelizmente, nenhum tipo de aleatoriedade é nativamente disponível em programas Solana, porque esses programas têm que ser determinísticos. Todos os validadores precisam chegar à mesma conclusão. Não há como todos eles tirarem o mesmo número aleatório, e se usassem uma semente, seria propenso a ataques. Veja as [FAQs da Solana](https://docs.solana.com/developing/onchain-programs/developing-rust#depending-on-rand) para mais informações. Então, teremos que procurar fora da blockchain por aleatoriedade com VRFs.
 
 ## O que é Aleatoriedade Verificável?
 
@@ -45,9 +45,9 @@ As VRFs não são específicas para Solana e foram utilizadas em outros blockcha
 
 ## Implementação de VRF do Switchboard
 
-O Switchboard é uma rede de oráculos descentralizada que oferece VRFs na Solana. Oráculos são serviços que fornecem dados externos para uma blockchain, permitindo que eles interajam e respondam a eventos do mundo real. A rede Switchboard é composta por muitos oráculos individuais diferentes executados por terceiros para fornecer dados externos e solicitações de serviço on-chain. Para saber mais sobre a rede de Oráculos do Switchboard, consulte nossa [lição sobre Oráculos](./oracles.md).
+O Switchboard é uma rede de oráculos descentralizada que oferece VRFs na Solana. Oráculos são serviços que fornecem dados externos para uma blockchain, permitindo que eles interajam e respondam a eventos do mundo real. A rede Switchboard é composta por muitos oráculos individuais diferentes executados por terceiros para fornecer dados externos e solicitações de serviço onchain. Para saber mais sobre a rede de Oráculos do Switchboard, consulte nossa [lição sobre Oráculos](./oracles.md).
 
-A VRF do Switchboard permite que os usuários solicitem a um oráculo a produção de uma saída de aleatoriedade na cadeia. Uma vez que um oráculo foi atribuído à solicitação, a prova do resultado da VRF deve ser verificada on-chain antes de poder ser usada. A prova de VRF leva 276 instruções (~48 transações) para ser totalmente verificada on-chain. Uma vez que a prova é verificada, o programa Switchboard executará um callback on-chain definido pela Conta VRF durante a criação da conta. A partir daí, o programa pode consumir os dados aleatórios.
+A VRF do Switchboard permite que os usuários solicitem a um oráculo a produção de uma saída de aleatoriedade na cadeia. Uma vez que um oráculo foi atribuído à solicitação, a prova do resultado da VRF deve ser verificada onchain antes de poder ser usada. A prova de VRF leva 276 instruções (~48 transações) para ser totalmente verificada onchain. Uma vez que a prova é verificada, o programa Switchboard executará um callback onchain definido pela Conta VRF durante a criação da conta. A partir daí, o programa pode consumir os dados aleatórios.
 
 Você pode estar se perguntando como eles são pagos. Na implementação de VRF do Switchboard, você paga por cada solicitação.
 
@@ -84,7 +84,7 @@ pub struct VrfAccountData {
     pub status: VrfStatus,
     /// Contador incremental para rastrear rodadas VRF.
     pub counter: u128,
-    /// Conta on-chain delegada para fazer alterações na conta. <-- Esta é a nossa PDA
+    /// Conta onchain delegada para fazer alterações na conta. <-- Esta é a nossa PDA
     pub authority: Pubkey,
     /// O OracleQueueAccountData que é atribuído para atender à solicitação de atualização VRF.
     pub oracle_queue: Pubkey,
@@ -1060,10 +1060,10 @@ describe("burry-escrow-vrf", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("Preço de desbloqueio on-chain:", newAccount.unlockPrice)
+      console.log("Preço de desbloqueio onchain:", newAccount.unlockPrice)
       console.log("Quantidade em escrow:", escrowBalance)
 
-      // Verificar se os dados on-chain são iguais aos 'dados' locais
+      // Verificar se os dados onchain são iguais aos 'dados' locais
       assert(failUnlockPrice == newAccount.unlockPrice)
       assert(escrowBalance > 0)
     } catch (e) {
@@ -1175,7 +1175,7 @@ describe.only("burry-escrow-vrf", () => {
 
     switchboard.oracle.publicKey
 
-    // inicie o oráculo e aguarde até que ele comece sua ativação on-chain
+    // inicie o oráculo e aguarde até que ele comece sua ativação onchain
     await oracle.startAndAwait()
   })
 

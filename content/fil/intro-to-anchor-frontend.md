@@ -42,7 +42,7 @@ Para gumawa ng instance ng `Program`, kakailanganin mo ang sumusunod:
 - `Connection` - ang cluster connection
 - `Wallet` - default na keypair na ginamit upang magbayad at pumirma ng mga transaksyon
 - `Provider` - i-encapsulate ang `Connection` sa isang Solana cluster at isang `Wallet`
-- `ProgramId` - ang on-chain na address ng program
+- `ProgramId` - ang onchain na address ng program
 
 ![Anchor structure](../../assets/anchor-client-structure.png)
 
@@ -108,7 +108,7 @@ Sa pagtingin sa IDL, makikita mo na sa parehong mga tagubilin ang `user` ay kina
 
 Kung titingnan sa ibaba ang seksyong `account`, makikita mo na ang program ay naglalaman ng isang uri ng account na pinangalanang `Counter` na may isang field na `count` na may uri na `u64`.
 
-Bagama't hindi ibinibigay ng IDL ang mga detalye ng pagpapatupad para sa bawat pagtuturo, makakakuha tayo ng pangunahing ideya kung paano inaasahan ng on-chain program ang mga tagubilin na mabuo at makita ang istruktura ng mga account ng programa.
+Bagama't hindi ibinibigay ng IDL ang mga detalye ng pagpapatupad para sa bawat pagtuturo, makakakuha tayo ng pangunahing ideya kung paano inaasahan ng onchain program ang mga tagubilin na mabuo at makita ang istruktura ng mga account ng programa.
 
 Hindi alintana kung paano mo ito makuha, *kailangan mo* ng IDL file para makipag-ugnayan sa isang program gamit ang `@coral-xyz/anchor` package. Upang magamit ang IDL, kakailanganin mong isama ang IDL file sa iyong proyekto at pagkatapos ay i-import ang file.
 
@@ -204,10 +204,10 @@ setProvider(provider)
 Kapag mayroon ka nang IDL at isang provider, maaari kang lumikha ng isang instance ng `Program`. Ang tagabuo ay nangangailangan ng tatlong mga parameter:
 
 - `idl` - ang IDL bilang uri ng `Idl`
-- `programId` - ang on-chain na address ng program bilang `string` o `PublicKey`
+- `programId` - ang onchain na address ng program bilang `string` o `PublicKey`
 - `Provider` - ang provider na tinalakay sa nakaraang seksyon
 
-Gumagawa ang object ng `Program` ng custom na API na magagamit mo para makipag-ugnayan sa isang Solana program. Ang API na ito ay ang one stop shop para sa lahat ng bagay na nauugnay sa pakikipag-ugnayan sa mga on-chain na programa. Sa iba pang mga bagay, maaari kang magpadala ng mga transaksyon, kumuha ng mga deserialized na account, mag-decode ng data ng pagtuturo, mag-subscribe sa mga pagbabago sa account, at makinig sa mga kaganapan. Maaari ka ring [matuto nang higit pa tungkol sa klase ng `Program`](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
+Gumagawa ang object ng `Program` ng custom na API na magagamit mo para makipag-ugnayan sa isang Solana program. Ang API na ito ay ang one stop shop para sa lahat ng bagay na nauugnay sa pakikipag-ugnayan sa mga onchain na programa. Sa iba pang mga bagay, maaari kang magpadala ng mga transaksyon, kumuha ng mga deserialized na account, mag-decode ng data ng pagtuturo, mag-subscribe sa mga pagbabago sa account, at makinig sa mga kaganapan. Maaari ka ring [matuto nang higit pa tungkol sa klase ng `Program`](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
 
 Upang gawin ang object na `Program`, i-import muna ang `Program` at `Idl` mula sa `@coral-xyz/anchor`. Ang `Idl` ay isang uri na magagamit mo kapag nagtatrabaho sa Typescript.
 
@@ -296,7 +296,7 @@ const transaction = new Transaction().add(instructionOne, instructionTwo)
 await sendTransaction(transaction, connection)
 ```
 
-Sa buod, ang Anchor `MethodsBuilder` ay nagbibigay ng pinasimple at mas nababaluktot na paraan upang makipag-ugnayan sa mga on-chain na programa. Maaari kang bumuo ng isang pagtuturo, isang transaksyon, o bumuo at magpadala ng isang transaksyon gamit ang karaniwang parehong format nang hindi kinakailangang manu-manong i-serialize o deserialize ang mga account o data ng pagtuturo.
+Sa buod, ang Anchor `MethodsBuilder` ay nagbibigay ng pinasimple at mas nababaluktot na paraan upang makipag-ugnayan sa mga onchain na programa. Maaari kang bumuo ng isang pagtuturo, isang transaksyon, o bumuo at magpadala ng isang transaksyon gamit ang karaniwang parehong format nang hindi kinakailangang manu-manong i-serialize o deserialize ang mga account o data ng pagtuturo.
 
 ## Fetch program accounts
 

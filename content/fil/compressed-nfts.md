@@ -9,7 +9,7 @@ objectives:
 
 # TL;DR
 
-- **Mga Compressed NFT (cNFTs)** ay gumagamit ng **State Compression** upang i-hash ang NFT data at iimbak ang hash on-chain sa isang account gamit ang isang **kasabay na merkle tree** na istraktura
+- **Mga Compressed NFT (cNFTs)** ay gumagamit ng **State Compression** upang i-hash ang NFT data at iimbak ang hash onchain sa isang account gamit ang isang **kasabay na merkle tree** na istraktura
 - Ang cNFT data hash ay hindi magagamit upang ipahiwatig ang cNFT data, ngunit maaari itong magamit upang **mag-verify** kung ang cNFT data na iyong nakikita ay tama
 - Pagsuporta sa mga provider ng RPC **index** cNFT data off-chain kapag ang cNFT ay minted para magamit mo ang **Read API** para ma-access ang data
 - Ang **Metaplex Bubblegum program** ay isang abstraction sa ibabaw ng **State Compression** program na nagbibigay-daan sa iyo upang mas simpleng lumikha, mag-mint, at pamahalaan ang mga koleksyon ng cNFT
@@ -38,7 +38,7 @@ Para sa parehong mga hash ng store at paganahin ang pag-verify, gumagamit kami n
 8. Itago ang root hash sa chain bilang isang nabe-verify na patunay ng data sa loob ng bawat dahon
 9. Ang sinumang gustong i-verify na ang data na mayroon sila ay tumutugma sa "pinagmulan ng katotohanan" ay maaaring dumaan sa parehong proseso at ihambing ang panghuling hash nang hindi kinakailangang iimbak ang lahat ng data sa chain
 
-Ang isang problemang hindi natugunan sa itaas ay kung paano gawing available ang data kung hindi ito makuha mula sa isang account. Dahil ang proseso ng pag-hash na ito ay nangyayari sa chain, ang lahat ng data ay umiiral sa ledger state at sa teoryang ito ay maaaring makuha mula sa orihinal na transaksyon sa pamamagitan ng pag-replay sa buong chain state mula sa pinagmulan. Gayunpaman, mas diretso (bagaman kumplikado pa rin) na magkaroon ng **indexer** na sumusubaybay at nag-index ng data na ito habang nagaganap ang mga transaksyon. Tinitiyak nito na mayroong isang off-chain na "cache" ng data na maa-access ng sinuman at pagkatapos ay i-verify laban sa on-chain na root hash.
+Ang isang problemang hindi natugunan sa itaas ay kung paano gawing available ang data kung hindi ito makuha mula sa isang account. Dahil ang proseso ng pag-hash na ito ay nangyayari sa chain, ang lahat ng data ay umiiral sa ledger state at sa teoryang ito ay maaaring makuha mula sa orihinal na transaksyon sa pamamagitan ng pag-replay sa buong chain state mula sa pinagmulan. Gayunpaman, mas diretso (bagaman kumplikado pa rin) na magkaroon ng **indexer** na sumusubaybay at nag-index ng data na ito habang nagaganap ang mga transaksyon. Tinitiyak nito na mayroong isang off-chain na "cache" ng data na maa-access ng sinuman at pagkatapos ay i-verify laban sa onchain na root hash.
 
 Ang prosesong ito ay *napakakomplikado*. Sasaklawin namin ang ilan sa mga pangunahing konsepto sa ibaba ngunit huwag mag-alala kung hindi mo ito naiintindihan kaagad. Pag-uusapan natin ang higit pang teorya sa aralin sa compression ng estado at pangunahing tumutok sa aplikasyon sa mga NFT sa araling ito. Magagawa mong magtrabaho kasama ang mga cNFT sa pagtatapos ng araling ito kahit na hindi mo lubos na nauunawaan ang bawat piraso ng state compression puzzle.
 
@@ -60,7 +60,7 @@ Ang **max depth** ay ang maximum na bilang ng mga hop na makukuha mula sa anuman
 
 Ang **max na laki ng buffer** ay epektibong ang maximum na bilang ng mga sabay-sabay na pagbabago na maaari mong gawin sa isang puno sa loob ng iisang slot na may bisa pa rin ang root hash.
 
-Ang **canopy depth** ay ang bilang ng mga proof node na naka-store sa chain para sa anumang partikular na proof path. Ang pag-verify ng anumang dahon ay nangangailangan ng kumpletong proof path para sa puno. Ang kumpletong proof path ay binubuo ng isang proof node para sa bawat "layer" ng tree, ibig sabihin, ang max depth na 14 ay nangangahulugang mayroong 14 na proof node. Ang bawat proof node ay nagdaragdag ng 32 byte sa isang transaksyon, kaya ang malalaking puno ay mabilis na lalampas sa maximum na limitasyon sa laki ng transaksyon nang hindi nag-cache ng mga proof node na on-chain.
+Ang **canopy depth** ay ang bilang ng mga proof node na naka-store sa chain para sa anumang partikular na proof path. Ang pag-verify ng anumang dahon ay nangangailangan ng kumpletong proof path para sa puno. Ang kumpletong proof path ay binubuo ng isang proof node para sa bawat "layer" ng tree, ibig sabihin, ang max depth na 14 ay nangangahulugang mayroong 14 na proof node. Ang bawat proof node ay nagdaragdag ng 32 byte sa isang transaksyon, kaya ang malalaking puno ay mabilis na lalampas sa maximum na limitasyon sa laki ng transaksyon nang hindi nag-cache ng mga proof node na onchain.
 
 Bawat isa sa tatlong value na ito, max depth, max buffer size, at canopy depth, ay may kasamang tradeoff. Ang pagpapataas ng halaga ng alinman sa mga halagang ito ay nagpapataas sa laki ng account na ginamit upang iimbak ang puno, kaya tumataas ang gastos sa paggawa ng puno.
 
@@ -82,7 +82,7 @@ Kapag gusto mong mag-imbak ng naka-compress na data, ipapasa mo ito sa State Com
 
 ### Index data for easy lookup
 
-Sa ilalim ng normal na mga kondisyon, karaniwan mong maa-access ang on-chain na data sa pamamagitan ng pagkuha ng naaangkop na account. Kapag gumagamit ng state compression, gayunpaman, hindi ito diretso.
+Sa ilalim ng normal na mga kondisyon, karaniwan mong maa-access ang onchain na data sa pamamagitan ng pagkuha ng naaangkop na account. Kapag gumagamit ng state compression, gayunpaman, hindi ito diretso.
 
 Gaya ng nabanggit sa itaas, ang data ay umiiral na ngayon sa estado ng ledger sa halip na sa isang account. Ang pinakamadaling lugar upang mahanap ang buong data ay nasa mga log ng pagtuturo ng Noop, ngunit habang ang data na ito ay sa isang kahulugan ay umiiral sa estado ng ledger magpakailanman, malamang na hindi ito maa-access sa pamamagitan ng mga validator pagkatapos ng isang tiyak na tagal ng panahon.
 
@@ -151,7 +151,7 @@ const collectionNft = await metaplex.nfts().create({
 
 ### Create Merkle Tree Account
 
-Ngayon nagsisimula kaming lumihis mula sa proseso na iyong gagamitin kapag lumilikha ng mga tradisyonal na NFT. Ang on-chain storage mechanism na ginagamit mo para sa state compression ay isang account na kumakatawan sa isang kasabay na merkle tree. Ang merkle tree account na ito ay kabilang sa SPL State Compression program. Bago ka makagawa ng anumang bagay na nauugnay sa mga cNFT, kailangan mong lumikha ng isang walang laman na merkle tree account na may naaangkop na laki.
+Ngayon nagsisimula kaming lumihis mula sa proseso na iyong gagamitin kapag lumilikha ng mga tradisyonal na NFT. Ang onchain storage mechanism na ginagamit mo para sa state compression ay isang account na kumakatawan sa isang kasabay na merkle tree. Ang merkle tree account na ito ay kabilang sa SPL State Compression program. Bago ka makagawa ng anumang bagay na nauugnay sa mga cNFT, kailangan mong lumikha ng isang walang laman na merkle tree account na may naaangkop na laki.
 
 Ang mga variable na nakakaapekto sa laki ng account ay:
 
@@ -194,7 +194,7 @@ Tandaan na ang bilang ng mga cNFT na maaaring iimbak sa puno ay ganap na nakadep
 
 Susunod, piliin ang lalim ng canopy. Ang pagtaas ng lalim ng canopy ay nagdaragdag sa pagiging composability ng iyong mga cNFT. Anumang oras na tatangkain ng code ng iyong developer o ng isa pang developer na i-verify ang isang cNFT, kakailanganing ipasa ng code ang pinakamaraming proof node gaya ng mayroong "mga layer" sa iyong tree. Kaya para sa max depth na 20, kakailanganin mong pumasa sa 20 proof node. Hindi lamang ito nakakapagod, ngunit dahil ang bawat proof node ay 32 bytes, posible na ma-max out ang mga laki ng transaksyon nang napakabilis.
 
-Halimbawa, kung ang iyong puno ay may napakababang canopy depth, ang isang NFT marketplace ay maaaring suportahan lamang ang mga simpleng paglilipat ng NFT sa halip na suportahan ang isang on-chain na sistema ng pagbi-bid para sa iyong mga cNFT. Ang canopy ay epektibong nag-cache ng mga patunay na node na on-chain para hindi mo na kailangang ipasa ang lahat ng ito sa transaksyon, na nagbibigay-daan para sa mas kumplikadong mga transaksyon.
+Halimbawa, kung ang iyong puno ay may napakababang canopy depth, ang isang NFT marketplace ay maaaring suportahan lamang ang mga simpleng paglilipat ng NFT sa halip na suportahan ang isang onchain na sistema ng pagbi-bid para sa iyong mga cNFT. Ang canopy ay epektibong nag-cache ng mga patunay na node na onchain para hindi mo na kailangang ipasa ang lahat ng ito sa transaksyon, na nagbibigay-daan para sa mas kumplikadong mga transaksyon.
 
 Ang pagpapataas sa alinman sa tatlong halagang ito ay nagpapataas sa laki ng account, at sa gayon ay tumataas ang gastos na nauugnay sa paggawa nito. Timbangin ang mga benepisyo nang naaayon kapag pumipili ng mga halaga.
 
@@ -875,7 +875,7 @@ Muli, upang tumakbo, sa iyong uri ng terminal: `npm run start`
 
 ### 5. Read existing cNFT data
 
-Ngayong nakapagsulat na tayo ng code para mag-mint ng mga cNFT, tingnan natin kung talagang makukuha natin ang kanilang data. Ito ay nakakalito dahil ang on-chain na data ay ang merkle tree account lamang, ang data kung saan maaaring gamitin upang i-verify ang umiiral na impormasyon bilang tumpak ngunit walang silbi sa paghahatid kung ano ang impormasyon.
+Ngayong nakapagsulat na tayo ng code para mag-mint ng mga cNFT, tingnan natin kung talagang makukuha natin ang kanilang data. Ito ay nakakalito dahil ang onchain na data ay ang merkle tree account lamang, ang data kung saan maaaring gamitin upang i-verify ang umiiral na impormasyon bilang tumpak ngunit walang silbi sa paghahatid kung ano ang impormasyon.
 
 Magsimula tayo sa pagdedeklara ng function na `logNftDetails` na ginagamit bilang mga parameter na `treeAddress` at `nftsMinted`.
 
@@ -917,7 +917,7 @@ async function logNftDetails(treeAddress: PublicKey, nftsMinted: number) {
 
 Mahalagang inoobserbahan ni Helius ang mga log ng transaksyon habang nangyayari ang mga ito at iniimbak ang NFT metadata na na-hash at naka-store sa merkle tree. Nagbibigay-daan ito sa kanila na ipakita ang data na iyon kapag hiniling.
 
-Kung magdaragdag kami ng tawag sa function na ito sa dulo ng `pangunahing` at muling patakbuhin ang iyong script, napakakomprehensibo ng data na makukuha namin sa console. Kabilang dito ang lahat ng data na iyong inaasahan sa parehong on-chain at off-chain na bahagi ng isang tradisyonal na NFT. Mahahanap mo ang mga katangian, file, pagmamay-ari at impormasyon ng tagalikha ng cNFT, at higit pa.
+Kung magdaragdag kami ng tawag sa function na ito sa dulo ng `pangunahing` at muling patakbuhin ang iyong script, napakakomprehensibo ng data na makukuha namin sa console. Kabilang dito ang lahat ng data na iyong inaasahan sa parehong onchain at off-chain na bahagi ng isang tradisyonal na NFT. Mahahanap mo ang mga katangian, file, pagmamay-ari at impormasyon ng tagalikha ng cNFT, at higit pa.
 
 ```json
 {
@@ -1279,4 +1279,4 @@ Ikaw na ang mag-isa na kunin ang mga konseptong ito! Hindi tayo magiging sobrang
 
 1. Lumikha ng iyong sariling produksyon cNFT koleksyon
 2. Bumuo ng UI para sa demo ng araling ito na magbibigay-daan sa iyong gumawa ng cNFT at ipakita ito
-3. Tingnan kung maaari mong kopyahin ang ilan sa mga functionality ng demo script sa isang on-chain program, ibig sabihin, magsulat ng program na maaaring mag-mint ng mga cNFT
+3. Tingnan kung maaari mong kopyahin ang ilan sa mga functionality ng demo script sa isang onchain program, ibig sabihin, magsulat ng program na maaaring mag-mint ng mga cNFT

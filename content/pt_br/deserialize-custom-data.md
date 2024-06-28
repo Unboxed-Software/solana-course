@@ -94,7 +94,7 @@ A propriedade `data` em um objeto `AccountInfo` é um buffer. Para usá-lo com e
 
 A desserialização requer conhecimento prévio do layout da conta. Ao criar seus próprios programas, você definirá como isso será feito como parte do processo. Muitos programas também têm documentação sobre como desserializar os dados da conta. De outro modo, se o código do programa estiver disponível, você poderá examinar a fonte e determinar a estrutura dessa forma.
 
-Para desserializar corretamente os dados de um programa na cadeia, você terá de criar um esquema no lado do cliente que reflita como os dados são armazenados na conta. Por exemplo, o esquema a seguir pode ser o esquema de uma conta que armazena metadados sobre um jogador em um jogo on-chain.
+Para desserializar corretamente os dados de um programa na cadeia, você terá de criar um esquema no lado do cliente que reflita como os dados são armazenados na conta. Por exemplo, o esquema a seguir pode ser o esquema de uma conta que armazena metadados sobre um jogador em um jogo onchain.
 
 ```typescript
 import * as borsh from "@project-serum/borsh";

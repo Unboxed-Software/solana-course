@@ -9,7 +9,7 @@ objectives:
 
 # TL;DR
 
-- Walang mga "out of the box" na solusyon para sa paglikha ng mga natatanging kapaligiran sa isang on-chain na programa, ngunit makakamit mo ang isang bagay na katulad ng mga variable ng kapaligiran kung magiging malikhain ka.
+- Walang mga "out of the box" na solusyon para sa paglikha ng mga natatanging kapaligiran sa isang onchain na programa, ngunit makakamit mo ang isang bagay na katulad ng mga variable ng kapaligiran kung magiging malikhain ka.
 - Maaari mong gamitin ang attribute na `cfg` na may **Mga tampok na Rust** (`#[cfg(feature = ...)]`) upang magpatakbo ng ibang code o magbigay ng iba't ibang mga value ng variable batay sa ibinigay na feature na Rust. _Nangyayari ito sa oras ng pag-compile at hindi ka pinapayagang magpalit ng mga halaga pagkatapos ma-deploy ang isang programa_.
 - Katulad nito, maaari mong gamitin ang `cfg!` **macro** upang mag-compile ng iba't ibang mga path ng code batay sa mga feature na pinagana.
 - Bilang kahalili, makakamit mo ang isang bagay na katulad ng mga variable ng kapaligiran na maaaring mabago pagkatapos ng pag-deploy sa pamamagitan ng paggawa ng mga account at tagubilin na maa-access lamang ng awtoridad sa pag-upgrade ng programa.

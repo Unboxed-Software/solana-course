@@ -14,7 +14,7 @@ objectives:
 
 # Overview
 
-The Token Extensions Program streamlines metadata on Solana. Without the Token Extensions Program, developers store metadata in metadata accounts using a metadata on-chain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes introduces vender lock in and increased complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
+The Token Extensions Program streamlines metadata on Solana. Without the Token Extensions Program, developers store metadata in metadata accounts using a metadata onchain program; mainly `Metaplex`. However, this has some drawbacks. For example the mint account to which the metadata is "attached" has no awareness of the metadata account. To determine if an account has metadata, we have to PDA the mint and the `Metaplex` program together and query the network to see if a Metadata account exists. Additionally, to create and update this metadata you have to use a secondary program (i.e. `Metaplex`). These processes introduces vender lock in and increased complexity. Token Extension Programs's Metadata extensions fix this by introducing two extensions:
 
 - `metadata-pointer` extension: Adds two simple fields in the mint account itself: a publicKey pointer to the account that holds the metadata for the token following the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/interface), and the authority to update this pointer.
 - `metadata` extension: Adds the fields described in the [Token-Metadata Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-metadata/) which allows us to store the metadata in the mint itself.
@@ -642,7 +642,7 @@ Now let's construct the `TokenMetadata` object interfaced from `@solana/spl-toke
   };
 ```
 
-Now we can create our first on-chain instruction using `SystemProgram.createAccount`. To do this we need to know the size of our NFT's mint account. Remember we're using two extensions for our NFT, `metadata pointer` and the `metadata` extensions. Additionally, since the metadata is 'embedded' using the metadata extension, it's variable length. So we use a combination of `getMintLen`, `pack` and some hardcoded amounts to get our final length.
+Now we can create our first onchain instruction using `SystemProgram.createAccount`. To do this we need to know the size of our NFT's mint account. Remember we're using two extensions for our NFT, `metadata pointer` and the `metadata` extensions. Additionally, since the metadata is 'embedded' using the metadata extension, it's variable length. So we use a combination of `getMintLen`, `pack` and some hardcoded amounts to get our final length.
 
 Then we call `getMinimumBalanceForRentExemption` to see how many lamports it costs to spin up the account.
 

@@ -17,7 +17,7 @@ objectives:
 
 # Lesson
 
-Sa huling aralin, na-serialize namin ang data ng programa na kasunod na inimbak on-chain ng isang Solana program. Sa araling ito, tatalakayin natin nang mas detalyado kung paano nag-iimbak ang mga program ng data sa chain, kung paano kunin ang data, at kung paano i-deserialize ang data na iniimbak nila.
+Sa huling aralin, na-serialize namin ang data ng programa na kasunod na inimbak onchain ng isang Solana program. Sa araling ito, tatalakayin natin nang mas detalyado kung paano nag-iimbak ang mga program ng data sa chain, kung paano kunin ang data, at kung paano i-deserialize ang data na iniimbak nila.
 ## Programs
 
 Gaya nga ng kasabihan, lahat ng nasa Solana ay isang account. Kahit na mga programa. Ang mga programa ay mga account na nag-iimbak ng code at minarkahan bilang executable. Ang code na ito ay maaaring isagawa ng Solana runtime kapag inutusang gawin ito. Ang isang address ng programa ay isang pampublikong key sa Ed25519 Elliptic Curve. Tulad ng lahat ng pampublikong susi, mayroon silang katumbas na mga lihim na susi.
@@ -94,7 +94,7 @@ Ang property na `data` sa isang object na `AccountInfo` ay isang buffer. Upang m
 
 Ang deserializing ay nangangailangan ng kaalaman sa layout ng account nang maaga. Kapag gumagawa ng sarili mong mga programa, tutukuyin mo kung paano ito ginagawa bilang bahagi ng prosesong iyon. Maraming mga programa ang mayroon ding dokumentasyon kung paano i-deserialize ang data ng account. Kung hindi, kung magagamit ang program code maaari mong tingnan ang pinagmulan at tukuyin ang istraktura sa ganoong paraan.
 
-Upang maayos na i-deserialize ang data mula sa isang on-chain na program, kakailanganin mong gumawa ng schema sa panig ng kliyente na sumasalamin kung paano iniimbak ang data sa account. Halimbawa, ang sumusunod ay maaaring ang schema para sa isang account na nag-iimbak ng metadata tungkol sa isang manlalaro sa isang on-chain na laro.
+Upang maayos na i-deserialize ang data mula sa isang onchain na program, kakailanganin mong gumawa ng schema sa panig ng kliyente na sumasalamin kung paano iniimbak ang data sa account. Halimbawa, ang sumusunod ay maaaring ang schema para sa isang account na nag-iimbak ng metadata tungkol sa isang manlalaro sa isang onchain na laro.
 
 ```typescript
 import * as borsh from "@project-serum/borsh";

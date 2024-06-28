@@ -1,11 +1,11 @@
 ---
 title: Oráculos e Redes de Oráculos
 objectives:
-- Explicar por que programas on-chain não podem acessar facilmente dados do mundo real por conta própria
-- Explicar como os oráculos resolvem o problema de acessar dados do mundo real on-chain
+- Explicar por que programas onchain não podem acessar facilmente dados do mundo real por conta própria
+- Explicar como os oráculos resolvem o problema de acessar dados do mundo real onchain
 - Explicar como redes de oráculos incentivadas tornam os dados mais confiáveis
 - Avaliar efetivamente as compensações entre usar vários tipos de oráculos
-- Usar oráculos de um programa on-chain para acessar dados do mundo real
+- Usar oráculos de um programa onchain para acessar dados do mundo real
 ---
 
 # Resumo
@@ -17,9 +17,9 @@ objectives:
 
 # Visão Geral
 
-Oráculos são serviços que fornecem dados externos a uma rede blockchain. Blockchains por natureza são ambientes isolados que não têm conhecimento do mundo exterior. Essa limitação inerentemente coloca um limite nos casos de uso para aplicações descentralizadas (dApps). Os oráculos fornecem uma solução para essa limitação, criando uma maneira descentralizada de obter dados do mundo real on-chain.
+Oráculos são serviços que fornecem dados externos a uma rede blockchain. Blockchains por natureza são ambientes isolados que não têm conhecimento do mundo exterior. Essa limitação inerentemente coloca um limite nos casos de uso para aplicações descentralizadas (dApps). Os oráculos fornecem uma solução para essa limitação, criando uma maneira descentralizada de obter dados do mundo real onchain.
 
-Os oráculos podem fornecer praticamente qualquer tipo de dado on-chain. Exemplos incluem:
+Os oráculos podem fornecer praticamente qualquer tipo de dado onchain. Exemplos incluem:
 
 - Resultados de eventos esportivos
 - Dados meteorológicos
@@ -30,7 +30,7 @@ Os oráculos podem fornecer praticamente qualquer tipo de dado on-chain. Exemplo
 Embora a implementação exata possa variar de blockchain para blockchain, geralmente os Oráculos funcionam da seguinte forma:
 
 1. Dados são obtidos off-chain.
-2. Esses dados são publicados on-chain em uma transação e armazenados em uma conta.
+2. Esses dados são publicados onchain em uma transação e armazenados em uma conta.
 3. Programas podem ler os dados armazenados na conta e usá-los em sua lógica.
 
 Esta lição abordará os fundamentos de como os oráculos funcionam, o estado dos oráculos na Solana e como usar efetivamente oráculos no seu desenvolvimento na Solana.
@@ -41,7 +41,7 @@ O principal obstáculo que os oráculos precisam superar é o da confiança. Já
 
 Falando de forma geral, existem três tipos de implementação:
 
-1. Um único oráculo centralizado publica dados on-chain.
+1. Um único oráculo centralizado publica dados onchain.
     1. Pró: É simples; há uma única fonte de verdade.
     2. Contra: Não há nada que impeça o provedor do oráculo de fornecer dados imprecisos.
 2. Rede de oráculos publica dados e um mecanismo de consenso é usado para determinar o resultado final.
@@ -57,7 +57,7 @@ Por outro lado, você pode estar menos disposto a confiar em um oráculo central
 
 Você pode acabar criando muitos oráculos independentes para suas próprias aplicações simplesmente como uma forma de obter acesso a informações off-chain que você precisa. No entanto, esses oráculos dificilmente serão usados pela comunidade mais ampla onde a descentralização é um princípio fundamental. Você também deve hesitar em usar oráculos centralizados de terceiros.
 
-Em um mundo perfeito, todos os dados importantes e/ou valiosos seriam fornecidos on-chain através de uma rede de oráculos altamente eficiente por meio de um mecanismo de consenso de prova de participação confiável. Ao introduzir um mecanismo de stake, é do melhor interesse dos provedores de oráculos garantir que seus dados sejam precisos para manter seus fundos em stake.
+Em um mundo perfeito, todos os dados importantes e/ou valiosos seriam fornecidos onchain através de uma rede de oráculos altamente eficiente por meio de um mecanismo de consenso de prova de participação confiável. Ao introduzir um mecanismo de stake, é do melhor interesse dos provedores de oráculos garantir que seus dados sejam precisos para manter seus fundos em stake.
 
 Mesmo quando uma rede de oráculos afirma ter tal mecanismo de consenso, certifique-se de conhecer os riscos envolvidos ao usar a rede. Se o valor total envolvido das aplicações downstream for maior do que o stake alocado do oráculo, os oráculos ainda podem ter incentivo suficiente para conspirar.
 
@@ -81,13 +81,13 @@ Os oráculos do Switchboard armazenam dados na Solana usando feeds de dados. Ess
 
 - **[Agregador (Feed de Dados)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contém a configuração do feed de dados, ditando como as atualizações do feed de dados são solicitadas, atualizadas e resolvidas na cadeia a partir de sua fonte atribuída. O Agregador é a conta de propriedade do programa Solana do Switchboard e é onde os dados são publicados na cadeia.
 - **[Trabalho (Job)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/job.rs)** - Cada fonte de dados deve corresponder a uma conta de trabalho. A conta de trabalho é uma coleção de tarefas do Switchboard usadas para instruir os oráculos sobre como buscar e transformar dados. Em outras palavras, armazena os planos de como os dados são buscados off-chain para uma fonte de dados específica.
-- **Oráculo** - Um programa separado que fica entre a internet e a blockchain e facilita o fluxo de informações. Um oráculo lê as definições de trabalho de um feed, calcula o resultado e submete sua resposta on-chain.
-- **Fila de Oráculos** - Um grupo de oráculos que são atribuídos para atualizar solicitações em uma ordem de rodízio. Os oráculos na fila devem estar ativamente pulsando na cadeia para fornecer atualizações. Dados e configurações para esta fila são armazenados on-chain em uma [conta de propriedade do programa Switchboard](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/accounts/OracleQueueAccountData.ts#L8).
-- **Consenso de Oráculos** - Determina como os oráculos chegam a um acordo sobre o resultado aceito on-chain. Os oráculos do Switchboard usam a resposta mediana do oráculo como o resultado aceito. Uma autoridade de feed pode controlar quantos oráculos são solicitados e quantos devem responder para influenciar sua segurança.
+- **Oráculo** - Um programa separado que fica entre a internet e a blockchain e facilita o fluxo de informações. Um oráculo lê as definições de trabalho de um feed, calcula o resultado e submete sua resposta onchain.
+- **Fila de Oráculos** - Um grupo de oráculos que são atribuídos para atualizar solicitações em uma ordem de rodízio. Os oráculos na fila devem estar ativamente pulsando na cadeia para fornecer atualizações. Dados e configurações para esta fila são armazenados onchain em uma [conta de propriedade do programa Switchboard](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/accounts/OracleQueueAccountData.ts#L8).
+- **Consenso de Oráculos** - Determina como os oráculos chegam a um acordo sobre o resultado aceito onchain. Os oráculos do Switchboard usam a resposta mediana do oráculo como o resultado aceito. Uma autoridade de feed pode controlar quantos oráculos são solicitados e quantos devem responder para influenciar sua segurança.
 
-Os oráculos do Switchboard são incentivados a atualizar feeds de dados porque são recompensados por fazer isso com precisão. Cada feed de dados tem uma conta `LeaseContract`. O contrato de arrendamento é uma conta de custódia pré-financiada para recompensar os oráculos por cumprirem solicitações de atualização. Apenas a `leaseAuthority` pré-definida pode retirar fundos do contrato, mas qualquer um pode contribuir para ele. Quando uma nova rodada de atualizações é solicitada para um feed de dados, o usuário que solicitou a atualização é recompensado da custódia. Isso é para incentivar os usuários e os giradores de manivela (qualquer um que execute software para enviar sistematicamente solicitações de atualização aos Oráculos) a manter os feeds atualizados com base nas configurações de um feed. Uma vez que uma solicitação de atualização tenha sido cumprida com sucesso e submetida on-chain pelos oráculos na fila, os oráculos também recebem uma recompensa da custódia. Esses pagamentos garantem participantes ativos.
+Os oráculos do Switchboard são incentivados a atualizar feeds de dados porque são recompensados por fazer isso com precisão. Cada feed de dados tem uma conta `LeaseContract`. O contrato de arrendamento é uma conta de custódia pré-financiada para recompensar os oráculos por cumprirem solicitações de atualização. Apenas a `leaseAuthority` pré-definida pode retirar fundos do contrato, mas qualquer um pode contribuir para ele. Quando uma nova rodada de atualizações é solicitada para um feed de dados, o usuário que solicitou a atualização é recompensado da custódia. Isso é para incentivar os usuários e os giradores de manivela (qualquer um que execute software para enviar sistematicamente solicitações de atualização aos Oráculos) a manter os feeds atualizados com base nas configurações de um feed. Uma vez que uma solicitação de atualização tenha sido cumprida com sucesso e submetida onchain pelos oráculos na fila, os oráculos também recebem uma recompensa da custódia. Esses pagamentos garantem participantes ativos.
 
-Além disso, os oráculos têm que colocar tokens em stake antes que possam atender solicitações de atualização e submeter respostas on-chain. Se um oráculo submeter um resultado na cadeia que fique fora dos parâmetros configurados da fila, seu stake será cortado (se a fila tiver `slashingEnabled`). Isso ajuda a garantir que os oráculos estejam respondendo de boa fé com informações precisas.
+Além disso, os oráculos têm que colocar tokens em stake antes que possam atender solicitações de atualização e submeter respostas onchain. Se um oráculo submeter um resultado na cadeia que fique fora dos parâmetros configurados da fila, seu stake será cortado (se a fila tiver `slashingEnabled`). Isso ajuda a garantir que os oráculos estejam respondendo de boa fé com informações precisas.
 
 Agora que você entende a terminologia e a economia, vamos ver como os dados são publicados na cadeia:
 
@@ -101,7 +101,7 @@ Agora que você entende a terminologia e a economia, vamos ver como os dados sã
 2. Configuração do Agregador/Feed de Dados - A conta do agregador/feed é criada. Um feed pertence a uma única fila de oráculos. A configuração do feed dita como as solicitações de atualização são invocadas e encaminhadas pela rede.
 3. Configuração da Conta de Trabalho - Além do feed, uma conta de trabalho para cada fonte de dados deve ser configurada. Isso define como os oráculos podem cumprir as solicitações de atualização do feed. Isso inclui definir de onde os oráculos devem buscar os dados que o feed está solicitando.
 4. Atribuição de Solicitação - Uma vez que uma atualização foi solicitada com a conta do feed, a fila de oráculos atribui a solicitação a diferentes oráculos/nós na fila para cumprir. Os oráculos buscarão os dados da fonte de dados definida em cada uma das contas de trabalho do feed. Cada conta de trabalho tem um peso associado a ela. O oráculo calculará a mediana ponderada dos resultados de todos os trabalhos.
-5. Após receber respostas `minOracleResults`, o programa on-chain calcula o resultado usando a mediana das respostas dos oráculos. Os oráculos que responderam dentro dos parâmetros configurados da fila são recompensados, enquanto os oráculos que respondem fora deste limite são cortados (se a fila tiver `slashingEnabled`).
+5. Após receber respostas `minOracleResults`, o programa onchain calcula o resultado usando a mediana das respostas dos oráculos. Os oráculos que responderam dentro dos parâmetros configurados da fila são recompensados, enquanto os oráculos que respondem fora deste limite são cortados (se a fila tiver `slashingEnabled`).
 6. O resultado atualizado é armazenado na conta do feed de dados para que possa ser lido/consumido na cadeia.
 
 ### Como usar os Oráculos Switchboard
@@ -110,14 +110,14 @@ Para usar oráculos Switchboard e incorporar dados off-chain em um programa Sola
 
 Por exemplo, há um feed [BTC_USD](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee) patrocinado pelo Switchboard. Este feed está disponível na devnet/mainnet da Solana com a chave pública `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee`. Ele fornece o preço atual do Bitcoin em USD na cadeia.
 
-Os dados reais on-chain para uma conta de feed do Switchboard são mais ou menos assim:
+Os dados reais onchain para uma conta de feed do Switchboard são mais ou menos assim:
 
 ```rust
 // do programa Solana do Switchboard
 // https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60
 
 pub struct AggregatorAccountData {
-    /// Nome do agregador para armazenar on-chain.
+    /// Nome do agregador para armazenar onchain.
     pub name: [u8; 32],
     ...
     ...
@@ -157,9 +157,9 @@ Alguns campos e configurações relevantes no tipo `AggregatorAccountData` são:
 
 As três primeiras configurações listadas acima estão diretamente relacionadas à precisão e confiabilidade de um feed de dados.
 
-O campo `min_job_results` representa a quantidade mínima de respostas bem-sucedidas de fontes de dados que um oráculo deve receber antes de poder submeter sua resposta on-chain. Isso significa que se `min_job_results` for três, cada oráculo tem que buscar dados de três fontes de trabalho. Quanto maior esse número, mais confiáveis e precisos serão os dados no feed. Isso também limita o impacto que uma única fonte de dados pode ter no resultado.
+O campo `min_job_results` representa a quantidade mínima de respostas bem-sucedidas de fontes de dados que um oráculo deve receber antes de poder submeter sua resposta onchain. Isso significa que se `min_job_results` for três, cada oráculo tem que buscar dados de três fontes de trabalho. Quanto maior esse número, mais confiáveis e precisos serão os dados no feed. Isso também limita o impacto que uma única fonte de dados pode ter no resultado.
 
-O campo `min_oracle_results` é o número mínimo de respostas de oráculos necessárias para que uma rodada seja bem-sucedida. Lembre-se, cada oráculo em uma fila busca dados de cada fonte definida como um trabalho. O oráculo então tira a mediana ponderada das respostas das fontes e submete essa mediana on-chain. O programa então espera por `min_oracle_results` de medianas ponderadas e tira a mediana disso, que é o resultado final armazenado na conta do feed de dados.
+O campo `min_oracle_results` é o número mínimo de respostas de oráculos necessárias para que uma rodada seja bem-sucedida. Lembre-se, cada oráculo em uma fila busca dados de cada fonte definida como um trabalho. O oráculo então tira a mediana ponderada das respostas das fontes e submete essa mediana onchain. O programa então espera por `min_oracle_results` de medianas ponderadas e tira a mediana disso, que é o resultado final armazenado na conta do feed de dados.
 
 O campo `min_update_delay_seconds` está diretamente relacionado à cadência de atualização de um feed. `min_update_delay_seconds` deve ter passado entre uma rodada de atualizações e a próxima antes que o programa Switchboard aceite resultados.
 
@@ -259,7 +259,7 @@ Lembre-se, os feeds de dados do Switchboard são apenas contas que são atualiza
 
 Ao incorporar feeds do Switchboard em seus programas, há dois grupos de preocupações a considerar: escolher um feed e consumir os dados desse feed.
 
-Sempre audite as configurações de um feed antes de decidir incorporá-lo em um programa. Configurações como **Atraso Mínimo de Atualização**, **Resultados Mínimos de Trabalho** e **Resultados Mínimos de Oráculos** podem afetar diretamente os dados que são eventualmente persistidos on-chain na conta do agregador. Por exemplo, olhando para a seção de configuração do [feed BTC_USD](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee) você pode ver suas configurações relevantes.
+Sempre audite as configurações de um feed antes de decidir incorporá-lo em um programa. Configurações como **Atraso Mínimo de Atualização**, **Resultados Mínimos de Trabalho** e **Resultados Mínimos de Oráculos** podem afetar diretamente os dados que são eventualmente persistidos onchain na conta do agregador. Por exemplo, olhando para a seção de configuração do [feed BTC_USD](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee) você pode ver suas configurações relevantes.
 
 ![Configurações de Oráculos](../../assets/oracle-configs.png)
 
@@ -909,10 +909,10 @@ describe("burry-escrow", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("Preço de desbloqueio on-chain:", newAccount.unlockPrice)
+      console.log("Preço de desbloqueio onchain:", newAccount.unlockPrice)
       console.log("Quantidade em custódia:", escrowBalance)
 
-      // Verifique se os dados on-chain são iguais aos 'dados' locais
+      // Verifique se os dados onchain são iguais aos 'dados' locais
       assert(failUnlockPrice == newAccount.unlockPrice)
       assert(escrowBalance > 0)
     } catch (e) {
@@ -1000,10 +1000,10 @@ describe("burry-escrow", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("Preço de desbloqueio on-chain:", newAccount.unlockPrice)
+      console.log("Preço de desbloqueio onchain:", newAccount.unlockPrice)
       console.log("Quantidade em custódia:", escrowBalance)
 
-      // Verifique se os dados on-chain são iguais aos 'dados' locais
+      // Verifique se os dados onchain são iguais aos 'dados' locais
       assert(failUnlockPrice == newAccount.unlockPrice)
       assert(escrowBalance > 0)
     } catch (e) {

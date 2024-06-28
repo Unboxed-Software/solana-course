@@ -258,9 +258,9 @@ This guard prevents from changing the ownership of a Token account at all times 
 
 # Lab
 
-This lab will primarily focus on writing tests in TypeScript, but we'll need to run a program locally against these tests. For this reason, we'll need to go through a few steps to ensure a proper environment on your machine for the program to run. The onchain program has already been written for you and is included in the lab starter code.
+This lab will primarily focus on writing tests in TypeScript, but we'll need to run a program locally against these tests. For this reason, we'll need to go through a few steps to ensure a proper environment on your machine for the program to run. The onchain program has already been written for you and is included in the lab starter code.   
 
-The on-chain program contains a few instructions that showcase what the CPI Guard can protect against. We'll write tests invoking these instructions both with a CPI Guard enabled and disabled.
+The onchain program contains a few instructions that showcase what the CPI Guard can protect against. We'll write tests invoking these instructions both with a CPI Guard enabled and disabled.
 
 The tests have been broken up into individual files in the `/tests` directory. Each file serves as its own unit test that will invoke a specific instruction on our program and illustrate a specific CPI Guard.
 

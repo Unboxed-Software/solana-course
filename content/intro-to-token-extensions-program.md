@@ -64,7 +64,7 @@ As of writing there are [16 extensions](https://spl.solana.com/token-2022/extens
 	This extension allows us to specify a permanent delegate for a mint. This authority has unlimited delegate privileges over any token account of that mint. This means that it can burn or transfer any amount of tokens from any account. Permanent delegate can be used for example by membership programs to revoke access tokens, or by stablecoin issuers to revoke balances owned by sanctioned entities. This Extension is powerful and dangerous. 
 
  - **Transfer hook**
-	This extension allows token creators to have more control over how their tokens are transferred, by allowing a callback "hook" function on-chain. The creators must develop and deploy a program that implements the hook interface and then configure their token mint to use their program. Then, on any transfer of that mint, the transfer hook will be called.
+	This extension allows token creators to have more control over how their tokens are transferred, by allowing a callback "hook" function onchain. The creators must develop and deploy a program that implements the hook interface and then configure their token mint to use their program. Then, on any transfer of that mint, the transfer hook will be called.
 
  - **Metadata pointer**
 	A mint can have multiple different accounts claiming to describe the mint. This extension allows the token creator to designate an address that describes the canonical metadata. The pointer can be an external account, like a Metaplex metadata account, or if using the metadata extension, self pointing.

@@ -10,13 +10,13 @@ objectives:
 
 # TL;DR
 
-Ang lahat ng pagbabago sa on-chain na data ay nangyayari sa pamamagitan ng **mga transaksyon**. Ang mga transaksyon ay kadalasang isang hanay ng mga tagubilin na humihimok ng mga programang Solana. Ang mga transaksyon ay atomic, ibig sabihin ay magtagumpay sila - kung ang lahat ng mga tagubilin ay naisakatuparan nang maayos - o nabigo, na parang hindi pa natakbo ang transaksyon.
+Ang lahat ng pagbabago sa onchain na data ay nangyayari sa pamamagitan ng **mga transaksyon**. Ang mga transaksyon ay kadalasang isang hanay ng mga tagubilin na humihimok ng mga programang Solana. Ang mga transaksyon ay atomic, ibig sabihin ay magtagumpay sila - kung ang lahat ng mga tagubilin ay naisakatuparan nang maayos - o nabigo, na parang hindi pa natakbo ang transaksyon.
 
 # Lesson
 
 ## Transactions
 
-Ang anumang pagbabago sa on-chain na data ay nangyayari sa pamamagitan ng mga transaksyong ipinadala sa mga programa.
+Ang anumang pagbabago sa onchain na data ay nangyayari sa pamamagitan ng mga transaksyong ipinadala sa mga programa.
 
 Ang mga tagubilin sa transaksyon ay naglalaman ng:
 
@@ -152,7 +152,7 @@ Ang lahat ng mga transaksyon sa blockchain ay makikita ng publiko sa [Solana Exp
 
 # Demo
 
-Gagawa kami ng script para mag-ping ng on-chain na program na nagdaragdag ng counter sa tuwing na-ping ito. Ang program na ito ay umiiral sa Solana Devnet sa address na `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. Iniimbak ng program ang data nito sa isang partikular na account sa address na `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+Gagawa kami ng script para mag-ping ng onchain na program na nagdaragdag ng counter sa tuwing na-ping ito. Ang program na ito ay umiiral sa Solana Devnet sa address na `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. Iniimbak ng program ang data nito sa isang partikular na account sa address na `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
 ![Solana stores programs and data in seperate accounts](../../assets/pdas-note-taking-program.svg)
 

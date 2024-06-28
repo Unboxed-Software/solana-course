@@ -19,7 +19,7 @@ To create a collection of NFTs we need two parts: the "collection" NFT and all o
 
 Although NFT collections are a common use-case, groups and members can be applied to any token type.
 
-A quick note on `group pointer` vs `group`. The `group pointer` extension saves the address of any on-chain account that follows to the [Token-Group Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-group/interface). While the `group` extension saves the Token-Group Interface data directly within the mint account. Generally, these are used together where the `group pointer` points to the mint itself. The same is true for `member pointer` vs `member`, but with the member data.
+A quick note on `group pointer` vs `group`. The `group pointer` extension saves the address of any onchain account that follows to the [Token-Group Interface](https://github.com/solana-labs/solana-program-library/tree/master/token-group/interface). While the `group` extension saves the Token-Group Interface data directly within the mint account. Generally, these are used together where the `group pointer` points to the mint itself. The same is true for `member pointer` vs `member`, but with the member data.
 
 NOTE: A group can have many members, but a member can only belong to one group.
 
