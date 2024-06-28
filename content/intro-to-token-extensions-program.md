@@ -41,7 +41,7 @@ As of writing there are [16 extensions](https://spl.solana.com/token-2022/extens
  - **Default account state**
 	Mint creators can use this extension which forces all new token accounts to be frozen. This way, users must eventually interact with some type of service to unfreeze their accounts and use the tokens.
 
- - **CPI guard**
+ - **CPI Guard**
 	This extension safeguards users against authorizing actions that are not visible to them, specifically targeting concealed programs that are neither the System nor Token programs. It does this by restricting certain activities within cross-program invocations.
 
 **Mint extensions** include:
