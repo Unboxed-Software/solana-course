@@ -1,10 +1,3 @@
-
-cli
-3/12
-Saved
-
-Hide assistant
-This suggestion is part of Grammarly Premium.
 ---
 
 title: Transfer Hook
@@ -31,7 +24,7 @@ objectives:
 
 - For the program to be able to act as a transfer hook program, it needs to implement the `TransferHook` interface
 
-- Some transfer hooks will require additional accounts, if this is the case, every transfer instruction will have to pass them. These are defined in `extra-account-metas` on the transfer hook extension.
+- Transfer hooks may use additional accounts beyond those involved in a normal, non-hooked transfer. These are called 'extra accounts' and must be provided by the transfer instruction, and are set up in in `extra-account-metas` when creating the token mint.
 
 - Within the transfer hook CPI, the sender, mint, receiver and owner are all de-escalated, meaning they are read-only to the hook. Meaning none of those accounts can sign or be written to.
 
@@ -41,7 +34,7 @@ objectives:
 
 
 
-The `transfer-hook` extension allows custom onchain logic to be after each transfer within the same transaction. More specifically, the `transfer-hook` extension requires a 'hook' or 'callback' in the form of a Solana program following the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface). Then every time any token of that mint is transferred the Token Extensions Program calls this 'hook' as a CPI.
+The `transfer-hook` extension allows custom onchain logic to be run after each transfer within the same transaction. More specifically, the `transfer-hook` extension requires a 'hook' or 'callback' in the form of a Solana program following the [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook/interface). Then every time any token of that mint is transferred the Token Extensions Program calls this 'hook' as a CPI.
 
 
 
@@ -49,12 +42,14 @@ Additionally, the `transfer-hook` extension also stores `extra-account-metas`, w
 
 
 
-This extension opens up the door to unique use cases. One use case it's great for is acting as a token guard, only allowing tokens to be transferred if specific requirements are met.
+This extension allows many new use cases, including: 
+  - Enforcing artist royalty payments to transfer NFTs.
+  - Stopping tokens from being transferred to known bad actors (blocklists).
+  - Requiring accounts to own a particular NFT to receive a token (allowlists).
+  - Token analytics.
 
 
-
-In this lesson, we'll explore how to implement transfer hooks onchain and work with them off-chain.
-
+In this lesson, we'll explore how to implement transfer hooks onchain and work with them in the frontend.
 
 
 ## Implementing transfer hooks onchain
@@ -65,15 +60,15 @@ The first part of creating a mint with a `transfer hook` is to find or create an
 
 
 
-The Transfer Hook Interface specifies the following [instructions](https://github.com/solana-labs/solana-program-library/blob/master/token/transfer-hook/interface/src/instruction.rs):
+The [Transfer Hook Interface](https://github.com/solana-labs/solana-program-library/blob/master/token/transfer-hook/interface/src/instruction.rs) specifies the transfer hook program includes:
 
 
 
-- `Execute`: An instruction that the Token Extensions Program invokes on every token transfer
+- `Execute` (required): An instruction handler that the Token Extensions Program invokes on every token transfer
 
-- `InitializeExtraAccountMetaList` (optional): Creates an account (`extra_account_meta_list`) that stores a list of additional accounts required by the `Execute` instruction
+- `InitializeExtraAccountMetaList` (optional): creates an account (`extra_account_meta_list`) that stores a list of additional accounts (i.e. those needed by the transfer hook program, beyond the accounts needed for a simple transfer) required by the `Execute` instruction
 
-- `UpdateExtraAccountMetaList` (optional): Updates the list of additional accounts by overwriting the existing list
+- `UpdateExtraAccountMetaList` (optional): updates the list of additional accounts by overwriting the existing list
 
 
 
@@ -89,7 +84,7 @@ Technically it's not required to implement the `InitializeExtraAccountMetaList` 
 
 
 
-```js
+```typescript
 
 const [pda] = PublicKey.findProgramAddressSync(
 
@@ -117,7 +112,7 @@ By storing the extra accounts required by the `Execute` instruction in the `extr
 
 
 
-When we transfer a token using the Token Extensions Program, the program will examine our mint to determine if it has a transfer hook. If a transfer hook is present, the Token Extensions Program will initiate a CPI (cross-program invocation) to our transfer hook program. The Token Extensions Program will then pass all the accounts in the transfer (including the extra accounts specified in the `extra_account_meta_list`) to the transfer hook program. However, before passing the 4 essential accounts (sender, mint, receiver, owner), it will de-escalate them (i.e. Remove the mutable or signing abilities for security reasons).
+When we transfer a token using the Token Extensions Program, the program will examine our mint to determine if it has a transfer hook. If a transfer hook is present, the Token Extensions Program will initiate a CPI (cross-program invocation) to our transfer hook program. The Token Extensions Program will then pass all the accounts in the transfer (including the extra accounts specified in the `extra_account_meta_list`) to the transfer hook program. However, before passing the 4 essential accounts (`sender`, `mint`, `receiver`, `owner`), it will de-escalate them (i.e. remove the mutable or signing abilities for security reasons).
 
 
 
@@ -167,9 +162,7 @@ impl ExtraAccountMeta {
 
 
 
-    /// Create an `ExtraAccountMeta` from a list of seed configurations
-
-    /// This represents a PDA
+    /// Create an `ExtraAccountMeta` PDA from a list of seeds
 
     pub fn new_with_seeds(
 
@@ -197,11 +190,7 @@ impl ExtraAccountMeta {
 
 
 
-    /// Create an `ExtraAccountMeta` from a list of seed configurations, representing
-
-    /// a PDA for an external program
-
-    ///
+    /// Create an `ExtraAccountMeta` PDA for an external program from a list of seeds
 
     /// This PDA belongs to a program elsewhere in the account list, rather
 
@@ -247,7 +236,7 @@ We have three methods for creating an `ExtraAccountMeta`:
 
 
 
-1. `ExtraAccountMeta::new_with_pubkey` - For any normal account ( Not a program account )
+1. `ExtraAccountMeta::new_with_pubkey` - For any normal account (not a program account)
 
 2. `ExtraAccountMeta::new_with_seeds` - For a program account PDA from the calling transfer hook program 
 
@@ -263,7 +252,7 @@ Let's take a look at a simple example where we'll initialize an `extra_account_m
 
 
 
-1. Prepare the accounts that we need to store in the `extra_account_meta_list` account as a vector (we'll talk about that in-depth in a sec).
+1. Prepare the accounts we need to store in the `extra_account_meta_list` account as a vector (we'll discuss that in-depth in a moment).
 
 2. Calculate the size and rent required to store the list of `ExtraAccountMetas`.
 
@@ -278,23 +267,16 @@ Let's take a look at a simple example where we'll initialize an `extra_account_m
 pub struct InitializeExtraAccountMetaList<'info> {
 
   #[account(mut)]
-
   payer: Signer<'info>,
 
 
 
-  /// CHECK: ExtraAccountMetaList Account, must use these seeds
-
+ /// CHECK: ExtraAccountMetaList Account, must use these seeds
   #[account(
-
         mut,
-
         seeds = [b"extra-account-metas", mint.key().as_ref()],
-
         bump
-
     )]
-
   pub extra_account_meta_list: AccountInfo<'info>,
 
   pub mint: InterfaceAccount<'info, Mint>,
@@ -597,7 +579,7 @@ As we can see from the code above, there are four main ways to provide seeds:
 
 
 
-To use the 2 last methods of setting the seed, you need to get the account index. This represents the index of the account passed into the `Execute` function of the hook. This is standardized. 
+To use the 2 last methods of setting the seed, you need to get the account index. This represents the index of the account passed into the `Execute` function of the hook. The indexes are standardized: 
 
 
 
@@ -647,7 +629,7 @@ To use the 2 last methods of setting the seed, you need to get the account index
 
 
 
-Now, let's say that the `pda_account` was PDA'd off of "some-seed" and `some_account`. This is where we can specify the account key index:
+Now, let's say that the `pda_account` was created from "some-seed" and belonged to `some_account`. This is where we can specify the account key index:
 
 
 
@@ -695,7 +677,7 @@ Now, let's say that the `pda_account` was PDA'd off of "some-seed" and `some_acc
 
 
 
-Note: Remember that the accounts indexed 0-4 are defined by the `Execute` function of the transfer hook. They are: `source`, `mint`, `destination`, `owner`, `extra_account_meta_list` respectively. The first four of which, are de-escalated, or read-only. These will always be read-only. If you try to be sneaky and add any of these first four accounts into the `extra_account_meta_list`, they will always be interpreted as read-only, even if you specify them differently with `is_writable` or `is_signer`. 
+Note: remember that the accounts indexed 0-4 are defined by the `Execute` function of the transfer hook. They are: `source`, `mint`, `destination`, `owner`, `extra_account_meta_list` respectively. The first four of which, are de-escalated, or read-only. These will always be read-only. If you try to be sneaky and add any of these first four accounts into the `extra_account_meta_list`, they will always be interpreted as read-only, even if you specify them differently with `is_writable` or `is_signer`. 
 
 
 
@@ -703,11 +685,11 @@ Note: Remember that the accounts indexed 0-4 are defined by the `Execute` functi
 
 
 
-In Anchor, when the `Execute` function it looks for and calls the `transfer_hook` instruction. It is the place where we can implement our custom logic for the token transfer.
+In Anchor, when the `Execute` function is called, it looks for and calls the `transfer_hook` instruction. It is the place where we can implement our custom logic for the token transfer.
 
 
 
-When the Token Extensions Program CPIs our program, it will invoke this instruction and pass to it all the accounts plus the amount of the transfer that just happened. The first 5 accounts will always be `source`, `mint`, `destination`, `owner`, `extraAccountMetaList`, and the rest are the extra accounts that we added to the `ExtraAccountMetaList` account if there is any.
+When the Token Extensions Program invokes our program, it will invoke this instruction and pass to it all the accounts plus the amount of the transfer that just happened. The first 5 accounts will always be `source`, `mint`, `destination`, `owner`, `extraAccountMetaList`, and the rest are the extra accounts that we added to the `ExtraAccountMetaList` account if there is any.
 
 
 
@@ -740,13 +722,14 @@ pub struct TransferHook<'info> {
   pub destination_token: InterfaceAccount<'info, TokenAccount>,
 
   /// CHECK: source token account owner
+  /// This account is not being checked because it is used for ownership validation within the `transfer_hook` instruction.
 
   pub owner: UncheckedAccount<'info>,
 
 
 
   /// CHECK: ExtraAccountMetaList Account,
-
+  /// This account list is not being checked because it is used dynamically within the program logic.
   #[account(seeds = [b"extra-account-metas", mint.key().as_ref()], bump)]
 
   pub extra_account_meta_list: UncheckedAccount<'info>,
@@ -789,15 +772,11 @@ Other than that, you can write any functionality you want in within the transfer
 
 
 
-Note: The transfer hook gets called *after* the transfer happens, so at the point when the transfer hook is getting invoked, the tokens have been transferred from the sender to the receiver.
-
-
-
 ### 3. Fallback
 
 
 
-One last caveat to the onchain portion of transfer hooks: When dealing with Anchor, we need to specify a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions Program.
+One last caveat to the onchain portion of transfer hooks: when dealing with Anchor, we need to specify a `fallback` instruction in the Anchor program to handle the Cross-Program Invocation (CPI) from the Token Extensions Program.
 
 
 
@@ -851,12 +830,10 @@ pub fn fallback<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>
 
 
 
-## Using transfer hooks off-chain
+## Using transfer hooks from the frontend
 
 
-
-Now that we've looked at the onchain portion, let's look at how we interact with it off-chain. 
-
+Now that we've looked at the on-chain portion, let's look at how we interact with them in the frontend.
 
 
 Let's assume we have a deployed Solana program that follows the Transfer Hook Interface.
@@ -949,7 +926,7 @@ The next step of getting the mint ready for any transactions is initializing the
 
 
 
-If you made your own program in Anchor, you should get the IDLs in the `target/idl` folder. And to make it even easier, if you are inside the anchor project and you are writing tests or client code you can access the methods directly from `anchor.workspace.program_name.method`:
+If you made your own program in Anchor, the IDLs will be in the `target/idl` folder after compilation. Inside tests or client code you can access the methods directly from `anchor.workspace.program_name.method`:
 
 
 
@@ -1261,7 +1238,7 @@ anchor build
 
 error: package `solana-program v1.18.1` cannot be built because it requires rustc 1.72.0 or newer, while the currently active rustc version is 1.68.0-dev
 
-Either upgrade to rustc 1.72.0 or newer, or use
+Run:
 
 cargo update -p solana-program@1.18.0 --precise ver
 
@@ -1271,7 +1248,7 @@ where `ver` is the latest version of `solana-program` supporting rustc 1.68.0-de
 
 
 
-You will also want the latest version of the anchor CLI installed. You can follow the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
+You will also want the latest version of the Anchor CLI installed. You can follow the steps to [update Anchor via avm](https://www.anchor-lang.com/docs/avm)
 
 
 
@@ -1289,34 +1266,7 @@ avm use latest
 
 
 
-At the time of writing, the latest version of the Anchor CLI is `0.29.0`
-
-
-
-Now, we can check our rust version.
-
-
-
-```bash
-
-rustc --version
-
-```
-
-
-
-At the time of writing, version `1.76.0` was used for the Rust compiler. If you would like to update, you can do so via `rustup`
-
-https://doc.rust-lang.org/book/ch01-01-installation.html
-
-
-
-```bash
-
-rustup update
-
-```
-
+At the time of writing, the latest version of the Anchor CLI is `0.30.1`
 
 
 Now, we should have all the correct versions installed.
@@ -1419,9 +1369,7 @@ anchor test
 
 ```
 
-
-
-You should see that 4 tests pass. We will be filling these in later.
+We will be filling these tests in later.
 
 
 
@@ -1581,7 +1529,7 @@ Note that we are not specifying the `crumb_mint_ata` or the `associated_token_pr
 
 
 
-Also, notice we are asking anchor to drive the `mint_authority` account from the seed `b"mint-authority"`. The resulting PDA allows the program itself to sign for the mint.
+Also, notice we are asking Anchor to drive the `mint_authority` account from the seed `b"mint-authority"`. The resulting PDA allows the program itself to sign for the mint.
 
 
 
@@ -1745,8 +1693,7 @@ In this step, we'll implement the `transfer_hook` instruction. This instruction 
 
 
 
-The `transfer_hook` instruction will mint one crumb token each time cookie transfer occurs.
-
+The `transfer_hook` instruction will mint one crumb token each time a cookie transfer occurs.
 
 
 Again we'll have a struct `TransferHook` that will hold the accounts required for the instruction.
@@ -1783,7 +1730,7 @@ In our program the `TransferHook` struct will have 10 accounts:
 
 
 
-> Very Important Note: The order of accounts in this struct matters. This is the order in which the Token Extensions Program provides these accounts when it CPIs to this Transfer Hook program.
+> Very Important Note: The order of accounts in this struct matters. This is the order in which the Token Extensions Program provides these accounts when it invokes this Transfer Hook program.
 
 
 
@@ -1917,7 +1864,7 @@ pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
 
 
 
-You may have noticed that we are using `token::mint_to` instead of `token_2022::mint_to`, additionally in the `extra_account_meta_list` we're saving the Token Program, not the Token Extensions Program. This is because the crumb SFT *has* to be a Token Program mint and not a Token Extensions Program mint. The answer as to why, is interesting. When first writing this, we wanted to make both the Cookie and Crumb tokens to be Token Extensions Program mints. However, when we did this, we would get a very interesting error: `No Reentrancy`. This happens because the transfer hook is called as a CPI from within the Token Extensions Program, and Solana does not allow [recursive CPIs into the same program](https://defisec.info/solana_top_vulnerabilities). 
+You may have noticed that we are using `token::mint_to` instead of `token_2022::mint_to`, additionally in the `extra_account_meta_list` we're saving the Token Program, not the Token Extensions Program. This is because the crumb SFT *has* to be a Token Program mint, not a Token Extensions Program mint. The reason why is interesting: when first writing this, we wanted to make both the Cookie and Crumb tokens to be Token Extensions Program mints. However, when we did this, we would get a very interesting error: `No Reentrancy`. This happens because the transfer hook is called as a CPI from within the Token Extensions Program, and Solana does not allow [recursive CPIs into the same program](https://defisec.info/solana_top_vulnerabilities).
 
 
 
@@ -1949,8 +1896,7 @@ The last instruction we have to fill out is the `fallback`, this is necessary be
 
 
 
-Next versions of anchor should solve this for us, but for now, we can implement this simple workaround:
-
+Newer versions of Anchor should solve this for us, but for now, we can implement this simple workaround:
 
 
 ```rust
@@ -2033,7 +1979,7 @@ The outline of what will we do here is:
 
 1. Understand the environment
 
-2. Test run all test
+2. Run the (empty) tests
 
 3. Write the "Create Cookie NFT with Transfer Hook and Metadata" test
 
@@ -2191,9 +2137,9 @@ Send all of these instructions in a transaction to the blockchain up and you hav
 
 ```ts
 
-it('Create Cookie NFT with Transfer Hook and Metadata', async () => {
+it('Creates a Cookie NFT with Transfer Hook and Metadata', async () => {
 
-  // NFT Should have 0 decimals
+  // NFTs have 0 decimals
 
   const decimals = 0;
 
