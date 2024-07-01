@@ -9,13 +9,13 @@ objectives:
 # Summary
 - The permanent delegate holds global ownership over all token accounts associated with the mint
 - The permanent delegate has unrestricted permissions to transfer and burn tokens from any token account of that mint
-- This delegate role is established to provide a way for mint authorities to designate a trusted entity with comprehensive control, which can simplify token management and operational processes.
+- This delegate role designates a trusted entity with comprehensive control. Common use cases include sanction compliance and revocable access tokens.
 - With this level of access, the permanent delegate can carry out high-level administrative functions, such as reassigning tokens, managing token supplies, and directly implementing specific policies or rules on the token accounts.
 
 # Overview
 The `permanent delegate` extension allows a `permanent delegate` for all tokens of the mint. This means one address is capable of transferring or burning any token of that mint, from any token account. This makes the extension very powerful but can also be very risky. It gives a single address complete control over the token supply. This can be good for things like automatic payments, recovering drained wallets, and refunds. However, it's a double-edged sword, the `permanent delegate` could be stolen or abused. In the words of Uncle Ben, "With great power, comes great responsibility."
 
-Imagine a Solana based AirBnb, where NFTs are used as the keys to unlock the door. When you check-in, the NFT key will be transferred to you and you'll be able to enjoy your stay. At the end of your stay, the owner will just transfer it from you to them - since they are the `permanent delegate`. What happens if your wallet gets drained, or you lose access to it? No worries, the owner can transfer it from any account back to you! But on the other end, say the owner doesn't want you staying there anymore, they can revoke it at any time, and you'd be locked out. Double-edged sword.
+Imagine a Solana based AirBnb, where NFTs that use permanent delegate are used as the keys to unlock the door. When you check-in, the NFT key will be transferred to you and you'll be able to enjoy your stay. At the end of your stay, the owner will transfer it back from you to them - since they are the `permanent delegate`. What happens if your wallet gets drained, or you lose access to the key? No worries, the owner can transfer the key from any account back to you! But on the other end, say the owner doesn't want you staying there anymore, they can revoke it at any time, and you'd be locked out. In this way, the permanent delegate extension is a double-edged sword.
 
 This all being said - the `permanent delegate` is a very exciting extension that adds a world of possibilities to Solana tokens.
 
@@ -33,7 +33,7 @@ The first instruction `SystemProgram.createAccount` allocates space on the block
 - Transfers lamports for rent
 - Assigns to its owning program
 
-```tsx
+```typescript
 SystemProgram.createAccount({
   fromPubkey: payer.publicKey,
   newAccountPubkey: mint,
@@ -45,7 +45,7 @@ SystemProgram.createAccount({
 
 The second instruction `createInitializePermanentDelegateInstruction` initializes the permanent delegate extension. The defining argument that dictates the permanent delegate will be a variable we create named `permanentDelegate`.
 
-```tsx
+```typescript
 createInitializePermanentDelegateInstruction(
   mint,
   permanentDelegate.publicKey,
@@ -54,7 +54,7 @@ createInitializePermanentDelegateInstruction(
 ```
 The third instruction `createInitializeMintInstruction` initializes the mint.
 
-```tsx
+```typescript
 createInitializeMintInstruction(
   mint,
   decimals,
@@ -242,25 +242,25 @@ const amountToMint = 100;
 const amountToTransfer = 10;
 const amountToBurn = 5;
 
-// CREATE MINT ACCOUNT WITH PERMANENT DELEGATE
+// Create mint account with permanent delegate
 
-// CREATE DELEGATE AND DESTINATION TOKEN ACCOUNTS
+// Create delegate and destination token accounts
 
-// MINT TOKENS TO ACCOUNTS
+// Mint tokens to accounts
 
-// ATTEMPT TO TRANSFER WITH CORRECT DELEGATE
+// Attempt to transfer with correct delegate
 
-// ATTEMPT TO TRANSFER WITHOUT CORRECT DELEGATE
+// Attempt to transfer without correct delegate
 
-// ATTEMPT TO TRANSFER FROM ONE ACCOUNT TO ANOTHER WITH CORRECT DELEGATE
+// Attempt to transfer from one account to another with correct delegate
 
-// ATTEMPT TO BURN WITH CORRECT DELEGATE
+// Attempt to burn with correct delegate
 
-// ATTEMPT TO BURN WITHOUT CORRECT DELEGATE
+// Attempt to burn without correct delegate
 
-// GRANT PERMISSION TO AN ACCOUNT TO TRANSFER TOKENS FROM A DIFFERENT TOKEN ACCOUNT
+// Grant permission to an account to transfer tokens from a different token account
 
-// TRY TO TRANSFER TOKENS AGAIN WITH CAROL AS THE DELEGATE, OVERDRAWING HER ALLOTTED CONTROL
+// Try to transfer tokens again with Carol as the delegate, overdrawing her allotted control
 ```
 
 `index.ts` creates a connection to the specified validator node and calls `initializeKeypair`. It also has a few variables we will be using in the rest of this lab. The `index.ts` is where we'll end up calling the rest of our script once we've written it.
@@ -273,17 +273,15 @@ For the sake of this guide, we'll be running our own validator node.
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
 
-```tsx
+```typescript
 const connection = new Connection("http://127.0.0.1:8899", "confirmed");
 ```
 
 Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
 
-```tsx
+```typescript
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
-
-If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this by running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some SOL to your address. You can get your address by running `solana address` in your terminal.
 
 ### 3. Helpers
 
@@ -309,7 +307,7 @@ Create an asynchronous function named `createTokenExtensionMintWithPermanentDele
 
 The first step in creating a mint is reserving space on Solana with the `SystemProgram.createAccount` method. This requires specifying the payer's keypair, (the account that will fund the creation and provide SOL for rent exemption), the new mint account's public key (`mintKeypair.publicKey`), the space required to store the mint information on the blockchain, the amount of SOL (lamports) necessary to exempt the account from rent and the ID of the token program that will manage this mint account (`TOKEN_2022_PROGRAM_ID`).
 
-```tsx
+```typescript
 const extensions = [ExtensionType.PermanentDelegate];
 const mintLen = getMintLen(extensions);
 const mintLamports = await connection.getMinimumBalanceForRentExemption(mintLen);
@@ -325,7 +323,7 @@ const createAccountInstruction = SystemProgram.createAccount({
 
 After the mint account creation, the next step involves initializing it with a permanent delegate. The `createInitializePermanentDelegateInstruction` function is used to generate an instruction that enables the mint to set the permanent delegate of any new mint accounts. 
 
-```tsx
+```typescript
 const initializePermanentDelegateInstruction =
   createInitializePermanentDelegateInstruction(
     mint,
@@ -336,7 +334,7 @@ const initializePermanentDelegateInstruction =
 
 Next, let's add the mint instruction by calling `createInitializeMintInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new mint.
 
-```tsx
+```typescript
  const initializeMintInstruction = createInitializeMintInstruction(
   mint,
   decimals,
@@ -348,7 +346,7 @@ Next, let's add the mint instruction by calling `createInitializeMintInstruction
 
 Lastly, let's add all of the instructions to a transaction and send it to the blockchain:
 
-```tsx
+```typescript
 const transaction = new Transaction().add(
   createAccountInstruction,
   initializePermanentDelegateInstruction,
@@ -444,13 +442,13 @@ We're going to be creating multiple tests that modify a token account's balance.
 
 At the bottom of the `src/index.ts` file add the following `printBalances` function:
 
-```tsx
+```typescript
 async function printBalances(
   connection: Connection,
   tokenAccounts: PublicKey[],
   names: string[]
 ) {
-  if (tokenAccounts.length != names.length) throw new Error('Names needs to be one to one with accounts')
+  if (tokenAccounts.length !== names.length) throw new Error('Names needs to be one to one with accounts')
 
   for (let i = 0; i < tokenAccounts.length; i++) {
     const tokenInfo = await getAccount(
@@ -474,7 +472,7 @@ Now that we have the ability to create a mint with a permanent delegate for all 
 Let's first create a mint with `payer` as the permanent delegate. To do this we call the `createTokenExtensionMintWithPermanentDelegate` function we just created in our `index.ts` file:
 
 ```ts
-// CREATE MINT ACCOUNT WITH PERMANENT DELEGATE
+// Create mint account with permanent delegate
 await createTokenExtensionMintWithPermanentDelegate(
   connection,
   payer, // Also known as alice
@@ -490,8 +488,8 @@ Now, let's create three new Token accounts to test with. We can accomplish this 
 
 In this lab, `alice` will be the permanent delegate.
 
-```tsx
-// CREATE DELEGATE AND DESTINATION TOKEN ACCOUNTS
+```typescript
+// Create delegate and destination token accounts
 const aliceAccount = await createAccount(
   connection,
   payer,
@@ -528,8 +526,8 @@ In the previous step, we created the 3 accounts we need to test the `permanent d
 
 Add the `tokenAccounts` and `names` variables and then create a for loop that iterates over each account and mints 100 tokens to each account. Call the `printBalances` function so we can display the token balance of each account:
 
-```tsx
-// MINT TOKENS TO ACCOUNTS
+```typescript
+// Mint tokens to accounts
 const tokenAccounts = [aliceAccount, bobAccount, carolAccount]
 const names = ['Alice', 'Bob', 'Carol']
 
@@ -605,8 +603,8 @@ In this test, `alice` attempts to transfer tokens from `bob` to herself. This te
 
 To do this, let's wrap a `transferChecked` function in a `try catch` and print out the balances of our accounts:
 
-```tsx
-// ATTEMPT TO TRANSFER WITH CORRECT DELEGATE
+```typescript
+// Attempt to transfer with correct delegate
 {
   // Have Alice transfer tokens from Bob to herself ( Will Succeed )
   try {
@@ -649,8 +647,8 @@ In this test, `bob` is going to try to transfer tokens from `alice` to himself. 
 
 Similar to the previous test we can create this test by calling `transferChecked` and then printing the balances:
 
-```tsx
-// ATTEMPT TO TRANSFER WITHOUT CORRECT DELEGATE
+```typescript
+// Attempt to transfer without correct delegate
 {
   // Have Bob try to transfer tokens from Alice to himself ( Will Fail )
   try {
@@ -692,8 +690,8 @@ We expect this test to succeed. Remember, the permanent delegate has control ove
 
 To test this, let's wrap a `transferChecked` function in a `try catch` and print the balances:
 
-```tsx
-// ATTEMPT TO TRANSFER FROM ONE ACCOUNT TO ANOTHER WITH CORRECT DELEGATE
+```typescript
+// Attempt to transfer from one account to another with correct delegate
 {
   // Have Alice transfer tokens from Bob to Carol
   try {
@@ -733,8 +731,8 @@ Now let's try and burn some of the tokens from `bob`. This test is expected to p
 
 We'll do this by calling `burnChecked` and then printing out the balances:
 
-```tsx
-// ATTEMPT TO BURN WITH CORRECT DELEGATE
+```typescript
+// Attempt to burn with correct delegate
 {
   // Have Alice burn Bob's tokens
   try {
@@ -771,8 +769,8 @@ Bob had 5 tokens burned and now only has 75 tokens. Poor Bob!
 ### 8.5 Burn with incorrect delegate
 Let's try and burn tokens from an account using the incorrect delegate. This is expected to fail as `bob` doesn't have any control over the token accounts.
 
-```tsx
-// ATTEMPT TO BURN WITHOUT CORRECT DELEGATE
+```typescript
+// Attempt to burn without correct delegate
 {
   // Have Bob try to burn tokens from Carol ( Will Fail )
   try {
@@ -809,8 +807,8 @@ With the `permanent delegate` extension, the initial delegate can grant a token 
 For this to work we will need to set some boundaries for `carol`. Using the `approveChecked` function provided by the SPL Library, we can set the maximum number of tokens that can be transferred or burned by `carol`. This ensures that she can only transfer a specified amount, protecting the overall balance from excessive or unauthorized transfers.
 
 Add the following test:
-```tsx
-// GRANT PERMISSION TO AN ACCOUNT TO TRANSFER TOKENS FROM A DIFFERENT TOKEN ACCOUNT
+```typescript
+// Grant permission to an account to transfer tokens from a different token account
 {
   // Approve Carol to transfer Bob's tokens to herself
   await approveChecked(
@@ -856,8 +854,8 @@ Run the tests again. You will notice that `bob` now only has 65 tokens as `carol
 ### 8.7. Attempt to transfer again 
 In the previous test, we approved `carol` to be able to transfer 10 tokens to herself. This means that she has reached the maximum amount of tokens to send from another account. Let's write a test and attempt to transfer another 10 tokens to herself. This is expected to fail.
 
-```tsx
-// TRY TO TRANSFER TOKENS AGAIN WITH CAROL AS THE DELEGATE, OVERDRAWING HER ALLOTTED CONTROL
+```typescript
+// Try to transfer tokens again with Carol as the delegate, overdrawing her allotted control
 {
   // Try to transfer again with Carol as the delegate overdrawing her allotted control 
   try {
