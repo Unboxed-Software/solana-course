@@ -909,7 +909,7 @@ describe("burry-escrow", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("On-chain unlock price:", newAccount.unlockPrice)
+      console.log("Onchain unlock price:", newAccount.unlockPrice)
       console.log("Amount in escrow:", escrowBalance)
 
       // Check whether the data onchain is equal to local 'data'
@@ -1000,7 +1000,7 @@ describe("burry-escrow", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("On-chain unlock price:", newAccount.unlockPrice)
+      console.log("Onchain unlock price:", newAccount.unlockPrice)
       console.log("Amount in escrow:", escrowBalance)
 
       // Check whether the data onchain is equal to local 'data'

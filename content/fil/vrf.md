@@ -84,7 +84,7 @@ pub struct VrfAccountData {
     pub status: VrfStatus,
     /// Incremental counter for tracking VRF rounds.
     pub counter: u128,
-    /// On-chain account delegated for making account changes. <-- This is our PDA
+    /// Onchain account delegated for making account changes. <-- This is our PDA
     pub authority: Pubkey,
     /// The OracleQueueAccountData that is assigned to fulfill VRF update request.
     pub oracle_queue: Pubkey,
@@ -1059,7 +1059,7 @@ describe("burry-escrow-vrf", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("On-chain unlock price:", newAccount.unlockPrice)
+      console.log("Onchain unlock price:", newAccount.unlockPrice)
       console.log("Amount in escrow:", escrowBalance)
 
       // Check whether the data onchain is equal to local 'data'
