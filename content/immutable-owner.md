@@ -18,7 +18,7 @@ Associated Token Accounts (ATAs) are uniquely determined by the owner and the mi
 
 The `immutable owner` extension, which is automatically applied to ATAs, prevents any changes in ownership. This extension can also be enabled for new Token Accounts created through the Token Extensions Program, guaranteeing that once ownership is set it is permanent. This secures accounts against unauthorized access and transfer attempts.
 
-It is important to note, that this extension is a Token extension, meaning it's on the token account, not the mint.
+It is important to note that this extension is a Token Account extension, meaning it's on the token account, not the mint.
 
 ## Creating token account with immutable owner
 
@@ -40,7 +40,7 @@ The first instruction `SystemProgram.createAccount` allocates space on the blo
 - Transfers `lamports` for rent
 - Assigns to its owning program
 
-```tsx
+```typescript
 const tokenAccountKeypair = Keypair.generate();
 const tokenAccount = tokenAccountKeypair.publicKey;
 const extensions = [ExtensionType.ImmutableOwner];
@@ -59,7 +59,7 @@ const createTokenAccountInstruction = SystemProgram.createAccount({
 
 The second instruction `createInitializeImmutableOwnerInstruction` initializes the immutable owner extension.
 
-```tsx
+```typescript
 const initializeImmutableOwnerInstruction =
   createInitializeImmutableOwnerInstruction(
     tokenAccount,
@@ -69,7 +69,7 @@ const initializeImmutableOwnerInstruction =
 
 The third instruction `createInitializeAccountInstruction` initializes the token account.
 
-```tsx
+```typescript
 const initializeAccountInstruction = createInitializeAccountInstruction(
   tokenAccount,
   mint,
@@ -102,7 +102,7 @@ In this lab, we'll be creating a token account with an immutable owner. We'll th
 
 ### 1. Setup Environment
 
-To get started, create an empty directory named `immutable-owner` and navigate to it. We'll be initializing a brand new project. Run `npm init` and follow through the prompts.
+To get started, create an empty directory named `immutable-owner` and navigate to it. We'll be initializing a brand new project. Run `npm init -y` to make a project with defaults.
 
 Next, we'll need to add our dependencies. Run the following to install the required packages:
 ```bash
@@ -115,23 +115,12 @@ Create a directory named `src`. In this directory, create a file named `index.ts
 import { AuthorityType, TOKEN_2022_PROGRAM_ID, createMint, setAuthority } from "@solana/spl-token";
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { initializeKeypair, makeKeypairs } from "@solana-developers/helpers";
-// import { createTokenAccountWithImmutableOwner } from "./token-helper"; // We will uncomment later
 
 const connection = new Connection("http://127.0.0.1:8899", 'confirmed');
 const payer = await initializeKeypair(connection);
 
 const [otherOwner, mintKeypair, ourTokenAccountKeypair] = makeKeypairs(3)
 const ourTokenAccount = ourTokenAccountKeypair.publicKey;
-
-// CREATE MINT
-
-// CREATE TEST TOKEN ACCOUNTS: Create explicitly with immutable owner instructions
-
-// CREATE TEST TOKEN ACCOUNTS: Create an associated token account with default immutable owner
-
-// TEST TRANSFER ATTEMPT ON IMMUTABLE ACCOUNT
-
-// TEST TRANSFER ATTEMPT ON ASSOCIATED IMMUTABLE ACCOUNT
 ```
 
 ### 2. Run validator node
@@ -140,17 +129,15 @@ For the sake of this guide, we'll be running our own validator node.
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use of the local RPC URL.
 
-```tsx
+```typescript
 const connection = new Connection("http://127.0.0.1:8899", "confirmed");
 ```
 
 Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
 
-```tsx
+```typescript
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
-
-If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this by running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some SOL to your address. You can get your address by running `solana address` in your terminal.
 
 ### 3. Helpers
 
@@ -171,7 +158,7 @@ Let's create the mint we'll be using for our token accounts.
 
 Inside of `src/index.ts`, the required dependencies will already be imported, along with the aforementioned accounts. Add the following `createMint` function beneath the existing code:
 
-```tsx
+```typescript
 // CREATE MINT
 const mint = await createMint(
   connection,
@@ -187,7 +174,7 @@ const mint = await createMint(
 
 ### 5. Create Token Account with immutable owner
 
-Remember all ATA's come with the `immutable owner` extension. However, we're going to create a token account using a keypair. This requires us to create the account, initialize the immutable owner extension, and initialize the account. 
+Remember, all ATAs come with the `immutable owner` extension. However, we're going to create a token account using a keypair. This requires us to create the account, initialize the immutable owner extension, and initialize the account.
 
 Inside the `src` directory, create a new file named `token-helper.ts` and create a new function within it called `createTokenAccountWithImmutableOwner`. This function is where we'll be creating the associated token account with the immutable owner. The function will take the following arguments:
 
@@ -209,13 +196,13 @@ export async function createTokenAccountWithImmutableOwner(
   tokenAccountKeypair: Keypair
 ): Promise<string> {
 
-  // CREATE ACCOUNT INSTRUCTION
+  // Create account instruction
 
-  // ENABLE IMMUTABLE OWNER INSTRUCTION
+  // Enable immutable owner instruction
 
-  // INITIALIZE ACCOUNT INSTRUCTION
+  // Initialize account instruction
 
-  // SEND TO BLOCKCHAIN
+  // Send to blockchain
   
   return 'TODO Replace with signature';
 
@@ -224,7 +211,7 @@ export async function createTokenAccountWithImmutableOwner(
 
 The first step in creating the token account is reserving space on Solana with the **`SystemProgram.createAccount`** method. This requires specifying the payer's keypair, (the account that will fund the creation and provide SOL for rent exemption), the new token account's public key (`tokenAccountKeypair.publicKey`), the space required to store the token information on the blockchain, the amount of SOL (lamports) necessary to exempt the account from rent and the ID of the token program that will manage this token account (**`TOKEN_2022_PROGRAM_ID`**).
 
-```tsx
+```typescript
 // CREATE ACCOUNT INSTRUCTION
 const tokenAccount = tokenAccountKeypair.publicKey;
 
@@ -244,7 +231,7 @@ const createTokenAccountInstruction = SystemProgram.createAccount({
 
 After the token account creation, the next instruction initializes the `immutable owner` extension. The `createInitializeImmutableOwnerInstruction` function is used to generate this instruction. 
 
-```tsx
+```typescript
 // ENABLE IMMUTABLE OWNER INSTRUCTION
 const initializeImmutableOwnerInstruction =
   createInitializeImmutableOwnerInstruction(
@@ -255,7 +242,7 @@ const initializeImmutableOwnerInstruction =
 
 We then add the initialize account instruction by calling `createInitializeAccountInstruction` and passing in the required arguments. This function is provided by the SPL Token package and it constructs a transaction instruction that initializes a new token account.
 
-```tsx
+```typescript
   // INITIALIZE ACCOUNT INSTRUCTION
 const initializeAccountInstruction = createInitializeAccountInstruction(
   tokenAccount,
@@ -267,7 +254,7 @@ const initializeAccountInstruction = createInitializeAccountInstruction(
 
 Now that the instructions have been created, the token account can be created with an immutable owner.
 
-```tsx
+```typescript
 // SEND TO BLOCKCHAIN
 const transaction = new Transaction().add(
   createTokenAccountInstruction,
@@ -326,7 +313,7 @@ The first token account that is being created is the account is tied to `ourToke
 
 Add the following code to your `src/index.ts` file:
 
-```tsx
+```typescript
 // TEST TRANSFER ATTEMPT ON IMMUTABLE ACCOUNT
 try {
   await setAuthority(
@@ -358,7 +345,7 @@ This test will attempt to transfer ownership to the Associated Token Account. Th
 
 Below the previous test, add the following try/catch:
 
-```tsx
+```typescript
 // TEST TRANSFER ATTEMPT ON ASSOCIATED IMMUTABLE ACCOUNT
 try {
   await setAuthority(
