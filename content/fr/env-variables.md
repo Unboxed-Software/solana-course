@@ -9,7 +9,7 @@ objectives:
 
 # Résumé
 
-- Il n'y a pas de solutions "prêtes à l'emploi" pour créer des environnements distincts dans un programme on-chain, mais vous pouvez obtenir quelque chose de similaire aux variables d'environnement en étant créatif.
+- Il n'y a pas de solutions "prêtes à l'emploi" pour créer des environnements distincts dans un programme onchain, mais vous pouvez obtenir quelque chose de similaire aux variables d'environnement en étant créatif.
 - Vous pouvez utiliser l'attribut `cfg` avec les **fonctionnalités Rust** (`#[cfg(feature = ...)]`) pour exécuter un code différent ou fournir des valeurs de variable différentes en fonction de la fonctionnalité Rust fournie. _Cela se produit à la compilation et ne permet pas de remplacer les valeurs après le déploiement du programme_.
 - De même, vous pouvez utiliser la **macro** `cfg!` Rust pour compiler des chemins de code différents en fonction des fonctionnalités activées.
 - En alternative, vous pouvez obtenir quelque chose de similaire aux variables d'environnement modifiables après le déploiement en créant des comptes et des instructions accessibles uniquement par l'autorité de mise à niveau du programme.

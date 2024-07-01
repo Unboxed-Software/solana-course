@@ -1,7 +1,7 @@
 ---
 title: Program Architecture
 objectives:
-- Gumamit ng Box at Zero Copy upang gumana sa malalaking data na on-chain
+- Gumamit ng Box at Zero Copy upang gumana sa malalaking data na onchain
 - Gumawa ng mas mahusay na mga desisyon sa disenyo ng PDA
 - Patunay sa hinaharap ang iyong mga programa
 - Harapin ang mga isyu sa concurrency
@@ -33,7 +33,7 @@ Sa mataas na antas ng mga wika, ikaw ay nasa data-land-o-plenty! Ngayon, sa Sola
 
 1. Dahil nagbabayad-per-byte kami, karaniwang gusto naming panatilihing maliit hangga't maaari ang aming footprint. Susuriin namin ang higit pa sa pag-optimize sa isa pang seksyon, ngunit ipapakilala namin sa iyo ang konsepto ng mga laki ng data dito.
 
-2. Kapag nagpapatakbo sa mas malaking data, napupunta kami sa [Stack](https://docs.solana.com/developing/on-chain-programs/faq#stack) at [Heap](https://docs.solana. com/developing/on-chain-programs/faq#heap-size) na mga hadlang - upang malutas ang mga ito, titingnan natin ang paggamit ng Box at Zero-Copy.
+2. Kapag nagpapatakbo sa mas malaking data, napupunta kami sa [Stack](https://docs.solana.com/developing/onchain-programs/faq#stack) at [Heap](https://docs.solana. com/developing/onchain-programs/faq#heap-size) na mga hadlang - upang malutas ang mga ito, titingnan natin ang paggamit ng Box at Zero-Copy.
 
 ### Sizes
 

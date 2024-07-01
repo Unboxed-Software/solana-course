@@ -2,7 +2,7 @@
 title: Oracles and Oracle Networks
 objectives:
 - Explain why onchain programs cannot readily access real-world data on their own
-- Explain how oracles solve the problem of accessing real-world data on-chain
+- Explain how oracles solve the problem of accessing real-world data onchain
 - Explain how incentivized oracle networks make data more trustworthy
 - Effectively weigh the tradeoffs between using various types of oracles
 - Use oracles from an onchain program to access real-world data
@@ -17,9 +17,9 @@ objectives:
 
 # Lesson
 
-Oracles are services that provide external data to a blockchain network. Blockchains by nature are siloed environments that do not know the outside world. This constraint inherently puts a limit on the use cases for decentralized applications (dApps). Oracles provide a solution to this limitation by creating a decentralized way to get real-world data on-chain.
+Oracles are services that provide external data to a blockchain network. Blockchains by nature are siloed environments that do not know the outside world. This constraint inherently puts a limit on the use cases for decentralized applications (dApps). Oracles provide a solution to this limitation by creating a decentralized way to get real-world data onchain.
 
-Oracles can provide just about any type of data on-chain. Examples include:
+Oracles can provide just about any type of data onchain. Examples include:
 
 - Results of sporting events
 - Weather data
@@ -41,7 +41,7 @@ The primary hurdle oracles need to overcome is one of trust. Since blockchains e
 
 Broadly speaking, there are three implementation types:
 
-1. Single, centralized oracle publishes data on-chain.
+1. Single, centralized oracle publishes data onchain.
     1. Pro: It’s simple; there's one source of truth.
     2. Con: nothing is stopping the oracle provider from providing inaccurate data. 
 2. Network of oracles publish data and a consensus mechanism is used to determine the final result.
@@ -79,17 +79,17 @@ By introducing TEEs on top of stake weighted oracles, Switchboard is able to ver
 
 Switchboard oracles store data on Solana using data feeds. These data feeds, also called aggregators, are each a collection of jobs that get aggregated to produce a single result. These aggregators are represented onchain as a regular Solana account managed by the Switchboard program. When an oracle updates, it writes the data directly to these accounts. Let's go over a few terms to understand how Switchboard works:
 
-- **[Aggregator (Data Feed)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contains the data feed configuration, dictating how data feed updates get requested, updated, and resolved onchain from its assigned source. The Aggregator is the account owned by the Switchboard Solana program and is where the data is published on-chain.
+- **[Aggregator (Data Feed)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60)** - Contains the data feed configuration, dictating how data feed updates get requested, updated, and resolved onchain from its assigned source. The Aggregator is the account owned by the Switchboard Solana program and is where the data is published onchain.
 - **[Job](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/job.rs)** - Each data source should correspond to a job account. The job account is a collection of Switchboard tasks used to instruct the oracles on how to fetch and transform data. In other words, it stores the blueprints for how data is fetched off-chain for a particular data source.
-- **Oracle** - A separate program that sits between the internet and the blockchain and facilitates the flow of information. An oracle reads a feed’s job definitions, calculates the result, and submits its response on-chain.
+- **Oracle** - A separate program that sits between the internet and the blockchain and facilitates the flow of information. An oracle reads a feed’s job definitions, calculates the result, and submits its response onchain.
 - **Oracle Queue** - A group of oracles that get assigned to update requests in a round-robin fashion. The oracles in the queue must be actively heartbeating onchain to provide updates. Data and configurations for this queue are stored onchain in an [account owned by the Switchboard program](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/accounts/OracleQueueAccountData.ts#L8).
 - **Oracle Consensus** - Determines how oracles come to agreement on the accepted onchain result. Switchboard oracles use the median oracle response as the accepted result. A feed authority can control how many oracles are requested and how many must respond to influence its security.
 
 Switchboard oracles are incentivized to update data feeds because they are rewarded for doing so accurately. Each data feed has a `LeaseContract` account. The lease contract is a pre-funded escrow account to reward oracles for fulfilling update requests. Only the predefined `leaseAuthority` can withdraw funds from the contract, but anyone can contribute to it. When a new round of updates is requested for a data feed, the user who requested the update is rewarded from the escrow. This is to incentivize users and crank turners (anyone who runs software to systematically send update requests to Oracles) to keep feeds updating based on a feed’s configurations. Once an update request has been successfully fulfilled and submitted onchain by the oracles in the queue, the oracles are transferred rewards from the escrow as well. These payments ensure active participation.
 
-Additionally, oracles have to stake tokens before they can service update requests and submit responses on-chain. If an oracle submits a result onchain that falls outside the queue’s configured parameters, their stake will be slashed (if the queue has `slashingEnabled`). This helps ensure that oracles are responding in good faith with accurate information.
+Additionally, oracles have to stake tokens before they can service update requests and submit responses onchain. If an oracle submits a result onchain that falls outside the queue’s configured parameters, their stake will be slashed (if the queue has `slashingEnabled`). This helps ensure that oracles are responding in good faith with accurate information.
 
-Now that you understand the terminology and economics, let’s take a look at how data is published on-chain:
+Now that you understand the terminology and economics, let’s take a look at how data is published onchain:
 
 1. Oracle queue setup - When an update is requested from a queue, the next `N` oracles are assigned to the update request and cycled to the back of the queue. Each oracle queue in the Switchboard network is independent and maintains its own configuration. The configuration influences its level of security. This design choice enables users to tailor the oracle queue's behavior to match their specific use case. An Oracle queue is stored onchain as an account and contains metadata about the queue. A queue is created by invoking the [oracleQueueInit instruction](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/src/generated/oracle-program/instructions/oracleQueueInit.ts#L13) on the Switchboard Solana program.
     1. Some relevant Oracle Queue configurations:
@@ -102,13 +102,13 @@ Now that you understand the terminology and economics, let’s take a look at ho
 3. Job account setup - In addition to the feed, a job account for each data source must be set up. This defines how oracles can fulfill the feed’s update requests. This includes defining where the oracles should fetch the data the feed is requesting.
 4. Request assignment - Once an update has been requested with the feed account, the oracle queue assigns the request to different oracles/nodes in the queue to fulfill. The oracles will fetch the data from the data source defined in each of the feed’s job accounts. Each job account has a weight associated with it. The oracle will calculate the weighted median of the results from across all the jobs. 
 5. After `minOracleResults` responses are received, the onchain program calculates the result using the median of the oracle responses. Oracles who respond within the queue’s configured parameters are rewarded, while the oracles who respond outside this threshold are slashed (if the queue has `slashingEnabled`).
-6. The updated result is stored in the data feed account so it can be read/consumed on-chain.
+6. The updated result is stored in the data feed account so it can be read/consumed onchain.
 
 ### How to use Switchboard Oracles
 
 To use Switchboard oracles and incorporate off-chain data into a Solana program, you first have to find a feed that provides the data you need. Switchboard feeds are public and there are many [already available that you can choose from](https://app.switchboard.xyz/solana/devnet/explore). When looking for a feed, you have to decide how accurate/reliable you want the feed, where you want to source the data from, as well as the feed’s update cadence. When consuming a publicly available feed, you have no control over these things, so choose carefully!
 
-For example, there is a Switchboard-sponsored [BTC_USD feed](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee). This feed is available on Solana devnet/mainnet with pubkey `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee`. It provides the current price of Bitcoin in USD on-chain.
+For example, there is a Switchboard-sponsored [BTC_USD feed](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee). This feed is available on Solana devnet/mainnet with pubkey `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee`. It provides the current price of Bitcoin in USD onchain.
 
 The actual onchain data for a Switchboard feed account looks a little like this:
 
@@ -117,7 +117,7 @@ The actual onchain data for a Switchboard feed account looks a little like this:
 // https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60
 
 pub struct AggregatorAccountData {
-    /// Name of the aggregator to store on-chain.
+    /// Name of the aggregator to store onchain.
     pub name: [u8; 32],
     ...
 		...
@@ -157,9 +157,9 @@ Some relevant fields and configurations on the `AggregatorAccountData` type are:
 
 The first three configs listed above are directly related to the accuracy and reliability of a data feed.
 
-The `min_job_results` field represents the minimum amount of successful responses from data sources an oracle must receive before it can submit its response on-chain. Meaning if `min_job_results` is three, each oracle has to pull from three job sources. The higher this number, the more reliable and accurate the data on the feed will be. This also limits the impact that a single data source can have on the result.
+The `min_job_results` field represents the minimum amount of successful responses from data sources an oracle must receive before it can submit its response onchain. Meaning if `min_job_results` is three, each oracle has to pull from three job sources. The higher this number, the more reliable and accurate the data on the feed will be. This also limits the impact that a single data source can have on the result.
 
-The `min_oracle_results` field is the minimum amount of oracle responses required for a round to be successful. Remember, each oracle in a queue pulls data from each source defined as a job. The oracle then takes the weighted median of the responses from the sources and submits that median on-chain. The program then waits for `min_oracle_results` of weighted medians and takes the median of that, which is the final result stored in the data feed account.
+The `min_oracle_results` field is the minimum amount of oracle responses required for a round to be successful. Remember, each oracle in a queue pulls data from each source defined as a job. The oracle then takes the weighted median of the responses from the sources and submits that median onchain. The program then waits for `min_oracle_results` of weighted medians and takes the median of that, which is the final result stored in the data feed account.
 
 The `min_update_delay_seconds` field is directly related to a feed’s update cadence. `min_update_delay_seconds` must have passed between one round of updates and the next one before the Switchboard program will accept results.
 

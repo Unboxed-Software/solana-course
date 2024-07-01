@@ -712,7 +712,7 @@ Si vous avez besoin de plus de temps avec ce projet pour vous familiariser avec 
 
 Maintenant, c'est à vous de construire quelque chose de manière indépendante en vous basant sur le programme d'introduction de l'étudiant que vous avez utilisé dans les leçons précédentes. Si vous n'avez pas suivi ou si vous n'avez pas enregistré votre code précédent, n'hésitez pas à utiliser [ce code de départ](https://beta.solpg.io/62b11ce4f6273245aca4f5b2).
 
-Le programme d'introduction de l'étudiant est un programme Solana qui permet aux étudiants de se présenter. Le programme prend le nom et un court message de l'utilisateur en tant que données d'instruction et crée un compte pour stocker les données on-chain.
+Le programme d'introduction de l'étudiant est un programme Solana qui permet aux étudiants de se présenter. Le programme prend le nom et un court message de l'utilisateur en tant que données d'instruction et crée un compte pour stocker les données onchain.
 
 En utilisant ce que vous avez appris dans cette leçon, essayez d'appliquer ce que vous avez appris au programme d'introduction de l'étudiant. Le programme doit :
 

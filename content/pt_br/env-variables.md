@@ -9,7 +9,7 @@ objectives:
 
 # RESUMO
 
-- Não há soluções "prontas para uso" para criar ambientes distintos em um programa on-chain, mas você pode conseguir algo semelhante às variáveis de ambiente se for criativo.
+- Não há soluções "prontas para uso" para criar ambientes distintos em um programa onchain, mas você pode conseguir algo semelhante às variáveis de ambiente se for criativo.
 - Você pode usar o atributo `cfg` com **funcionalidades do Rust** (`#[cfg(feature = ...)]`) para executar códigos diferentes ou fornecer valores de variáveis diferentes com base na funcionalidade do Rust fornecida. Isso acontece no tempo de compilação e não permite que você troque os valores depois que um programa tiver sido implantado.
 - Da mesma forma, você pode usar a **macro** `cfg!` para compilar diferentes caminhos de código com base nas funcionalidades que estão ativadas.
 - Como alternativa, você pode obter algo semelhante às variáveis de ambiente que podem ser modificadas após a implantação, criando contas e instruções que só podem ser acessadas pela autoridade de atualização do programa.

@@ -278,7 +278,7 @@ Lorsque vous combinez tous ces types Anchor, vous obtenez un programme complet. 
 // Utilisez cette importation pour accéder aux fonctionnalités Anchor courantes
 use anchor_lang::prelude::*;
 
-// Adresse on-chain du programme
+// Adresse onchain du programme
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 // Logique de l'instruction

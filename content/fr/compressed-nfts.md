@@ -9,7 +9,7 @@ objectives:
 
 # Résumé
 
-- Les **NFT compressés (cNFT)** utilisent la **Compression d'État** pour hacher les données NFT et stocker le hash on-chain dans un compte en utilisant une structure d'**arbre merkle concurrent**.
+- Les **NFT compressés (cNFT)** utilisent la **Compression d'État** pour hacher les données NFT et stocker le hash onchain dans un compte en utilisant une structure d'**arbre merkle concurrent**.
 - Le hash des données cNFT ne peut pas être utilisé pour déduire les données cNFT, mais il peut être utilisé pour **vérifier** si les données cNFT que vous voyez sont correctes.
 - Les fournisseurs RPC prennent en **index** les données cNFT hors chaîne lorsque le cNFT est généré, de sorte que vous pouvez utiliser l'**API de lecture** pour accéder aux données.
 - Le **programme Bubblegum de Metaplex** est une abstraction au-dessus du programme **Compression d'État** qui vous permet de créer, générer et gérer plus facilement des collections cNFT.
@@ -26,7 +26,7 @@ Cependant, travailler avec des cNFT peut être délicat. Éventuellement, les ou
 
 La plupart des coûts associés aux NFT traditionnels proviennent de l'espace de stockage du compte. Les NFT compressés utilisent un concept appelé Compression d'État pour stocker des données dans l'état de la blockchain, en utilisant un espace de compte plus cher uniquement pour stocker une "empreinte digitale" ou **hash** des données. Ce hash vous permet de vérifier cryptographiquement que les données n'ont pas été altérées.
 
-Pour stocker des empreintes digitales et permettre la vérification, nous utilisons une structure d'arbre binaire spéciale appelée **arbre merkle concurrent**. Cette structure d'arbre nous permet de hacher des données de manière déterministe pour calculer un seul hash final qui est stocké on-chain. Ce hash final est beaucoup plus petit que la taille combinée de toutes les données originales, d'où la "compression". Les étapes de ce processus sont les suivantes :
+Pour stocker des empreintes digitales et permettre la vérification, nous utilisons une structure d'arbre binaire spéciale appelée **arbre merkle concurrent**. Cette structure d'arbre nous permet de hacher des données de manière déterministe pour calculer un seul hash final qui est stocké onchain. Ce hash final est beaucoup plus petit que la taille combinée de toutes les données originales, d'où la "compression". Les étapes de ce processus sont les suivantes :
 
 1. Prendre n'importe quelle donnée.
 2. Créer un hash de cette donnée.
@@ -35,10 +35,10 @@ Pour stocker des empreintes digitales et permettre la vérification, nous utilis
 5. Chaque branche est ensuite hashée ensemble.
 6. Monter continuellement dans l'arbre et hasher les branches adjacentes ensemble.
 7. Une fois en haut de l'arbre, un hash final "racine" est produit.
-8. Stocker la racine hash on-chain comme preuve vérifiable des données dans chaque feuille.
-9. Toute personne souhaitant vérifier que les données qu'elle possède correspondent à la "source de vérité" peut suivre le même processus et comparer le hash final sans avoir à stocker toutes les données on-chain.
+8. Stocker la racine hash onchain comme preuve vérifiable des données dans chaque feuille.
+9. Toute personne souhaitant vérifier que les données qu'elle possède correspondent à la "source de vérité" peut suivre le même processus et comparer le hash final sans avoir à stocker toutes les données onchain.
 
-Un problème non abordé ci-dessus est comment rendre les données disponibles si elles ne peuvent pas être récupérées à partir d'un compte. Étant donné que ce processus de hachage se produit on-chain, toutes les données existent dans l'état de la blockchain et pourraient théoriquement être récupérées à partir de la transaction originale en rejouant l'état complet de la chaîne depuis l'origine. Cependant, il est beaucoup plus simple (bien que toujours compliqué) d'avoir un **indexeur** qui suit et indexe ces données au fur et à mesure que les transactions se produisent. Cela garantit qu'il existe un "cache" hors chaîne des données que n'importe qui peut accéder et vérifier par rapport au hash racine on-chain.
+Un problème non abordé ci-dessus est comment rendre les données disponibles si elles ne peuvent pas être récupérées à partir d'un compte. Étant donné que ce processus de hachage se produit onchain, toutes les données existent dans l'état de la blockchain et pourraient théoriquement être récupérées à partir de la transaction originale en rejouant l'état complet de la chaîne depuis l'origine. Cependant, il est beaucoup plus simple (bien que toujours compliqué) d'avoir un **indexeur** qui suit et indexe ces données au fur et à mesure que les transactions se produisent. Cela garantit qu'il existe un "cache" hors chaîne des données que n'importe qui peut accéder et vérifier par rapport au hash racine onchain.
 
 Ce processus est *très complexe*. Nous aborderons certains des concepts clés ci-dessous, mais ne vous inquiétez pas si vous ne comprenez pas tout de suite. Nous parlerons davantage de la théorie dans la leçon sur la compression d'état et nous nous concentrerons principalement sur l'application aux NFT dans cette leçon. Vous serez en mesure de travailler avec des cNFT à la fin de cette leçon même si vous ne comprenez pas entièrement chaque élément du puzzle de compression d'état.
 
@@ -60,7 +60,7 @@ La **profondeur maximale** est le nombre maximum de sauts nécessaires pour pass
 
 La **taille maximale du tampon** est effectivement le nombre maximum de modifications concurrentes que vous pouvez apporter à un arbre dans un seul slot tout en conservant un hash racine valide.
 
-La **profondeur de la canopée** est le nombre de nœuds de preuve stockés on-chain pour un chemin de preuve donné. La vérification de toute feuille nécessite le chemin de preuve complet pour l'arbre. Le chemin de preuve complet est composé d'un nœud de preuve pour chaque "couche" de l'arbre, c'est-à-dire une profondeur maximale de 14 signifie qu'il y a 14 nœuds de preuve. Chaque nœud de preuve ajoute 32 octets à une transaction, de sorte que les arbres volumineux dépasseraient rapidement la limite de taille maximale de transaction sans mettre en cache les nœuds de preuve hors chaîne.
+La **profondeur de la canopée** est le nombre de nœuds de preuve stockés onchain pour un chemin de preuve donné. La vérification de toute feuille nécessite le chemin de preuve complet pour l'arbre. Le chemin de preuve complet est composé d'un nœud de preuve pour chaque "couche" de l'arbre, c'est-à-dire une profondeur maximale de 14 signifie qu'il y a 14 nœuds de preuve. Chaque nœud de preuve ajoute 32 octets à une transaction, de sorte que les arbres volumineux dépasseraient rapidement la limite de taille maximale de transaction sans mettre en cache les nœuds de preuve hors chaîne.
 
 Chacune de ces trois valeurs, la profondeur maximale, la taille maximale du tampon et la profondeur de la canopée, comporte un compromis. Augmenter la valeur de l'une de ces valeurs augmente la taille du compte utilisé pour stocker l'arbre, augmentant ainsi le coût de sa création.
 
@@ -82,7 +82,7 @@ Lorsque vous souhaitez stocker des données compressées, vous les transmettez a
 
 ### Indexer les données pour une recherche facile
 
-Dans des conditions normales, vous accéderiez généralement aux données on-chain en récupérant le compte approprié. Cependant, lors de l'utilisation de la compression d'état, ce n'est pas si simple.
+Dans des conditions normales, vous accéderiez généralement aux données onchain en récupérant le compte approprié. Cependant, lors de l'utilisation de la compression d'état, ce n'est pas si simple.
 
 Comme mentionné ci-dessus, les données existent désormais dans l'état de la blockchain plutôt que dans un compte. L'endroit le plus simple pour trouver les données complètes est dans les journaux de l'instruction Noop, mais bien que ces données existent d'une certaine manière dans l'état de la blockchain pour toujours, elles seront probablement inaccessibles par les validateurs après un certain laps de temps.
 
@@ -151,7 +151,7 @@ const collectionNft = await metaplex.nfts().create({
 
 ### Créer un compte d'arbre Merkle
 
-Maintenant, nous commençons à dévier du processus que vous utiliseriez pour créer des NFT traditionnels. Le mécanisme de stockage on-chain que vous utilisez pour la compression d'état est un compte représentant un arbre merkle concurrent. Cet arbre merkle appartient au programme de Compression d'État SPL. Avant de pouvoir faire quoi que ce soit lié aux cNFT, vous devez créer un compte d'arbre merkle vide de la taille appropriée.
+Maintenant, nous commençons à dévier du processus que vous utiliseriez pour créer des NFT traditionnels. Le mécanisme de stockage onchain que vous utilisez pour la compression d'état est un compte représentant un arbre merkle concurrent. Cet arbre merkle appartient au programme de Compression d'État SPL. Avant de pouvoir faire quoi que ce soit lié aux cNFT, vous devez créer un compte d'arbre merkle vide de la taille appropriée.
 
 Les variables qui impactent la taille du compte sont :
 
@@ -1277,7 +1277,7 @@ C'est à vous de jouer avec ces concepts ! Nous ne serons pas trop prescriptifs 
 
 1. Créez votre propre collection cNFT en production.
 2. Construisez une interface utilisateur pour le laboratoire de cette leçon qui vous permettra de créer un cNFT et de l'afficher.
-3. Voyez si vous pouvez reproduire une partie de la fonctionnalité du script du laboratoire dans un programme on-chain, c'est-à-dire écrivez un programme qui peut créer des cNFT.
+3. Voyez si vous pouvez reproduire une partie de la fonctionnalité du script du laboratoire dans un programme onchain, c'est-à-dire écrivez un programme qui peut créer des cNFT.
 
 ## Vous avez fini le laboratoire ?
 

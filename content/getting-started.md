@@ -56,7 +56,7 @@ In this course, you'll:
  - Create web apps that allow people to log on using web3 wallets
  - Transfer tokens (like USDC, a token that represents US dollars) between people
  - Learn to integrate tools like Solana Pay into your existing apps 
- - Build a film review application, that runs in real-time on the Solana blockchain. You'll build both a web front-end and the on-chain program and database for the app.
+ - Build a film review application, that runs in real-time on the Solana blockchain. You'll build both a web front-end and the onchain program and database for the app.
  - Mint large-scale NFT collections
 
 And much more. We're keeping this course updated so as new tech joins the Solana ecosystem you'll find a course right here.
@@ -77,7 +77,7 @@ There are two tracks:
 
  - **Client-side development** - building web and mobile apps that interact with popular onchain Solana programs. These lessons cover things like token transfers, minting, and creating clients for arbitrary programs. You will use basic TypeScript skills for this track. If you want to add blockchain payments, NFTs, blockchain provenance, etc. to your apps this is the best track to start with. 
 
- - **Onchain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana on-chain, or use the blockchain to store arbitrary data, this track is for you. You will use Rust for this track.
+ - **Onchain program development** - creating custom apps that run on the blockchain. If you want to make a new finance or accounting app, use data from outside Solana onchain, or use the blockchain to store arbitrary data, this track is for you. You will use Rust for this track.
 
 Modules cover a particular topic. These are broken down into individual lessons.
 

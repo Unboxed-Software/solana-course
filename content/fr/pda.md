@@ -662,7 +662,7 @@ Si vous avez besoin de plus de temps avec ce projet pour vous familiariser avec 
 
 # Défi
 
-Maintenant, c'est à vous de construire quelque chose de manière indépendante ! Allez-y et travaillez avec le programme d'introduction des étudiants que nous avons utilisé dans les leçons précédentes. Le programme d'introduction des étudiants est un programme Solana qui permet aux étudiants de se présenter. Ce programme prend le nom de l'utilisateur et un message court comme `instruction_data` et crée un compte pour stocker les données on-chain. Pour ce défi, vous devriez :
+Maintenant, c'est à vous de construire quelque chose de manière indépendante ! Allez-y et travaillez avec le programme d'introduction des étudiants que nous avons utilisé dans les leçons précédentes. Le programme d'introduction des étudiants est un programme Solana qui permet aux étudiants de se présenter. Ce programme prend le nom de l'utilisateur et un message court comme `instruction_data` et crée un compte pour stocker les données onchain. Pour ce défi, vous devriez :
 
 1. Ajouter une instruction permettant à d'autres utilisateurs de répondre à une introduction.
 2. Construire et déployer le programme localement.

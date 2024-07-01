@@ -178,7 +178,7 @@ Comme avec la plupart des nouveaux outils ou frameworks, la configuration initia
 
 Pratiquons ensemble en construisant l'application Mint-A-Day, où les utilisateurs pourront créer un instantané NFT de leur vie quotidienne, créant ainsi une sorte de journal permanent.
 
-Pour créer les NFT, nous utiliserons le SDK JavaScript de Metaplex en conjonction avec [nft.storage](https://nft.storage/) pour stocker les images et les métadonnées. Tout notre travail on-chain se fera sur Devnet.
+Pour créer les NFT, nous utiliserons le SDK JavaScript de Metaplex en conjonction avec [nft.storage](https://nft.storage/) pour stocker les images et les métadonnées. Tout notre travail onchain se fera sur Devnet.
 
 La première moitié de ce laboratoire consiste à assembler les composants nécessaires pour faire fonctionner ensemble Expo, Solana et Metaplex. Nous le ferons de manière modulaire afin que vous sachiez quelles parties du modèle de départ correspondent à quelle section.
 

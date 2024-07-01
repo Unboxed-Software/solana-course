@@ -39,7 +39,7 @@ La valeur de `destinataire` est requise et doit être une clé publique encodée
 
 - `amount` - une valeur entière ou décimale non négative indiquant la quantité de jetons à transférer.
 - `spl-token` - une clé publique encodée en base58 d'un compte SPL Token mint si le transfert est d'un jeton SPL et non de SOL.
-- `reference` - des valeurs de référence optionnelles sous forme de tableaux de 32 octets encodés en base58. Cela peut être utilisé par un client pour identifier la transaction on-chain, car le client n'aura pas de signature de transaction.
+- `reference` - des valeurs de référence optionnelles sous forme de tableaux de 32 octets encodés en base58. Cela peut être utilisé par un client pour identifier la transaction onchain, car le client n'aura pas de signature de transaction.
 - `label` - une chaîne UTF-8 encodée en URL qui décrit la source de la demande de transfert.
 - `message` - une chaîne UTF-8 encodée en URL qui décrit la nature de la demande de transfert.
 - `memo` - une chaîne UTF-8 encodée en URL qui doit être incluse dans l'instruction memo SPL de la transaction de paiement.
@@ -238,7 +238,7 @@ for (let i = 0; i < nfts.length; i++) {
 
 ### Signature partielle
 
-Si vous souhaitez que certaines transactions soient derrière un certain mécanisme de filtrage, cette fonctionnalité devra également être appliquée on-chain. Renvoyer une erreur depuis votre point de terminaison Solana Pay rend plus difficile pour les utilisateurs finaux de réaliser la transaction, mais ils pourraient toujours la construire manuellement.
+Si vous souhaitez que certaines transactions soient derrière un certain mécanisme de filtrage, cette fonctionnalité devra également être appliquée onchain. Renvoyer une erreur depuis votre point de terminaison Solana Pay rend plus difficile pour les utilisateurs finaux de réaliser la transaction, mais ils pourraient toujours la construire manuellement.
 
 Cela signifie que l'instruction (ou les instructions) appelée(s) doit (doivent) nécessiter une sorte de signature "administrative" que seule votre application peut fournir. Cependant, cela signifie que nos exemples précédents ne fonctionneraient pas. La transaction est construite et envoyée au portefeuille demandeur pour la signature de l'utilisateur final, mais la transaction soumise échouera sans la signature administrative.
 
@@ -632,7 +632,7 @@ async function createCheckInInstruction(
 
 Après avoir scanné le QR code, vous devriez voir un message indiquant que vous êtes à l'emplacement 1. Ensuite, scannez le QR code sur la page `Emplacement 2`. Vous devrez peut-être attendre quelques secondes que la transaction précédente se finalise avant de continuer.
 
-Félicitations, vous avez réussi à terminer la démo de chasse au trésor en utilisant Solana Pay ! Selon votre expérience, cela peut ne pas sembler intuitif ou direct. Si c'est le cas, n'hésitez pas à refaire le laboratoire ou à créer quelque chose par vous-même. Solana Pay ouvre de nombreuses portes pour combler le fossé entre la vie réelle et l'interaction on-chain.
+Félicitations, vous avez réussi à terminer la démo de chasse au trésor en utilisant Solana Pay ! Selon votre expérience, cela peut ne pas sembler intuitif ou direct. Si c'est le cas, n'hésitez pas à refaire le laboratoire ou à créer quelque chose par vous-même. Solana Pay ouvre de nombreuses portes pour combler le fossé entre la vie réelle et l'interaction onchain.
 
 Si vous voulez jeter un œil au code de solution final, vous pouvez le trouver sur la branche de [solution du même dépôt](https://github.com/Unboxed-Software/solana-scavenger-hunt-app/tree/solution).
 

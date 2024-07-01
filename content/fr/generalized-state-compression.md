@@ -8,10 +8,10 @@ objectives:
 
 # Résumé
 - La compression d'état sur Solana est le plus souvent utilisée pour des NFT compressés, mais il est possible de l'utiliser pour des données arbitraires.
-- La compression d'état réduit la quantité de données que vous devez stocker on-chain en exploitant les arbres de Merkle.
+- La compression d'état réduit la quantité de données que vous devez stocker onchain en exploitant les arbres de Merkle.
 - Les arbres de Merkle stockent un seul hash qui représente un arbre binaire complet de hashs. Chaque feuille sur un arbre de Merkle est un hash des données de cette feuille.
 - Les arbres de Merkle concurrents sont une version spécialisée des arbres de Merkle qui permettent des mises à jour concurrentes.
-- Parce que les données dans un programme compressé d'état ne sont pas stockées on-chain, vous devez utiliser des indexeurs pour maintenir un cache off-chain des données, puis vérifier ces données par rapport à l'arbre de Merkle on-chain.
+- Parce que les données dans un programme compressé d'état ne sont pas stockées onchain, vous devez utiliser des indexeurs pour maintenir un cache off-chain des données, puis vérifier ces données par rapport à l'arbre de Merkle onchain.
 
 # Aperçu général
 
@@ -21,9 +21,9 @@ Précédemment, nous avons discuté de la compression d'état dans le contexte d
 
 Dans les programmes traditionnels, les données sont sérialisées (généralement avec Borsh) puis stockées directement dans un compte. Cela permet aux données d'être facilement lues et écrites via les programmes Solana. Vous pouvez "faire confiance" aux données stockées dans les comptes car elles ne peuvent pas être modifiées sauf par les mécanismes exposés par le programme.
 
-La compression d'état affirme efficacement que la partie la plus importante de cette équation est la "fiabilité" des données. Si tout ce qui nous importe est la capacité à faire confiance que les données sont ce qu'elles prétendent être, alors nous pouvons réellement nous en sortir en ***ne*** stockant ***pas*** les données dans un compte on-chain. Au lieu de cela, nous pouvons stocker les hashs des données qui peuvent être utilisés pour prouver ou vérifier les données. Le hash des données occupe beaucoup moins d'espace de stockage que les données elles-mêmes. Nous pouvons ensuite stocker les données réelles quelque part de beaucoup moins cher et nous préoccuper de les vérifier par rapport au hash on-chain lorsque les données sont consultées.
+La compression d'état affirme efficacement que la partie la plus importante de cette équation est la "fiabilité" des données. Si tout ce qui nous importe est la capacité à faire confiance que les données sont ce qu'elles prétendent être, alors nous pouvons réellement nous en sortir en ***ne*** stockant ***pas*** les données dans un compte onchain. Au lieu de cela, nous pouvons stocker les hashs des données qui peuvent être utilisés pour prouver ou vérifier les données. Le hash des données occupe beaucoup moins d'espace de stockage que les données elles-mêmes. Nous pouvons ensuite stocker les données réelles quelque part de beaucoup moins cher et nous préoccuper de les vérifier par rapport au hash onchain lorsque les données sont consultées.
 
-La structure de données spécifique utilisée par le programme Solana State Compression est une structure d'arbre binaire spéciale connue sous le nom d'**arbre de Merkle concurrent**. Cette structure d'arbre hashe des morceaux de données ensemble de manière déterministe pour calculer un seul hash final qui est stocké on-chain. Ce hash final est nettement plus petit en taille que toutes les données originales combinées, d'où le terme "compression". Les étapes de ce processus sont les suivantes :
+La structure de données spécifique utilisée par le programme Solana State Compression est une structure d'arbre binaire spéciale connue sous le nom d'**arbre de Merkle concurrent**. Cette structure d'arbre hashe des morceaux de données ensemble de manière déterministe pour calculer un seul hash final qui est stocké onchain. Ce hash final est nettement plus petit en taille que toutes les données originales combinées, d'où le terme "compression". Les étapes de ce processus sont les suivantes :
 
 1. Prendre n'importe quelle donnée
 2. Créer un hash de ces données
@@ -32,12 +32,12 @@ La structure de données spécifique utilisée par le programme Solana State Com
 5. Chaque branche est ensuite hashée ensemble
 6. Monter continuellement dans l'arbre et hasher les branches adjacentes
 7. Une fois en haut de l'arbre, un hash final "racine" est produit
-8. Stocker la racine hashée on-chain comme preuve vérifiable des données dans chaque feuille
-9. Toute personne souhaitant vérifier que les données qu'elle a correspondent à la "source de vérité" peut suivre le même processus et comparer le hash final sans avoir à stocker toutes les données on-chain
+8. Stocker la racine hashée onchain comme preuve vérifiable des données dans chaque feuille
+9. Toute personne souhaitant vérifier que les données qu'elle a correspondent à la "source de vérité" peut suivre le même processus et comparer le hash final sans avoir à stocker toutes les données onchain
 
 Cela implique quelques compromis de développement assez sérieux :
 
-1. Étant donné que les données ne sont plus stockées dans un compte on-chain, leur accès est plus difficile.
+1. Étant donné que les données ne sont plus stockées dans un compte onchain, leur accès est plus difficile.
 2. Une fois que les données ont été consultées, les développeurs doivent décider à quelle fréquence leurs applications vérifieront les données par rapport au hash onchain.
 3. Toute modification des données nécessitera l'envoi de l'ensemble des données précédemment hashées *et* des nouvelles données dans une instruction. Le développeur peut également devoir fournir des données supplémentaires pertinentes pour les preuves nécessaires pour vérifier les données originales par rapport au hash.
 
@@ -67,7 +67,7 @@ La **profondeur maximale** est le nombre maximal de sauts pour aller de n'import
 
 La **taille maximale du tampon** est effectivement le nombre maximal de modifications concurrentes que vous pouvez apporter à un arbre dans une seule plage horaire tout en conservant le hash racine valide. Lorsque plusieurs transactions sont soumises dans la même plage horaire, chacune d'entre elles essaie de mettre à jour des feuilles sur un arbre de Merkle standard, seule la première à s'exécuter sera valide. C'est parce que cette opération "d'écriture" modifiera le hash stocké dans le compte. Les transactions ultérieures dans la même plage horaire tenteront de valider leurs données par rapport à un hash désormais obsolète. Un arbre de Merkle concurrent a un tampon pour que le tampon puisse conserver un log continu de ces modifications. Cela permet au programme de compression d'état de valider plusieurs écritures de données dans la même plage horaire car il peut rechercher les hashs précédents dans le tampon et les comparer avec le hash approprié.
 
-La **profondeur de la canopée** est le nombre de nœuds de preuve stockés on-chain pour n'importe quel chemin de preuve donné. Vérifier n'importe quelle feuille nécessite le chemin de preuve complet pour l'arbre. Le chemin de preuve complet est composé d'un nœud de preuve pour chaque "couche" de l'arbre, c'est-à-dire une profondeur maximale de 14 signifie qu'il y a 14 nœuds de preuve. Chaque nœud de preuve passé au programme ajoute 32 octets à une transaction, donc de grands arbres dépasseraient rapidement la limite maximale de taille de transaction. La mise en cache des nœuds de preuve on-chain dans la canopée aide à améliorer la composabilité du programme.
+La **profondeur de la canopée** est le nombre de nœuds de preuve stockés onchain pour n'importe quel chemin de preuve donné. Vérifier n'importe quelle feuille nécessite le chemin de preuve complet pour l'arbre. Le chemin de preuve complet est composé d'un nœud de preuve pour chaque "couche" de l'arbre, c'est-à-dire une profondeur maximale de 14 signifie qu'il y a 14 nœuds de preuve. Chaque nœud de preuve passé au programme ajoute 32 octets à une transaction, donc de grands arbres dépasseraient rapidement la limite maximale de taille de transaction. La mise en cache des nœuds de preuve onchain dans la canopée aide à améliorer la composabilité du programme.
 
 Chacune de ces trois valeurs, profondeur maximale, taille maximale du tampon et profondeur de la canopée, comporte un compromis. Augmenter la valeur de l'une de ces valeurs augmente la taille du compte utilisé pour stocker l'arbre, augmentant ainsi le coût de création de l'arbre.
 
@@ -83,7 +83,7 @@ Un compte compressé d'état ne stocke pas les données elles-mêmes. Il stocke 
 
 Le grand livre Solana est une liste d'entrées contenant des transactions signées. En théorie, cela peut être retracé jusqu'au bloc de genèse. Cela signifie effectivement que toutes les données qui ont déjà été intégrées à une transaction existent dans le grand livre.
 
-Étant donné que le processus de hash de compression d'état se produit on-chain, toutes les données existent dans l'état du grand livre et pourraient théoriquement être récupérées à partir de la transaction d'origine en rejouant l'ensemble de l'état de la chaîne depuis le début. Cependant, il est beaucoup plus simple (bien que toujours compliqué) d'avoir un **indexeur** qui suit et indexe ces données au fur et à mesure que les transactions se produisent. Cela garantit qu'il y a un "cache" off-chain des données que n'importe qui peut consulter et vérifier par la suite par rapport au hash racine on-chain.
+Étant donné que le processus de hash de compression d'état se produit onchain, toutes les données existent dans l'état du grand livre et pourraient théoriquement être récupérées à partir de la transaction d'origine en rejouant l'ensemble de l'état de la chaîne depuis le début. Cependant, il est beaucoup plus simple (bien que toujours compliqué) d'avoir un **indexeur** qui suit et indexe ces données au fur et à mesure que les transactions se produisent. Cela garantit qu'il y a un "cache" off-chain des données que n'importe qui peut consulter et vérifier par la suite par rapport au hash racine onchain.
 
 Ce processus est complexe, mais il aura du sens après quelques pratiques.
 
@@ -955,7 +955,7 @@ it("Create Note Tree", async () => {
 })
 ```
 
-Ensuite, nous allons créer le test `Add Note`. Il devrait appeler `append_note` avec `firstNote`, puis vérifier que le hash on-chain correspond à notre hash calculé et que le log de notes correspond au texte de la note que nous avons passé à l'instruction.
+Ensuite, nous allons créer le test `Add Note`. Il devrait appeler `append_note` avec `firstNote`, puis vérifier que le hash onchain correspond à notre hash calculé et que le log de notes correspond au texte de la note que nous avons passé à l'instruction.
 
 ```tsx
 it("Add Note", async () => {

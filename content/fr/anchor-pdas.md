@@ -639,7 +639,7 @@ Si vous avez besoin de plus de temps avec ce projet pour vous sentir à l'aise a
 
 Maintenant, c'est à votre tour de construire quelque chose de manière indépendante. Équipé des concepts introduits dans cette leçon, essayez de recréer le programme d'introduction des étudiants que nous avons utilisé précédemment en utilisant le framework Anchor.
 
-Le programme d'introduction des étudiants est un programme Solana qui permet aux étudiants de se présenter. Le programme prend le nom de l'utilisateur et un message court comme données d'instruction et crée un compte pour stocker les données on-chain.
+Le programme d'introduction des étudiants est un programme Solana qui permet aux étudiants de se présenter. Le programme prend le nom de l'utilisateur et un message court comme données d'instruction et crée un compte pour stocker les données onchain.
 
 En utilisant ce que vous avez appris dans cette leçon, développez ce programme. Le programme devrait inclure des instructions pour :
 

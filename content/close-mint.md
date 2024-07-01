@@ -224,7 +224,7 @@ console.log(
 Go ahead and run the script. You should see the `payer` and `mint` public key logged to your terminal. 
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 If you run into an error in `initializeKeypair` with airdropping, follow the next step.
@@ -244,8 +244,6 @@ Alternatively, if you’d like to use testnet or devnet, import the `clusterApiU
 ```tsx
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
-
-If you decide to use devnet, and have issues with airdropping SOL, feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some SOL to your address. You can get your address from running `solana address` in your terminal.
 
 ## 3. Create a mint with close authority
 
@@ -347,7 +345,7 @@ This will create a transaction with close mint instruction.
 Feel free to run this and check that everything is working:
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ## 4. Closing the mint
@@ -411,7 +409,7 @@ console.log("Initial supply: ", mintInfo.supply)
 Let's run the script and check the initial supply:
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 You should see the following in your terminal:
@@ -452,7 +450,7 @@ try {
 
 Give this a run:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 We'll see that the program throws an error along with the program logs. You should see the following:
@@ -541,7 +539,7 @@ console.log("Account closed? ", accountInfoAfterClose === null)
 Run the script one last time.
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 You should see the whole process of creating a closable mint, minting a token, trying to close, burning the token, and finally closing the account.

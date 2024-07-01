@@ -12,7 +12,7 @@ objectives:
 - Os **Tokens Não Fungíveis (NFTs)** são representados na Solana como Tokens SPL com uma conta de metadados associada, 0 casas decimais e um fornecimento máximo de 1.
 - O **Metaplex** oferece um conjunto de ferramentas que simplificam a criação e distribuição de NFTs na blockchain Solana.
 - O programa **Token Metadata** padroniza o processo de anexar metadados aos Tokens SPL.
-- O **SDK do Metaplex** é uma ferramenta que oferece APIs amigáveis ao usuário para auxiliar os desenvolvedores na utilização das ferramentas on-chain fornecidas pelo Metaplex.
+- O **SDK do Metaplex** é uma ferramenta que oferece APIs amigáveis ao usuário para auxiliar os desenvolvedores na utilização das ferramentas onchain fornecidas pelo Metaplex.
 - O programa **Candy Machine** é uma ferramenta de distribuição de NFTs usada para criar e emitir NFTs de uma coleção.
 - A **CLI Sugar** é uma ferramenta que simplifica o processo de fazer upload de arquivos de mídia/metadados e criar uma Candy Machine para uma coleção.
 
@@ -35,9 +35,9 @@ Em outras palavras, um NFT é um token padrão do Programa de Tokens, mas difere
 
 Enquanto os três primeiros pontos são recursos que podem ser alcançados com o Programa de Tokens SPL, os metadados associados exigem alguma funcionalidade adicional.
 
-Normalmente, os metadados de um NFT têm tanto um componente on-chain quanto off-chain. Os metadados on-chain são armazenados em uma conta associada à cunhagem do token. Um de seus campos é o URI (Identificador Universal de Recursos), que normalmente aponta para um arquivo JSON off-chain (veja [este link](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6n4x0GanLnSbeoT1EVvNuw) como exemplo). O componente off-chain armazena dados adicionais e um link para a imagem. Sistemas de armazenamento permanente, como o Arweave, são frequentemente usados para armazenar o componente off-chain dos metadados de NFTs.
+Normalmente, os metadados de um NFT têm tanto um componente onchain quanto off-chain. Os metadados onchain são armazenados em uma conta associada à cunhagem do token. Um de seus campos é o URI (Identificador Universal de Recursos), que normalmente aponta para um arquivo JSON off-chain (veja [este link](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6n4x0GanLnSbeoT1EVvNuw) como exemplo). O componente off-chain armazena dados adicionais e um link para a imagem. Sistemas de armazenamento permanente, como o Arweave, são frequentemente usados para armazenar o componente off-chain dos metadados de NFTs.
 
-Abaixo está um exemplo da relação entre metadados on-chain e off-chain. Os metadados on-chain contêm um campo URI que aponta normalmente para um arquivo `.json` off-chain que armazena o link para a imagem do NFT e metadados adicionais.
+Abaixo está um exemplo da relação entre metadados onchain e off-chain. Os metadados onchain contêm um campo URI que aponta normalmente para um arquivo `.json` off-chain que armazena o link para a imagem do NFT e metadados adicionais.
 
 ![Captura de tela dos Metadados](../../assets/solana-nft-metaplex-metadata.png)
 
@@ -45,7 +45,7 @@ Abaixo está um exemplo da relação entre metadados on-chain e off-chain. Os me
 
 [Metaplex](https://www.metaplex.com/) é uma organização que fornece um conjunto de ferramentas, como o [SDK do Metaplex](https://docs.metaplex.com/sdks/js/), que simplificam a criação e distribuição de NFTs na blockchain Solana. Essas ferramentas atendem a uma ampla gama de casos de uso e permitem que você gerencie facilmente todo o processo de criação e emissão de uma coleção de NFTs.
 
-Mais especificamente, o SDK do Metaplex foi projetado para ajudar os desenvolvedores a utilizar as ferramentas on-chain oferecidas pelo Metaplex. Ele oferece uma API amigável ao usuário que se concentra em casos de uso populares e permite uma integração fácil com plugins de terceiros. Para saber mais sobre as capacidades do SDK do Metaplex, você pode consultar o [README](https://github.com/metaplex-foundation/js#readme).
+Mais especificamente, o SDK do Metaplex foi projetado para ajudar os desenvolvedores a utilizar as ferramentas onchain oferecidas pelo Metaplex. Ele oferece uma API amigável ao usuário que se concentra em casos de uso populares e permite uma integração fácil com plugins de terceiros. Para saber mais sobre as capacidades do SDK do Metaplex, você pode consultar o [README](https://github.com/metaplex-foundation/js#readme).
 
 Um dos programas essenciais oferecidos pelo Metaplex é o programa Token Metadata. O programa Token Metadata padroniza o processo de anexar metadados aos Tokens SPL. Ao criar um NFT com o Metaplex, o programa Token Metadata cria uma conta de metadados usando um Endereço Derivado do Programa (PDA) com a cunhagem do token como semente. Isso permite que a conta de metadados para qualquer NFT seja localizada de maneira determinística usando o endereço de cunhagem do token. Para saber mais sobre o programa Token Metadata, você pode consultar a [documentação do Metaplex](https://docs.metaplex.com/programs/token-metadata/).
 
@@ -114,7 +114,7 @@ const { uri } = await metaplex.nfts().uploadMetadata({
 
 ### Criando um NFT
 
-Após fazer o upload dos metadados do NFT, você finalmente pode criar o NFT na rede. O método `create` do SDK do Metaplex permite criar um novo NFT com configuração mínima. Este método cuidará da criação da conta de cunhagem, da conta de token, da conta de metadados e da conta da edição principal para você. Os dados fornecidos a este método representarão a parte on-chain dos metadados do NFT. Você pode explorar o SDK para ver todas as outras entradas que podem ser opcionalmente fornecidas a este método.
+Após fazer o upload dos metadados do NFT, você finalmente pode criar o NFT na rede. O método `create` do SDK do Metaplex permite criar um novo NFT com configuração mínima. Este método cuidará da criação da conta de cunhagem, da conta de token, da conta de metadados e da conta da edição principal para você. Os dados fornecidos a este método representarão a parte onchain dos metadados do NFT. Você pode explorar o SDK para ver todas as outras entradas que podem ser opcionalmente fornecidas a este método.
 
 ```tsx
 const { nft } = await metaplex.nfts().create(
@@ -131,7 +131,7 @@ Este método retorna um objeto contendo informações sobre o NFT recém-criado.
 
 ### Atualizando um NFT
 
-Se você deixou `isMutable` como `true`, pode acabar tendo um motivo para atualizar os metadados do seu NFT. O método `update` do SDK permite atualizar tanto a parte on-chain quanto a parte off-chain dos metadados do NFT. Para atualizar os metadados off-chain, você precisará repetir as etapas de fazer upload de uma nova imagem e URI de metadados, conforme descrito nas etapas anteriores, e, em seguida, fornecer o novo URI de metadados a este método. Isso alterará o URI para o qual os metadados on-chain apontam, efetivamente atualizando os metadados off-chain também.
+Se você deixou `isMutable` como `true`, pode acabar tendo um motivo para atualizar os metadados do seu NFT. O método `update` do SDK permite atualizar tanto a parte onchain quanto a parte off-chain dos metadados do NFT. Para atualizar os metadados off-chain, você precisará repetir as etapas de fazer upload de uma nova imagem e URI de metadados, conforme descrito nas etapas anteriores, e, em seguida, fornecer o novo URI de metadados a este método. Isso alterará o URI para o qual os metadados onchain apontam, efetivamente atualizando os metadados off-chain também.
 
 ```tsx
 const nft = await metaplex.nfts().findByMint({ mintAddress });
@@ -532,7 +532,7 @@ Isso retornará o endereço de cunhagem da nossa coleção para que possamos us�
 
 ### 10. Atribuindo um NFT a uma coleção
 
-Agora que temos uma coleção, vamos modificar nosso código existente para que os NFTs recém-criados sejam adicionados à coleção. Primeiro, vamos modificar nossa função `createNft` para que a chamada para `nfts().create` inclua o campo `collection`. Em seguida, adicione código que chama `verifyCollection` para que o campo `verified` nos metadados on-chain seja definido como `true`. É assim que os programas e aplicativos consumidores podem ter certeza de que o NFT realmente pertence à coleção.
+Agora que temos uma coleção, vamos modificar nosso código existente para que os NFTs recém-criados sejam adicionados à coleção. Primeiro, vamos modificar nossa função `createNft` para que a chamada para `nfts().create` inclua o campo `collection`. Em seguida, adicione código que chama `verifyCollection` para que o campo `verified` nos metadados onchain seja definido como `true`. É assim que os programas e aplicativos consumidores podem ter certeza de que o NFT realmente pertence à coleção.
 
 ```tsx
 async function createNft(

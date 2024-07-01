@@ -22,7 +22,7 @@ Ang Anchor ay isang development framework na ginagawang mas madali, mas mabilis,
 
 Gumagamit ang Anchor ng mga macro at katangian para bumuo ng boilerplate Rust code para sa iyo. Nagbibigay ang mga ito ng malinaw na istraktura sa iyong programa upang mas madali kang mangatuwiran tungkol sa iyong code. Ang pangunahing mataas na antas ng mga macro at katangian ay:
 
-- `declare_id` - isang macro para sa pagdedeklara ng on-chain address ng program
+- `declare_id` - isang macro para sa pagdedeklara ng onchain address ng program
 - `#[program]` - isang attribute macro na ginagamit upang tukuyin ang module na naglalaman ng lohika ng pagtuturo ng program
 - `Mga Account` - isang katangiang inilapat sa mga istruktura na kumakatawan sa listahan ng mga account na kinakailangan para sa isang pagtuturo
 - `#[account]` - isang attribute na macro na ginagamit upang tukuyin ang mga custom na uri ng account para sa program
@@ -31,7 +31,7 @@ Pag-usapan natin ang bawat isa sa kanila bago pagsamahin ang lahat ng mga piraso
 
 ## Declare your program ID
 
-Ang `declare_id` macro ay ginagamit upang tukuyin ang on-chain na address ng program (i.e. ang `programId`). Kapag bumuo ka ng Anchor program sa unang pagkakataon, bubuo ang framework ng bagong keypair. Ito ang nagiging default na keypair na ginamit upang i-deploy ang program maliban kung tinukoy kung hindi man. Ang kaukulang pampublikong key ay dapat gamitin bilang `programId` na tinukoy sa `declare_id!` na macro.
+Ang `declare_id` macro ay ginagamit upang tukuyin ang onchain na address ng program (i.e. ang `programId`). Kapag bumuo ka ng Anchor program sa unang pagkakataon, bubuo ang framework ng bagong keypair. Ito ang nagiging default na keypair na ginamit upang i-deploy ang program maliban kung tinukoy kung hindi man. Ang kaukulang pampublikong key ay dapat gamitin bilang `programId` na tinukoy sa `declare_id!` na macro.
 
 ```rust
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
@@ -278,7 +278,7 @@ Kapag pinagsama mo ang lahat ng mga uri ng Anchor na ito, magkakaroon ka ng kump
 // Use this import to gain access to common anchor features
 use anchor_lang::prelude::*;
 
-// Program on-chain address
+// Program onchain address
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 // Instruction logic

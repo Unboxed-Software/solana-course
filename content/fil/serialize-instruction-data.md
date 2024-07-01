@@ -187,7 +187,7 @@ Bago tayo magsimula, magpatuloy at i-download ang [starter code](https://github.
 
 Ang proyekto ay isang medyo simpleng Next.js application. Kabilang dito ang `WalletContextProvider` na ginawa namin sa aralin sa Wallets, isang bahagi ng `Card` para sa pagpapakita ng pagsusuri sa pelikula, isang bahagi ng `MovieList` na nagpapakita ng mga review sa isang listahan, isang bahagi ng `Form` para sa pagsusumite ng bagong review, at isang ` Movie.ts` file na naglalaman ng kahulugan ng klase para sa object na `Movie`.
 
-Tandaan na sa ngayon, ang mga pelikulang ipinapakita sa page kapag nagpatakbo ka ng `npm run dev` ay mga pangungutya. Sa araling ito, magtutuon tayo sa pagdaragdag ng bagong pagsusuri ngunit hindi talaga natin makikitang ipinapakita ang pagsusuring iyon. Sa susunod na aralin, magtutuon tayo sa pag-deserialize ng custom na data mula sa mga on-chain na account.
+Tandaan na sa ngayon, ang mga pelikulang ipinapakita sa page kapag nagpatakbo ka ng `npm run dev` ay mga pangungutya. Sa araling ito, magtutuon tayo sa pagdaragdag ng bagong pagsusuri ngunit hindi talaga natin makikitang ipinapakita ang pagsusuring iyon. Sa susunod na aralin, magtutuon tayo sa pag-deserialize ng custom na data mula sa mga onchain na account.
 
 ### 2. Create the buffer layout
 

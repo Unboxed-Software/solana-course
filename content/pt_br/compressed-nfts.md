@@ -38,7 +38,7 @@ Para armazenar hashes e permitir a verificação, usamos uma estrutura de árvor
 8. Armazene o hash raiz na cadeia como uma prova verificável dos dados em cada folha
 9. Qualquer pessoa que queira verificar se os dados que possui correspondem à "fonte da verdade" pode passar pelo mesmo processo e comparar o hash final sem precisar armazenar todos os dados na cadeia.
 
-Um problema não abordado no item acima é como disponibilizar os dados se eles não puderem ser obtidos de uma conta. Como esse processo de hashing ocorre na cadeia, todos os dados existem no estado do livro-razão e, teoricamente, poderiam ser recuperados da transação original reproduzindo todo o estado da cadeia desde a origem. No entanto, é muito mais simples (embora ainda complicado) fazer com que um **indexador** rastreie e indexe esses dados à medida que as transações ocorrem. Isso garante que haja um "cache" dos dados off-chain que qualquer pessoa possa acessar e, posteriormente, verificar em relação ao hash raiz on-chain.
+Um problema não abordado no item acima é como disponibilizar os dados se eles não puderem ser obtidos de uma conta. Como esse processo de hashing ocorre na cadeia, todos os dados existem no estado do livro-razão e, teoricamente, poderiam ser recuperados da transação original reproduzindo todo o estado da cadeia desde a origem. No entanto, é muito mais simples (embora ainda complicado) fazer com que um **indexador** rastreie e indexe esses dados à medida que as transações ocorrem. Isso garante que haja um "cache" dos dados off-chain que qualquer pessoa possa acessar e, posteriormente, verificar em relação ao hash raiz onchain.
 
 Esse processo é *muito complexo*. Abordaremos alguns dos principais conceitos abaixo, mas não se preocupe se você não entender imediatamente. Falaremos mais sobre teoria na lição sobre compactação de estado e nos concentraremos principalmente na aplicação a NFTs nesta lição. Você poderá trabalhar com cNFTs ao final desta lição, mesmo que não compreenda totalmente todas as peças do quebra-cabeça da compactação de estado.
 
@@ -60,7 +60,7 @@ A **profundidade máxima** é o número máximo de saltos para ir de qualquer fo
 
 O **tamanho máximo do buffer** é efetivamente o número máximo de alterações concorrentes que podem ser feitas em uma árvore em um único slot com o hash raiz ainda válido.
 
-A **profundidade do canopy** é o número de nós de prova armazenados on-chain para qualquer caminho de prova. A verificação de qualquer folha requer o caminho completo de prova para a árvore. O caminho completo de prova é composto de um nó de prova para cada "camada" da árvore, ou seja, uma profundidade máxima de 14 significa que há 14 nós de prova. Cada nó de prova acrescenta 32 bytes a uma transação, de modo que árvores grandes excederiam rapidamente o limite máximo de tamanho da transação sem armazenar em cache os nós de prova on-chain.
+A **profundidade do canopy** é o número de nós de prova armazenados onchain para qualquer caminho de prova. A verificação de qualquer folha requer o caminho completo de prova para a árvore. O caminho completo de prova é composto de um nó de prova para cada "camada" da árvore, ou seja, uma profundidade máxima de 14 significa que há 14 nós de prova. Cada nó de prova acrescenta 32 bytes a uma transação, de modo que árvores grandes excederiam rapidamente o limite máximo de tamanho da transação sem armazenar em cache os nós de prova onchain.
 
 Cada um desses três valores, profundidade máxima, tamanho máximo do buffer e profundidade do canopy tem uma contrapartida. Aumentar qualquer um desses valores significa aumentar o tamanho da conta usada para armazenar a árvore, aumentando assim o custo de criação da árvore.
 
@@ -82,7 +82,7 @@ Quando você quiser armazenar dados compactados, passe-os para o programa State 
 
 ### Indexar dados para facilitar a pesquisa
 
-Em condições normais, você geralmente acessaria os dados on-chain buscando a conta apropriada. No entanto, ao usar a compactação de estado, isso não é tão simples. 
+Em condições normais, você geralmente acessaria os dados onchain buscando a conta apropriada. No entanto, ao usar a compactação de estado, isso não é tão simples. 
 
 Conforme mencionado acima, os dados agora existem no estado do livro-razão e não em uma conta. O lugar mais fácil para encontrar os dados completos é nos logs da instrução Noop, mas, embora esses dados existam, de certa forma, no estado do livro-razão para sempre, provavelmente ficarão inacessíveis por meio de validadores após um determinado período de tempo.
 
@@ -151,7 +151,7 @@ const collectionNft = await metaplex.nfts().create({
 
 ### Crie uma conta Merkle Tree
 
-Agora começamos a nos desviar do processo que você usaria ao criar NFTs tradicionais. O mecanismo de armazenamento on-chain que você usa para a compactação de estado é uma conta que representa uma árvore de Merkle concorrente. Essa conta de árvore de Merkle pertence ao programa de Compactação de Estado SPL. Antes de fazer qualquer coisa relacionada a cNFTs, você precisa criar uma conta de árvore de Merkle vazia com o tamanho apropriado.
+Agora começamos a nos desviar do processo que você usaria ao criar NFTs tradicionais. O mecanismo de armazenamento onchain que você usa para a compactação de estado é uma conta que representa uma árvore de Merkle concorrente. Essa conta de árvore de Merkle pertence ao programa de Compactação de Estado SPL. Antes de fazer qualquer coisa relacionada a cNFTs, você precisa criar uma conta de árvore de Merkle vazia com o tamanho apropriado.
 
 As variáveis que afetam o tamanho da conta são:
 
@@ -194,7 +194,7 @@ Observe que o número de cNFTs que podem ser armazenados na árvore depende inte
 
 Em seguida, escolha a profundidade do canopy. Aumentar a profundidade do canopy aumenta a composabilidade de seus cNFTs. Sempre que o seu código ou o código de outro desenvolvedor tentar verificar um cNFT no futuro, o código terá que passar tantos nós de prova quanto o número de "camadas" na sua árvore. Portanto, para uma profundidade máxima de 20, você precisará passar 20 nós de prova. Isso não é apenas tedioso, mas como cada nó de prova tem 32 bytes, é possível atingir o tamanho máximo de transações muito rapidamente.
 
-Por exemplo, se a sua árvore tiver uma profundidade de canopy muito pequena, um mercado de NFTs talvez só possa suportar transferências simples de NFTs em vez de suportar um sistema de lances on-chain para seus cNFTs. O canopy efetivamente armazena em cache os nós de prova na cadeia para que você não tenha que passar todos eles para a transação, permitindo transações mais complexas.
+Por exemplo, se a sua árvore tiver uma profundidade de canopy muito pequena, um mercado de NFTs talvez só possa suportar transferências simples de NFTs em vez de suportar um sistema de lances onchain para seus cNFTs. O canopy efetivamente armazena em cache os nós de prova na cadeia para que você não tenha que passar todos eles para a transação, permitindo transações mais complexas.
 
 O aumento de qualquer um desses três valores aumenta o tamanho da conta, aumentando assim, o custo associado à sua criação. Pese os benefícios adequadamente ao escolher os valores.
 
@@ -399,7 +399,7 @@ const { result } = await response.json()
 console.log(JSON.stringify(result, null, 2))
 ```
 
-Isso retornará um objeto JSON que abrange como os metadados on-chain e off-chain de um NFT tradicional ficam quando combinados. Por exemplo, você pode encontrar os atributos do cNFT em `content.metadata.attributes` ou a imagem em `content.files.uri`.
+Isso retornará um objeto JSON que abrange como os metadados onchain e off-chain de um NFT tradicional ficam quando combinados. Por exemplo, você pode encontrar os atributos do cNFT em `content.metadata.attributes` ou a imagem em `content.files.uri`.
 
 ### Consulte os cNFTs
 
@@ -917,7 +917,7 @@ async function logNftDetails(treeAddress: PublicKey, nftsMinted: number) {
 
 Essencialmente, o Helius observa os logs de transações à medida que elas acontecem e armazena os metadados NFT que possuem hash e que foram armazenados na árvore de Merkle. Isso permite que eles apresentem esses dados quando solicitados. 
 
-Se adicionarmos uma chamada a essa função no final de `main` e executarmos novamente o script, os dados que receberemos de volta no console serão muito abrangentes. Eles incluem todos os dados que você esperaria na parte on-chain e off-chain de um NFT tradicional. Você pode encontrar os atributos, os arquivos, as informações de propriedade e do criador do cNFT e muito mais.
+Se adicionarmos uma chamada a essa função no final de `main` e executarmos novamente o script, os dados que receberemos de volta no console serão muito abrangentes. Eles incluem todos os dados que você esperaria na parte onchain e off-chain de um NFT tradicional. Você pode encontrar os atributos, os arquivos, as informações de propriedade e do criador do cNFT e muito mais.
 
 ```json
 {
@@ -1079,7 +1079,7 @@ async function transferNft(
 }
 ```
 
-Em seguida, vamos buscar a conta da árvore de Merkle da cadeia, obter a profundidade do canopy e montar o caminho da prova. Fazemos isso mapeando a prova de ativos que obtivemos do Helius para uma lista de objetos `AccountMeta` e, em seguida, removendo todos os nós de prova do final que já estão armazenados em cache on-chain no canopy.
+Em seguida, vamos buscar a conta da árvore de Merkle da cadeia, obter a profundidade do canopy e montar o caminho da prova. Fazemos isso mapeando a prova de ativos que obtivemos do Helius para uma lista de objetos `AccountMeta` e, em seguida, removendo todos os nós de prova do final que já estão armazenados em cache onchain no canopy.
 
 ```tsx
 async function transferNft(
@@ -1279,4 +1279,4 @@ Agora é a sua vez de dar uma olhada nesses conceitos por conta própria! Não v
 
 1. Crie sua própria coleção de cNFTs de produção
 2. Crie uma interface de usuário para a demonstração desta lição que permitirá que você crie e exiba um cNFT
-3. Veja se você pode replicar algumas das funcionalidades do script de demonstração em um programa on-chain, ou seja, escreva um programa que possa cunhar cNFTs
+3. Veja se você pode replicar algumas das funcionalidades do script de demonstração em um programa onchain, ou seja, escreva um programa que possa cunhar cNFTs

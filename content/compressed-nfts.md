@@ -26,7 +26,7 @@ However, cNFTs can be tricky to work with. Eventually, the tooling required to w
 
 Most of the costs associated with traditional NFTs come down to account storage space. Compressed NFTs use a concept called State Compression to store data in the blockchain’s cheaper **ledger state**, using more expensive account space only to store a “fingerprint”, or **hash**, of the data. This hash allows you to cryptographically verify that data has not been tampered with.
 
-To both store hashes and enable verification, we use a special binary tree structure known as a **concurrent Merkle tree**. This tree structure lets us hash data together in a deterministic way to compute a single, final hash that gets stored on-chain. This final hash is significantly smaller in size than all the original data combined, hence the “compression.” The steps to this process are:
+To both store hashes and enable verification, we use a special binary tree structure known as a **concurrent Merkle tree**. This tree structure lets us hash data together in a deterministic way to compute a single, final hash that gets stored onchain. This final hash is significantly smaller in size than all the original data combined, hence the “compression.” The steps to this process are:
 
 1. Take any piece of data
 2. Create a hash of this data
@@ -36,7 +36,7 @@ To both store hashes and enable verification, we use a special binary tree struc
 6. Continually climb the tree and hash adjacent branches together
 7. Once at the top of the tree, a final ”root hash” is produced
 8. Store the root hash onchain as a verifiable proof of the data within each leaf
-9. Anyone wanting to verify that the data they have matches the “source of truth” can go through the same process and compare the final hash without having to store all the data on-chain
+9. Anyone wanting to verify that the data they have matches the “source of truth” can go through the same process and compare the final hash without having to store all the data onchain
 
 One problem not addressed in the above is how to make data available if it can’t be fetched from an account. Since this hashing process occurs onchain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from origin. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
 
@@ -60,7 +60,7 @@ The **max depth** is the maximum number of hops to get from any leaf to the root
 
 The **max buffer size** is effectively the maximum number of concurrent changes that you can make to a tree within a single slot with the root hash still being valid.
 
-The **canopy depth** is the number of proof nodes that are stored onchain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit without caching proof nodes on-chain.
+The **canopy depth** is the number of proof nodes that are stored onchain for any given proof path. Verifying any leaf requires the complete proof path for the tree. The complete proof path is made up of one proof node for every “layer” of the tree, i.e. a max depth of 14 means there are 14 proof nodes. Every proof node adds 32 bytes to a transaction, so large trees would quickly exceed the maximum transaction size limit without caching proof nodes onchain.
 
 Each of these three values, max depth, max buffer size, and canopy depth, comes with a tradeoff. Increasing the value of any of these values increases the size of the account used to store the tree, thus increasing the cost to create the tree. 
 

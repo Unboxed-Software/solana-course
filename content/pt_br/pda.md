@@ -663,7 +663,7 @@ Se você precisar de mais tempo com este projeto para se sentir confortável com
 
 # Desafio
 
-Agora é a sua vez de construir algo de forma independente! Siga em frente e trabalhe com o programa Student Intro que usamos em lições passadas. O programa Student Intro é um programa Solana que permite que os alunos se apresentem. Este programa recebe o nome de um usuário e uma mensagem curta como `instruction_data` e cria uma conta para armazenar os dados on-chain. Para este desafio, você deve:
+Agora é a sua vez de construir algo de forma independente! Siga em frente e trabalhe com o programa Student Intro que usamos em lições passadas. O programa Student Intro é um programa Solana que permite que os alunos se apresentem. Este programa recebe o nome de um usuário e uma mensagem curta como `instruction_data` e cria uma conta para armazenar os dados onchain. Para este desafio, você deve:
 
 1. Adicionar uma instrução permitindo que outros usuários respondam a uma introdução
 2. Compilar e implantar o programa localmente

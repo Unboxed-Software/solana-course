@@ -392,7 +392,7 @@ If you need more time with this project to feel comfortable with these concepts,
 
 Now it’s your turn to build something independently. Equipped with the concepts intoduced in this lesson, you now know everything you'll need to recreate the entirety of the Student Intro program from Module 1.
 
-The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the `instruction_data` and creates an account to store the data on-chain.
+The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the `instruction_data` and creates an account to store the data onchain.
 
 Using what you've learned in this lesson, build out this program. In addition to taking a name a short message as instruction data, the program should:
 

@@ -473,7 +473,7 @@ Si vous avez besoin de passer un peu plus de temps sur ce laboratoire avant de p
 
 # Défi
 
-Pour le défi de cette leçon, essayez de reproduire le programme d'introduction des étudiants du Module 1. Rappelez-vous que nous avons créé une application frontend qui permet aux étudiants de se présenter ! Le programme prend le nom de l'utilisateur et un court message comme `instruction_data` et crée un compte pour stocker les données on-chain.
+Pour le défi de cette leçon, essayez de reproduire le programme d'introduction des étudiants du Module 1. Rappelez-vous que nous avons créé une application frontend qui permet aux étudiants de se présenter ! Le programme prend le nom de l'utilisateur et un court message comme `instruction_data` et crée un compte pour stocker les données onchain.
 
 En utilisant ce que vous avez appris dans cette leçon, construisez le programme d'introduction des étudiants jusqu'à ce que vous puissiez imprimer les `name` et `message` fournis par l'utilisateur dans les logs du programme lorsque le programme est invoqué.
 

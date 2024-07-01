@@ -187,7 +187,7 @@ Antes de começarmos, vá em frente e faça o download do [código inicial](http
 
 O projeto é uma aplicação Next.js bastante simples. Ele inclui o `WalletContextProvider` que criamos na lição de Carteiras, um componente `Card` para exibir uma avaliação de filme, um componente `MovieList` que exibe avaliações em uma lista, um componente `Form` para enviar uma nova avaliação e um arquivo `Movie.ts` que contém uma definição de classe para um objeto `Movie`.
 
-Observe que, por enquanto, os filmes exibidos na página quando você executa `npm run dev` são simulações. Nesta lição, nos concentraremos em adicionar uma nova avaliação, mas na verdade não poderemos ver essa avaliação exibida. Na próxima lição, nos concentraremos em desserializar dados personalizados de contas on-chain.
+Observe que, por enquanto, os filmes exibidos na página quando você executa `npm run dev` são simulações. Nesta lição, nos concentraremos em adicionar uma nova avaliação, mas na verdade não poderemos ver essa avaliação exibida. Na próxima lição, nos concentraremos em desserializar dados personalizados de contas onchain.
 
 ### 2. Criando o layout do buffer
 

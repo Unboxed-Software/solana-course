@@ -1,15 +1,15 @@
 ---
 title: Verifiable Randomness Functions
 objectives:
-- Ipaliwanag ang mga limitasyon ng pagbuo ng mga random na numero na on-chain
+- Ipaliwanag ang mga limitasyon ng pagbuo ng mga random na numero na onchain
 - Ipaliwanag kung paano gumagana ang Verifiable Randomness
-- Gamitin ang VRF oracle queue ng Switchboard upang bumuo at gumamit ng randomness mula sa isang on-chain na programa
+- Gamitin ang VRF oracle queue ng Switchboard upang bumuo at gumamit ng randomness mula sa isang onchain na programa
 ---
 
 # TL;DR
 
-- Ang mga pagtatangka sa pagbuo ng randomness sa iyong program ay malamang na mahulaan ng mga user dahil walang tunay na randomness on-chain.
-- Binibigyan ng Verifiable Random Functions (VRFs) ang mga developer ng pagkakataong isama ang mga secure na nabuong random na numero sa kanilang mga on-chain na programa.
+- Ang mga pagtatangka sa pagbuo ng randomness sa iyong program ay malamang na mahulaan ng mga user dahil walang tunay na randomness onchain.
+- Binibigyan ng Verifiable Random Functions (VRFs) ang mga developer ng pagkakataong isama ang mga secure na nabuong random na numero sa kanilang mga onchain na programa.
 - Ang VRF ay isang public-key pseudorandom function na nagbibigay ng mga patunay na ang mga output nito ay nakalkula nang tama.
 - Nag-aalok ang Switchboard ng developer-friendly na VRF para sa Solana ecosystem.
 
@@ -17,7 +17,7 @@ objectives:
 
 ## Randomness On-Chain
 
-Ang mga random na numero ay ***hindi*** natively pinapayagan on-chain. Ito ay dahil deterministiko ang Solana, pinapatakbo ng bawat validator ang iyong code at kailangang magkaroon ng parehong resulta. Kaya kung gusto mong gumawa ng raffle program, kailangan mong tumingin sa labas ng blockchain para sa iyong randomness. Dito pumapasok ang Verifiable Random Functions (VRFs). Nag-aalok ang mga VRF sa mga developer ng secure na paraan ng pagsasama ng randomness on-chain sa desentralisadong paraan.
+Ang mga random na numero ay ***hindi*** natively pinapayagan onchain. Ito ay dahil deterministiko ang Solana, pinapatakbo ng bawat validator ang iyong code at kailangang magkaroon ng parehong resulta. Kaya kung gusto mong gumawa ng raffle program, kailangan mong tumingin sa labas ng blockchain para sa iyong randomness. Dito pumapasok ang Verifiable Random Functions (VRFs). Nag-aalok ang mga VRF sa mga developer ng secure na paraan ng pagsasama ng randomness onchain sa desentralisadong paraan.
 
 ## Types of Randomness
 
@@ -27,11 +27,11 @@ Ang mga computer ay maaaring makakuha ng *true random* na mga numero sa pamamagi
 
 Ang *pseudorandom* na mga numero, sa kabilang banda, ay nabuo ng mga algorithm na gumagamit ng isang deterministikong proseso upang makagawa ng mga pagkakasunud-sunod ng mga numero na mukhang random. Ang mga pseudorandom number generators (PRNGs) ay nagsisimula sa isang inisyal na halaga na tinatawag na seed at pagkatapos ay gumamit ng mga mathematical formula upang bumuo ng mga kasunod na numero sa sequence. Dahil sa parehong binhi, ang isang PRNG ay palaging gagawa ng parehong pagkakasunud-sunod ng mga numero. Mahalagang magtanim ng isang bagay na malapit sa totoong entropy: isang "random" na input na ibinigay ng admin, ang huling log ng system, ilang kumbinasyon ng oras ng orasan ng iyong system at iba pang mga salik, atbp.. Nakakatuwang katotohanan: nasira ang mga lumang video game dahil sa mga speedrunner nalaman kung paano kinakalkula ang kanilang randomness. Isang laro ang partikular na gumamit ng bilang ng mga hakbang na iyong ginawa sa laro bilang isang binhi.
 
-Sa kasamaang palad, walang uri ng randomness ang native na available sa mga programang Solana, dahil ang mga program na ito ay kailangang maging deterministiko. Ang lahat ng mga validator ay kailangang magkaroon ng parehong konklusyon. Walang paraan na lahat sila ay gumuhit ng parehong random na numero, at kung gumamit sila ng isang binhi, ito ay madaling kapitan ng pag-atake. Tingnan ang [Mga FAQ ng Solana](https://docs.solana.com/developing/on-chain-programs/developing-rust#depending-on-rand) para sa higit pa. Kaya kailangan nating tumingin sa labas ng blockchain para sa randomness sa mga VRF.
+Sa kasamaang palad, walang uri ng randomness ang native na available sa mga programang Solana, dahil ang mga program na ito ay kailangang maging deterministiko. Ang lahat ng mga validator ay kailangang magkaroon ng parehong konklusyon. Walang paraan na lahat sila ay gumuhit ng parehong random na numero, at kung gumamit sila ng isang binhi, ito ay madaling kapitan ng pag-atake. Tingnan ang [Mga FAQ ng Solana](https://docs.solana.com/developing/onchain-programs/developing-rust#depending-on-rand) para sa higit pa. Kaya kailangan nating tumingin sa labas ng blockchain para sa randomness sa mga VRF.
 
 ## What is Verifiable Randomness?
 
-Ang Verifiable Random Function (VRF) ay isang public-key pseudorandom function na nagbibigay ng mga patunay na ang mga output nito ay nakalkula nang tama. Nangangahulugan ito na maaari kaming gumamit ng isang cryptographic na keypair upang bumuo ng isang random na numero na may isang patunay, na pagkatapos ay ma-validate ng sinuman upang matiyak na ang halaga ay nakalkula nang tama nang walang posibilidad na ma-leak ang sikretong key ng producer. Kapag napatunayan na, ang random na halaga ay iniimbak on-chain sa isang account.
+Ang Verifiable Random Function (VRF) ay isang public-key pseudorandom function na nagbibigay ng mga patunay na ang mga output nito ay nakalkula nang tama. Nangangahulugan ito na maaari kaming gumamit ng isang cryptographic na keypair upang bumuo ng isang random na numero na may isang patunay, na pagkatapos ay ma-validate ng sinuman upang matiyak na ang halaga ay nakalkula nang tama nang walang posibilidad na ma-leak ang sikretong key ng producer. Kapag napatunayan na, ang random na halaga ay iniimbak onchain sa isang account.
 
 Ang mga VRF ay isang mahalagang bahagi para sa pagkamit ng nabe-verify at hindi nahuhulaang randomness sa isang blockchain, na tinutugunan ang ilan sa mga pagkukulang ng mga tradisyonal na PRNG at ang mga hamon sa pagkamit ng tunay na randomness sa isang desentralisadong sistema.
 
@@ -45,9 +45,9 @@ Ang mga VRF ay hindi partikular sa Solana at ginamit sa iba pang mga blockchain 
 
 ## Switchboard VRF Implementation
 
-Ang Switchboard ay isang desentralisadong Oracle network na nag-aalok ng mga VRF sa Solana. Ang Oracles ay mga serbisyong nagbibigay ng panlabas na data sa isang blockchain, na nagpapahintulot sa kanila na makipag-ugnayan at tumugon sa mga kaganapan sa totoong mundo. Ang Switchboard network ay binubuo ng maraming iba't ibang indibidwal na orakulo na pinapatakbo ng mga ikatlong partido upang magbigay ng panlabas na data at mga kahilingan sa serbisyo na on-chain. Upang matuto nang higit pa tungkol sa Oracle network ng Switchboard, mangyaring sumangguni sa aming [Aral sa Oracle](../oracles.md).
+Ang Switchboard ay isang desentralisadong Oracle network na nag-aalok ng mga VRF sa Solana. Ang Oracles ay mga serbisyong nagbibigay ng panlabas na data sa isang blockchain, na nagpapahintulot sa kanila na makipag-ugnayan at tumugon sa mga kaganapan sa totoong mundo. Ang Switchboard network ay binubuo ng maraming iba't ibang indibidwal na orakulo na pinapatakbo ng mga ikatlong partido upang magbigay ng panlabas na data at mga kahilingan sa serbisyo na onchain. Upang matuto nang higit pa tungkol sa Oracle network ng Switchboard, mangyaring sumangguni sa aming [Aral sa Oracle](../oracles.md).
 
-Ang VRF ng Switchboard ay nagpapahintulot sa mga user na humiling ng isang orakulo upang makabuo ng isang randomness na output na on-chain. Kapag naitalaga sa isang orakulo ang kahilingan, ang patunay ng resulta ng VRF ay dapat na ma-verify on-chain bago ito magamit. Ang patunay ng VRF ay tumatagal ng 276 na tagubilin (~48 na transaksyon) upang ganap na ma-verify ang on-chain. Kapag na-verify na ang patunay, magsasagawa ang Switchboard program ng on-chain callback na tinukoy ng VRF Account sa paggawa ng account. Mula doon ang programa ay maaaring ubusin ang random na data.
+Ang VRF ng Switchboard ay nagpapahintulot sa mga user na humiling ng isang orakulo upang makabuo ng isang randomness na output na onchain. Kapag naitalaga sa isang orakulo ang kahilingan, ang patunay ng resulta ng VRF ay dapat na ma-verify onchain bago ito magamit. Ang patunay ng VRF ay tumatagal ng 276 na tagubilin (~48 na transaksyon) upang ganap na ma-verify ang onchain. Kapag na-verify na ang patunay, magsasagawa ang Switchboard program ng onchain callback na tinukoy ng VRF Account sa paggawa ng account. Mula doon ang programa ay maaaring ubusin ang random na data.
 
 Maaaring nagtataka ka kung paano sila binabayaran. Sa pagpapatupad ng VRF ng switchboard, talagang nagbabayad ka bawat kahilingan. // KAILANGAN ng higit pang data
 
@@ -84,7 +84,7 @@ pub struct VrfAccountData {
     pub status: VrfStatus,
     /// Incremental counter for tracking VRF rounds.
     pub counter: u128,
-    /// On-chain account delegated for making account changes. <-- This is our PDA
+    /// Onchain account delegated for making account changes. <-- This is our PDA
     pub authority: Pubkey,
     /// The OracleQueueAccountData that is assigned to fulfill VRF update request.
     pub oracle_queue: Pubkey,
@@ -1059,10 +1059,10 @@ describe("burry-escrow-vrf", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("On-chain unlock price:", newAccount.unlockPrice)
+      console.log("Onchain unlock price:", newAccount.unlockPrice)
       console.log("Amount in escrow:", escrowBalance)
 
-      // Check whether the data on-chain is equal to local 'data'
+      // Check whether the data onchain is equal to local 'data'
       assert(failUnlockPrice == newAccount.unlockPrice)
       assert(escrowBalance > 0)
     } catch (e) {
@@ -1174,7 +1174,7 @@ describe.only("burry-escrow-vrf", () => {
 
     switchboard.oracle.publicKey
 
-    // start the oracle and wait for it to start heartbeating on-chain
+    // start the oracle and wait for it to start heartbeating onchain
     await oracle.startAndAwait()
   })
 

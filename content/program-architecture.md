@@ -1,7 +1,7 @@
 ---
 title: Program Architecture
 objectives:
-- Use Box and Zero Copy to work with large data on-chain
+- Use Box and Zero Copy to work with large data onchain
 - Make better PDA design decisions
 - Future-proof your programs
 - Deal with concurrency issues
@@ -34,11 +34,11 @@ In high level languages, you are in the data-land-o-plenty! Now, in Solana land,
 
 1. Since we pay-per-byte, we generally want to keep our footprint as small as possible. We will delve more into optimization in another section, but we'll introduce you to the concept of data sizes here.
 
-2. When operating on larger data, we run into [Stack](https://docs.solana.com/developing/on-chain-programs/faq#stack) and [Heap](https://docs.solana.com/developing/on-chain-programs/faq#heap-size) constraints - to get around these, we’ll look at using Box and Zero-Copy.
+2. When operating on larger data, we run into [Stack](https://docs.solana.com/developing/onchain-programs/faq#stack) and [Heap](https://docs.solana.com/developing/onchain-programs/faq#heap-size) constraints - to get around these, we’ll look at using Box and Zero-Copy.
 
 ### Sizes
 
-In Solana a transaction's fee payer pays for each byte stored on-chain. We call this [rent](https://docs.solana.com/developing/intro/rent). Side note: rent is a bit of a misnomer since it never actually gets permanently taken. Once you deposit rent into the account, that data can stay there forever or you can get refunded the rent if you close the account. Rent used to be an actual thing, but now there's an enforced minimum rent exemption. You can read about it in [the Solana documentation](https://docs.solana.com/developing/intro/rent).
+In Solana a transaction's fee payer pays for each byte stored onchain. We call this [rent](https://docs.solana.com/developing/intro/rent). Side note: rent is a bit of a misnomer since it never actually gets permanently taken. Once you deposit rent into the account, that data can stay there forever or you can get refunded the rent if you close the account. Rent used to be an actual thing, but now there's an enforced minimum rent exemption. You can read about it in [the Solana documentation](https://docs.solana.com/developing/intro/rent).
 
 Rent etymology aside, putting data on the blockchain can be expensive. It’s why NFT attributes and associated files, like the image, are stored off-chain. You ultimately want to strike a balance that leaves your program highly functional without becoming so expensive that your users don’t want to pay to open the data account.
 

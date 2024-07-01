@@ -1,14 +1,14 @@
 ---
 title: Fonctions de hasard vérifiables
 objectives:
-- Expliquer les limitations de la génération de nombres aléatoires on-chain
+- Expliquer les limitations de la génération de nombres aléatoires onchain
 - Expliquer le fonctionnement des Fonctions Randomness Vérifiables (VRF)
 - Utiliser la file d'attente Oracla VRF de Switchboard pour générer et consommer du hasard à partir d'un programme onchain
 ---
 
 # Résumé
 
-- Les tentatives de génération de hasard au sein de votre programme sont susceptibles d'être devinées par les utilisateurs, car il n'y a pas de véritable hasard on-chain.
+- Les tentatives de génération de hasard au sein de votre programme sont susceptibles d'être devinées par les utilisateurs, car il n'y a pas de véritable hasard onchain.
 - Les fonctions de Randomness Vérifiable (VRF) offrent aux développeurs la possibilité d'incorporer des nombres aléatoires générés de manière sécurisée dans leurs programmes onchain.
 - Une VRF est une fonction pseudorandom à clé publique qui fournit des preuves que ses sorties ont été calculées correctement.
 - Switchboard propose une VRF faites pour les développeurs dans l'écosystème Solana.
@@ -17,7 +17,7 @@ objectives:
 
 ## Hasard On-Chain
 
-Les nombres aléatoires ne sont ***pas*** nativement autorisés on-chain. Cela est dû au caractère déterministe de Solana ; chaque validateur exécute votre code et doit obtenir le même résultat. Ainsi, si vous souhaitez créer un programme de tombola, vous devrez chercher en dehors de la blockchain pour obtenir votre hasard. C'est là que les fonctions de Randomness Vérifiable (VRF) interviennent. Les VRF offrent aux développeurs un moyen sécurisé d'intégrer du hasard on-chain de manière décentralisée.
+Les nombres aléatoires ne sont ***pas*** nativement autorisés onchain. Cela est dû au caractère déterministe de Solana ; chaque validateur exécute votre code et doit obtenir le même résultat. Ainsi, si vous souhaitez créer un programme de tombola, vous devrez chercher en dehors de la blockchain pour obtenir votre hasard. C'est là que les fonctions de Randomness Vérifiable (VRF) interviennent. Les VRF offrent aux développeurs un moyen sécurisé d'intégrer du hasard onchain de manière décentralisée.
 
 ## Types de Hasard
 
@@ -27,11 +27,11 @@ Les ordinateurs peuvent acquérir des nombres *vraiment aléatoires* en prenant 
 
 Les nombres *pseudorandom*, en revanche, sont générés par des algorithmes utilisant un processus déterministe pour produire des séquences de nombres qui semblent être aléatoires. Les générateurs de nombres pseudorandom (PRNG) commencent avec une valeur initiale appelée seed, puis utilisent des formules mathématiques pour générer les nombres suivants dans la séquence. Avec la même seed, un PRNG produira toujours la même séquence de nombres. Il est important de semer avec quelque chose proche de l'entropie réelle : une entrée "aléatoire" fournie par l'administrateur, le dernier journal système, une combinaison de l'heure de l'horloge de votre système et d'autres facteurs, etc. Notez qu'il est possible de casser d'anciens jeux vidéo car les joueurs ont découvert comment leur hasard était calculé. Un jeu en particulier utilisait le nombre de pas effectués dans le jeu comme seed.
 
-Malheureusement, aucun des deux types de hasard n'est nativement disponible dans les programmes Solana, car ces programmes doivent être déterministes. Tous les validateurs doivent parvenir à la même conclusion. Il n'y a aucune façon pour eux de tous tirer le même nombre aléatoire, et s'ils utilisaient une seed, elle serait vulnérable aux attaques. Consultez les [FAQ de Solana](https://docs.solana.com/developing/on-chain-programs/developing-rust#depending-on-rand) pour plus d'informations. Nous devrons donc chercher en dehors de la blockchain pour obtenir du hasard avec les VRF.
+Malheureusement, aucun des deux types de hasard n'est nativement disponible dans les programmes Solana, car ces programmes doivent être déterministes. Tous les validateurs doivent parvenir à la même conclusion. Il n'y a aucune façon pour eux de tous tirer le même nombre aléatoire, et s'ils utilisaient une seed, elle serait vulnérable aux attaques. Consultez les [FAQ de Solana](https://docs.solana.com/developing/onchain-programs/developing-rust#depending-on-rand) pour plus d'informations. Nous devrons donc chercher en dehors de la blockchain pour obtenir du hasard avec les VRF.
 
 ## Qu'est-ce que le Randomness Vérifiable?
 
-Une Fonction de Randomness Vérifiable (VRF) est une fonction pseudorandom à clé publique qui fournit des preuves que ses sorties ont été calculées correctement. Cela signifie que nous pouvons utiliser une paire de clés cryptographiques pour générer un nombre aléatoire avec une preuve, qui peut ensuite être validée par quiconque pour s'assurer que la valeur a été calculée correctement sans possibilité de divulguer la clé secrète du producteur. Une fois validée, la valeur aléatoire est stockée on-chain dans un compte.
+Une Fonction de Randomness Vérifiable (VRF) est une fonction pseudorandom à clé publique qui fournit des preuves que ses sorties ont été calculées correctement. Cela signifie que nous pouvons utiliser une paire de clés cryptographiques pour générer un nombre aléatoire avec une preuve, qui peut ensuite être validée par quiconque pour s'assurer que la valeur a été calculée correctement sans possibilité de divulguer la clé secrète du producteur. Une fois validée, la valeur aléatoire est stockée onchain dans un compte.
 
 Les VRF sont un composant crucial pour obtenir du hasard vérifiable et imprévisible sur une blockchain, en adressant certaines des lacunes des PRNG traditionnels et des défis liés à l'obtention d'un véritable hasard dans un système décentralisé.
 
@@ -45,9 +45,9 @@ Les VRF ne sont pas spécifiques à Solana et ont été utilisés sur d'autres b
 
 ## Implémentation VRF de Switchboard
 
-Switchboard est un réseau Oracle décentralisé qui propose des VRF sur Solana. Les Oracles sont des services qui fournissent des données externes à une blockchain, leur permettant d'interagir et de répondre à des événements du monde réel. Le réseau Switchboard est composé de nombreux oracles individuels exploités par des tiers pour fournir des données externes et répondre aux demandes de services on-chain. Pour en savoir plus sur le réseau Oracle de Switchboard, veuillez consulter notre [leçon sur les Oracles](./oracles).
+Switchboard est un réseau Oracle décentralisé qui propose des VRF sur Solana. Les Oracles sont des services qui fournissent des données externes à une blockchain, leur permettant d'interagir et de répondre à des événements du monde réel. Le réseau Switchboard est composé de nombreux oracles individuels exploités par des tiers pour fournir des données externes et répondre aux demandes de services onchain. Pour en savoir plus sur le réseau Oracle de Switchboard, veuillez consulter notre [leçon sur les Oracles](./oracles).
 
-La VRF de Switchboard permet aux utilisateurs de demander à un oracle de produire une sortie aléatoire on-chain. Une fois qu'un oracle a été assigné à la demande, la preuve du résultat VRF doit être vérifiée on-chain avant de pouvoir être utilisée. La preuve VRF nécessite 276 instructions (~48 transactions) pour être entièrement vérifiée on-chain. Une fois la preuve vérifiée, le programme Switchboard exécutera un rappel on-chain défini par le compte VRF pendant la création du compte. À partir de là, le programme peut consommer les données aléatoires.
+La VRF de Switchboard permet aux utilisateurs de demander à un oracle de produire une sortie aléatoire onchain. Une fois qu'un oracle a été assigné à la demande, la preuve du résultat VRF doit être vérifiée onchain avant de pouvoir être utilisée. La preuve VRF nécessite 276 instructions (~48 transactions) pour être entièrement vérifiée onchain. Une fois la preuve vérifiée, le programme Switchboard exécutera un rappel onchain défini par le compte VRF pendant la création du compte. À partir de là, le programme peut consommer les données aléatoires.
 
 Vous pourriez vous demander comment ils sont rémunérés. Dans l'implémentation VRF de Switchboard, vous payez effectivement par demande. // BESOIN de plus de données
 

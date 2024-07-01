@@ -1,11 +1,11 @@
 ---
 title: Oracles and Oracle Networks
 objectives:
-- Ipaliwanag kung bakit hindi madaling ma-access ng mga on-chain program ang real-world na data nang mag-isa
+- Ipaliwanag kung bakit hindi madaling ma-access ng mga onchain program ang real-world na data nang mag-isa
 - Ipaliwanag kung paano nireresolba ng mga orakulo ang problema sa pag-access ng real-world na data sa chain
 - Ipaliwanag kung paano ginagawang mas mapagkakatiwalaan ang data ng mga incentivized na network ng oracle
 - Mabisang timbangin ang mga kapalit sa pagitan ng paggamit ng iba't ibang uri ng orakulo
-- Gumamit ng mga orakulo mula sa isang on-chain na programa upang ma-access ang real-world na data
+- Gumamit ng mga orakulo mula sa isang onchain na programa upang ma-access ang real-world na data
 ---
 
 # TL;DR
@@ -17,9 +17,9 @@ objectives:
 
 # Lesson
 
-Ang Oracles ay mga serbisyong nagbibigay ng panlabas na data sa isang blockchain network. Ang mga blockchain ay likas na mga siled na kapaligiran na walang kaalaman sa labas ng mundo. Ang paghihigpit na ito ay likas na naglalagay ng limitasyon sa mga kaso ng paggamit para sa mga desentralisadong aplikasyon (dApps). Nagbibigay ang Oracles ng solusyon sa limitasyong ito sa pamamagitan ng paglikha ng isang desentralisadong paraan upang makakuha ng real-world na data na on-chain.
+Ang Oracles ay mga serbisyong nagbibigay ng panlabas na data sa isang blockchain network. Ang mga blockchain ay likas na mga siled na kapaligiran na walang kaalaman sa labas ng mundo. Ang paghihigpit na ito ay likas na naglalagay ng limitasyon sa mga kaso ng paggamit para sa mga desentralisadong aplikasyon (dApps). Nagbibigay ang Oracles ng solusyon sa limitasyong ito sa pamamagitan ng paglikha ng isang desentralisadong paraan upang makakuha ng real-world na data na onchain.
 
-Ang mga Oracle ay maaaring magbigay ng halos anumang uri ng data na on-chain. Kasama sa mga halimbawa ang:
+Ang mga Oracle ay maaaring magbigay ng halos anumang uri ng data na onchain. Kasama sa mga halimbawa ang:
 
 - Mga resulta ng mga kaganapang pampalakasan
 - Data ng panahon
@@ -30,7 +30,7 @@ Ang mga Oracle ay maaaring magbigay ng halos anumang uri ng data na on-chain. Ka
 Habang ang eksaktong pagpapatupad ay maaaring mag-iba mula sa blockchain hanggang sa blockchain, sa pangkalahatan ang Oracles ay gumagana tulad ng sumusunod:
 
 1. Ang data ay pinanggalingan off-chain.
-2. Ang data na iyon ay na-publish on-chain sa isang transaksyon at nakaimbak sa isang account.
+2. Ang data na iyon ay na-publish onchain sa isang transaksyon at nakaimbak sa isang account.
 3. Maaaring basahin ng mga program ang data na nakaimbak sa account at gamitin ito sa lohika nito.
 
 Tatalakayin ng araling ito ang mga pangunahing kaalaman sa kung paano gumagana ang mga orakulo, ang estado ng mga orakulo sa Solana, at kung paano epektibong gumamit ng mga orakulo sa iyong pagbuo ng Solana.
@@ -41,7 +41,7 @@ Ang pangunahing hadlang na kailangang malampasan ng mga orakulo ay ang pagtitiwa
 
 Sa pangkalahatan, mayroong tatlong uri ng pagpapatupad:
 
-1. Ang nag-iisang, sentralisadong orakulo ay naglalathala ng data na on-chain.
+1. Ang nag-iisang, sentralisadong orakulo ay naglalathala ng data na onchain.
      1. Pro: Ito ay simple; may isang pinagmumulan ng katotohanan.
      2. Con: Walang pumipigil sa provider ng oracle sa pagbibigay ng hindi tumpak na data.
 2. Ang network ng mga orakulo ay nag-publish ng data at isang mekanismo ng pinagkasunduan ay ginagamit upang matukoy ang huling resulta.
@@ -79,19 +79,19 @@ Sa pamamagitan ng pagpapakilala ng mga TEE sa tuktok ng stake weighted oracle, n
 
 Ang mga switchboard oracle ay nag-iimbak ng data sa Solana gamit ang mga feed ng data. Ang mga data feed na ito, na tinatawag ding mga aggregator, ay bawat isa ay isang koleksyon ng mga trabaho na pinagsasama-sama upang makagawa ng isang resulta. Ang mga aggregator na ito ay kinakatawan sa chain bilang isang regular na Solana account na pinamamahalaan ng Switchboard program. Kapag nag-update ang isang oracle, direktang isinusulat nito ang data sa mga account na ito. Tingnan natin ang ilang termino para maunawaan kung paano gumagana ang Switchboard:
 
-- **[Aggregator (Data Feed)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle/_program/acgregrs. * - Naglalaman ng configuration ng feed ng data, na nagdidikta kung paano hinihiling, ina-update, at naresolba ang mga update sa feed ng data on-chain mula sa itinalagang pinagmulan nito. Ang Aggregator ay ang account na pagmamay-ari ng Switchboard Solana program at kung saan ang data ay na-publish on-chain.
+- **[Aggregator (Data Feed)](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle/_program/acgregrs. * - Naglalaman ng configuration ng feed ng data, na nagdidikta kung paano hinihiling, ina-update, at naresolba ang mga update sa feed ng data onchain mula sa itinalagang pinagmulan nito. Ang Aggregator ay ang account na pagmamay-ari ng Switchboard Solana program at kung saan ang data ay na-publish onchain.
 - **[Trabaho](https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/job.rs dapat ang bawat data source)** tumutugma sa isang account sa trabaho. Ang account sa trabaho ay isang koleksyon ng mga gawain sa Switchboard na ginagamit upang turuan ang mga orakulo kung paano kumuha at mag-transform ng data. Sa madaling salita, iniimbak nito ang mga blueprint para sa kung paano kinukuha ang data off-chain para sa isang partikular na data source.
-- **Oracle** - Isang hiwalay na programa na nasa pagitan ng internet at blockchain at pinapadali ang daloy ng impormasyon. Nagbabasa ang isang orakulo sa mga kahulugan ng trabaho ng isang feed, kinakalkula ang resulta, at isinusumite ang tugon nito on-chain.
-- **Oracle Queue** - Isang pangkat ng mga orakulo na itatalaga sa pag-update ng mga kahilingan sa round-robin na paraan. Ang mga orakulo sa pila ay dapat na aktibong tumitibok ng puso on-chain upang makapagbigay ng mga update. Ang data at mga configuration para sa queue na ito ay naka-store on-chain sa isang [account na pagmamay-ari ng Switchboard program](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/srcolana. nabuo/oracle-program/accounts/OracleQueueAccountData.ts#L8).
-- **Oracle Consensus** - Tinutukoy kung paano nagkakasundo ang mga orakulo sa tinatanggap na on-chain na resulta. Ginagamit ng mga switchboard oracle ang median na oracle na tugon bilang tinatanggap na resulta. Maaaring kontrolin ng awtoridad ng feed kung gaano karaming mga orakulo ang hinihiling at kung ilan ang dapat tumugon upang maimpluwensyahan ang seguridad nito.
+- **Oracle** - Isang hiwalay na programa na nasa pagitan ng internet at blockchain at pinapadali ang daloy ng impormasyon. Nagbabasa ang isang orakulo sa mga kahulugan ng trabaho ng isang feed, kinakalkula ang resulta, at isinusumite ang tugon nito onchain.
+- **Oracle Queue** - Isang pangkat ng mga orakulo na itatalaga sa pag-update ng mga kahilingan sa round-robin na paraan. Ang mga orakulo sa pila ay dapat na aktibong tumitibok ng puso onchain upang makapagbigay ng mga update. Ang data at mga configuration para sa queue na ito ay naka-store onchain sa isang [account na pagmamay-ari ng Switchboard program](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/srcolana. nabuo/oracle-program/accounts/OracleQueueAccountData.ts#L8).
+- **Oracle Consensus** - Tinutukoy kung paano nagkakasundo ang mga orakulo sa tinatanggap na onchain na resulta. Ginagamit ng mga switchboard oracle ang median na oracle na tugon bilang tinatanggap na resulta. Maaaring kontrolin ng awtoridad ng feed kung gaano karaming mga orakulo ang hinihiling at kung ilan ang dapat tumugon upang maimpluwensyahan ang seguridad nito.
 
-Ang mga switchboard oracle ay na-insentibo na i-update ang mga feed ng data dahil sila ay ginagantimpalaan para sa paggawa nito nang tumpak. Ang bawat data feed ay may `LeaseContract` account. Ang kontrata sa pag-upa ay isang pre-funded escrow account upang gantimpalaan ang mga orakulo para sa pagtupad sa mga kahilingan sa pag-update. Tanging ang paunang natukoy na `leaseAuthority` ang maaaring mag-withdraw ng mga pondo mula sa kontrata, ngunit kahit sino ay maaaring mag-ambag dito. Kapag humiling ng bagong yugto ng mga update para sa isang data feed, ang user na humiling ng update ay gagantimpalaan mula sa escrow. Ito ay para bigyan ng insentibo ang mga user at crank turners (sinuman na nagpapatakbo ng software para sistematikong magpadala ng mga kahilingan sa pag-update sa Oracles) na panatilihing na-update ang mga feed batay sa mga configuration ng feed. Kapag ang isang kahilingan sa pag-update ay matagumpay na natupad at naisumite nang on-chain ng mga orakulo sa pila, ang mga orakulo ay ililipat din ng gantimpala mula sa escrow. Tinitiyak ng mga pagbabayad na ito ang mga aktibong kalahok.
+Ang mga switchboard oracle ay na-insentibo na i-update ang mga feed ng data dahil sila ay ginagantimpalaan para sa paggawa nito nang tumpak. Ang bawat data feed ay may `LeaseContract` account. Ang kontrata sa pag-upa ay isang pre-funded escrow account upang gantimpalaan ang mga orakulo para sa pagtupad sa mga kahilingan sa pag-update. Tanging ang paunang natukoy na `leaseAuthority` ang maaaring mag-withdraw ng mga pondo mula sa kontrata, ngunit kahit sino ay maaaring mag-ambag dito. Kapag humiling ng bagong yugto ng mga update para sa isang data feed, ang user na humiling ng update ay gagantimpalaan mula sa escrow. Ito ay para bigyan ng insentibo ang mga user at crank turners (sinuman na nagpapatakbo ng software para sistematikong magpadala ng mga kahilingan sa pag-update sa Oracles) na panatilihing na-update ang mga feed batay sa mga configuration ng feed. Kapag ang isang kahilingan sa pag-update ay matagumpay na natupad at naisumite nang onchain ng mga orakulo sa pila, ang mga orakulo ay ililipat din ng gantimpala mula sa escrow. Tinitiyak ng mga pagbabayad na ito ang mga aktibong kalahok.
 
-Bukod pa rito, ang mga orakulo ay kailangang mag-stake ng mga token bago sila makapagbigay ng mga kahilingan sa pag-update at magsumite ng mga tugon on-chain. Kung ang isang orakulo ay magsusumite ng isang resultang on-chain na nasa labas ng mga naka-configure na parameter ng queue, ang kanilang stake ay mababawasan (kung ang queue ay may `slashingEnabled`). Nakakatulong ito na matiyak na ang mga orakulo ay tumutugon nang may mabuting loob na may tumpak na impormasyon.
+Bukod pa rito, ang mga orakulo ay kailangang mag-stake ng mga token bago sila makapagbigay ng mga kahilingan sa pag-update at magsumite ng mga tugon onchain. Kung ang isang orakulo ay magsusumite ng isang resultang onchain na nasa labas ng mga naka-configure na parameter ng queue, ang kanilang stake ay mababawasan (kung ang queue ay may `slashingEnabled`). Nakakatulong ito na matiyak na ang mga orakulo ay tumutugon nang may mabuting loob na may tumpak na impormasyon.
 
-Ngayong nauunawaan mo na ang terminolohiya at ekonomiya, tingnan natin kung paano na-publish ang data on-chain:
+Ngayong nauunawaan mo na ang terminolohiya at ekonomiya, tingnan natin kung paano na-publish ang data onchain:
 
-1. Oracle queue setup - Kapag ang isang update ay hiniling mula sa isang queue, ang susunod na `N` na oracle ay itatalaga sa kahilingan sa pag-update at umiikot sa likod ng queue. Ang bawat oracle queue sa Switchboard network ay independyente at nagpapanatili ng sarili nitong configuration. Ang configuration ay nakakaimpluwensya sa antas ng seguridad nito. Ang pagpipiliang disenyong ito ay nagbibigay-daan sa mga user na maiangkop ang gawi ng oracle queue upang tumugma sa kanilang partikular na kaso ng paggamit. Ang isang Oracle queue ay naka-imbak on-chain bilang isang account at naglalaman ng metadata tungkol sa queue. Ang isang queue ay nagagawa sa pamamagitan ng paggamit ng [oracleQueueInit na pagtuturo](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/orasrc/cleoratolana. ts#L13) sa programang Switchboard Solana.
+1. Oracle queue setup - Kapag ang isang update ay hiniling mula sa isang queue, ang susunod na `N` na oracle ay itatalaga sa kahilingan sa pag-update at umiikot sa likod ng queue. Ang bawat oracle queue sa Switchboard network ay independyente at nagpapanatili ng sarili nitong configuration. Ang configuration ay nakakaimpluwensya sa antas ng seguridad nito. Ang pagpipiliang disenyong ito ay nagbibigay-daan sa mga user na maiangkop ang gawi ng oracle queue upang tumugma sa kanilang partikular na kaso ng paggamit. Ang isang Oracle queue ay naka-imbak onchain bilang isang account at naglalaman ng metadata tungkol sa queue. Ang isang queue ay nagagawa sa pamamagitan ng paggamit ng [oracleQueueInit na pagtuturo](https://github.com/switchboard-xyz/solana-sdk/blob/9dc3df8a5abe261e23d46d14f9e80a7032bb346c/javascript/solana.js/orasrc/cleoratolana. ts#L13) sa programang Switchboard Solana.
      1. Ilang nauugnay na Oracle Queue configuration:
          1. `oracle_timeout` - Ang agwat kapag ang mga lipas na orakulo ay aalisin kung mabigo ang mga ito sa tibok ng puso.
          2. `reward` - Mga reward na magbibigay ng mga orakulo at round openers sa queue na ito.
@@ -101,23 +101,23 @@ Ngayong nauunawaan mo na ang terminolohiya at ekonomiya, tingnan natin kung paan
 2. Pag-setup ng aggregator/data feed - Magagawa ang aggregator/feed account. Ang isang feed ay kabilang sa iisang oracle queue. Ang configuration ng feed ay nagdidikta kung paano hinihimok at dinadala sa network ang mga kahilingan sa pag-update.
 3. Pag-setup ng Job account - Bilang karagdagan sa feed, dapat na i-set up ang isang job account para sa bawat data source. Tinutukoy nito kung paano matutupad ng mga orakulo ang mga kahilingan sa pag-update ng feed. Kabilang dito ang pagtukoy kung saan dapat kunin ng mga orakulo ang data na hinihiling ng feed.
 4. Humiling ng pagtatalaga - Kapag ang isang update ay hiniling sa feed account, ang oracle queue ay magtatalaga ng kahilingan sa iba't ibang oracle/node sa queue upang matupad. Kukunin ng mga orakulo ang data mula sa data source na tinukoy sa bawat account ng trabaho ng feed. Ang bawat account ng trabaho ay may bigat na nauugnay dito. Kakalkulahin ng orakulo ang weighted median ng mga resulta mula sa lahat ng trabaho.
-5. Pagkatapos matanggap ang mga tugon ng `minOracleResults`, kinakalkula ng on-chain program ang resulta gamit ang median ng mga tugon ng oracle. Ang mga Oracle na tumugon sa loob ng mga naka-configure na parameter ng queue ay ginagantimpalaan, habang ang mga oracle na tumugon sa labas ng threshold na ito ay pina-slash (kung ang queue ay may `slashingEnabled`).
-6. Ang na-update na resulta ay naka-imbak sa data feed account upang ito ay mabasa/maubos on-chain.
+5. Pagkatapos matanggap ang mga tugon ng `minOracleResults`, kinakalkula ng onchain program ang resulta gamit ang median ng mga tugon ng oracle. Ang mga Oracle na tumugon sa loob ng mga naka-configure na parameter ng queue ay ginagantimpalaan, habang ang mga oracle na tumugon sa labas ng threshold na ito ay pina-slash (kung ang queue ay may `slashingEnabled`).
+6. Ang na-update na resulta ay naka-imbak sa data feed account upang ito ay mabasa/maubos onchain.
 
 ### How to use Switchboard Oracles
 
 Upang magamit ang mga orakulo ng Switchboard at isama ang off-chain na data sa isang Solana program, kailangan mo munang maghanap ng feed na nagbibigay ng data na kailangan mo. Pampubliko ang mga switchboard feed at maraming [available na ang maaari mong pagpilian](https://app.switchboard.xyz/solana/devnet/explore). Kapag naghahanap ng feed, kailangan mong magpasya kung gaano katumpak/kaaasahang gusto mo ang feed, kung saan mo gustong pagmulan ang data, pati na rin ang cadence ng update ng feed. Kapag gumagamit ng feed na available sa publiko, wala kang kontrol sa mga bagay na ito, kaya pumili nang mabuti!
 
-Halimbawa, mayroong Switchboard-sponsored [BTC_USD feed](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee). Available ang feed na ito sa Solana devnet/mainnet na may pubkey `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee`. Nagbibigay ito ng kasalukuyang presyo ng Bitcoin sa USD on-chain.
+Halimbawa, mayroong Switchboard-sponsored [BTC_USD feed](https://app.switchboard.xyz/solana/devnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee). Available ang feed na ito sa Solana devnet/mainnet na may pubkey `8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee`. Nagbibigay ito ng kasalukuyang presyo ng Bitcoin sa USD onchain.
 
-Ang aktwal na on-chain na data para sa isang Switchboard feed account ay medyo ganito:
+Ang aktwal na onchain na data para sa isang Switchboard feed account ay medyo ganito:
 
 ```rust
 // from the switchboard solana program
 // https://github.com/switchboard-xyz/sbv2-solana/blob/0b5e0911a1851f9ca37042e6ff88db4cd840067b/rust/switchboard-solana/src/oracle_program/accounts/aggregator.rs#L60
 
 pub struct AggregatorAccountData {
-    /// Name of the aggregator to store on-chain.
+    /// Name of the aggregator to store onchain.
     pub name: [u8; 32],
     ...
 		...
@@ -157,9 +157,9 @@ Ang ilang nauugnay na field at configuration sa uri ng `AggregatorAccountData` a
 
 Ang unang tatlong config na nakalista sa itaas ay direktang nauugnay sa katumpakan at pagiging maaasahan ng isang data feed.
 
-Kinakatawan ng field na `min_job_results` ang pinakamababang halaga ng matagumpay na mga tugon mula sa mga pinagmumulan ng data na dapat matanggap ng isang oracle bago nito maisumite ang tugon nito on-chain. Ibig sabihin kung ang `min_job_results` ay tatlo, ang bawat orakulo ay kailangang humila mula sa tatlong pinagmumulan ng trabaho. Kung mas mataas ang numerong ito, magiging mas maaasahan at tumpak ang data sa feed. Nililimitahan din nito ang epekto ng isang pinagmumulan ng data sa resulta.
+Kinakatawan ng field na `min_job_results` ang pinakamababang halaga ng matagumpay na mga tugon mula sa mga pinagmumulan ng data na dapat matanggap ng isang oracle bago nito maisumite ang tugon nito onchain. Ibig sabihin kung ang `min_job_results` ay tatlo, ang bawat orakulo ay kailangang humila mula sa tatlong pinagmumulan ng trabaho. Kung mas mataas ang numerong ito, magiging mas maaasahan at tumpak ang data sa feed. Nililimitahan din nito ang epekto ng isang pinagmumulan ng data sa resulta.
 
-Ang field na `min_oracle_results` ay ang pinakamababang halaga ng mga tugon ng oracle na kinakailangan para maging matagumpay ang isang round. Tandaan, ang bawat orakulo sa isang queue ay kumukuha ng data mula sa bawat pinagmulan na tinukoy bilang isang trabaho. Kinukuha ng orakulo ang weighted median ng mga tugon mula sa mga source at isinusumite ang median na on-chain. Pagkatapos ay maghihintay ang program para sa `min_oracle_results` ng mga weighted median at kinukuha ang median niyan, na siyang huling resulta na nakaimbak sa data feed account.
+Ang field na `min_oracle_results` ay ang pinakamababang halaga ng mga tugon ng oracle na kinakailangan para maging matagumpay ang isang round. Tandaan, ang bawat orakulo sa isang queue ay kumukuha ng data mula sa bawat pinagmulan na tinukoy bilang isang trabaho. Kinukuha ng orakulo ang weighted median ng mga tugon mula sa mga source at isinusumite ang median na onchain. Pagkatapos ay maghihintay ang program para sa `min_oracle_results` ng mga weighted median at kinukuha ang median niyan, na siyang huling resulta na nakaimbak sa data feed account.
 
 Ang field na `min_update_delay_seconds` ay direktang nauugnay sa cadence ng pag-update ng feed. Ang `min_update_delay_seconds` ay dapat na dumaan sa pagitan ng isang round ng mga update at sa susunod bago ang Switchboard program ay tumanggap ng mga resulta.
 
@@ -909,10 +909,10 @@ describe("burry-escrow", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("On-chain unlock price:", newAccount.unlockPrice)
+      console.log("Onchain unlock price:", newAccount.unlockPrice)
       console.log("Amount in escrow:", escrowBalance)
 
-      // Check whether the data on-chain is equal to local 'data'
+      // Check whether the data onchain is equal to local 'data'
       assert(failUnlockPrice == newAccount.unlockPrice)
       assert(escrowBalance > 0)
     } catch (e) {
@@ -1000,10 +1000,10 @@ describe("burry-escrow", () => {
       )
 
       const escrowBalance = await provider.connection.getBalance(escrowState, "confirmed")
-      console.log("On-chain unlock price:", newAccount.unlockPrice)
+      console.log("Onchain unlock price:", newAccount.unlockPrice)
       console.log("Amount in escrow:", escrowBalance)
 
-      // Check whether the data on-chain is equal to local 'data'
+      // Check whether the data onchain is equal to local 'data'
       assert(failUnlockPrice == newAccount.unlockPrice)
       assert(escrowBalance > 0)
     } catch (e) {

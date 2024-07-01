@@ -42,7 +42,7 @@ Para criar uma instância de `Program`, você precisará do seguinte:
 - `Connection` - a conexão do cluster.
 - `Wallet` - par de chaves padrão usado para pagar e assinar transações.
 - `Provider` - encapsula o `Connection` em um cluster Solana e uma `Wallet`.
-- `ProgramId` - o endereço do programa on-chain
+- `ProgramId` - o endereço do programa onchain
 
 ![estrutura Anchor](../assets/anchor-client-structure.png)
 
@@ -108,7 +108,7 @@ Ao examinar a IDL, você pode ver que em ambas as instruções o `user` é neces
 
 Observando a seção `accounts`, é possível ver que o programa contém um tipo de conta chamado `Counter` com um único campo `count` do tipo `u64`.
 
-Embora a IDL não forneça os detalhes de implementação de cada instrução, podemos ter uma ideia básica de como o programa on-chain espera que as instruções sejam construídas e podemos ver a estrutura das contas do programa.
+Embora a IDL não forneça os detalhes de implementação de cada instrução, podemos ter uma ideia básica de como o programa onchain espera que as instruções sejam construídas e podemos ver a estrutura das contas do programa.
 
 Independentemente de como você o obtenha, você precisa de um arquivo IDL para interagir com um programa que use o pacote `@coral-xyz/anchor`. Para usar a IDL, você precisará incluir o arquivo IDL em seu projeto e, em seguida, importar o arquivo.
 
@@ -204,10 +204,10 @@ setProvider(provider)
 Depois de ter a IDL e um provedor, você pode criar uma instância do `Program`. O construtor requer três parâmetros:
 
 - `idl` - a IDL como tipo `Idl`.
-- `programId` - o endereço on-chain do programa como uma `string` ou `PublicKey`.
+- `programId` - o endereço onchain do programa como uma `string` ou `PublicKey`.
 - `Provider` - o provedor discutido na seção anterior.
 
-O objeto `Program` cria uma API personalizada que você pode usar para interagir com um programa Solana. Essa API é o ponto de parada único para todas as coisas relacionadas à comunicação com programas on-chain. Entre outras coisas, você pode enviar transações, buscar contas desserializadas, decodificar dados de instrução, assinar alterações de conta e ouvir eventos. Você também pode [aprender mais sobre a classe do `Program`](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
+O objeto `Program` cria uma API personalizada que você pode usar para interagir com um programa Solana. Essa API é o ponto de parada único para todas as coisas relacionadas à comunicação com programas onchain. Entre outras coisas, você pode enviar transações, buscar contas desserializadas, decodificar dados de instrução, assinar alterações de conta e ouvir eventos. Você também pode [aprender mais sobre a classe do `Program`](https://coral-xyz.github.io/anchor/ts/classes/Program.html#constructor).
 
 Para criar o objeto `Program`, primeiro importe `Program` e `Idl` de `@coral-xyz/anchor`. O `Idl` é um tipo que pode ser usado quando se trabalha com Typescript.
 
@@ -295,7 +295,7 @@ const transaction = new Transaction().add(instructionOne, instructionTwo)
 await sendTransaction(transaction, connection)
 ```
 
-Em resumo, o `MethodsBuilder` do Anchor oferece uma maneira simplificada e mais flexível de interagir com programas on-chain. Você pode criar uma instrução, uma transação ou criar e enviar uma transação usando basicamente o mesmo formato, sem precisar serializar ou desserializar manualmente as contas ou os dados da instrução.
+Em resumo, o `MethodsBuilder` do Anchor oferece uma maneira simplificada e mais flexível de interagir com programas onchain. Você pode criar uma instrução, uma transação ou criar e enviar uma transação usando basicamente o mesmo formato, sem precisar serializar ou desserializar manualmente as contas ou os dados da instrução.
 
 ## Busque contas de programa
 

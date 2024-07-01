@@ -152,7 +152,7 @@ Todas as transações na blockchain são visíveis publicamente no [Explorador S
 
 # Demonstração
 
-Vamos criar um script para acionar um programa on-chain que incrementa um contador cada vez que é acionado. Este programa existe na Devnet da Solana no endereço `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. O programa armazena seus dados em uma conta específica no endereço `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
+Vamos criar um script para acionar um programa onchain que incrementa um contador cada vez que é acionado. Este programa existe na Devnet da Solana no endereço `ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa`. O programa armazena seus dados em uma conta específica no endereço `Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod`.
 
 ![Solana armazena programas e dados em contas separadas](../../assets/pdas-note-taking-program.svg)
 
