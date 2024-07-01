@@ -794,7 +794,7 @@ console.log('Mint =====>', mintDetails);
 // Since the mint stores the metadata in itself, we can just get it like this
 const onChainMetadata = await getTokenMetadata(connection, mint.publicKey);
 // Now we can see the metadata coming with the mint
-console.log('On-chain metadata =====>', onChainMetadata);
+console.log('Onchain metadata =====>', onChainMetadata);
 
 // And we can even get the off-chain json now
 if (onChainMetadata && onChainMetadata.uri) {
@@ -940,7 +940,7 @@ export default async function createNFTWithEmbeddedMetadata(inputs: CreateNFTInp
   // Since the mint stores the metadata in itself, we can just get it like this
   const onChainMetadata = await getTokenMetadata(connection, mint.publicKey);
   // Now we can see the metadata coming with the mint
-  console.log('On-chain metadata =====>', onChainMetadata);
+  console.log('Onchain metadata =====>', onChainMetadata);
 
   // And we can even get the off-chain JSON now
   if (onChainMetadata && onChainMetadata.uri) {
