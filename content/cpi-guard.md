@@ -16,10 +16,12 @@ objectives:
 
 CPI Guard is an extension that prohibits certain actions inside cross-program invocations, protecting users from implicitly signing for actions they can't see, such as those hidden in programs that aren't the System or Token programs.
 
+A specific example of this is when the CPI gaurd is enabled, no CPI can approve a delegate over a token account. This is handy, because if a malicious CPI calls `set_delegate` no immediate balance change will be apparent, however the attacker now has transfer and burn authority over the token account. CPI gaurd makes this impossible.
+
 Users may choose to enable or disable the CPI Guard extension on their token account at will. When enabled, it has the following effects during a CPI:
 
-- Transfer: the signing authority must be the account delegate
-- Burn: the signing authority must be the account delegate
+- Transfer: the signing authority must be the owner or previously established account delegate
+- Burn: the signing authority must be the owner or previously established account delegate
 - Approve: prohibited - no delegates can be approved within the CPI
 - Close Account: the lamport destination must be the account owner
 - Set Close Authority: prohibited unless unsetting
@@ -293,12 +295,12 @@ cargo update -p solana-program@1.18.0 --precise ver
 where `ver` is the latest version of `solana-program` supporting rustc 1.68.0-dev
 ```
 
-You will also want the latest version of the anchor CLI installed. You can follow the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
+You will also want the `0.29.0` version of the anchor CLI installed. You can follow the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
 
 or simply run
 ```bash
-avm install latest
-avm use latest
+avm install 0.29.0
+avm use 0.29.0
 ```
 
 At the time of writing, the latest version of the Anchor CLI is `0.29.0`
@@ -456,17 +458,28 @@ Before we write our test, we need to take a look at the program code we are test
 
 ```rust
 // inside src/lib.rs
-
 pub fn prohibited_approve_account(ctx: Context<ApproveAccount>, amount: u64) -> Result<()> {
-        msg!("Invoked ProhibitedApproveAccount");
+    msg!("Invoked ProhibitedApproveAccount");
 
-        msg!("Approving delegate: {} to transfer up to {} tokens.", ctx.accounts.delegate.key(), amount);
+    msg!(
+        "Approving delegate: {} to transfer up to {} tokens.",
+        ctx.accounts.delegate.key(),
+        amount
+    );
 
-        approve(ctx.accounts.approve_delegate_ctx(), amount)?;
-
-        Ok(())
-    }
-    ...
+    approve(
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            Approve {
+                to: ctx.accounts.token_account.to_account_info(),
+                delegate: ctx.accounts.delegate.to_account_info(),
+                authority: ctx.accounts.authority.to_account_info(),
+            },
+        ),
+        amount,
+    )
+}
+...
 
 #[derive(Accounts)]
 pub struct ApproveAccount<'info> {
@@ -478,23 +491,10 @@ pub struct ApproveAccount<'info> {
         token::authority = authority
     )]
     pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
-    /// CHECK: delegate to approve
+    /// CHECK: delegat to approve
     #[account(mut)]
     pub delegate: AccountInfo<'info>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
-}
-...
-impl <'info> ApproveAccount <'info> {
-    pub fn approve_delegate_ctx(&self) -> CpiContext<'_, '_, '_, 'info, Approve<'info>> {
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = Approve {
-            to: self.token_account.to_account_info(),
-            delegate: self.delegate.to_account_info(),
-            authority: self.authority.to_account_info()
-        };
-
-        CpiContext::new(cpi_program, cpi_accounts)
-    } 
 }
 ```
 
@@ -591,14 +591,24 @@ The close account instruction invokes the `close_account` instruction on the `To
 
 ```rust
 pub fn malicious_close_account(ctx: Context<MaliciousCloseAccount>) -> Result<()> {
-        msg!("Invoked MaliciousCloseAccount");
+    msg!("Invoked MaliciousCloseAccount");
 
-        msg!("Token account to close : {}", ctx.accounts.token_account.key());
+    msg!(
+        "Token account to close : {}",
+        ctx.accounts.token_account.key()
+    );
 
-        close_account(ctx.accounts.close_account_ctx())?;
+    close_account(CpiContext::new(
+        ctx.accounts.token_program.to_account_info(),
+        CloseAccount {
+            account: ctx.accounts.token_account.to_account_info(),
+            destination: ctx.accounts.destination.to_account_info(),
+            authority: ctx.accounts.authority.to_account_info(),
+        },
+    ))
+}
 
-        Ok(())
-    }
+...
 
 #[derive(Accounts)]
 pub struct MaliciousCloseAccount<'info> {
@@ -615,20 +625,6 @@ pub struct MaliciousCloseAccount<'info> {
     pub destination: AccountInfo<'info>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
     pub system_program: Program<'info, System>,
-}
-
-impl<'info> MaliciousCloseAccount <'info> {
-    // close_account for Token2022
-    pub fn close_account_ctx(&self) -> CpiContext<'_, '_, '_, 'info, CloseAccount<'info>> {
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = CloseAccount {
-            account: self.token_account.to_account_info(),
-            destination: self.destination.to_account_info(),
-            authority: self.authority.to_account_info(),
-        };
-
-        CpiContext::new(cpi_program, cpi_accounts)
-    }
 }
 ```
 
@@ -716,15 +712,23 @@ Moving on to the `prohibited_set_authority` instruction, the CPI Guard protects 
 pub fn prohibted_set_authority(ctx: Context<SetAuthorityAccount>) -> Result<()> {
     msg!("Invoked ProhibitedSetAuthority");
 
-    msg!("Setting authority of token account: {} to address: {}", ctx.accounts.token_account.key(), ctx.accounts.new_authority.key());
+    msg!(
+        "Setting authority of token account: {} to address: {}",
+        ctx.accounts.token_account.key(),
+        ctx.accounts.new_authority.key()
+    );
 
     set_authority(
-        ctx.accounts.set_authority_ctx(),
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            SetAuthority {
+                current_authority: ctx.accounts.authority.to_account_info(),
+                account_or_mint: ctx.accounts.token_account.to_account_info(),
+            },
+        ),
         spl_token_2022::instruction::AuthorityType::CloseAccount,
         Some(ctx.accounts.new_authority.key()),
-    )?;
-
-    Ok(())
+    )
 }
 
 #[derive(Accounts)]
@@ -737,22 +741,10 @@ pub struct SetAuthorityAccount<'info> {
         token::authority = authority
     )]
     pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
-    /// CHECK: delegate to approve
+    /// CHECK: delegat to approve
     #[account(mut)]
     pub new_authority: AccountInfo<'info>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
-}
-
-impl <'info> SetAuthorityAccount <'info> {
-    pub fn set_authority_ctx(&self) -> CpiContext<'_, '_, '_, 'info, SetAuthority<'info>> {
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = SetAuthority {
-            current_authority: self.authority.to_account_info(),
-            account_or_mint: self.token_account.to_account_info(),
-        };
-
-        CpiContext::new(cpi_program, cpi_accounts)
-    } 
 }
 ```
 
@@ -842,17 +834,26 @@ The CPI Guard ensures that this is only possible if the signing authority is the
 
 ```rust
 pub fn unauthorized_burn(ctx: Context<BurnAccounts>, amount: u64) -> Result<()> {
-        msg!("Invoked Burn");
+    msg!("Invoked Burn");
 
-        msg!("Burning {} tokens from address: {}", amount, ctx.accounts.token_account.key());
+    msg!(
+        "Burning {} tokens from address: {}",
+        amount,
+        ctx.accounts.token_account.key()
+    );
 
-        burn(
-            ctx.accounts.burn_ctx(),
-            amount
-        )?;
-
-        Ok(())
-    }
+    burn(
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            Burn {
+                mint: ctx.accounts.token_mint.to_account_info(),
+                from: ctx.accounts.token_account.to_account_info(),
+                authority: ctx.accounts.authority.to_account_info(),
+            },
+        ),
+        amount,
+    )
+}
 
 ...
 
@@ -871,22 +872,7 @@ pub struct BurnAccounts<'info> {
         mint::token_program = token_program
     )]
     pub token_mint: InterfaceAccount<'info, token_interface::Mint>,
-    pub token_program: Interface<'info, token_interface::TokenInterface>
-}
-
-...
-
-impl <'info> BurnAccounts <'info> {
-    pub fn burn_ctx(&self) -> CpiContext<'_, '_, '_, 'info, Burn<'info>> {
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = Burn {
-            mint: self.token_mint.to_account_info(),
-            from: self.token_account.to_account_info(),
-            authority: self.authority.to_account_info()
-        };
-
-        CpiContext::new(cpi_program, cpi_accounts)
-    }
+    pub token_program: Interface<'info, token_interface::TokenInterface>,
 }
 ```
 To test this, open up the `tests/burn-example.ts` file. The starter code is the same as the previous, except we swapped `maliciousAccount` to `delegate`.
@@ -1008,18 +994,25 @@ Here is the program instruction.
 
 ```rust
 pub fn set_owner(ctx: Context<SetOwnerAccounts>) -> Result<()> {
-
     msg!("Invoked SetOwner");
 
-    msg!("Setting owner of token account: {} to address: {}", ctx.accounts.token_account.key(), ctx.accounts.new_owner.key());
+    msg!(
+        "Setting owner of token account: {} to address: {}",
+        ctx.accounts.token_account.key(),
+        ctx.accounts.new_owner.key()
+    );
 
     set_authority(
-        ctx.accounts.set_owner_ctx(),
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            SetAuthority {
+                current_authority: ctx.accounts.authority.to_account_info(),
+                account_or_mint: ctx.accounts.token_account.to_account_info(),
+            },
+        ),
         spl_token_2022::instruction::AuthorityType::AccountOwner,
         Some(ctx.accounts.new_owner.key()),
-    )?;
-
-    Ok(())
+    )
 }
 
 #[derive(Accounts)]
@@ -1032,22 +1025,10 @@ pub struct SetOwnerAccounts<'info> {
         token::authority = authority
     )]
     pub token_account: InterfaceAccount<'info, token_interface::TokenAccount>,
-    /// CHECK: delegate to approve
+    /// CHECK: delegat to approve
     #[account(mut)]
     pub new_owner: AccountInfo<'info>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
-}
-
-impl <'info> SetOwnerAccounts <'info> {
-    pub fn set_owner_ctx(&self) -> CpiContext<'_, '_, '_, 'info, SetAuthority<'info>> {
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = SetAuthority {
-            current_authority: self.authority.to_account_info(),
-            account_or_mint: self.token_account.to_account_info(),
-        };
-
-        CpiContext::new(cpi_program, cpi_accounts)
-    } 
 }
 ```
 
