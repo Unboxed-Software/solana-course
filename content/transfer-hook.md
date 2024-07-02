@@ -2831,7 +2831,7 @@ They should all be passing!
 
 
 
-If you want to take a look at any of the explorer links do the following:
+If you want to take a look at any of the Explorer links do the following:
 
 
 
