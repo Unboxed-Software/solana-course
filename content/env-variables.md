@@ -20,7 +20,7 @@ One of the difficulties engineers face across all types of software development 
 
 This can be particularly difficult in Solana program development. For example, imagine creating an NFT staking program that rewards each staked NFT with 10 reward tokens per day. How do you test the ability to claim rewards when tests run in a few hundred milliseconds, not nearly long enough to earn rewards?
 
-Traditional web development solves some of this with environment variables whose values can differ in each distinct "environment." Currently, there's no formal concept of environment variables in a Solana program. If there were, you could just make it so that rewards in your test environment are 10,000,000 tokens per day, and it would be easier to test the ability to claim rewards.
+Traditional web development solves some of this with environment variables whose values can differ in each distinct "environment." Currently, there's no formal concept of environment variables in a Solana program. If there were, you could make it so that rewards in your test environment are 10,000,000 tokens daily. Then it would be easier to test the ability to claim rewards.
 
 Fortunately, you can achieve similar functionality if you get creative. The best approach is probably a combination of two things:
 
@@ -161,7 +161,7 @@ First, you must structure your program to store the values you anticipate changi
 
 Next, you need to ensure that this account can only be updated by some known program authority or what we're calling an admin. That means any instructions that modify the data on this account need to have constraints limiting who can sign for the instruction. This sounds fairly straightforward in theory, but there is one main issue: how does the program know who is an authorized admin?
 
-Well, there are a few solutions, each with their benefits and drawbacks:
+There are a few solutions, each with their benefits and drawbacks:
 
 1. Hard-code an admin public key that can be used in the admin-only instruction constraints.
 2. Make the program's upgrade authority the admin.
@@ -185,9 +185,9 @@ The example above shows a hypothetical config account for the NFT staking progra
 
 With the config account defined, ensure that the rest of your code references this account when using these values. That way, if the data in the account changes, the program adapts accordingly.
 
-### Constraint config updates to hard-coded admins
+### Constrain config updates to hard-coded admins
 
-You'll need a way to initialize and update the config account data. That means you need to have one or more instructions that only an admin can invoke. The simplest way to do this is to hard-code an admin's public key in your code and then add a simple signer check into your instruction's account validation, comparing the signer to this public key.
+You'll need a way to initialize and update the config account data. That means you need to have one or more instructions that only an admin can invoke. The simplest way to do this is to hard-code an admin's public key in your code. You can then add a simple signer check into your instruction's account validation that compares the signer to this public key.
 
 In Anchor, constraining an `update_program_config` instruction to only be usable by a hard-coded admin might look like this:
 
@@ -220,11 +220,11 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
-Before instruction logic executes, a check will be performed to ensure the instruction's signer matches the hard-coded `ADMIN_PUBKEY`. Notice that the example above doesn't show the instructions for initializing the config account, but it should have similar constraints to ensure that an attacker can't initialize the account with unexpected values.
+Before instruction logic even executes, a check will be performed to make sure the instruction's signer matches the hard-coded `ADMIN_PUBKEY`. Notice that the example above doesn't show the instruction that initializes the config account, but it should have similar constraints to ensure that an attacker can't initialize the account with unexpected values.
 
 While this approach works, it also means keeping track of an admin wallet on top of keeping track of a program's upgrade authority. With a few more lines of code, you could simply restrict an instruction to only be callable by the upgrade authority. The only tricky part is getting a program's upgrade authority to compare against.
 
-### Constraint config updates to the program's upgrade authority
+### Constrain config updates to the program's upgrade authority
 
 Fortunately, every program has a program data account that translates to the Anchor `ProgramData` account type and has the `upgrade_authority_address` field. The program itself stores this account's address in its data in the field `programdata_address`.
 
@@ -233,7 +233,7 @@ So, in addition to the two accounts required by the instruction in the hard-code
 The accounts then need the following constraints:
 
 1. A constraint on `program` ensuring that the provided `program_data` account matches the program's `programdata_address` field
-2. A constraint on the `program_data` account ensures that the instruction's signer matches the `program_data` account's `upgrade_authority_address` field.
+2. A constraint on the `program_data` account ensuring that the instruction's signer matches the `program_data` account's `upgrade_authority_address` field.
 
 When completed, that looks like this:
 
@@ -252,11 +252,11 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
-Again, the example above doesn't show the instructions that initialize the config account, but it should have the same constraints to ensure that an attacker can't initialize the account with unexpected values.
+Again, the example above doesn't show the instruction that initializes the config account, but it should have the same constraints to ensure that an attacker can't initialize the account with unexpected values.
 
 If this is the first time you've heard about the program data account, it's worth reading through [this Notion doc](https://www.notion.so/29780c48794c47308d5f138074dd9838) about program deploys.
 
-### Constraint config updates to a provided admin
+### Constrain config updates to a provided admin
 
 Both of the previous options are fairly secure but also inflexible. What if you want to update the admin to be someone else? For that, you can store the admin on the config account.
 
@@ -287,7 +287,7 @@ pub struct UpdateProgramConfig<'info> {
 }
 ```
 
-There's one catch here: in the time between deploying a program and initializing the config account, _there is no admin_. This means that the instructions for initializing the config account can't be constrained to allow only admins to be callers. That means it could be called by an attacker looking to set themselves as the admin.
+There's one catch here: in the time between deploying a program and initializing the config account, _there is no admin_. This means that the instruction for initializing the config account can't be constrained to only allow admins as callers. That means it could be called by an attacker looking to set themselves as the admin.
 
 While this sounds bad, it really just means that you shouldn't treat your program as "initialized" until you've initialized the config account yourself and verified that the admin listed on the account is who you expect. If your deploy script deploys and then immediately calls `initialize`, it's very unlikely that an attacker is even aware of your program's existence, much less trying to make themselves the admin. If, by some crazy stroke of bad luck, someone "intercepts" your program, you can close the program with the upgrade authority and redeploy.
 
