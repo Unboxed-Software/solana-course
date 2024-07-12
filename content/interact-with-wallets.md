@@ -241,7 +241,9 @@ Let’s take the Ping program from the last lesson and build a frontend that let
 
 If you don’t already have it, download the [Phantom browser extension](https://phantom.app/download). At the time of writing, it supports Chrome, Brave, Firefox, and Edge browsers, so you’ll also need to have one of those browsers installed. Follow Phantom’s instructions for creating a new account and a new wallet.
 
-Once you have a wallet, click the settings gear on the bottom right in the Phantom UI. Scroll down and click on the line item “Change Network” and select “Devnet.” This ensures that Phantom will be connected to the same network we’ll be using in this lab.
+Once you have a wallet, click the hamburger menu and select the settings gear on the bottom left in the Phantom UI. Scroll down and select Developer Settings. 
+Now enable the Testnet Mode. Make sure that the selected network is Solana Devnet, by clicking on `Solana`.
+This ensures that Phantom will be connected to the same network we’ll be using in this lab.
 
 ### 2. Download the starter code
 
