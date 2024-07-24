@@ -1480,7 +1480,6 @@ The code for the struct will go as follows:
 pub struct InitializeExtraAccountMetaList<'info> {
 
   #[account(mut)]
-
   payer: Signer<'info>,
 
 
