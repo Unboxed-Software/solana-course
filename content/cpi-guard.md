@@ -295,7 +295,7 @@ cargo update -p solana-program@1.18.0 --precise ver
 where `ver` is the latest version of `solana-program` supporting rustc 1.68.0-dev
 ```
 
-You will also want the `0.29.0` version of the anchor CLI installed. You can follow the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
+You will also want the `0.29.0` version of the Anchor CLI installed. You can follow the steps listed here to update via avm https://www.anchor-lang.com/docs/avm
 
 or simply run
 ```bash
