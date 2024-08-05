@@ -1,18 +1,5 @@
-# Solana Development Course
-
-## About
-
-This course is the best place for web developers who are beginning their Web3 development journey. Solana is the ideal network for Web3 because of its high speed, low transaction costs, and large developer community.
-
-The course is currently hosted at https://soldev.app/course. 
-
-To learn Solana development using this course, [visit Soldev](https://soldev.app/course).
-
-## Contributing
-
-This is an ongoing, active project, and we'd love for anyone and everyone to contribute!
-If you'd like to help, look at [how you can contribute](./CONTRIBUTING.md).
-
-## Providing feedback and suggestions
-
-If you have feedback on content or suggestions for additional content, [create an issue](https://github.com/Unboxed-Software/solana-course/issues/new) explaining your feedback/suggestions.
+> [!WARNING]
+> These files are now maintained in the [`courses` folder of the Solana Foundation `developer content`](https://github.com/solana-foundation/developer-content/tree/main/content/courses) repo. 
+> Please make changes, and file issues in, the [`developer content`](https://github.com/solana-foundation/developer-content/tree/main/content/courses) repo rather than this one, and make sure you read the [Contributing Guide](https://github.com/solana-foundation/developer-content/blob/main/CONTRIBUTING.md) first!!
+>
+> Likewise, the content is now displayed on https://solana.com/developers/courses rather than https://soldev.app/course. Each individual module is now it's own course.
