@@ -52,3 +52,4 @@ cp token-extensions-metadata.md ../../developer-content/content/courses/token-ex
 cp token-program.md ../../developer-content/content/courses/tokens-and-nfts/token-program.md
 cp transfer-fee.md ../../developer-content/content/courses/token-extensions/transfer-fee.md
 cp type-cosplay.md ../../developer-content/content/courses/program-security/type-cosplay.md
+cp durable-nonces.md ../../developer-content/content/courses/offline-transactions
