@@ -473,7 +473,7 @@ Kung kailangan mong gumugol ng mas maraming oras sa demo na ito bago magpatuloy,
 
 # Challenge
 
-Para sa hamon ng araling ito, subukang kopyahin ang Student Intro program mula sa Module 1. Tandaan na gumawa kami ng frontend application na nagbibigay-daan sa mga mag-aaral na magpakilala! Kinukuha ng program ang pangalan ng isang user at isang maikling mensahe bilang `instruction_data` at gagawa ng account upang iimbak ang data on-chain.
+Para sa hamon ng araling ito, subukang kopyahin ang Student Intro program mula sa Module 1. Tandaan na gumawa kami ng frontend application na nagbibigay-daan sa mga mag-aaral na magpakilala! Kinukuha ng program ang pangalan ng isang user at isang maikling mensahe bilang `instruction_data` at gagawa ng account upang iimbak ang data onchain.
 
 Gamit ang iyong natutunan sa araling ito, buuin ang Student Intro program hanggang sa punto kung saan maaari mong i-print ang `pangalan` at `mensahe` na ibinibigay ng user sa mga log ng programa kapag ang program ay na-invoke.
 

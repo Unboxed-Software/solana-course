@@ -422,7 +422,7 @@ console.log(
 Go ahead and run the script. You should see the `mint` public key logged to your terminal. 
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 If you run into an error in `initializeKeypair` with airdropping, follow the next step.
@@ -433,17 +433,15 @@ For the sake of this guide, we'll be running our own validator node.
 
 In a separate terminal, run the following command: `solana-test-validator`. This will run the node and also log out some keys and values. The value we need to retrieve and use in our connection is the JSON RPC URL, which in this case is `http://127.0.0.1:8899`. We then use that in the connection to specify to use the local RPC URL.
 
-```tsx
+```typescript
 const connection = new Connection("http://127.0.0.1:8899", "confirmed");
 ```
 
 Alternatively, if you’d like to use testnet or devnet, import the `clusterApiUrl` from `@solana/web3.js` and pass it to the connection as such:
 
-```tsx
+```typescript
 const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 ```
-
-If you decide to use devnet, and have issues with airdropping SOL. Feel free to add the `keypairPath` parameter to `initializeKeypair`. You can get this from running `solana config get` in your terminal. And then go to [faucet.solana.com](https://faucet.solana.com/) and airdrop some sol to your address. You can get your address from running `solana address` in your terminal.
 
 ### 3. Create a mint with transfer fee
 
@@ -552,7 +550,7 @@ await createMintWithTransferFee(
 Run the script to make sure it's working so far.
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 4. Create a fee vault account
@@ -583,7 +581,7 @@ console.log("Current fee vault balance: " + initialBalance + "\n\n");
 
 Let's run the script again, we should have a zero balance.
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 5. Create two token accounts and mint to one
@@ -641,7 +639,7 @@ await mintTo(
 
 If you'd like, run the script to check that everything is working:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 ### 6. Transfer one token
@@ -713,7 +711,7 @@ console.log(`Withheld Transfer Fees: ${withheldAmountAfterTransfer?.withheldAmou
 Go ahead and run the script:
 
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 You should get the following:
@@ -798,7 +796,7 @@ console.log(`Fee vault balance after withdraw: ${feeVaultAfterWithdraw.amount}\n
 
 Go ahead and run the script:
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 You should get the following:
@@ -994,7 +992,7 @@ console.log(`Fee Vault balance after second withdraw: ${feeVaultAfterSecondWithd
 
 Now, let's run it.
 ```bash
-esrun src/index.ts
+npx esrun src/index.ts
 ```
 
 You should see the balances after every step of the way.

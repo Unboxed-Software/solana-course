@@ -285,6 +285,11 @@
                             "title": "Generalized State Compression",
                             "slug": "generalized-state-compression",
                             "lab": "Build a Notes program using state compression"
+                        },
+                        {
+                            "title": "Durable Nonces",
+                            "slug": "durable-nonces",
+                            "lab": "Use durable nonces to create durable transactions"
                         }
                     ]
                 }
@@ -353,6 +358,12 @@
                             "lab": "Make an NFT using the Token Extensions Program"
                         },
                         {
+                            "title": "Group, Group Pointer, Member, and Member Pointer Extensions",
+                            "slug": "group-member",
+                            "lab": "Create an NFT collection with group, member and metadata extensions",
+                            "hidden": true
+                        },
+                        {
                             "title": "Non-Transferrable Token Extension",
                             "slug": "non-transferable-token",
                             "lab": "Create a soul-bound NFT"
@@ -366,6 +377,21 @@
                             "title": "Close Mint Extension",
                             "slug": "close-mint",
                             "lab": "Create a closable mint"
+                        },
+                        {
+                            "title": "Interest Bearing Token Extension",
+                            "slug": "interest-bearing-token",
+                            "lab": "Create an interest bearing token"
+                        },
+                        {
+                            "title": "Permanent Delegate Extension",
+                            "slug": "permanent-delegate",
+                            "lab": "Create a mint with a permanent delegate"
+                        },
+                        {
+                            "title": "Transfer Hook Extension",
+                            "slug": "transfer-hook",
+                            "lab": "Create a mint with a transfer hook"
                         }
                     ]
                 },
@@ -377,6 +403,21 @@
                             "title": "Default State Extension",
                             "slug": "default-account-state",
                             "lab": "Test token interactions with frozen default states"
+                        },
+                        {
+                            "title": "Immutable Owner Extension",
+                            "slug": "immutable-owner",
+                            "lab": "Create a mint with an immutable owner"
+                        },
+                        {
+                            "title": "Required Memo Extension",
+                            "slug": "required-memo",
+                            "lab": "Create a token that requires a memo"
+                        },
+                        {
+                            "title": "CPI Guard Extension",
+                            "slug": "cpi-guard",
+                            "lab": "Create a token that requires a CPI guard"
                         }
                     ]
                 }

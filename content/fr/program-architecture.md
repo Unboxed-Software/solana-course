@@ -1,7 +1,7 @@
 ---
 title: Architecture de programme
 objectives:
-- Utiliser Box et Zero Copy pour travailler avec de grandes données on-chain
+- Utiliser Box et Zero Copy pour travailler avec de grandes données onchain
 - Prendre de meilleures décisions de conception PDA
 - Préparer vos programmes pour l'avenir
 - Gérer les problèmes de concurrence
@@ -34,11 +34,11 @@ Dans les langages de haut niveau, vous êtes dans le pays des données abondante
 
 1. Puisque nous payons par octet, nous voulons généralement réduire au maximum notre empreinte. Nous approfondirons l'optimisation dans une autre section, mais nous vous présenterons ici le concept des tailles de données.
 
-2. Lorsque nous traitons des volumes de données plus importants, nous rencontrons des contraintes de [pile](https://docs.solana.com/developing/on-chain-programs/faq#stack) et de [tas](https://docs.solana.com/developing/on-chain-programs/faq#heap-size) - pour contourner cela, nous examinerons l'utilisation de Box et Zero-Copy.
+2. Lorsque nous traitons des volumes de données plus importants, nous rencontrons des contraintes de [pile](https://docs.solana.com/developing/onchain-programs/faq#stack) et de [tas](https://docs.solana.com/developing/onchain-programs/faq#heap-size) - pour contourner cela, nous examinerons l'utilisation de Box et Zero-Copy.
 
 ### Tailles
 
-Sur Solana, le payeur de frais d'une transaction paie pour chaque octet stocké on-chain. Nous appelons cela le [loyer](https://docs.solana.com/developing/intro/rent). Notez que le loyer est un peu trompeur car il n'est jamais réellement prélevé de manière permanente. Une fois que vous déposez le loyer dans le compte, ces données peuvent y rester indéfiniment, ou vous pouvez récupérer le loyer si vous fermez le compte. Le loyer était autrefois une chose réelle, mais maintenant il y a une exemption minimale de loyer obligatoire. Vous pouvez en lire davantage dans [la documentation Solana](https://docs.solana.com/developing/intro/rent).
+Sur Solana, le payeur de frais d'une transaction paie pour chaque octet stocké onchain. Nous appelons cela le [loyer](https://docs.solana.com/developing/intro/rent). Notez que le loyer est un peu trompeur car il n'est jamais réellement prélevé de manière permanente. Une fois que vous déposez le loyer dans le compte, ces données peuvent y rester indéfiniment, ou vous pouvez récupérer le loyer si vous fermez le compte. Le loyer était autrefois une chose réelle, mais maintenant il y a une exemption minimale de loyer obligatoire. Vous pouvez en lire davantage dans [la documentation Solana](https://docs.solana.com/developing/intro/rent).
 
 Mis à part l'étymologie du loyer, mettre des données sur la blockchain peut être coûteux. C'est pourquoi les attributs NFT et les fichiers associés, tels que l'image, sont stockés hors chaîne. Vous voulez finalement trouver un équilibre qui rend votre programme hautement fonctionnel sans devenir si coûteux que vos utilisateurs ne veulent pas payer pour ouvrir le compte de données.
 

@@ -11,7 +11,7 @@ objectives:
 - State Compression lowers the amount of data you have to store onchain by leveraging Merkle trees.
 - Merkle trees store a single hash that represents an entire binary tree of hashes. Each leaf on a Merkle tree is a hash of that leaf's data.
 - Concurrent Merkle trees are a specialized version of Merkle trees that allow concurrent updates.
-- Because data in a state-compressed program is not stored on-chain, you have to user indexers to keep an off-chain cache of the data and then verify that data against the onchain Merkle tree.
+- Because data in a state-compressed program is not stored onchain, you have to user indexers to keep an off-chain cache of the data and then verify that data against the onchain Merkle tree.
 
 # Lesson
 
@@ -21,9 +21,9 @@ Previously, we discussed state compression in the context of compressed NFTs. At
 
 In traditional programs, data is serialized (typically using borsh) and then stored directly in an account. This allows the data to be easily read and written through Solana programs. You can “trust” the data stored in the accounts because it can’t be modified except through the mechanisms surfaced by the program.
 
-State compression effectively asserts that the most important piece of this equation is how “trustworthy” the data is. If all we care about is the ability to trust that data is what it claims to be, then we can actually get away with ***not*** storing the data in an account on-chain. Instead, we can store hashes of the data where the hashes can be used to prove or verify the data. The data hash takes up significantly less storage space than the data itself. We can then store the actual data somewhere much cheaper and worry about verifying it against the onchain hash when the data is accessed.
+State compression effectively asserts that the most important piece of this equation is how “trustworthy” the data is. If all we care about is the ability to trust that data is what it claims to be, then we can actually get away with ***not*** storing the data in an account onchain. Instead, we can store hashes of the data where the hashes can be used to prove or verify the data. The data hash takes up significantly less storage space than the data itself. We can then store the actual data somewhere much cheaper and worry about verifying it against the onchain hash when the data is accessed.
 
-The specific data structure used by the Solana State Compression program is a special binary tree structure known as a **concurrent Merkle tree**. This tree structure hashes pieces of data together in a deterministic way to compute a single, final hash that gets stored on-chain. This final hash is significantly smaller in size than all the original data combined, hence the “compression.” The steps to this process are:
+The specific data structure used by the Solana State Compression program is a special binary tree structure known as a **concurrent Merkle tree**. This tree structure hashes pieces of data together in a deterministic way to compute a single, final hash that gets stored onchain. This final hash is significantly smaller in size than all the original data combined, hence the “compression.” The steps to this process are:
 
 1. Take any piece of data
 2. Create a hash of this data
@@ -33,11 +33,11 @@ The specific data structure used by the Solana State Compression program is a sp
 6. Continually climb the tree and hash adjacent branches together
 7. Once at the top of the tree, a final ”root hash” is produced
 8. Store the root hash onchain as verifiable proof of the data within each leaf
-9. Anyone wanting to verify that the data they have matches the “source of truth” can go through the same process and compare the final hash without having to store all the data on-chain
+9. Anyone wanting to verify that the data they have matches the “source of truth” can go through the same process and compare the final hash without having to store all the data onchain
 
 This involves a few rather serious development tradeoffs:
 
-1. Since the data is no longer stored in an account on-chain, it is more difficult to access.
+1. Since the data is no longer stored in an account onchain, it is more difficult to access.
 2. Once the data has been accessed, developers must decide how often their applications will verify the data against the onchain hash.
 3. Any changes to the data will require sending the entirety of the previously hashed data *and* the new data into an instruction. Developer may also have to provide additional data relevant to the proofs required to verify the original data against the hash.
 
@@ -83,7 +83,7 @@ A state-compressed account doesn’t store the data itself. Rather, it stores th
 
 The Solana ledger is a list of entries containing signed transactions. In theory, this can be traced back to the genesis block. This effectively means any data that has ever been put into a transaction exists in the ledger.
 
-Since the state compression hashing process occurs on-chain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from the beginning. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
+Since the state compression hashing process occurs onchain, all the data exists in the ledger state and could theoretically be retrieved from the original transaction by replaying the entire chain state from the beginning. However, it’s much more straightforward (though still complicated) to have an **indexer** track and index this data as the transactions occur. This ensures there is an off-chain “cache” of the data that anyone can access and subsequently verify against the onchain root hash.
 
 This process is complex, but it will make sense after some practice.
 

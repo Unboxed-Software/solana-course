@@ -12,7 +12,7 @@ objectives:
 - Ang **Non-Fungible Token (NFTs)** ay kinakatawan sa Solana bilang SPL Token na may nauugnay na metadata account, 0 decimal, at maximum na supply na 1
 - Nag-aalok ang **Metaplex** ng koleksyon ng mga tool na nagpapasimple sa paglikha at pamamahagi ng mga NFT sa Solana blockchain
 - Ang **Token Metadata** program ay nagsa-standardize sa proseso ng pag-attach ng metadata sa SPL Token
-- Ang **Metaplex SDK** ay isang tool na nag-aalok ng mga user-friendly na API upang tulungan ang mga developer sa paggamit ng mga on-chain na tool na ibinigay ng Metaplex
+- Ang **Metaplex SDK** ay isang tool na nag-aalok ng mga user-friendly na API upang tulungan ang mga developer sa paggamit ng mga onchain na tool na ibinigay ng Metaplex
 - Ang programang **Candy Machine** ay isang tool sa pamamahagi ng NFT na ginagamit upang lumikha at mag-mint ng mga NFT mula sa isang koleksyon
 - **Ang Sugar CLI** ay isang tool na nagpapasimple sa proseso ng pag-upload ng mga media/metadata file at paggawa ng Candy Machine para sa isang koleksyon
 
@@ -35,9 +35,9 @@ Sa madaling salita, ang isang NFT ay isang karaniwang token mula sa Token Progra
 
 Habang ang unang tatlong puntos ay mga tampok na maaaring makamit gamit ang SPL Token Program, ang nauugnay na metadata ay nangangailangan ng ilang karagdagang paggana.
 
-Karaniwan, ang metadata ng isang NFT ay may parehong on-chain at off-chain na bahagi. Ang on-chain metadata ay iniimbak sa isang account na nauugnay sa token mint. Ang isa sa mga field nito ay ang URI na karaniwang tumuturo sa isang off-chain na JSON file (tingnan ang [link na ito](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6Ln4x0x) halimbawa). Ang off-chain na bahagi ay nag-iimbak ng karagdagang data at isang link sa larawan. Ang mga permanenteng sistema ng pag-iimbak ng data tulad ng Arweave ay kadalasang ginagamit upang iimbak ang off-chain na bahagi ng NFT metadata.
+Karaniwan, ang metadata ng isang NFT ay may parehong onchain at off-chain na bahagi. Ang onchain metadata ay iniimbak sa isang account na nauugnay sa token mint. Ang isa sa mga field nito ay ang URI na karaniwang tumuturo sa isang off-chain na JSON file (tingnan ang [link na ito](https://lsc6xffbdvalb5dvymf5gwjpeou7rr2btkoltutn5ij5irlpg3wa.arweave.net/XIXrlKEdQLD0dcML01kvI6Ln4x0x) halimbawa). Ang off-chain na bahagi ay nag-iimbak ng karagdagang data at isang link sa larawan. Ang mga permanenteng sistema ng pag-iimbak ng data tulad ng Arweave ay kadalasang ginagamit upang iimbak ang off-chain na bahagi ng NFT metadata.
 
-Nasa ibaba ang isang halimbawa ng ugnayan sa pagitan ng on-chain at off-chain metadata. Ang on-chain metadata ay naglalaman ng isang URI field na tumuturo sa isang off-chain na `.json` file na nag-iimbak ng link sa larawan ng NFT at karagdagang metadata.
+Nasa ibaba ang isang halimbawa ng ugnayan sa pagitan ng onchain at off-chain metadata. Ang onchain metadata ay naglalaman ng isang URI field na tumuturo sa isang off-chain na `.json` file na nag-iimbak ng link sa larawan ng NFT at karagdagang metadata.
 
 ![Screenshot of Metadata](../../assets/solana-nft-metaplex-metadata.png)
 
@@ -45,7 +45,7 @@ Nasa ibaba ang isang halimbawa ng ugnayan sa pagitan ng on-chain at off-chain me
 
 Ang [Metaplex](https://www.metaplex.com/) ay isang organisasyong nagbibigay ng hanay ng mga tool, tulad ng [Metaplex SDK](https://docs.metaplex.com/sdks/js/), na nagpapasimple ang paglikha at pamamahagi ng mga NFT sa Solana blockchain. Ang mga tool na ito ay tumutugon sa isang malawak na hanay ng mga kaso ng paggamit at nagbibigay-daan sa iyong madaling pamahalaan ang buong proseso ng NFT sa paglikha at pag-print ng isang koleksyon ng NFT.
 
-Higit na partikular, ang Metaplex SDK ay idinisenyo upang tulungan ang mga developer sa paggamit ng mga on-chain na tool na inaalok ng Metaplex. Nag-aalok ito ng user-friendly na API na nakatuon sa mga sikat na kaso ng paggamit at nagbibigay-daan para sa madaling pagsasama sa mga third-party na plugin. Upang matuto nang higit pa tungkol sa mga kakayahan ng Metaplex SDK, maaari kang sumangguni sa [README](https://github.com/metaplex-foundation/js#readme).
+Higit na partikular, ang Metaplex SDK ay idinisenyo upang tulungan ang mga developer sa paggamit ng mga onchain na tool na inaalok ng Metaplex. Nag-aalok ito ng user-friendly na API na nakatuon sa mga sikat na kaso ng paggamit at nagbibigay-daan para sa madaling pagsasama sa mga third-party na plugin. Upang matuto nang higit pa tungkol sa mga kakayahan ng Metaplex SDK, maaari kang sumangguni sa [README](https://github.com/metaplex-foundation/js#readme).
 
 Isa sa mga mahahalagang programa na inaalok ng Metaplex ay ang Token Metadata program. Ang Token Metadata program ay nag-standardize sa proseso ng pag-attach ng metadata sa SPL Token. Kapag gumagawa ng NFT gamit ang Metaplex, ang Token Metadata program ay gumagawa ng metadata account gamit ang Program Derived Address (PDA) na may token mint bilang isang binhi. Nagbibigay-daan ito sa metadata account para sa anumang NFT na matukoy nang deterministiko gamit ang address ng token mint. Upang matuto nang higit pa tungkol sa Token Metadata program, maaari kang sumangguni sa Metaplex [dokumentasyon](https://docs.metaplex.com/programs/token-metadata/).
 
@@ -114,7 +114,7 @@ const { uri } = await metaplex.nfts().uploadMetadata({
 
 ### Create NFT
 
-Pagkatapos i-upload ang metadata ng NFT, maaari mo nang gawin ang NFT sa network. Nagbibigay-daan sa iyo ang `create` method ng Metaplex SDK na lumikha ng bagong NFT na may kaunting configuration. Hahawakan ng paraang ito ang paggawa ng mint account, token account, metadata account, at master edition account para sa iyo. Ang data na ibinigay sa paraang ito ay kumakatawan sa on-chain na bahagi ng NFT metadata. Maaari mong i-explore ang SDK upang makita ang lahat ng iba pang input na maaaring opsyonal na ibigay sa paraang ito.
+Pagkatapos i-upload ang metadata ng NFT, maaari mo nang gawin ang NFT sa network. Nagbibigay-daan sa iyo ang `create` method ng Metaplex SDK na lumikha ng bagong NFT na may kaunting configuration. Hahawakan ng paraang ito ang paggawa ng mint account, token account, metadata account, at master edition account para sa iyo. Ang data na ibinigay sa paraang ito ay kumakatawan sa onchain na bahagi ng NFT metadata. Maaari mong i-explore ang SDK upang makita ang lahat ng iba pang input na maaaring opsyonal na ibigay sa paraang ito.
 
 ```tsx
 const { nft } = await metaplex.nfts().create(
@@ -131,7 +131,7 @@ Ang pamamaraang ito ay nagbabalik ng isang bagay na naglalaman ng impormasyon tu
 
 ### Update NFT
 
-Kung iniwan mong totoo ang `isMutable`, maaaring magkaroon ka ng dahilan para i-update ang metadata ng iyong NFT. Nagbibigay-daan sa iyo ang paraang `update` ng SDK na i-update ang parehong on-chain at off-chain na bahagi ng metadata ng NFT. Upang i-update ang off-chain metadata, kakailanganin mong ulitin ang mga hakbang sa pag-upload ng bagong larawan at metadata URI gaya ng nakabalangkas sa mga nakaraang hakbang, pagkatapos ay ibigay ang bagong metadata URI sa paraang ito. Babaguhin nito ang URI kung saan itinuturo ng on-chain metadata, na epektibong ina-update din ang off-chain metadata.
+Kung iniwan mong totoo ang `isMutable`, maaaring magkaroon ka ng dahilan para i-update ang metadata ng iyong NFT. Nagbibigay-daan sa iyo ang paraang `update` ng SDK na i-update ang parehong onchain at off-chain na bahagi ng metadata ng NFT. Upang i-update ang off-chain metadata, kakailanganin mong ulitin ang mga hakbang sa pag-upload ng bagong larawan at metadata URI gaya ng nakabalangkas sa mga nakaraang hakbang, pagkatapos ay ibigay ang bagong metadata URI sa paraang ito. Babaguhin nito ang URI kung saan itinuturo ng onchain metadata, na epektibong ina-update din ang off-chain metadata.
 
 ```tsx
 const nft = await metaplex.nfts().findByMint({ mintAddress });
@@ -532,7 +532,7 @@ Ibabalik nito ang mint address ng aming koleksyon upang magamit namin ito upang 
 
 ### 10. Assign an NFT to a collection
 
-Ngayong mayroon na tayong koleksyon, baguhin natin ang ating umiiral na code upang ang mga bagong likhang NFT ay maidagdag sa koleksyon. Una, baguhin natin ang ating function na `createNft` upang ang tawag sa `nfts().create` ay kasama ang field na `collection`. Pagkatapos, magdagdag ng code na tumatawag sa `verifyCollection` para gawin ito upang ang field na `verify` sa on-chain metadata ay nakatakda sa true. Sa ganitong paraan malalaman ng mga nakakatuwang programa at app na ang NFT sa katunayan ay kabilang sa koleksyon.
+Ngayong mayroon na tayong koleksyon, baguhin natin ang ating umiiral na code upang ang mga bagong likhang NFT ay maidagdag sa koleksyon. Una, baguhin natin ang ating function na `createNft` upang ang tawag sa `nfts().create` ay kasama ang field na `collection`. Pagkatapos, magdagdag ng code na tumatawag sa `verifyCollection` para gawin ito upang ang field na `verify` sa onchain metadata ay nakatakda sa true. Sa ganitong paraan malalaman ng mga nakakatuwang programa at app na ang NFT sa katunayan ay kabilang sa koleksyon.
 
 ```tsx
 async function createNft(

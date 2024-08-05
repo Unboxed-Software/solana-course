@@ -650,7 +650,7 @@ If you need more time with this project to feel comfortable with these concepts,
 
 Now it’s your turn to build something independently. Equipped with the concepts introduced in this lesson, try to recreate the Student Intro program that we've used before using the Anchor framework.
 
-The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the instruction data and creates an account to store the data on-chain.
+The Student Intro program is a Solana Program that lets students introduce themselves. The program takes a user's name and a short message as the instruction data and creates an account to store the data onchain.
 
 Using what you've learned in this lesson, build out this program. The program should include instructions to:
 

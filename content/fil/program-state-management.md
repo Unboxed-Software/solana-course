@@ -392,7 +392,7 @@ Kung kailangan mo ng mas maraming oras sa proyektong ito upang maging komportabl
 
 Ngayon ay iyong pagkakataon na bumuo ng isang bagay nang nakapag-iisa. Gamit ang mga konseptong ipinakilala sa araling ito, alam mo na ngayon ang lahat ng kakailanganin mo upang muling likhain ang kabuuan ng Student Intro program mula sa Module 1.
 
-Ang Student Intro program ay isang Solana Program na nagbibigay-daan sa mga mag-aaral na magpakilala. Kinukuha ng program ang pangalan ng isang user at isang maikling mensahe bilang `instruction_data` at gagawa ng account upang iimbak ang data on-chain.
+Ang Student Intro program ay isang Solana Program na nagbibigay-daan sa mga mag-aaral na magpakilala. Kinukuha ng program ang pangalan ng isang user at isang maikling mensahe bilang `instruction_data` at gagawa ng account upang iimbak ang data onchain.
 
 Gamit ang iyong natutunan sa araling ito, buuin ang programang ito. Bilang karagdagan sa pagkuha ng isang pangalan ng isang maikling mensahe bilang data ng pagtuturo, ang programa ay dapat na:
 

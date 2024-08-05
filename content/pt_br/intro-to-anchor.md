@@ -22,7 +22,7 @@ Anchor é um framework de desenvolvimento que torna a escrita de programas Solan
 
 O Anchor usa macros e traits para gerar código Rust repetitivo para você. Estes proporcionam uma estrutura clara para o seu programa para que você possa entender melhor o seu código. As principais macros e atributos de alto nível são:
 
-- `declare_id` - uma macro para declarar o endereço on-chain do programa
+- `declare_id` - uma macro para declarar o endereço onchain do programa
 - `#[program]` - uma macro de atributo usada para denotar o módulo que contém a lógica de instrução do programa
 - `Accounts` - um trait aplicado a structs que representam a lista de contas necessárias para uma instrução
 - `#[account]` - uma macro de atributo usada para definir tipos de conta personalizados para o programa
@@ -31,7 +31,7 @@ Vamos falar sobre cada um deles antes de juntar todas as peças.
 
 ## Declarando seu ID de programa
 
-A macro `declare_id` é usada para especificar o endereço on-chain do programa (ou seja, o `programId`). Quando você constrói um programa Anchor pela primeira vez, o framework gera um novo par de chaves. Esse se torna o par de chaves padrão usado para implantar o programa, a menos que seja especificado de outra forma. A chave pública correspondente deve ser usada como o `programId` especificado na macro `declare_id!`.
+A macro `declare_id` é usada para especificar o endereço onchain do programa (ou seja, o `programId`). Quando você constrói um programa Anchor pela primeira vez, o framework gera um novo par de chaves. Esse se torna o par de chaves padrão usado para implantar o programa, a menos que seja especificado de outra forma. A chave pública correspondente deve ser usada como o `programId` especificado na macro `declare_id!`.
 
 ```rust
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
@@ -278,7 +278,7 @@ Quando você combina todos esses tipos do Anchor, acaba com um programa completo
 // Use esta importação para acessar recursos comuns do Anchor
 use anchor_lang::prelude::*;
 
-// Endereço on-chain do programa
+// Endereço onchain do programa
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 // Lógica de instrução
